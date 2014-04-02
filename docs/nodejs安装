@@ -1,0 +1,23 @@
+# Install node-js
+
+# 下载源码包 官网地址：http://nodejs.org 直接点install那个下载，从download进去下载的缺少安装文件 Current Version 0.10.26
+
+# 确保系统中已安装python, gcc, g++ 如果没有则安装
+  sudo apt-get install python build-essential gcc g++
+
+# 解压安装包
+  tar -zxf node-v0.10.xx.tar.gz
+  cd node-v0.10.xx
+
+# 编译并安装  configure 命令可通过-preifx参数来指定安装路径，需要可在网上查找相关内容，我直接默认安装了
+  ./configure
+  make
+  sudo make install
+
+# 安装完成后输入node --version 可以显示版本号，之前用apt-get 安装的没有反应
+
+# 安装npm（我在装完node后，发现npm已经装上了，没有装上的请参考下面命令）
+  curl http://npmjs.org/install.sh | sudo sh
+
+# 然后就可以使用npm添加第三方库可，如需要加上sqlite3的库
+  npm install sqlite3
