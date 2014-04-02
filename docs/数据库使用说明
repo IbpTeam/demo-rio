@@ -1,0 +1,8 @@
+# demo-rio采用数据库为sqlite3，图形界面工具为sqlitebrowser
+# 安装方式
+  sudo apt-get install sqlite3 sqlitebrowser
+# 可以使用命令查看当前sqlite版本 （3.7.15.2）
+  sqlite3 -version
+# 在某一路径下创建数据库文件，或在图形界面工具下创建
+  sqlite3 rio.db
+#将rio.db文件中内容导入数据库
