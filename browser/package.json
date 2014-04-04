@@ -1,0 +1,13 @@
+{
+    "main": "browser.html",                              
+    "name": "browser",                                
+    "description": "browser",         
+    "version": "0.1.0",                               
+    "keywords": [ "demo", "browser" ],            
+    "window": {                       
+        "toolbar": false,                              
+        "width": 660,                                 
+        "height": 500,
+        "frame": true                                
+    }
+}
