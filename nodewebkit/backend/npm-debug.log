@@ -1,0 +1,33 @@
+info it worked if it ends with ok
+verbose cli [ '/usr/bin/nodejs', '/usr/bin/npm', 'install' ]
+info using npm@1.1.4
+info using node@v0.6.19
+verbose config file /home/v1/.npmrc
+verbose config file /usr/etc/npmrc
+verbose config file /usr/share/npm/npmrc
+ERR! Couldn't read dependencies.
+ERR! Error: 'version' field missing
+ERR! 'version' Must be X.Y.Z, with an optional trailing tag.
+ERR! See the section on 'version' in `npm help json`
+ERR!     at /usr/share/npm/lib/utils/read-json.js:368:13
+ERR!     at /usr/share/npm/lib/utils/read-json.js:166:33
+ERR!     at P (/usr/share/npm/lib/utils/read-json.js:142:41)
+ERR!     at /usr/share/npm/lib/utils/read-json.js:108:7
+ERR!     at [object Object].<anonymous> (fs.js:123:5)
+ERR!     at [object Object].emit (events.js:64:17)
+ERR!     at fs.js:1190:12
+ERR!     at Object.oncomplete (/usr/lib/nodejs/graceful-fs.js:94:5)
+ERR! You may report this log at:
+ERR!     <http://bugs.debian.org/npm>
+ERR! or use
+ERR!     reportbug --attach /home/v1/nodewebkit/backend/npm-debug.log npm
+ERR! 
+ERR! System Linux 3.8.13.13-cdos
+ERR! command "/usr/bin/nodejs" "/usr/bin/npm" "install"
+ERR! cwd /home/v1/nodewebkit/backend
+ERR! node -v v0.6.19
+ERR! npm -v 1.1.4
+ERR! message 'version' field missing
+ERR! message 'version' Must be X.Y.Z, with an optional trailing tag.
+ERR! message See the section on 'version' in `npm help json`
+verbose exit [ 1, true ]
