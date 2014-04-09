@@ -1,0 +1,4 @@
+cmd_Release/obj.target/sqlite3/gen/sqlite-autoconf-3080200/sqlite3.o := cc '-D_LARGEFILE_SOURCE' '-D_FILE_OFFSET_BITS=64' '-D_REENTRANT=1' '-DSQLITE_THREADSAFE=1' '-DSQLITE_ENABLE_FTS3' '-DSQLITE_ENABLE_RTREE' '-DNDEBUG' -I/home/cos/.nw-gyp/0.8.4/src -I/home/cos/.nw-gyp/0.8.4/deps/uv/include -I/home/cos/.nw-gyp/0.8.4/deps/v8/include -I./Release/obj/gen/sqlite-autoconf-3080200  -Wall -Wextra -Wno-unused-parameter -pthread -m32 -O2 -fno-strict-aliasing -fno-tree-vrp  -MMD -MF ./Release/.deps/Release/obj.target/sqlite3/gen/sqlite-autoconf-3080200/sqlite3.o.d.raw  -c -o Release/obj.target/sqlite3/gen/sqlite-autoconf-3080200/sqlite3.o Release/obj/gen/sqlite-autoconf-3080200/sqlite3.c
+Release/obj.target/sqlite3/gen/sqlite-autoconf-3080200/sqlite3.o: \
+ Release/obj/gen/sqlite-autoconf-3080200/sqlite3.c
+Release/obj/gen/sqlite-autoconf-3080200/sqlite3.c:
