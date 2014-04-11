@@ -1,4 +1,7 @@
 //var apifront = require("./apifront");
+
+var categoryDAO = require("/home/v1/demo-rio/nodewebkit/DAO/CategoryDAO");
+
 var getallreq='{"func":"getall","arg":"null"}';
 
 function display(text){
@@ -8,7 +11,7 @@ function display(text){
 function LoadDataFromHttp() {
 //  var studentData = CollectionData();
   $.ajax({
-    url: "/upload",
+    url: "/getall",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
@@ -25,10 +28,16 @@ function LoadDataFromHttp() {
 }
 
 function LoadDataFromLocal() {
-  var str='{"postfix":"jpg", "filename":"girl1","id":"2", "path":"./demo-rion", "time":2014}';
-  var json=JSON.parse(str);
-  var text=JSON.stringify(json);
-  display(text);
+//  var str='{"postfix":"jpg", "filename":"girl1","id":"2", "path":"./demo-rion", "time":2014}';
+//  var json=JSON.parse(str);
+//  var text=JSON.stringify(json);
+
+  console.log("Request handler 'getall' was called.");
+  categoryDAO.findAll();
+  categoryDAO.getEmitter().on('findAll', function(data){
+    var json=JSON.stringify(data);
+    display(json);
+  });
 }
 
 
@@ -70,8 +79,9 @@ function getall() {
   var r=browser();
   if(r[0]=="Fuck")  {
     LoadDataFromLocal();
+      console.log('You are using ' + r[0]);
   }
-  //console.log('You are using ' + browserArr[getBrowser()]);
+
   else{
     LoadDataFromHttp();
   }

@@ -4,7 +4,7 @@ var categoryEmitter = new events.EventEmitter();
 
 //连接数据库
 function openDB(){
-  return new sqlite3.Database('/home/cos/demo-rio/nodewebkit/db/rio');
+  return new sqlite3.Database('/home/v1/demo-rio/nodewebkit/db/rio');
 }
 
 //关闭数据库
