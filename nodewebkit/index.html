@@ -14,7 +14,7 @@
   </script>
     <input type="button" name="button1" value="Test" onclick=GetData()>
 --> 
-   <object style="border:0px" type="text/x-scriptlet" data="backend/test1.html" width=100% height=30></object>
+   <object style="border:0px" type="text/x-scriptlet" data="backend/test1.html" width=100% height=100></object>
    <script>
    
       var server = require("./backend/server");
@@ -25,7 +25,7 @@
       var handle = {}
       handle["/"] = requestHandlers.start;
       handle["/start"] = requestHandlers.start;
-      handle["/upload"] = requestHandlers.upload;
+      handle["/getall"] = requestHandlers.getall;
 
       
       server.start(router.route, handle);
