@@ -5,5 +5,8 @@
     "toolbar": false,
     "width": 800,
     "height": 600
+  },
+  "dependencies": {
+    "sqlite3": "~2.2.0"
   }
 }
