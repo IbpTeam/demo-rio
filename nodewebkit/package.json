@@ -2,8 +2,9 @@
   "name": "hello",
   "main": "index.html",
   "window": {
-    "toolbar": false,
+    "toolbar": true,
     "width": 800,
     "height": 600
-  }
+  },
+  "user-agent": "Fuck %ver %nwver %webkit_ver %osinfo"
 }

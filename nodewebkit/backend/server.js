@@ -44,7 +44,7 @@ function start(route, handle) {
       postData += postDataChunk;
       console.log("Received POST data chunk '"+ postDataChunk + "'.");
     });
-    categoryDAO.findAll(findAllCallBack);
+    //categoryDAO.findAll(findAllCallBack);
     request.addListener("end", function() {
       route(handle, pathname, response, postData);
     });
