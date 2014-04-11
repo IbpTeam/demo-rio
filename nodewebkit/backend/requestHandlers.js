@@ -17,12 +17,18 @@ function upload(response, postData) {
     console.log('+++++++++++++++++++++++++++++');
     console.log(category);
   });
-  //var json=JSON.parse(postData);
   if(postData == '{"func":"getall","arg":"null"}'){
-    
+
+  if(postData == '{"func":"getall","arg":"null"}'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    var str='{"postfix":"jpg", "filename":"girl1","id":"2", "path":"./demo-rion", "time":2014}';
+    var json=JSON.parse(str);
+    var text=JSON.stringify(json);
+    response.write(text);
+    response.end();
   }else{
     response.writeHead(200, {"Content-Type": "text/plain"});
-    response.write("File list : "+ postData);
+    response.write("error func");
     response.end();
   }
 }

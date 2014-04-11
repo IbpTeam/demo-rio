@@ -5,7 +5,7 @@
     <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
   </head>
   <body>
-  <script>
+<!--  <script>
   function GetData() {
   var str='{"postfix":"jpg", "filename":"girl1","id":"2", "path":"./demo-rion", "time":2014}';
   var json=JSON.parse(str);
@@ -13,12 +13,15 @@
   }
   </script>
     <input type="button" name="button1" value="Test" onclick=GetData()>
-  
+--> 
+   <object style="border:0px" type="text/x-scriptlet" data="backend/test1.html" width=100% height=30></object>
    <script>
    
       var server = require("./backend/server");
       var router = require("./backend/router");
       var requestHandlers = require("./backend/requestHandlers");
+      var api = require("./backend/api");
+      var apifront = require("./backend/apifront");
       var handle = {}
       handle["/"] = requestHandlers.start;
       handle["/start"] = requestHandlers.start;
