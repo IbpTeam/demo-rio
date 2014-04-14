@@ -1,5 +1,4 @@
 var querystring = require("querystring");
-var api = require("./api");
 var fs = require('fs');
 var categoryDAO = require("../DAO/CategoryDAO");
 

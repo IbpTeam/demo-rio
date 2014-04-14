@@ -3,23 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
-//var categoryDAO = require("../../DAO/CategoryDAO");
 
-/*
-var data
-function findAllCallBack(err, rows){
-  var category = new Array();
-  rows.forEach(function (row){
-    category.push({
-      id:row.id,
-      type:row.type,
-      desc:row.desc
-    });
-  });
-  console.log(category);
-  
-}
-*/
 var PORT = 8888,
     mimeTypes = {
      "html": "text/html",

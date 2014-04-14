@@ -20,8 +20,7 @@
       var server = require("./backend/server");
       var router = require("./backend/router");
       var requestHandlers = require("./backend/requestHandlers");
-      var api = require("./backend/api");
-      var apifront = require("./backend/apifront");
+
       var handle = {}
       handle["/"] = requestHandlers.start;
       handle["/start"] = requestHandlers.start;
