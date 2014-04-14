@@ -1,6 +1,6 @@
 var sqlite3 = require('sqlite3');
 var events = require('events');
-var categoryEmitter = new events.EventEmitter();
+var contactsEmitter = new events.EventEmitter();
 
 //连接数据库
 function openDB(){
@@ -14,71 +14,81 @@ function closeDB(database){
 
 //获取EventEmitter
 exports.getEmitter = function(){
-  var emitter = categoryEmitter;
+  var emitter = contactsEmitter;
   return emitter;
 }
 
 /**
  * @method findAll
- *   查询category表中所有数据
+ *   查询contacts表中所有数据
  * @param null
  *
- * @return category
+ * @return contacts
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(){
   var db = openDB();
-  db.all("select * from Category", findAllCallBack);
+  db.all("select * from Contacts", findAllCallBack);
   closeDB(db);
 }  
 //findAll方法回调函数
 function findAllCallBack(err, rows){
   if(err){
     console.log(err);
-    categoryEmitter.emit('findAll', null);
+    contactsEmitter.emit('findAll', null);
     return;
   }
-  var category = new Array();
+  var contacts = new Array();
   rows.forEach(function (row){
-    category.push({
+    contacts.push({
       id:row.id,
-      type:row.type,
-      desc:row.desc
+      name:row.name,
+      phone:row.phone,
+      sex:row.sex,
+      age:row.age,
+      email:row.email,
+      createTime:row.createTime,
+      lastModifyTime:row.lastModifyTime
     });
   });
-  categoryEmitter.emit('findAll', category);
+  contactsEmitter.emit('findAll', contacts);
 }
 
 /**
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   category表中的主键
- * @return category
+ *   contacts表中的主键
+ * @return contacts
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
 exports.findById = function(id){
   var db = openDB();
-  db.get("select * from Category where id = ?", id, findByIdCallBack);
+  db.get("select * from contacts where id = ?", id, findByIdCallBack);
   closeDB();
 }
 //findById方法回调函数
 function findByIdCallBack(err, row){
   if(err){
     console.log(err);
-    categoryEmitter.emit('findById', null);
+    contactsEmitter.emit('findById', null);
   }
-  var category = new Array();
-  category.push({
+  var contacts = new Array();
+  contacts.push({
     id:row.id,
-    type:row.type,
-    desc:row.desc
+    name:row.name,
+    phone:row.phone,
+    sex:row.sex,
+    age:row.age,
+    email:row.email,
+    createTime:row.createTime,
+    lastModifyTime:row.lastModifyTime
   });
-  categoryEmitter.emit('findById', category);
+  contactsEmitter.emit('findById', contacts);
 }
 /**
  * @method countTotal
- *   查询Category表中类别总数
+ *   查询contacts表中类别总数
  * @param null
  *   
  * @return total
@@ -86,15 +96,15 @@ function findByIdCallBack(err, row){
  */
 exports.countTotal = function(){
   var db = openDB();
-  db.get("select count(*) as total from Category", countTotalCallBack);
+  db.get("select count(*) as total from contacts", countTotalCallBack);
   closeDB();  
 }
 //countTotal方法回调函数
 function countTotalCallBack(err, row){
   if(err){
     console.log(err);
-    categoryEmitter.emit('countTotal', null);
+    contactsEmitter.emit('countTotal', null);
   }
   var total = row.total;
-  category.Emitter.emit('countTotal', total);
+  contactsEmitter.emit('countTotal', total);
 }
