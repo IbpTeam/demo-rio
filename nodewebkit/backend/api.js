@@ -15,11 +15,10 @@ function LoadDataFromHttp() {
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: getallreq,
+    data: '{"func":"getall","arg":"null"}',
     success: function(result) {
-      var text=JSON.stringify(result); 
-      display(text);
-      return text;
+      var json=JSON.stringify(result); 
+      display(json);
     },
     error: function(e) {
       alert(e.responseText);
@@ -28,13 +27,8 @@ function LoadDataFromHttp() {
 }
 
 function LoadDataFromLocal() {
-//  var str='{"postfix":"jpg", "filename":"girl1","id":"2", "path":"./demo-rion", "time":2014}';
-//  var json=JSON.parse(str);
-//  var text=JSON.stringify(json);
-
-  console.log("Request handler 'getall' was called.");
   categoryDAO.findAll();
-  categoryDAO.getEmitter().on('findAll', function(data){
+  categoryDAO.getEmitter().once('findAll', function(data){
     var json=JSON.stringify(data);
     display(json);
   });
@@ -74,15 +68,15 @@ function browser (){
         return ret.split("|");
 }
 
-function getall() {
+function getallfile() {
+  console.log("Request handler 'getall' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
+  console.log('You are using ' + r[0]);
+  
   if(r[0]=="Fuck")  {
     LoadDataFromLocal();
-      console.log('You are using ' + r[0]);
-  }
-
-  else{
+  }else{
     LoadDataFromHttp();
   }
 }
