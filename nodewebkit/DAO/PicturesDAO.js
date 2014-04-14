@@ -1,6 +1,6 @@
 var sqlite3 = require('sqlite3');
 var events = require('events');
-var categoryEmitter = new events.EventEmitter();
+var picturesEmitter = new events.EventEmitter();
 
 //连接数据库
 function openDB(){
@@ -14,71 +14,83 @@ function closeDB(database){
 
 //获取EventEmitter
 exports.getEmitter = function(){
-  var emitter = categoryEmitter;
+  var emitter = picturesEmitter;
   return emitter;
 }
 
 /**
  * @method findAll
- *   查询category表中所有数据
+ *   查询pictures表中所有数据
  * @param null
  *
- * @return category
+ * @return pictures
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(){
   var db = openDB();
-  db.all("select * from Category", findAllCallBack);
+  db.all("select * from pictures", findAllCallBack);
   closeDB(db);
 }  
 //findAll方法回调函数
 function findAllCallBack(err, rows){
   if(err){
     console.log(err);
-    categoryEmitter.emit('findAll', null);
+    picturesEmitter.emit('findAll', null);
     return;
   }
-  var category = new Array();
+  var pictures = new Array();
   rows.forEach(function (row){
-    category.push({
+    pictures.push({
       id:row.id,
-      type:row.type,
-      desc:row.desc
+      filename:row.filename,
+      path:row.path,
+      size:row.size,
+      location:row.location,
+      postfix:row.postfix,
+      createTime:row.createTime,
+      lastModifyTime:row.lastModifyTime,
+      others:row.others
     });
   });
-  categoryEmitter.emit('findAll', category);
+  picturesEmitter.emit('findAll', pictures);
 }
 
 /**
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   category表中的主键
- * @return category
+ *   pictures表中的主键
+ * @return pictures
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
 exports.findById = function(id){
   var db = openDB();
-  db.get("select * from Category where id = ?", id, findByIdCallBack);
+  db.get("select * from pictures where id = ?", id, findByIdCallBack);
   closeDB();
 }
 //findById方法回调函数
 function findByIdCallBack(err, row){
   if(err){
     console.log(err);
-    categoryEmitter.emit('findById', null);
+    picturesEmitter.emit('findById', null);
   }
-  var category = new Array();
-  category.push({
+  var pictures = new Array();
+  pictures.push({
     id:row.id,
-    type:row.type,
-    desc:row.desc
+    filename:row.filename,
+    path:row.path,
+    size:row.size,
+    location:row.location,
+    postfix:row.postfix,
+    createTime:row.createTime,
+    lastModifyTime:row.lastModifyTime,
+    others:row.others
   });
-  categoryEmitter.emit('findById', category);
+  picturesEmitter.emit('findById', pictures);
 }
 /**
  * @method countTotal
- *   查询Category表中类别总数
+ *   查询pictures表中类别总数
  * @param null
  *   
  * @return total
@@ -86,15 +98,15 @@ function findByIdCallBack(err, row){
  */
 exports.countTotal = function(){
   var db = openDB();
-  db.get("select count(*) as total from Category", countTotalCallBack);
+  db.get("select count(*) as total from pictures", countTotalCallBack);
   closeDB();  
 }
 //countTotal方法回调函数
 function countTotalCallBack(err, row){
   if(err){
     console.log(err);
-    categoryEmitter.emit('countTotal', null);
+    picturesEmitter.emit('countTotal', null);
   }
   var total = row.total;
-  category.Emitter.emit('countTotal', total);
+  pictures.Emitter.emit('countTotal', total);
 }
