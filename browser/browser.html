@@ -6,19 +6,22 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
   </head>
   <body>
-<style> 
-  .out{background-color: white;}
-  .over{background-color: gray;} 
-</style>
-</table>
-<br>
-<button id="pre">返回上一目录</button>
-<br>
-<label id="label-paths">lpath</label>
-<br>
-<hr color="red"/>
-<table id="table-files" border="0" align="center">
-<!--  <tr>
+<link rel="stylesheet" type="text/css" href="browser.css">
+
+<div class="demo-box">
+    <div class="page-header">
+        <h1>文件管理器</h1>
+        <ul id="path" class="breadcrumb">
+            <!--<li class="divider">root</li>
+            <li class="active">Jcrop Plugin</li>-->
+        </ul>
+    </div>
+    <div id="content" class="page-content">
+    </div>
+</div>
+
+<!--<table  class="demo-box" border=0px align="center">
+  <tr>
     <td id="0" bgcolor="green" width="100" height="100" onclick="getid(this.id)">文件夹0</td>
     <td id="1" width="100" height="100" onclick="getid(this.id)">文件夹1</td>
     <td id="2" width="100" height="100" onclick="getid(this.id)">文件夹2</td>
