@@ -90,6 +90,16 @@ float: left;
 text-align: center;
 vertical-align: middle;
 }
-.file:link {background-color: white;}
-.file:hover {background-color: silver;}
-.file:active {background-color: blue; color: white;}
+.file:link {border: 0px solid black}
+.page-content  .page_row .file:hover {border-color: black;}
+/*.file:active {background-color: blue; color: white;}*/
+
+
+#rmenu{position:absolute; display:none; list-style-type:none; padding: 0px; margin:0px; border: 1px solid black; border-bottom:0px}
+#rmenu li{list-style-type:none; text-decoration: none; padding: 2px 5px; border-bottom: 1px solid black}
+#rmenu li:hover {background: silver; color: white;}
+
+
+#ul1{background:silver; position:absolute; display:none; list-style-type:none; padding: 5px 5px; margin:0px}
+#ul1 li{list-style-type:none; text-decoration: none; margin:3px}
+#ul1 li:hover {color: white;}

@@ -1,6 +1,58 @@
 var paths=[];
 var dirpath=document.getElementById("label-paths");
 //console.log(dirpath);
+function create_rmenu(){
+	menu= document.createElement("ul");
+    menu.id = 'rmenu';
+    var menu_content = ['打开', '删除', '查看属性'];
+    var item;
+    for(var i=0;i<menu_content.length;i++){
+        item = document.createElement("li");
+        item.className = "item";
+        switch(menu_content[i]){
+        case '打开':
+            item.onclick = open_new_dir;
+        	break;
+        case '删除':
+            item.onclick = delete_file;
+        	console.log('delete file');
+        	break;
+        case '查看属性':
+            item.onclick = get_property_of_file;
+        	console.log('property of file');
+        	break;
+        }
+        item.appendChild(document.createTextNode(menu_content[i]));
+        menu.appendChild(item);
+    }
+    return menu;	
+}
+var rmenu = create_rmenu();
+var cur_id;
+document.body.appendChild(rmenu);
+function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
+{
+	cur_id = this.id;
+    dir_ele = document.getElementById(this.id);
+    dirname = dir_ele.innerHTML;
+    console.log('dir anme:%s', dirname);
+    var oEvent=ev||event;
+    var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;  //获取上下滚动条
+    var scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft;  //获取左右滚动条
+    var oUl=document.getElementById('rmenu');  //获取UL
+    oUl.style.display='block';
+    oUl.style.left=oEvent.clientX+scrollLeft+'px';  //设置X轴的位置
+    oUl.style.top=oEvent.clientY+scrollTop+'px';    //设置Y轴的位置
+    console.log('scroll: %d - %d', document.documentElement.scrollLeft, document.documentElement.scrollTop);
+    console.log('pos: %d - %d', oUl.style.left, oUl.style.top);
+    return false;  //阻止浏览器默认事件
+};
+//document.oncontextmenu = get_menu;
+document.onclick=function()
+{
+    var menu=document.getElementById('rmenu');
+    menu.style.display='none';
+};
 
 function getTextSync(url)
 {
@@ -80,7 +132,13 @@ console.log("in test function.")
 }
 function open_exist_dir()
 {
-    dir_ele = document.getElementById(this.id);
+	var d_id;
+	if(null == this.id){
+		d_id = cur_id;
+	}else{
+		d_id = this.id;
+	}
+    dir_ele = document.getElementById(d_id);
     dirname = dir_ele.innerHTML;
     var path_ele = document.getElementById("path");
     var dirs = [];
@@ -101,7 +159,14 @@ function open_exist_dir()
 }
 
 function open_new_dir(){
-    dir_ele = document.getElementById(this.id);
+	var d_id;
+	if(this.id){
+		d_id = this.id;
+	}else{
+		d_id = cur_id;
+	}
+    console.log('in open new dir:%d - %d', d_id,this.id);
+    dir_ele = document.getElementById(d_id);
     dirname = dir_ele.innerHTML;
     var path_ele = document.getElementById("path");
     var dirs = [];
@@ -149,7 +214,7 @@ function refresh_content_ele(path_str)
     if(content_json == null){
         return null;
     }
-//    console.log("path:" + path_str + "\n" +content_json.length);
+    //console.log("path:" + path_str + "\n" +content_json.length);
     var row = document.getElementById("content_row");
     if(row != null){
         content_ele.removeChild(row);
@@ -162,7 +227,8 @@ function refresh_content_ele(path_str)
         file = document.createElement("div");
         file.className = "file";
         file.id=content_json[i].id;
-        file.onclick = open_new_dir;
+        //file.onclick = open_new_dir;
+        file.oncontextmenu = popup_rmenu;
         file.appendChild(document.createTextNode(content_json[i].name));
         row.appendChild(file);
     }
@@ -188,7 +254,15 @@ function refresh_content_ele(path_str)
     console.log("row.style.height:" + (content_json.length/(content_width/file_offsetWidth)));
     return content_ele;
 }
-function loadfiles(){
+
+function delete_file(){
+	console.log('delete file '+ document.getElementById(cur_id).innerHTML);
+}
+function get_property_of_file(){
+  	console.log('property of file ' + document.getElementById(cur_id).innerHTML);
+}
+function resize_browser(){
+	//console.log('resize browser');
     var content_ele=document.getElementById("content");
     var content_width=content_ele.clientWidth;
     //var content_json=file_arch_json[path_str];
@@ -215,7 +289,7 @@ function loadfiles(){
     function getValue(str){
         return parseInt(str.substring(0, str.length-2))
     }
-    file_style=window.getComputedStyle(file);
+    file_style = window.getComputedStyle(file);
     file_extral_space = getValue(file_style.marginRight) * 2 + getValue(file_style.borderLeftWidth) + getValue(file_style.borderRightWidth);
     file_offsetWidth = getValue(file_style.width) + file_extral_space;
     file_offsetHeight = getValue(file_style.height) + file_extral_space;
@@ -234,34 +308,5 @@ function loadfiles(){
     return content_ele;
 }
 window.onload=open_root_dir;
-window.onresize=loadfiles;
-
-
-
-
-
-
-//  log = document.createElement("tr");
-//  log.id = "tr1";
-//  log.innerHTML = "<td id='0' bgcolor='green' width='100' height='100' onclick='getid(this.id)'>文件夹0</td>";
-//  table.appendChild(log);
-
-
-//function loadfiles(){
-//  document.write("<hr color=\"red\" />");                         // Begin an HTML table
-//  document.write("<table border=\"1\" align='center'>");                         // Begin an HTML table
-//  document.write("<caption>File Browser</caption>");  // Output table header
-//  var files=[]
-//  for(var i=0; i<16; i++){
-//      files.push("文件夹"+i)
-//  }
-//  for(var i=0; i<4; i++){
-//      document.write("<tr>");
-//      for(var j=0; j<4; j++) {                     // Output 10 rows
-//        document.write("<td id=" + (i*4+j)  + " onclick=\"getid(this.id)\">" + files[i*4+j]  + "</td>");
-//      }
-//      document.write("</tr>");
-//  }
-//  document.write("</table>");
-//}
+window.onresize=resize_browser;
 
