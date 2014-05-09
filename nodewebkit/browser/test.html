@@ -20,8 +20,20 @@
     </div>
 </div>
 
-</table>
-<script tpye="text/javascript" src="browser.js">
+<script tpye="text/javascript">
+function gettext(){
+    var xhr = new XMLHttpRequest();
+    console.log("before onreadystatechange");
+    xhr.onreadystatechange = function() {
+        console.log(xhr);
+        if (xhr.readyState == 4) {
+            alert(xhr.responseText);
+        }
+    }
+    xhr.open('GET', 'http://www.baidu.com', true);
+    xhr.send(null);
+}
+window.onload=gettext;
 </script>
   </body>
 </html>

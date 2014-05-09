@@ -71,33 +71,34 @@ function getTextSync(url)
     }
     return request.responseText;
 }
-function callback(text)
+function getcallback(text)
 {
     console.log(text);
 }
-function getText(url, callback)
-{
+function getText(url)
+{//, callback
     var request=new XMLHttpRequest();
     request.open("GET", url);
     request.onreadystatechange = function(){
+    	console.log(request);
         if(request.readyState === 4 && request.status === 200) {
             var type = request.getResponseHeader("Content-Type");
             console.log("type:"+type);
             if(type.match(/^text/))
-                callback(request.responseText);
+            	getcallback(request.responseText);
          }
     };
     request.send(null);
 }
-function postText(url, callback)
-{
+function postText(url)
+{//, callback
     var request=new XMLHttpRequest();
     request.open("POST", url);
     request.onreadystatechange = function(){
         if(request.readyState === 4 && request.status === 200) {
             var type = request.getResponseHeader("Content-Type");
             if(type.match(/^text/))
-                callback(request.responseText);
+            	getcallback(request.responseText);
          }
     };
     request.setRequestHeader("Content-Type", "application/json")
@@ -199,6 +200,7 @@ function open_root_dir()
 {
 //path=paths.join("/");
 //console.log("open dir: " + path);
+	getText("http://124.16.141.165");//http://127.0.0.1:8888/backend/test1.html
     var path_ele = document.getElementById("path");
     var root_li = document.createElement("li");
     root_li.appendChild(document.createTextNode("root"));
