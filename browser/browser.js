@@ -28,6 +28,7 @@ function create_rmenu(){
     return menu;	
 }
 var rmenu = create_rmenu();
+var cur_dir;
 var cur_id;
 document.body.appendChild(rmenu);
 function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
@@ -148,10 +149,13 @@ function open_exist_dir()
             break;
         }
     }
-    if(refresh_content_ele(dirs.join("/")) != null){
+    cur_dir = dirs.join("/");
+    if(refresh_content_ele(cur_dir) != null){
         dir_ele.className = "active";
-        for(var child = dir_ele.nextElementSibling; child != null; child = child.nextElementSibling){
-            path_ele.removeChild(child);
+        if(null != dir_ele.nextElementSibling){
+        	for(var child = dir_ele.nextElementSibling; child != null; child = child.nextElementSibling){
+        		path_ele.removeChild(child);
+        	}
         }
     }else{
         alert("in open new dir: wrong path.");
@@ -165,7 +169,7 @@ function open_new_dir(){
 	}else{
 		d_id = cur_id;
 	}
-    console.log('in open new dir:%d - %d', d_id,this.id);
+    //console.log('in open new dir:%d - %d', d_id,this.id);
     dir_ele = document.getElementById(d_id);
     dirname = dir_ele.innerHTML;
     var path_ele = document.getElementById("path");
@@ -174,8 +178,9 @@ function open_new_dir(){
         dirs.push(child.innerHTML);
     }
     dirs.push(dirname);
+    cur_dir = dirs.join("/");
     var new_li;
-    if(refresh_content_ele(dirs.join("/")) != null){
+    if(refresh_content_ele(cur_dir) != null){
         new_li = document.createElement("li");
         new_li.id = "dir_" + dirname;
         new_li.onclick = open_exist_dir;
@@ -257,6 +262,8 @@ function refresh_content_ele(path_str)
 
 function delete_file(){
 	console.log('delete file '+ document.getElementById(cur_id).innerHTML);
+	content_json.splice(cur_id,1);
+	open_exist_dir();
 }
 function get_property_of_file(){
   	console.log('property of file ' + document.getElementById(cur_id).innerHTML);
