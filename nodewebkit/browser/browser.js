@@ -129,6 +129,11 @@ var file_arch_json={
     {"id":"8", "name":"歌曲.mp3"}
     ],
 };
+/*
+[{"id":1,"type":"Contacts","desc":"Contacts Info"},
+ {"id":2,"type":"Pictures","desc":null},
+ {"id":3,"type":"Videos","desc":null}]
+ */
 function test(){
 console.log("in test function.")
 }
@@ -200,18 +205,8 @@ function open_root_dir()
 {
 //path=paths.join("/");
 //console.log("open dir: " + path);
-	getText("http://124.16.141.165");//http://127.0.0.1:8888/backend/test1.html
-    var path_ele = document.getElementById("path");
-    var root_li = document.createElement("li");
-    root_li.appendChild(document.createTextNode("root"));
-    root_li.id = "dir_" + "root";
-    root_li.onclick = open_exist_dir;
-    root_li.className = "active";
-    for(var child = path_ele.firstChild; child != null; child = child.nextSibling){
-        path_ele.removeChild(child);
-    }
-    path_ele.appendChild(root_li);
-    refresh_content_ele("root");
+	//getText("http://127.0.0.1:8888/backend/test1.html");//
+	get_root_data();
 }
 function refresh_content_ele(path_str)
 {
@@ -221,7 +216,7 @@ function refresh_content_ele(path_str)
     if(content_json == null){
         return null;
     }
-    //console.log("path:" + path_str + "\n" +content_json.length);
+    console.log("999999999999path:" + path_str + "\n" +content_json.length);
     var row = document.getElementById("content_row");
     if(row != null){
         content_ele.removeChild(row);
@@ -236,7 +231,7 @@ function refresh_content_ele(path_str)
         file.id=content_json[i].id;
         //file.onclick = open_new_dir;
         file.oncontextmenu = popup_rmenu;
-        file.appendChild(document.createTextNode(content_json[i].name));
+        file.appendChild(document.createTextNode(content_json[i].type));//content_json[i].name
         row.appendChild(file);
     }
     content_ele.appendChild(row);
@@ -319,3 +314,84 @@ function resize_browser(){
 window.onload=open_root_dir;
 window.onresize=resize_browser;
 
+
+//var categoryDAO = require("/home/cos/Templates/demo-rio/nodewebkit/DAO/CategoryDAO");
+var getallreq = '{"func":"getall","arg":"null"}';
+function getallfilecb(text) {
+	//document.write(text);
+	file_arch_json["root"] = JSON.parse(text);
+	console.log(file_arch_json["root"]);
+	console.log('length of file_arch_json root:'+file_arch_json["root"].length);
+    var path_ele = document.getElementById("path");
+    var root_li = document.createElement("li");
+    root_li.appendChild(document.createTextNode("root"));
+    root_li.id = "dir_" + "root";
+    root_li.onclick = open_exist_dir;
+    root_li.className = "active";
+    for(var child = path_ele.firstChild; child != null; child = child.nextSibling){
+        path_ele.removeChild(child);
+    }
+    path_ele.appendChild(root_li);
+    refresh_content_ele("root");
+}
+function LoadDataFromHttp() {
+	//  var studentData = CollectionData();
+	$.ajax({
+		url : "/getall",
+		type : "post",
+		contentType : "application/json;charset=utf-8",
+		dataType : "json",
+		data : '{"func":"getall","arg":"null"}',
+		success : function(result) {
+			var json = JSON.stringify(result);
+			getallfilecb(json);
+		},
+		error : function(e) {
+			alert(e.responseText);
+		}
+	});
+}
+function LoadDataFromLocal() {
+	categoryDAO.findAll();
+	categoryDAO.getEmitter().once('findAll', function(data) {
+		var json = JSON.stringify(data);
+		getallfilecb(json);
+	});
+}
+function browser() {
+	var ua = window.navigator.userAgent, ret = "";
+	if (/Firefox/g.test(ua)) {
+		ua = ua.split(" ");
+		ret = "Firefox|" + ua[ua.length - 1].split("/")[1];
+	} else if (/Fuck/g.test(ua)) {
+		ua = ua.split(" ");
+		ret = "Fuck|" + ua[ua.length - 1].split("/")[1];
+	} else if (/MSIE/g.test(ua)) {
+		ua = ua.split(";");
+		ret = "IE|" + ua[1].split(" ")[2];
+	} else if (/Opera/g.test(ua)) {
+		ua = ua.split(" ");
+		ret = "Opera|" + ua[ua.length - 1].split("/")[1];
+	} else if (/Chrome/g.test(ua)) {
+		ua = ua.split(" ");
+		ret = "Chrome|" + ua[ua.length - 2].split("/")[1];
+	} else if (/^apple\s+/i.test(navigator.vendor)) {
+		ua = ua.split(" ");
+		ret = "Safair|" + ua[ua.length - 2].split("/")[1];
+	} else {
+		ret = "未知浏览器";
+	}
+	return ret.split("|");
+}
+function get_root_data() {
+	console.log("Request handler 'getall' was called.");
+	//调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+	var r = browser();
+	console.log('You are using ' + r[0]);
+
+	if (r[0] == "Fuck") {
+		LoadDataFromLocal();
+	} else {
+		LoadDataFromHttp();
+	}
+}
