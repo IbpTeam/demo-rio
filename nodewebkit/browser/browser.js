@@ -15,11 +15,11 @@ function create_rmenu(){
         	break;
         case '删除':
             item.onclick = delete_file;
-        	console.log('delete file');
+        	//console.log('delete file');
         	break;
         case '查看属性':
             item.onclick = get_property_of_file;
-        	console.log('property of file');
+        	//console.log('property of file');
         	break;
         }
         item.appendChild(document.createTextNode(menu_content[i]));
@@ -44,8 +44,8 @@ function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
     oUl.style.display='block';
     oUl.style.left=oEvent.clientX+scrollLeft+'px';  //设置X轴的位置
     oUl.style.top=oEvent.clientY+scrollTop+'px';    //设置Y轴的位置
-    console.log('scroll: %d - %d', document.documentElement.scrollLeft, document.documentElement.scrollTop);
-    console.log('pos: %d - %d', oUl.style.left, oUl.style.top);
+    //console.log('scroll: %d - %d', document.documentElement.scrollLeft, document.documentElement.scrollTop);
+    //console.log('pos: %d - %d', oUl.style.left, oUl.style.top);
     return false;  //阻止浏览器默认事件
 };
 //document.oncontextmenu = get_menu;
@@ -134,9 +134,7 @@ var file_arch_json={
  {"id":2,"type":"Pictures","desc":null},
  {"id":3,"type":"Videos","desc":null}]
  */
-function test(){
-console.log("in test function.")
-}
+
 function open_exist_dir()
 {
 	var d_id;
@@ -175,9 +173,10 @@ function open_new_dir(){
 	}else{
 		d_id = cur_id;
 	}
-    //console.log('in open new dir:%d - %d', d_id,this.id);
     dir_ele = document.getElementById(d_id);
     dirname = dir_ele.innerHTML;
+    //console.log('in open new dir:%d - %d', d_id,this.id);
+    //console.log('pos: %d - %d', dir_ele.offsetTop, dir_ele.offsetTop);
     var path_ele = document.getElementById("path");
     var dirs = [];
     for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
@@ -203,10 +202,19 @@ function open_new_dir(){
 
 function open_root_dir()
 {
-//path=paths.join("/");
-//console.log("open dir: " + path);
-	//getText("http://127.0.0.1:8888/backend/test1.html");//
-	get_root_data();
+	//get_root_data();
+	//console.log(file_arch_json["root"]);
+    var path_ele = document.getElementById("path");
+    var root_li = document.createElement("li");
+    root_li.appendChild(document.createTextNode("root"));
+    root_li.id = "dir_" + "root";
+    root_li.onclick = open_exist_dir;
+    root_li.className = "active";
+    for(var child = path_ele.firstChild; child != null; child = child.nextSibling){
+        path_ele.removeChild(child);
+    }
+    path_ele.appendChild(root_li);
+    refresh_content_ele("root");
 }
 function refresh_content_ele(path_str)
 {
@@ -216,7 +224,7 @@ function refresh_content_ele(path_str)
     if(content_json == null){
         return null;
     }
-    console.log("999999999999path:" + path_str + "\n" +content_json.length);
+    //console.log("999999999999path:" + path_str + "\n" +content_json.length);
     var row = document.getElementById("content_row");
     if(row != null){
         content_ele.removeChild(row);
@@ -231,7 +239,7 @@ function refresh_content_ele(path_str)
         file.id=content_json[i].id;
         //file.onclick = open_new_dir;
         file.oncontextmenu = popup_rmenu;
-        file.appendChild(document.createTextNode(content_json[i].type));//content_json[i].name
+        file.appendChild(document.createTextNode(content_json[i].name));//content_json[i].type
         row.appendChild(file);
     }
     content_ele.appendChild(row);
@@ -248,9 +256,13 @@ function refresh_content_ele(path_str)
     row.style.width = (cols * file_offsetWidth + row_width_extral) + "px";
     row.style.height = ((parseInt(content_json.length/cols) + 1) * (file_offsetHeight) + row_width_extral) + "px";
     console.log("content_width: " + content_width);
+    console.log("file_extral_space:  " + file_extral_space);
     console.log("file_offsetWidth:  " + file_offsetWidth);
+    console.log("file_offsetHeight:  " + file_offsetHeight);
     console.log("row_width_extral: " + row_width_extral);
     console.log("cols: " + cols);
+    console.log("row_top:" + row.offsetTop);
+    console.log("row_left:" + row.offsetLeft);
     console.log("row_width:" + row.style.width);
     console.log("row_height:" + row.style.height);
     console.log("row.style.height:" + (content_json.length/(content_width/file_offsetWidth)));
@@ -302,13 +314,13 @@ function resize_browser(){
     cols = parseInt( (content_width - row_width_extral) / file_offsetWidth );
     row.style.width = (cols * file_offsetWidth + row_width_extral) + "px";
     row.style.height = ((parseInt(content_json.length/cols) + 1) * (file_offsetHeight) + row_width_extral) + "px";
-    console.log("content_width: " + content_width);
-    console.log("file_offsetWidth:  " + file_offsetWidth);
-    console.log("row_width_extral: " + row_width_extral);
-    console.log("cols: " + cols);
-    console.log("row_width:" + row.style.width);
-    console.log("row_height:" + row.style.height);
-    console.log("row.style.height:" + (content_json.length/(content_width/file_offsetWidth)));
+//    console.log("content_width: " + content_width);
+//    console.log("file_offsetWidth:  " + file_offsetWidth);
+//    console.log("row_width_extral: " + row_width_extral);
+//    console.log("cols: " + cols);
+//    console.log("row_width:" + row.style.width);
+//    console.log("row_height:" + row.style.height);
+//    console.log("row.style.height:" + (content_json.length/(content_width/file_offsetWidth)));
     return content_ele;
 }
 window.onload=open_root_dir;
