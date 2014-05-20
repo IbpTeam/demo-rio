@@ -2,11 +2,9 @@ var categoryDAO = require("/home/v1/demo-rio/nodewebkit/DAO/CategoryDAO");
 
 var getallreq = '{"func":"getall","arg":"null"}';
 
-function getallfilecb(text){
-    document.write(text);
-}
 
-function LoadDataFromHttp() {
+
+function LoadDataFromHttp(cb) {
 //  var studentData = CollectionData();
   $.ajax({
     url: "/getall",
@@ -16,7 +14,7 @@ function LoadDataFromHttp() {
     data: '{"func":"getall","arg":"null"}',
     success: function(result) {
       var json=JSON.stringify(result); 
-      getallfilecb(json);
+      cb(json);
     },
     error: function(e) {
       alert(e.responseText);
@@ -24,11 +22,11 @@ function LoadDataFromHttp() {
   });
 }
 
-function LoadDataFromLocal() {
+function LoadDataFromLocal(cb) {
   categoryDAO.findAll();
   categoryDAO.getEmitter().once('findAll', function(data){
     var json = JSON.stringify(data);
-    getallfilecb(json);
+    cb(json);
   });
 }
 
@@ -66,16 +64,16 @@ function browser(){
   return ret.split("|");
 }
 
-function getallfile() {
+function getallfile(getallfilecb) {
   console.log("Request handler 'getall' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
   console.log('You are using ' + r[0]);
   
   if(r[0]=="Fuck")  {
-    LoadDataFromLocal();
+    LoadDataFromLocal(getallfilecb);
   }else{
-    LoadDataFromHttp();
+    LoadDataFromHttp(getallfilecb);
   }
 }
 

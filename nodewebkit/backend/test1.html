@@ -8,7 +8,11 @@
 
 <body>
 <script>
-getallfile();
+function getallfilecb(text){
+    document.write(text);
+}
+
+getallfile(getallfilecb);
 </script>
 </body>
 </html>
