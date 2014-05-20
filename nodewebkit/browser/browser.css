@@ -1,10 +1,7 @@
 /*ready for delete*/
-.container {
-  width: 940px;
-}
 
 li a {text-decoration: none;}
-.demo-box {
+.style_browser {
   width: 60%;
   text-align: left;
   margin: 2em auto;
@@ -19,12 +16,12 @@ li a {text-decoration: none;}
   padding: 1em 2em 2em;
 }
 
-.page-header {
+.style_header {
   padding-bottom: 9px;
   margin: 20px 0 30px;
   border-bottom: 1px solid #eeeeee;
 }
-.page-header .breadcrumb {
+.style_header .style_path {
   font-size: 11px;
   padding: 5px 12px;
   margin: 0;
@@ -34,28 +31,28 @@ li a {text-decoration: none;}
   -moz-border-radius: 4px 4px 0 0;
   border-radius: 4px 4px 0 0;
 }
-.page-header .breadcrumb li {
+.style_header .style_path li {
   display: inline-block;
   *display: inline;
   /* IE7 inline-block hack */
   *zoom: 1;
   text-shadow: 0 1px 0 #ffffff;
 }
-.page-header .breadcrumb li:after {
+.style_header .style_path li:after {
   content: " / ";
   color: #ccc;
   cursor: default;
 }
 
-.page-header .breadcrumb .divider {
+.style_header .style_path .divider {
   padding: 0 5px;
   color: blue;
   cursor: pointer;
 }
-.page-header .breadcrumb .active {
+.style_header .style_path .active {
   color: #999999;
 }
-.page-header h1 {
+.style_header h1 {
   -webkit-border-radius: 0 0 4px 4px;
   -moz-border-radius: 0 0 4px 4px;
   border-radius: 0 0 4px 4px;
@@ -71,29 +68,30 @@ li a {text-decoration: none;}
   padding: 10px 12px;
   text-align: center;
 }
-.page-content {
+.style_content {
 margin: 2em auto;
 width: 80%;
 border: 1px solid red;
 }
-.page-content .page_row {
+.style_content .style_content_row {
 /*width:80%;
 height:150px;*/
 margin:0px auto;
 padding:2px;
 border: 1px dotted blue;
 }
-.page-content  .page_row .file {
+.style_content  .style_content_row .file {
 border: 1px solid silver;
 margin: 2px;
 width: 100px;
 height: 100px;
-float: left;
+/*float: left;*/
+position: absolute;
 text-align: center;
 vertical-align: middle;
 }
 .file:link {border: 0px solid black}
-.page-content  .page_row .file:hover {border-color: black;}
+.style_content  .style_content_row .file:hover {border-color: black;}
 /*.file:active {background-color: blue; color: white;}*/
 
 
