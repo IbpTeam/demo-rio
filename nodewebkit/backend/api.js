@@ -1,37 +1,3 @@
-var config = require("./config");
-var categoryDAO = require(config.projecthome+"/DAO/CategoryDAO");
-
-var getallreq = '{"func":"getall","arg":"null"}';
-
-
-
-function LoadDataFromHttp(cb) {
-//  var studentData = CollectionData();
-  $.ajax({
-    url: "/getall",
-    type: "post",
-    contentType: "application/json;charset=utf-8",
-    dataType: "json",
-    data: '{"func":"getall","arg":"null"}',
-    success: function(result) {
-      var json=JSON.stringify(result); 
-      cb(json);
-    },
-    error: function(e) {
-      alert(e.responseText);
-    }
-  });
-}
-
-function LoadDataFromLocal(cb) {
-  categoryDAO.findAll();
-  categoryDAO.getEmitter().once('findAll', function(data){
-    var json = JSON.stringify(data);
-    cb(json);
-  });
-}
-
-
 function browser(){
   var ua = window.navigator.userAgent,
       ret = "";
@@ -72,7 +38,8 @@ function getallfile(getallfilecb) {
   console.log('You are using ' + r[0]);
   
   if(r[0]=="Fuck")  {
-    LoadDataFromLocal(getallfilecb);
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.LoadDataFromLocal(getallfilecb);
   }else{
     LoadDataFromHttp(getallfilecb);
   }

@@ -1,10 +1,10 @@
 var sqlite3 = require('sqlite3');
 var events = require('events');
 var categoryEmitter = new events.EventEmitter();
-var config = require('../config');
+
 //连接数据库
 function openDB(){
-  return new sqlite3.Database(config.projecthome+'/db/rio');
+  return new sqlite3.Database('./db/rio');
 }
 
 //关闭数据库
