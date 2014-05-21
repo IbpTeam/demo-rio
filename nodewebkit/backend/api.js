@@ -31,8 +31,22 @@ function browser(){
   return ret.split("|");
 }
 
-function getallfile(getallfilecb) {
+function getAllCate(getAllCateCb) {
   console.log("Request handler 'getall' was called.");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);
+  
+  if(r[0]=="Fuck")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getAllCateFromLocal(getAllCateCb);
+  }else{
+    getAllCateFromHttp(getAllCateCb);
+  }
+}
+
+/*function getFileByTag(tag) {
+  console.log("Request handler 'getFileByTag' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
   console.log('You are using ' + r[0]);
@@ -44,6 +58,6 @@ function getallfile(getallfilecb) {
     LoadDataFromHttp(getallfilecb);
   }
 }
-
+*/
 
 //exports.getallfile = getallfile;

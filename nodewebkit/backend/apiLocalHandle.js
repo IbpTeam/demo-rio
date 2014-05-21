@@ -1,12 +1,12 @@
 var config = require("./config");
 var categoryDAO = require(config.projecthome+"/DAO/CategoryDAO");
 
-function LoadDataFromLocal(cb) {
+function getAllCateFromLocal(getAllCateCb) {
   categoryDAO.findAll();
   categoryDAO.getEmitter().once('findAll', function(data){
     var json = JSON.stringify(data);
-    cb(json);
+    getAllCateCb(json);
   });
 }
 
-exports.LoadDataFromLocal = LoadDataFromLocal;
+exports.getAllCateFromLocal = getAllCateFromLocal;

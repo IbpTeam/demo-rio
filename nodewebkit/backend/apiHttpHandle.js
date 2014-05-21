@@ -1,16 +1,16 @@
-var getallreq = '{"func":"getall","arg":"null"}';
+var getallreq = '{"func":"getAllCate","arg":"null"}';
 
-function LoadDataFromHttp() {
+function getAllCateFromHttp(getAllCateCb) {
 //  var studentData = CollectionData();
   $.ajax({
-    url: "/getall",
+    url: "/getAllCate",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"getall","arg":"null"}',
+    data: '{"func":"getAllCate","arg":"null"}',
     success: function(result) {
       var json=JSON.stringify(result); 
-      getallfilecb(json);
+      getAllCateCb(json);
     },
     error: function(e) {
       alert(e.responseText);

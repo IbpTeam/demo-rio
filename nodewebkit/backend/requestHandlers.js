@@ -7,11 +7,11 @@ function start(response, postData) {
   
 }
 
-function getall(response, postData) {
+function getAllCate(response, postData) {
 
-  console.log("Request handler 'getall' was called.");
+  console.log("Request handler 'getAllCate' was called.");
   
-  if(postData == '{"func":"getall","arg":"null"}'){
+  if(postData == '{"func":"getAllCate","arg":"null"}'){
     categoryDAO.findAll();
     categoryDAO.getEmitter().once('findAll', function(data){
       response.writeHead(200, {"Content-Type": "application/json"});
@@ -30,4 +30,4 @@ function getall(response, postData) {
 
 
 exports.start = start;
-exports.getall = getall;
+exports.getAllCate = getAllCate;
