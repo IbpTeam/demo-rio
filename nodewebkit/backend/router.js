@@ -3,6 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
+var config = require('./config');
 
 function route(handle, pathname, response, postData) {
   console.log("About to route a request for " + pathname);
@@ -13,7 +14,7 @@ function route(handle, pathname, response, postData) {
     //response.writeHead(404, {"Content-Type": "text/plain"});
     //response.write("404 Not found");
     //response.end();
-    var realPath = "/home/v1/demo-rio/nodewebkit" + pathname;
+    var realPath = config.projecthome + pathname;
 
     path.exists(realPath, function (exists) {
         if (!exists) {

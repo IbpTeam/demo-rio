@@ -1,4 +1,5 @@
-var categoryDAO = require("/home/v1/demo-rio/nodewebkit/DAO/CategoryDAO");
+var config = require("./config");
+var categoryDAO = require(config.projecthome+"/DAO/CategoryDAO");
 
 var getallreq = '{"func":"getall","arg":"null"}';
 
