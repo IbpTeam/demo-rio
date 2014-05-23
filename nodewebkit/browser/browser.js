@@ -41,11 +41,11 @@ function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
     //console.log('pos: %d - %d', oUl.style.left, oUl.style.top);
     return false;  //阻止浏览器默认事件
 };
-document.onclick=function()
+function close_rmenu()
 {
     var menu=document.getElementById('rmenu');
     menu.style.display='none';
-};
+}
 function open_exist_dir()
 {
 	var d_id;
@@ -159,6 +159,7 @@ function file_on_mouse_down(event){
     cur_ele = document.getElementById(this.id);
     cur_file_name = cur_ele.innerHTML;
 	elementToDrag = this;//.parentNode;
+	close_rmenu();
     // The initial mouse position, converted to document coordinates
     var scroll = getScrollOffsets();  // A utility function from elsewhere
     var startX = event.clientX + scroll.x;
@@ -481,6 +482,7 @@ function window_onload(){
 }
 window.onload=window_onload;
 window.onresize=refresh_content;
+document.onclick = close_rmenu;
 
 
 //var categoryDAO = require("/home/cos/Templates/demo-rio/nodewebkit/DAO/CategoryDAO");
