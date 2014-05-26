@@ -24,7 +24,8 @@
       var handle = {}
       handle["/"] = requestHandlers.start;
       handle["/start"] = requestHandlers.start;
-      handle["/getAllCate"] = requestHandlers.getAllCate;
+      handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
+      handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
 
       
       server.start(router.route, handle);

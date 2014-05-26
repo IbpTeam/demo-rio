@@ -1,5 +1,8 @@
 var config = require("./config");
 var categoryDAO = require(config.projecthome+"/DAO/CategoryDAO");
+var contactsDAO = require(config.projecthome+"/DAO/ContactsDAO");
+var picturesDAO = require(config.projecthome+"/DAO/PicturesDAO");
+var videosDAO = require(config.projecthome+"/DAO/VideosDAO");
 
 function getAllCateFromLocal(getAllCateCb) {
   categoryDAO.findAll();
@@ -8,5 +11,37 @@ function getAllCateFromLocal(getAllCateCb) {
     getAllCateCb(json);
   });
 }
-
 exports.getAllCateFromLocal = getAllCateFromLocal;
+
+function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
+  switch(cate){
+  case 'contacts' : {
+    contactsDAO.findAll();
+    contactsDAO.getEmitter().once('findAll', function(data){
+      var json = JSON.stringify(data);
+      getAllDataByCateCb(json);
+  });
+  }
+  break;
+  
+  case 'pictures' : {
+    picturesDAO.findAll();
+    picturesDAO.getEmitter().once('findAll', function(data){
+      var json = JSON.stringify(data);
+      getAllDataByCateCb(json);
+  });
+  }
+  break;
+    
+  case 'videos' : {
+    videosDAO.findAll();
+    videosDAO.getEmitter().once('findAll', function(data){
+      var json = JSON.stringify(data);
+      getAllDataByCateCb(json);
+  });
+  }
+  break;
+  }
+
+}
+exports.getAllDataByCateFromLocal = getAllDataByCateFromLocal;

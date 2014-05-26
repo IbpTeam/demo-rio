@@ -45,19 +45,19 @@ function getAllCate(getAllCateCb) {
   }
 }
 
-/*function getFileByTag(tag) {
-  console.log("Request handler 'getFileByTag' was called.");
+function getAllDataByCate(getAllDataByCateCb,cate) {
+  console.log("Request handler 'getAllDataByCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
   console.log('You are using ' + r[0]);
   
   if(r[0]=="Fuck")  {
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.LoadDataFromLocal(getallfilecb);
+    apiLocalHandle.getAllDataByCateFromLocal(getAllDataByCateCb,cate);
   }else{
-    LoadDataFromHttp(getallfilecb);
+    getAllDataByCateFromHttp(getAllDataByCateCb,cate);
   }
 }
-*/
+
 
 //exports.getallfile = getallfile;
