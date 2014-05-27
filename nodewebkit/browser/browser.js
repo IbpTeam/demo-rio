@@ -125,9 +125,16 @@ function open_root_dir()
     for(var child = path_ele.firstChild; child != null; child = child.nextSibling){
         path_ele.removeChild(child);
     }
-    path_ele.appendChild(root_li);
-    refresh_content_by_path("root");
+    path_ele.appendChild(root_li);    
+    getAllCate(get_root_data);
 }
+function get_root_data(text){
+    //document.write(text);
+    console.log('data from server:'+text)
+    //refresh_content_by_path("root");
+}
+getAllCate(get_root_data);
+
 function delete_file(){
 	//console.log('current id:' + cur_id);
 	var file_name = document.getElementById(cur_id).innerHTML;
@@ -521,50 +528,7 @@ function LoadDataFromHttp() {
 		}
 	});
 }
-function LoadDataFromLocal() {
-	categoryDAO.findAll();
-	categoryDAO.getEmitter().once('findAll', function(data) {
-		var json = JSON.stringify(data);
-		getallfilecb(json);
-	});
-}
-function browser() {
-	var ua = window.navigator.userAgent, ret = "";
-	if (/Firefox/g.test(ua)) {
-		ua = ua.split(" ");
-		ret = "Firefox|" + ua[ua.length - 1].split("/")[1];
-	} else if (/Fuck/g.test(ua)) {
-		ua = ua.split(" ");
-		ret = "Fuck|" + ua[ua.length - 1].split("/")[1];
-	} else if (/MSIE/g.test(ua)) {
-		ua = ua.split(";");
-		ret = "IE|" + ua[1].split(" ")[2];
-	} else if (/Opera/g.test(ua)) {
-		ua = ua.split(" ");
-		ret = "Opera|" + ua[ua.length - 1].split("/")[1];
-	} else if (/Chrome/g.test(ua)) {
-		ua = ua.split(" ");
-		ret = "Chrome|" + ua[ua.length - 2].split("/")[1];
-	} else if (/^apple\s+/i.test(navigator.vendor)) {
-		ua = ua.split(" ");
-		ret = "Safair|" + ua[ua.length - 2].split("/")[1];
-	} else {
-		ret = "未知浏览器";
-	}
-	return ret.split("|");
-}
-function get_root_data() {
-	console.log("Request handler 'getall' was called.");
-	//调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-	var r = browser();
-	console.log('You are using ' + r[0]);
 
-	if (r[0] == "Fuck") {
-		LoadDataFromLocal();
-	} else {
-		LoadDataFromHttp();
-	}
-}
 
 function getTextSync(url)
 {
