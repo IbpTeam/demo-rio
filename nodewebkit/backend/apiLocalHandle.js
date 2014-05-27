@@ -15,7 +15,7 @@ exports.getAllCateFromLocal = getAllCateFromLocal;
 
 function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
   switch(cate){
-  case 'contacts' : {
+  case 'Contacts' : {
     contactsDAO.findAll();
     contactsDAO.getEmitter().once('findAll', function(data){
       var json = JSON.stringify(data);
@@ -24,7 +24,7 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
   }
   break;
   
-  case 'pictures' : {
+  case 'Pictures' : {
     picturesDAO.findAll();
     picturesDAO.getEmitter().once('findAll', function(data){
       var json = JSON.stringify(data);
@@ -33,7 +33,7 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
   }
   break;
     
-  case 'videos' : {
+  case 'Videos' : {
     videosDAO.findAll();
     videosDAO.getEmitter().once('findAll', function(data){
       var json = JSON.stringify(data);

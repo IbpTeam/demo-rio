@@ -32,7 +32,7 @@ function browser(){
 }
 
 function getAllCate(getAllCateCb) {
-  console.log("Request handler 'getall' was called.");
+  console.log("Request handler 'getAllCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
   console.log('You are using ' + r[0]);

@@ -45,7 +45,7 @@ function getAllDataByCateInHttpServer(response, postData) {
   }
   else{
     switch(postDataJson.arg){
-      case 'contacts' :{
+      case 'Contacts' :{
         contactsDAO.findAll();
         contactsDAO.getEmitter().once('findAll', function(data){
         response.writeHead(200, {"Content-Type": "application/json"});
@@ -56,7 +56,7 @@ function getAllDataByCateInHttpServer(response, postData) {
       }
       break;
       
-      case 'pictures' :{
+      case 'Pictures' :{
         picturesDAO.findAll();
         picturesDAO.getEmitter().once('findAll', function(data){
         response.writeHead(200, {"Content-Type": "application/json"});
@@ -67,7 +67,7 @@ function getAllDataByCateInHttpServer(response, postData) {
       }
       break;
       
-      case 'videos' :{
+      case 'Videos' :{
         videosDAO.findAll();
         videosDAO.getEmitter().once('findAll', function(data){
         response.writeHead(200, {"Content-Type": "application/json"});
