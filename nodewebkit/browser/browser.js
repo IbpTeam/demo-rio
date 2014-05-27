@@ -65,8 +65,8 @@ function open_exist_dir()
             break;
         }
     }
-    cur_dir = dirs.join("/");
-    if(refresh_content_by_path(cur_dir) != null){
+    cur_dir_path = dirs.join("/");
+    if(refresh_content_by_path(cur_dir_path) != null){
         dir_ele.className = "active";//
         //console.log('in open exist dir:' + dir_ele.nextElementSibling);
         if(null != dir_ele.nextElementSibling){
@@ -78,7 +78,7 @@ function open_exist_dir()
         alert("in open new dir: wrong path.");
     }
 }
-
+var cur_dir_name = '';
 function open_new_dir(){
 	var d_id;
 	if(this.id){
@@ -87,23 +87,28 @@ function open_new_dir(){
 		d_id = cur_id;
 	}
     dir_ele = document.getElementById(d_id);
-    dirname = dir_ele.innerHTML;
+    cur_dir_name = dir_ele.innerHTML;
 //    console.log('in open new dir:%d - %d', cur_id, this.id);
 //    console.log('pos: %d - %d', dir_ele.offsetTop, dir_ele.offsetTop);
+    getAllDataByCate(getAllDataByCateCb, cur_dir_name);
+}
+function getAllDataByCateCb(text){
     var path_ele = document.getElementById("id_path");
     var dirs = [];
     for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
         dirs.push(child.innerHTML);
     }
-    dirs.push(dirname);
-    cur_dir = dirs.join("/");
+    dirs.push(cur_dir_name);
+    cur_dir_path = dirs.join("/");
+    console.log('data from server:'+text)
+	file_arch_json[cur_dir_path] = JSON.parse(text);
     var new_li;
-    if(refresh_content_by_path(cur_dir) != null){
+    if(refresh_content_by_path(cur_dir_path) != null){
         new_li = document.createElement("li");
-        new_li.id = "dir_" + dirname;
+        new_li.id = "dir_" + cur_dir_name;
         new_li.onclick = open_exist_dir;
         new_li.className = "active";
-        new_li.appendChild(document.createTextNode(dirname));
+        new_li.appendChild(document.createTextNode(cur_dir_name));
         for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
             child.className = "divider";
         }
@@ -112,6 +117,7 @@ function open_new_dir(){
         alert("in open new dir: wrong path.");
     }
 }
+
 function open_root_dir()
 {
 	//get_root_data();
@@ -129,18 +135,29 @@ function open_root_dir()
     getAllCate(get_root_data);
 }
 function get_root_data(text){
-    //document.write(text);
-    console.log('data from server:'+text)
-    //refresh_content_by_path("root");
+    //console.log('data from server:'+text)
+    cur_dir_path = 'root';
+	file_arch_json[cur_dir_path] = JSON.parse(text);
+	console.log(file_arch_json[cur_dir_path]);
+    refresh_content_by_path(cur_dir_path);
 }
 getAllCate(get_root_data);
-
+function json_splice_by_cur_id(){
+    for(var i=0; i<content_json.length; i++)
+    {
+        if(content_json[i].id == cur_id){
+            break;
+        }
+    }
+	content_json.splice(i, 1);
+}
 function delete_file(){
 	//console.log('current id:' + cur_id);
 	var file_name = document.getElementById(cur_id).innerHTML;
 	var value = confirm('file ' + file_name + ' will be deleted?');
 	if(value == true){
-		content_json.splice(cur_id, 1);
+		json_splice_by_cur_id();
+		//content_json.splice(cur_id, 1);
 		//console.log('value:' + value);
 	}
 	refresh_content();
@@ -286,6 +303,34 @@ function file_on_mouse_down(event){
         refresh_content();
     }
 }
+function create_div_by_path(path_str, json_obj)
+{
+    var file = document.createElement("div");
+    file.className = "file";
+    file.id = json_obj.id;
+    //file.onclick = open_new_dir;
+    //file.oncontextmenu = popup_rmenu;
+    switch(path_str)
+    {
+        case 'root':
+            file.onmousedown = file_on_mouse_down;
+            file.appendChild(document.createTextNode(json_obj.type));
+        break;
+        case 'root/Pictures':
+            file.onmousedown = file_on_mouse_down;
+            file.appendChild(document.createTextNode(json_obj.filename));
+        break;
+        case 'root/Contacts':
+            file.onmousedown = file_on_mouse_down;
+            file.appendChild(document.createTextNode(json_obj.name));
+        break;
+        case 'root/Videos':
+            file.onmousedown = file_on_mouse_down;
+            file.appendChild(document.createTextNode(json_obj.name));
+        break;
+    }
+    return file;
+}
 var file_margin_right;
 var file_extral_space;
 var file_width;
@@ -314,17 +359,11 @@ function refresh_content_by_path(path_str)
         content_ele.removeChild(content_row);
     }
     content_row = document.createElement("div");
-    content_row.id = "id_content_row"
-    content_row.className="style_content_row";
+    content_row.id = "id_content_row";
+    content_row.className = "style_content_row";
     var file;
     for(var i=0;i<content_json.length;i++){
-        file = document.createElement("div");
-        file.className = "file";
-        file.id=content_json[i].id;
-        //file.onclick = open_new_dir;
-        //file.oncontextmenu = popup_rmenu;
-        file.onmousedown = file_on_mouse_down;
-        file.appendChild(document.createTextNode(content_json[i].name));//content_json[i].type
+        file = create_div_by_path(path_str, content_json[i]);
         content_row.appendChild(file);
     }
     content_ele.appendChild(content_row);
@@ -378,7 +417,7 @@ function refresh_content_by_path(path_str)
 }
 //notice: difference between refresh_content_by_path and refresh_content
 //1. path is not provided, content_json should comment;
-//2. id or file is refresh.
+//2. path_str is replaced by cur_dir_path;
 function refresh_content(){
     var content_ele = document.getElementById("id_content");
     var content_width = content_ele.clientWidth;
@@ -393,17 +432,11 @@ function refresh_content(){
         content_ele.removeChild(content_row);
     }
     content_row = document.createElement("div");
-    content_row.id = "id_content_row"
-    content_row.className="style_content_row";
+    content_row.id = "id_content_row";
+    content_row.className = "style_content_row";
     var file;
     for(var i=0;i<content_json.length;i++){
-        file = document.createElement("div");
-        file.className = "file";
-        file.id = i;//content_json[i].id;
-        //file.onclick = open_new_dir;
-        //file.oncontextmenu = popup_rmenu;
-        file.onmousedown = file_on_mouse_down;
-        file.appendChild(document.createTextNode(content_json[i].name));//content_json[i].type
+        file = create_div_by_path(cur_dir_path, content_json[i]);
         content_row.appendChild(file);
     }
     content_ele.appendChild(content_row);
@@ -413,8 +446,10 @@ function refresh_content(){
     file_style = window.getComputedStyle(file);
     file_margin_right = getValue(file_style.marginLeft);
     file_extral_space = file_margin_right * 2 + getValue(file_style.borderLeftWidth) + getValue(file_style.borderRightWidth);
-    file_offset_width = getValue(file_style.width) + file_extral_space;
-    file_offset_height = getValue(file_style.height) + file_extral_space;
+    file_width = getValue(file_style.width);
+    file_height = getValue(file_style.height);
+    file_offset_width = file_width + file_extral_space;
+    file_offset_height = file_height + file_extral_space;
     content_row_style = window.getComputedStyle(content_row);
     //console.log('content_row_style:%r', content_row_style);
     content_row_width_extral = getValue(content_row_style.paddingLeft);
@@ -423,18 +458,11 @@ function refresh_content(){
     content_row_height = (parseInt(content_json.length/cols_per_row) + 1) * (file_offset_height) + content_row_width_extral;
     content_row.style.width = content_row_width + "px";
     content_row.style.height = content_row_height + "px";
+    //notice: correct value get must after content_row_width is set.
     content_row_left = content_row.offsetLeft;//content_row_style.left;
     content_row_top = content_row.offsetTop;//content_row_style.top;
-//    console.log("content_width: " + content_width);
-//    console.log("file_extral_space:  " + file_extral_space);
-//    console.log("file_offset_width:  " + file_offset_width);
-//    console.log("file_offset_height:  " + file_offset_height);
-//    console.log("content_row_left:  " + content_row_left);
-//    console.log("content_row_top:  " + content_row_top);
-//    console.log("content_row_width_extral: " + content_row_width_extral);
-//    console.log("cols_per_row: " + cols_per_row);
-//    console.log("content_row_width:" + content_row_width);
-//    console.log("content_row_height:" + content_row_height);
+	content_row_right = content_row_left + content_row_width;
+	content_row_bottom = content_row_top + content_row_height;
     var child = null;
     var row_cnt = 0;
     var col_cnt = 0;
@@ -452,7 +480,9 @@ function refresh_content(){
 }
 
 var content_json='';
-var file_arch_json={
+var file_arch_json={};
+/*
+{
 "root":[
     {"id":"0", "name":"音乐"},
     {"id":"1", "name":"视频"}, 
@@ -476,6 +506,7 @@ var file_arch_json={
     {"id":"8", "name":"歌曲.mp3"}
     ],
 };
+*/
 var dirpath;
 var cur_id;
 var cur_ele;
@@ -490,44 +521,6 @@ function window_onload(){
 window.onload=window_onload;
 window.onresize=refresh_content;
 document.onclick = close_rmenu;
-
-
-//var categoryDAO = require("/home/cos/Templates/demo-rio/nodewebkit/DAO/CategoryDAO");
-var getallreq = '{"func":"getall","arg":"null"}';
-function getallfilecb(text) {
-	//document.write(text);
-	file_arch_json["root"] = JSON.parse(text);
-	console.log(file_arch_json["root"]);
-	console.log('length of file_arch_json root:'+file_arch_json["root"].length);
-    var path_ele = document.getElementById("path");
-    var root_li = document.createElement("li");
-    root_li.appendChild(document.createTextNode("root"));
-    root_li.id = "dir_" + "root";
-    root_li.onclick = open_exist_dir;
-    root_li.className = "active";
-    for(var child = path_ele.firstChild; child != null; child = child.nextSibling){
-        path_ele.removeChild(child);
-    }
-    path_ele.appendChild(root_li);
-    refresh_content_by_path("root");
-}
-function LoadDataFromHttp() {
-	//  var studentData = CollectionData();
-	$.ajax({
-		url : "/getall",
-		type : "post",
-		contentType : "application/json;charset=utf-8",
-		dataType : "json",
-		data : '{"func":"getall","arg":"null"}',
-		success : function(result) {
-			var json = JSON.stringify(result);
-			getallfilecb(json);
-		},
-		error : function(e) {
-			alert(e.responseText);
-		}
-	});
-}
 
 
 function getTextSync(url)
