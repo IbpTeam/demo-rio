@@ -30,13 +30,13 @@ function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
     //cur_ele = document.getElementById(this.id);
     //cur_file_name = cur_ele.innerHTML;
     //console.log('dir anme:%s', cur_file_name);
-    var oEvent=ev||event;
-    var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;  //获取上下滚动条
-    var scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft;  //获取左右滚动条
-    var oUl=document.getElementById('rmenu');  //获取UL
-    oUl.style.display='block';
-    oUl.style.left=oEvent.clientX+scrollLeft+'px';  //设置X轴的位置
-    oUl.style.top=oEvent.clientY+scrollTop+'px';    //设置Y轴的位置
+    var oEvent = ev||event;
+    var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;  //获取上下滚动条
+    var scrollLeft = document.documentElement.scrollLeft||document.body.scrollLeft;  //获取左右滚动条
+    var oUl = document.getElementById('rmenu');  //获取UL
+    oUl.style.display = 'block';
+    oUl.style.left = oEvent.clientX + scrollLeft + 'px';  //设置X轴的位置
+    oUl.style.top = oEvent.clientY + scrollTop + 'px';    //设置Y轴的位置
     //console.log('scroll: %d - %d', document.documentElement.scrollLeft, document.documentElement.scrollTop);
     //console.log('pos: %d - %d', oUl.style.left, oUl.style.top);
     return false;  //阻止浏览器默认事件
@@ -53,6 +53,7 @@ function open_exist_dir()
 		d_id = cur_id;
 	}else{
 		d_id = this.id;
+		cur_id = d_id;
 	}
     dir_ele = document.getElementById(d_id);
     dirname = dir_ele.innerHTML;
@@ -78,7 +79,6 @@ function open_exist_dir()
         alert("in open new dir: wrong path.");
     }
 }
-var cur_dir_name = '';
 function open_new_dir(){
 	var d_id;
 	if(this.id){
@@ -182,8 +182,13 @@ function file_on_mouse_down(event){
 	cur_id = this.id;	
     cur_ele = document.getElementById(this.id);
     cur_file_name = cur_ele.innerHTML;
-	elementToDrag = this;//.parentNode;
-	close_rmenu();
+    //console.log('event.button' + event.button);
+	if(2 == event.button){
+        return false;
+	}else{
+	    close_rmenu();	
+	}
+	elementToDrag = this;
     // The initial mouse position, converted to document coordinates
     var scroll = getScrollOffsets();  // A utility function from elsewhere
     var startX = event.clientX + scroll.x;
@@ -199,16 +204,16 @@ function file_on_mouse_down(event){
     // corner of the element. We'll maintain this distance as the mouse moves.
     var deltaX = startX - origX;
     var deltaY = startY - origY;
-	console.log('event:' + event);
-	console.log('start: %s - %s', startX, startY);
-	console.log('origin: %s - %s', origX, origY);
-	console.log('delta: %s - %s', deltaX, deltaY);
+	console.log('in (file on mouse down) event:' + event);
+	//console.log('start: %s - %s', startX, startY);
+	//console.log('origin: %s - %s', origX, origY);
+	//console.log('delta: %s - %s', deltaX, deltaY);
 
 	// start time count
 	var time_cnt = 0;
     timer = setInterval(function() {
     	time_cnt += 10;
-        if (time_cnt >= 150) {
+        if (time_cnt >= 200) {
             clearInterval(timer);
             popup_rmenu(event);
             //alert('time out');
@@ -309,7 +314,7 @@ function create_div_by_path(path_str, json_obj)
     file.className = "file";
     file.id = json_obj.id;
     //file.onclick = open_new_dir;
-    //file.oncontextmenu = popup_rmenu;
+    file.oncontextmenu = popup_rmenu;
     switch(path_str)
     {
         case 'root':
@@ -481,48 +486,22 @@ function refresh_content(){
 
 var content_json='';
 var file_arch_json={};
-/*
-{
-"root":[
-    {"id":"0", "name":"音乐"},
-    {"id":"1", "name":"视频"}, 
-    {"id":"2", "name":"图像"},
-    {"id":"3", "name":"游戏"},
-    {"id":"4", "name":"联系人"},
-    {"id":"5", "name":"电子书"},
-    {"id":"6", "name":"小说"},
-    {"id":"7", "name":"电影"},
-    {"id":"8", "name":"歌曲"}
-    ],
-"root/音乐":[
-    {"id":"0", "name":"音乐.mp3"},
-    {"id":"1", "name":"视频.mp3"}, 
-    {"id":"2", "name":"图像.mp3"},
-    {"id":"3", "name":"游戏.mp3"},
-    {"id":"4", "name":"联系人.mp3"},
-    {"id":"5", "name":"电子书.mp3"},
-    {"id":"6", "name":"小说.mp3"},
-    {"id":"7", "name":"电影.mp3"},
-    {"id":"8", "name":"歌曲.mp3"}
-    ],
-};
-*/
 var dirpath;
 var cur_id;
 var cur_ele;
 var cur_file_name;
-//var paths=[];
+var cur_dir_name;
 function window_onload(){
 	dirpath = document.getElementById("id_path");
 	var rmenu = create_rmenu();
 	document.body.appendChild(rmenu);
 	open_root_dir();
 }
-window.onload=window_onload;
-window.onresize=refresh_content;
-document.onclick = close_rmenu;
+window.onload = window_onload;
+window.onresize = refresh_content;
+//document.onclick = close_rmenu;
 
-
+// ready for obsolute.
 function getTextSync(url)
 {
     var request = new XMLHttpRequest();
