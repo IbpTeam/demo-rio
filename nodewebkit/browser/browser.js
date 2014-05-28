@@ -181,12 +181,16 @@ function open_root_dir()
     getAllCate(get_root_data);
 }
 function get_root_data(text){
-    //console.log('data from server:'+text)
+    console.log('data from server:'+text)
     cur_dir_path = 'root';
 	file_arch_json[cur_dir_path] = json_append_prop(text);
 	
-	//console.log(file_arch_json[cur_dir_path]);
-    refresh_content_by_path(cur_dir_path);
+	console.log(file_arch_json[cur_dir_path]);
+	if(file_arch_json[cur_dir_path] ){
+		refresh_content_by_path(cur_dir_path);
+	}else{
+		alert('can not get data from server.')
+	}
 }
 //getAllCate(get_root_data);
 function json_splice_by_id(){
@@ -413,6 +417,11 @@ function create_div_by_path(path_str, json_obj)
             file.appendChild(document.createTextNode(json_obj.type));
         break;
         case 'root/Pictures':
+            var img = document.createElement("img");
+            img.src = '/resources/pictures/'+json_obj.filename+'.'+json_obj.postfix;
+            img.width = 90;
+            img.height = 70;
+            file.appendChild(img);
             file.appendChild(document.createTextNode(json_obj.filename));
         break;
         case 'root/Contacts':
