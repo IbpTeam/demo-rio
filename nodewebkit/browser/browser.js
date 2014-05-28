@@ -210,7 +210,13 @@ function delete_file(){
 	refresh_content();
 }
 function get_property_of_file(){
-  	console.log('property of file ' + document.getElementById(file_to_operate_id).innerHTML);
+	if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
+		var file_propery='';
+		for(var key in cur_json){
+			file_propery += key + ':' + cur_json[key] + '\n';
+		}
+		alert(file_propery);
+	}
 }
 function getScrollOffsets(w){
     w = w || window;
