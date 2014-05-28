@@ -4,7 +4,7 @@ var categoryEmitter = new events.EventEmitter();
 
 //连接数据库
 function openDB(){
-  return new sqlite3.Database('./db/rio');
+  return new sqlite3.Database('./backend/db/rio');
 }
 
 //关闭数据库

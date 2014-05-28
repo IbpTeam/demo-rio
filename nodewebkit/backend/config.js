@@ -1,3 +1,3 @@
-var PROJECTHOME="/home/v1/demo-rio/nodewebkit";
+var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
 
 exports.projecthome = PROJECTHOME;

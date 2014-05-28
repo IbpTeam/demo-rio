@@ -1,9 +1,9 @@
 var querystring = require("querystring");
 var fs = require('fs');
-var categoryDAO = require("../DAO/CategoryDAO");
-var contactsDAO = require("../DAO/ContactsDAO");
-var picturesDAO = require("../DAO/PicturesDAO");
-var videosDAO = require("../DAO/VideosDAO");
+var categoryDAO = require("./DAO/CategoryDAO");
+var contactsDAO = require("./DAO/ContactsDAO");
+var picturesDAO = require("./DAO/PicturesDAO");
+var videosDAO = require("./DAO/VideosDAO");
 
 function start(response, postData) {
   console.log("Request handler 'start' was called.");
