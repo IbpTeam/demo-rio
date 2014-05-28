@@ -51,6 +51,21 @@ function get_cur_file_info_by_id(id){
 	element_to_operate = document.getElementById(id);
 	file_to_operate_name = element_to_operate.innerHTML;	
 }
+function get_json_by_id(path, id){
+//	console.log('file_arch_json:%r', file_arch_json);
+//	console.log('file_arch_json:%r', file_arch_json[path]);
+//	console.log('path:'+ path);
+//	console.log('id:'+ id);
+	var result = false;
+	if(file_arch_json[path]){
+		for(var i=0; i<file_arch_json[path].length; i++){
+			if(id == file_arch_json[path][i].id){
+				result = file_arch_json[path][i];
+			}
+		}
+	}
+	return result;
+}
 function open_exist_dir()
 {
 	var d_id;
@@ -94,7 +109,22 @@ function open_new_dir(){
 	}
 //    console.log('in open new dir:%d - %d', file_to_operate_id, this.id);
 //    console.log('pos: %d - %d', dir_ele.offsetTop, dir_ele.offsetTop);
-    getAllDataByCate(get_cur_dir_data, file_to_operate_name);
+	var cur_json;
+
+	if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
+		//console.log('current json:'+ cur_json);
+		if('dir' == cur_json.prop){
+		    getAllDataByCate(get_cur_dir_data, file_to_operate_name);			
+		}else{
+			if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
+				var file_propery='';
+				for(var key in cur_json){
+					file_propery += key + ':' + cur_json[key] + '\n';
+				}
+				alert(file_propery);
+			}
+		}
+	}
 }
 function get_cur_dir_data(text){
     //console.log('data from server:'+text)
@@ -127,7 +157,13 @@ function get_cur_dir_data(text){
         alert("in open new dir: wrong path.");
     }
 }
-
+function json_append_prop(text){
+	json_obj = JSON.parse(text);
+	for(var i=0; i<json_obj.length; i++){
+		json_obj[i]['prop'] = 'dir';
+	}
+	return json_obj;
+}
 function open_root_dir()
 {
 	//get_root_data();
@@ -147,7 +183,8 @@ function open_root_dir()
 function get_root_data(text){
     //console.log('data from server:'+text)
     cur_dir_path = 'root';
-	file_arch_json[cur_dir_path] = JSON.parse(text);
+	file_arch_json[cur_dir_path] = json_append_prop(text);
+	
 	//console.log(file_arch_json[cur_dir_path]);
     refresh_content_by_path(cur_dir_path);
 }
@@ -188,6 +225,10 @@ function getScrollOffsets(w){
     else{return{x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
     }
 }
+//for event:
+//1. mouse move
+//2. long press
+//3. right click
 function file_on_mouse_down(event){
 	get_cur_file_info_by_id(this.id);
     //console.log('event.button' + event.button);
@@ -196,6 +237,23 @@ function file_on_mouse_down(event){
 //	}else{
 //	    close_rmenu();	
 //	}
+    // guess function state.
+    var func_state = -1;
+    var state_mouse_move = 0;
+    var state_left_click = 1;
+    var state_left_long_press = 2;
+    var state_right_click = 3;    
+    switch(event.button)
+    {
+    case 0:
+    	func_state = state_left_click;
+    	break;
+    case 2:
+    	func_state = state_right_click;
+    	//popup_rmenu(event);
+    	//return false;
+    	break;
+    }
 	elementToDrag = this;
     // The initial mouse position, converted to document coordinates
     var scroll = getScrollOffsets();  // A utility function from elsewhere
@@ -212,7 +270,7 @@ function file_on_mouse_down(event){
     // corner of the element. We'll maintain this distance as the mouse moves.
     var deltaX = startX - origX;
     var deltaY = startY - origY;
-	console.log('in (file on mouse down) event:' + event);
+	//console.log('in (file on mouse down) event:' + event);
 	//console.log('start: %s - %s', startX, startY);
 	//console.log('origin: %s - %s', origX, origY);
 	//console.log('delta: %s - %s', deltaX, deltaY);
@@ -221,9 +279,10 @@ function file_on_mouse_down(event){
 	var time_cnt = 0;
     timer = setInterval(function() {
     	time_cnt += 10;
-        if (time_cnt >= 200) {
+        if (time_cnt >= 250) {
             clearInterval(timer);
             popup_rmenu(event);
+            func_state = state_left_long_press;
             //alert('time out');
         }
     }, 10)
@@ -267,6 +326,7 @@ function file_on_mouse_down(event){
      * is being dragged. It is responsible for moving the element.
      **/
     function moveHandler(e) {
+    	func_state = state_mouse_move;
         if (!e) e = window.event;  // IE event Model
         // Move the element to the current mouse position, adjusted by the
         // position of the scrollbars and the offset of the initial click.
@@ -312,8 +372,25 @@ function file_on_mouse_down(event){
         if (e.stopPropagation) e.stopPropagation();  // Standard model
         else e.cancelBubble = true;                  // IE
 
-    	clearInterval(timer);
-        refresh_content();
+
+//    	clearInterval(timer);
+//    	refresh_content();
+        switch(func_state)
+        {
+        case state_left_click:
+        	clearInterval(timer);
+        	open_new_dir();
+        	break;
+        case state_right_click:
+        case state_left_long_press:
+        	clearInterval(timer);
+        	refresh_content();
+        	break;
+        case state_mouse_move:
+        	clearInterval(timer);
+        	refresh_content();
+        	break;
+        }
     }
 }
 function create_div_by_path(path_str, json_obj)
