@@ -26,17 +26,13 @@ function create_rmenu(){
 }
 function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
 {
-	//cur_id = this.id;	
-    //cur_ele = document.getElementById(this.id);
-    //cur_file_name = cur_ele.innerHTML;
-    //console.log('dir anme:%s', cur_file_name);
-    var oEvent=ev||event;
-    var scrollTop=document.documentElement.scrollTop||document.body.scrollTop;  //获取上下滚动条
-    var scrollLeft=document.documentElement.scrollLeft||document.body.scrollLeft;  //获取左右滚动条
-    var oUl=document.getElementById('rmenu');  //获取UL
-    oUl.style.display='block';
-    oUl.style.left=oEvent.clientX+scrollLeft+'px';  //设置X轴的位置
-    oUl.style.top=oEvent.clientY+scrollTop+'px';    //设置Y轴的位置
+    var oEvent = ev||event;
+    var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;  //获取上下滚动条
+    var scrollLeft = document.documentElement.scrollLeft||document.body.scrollLeft;  //获取左右滚动条
+    var oUl = document.getElementById('rmenu');  //获取UL
+    oUl.style.display = 'block';
+    oUl.style.left = oEvent.clientX + scrollLeft + 'px';  //设置X轴的位置
+    oUl.style.top = oEvent.clientY + scrollTop + 'px';    //设置Y轴的位置
     //console.log('scroll: %d - %d', document.documentElement.scrollLeft, document.documentElement.scrollTop);
     //console.log('pos: %d - %d', oUl.style.left, oUl.style.top);
     return false;  //阻止浏览器默认事件
@@ -45,18 +41,43 @@ function close_rmenu()
 {
     var menu=document.getElementById('rmenu');
     menu.style.display='none';
+    //console.log('close right menu');
+}
+
+//use for get current file info
+//used by file_on_mouse_down, open_new_dir.
+function get_cur_file_info_by_id(id){
+	file_to_operate_id = id;	
+	element_to_operate = document.getElementById(id);
+	file_to_operate_name = element_to_operate.innerHTML;	
+}
+function get_json_by_id(path, id){
+//	console.log('file_arch_json:%r', file_arch_json);
+//	console.log('file_arch_json:%r', file_arch_json[path]);
+//	console.log('path:'+ path);
+//	console.log('id:'+ id);
+	var result = false;
+	if(file_arch_json[path]){
+		for(var i=0; i<file_arch_json[path].length; i++){
+			if(id == file_arch_json[path][i].id){
+				result = file_arch_json[path][i];
+			}
+		}
+	}
+	return result;
 }
 function open_exist_dir()
 {
 	var d_id;
 	if(null == this.id){
-		d_id = cur_id;
+		d_id = file_to_operate_id;
 	}else{
 		d_id = this.id;
+		file_to_operate_id = d_id;
 	}
-    dir_ele = document.getElementById(d_id);
-    dirname = dir_ele.innerHTML;
-    console.log('in open exist dir:%d - %d', cur_id, this.id);
+    var dir_ele = document.getElementById(d_id);
+    var dirname = dir_ele.innerHTML;
+    //console.log('in open exist dir:%d - %d', file_to_operate_id, this.id);
     var path_ele = document.getElementById("id_path");
     var dirs = [];
     for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
@@ -65,8 +86,8 @@ function open_exist_dir()
             break;
         }
     }
-    cur_dir = dirs.join("/");
-    if(refresh_content_by_path(cur_dir) != null){
+    cur_dir_path = dirs.join("/");
+    if(refresh_content_by_path(cur_dir_path) != null){
         dir_ele.className = "active";//
         //console.log('in open exist dir:' + dir_ele.nextElementSibling);
         if(null != dir_ele.nextElementSibling){
@@ -78,32 +99,56 @@ function open_exist_dir()
         alert("in open new dir: wrong path.");
     }
 }
-
 function open_new_dir(){
 	var d_id;
 	if(this.id){
 		d_id = this.id;
+		get_cur_file_info_by_id(d_id);
 	}else{
-		d_id = cur_id;
+		d_id = file_to_operate_id;
 	}
-    dir_ele = document.getElementById(d_id);
-    dirname = dir_ele.innerHTML;
-//    console.log('in open new dir:%d - %d', cur_id, this.id);
+//    console.log('in open new dir:%d - %d', file_to_operate_id, this.id);
 //    console.log('pos: %d - %d', dir_ele.offsetTop, dir_ele.offsetTop);
-    var path_ele = document.getElementById("id_path");
-    var dirs = [];
-    for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
-        dirs.push(child.innerHTML);
-    }
-    dirs.push(dirname);
-    cur_dir = dirs.join("/");
+	var cur_json;
+
+	if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
+		//console.log('current json:'+ cur_json);
+		if('dir' == cur_json.prop){
+		    getAllDataByCate(get_cur_dir_data, file_to_operate_name);			
+		}else{
+			if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
+				var file_propery='';
+				for(var key in cur_json){
+					file_propery += key + ':' + cur_json[key] + '\n';
+				}
+				alert(file_propery);
+			}
+		}
+	}
+}
+function get_cur_dir_data(text){
+    //console.log('data from server:'+text)
+    var json_obj = JSON.parse(text);
+    if(0 == json_obj.length){
+    	alert('文件夹内容为空');
+    	return false;
+    }else{
+        var path_ele = document.getElementById("id_path");
+        var dirs = [];
+        for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
+            dirs.push(child.innerHTML);
+        }
+        dirs.push(file_to_operate_name);
+        cur_dir_path = dirs.join("/");
+		file_arch_json[cur_dir_path] = json_obj;
+	}
     var new_li;
-    if(refresh_content_by_path(cur_dir) != null){
+    if(refresh_content_by_path(cur_dir_path) != null){
         new_li = document.createElement("li");
-        new_li.id = "dir_" + dirname;
+        new_li.id = "dir_" + file_to_operate_name;
         new_li.onclick = open_exist_dir;
         new_li.className = "active";
-        new_li.appendChild(document.createTextNode(dirname));
+        new_li.appendChild(document.createTextNode(file_to_operate_name));
         for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
             child.className = "divider";
         }
@@ -111,6 +156,13 @@ function open_new_dir(){
     }else{
         alert("in open new dir: wrong path.");
     }
+}
+function json_append_prop(text){
+	json_obj = JSON.parse(text);
+	for(var i=0; i<json_obj.length; i++){
+		json_obj[i]['prop'] = 'dir';
+	}
+	return json_obj;
 }
 function open_root_dir()
 {
@@ -129,24 +181,46 @@ function open_root_dir()
     getAllCate(get_root_data);
 }
 function get_root_data(text){
-    //document.write(text);
     console.log('data from server:'+text)
-    //refresh_content_by_path("root");
+    cur_dir_path = 'root';
+	file_arch_json[cur_dir_path] = json_append_prop(text);
+	
+	console.log(file_arch_json[cur_dir_path]);
+	if(file_arch_json[cur_dir_path] ){
+		refresh_content_by_path(cur_dir_path);
+	}else{
+		alert('can not get data from server.')
+	}
 }
-getAllCate(get_root_data);
-
+//getAllCate(get_root_data);
+function json_splice_by_id(){
+    for(var i=0; i<content_json.length; i++)
+    {
+        if(content_json[i].id == file_to_operate_id){
+            break;
+        }
+    }
+	content_json.splice(i, 1);
+}
 function delete_file(){
-	//console.log('current id:' + cur_id);
-	var file_name = document.getElementById(cur_id).innerHTML;
+	//console.log('current id:' + file_to_operate_id);
+	var file_name = document.getElementById(file_to_operate_id).innerHTML;
 	var value = confirm('file ' + file_name + ' will be deleted?');
 	if(value == true){
-		content_json.splice(cur_id, 1);
+		json_splice_by_id();
+		//content_json.splice(file_to_operate_id, 1);
 		//console.log('value:' + value);
 	}
 	refresh_content();
 }
 function get_property_of_file(){
-  	console.log('property of file ' + document.getElementById(cur_id).innerHTML);
+	if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
+		var file_propery='';
+		for(var key in cur_json){
+			file_propery += key + ':' + cur_json[key] + '\n';
+		}
+		alert(file_propery);
+	}
 }
 function getScrollOffsets(w){
     w = w || window;
@@ -161,12 +235,36 @@ function getScrollOffsets(w){
     else{return{x:d.documentElement.scrollLeft, y:d.documentElement.scrollTop};
     }
 }
+//for event:
+//1. mouse move
+//2. long press
+//3. right click
 function file_on_mouse_down(event){
-	cur_id = this.id;	
-    cur_ele = document.getElementById(this.id);
-    cur_file_name = cur_ele.innerHTML;
-	elementToDrag = this;//.parentNode;
-	close_rmenu();
+	get_cur_file_info_by_id(this.id);
+    //console.log('event.button' + event.button);
+//	if(2 == event.button){
+//        return false;
+//	}else{
+//	    close_rmenu();	
+//	}
+    // guess function state.
+    var func_state = -1;
+    var state_mouse_move = 0;
+    var state_left_click = 1;
+    var state_left_long_press = 2;
+    var state_right_click = 3;    
+    switch(event.button)
+    {
+    case 0:
+    	func_state = state_left_click;
+    	break;
+    case 2:
+    	func_state = state_right_click;
+    	//popup_rmenu(event);
+    	//return false;
+    	break;
+    }
+	elementToDrag = this;
     // The initial mouse position, converted to document coordinates
     var scroll = getScrollOffsets();  // A utility function from elsewhere
     var startX = event.clientX + scroll.x;
@@ -182,18 +280,19 @@ function file_on_mouse_down(event){
     // corner of the element. We'll maintain this distance as the mouse moves.
     var deltaX = startX - origX;
     var deltaY = startY - origY;
-	console.log('event:' + event);
-	console.log('start: %s - %s', startX, startY);
-	console.log('origin: %s - %s', origX, origY);
-	console.log('delta: %s - %s', deltaX, deltaY);
+	//console.log('in (file on mouse down) event:' + event);
+	//console.log('start: %s - %s', startX, startY);
+	//console.log('origin: %s - %s', origX, origY);
+	//console.log('delta: %s - %s', deltaX, deltaY);
 
 	// start time count
 	var time_cnt = 0;
     timer = setInterval(function() {
     	time_cnt += 10;
-        if (time_cnt >= 150) {
+        if (time_cnt >= 250) {
             clearInterval(timer);
             popup_rmenu(event);
+            func_state = state_left_long_press;
             //alert('time out');
         }
     }, 10)
@@ -237,6 +336,7 @@ function file_on_mouse_down(event){
      * is being dragged. It is responsible for moving the element.
      **/
     function moveHandler(e) {
+    	func_state = state_mouse_move;
         if (!e) e = window.event;  // IE event Model
         // Move the element to the current mouse position, adjusted by the
         // position of the scrollbars and the offset of the initial click.
@@ -282,9 +382,56 @@ function file_on_mouse_down(event){
         if (e.stopPropagation) e.stopPropagation();  // Standard model
         else e.cancelBubble = true;                  // IE
 
-    	clearInterval(timer);
-        refresh_content();
+
+//    	clearInterval(timer);
+//    	refresh_content();
+        switch(func_state)
+        {
+        case state_left_click:
+        	clearInterval(timer);
+        	open_new_dir();
+        	break;
+        case state_right_click:
+        case state_left_long_press:
+        	clearInterval(timer);
+        	refresh_content();
+        	break;
+        case state_mouse_move:
+        	clearInterval(timer);
+        	refresh_content();
+        	break;
+        }
     }
+}
+function create_div_by_path(path_str, json_obj)
+{
+    var file = document.createElement("div");
+    file.className = "file";
+    file.id = json_obj.id;
+    //file.onclick = open_new_dir;
+    file.oncontextmenu = popup_rmenu;
+    file.onmousedown = file_on_mouse_down;
+    switch(path_str)
+    {
+        case 'root':
+            file.appendChild(document.createTextNode(json_obj.type));
+        break;
+        case 'root/Pictures':
+            var img = document.createElement("img");
+            img.src = '/resources/pictures/'+json_obj.filename+'.'+json_obj.postfix;
+            img.width = 90;
+            img.height = 70;
+            file.appendChild(img);
+            file.appendChild(document.createTextNode(json_obj.filename));
+        break;
+        case 'root/Contacts':
+            file.appendChild(document.createTextNode(json_obj.name));
+        break;
+        case 'root/Videos':
+            file.appendChild(document.createTextNode(json_obj.name));
+        break;
+    }
+    return file;
 }
 var file_margin_right;
 var file_extral_space;
@@ -314,17 +461,11 @@ function refresh_content_by_path(path_str)
         content_ele.removeChild(content_row);
     }
     content_row = document.createElement("div");
-    content_row.id = "id_content_row"
-    content_row.className="style_content_row";
+    content_row.id = "id_content_row";
+    content_row.className = "style_content_row";
     var file;
     for(var i=0;i<content_json.length;i++){
-        file = document.createElement("div");
-        file.className = "file";
-        file.id=content_json[i].id;
-        //file.onclick = open_new_dir;
-        //file.oncontextmenu = popup_rmenu;
-        file.onmousedown = file_on_mouse_down;
-        file.appendChild(document.createTextNode(content_json[i].name));//content_json[i].type
+        file = create_div_by_path(path_str, content_json[i]);
         content_row.appendChild(file);
     }
     content_ele.appendChild(content_row);
@@ -372,13 +513,13 @@ function refresh_content_by_path(path_str)
     	file_top = content_row_top + content_row_width_extral + file_margin_right + file_offset_height * row_cnt;
     	child.style.left = file_left + 'px';
     	child.style.top = file_top + 'px';
-    	//console.log('child' + pos_cnt + ': ' + file_left + ' - ' + file_top);
+//    	console.log('child' + pos_cnt + ': ' + file_left + ' - ' + file_top);
     }
     return content_ele;
 }
 //notice: difference between refresh_content_by_path and refresh_content
 //1. path is not provided, content_json should comment;
-//2. id or file is refresh.
+//2. path_str is replaced by cur_dir_path;
 function refresh_content(){
     var content_ele = document.getElementById("id_content");
     var content_width = content_ele.clientWidth;
@@ -393,17 +534,11 @@ function refresh_content(){
         content_ele.removeChild(content_row);
     }
     content_row = document.createElement("div");
-    content_row.id = "id_content_row"
-    content_row.className="style_content_row";
+    content_row.id = "id_content_row";
+    content_row.className = "style_content_row";
     var file;
     for(var i=0;i<content_json.length;i++){
-        file = document.createElement("div");
-        file.className = "file";
-        file.id = i;//content_json[i].id;
-        //file.onclick = open_new_dir;
-        //file.oncontextmenu = popup_rmenu;
-        file.onmousedown = file_on_mouse_down;
-        file.appendChild(document.createTextNode(content_json[i].name));//content_json[i].type
+        file = create_div_by_path(cur_dir_path, content_json[i]);
         content_row.appendChild(file);
     }
     content_ele.appendChild(content_row);
@@ -413,8 +548,10 @@ function refresh_content(){
     file_style = window.getComputedStyle(file);
     file_margin_right = getValue(file_style.marginLeft);
     file_extral_space = file_margin_right * 2 + getValue(file_style.borderLeftWidth) + getValue(file_style.borderRightWidth);
-    file_offset_width = getValue(file_style.width) + file_extral_space;
-    file_offset_height = getValue(file_style.height) + file_extral_space;
+    file_width = getValue(file_style.width);
+    file_height = getValue(file_style.height);
+    file_offset_width = file_width + file_extral_space;
+    file_offset_height = file_height + file_extral_space;
     content_row_style = window.getComputedStyle(content_row);
     //console.log('content_row_style:%r', content_row_style);
     content_row_width_extral = getValue(content_row_style.paddingLeft);
@@ -423,18 +560,11 @@ function refresh_content(){
     content_row_height = (parseInt(content_json.length/cols_per_row) + 1) * (file_offset_height) + content_row_width_extral;
     content_row.style.width = content_row_width + "px";
     content_row.style.height = content_row_height + "px";
+    //notice: correct value get must after content_row_width is set.
     content_row_left = content_row.offsetLeft;//content_row_style.left;
     content_row_top = content_row.offsetTop;//content_row_style.top;
-//    console.log("content_width: " + content_width);
-//    console.log("file_extral_space:  " + file_extral_space);
-//    console.log("file_offset_width:  " + file_offset_width);
-//    console.log("file_offset_height:  " + file_offset_height);
-//    console.log("content_row_left:  " + content_row_left);
-//    console.log("content_row_top:  " + content_row_top);
-//    console.log("content_row_width_extral: " + content_row_width_extral);
-//    console.log("cols_per_row: " + cols_per_row);
-//    console.log("content_row_width:" + content_row_width);
-//    console.log("content_row_height:" + content_row_height);
+	content_row_right = content_row_left + content_row_width;
+	content_row_bottom = content_row_top + content_row_height;
     var child = null;
     var row_cnt = 0;
     var col_cnt = 0;
@@ -452,84 +582,22 @@ function refresh_content(){
 }
 
 var content_json='';
-var file_arch_json={
-"root":[
-    {"id":"0", "name":"音乐"},
-    {"id":"1", "name":"视频"}, 
-    {"id":"2", "name":"图像"},
-    {"id":"3", "name":"游戏"},
-    {"id":"4", "name":"联系人"},
-    {"id":"5", "name":"电子书"},
-    {"id":"6", "name":"小说"},
-    {"id":"7", "name":"电影"},
-    {"id":"8", "name":"歌曲"}
-    ],
-"root/音乐":[
-    {"id":"0", "name":"音乐.mp3"},
-    {"id":"1", "name":"视频.mp3"}, 
-    {"id":"2", "name":"图像.mp3"},
-    {"id":"3", "name":"游戏.mp3"},
-    {"id":"4", "name":"联系人.mp3"},
-    {"id":"5", "name":"电子书.mp3"},
-    {"id":"6", "name":"小说.mp3"},
-    {"id":"7", "name":"电影.mp3"},
-    {"id":"8", "name":"歌曲.mp3"}
-    ],
-};
+var file_arch_json={};
 var dirpath;
-var cur_id;
-var cur_ele;
-var cur_file_name;
-//var paths=[];
+var file_to_operate_id;
+var element_to_operate;
+var file_to_operate_name;
 function window_onload(){
 	dirpath = document.getElementById("id_path");
 	var rmenu = create_rmenu();
 	document.body.appendChild(rmenu);
 	open_root_dir();
 }
-window.onload=window_onload;
-window.onresize=refresh_content;
+window.onload = window_onload;
+window.onresize = refresh_content;
 document.onclick = close_rmenu;
 
-
-//var categoryDAO = require("/home/cos/Templates/demo-rio/nodewebkit/DAO/CategoryDAO");
-var getallreq = '{"func":"getall","arg":"null"}';
-function getallfilecb(text) {
-	//document.write(text);
-	file_arch_json["root"] = JSON.parse(text);
-	console.log(file_arch_json["root"]);
-	console.log('length of file_arch_json root:'+file_arch_json["root"].length);
-    var path_ele = document.getElementById("path");
-    var root_li = document.createElement("li");
-    root_li.appendChild(document.createTextNode("root"));
-    root_li.id = "dir_" + "root";
-    root_li.onclick = open_exist_dir;
-    root_li.className = "active";
-    for(var child = path_ele.firstChild; child != null; child = child.nextSibling){
-        path_ele.removeChild(child);
-    }
-    path_ele.appendChild(root_li);
-    refresh_content_by_path("root");
-}
-function LoadDataFromHttp() {
-	//  var studentData = CollectionData();
-	$.ajax({
-		url : "/getall",
-		type : "post",
-		contentType : "application/json;charset=utf-8",
-		dataType : "json",
-		data : '{"func":"getall","arg":"null"}',
-		success : function(result) {
-			var json = JSON.stringify(result);
-			getallfilecb(json);
-		},
-		error : function(e) {
-			alert(e.responseText);
-		}
-	});
-}
-
-
+// ready for obsolute.
 function getTextSync(url)
 {
     var request = new XMLHttpRequest();
