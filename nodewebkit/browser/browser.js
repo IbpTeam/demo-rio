@@ -26,10 +26,6 @@ function create_rmenu(){
 }
 function popup_rmenu(ev)  //oncontextmenu事件为鼠标右键
 {
-	//cur_id = this.id;	
-    //cur_ele = document.getElementById(this.id);
-    //cur_file_name = cur_ele.innerHTML;
-    //console.log('dir anme:%s', cur_file_name);
     var oEvent = ev||event;
     var scrollTop = document.documentElement.scrollTop||document.body.scrollTop;  //获取上下滚动条
     var scrollLeft = document.documentElement.scrollLeft||document.body.scrollLeft;  //获取左右滚动条
@@ -45,19 +41,28 @@ function close_rmenu()
 {
     var menu=document.getElementById('rmenu');
     menu.style.display='none';
+    //console.log('close right menu');
+}
+
+//use for get current file info
+//used by file_on_mouse_down, open_new_dir.
+function get_cur_file_info_by_id(id){
+	file_to_operate_id = id;	
+	element_to_operate = document.getElementById(id);
+	file_to_operate_name = element_to_operate.innerHTML;	
 }
 function open_exist_dir()
 {
 	var d_id;
 	if(null == this.id){
-		d_id = cur_id;
+		d_id = file_to_operate_id;
 	}else{
 		d_id = this.id;
-		cur_id = d_id;
+		file_to_operate_id = d_id;
 	}
-    dir_ele = document.getElementById(d_id);
-    dirname = dir_ele.innerHTML;
-    console.log('in open exist dir:%d - %d', cur_id, this.id);
+    var dir_ele = document.getElementById(d_id);
+    var dirname = dir_ele.innerHTML;
+    //console.log('in open exist dir:%d - %d', file_to_operate_id, this.id);
     var path_ele = document.getElementById("id_path");
     var dirs = [];
     for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
@@ -83,32 +88,37 @@ function open_new_dir(){
 	var d_id;
 	if(this.id){
 		d_id = this.id;
+		get_cur_file_info_by_id(d_id);
 	}else{
-		d_id = cur_id;
+		d_id = file_to_operate_id;
 	}
-    dir_ele = document.getElementById(d_id);
-    cur_dir_name = dir_ele.innerHTML;
-//    console.log('in open new dir:%d - %d', cur_id, this.id);
+//    console.log('in open new dir:%d - %d', file_to_operate_id, this.id);
 //    console.log('pos: %d - %d', dir_ele.offsetTop, dir_ele.offsetTop);
-    getAllDataByCate(getAllDataByCateCb, cur_dir_name);
+    getAllDataByCate(get_cur_dir_data, file_to_operate_name);
 }
-function getAllDataByCateCb(text){
-    var path_ele = document.getElementById("id_path");
-    var dirs = [];
-    for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
-        dirs.push(child.innerHTML);
-    }
-    dirs.push(cur_dir_name);
-    cur_dir_path = dirs.join("/");
-    console.log('data from server:'+text)
-	file_arch_json[cur_dir_path] = JSON.parse(text);
+function get_cur_dir_data(text){
+    //console.log('data from server:'+text)
+    var json_obj = JSON.parse(text);
+    if(0 == json_obj.length){
+    	alert('文件夹内容为空');
+    	return false;
+    }else{
+        var path_ele = document.getElementById("id_path");
+        var dirs = [];
+        for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
+            dirs.push(child.innerHTML);
+        }
+        dirs.push(file_to_operate_name);
+        cur_dir_path = dirs.join("/");
+		file_arch_json[cur_dir_path] = json_obj;
+	}
     var new_li;
     if(refresh_content_by_path(cur_dir_path) != null){
         new_li = document.createElement("li");
-        new_li.id = "dir_" + cur_dir_name;
+        new_li.id = "dir_" + file_to_operate_name;
         new_li.onclick = open_exist_dir;
         new_li.className = "active";
-        new_li.appendChild(document.createTextNode(cur_dir_name));
+        new_li.appendChild(document.createTextNode(file_to_operate_name));
         for(var child = path_ele.firstElementChild; child != null; child = child.nextElementSibling){
             child.className = "divider";
         }
@@ -138,32 +148,32 @@ function get_root_data(text){
     //console.log('data from server:'+text)
     cur_dir_path = 'root';
 	file_arch_json[cur_dir_path] = JSON.parse(text);
-	console.log(file_arch_json[cur_dir_path]);
+	//console.log(file_arch_json[cur_dir_path]);
     refresh_content_by_path(cur_dir_path);
 }
-getAllCate(get_root_data);
-function json_splice_by_cur_id(){
+//getAllCate(get_root_data);
+function json_splice_by_id(){
     for(var i=0; i<content_json.length; i++)
     {
-        if(content_json[i].id == cur_id){
+        if(content_json[i].id == file_to_operate_id){
             break;
         }
     }
 	content_json.splice(i, 1);
 }
 function delete_file(){
-	//console.log('current id:' + cur_id);
-	var file_name = document.getElementById(cur_id).innerHTML;
+	//console.log('current id:' + file_to_operate_id);
+	var file_name = document.getElementById(file_to_operate_id).innerHTML;
 	var value = confirm('file ' + file_name + ' will be deleted?');
 	if(value == true){
-		json_splice_by_cur_id();
-		//content_json.splice(cur_id, 1);
+		json_splice_by_id();
+		//content_json.splice(file_to_operate_id, 1);
 		//console.log('value:' + value);
 	}
 	refresh_content();
 }
 function get_property_of_file(){
-  	console.log('property of file ' + document.getElementById(cur_id).innerHTML);
+  	console.log('property of file ' + document.getElementById(file_to_operate_id).innerHTML);
 }
 function getScrollOffsets(w){
     w = w || window;
@@ -179,15 +189,13 @@ function getScrollOffsets(w){
     }
 }
 function file_on_mouse_down(event){
-	cur_id = this.id;	
-    cur_ele = document.getElementById(this.id);
-    cur_file_name = cur_ele.innerHTML;
+	get_cur_file_info_by_id(this.id);
     //console.log('event.button' + event.button);
-	if(2 == event.button){
-        return false;
-	}else{
-	    close_rmenu();	
-	}
+//	if(2 == event.button){
+//        return false;
+//	}else{
+//	    close_rmenu();	
+//	}
 	elementToDrag = this;
     // The initial mouse position, converted to document coordinates
     var scroll = getScrollOffsets();  // A utility function from elsewhere
@@ -315,22 +323,19 @@ function create_div_by_path(path_str, json_obj)
     file.id = json_obj.id;
     //file.onclick = open_new_dir;
     file.oncontextmenu = popup_rmenu;
+    file.onmousedown = file_on_mouse_down;
     switch(path_str)
     {
         case 'root':
-            file.onmousedown = file_on_mouse_down;
             file.appendChild(document.createTextNode(json_obj.type));
         break;
         case 'root/Pictures':
-            file.onmousedown = file_on_mouse_down;
             file.appendChild(document.createTextNode(json_obj.filename));
         break;
         case 'root/Contacts':
-            file.onmousedown = file_on_mouse_down;
             file.appendChild(document.createTextNode(json_obj.name));
         break;
         case 'root/Videos':
-            file.onmousedown = file_on_mouse_down;
             file.appendChild(document.createTextNode(json_obj.name));
         break;
     }
@@ -416,7 +421,7 @@ function refresh_content_by_path(path_str)
     	file_top = content_row_top + content_row_width_extral + file_margin_right + file_offset_height * row_cnt;
     	child.style.left = file_left + 'px';
     	child.style.top = file_top + 'px';
-    	//console.log('child' + pos_cnt + ': ' + file_left + ' - ' + file_top);
+//    	console.log('child' + pos_cnt + ': ' + file_left + ' - ' + file_top);
     }
     return content_ele;
 }
@@ -487,10 +492,9 @@ function refresh_content(){
 var content_json='';
 var file_arch_json={};
 var dirpath;
-var cur_id;
-var cur_ele;
-var cur_file_name;
-var cur_dir_name;
+var file_to_operate_id;
+var element_to_operate;
+var file_to_operate_name;
 function window_onload(){
 	dirpath = document.getElementById("id_path");
 	var rmenu = create_rmenu();
@@ -499,7 +503,7 @@ function window_onload(){
 }
 window.onload = window_onload;
 window.onresize = refresh_content;
-//document.onclick = close_rmenu;
+document.onclick = close_rmenu;
 
 // ready for obsolute.
 function getTextSync(url)
