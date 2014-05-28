@@ -49,8 +49,8 @@ function getAllDataByCateInHttpServer(response, postData) {
         contactsDAO.findAll();
         contactsDAO.getEmitter().once('findAll', function(data){
         response.writeHead(200, {"Content-Type": "application/json"});
-        var json=JSON.stringify(data);
-        response.write(json);
+//        var json=JSON.stringify(data);
+        response.write(data[0].name);
         response.end();
       }); 
       }
@@ -60,8 +60,8 @@ function getAllDataByCateInHttpServer(response, postData) {
         picturesDAO.findAll();
         picturesDAO.getEmitter().once('findAll', function(data){
         response.writeHead(200, {"Content-Type": "application/json"});
-        var json=JSON.stringify(data);
-        response.write(json);
+//        var json=JSON.stringify(data);
+        response.write(data);
         response.end();
       }); 
       }
@@ -71,8 +71,8 @@ function getAllDataByCateInHttpServer(response, postData) {
         videosDAO.findAll();
         videosDAO.getEmitter().once('findAll', function(data){
         response.writeHead(200, {"Content-Type": "application/json"});
-        var json=JSON.stringify(data);
-        response.write(json);
+//        var json=JSON.stringify(data);
+        response.write(data);
         response.end();
       });
       }
