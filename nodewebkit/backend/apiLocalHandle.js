@@ -1,8 +1,8 @@
 var config = require("./config");
-var categoryDAO = require(config.projecthome+"/DAO/CategoryDAO");
-var contactsDAO = require(config.projecthome+"/DAO/ContactsDAO");
-var picturesDAO = require(config.projecthome+"/DAO/PicturesDAO");
-var videosDAO = require(config.projecthome+"/DAO/VideosDAO");
+var categoryDAO = require("../DAO/CategoryDAO");
+var contactsDAO = require("../DAO/ContactsDAO");
+var picturesDAO = require("../DAO/PicturesDAO");
+var videosDAO = require("../DAO/VideosDAO");
 
 function getAllCateFromLocal(getAllCateCb) {
   categoryDAO.findAll();
