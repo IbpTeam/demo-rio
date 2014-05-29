@@ -1,9 +1,7 @@
 var querystring = require("querystring");
 var fs = require('fs');
 var categoryDAO = require("./DAO/CategoryDAO");
-var contactsDAO = require("./DAO/ContactsDAO");
-var picturesDAO = require("./DAO/PicturesDAO");
-var videosDAO = require("./DAO/VideosDAO");
+var commonDAO = require("./DAO/CommonDAO");
 
 function start(response, postData) {
   console.log("Request handler 'start' was called.");
@@ -44,6 +42,22 @@ function getAllDataByCateInHttpServer(response, postData) {
     response.end();
   }
   else{
+    function getAllByCaterotyCb(data)
+    {
+      var cates = new Array();
+      data.forEach(function (each){
+        cates.push({
+          filename:each.filename,
+          source:"./resource/video.png"
+        });
+      });
+      var json=JSON.stringify(cates);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    }
+    commonDAO.getAllByCateroty(getAllByCaterotyCb,postDataJson.arg);
+/*    commonDAO.getAllByCateroty(getAllByCaterotyCb,cate);
     switch(postDataJson.arg){
       case 'Contacts' :{
         contactsDAO.findAll();
@@ -93,5 +107,6 @@ function getAllDataByCateInHttpServer(response, postData) {
     response.write("error func");
     response.end();
   }*/
+}
 }
 exports.getAllDataByCateInHttpServer = getAllDataByCateInHttpServer;

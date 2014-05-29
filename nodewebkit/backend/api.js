@@ -55,7 +55,18 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
   
   if(r[0]=="Fuck")  {
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getAllDataByCateFromLocal(getAllDataByCateCb,cate);
+    function getAllByCaterotyCb(data)
+    {
+      var cates = new Array();
+      data.forEach(function (each){
+        cates.push({
+          filename:each.filename,
+          source:"./resource/video.png"
+        });
+      });
+      getAllDataByCateCb(cates);
+    }
+    apiLocalHandle.getAllDataByCateFromLocal(getAllByCaterotyCb,cate);
   }else{
     getAllDataByCateFromHttp(getAllDataByCateCb,cate);
   }

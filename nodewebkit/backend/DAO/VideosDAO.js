@@ -37,7 +37,7 @@ exports.findById = function(id, findByIdCallBack){
   db.get("select * from videos where id = ?", id, findByIdCallBack);
   closeDB();
 }
-/
+
 /**
  * @method countTotal
  *   查询videos表中类别总数

@@ -16,8 +16,9 @@ function getAllCateFromLocal(getAllCateCb) {
 }
 exports.getAllCateFromLocal = getAllCateFromLocal;
 
-function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
-  commonDAO.getAllByCateroty(getAllDataByCateCb,cate);
+function getAllDataByCateFromLocal(getAllByCategroyCb,cate) {
+ // function getAllDataByCateCb
+  commonDAO.getAllByCateroty(getAllByCategroyCb,cate);
   
 }
 exports.getAllDataByCateFromLocal = getAllDataByCateFromLocal;

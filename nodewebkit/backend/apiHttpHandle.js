@@ -34,8 +34,14 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
     dataType: "json",
     data: '{"func":"getAllDataByCate","arg":"'+cate+'"}',
     success: function(result) {
-      var json=JSON.stringify(result); 
-      getAllDataByCateCb(json);
+      var cates = new Array();
+      result.forEach(function (each){
+        cates.push({
+          filename:each.filename,
+          source:"./resource/video.png"
+        });
+      });
+      getAllDataByCateCb(cates);
     },
     error: function(e) {
       alert(e.responseText);
