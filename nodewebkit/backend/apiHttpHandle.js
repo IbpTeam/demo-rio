@@ -10,8 +10,14 @@ function getAllCateFromHttp(getAllCateCb) {
     dataType: "json",
     data: '{"func":"getAllCate","arg":"null"}',
     success: function(result) {
-      var json=JSON.stringify(result); 
-      getAllCateCb(json);
+      var cates = new Array();
+      result.forEach(function (each){
+        cates.push({
+          type:each.type,
+          source:"./resource/contacts.png"
+        });
+      });
+      getAllCateCb(cates);
     },
     error: function(e) {
       alert(e.responseText);
@@ -28,8 +34,14 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
     dataType: "json",
     data: '{"func":"getAllDataByCate","arg":"'+cate+'"}',
     success: function(result) {
-      var json=JSON.stringify(result); 
-      getAllDataByCateCb(json);
+      var cates = new Array();
+      result.forEach(function (each){
+        cates.push({
+          filename:each.filename,
+          source:"./resource/video.png"
+        });
+      });
+      getAllDataByCateCb(cates);
     },
     error: function(e) {
       alert(e.responseText);

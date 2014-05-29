@@ -31,6 +31,7 @@ function browser(){
   return ret.split("|");
 }
 
+//API getAllCate:查询所有基本分类
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
@@ -45,6 +46,7 @@ function getAllCate(getAllCateCb) {
   }
 }
 
+//API getAllDataByCate:查询某基本分类下的所有数据
 function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
@@ -53,7 +55,33 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
   
   if(r[0]=="Fuck")  {
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getAllDataByCateFromLocal(getAllDataByCateCb,cate);
+    function getAllByCaterotyCb(data)
+    {
+      var cates = new Array();
+      data.forEach(function (each){
+        cates.push({
+          filename:each.filename,
+          source:"./resource/video.png"
+        });
+      });
+      getAllDataByCateCb(cates);
+    }
+    apiLocalHandle.getAllDataByCateFromLocal(getAllByCaterotyCb,cate);
+  }else{
+    getAllDataByCateFromHttp(getAllDataByCateCb,cate);
+  }
+}
+
+//API rmDataById:通过id删除数据
+function rmDataById(rmDataByIdCb,id) {
+  console.log("Request handler 'getAllDataByCate' was called.");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);
+  
+  if(r[0]=="Fuck")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.rmDataByIdFromLocal(rmDataByIdCb,id);
   }else{
     getAllDataByCateFromHttp(getAllDataByCateCb,cate);
   }
