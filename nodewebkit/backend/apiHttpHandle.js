@@ -13,8 +13,9 @@ function getAllCateFromHttp(getAllCateCb) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          id:each.id,
           type:each.type,
-          source:"./resource/contacts.png"
+          path:each.path
         });
       });
       getAllCateCb(cates);
@@ -37,8 +38,10 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          id:each.id,
           filename:each.filename,
-          source:"./resource/video.png"
+          postfix:each.postfix,
+          path:each.path
         });
       });
       getAllDataByCateCb(cates);

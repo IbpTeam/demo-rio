@@ -16,16 +16,19 @@
 <script>
 /*
 function getAllCatecb(text){
-    document.write(text[0].type);
-    document.write(text[0].source);
+    document.write(text[1].id);
+    document.write(text[1].type);
+    document.write(text[1].path);
 }
 
 getAllCate(getAllCatecb);
 */
 
 function getAllDataByCateCb(text){
-    document.write(text[5].filename);
-    document.write(text[5].source);
+    document.write(text[1].id);
+    document.write(text[1].filename);
+    document.write(text[1].postfix);
+    document.write(text[1].path);
 }
 
 getAllDataByCate(getAllDataByCateCb,'Pictures');
