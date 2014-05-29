@@ -15,7 +15,9 @@
     <input type="button" name="button1" value="Test" onclick=GetData()>
 --> 
 <!--   <object style="border:0px" type="text/x-scriptlet" data="backend/test1.html" width=100% height=100%></object> -->
-<DIV align=center><IFRAME src="backend/test1.html" frameBorder=0 marginwidth=0 marginheight=0 scrolling=yes  width=100%  height=120000 scrolling=yes ALLOWTRANSPARENCY="true"></IFRAME></DIV>
+   <a href="backend/test1.html">App: test1</a>
+   <a href="backend/qrtest.html">App: Show QR code</a>
+   <a href="browser/browser.html">App: Browser</a>
    <script>
    
       var server = require("./backend/server");
@@ -27,11 +29,8 @@
       handle["/start"] = requestHandlers.start;
       handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
       handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
-
       
       server.start(router.route, handle);
-
-
     </script>
   </body>
 </html>
