@@ -417,8 +417,8 @@ function create_div_by_path(path_str, json_obj)
             file.appendChild(document.createTextNode(json_obj.type));
         break;
         case 'root/Pictures':
-            var img = document.createElement("img");
-            img.src = '/resources/pictures/'+json_obj.filename+'.'+json_obj.postfix;
+            var img = document.createElement("img");//'/resources/pictures/'/home/cos/Templates/demo-rio/nodewebkit
+            img.src = '../resources/pictures/'+json_obj.filename+'.'+json_obj.postfix;
             img.width = 90;
             img.height = 70;
             file.appendChild(img);
