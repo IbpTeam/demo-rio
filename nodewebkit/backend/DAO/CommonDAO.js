@@ -4,8 +4,8 @@ var contactsDAO = require("./ContactsDAO");
 var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
 
-exports.getAllByCateroty = function(callback,caterogyName) {
-  switch(caterogyName){
+exports.getAllByCateroty = function(caterogy, callback) {
+  switch(caterogy){
     case 'Contacts' : {
       contactsDAO.findAll(function(err, contacts){
         if(err){
@@ -50,4 +50,13 @@ exports.getCategories = function(callback){
     }
     callback(categories)
   });
+}
+
+exports.createItems = function(category, items, callback){
+  switch(category){
+    case 'Contacts' : {
+      
+    }
+    break;
+  }
 }

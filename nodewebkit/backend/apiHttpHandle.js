@@ -13,8 +13,9 @@ function getAllCateFromHttp(getAllCateCb) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          id:each.id,
           type:each.type,
-          source:"./resource/contacts.png"
+          path:each.path
         });
       });
       getAllCateCb(cates);
@@ -37,11 +38,38 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          id:each.id,
           filename:each.filename,
-          source:"./resource/video.png"
+          postfix:each.postfix,
+          path:each.path
         });
       });
       getAllDataByCateCb(cates);
+    },
+    error: function(e) {
+      alert(e.responseText);
+    }
+  });
+}
+
+function getAllContactsFromHttp(getAllContactsCb) {
+//  var studentData = CollectionData();
+  $.ajax({
+    url: "/getAllContacts",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getAllContacts","arg":"null"}',
+    success: function(result) {
+      var contacts = new Array();
+      result.forEach(function (each){
+        contacts.push({
+          id:each.id,
+          name:each.name,
+          photoPath:each.photoPath
+        });
+      });
+      getAllContactsCb(contacts);
     },
     error: function(e) {
       alert(e.responseText);

@@ -14,13 +14,22 @@ function getAllCateInHttpServer(response, postData) {
   console.log("Request handler 'getAllCateInHttpServer' was called.");
   
   if(postData == '{"func":"getAllCate","arg":"null"}'){
-    categoryDAO.findAll();
-    categoryDAO.getEmitter().once('findAll', function(data){
+    function getCategoriesCb(data)
+    {
+      var cates = new Array();
+      data.forEach(function (each){
+        cates.push({
+          id:each.id,
+          type:each.type,
+          path:each.logoPath
+        });
+      });
+      var json=JSON.stringify(cates);
       response.writeHead(200, {"Content-Type": "application/json"});
-      var json=JSON.stringify(data);
       response.write(json);
       response.end();
-    });
+    }
+    commonDAO.getCategories(getCategoriesCb);
   }
   else{
     response.writeHead(200, {"Content-Type": "text/plain"});
@@ -47,66 +56,56 @@ function getAllDataByCateInHttpServer(response, postData) {
       var cates = new Array();
       data.forEach(function (each){
         cates.push({
+          id:each.id,
           filename:each.filename,
-          source:"./resource/video.png"
+          postfix:each.postfix,
+          path:each.path
         });
       });
+      console.log('####'+cates[1].id);
+      console.log('####'+cates[1].filename);
+      console.log('####'+cates[1].source);
       var json=JSON.stringify(cates);
       response.writeHead(200, {"Content-Type": "application/json"});
       response.write(json);
       response.end();
     }
-    commonDAO.getAllByCateroty(getAllByCaterotyCb,postDataJson.arg);
-/*    commonDAO.getAllByCateroty(getAllByCaterotyCb,cate);
-    switch(postDataJson.arg){
-      case 'Contacts' :{
-        contactsDAO.findAll();
-        contactsDAO.getEmitter().once('findAll', function(data){
-        response.writeHead(200, {"Content-Type": "application/json"});
-//        var json=JSON.stringify(data);
-        response.write(data[0].name);
-        response.end();
-      }); 
-      }
-      break;
-      
-      case 'Pictures' :{
-        picturesDAO.findAll();
-        picturesDAO.getEmitter().once('findAll', function(data){
-        response.writeHead(200, {"Content-Type": "application/json"});
-//        var json=JSON.stringify(data);
-        response.write(data);
-        response.end();
-      }); 
-      }
-      break;
-      
-      case 'Videos' :{
-        videosDAO.findAll();
-        videosDAO.getEmitter().once('findAll', function(data){
-        response.writeHead(200, {"Content-Type": "application/json"});
-//        var json=JSON.stringify(data);
-        response.write(data);
-        response.end();
-      });
-      }
-      break; 
-    }
+    commonDAO.getAllByCateroty(postDataJson.arg,getAllByCaterotyCb);
   }
-/*  if(postData == '{"func":"getAllDataByCate","arg":"contacts"}'){
-    contactsDAO.findAll();
-    contactsDAO.getEmitter().once('findAll', function(data){
-      response.writeHead(200, {"Content-Type": "application/json"});
-      var json=JSON.stringify(data);
-      response.write(json);
-      response.end();
-    });
-  }
-  else{
+}
+exports.getAllDataByCateInHttpServer = getAllDataByCateInHttpServer;
+
+function getAllContactsInHttpServer(response, postData) {
+
+  console.log("Request handler 'getAllContactsInHttpServer' was called.");
+    console.log(postData);
+    postDataJson=JSON.parse(postData);
+     console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'getAllContacts'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
-  }*/
+  }
+  else{
+    function getAllByCaterotyCb(data)
+    {
+      var contacts = new Array();
+      data.forEach(function (each){
+        contacts.push({
+          id:each.id,
+          name:each.name,
+          photoPath:each.photoPath
+        });
+      });
+      console.log('####'+contacts[1].id);
+      console.log('####'+contacts[1].name);
+      console.log('####'+contacts[1].photoPath);
+      var json=JSON.stringify(contacts);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    }
+    commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+  }
 }
-}
-exports.getAllDataByCateInHttpServer = getAllDataByCateInHttpServer;
+exports.getAllContactsInHttpServer = getAllContactsInHttpServer;

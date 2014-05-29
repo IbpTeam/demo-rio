@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>test</title>
+<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
+<script type="text/javascript" src="../lib/jquery.qrcode.min.js"></script>
+<script type="text/javascript" src="api.js"></script>
+<script type="text/javascript" src="apiHttpHandle.js"></script>
+</head>
+<meta charset="UTF-8">
+<body>
+<script>
+    function showqrcode(url){
+        console.log("url", url);
+        try{
+            var os=require('os');
+            var ifaces=os.networkInterfaces();
+            for (var dev in ifaces) {
+                var alias=0;
+                ifaces[dev].forEach(function(details){
+                    if (details.family=='IPv4') {
+                         console.log(dev+(alias?':'+alias:''),details.address);
+                         ++alias;
+                         if ( details.address != "127.0.0.1"){
+                             url = "http://" + details.address + ":8888/index.html";
+                             console.log("url", url);
+                         }
+                    }
+                });
+            }
+        } catch(e) {
+        }
+        if(document.getElementById("output")){
+            $(document.body).remove($("#output"));
+        };
+        var div=$('<div></div>');
+        div.attr('id','output');
+        var div_bg=$('<div></div>');
+        div_bg.attr('id','output_bg');
+        var div_qr=$('<div></div>');
+        div_qr.attr('id','output_qr');
+        $(document.body).append(div);
+        $('#output').append(div_bg);
+        $('#output').append(div_qr);
+        jQuery(function(){
+            jQuery('#output_qr').qrcode(url);
+        })
+        $('#output_qr').click(function(){
+            $('#output_bg').remove();
+            $('#output_qr').remove();
+            $('#output').remove();
+        });
+        $("#output_bg").css({
+             height: function () {
+                 return $(document).height();
+             },
+             width:"100%"
+        });
+        $("#output_bg").css({ "position": "absolute", "text-align": "center", "top": "0px", "left": "0px", "right": "0px", "bottom": "0px", "background": "silver", "visibility": "visible", "filter": "alpha(opacity=50)", "opacity": 0.5});;
+        $("#output_qr").css({ "position": "absolute", "text-align": "center", "top": "0px", "left": "0px", "right": "0px", "bottom": "0px", "background": "silver", "background-color":"transparent", "visibility": "visible"});;
+}
+</script>
+
+<a href="javascript:void(0)" onclick="showqrcode(window.location.href);">显示二维码</a>
+</body>
+</html>
