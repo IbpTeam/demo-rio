@@ -32,6 +32,12 @@ function browser(){
 }
 
 //API getAllCate:查询所有基本分类
+//返回cate型array：
+//cate{
+//  integer id;
+//  text type;
+//  text path;
+//}
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
@@ -46,18 +52,50 @@ function getAllCate(getAllCateCb) {
   }
 }
 
-//API getAllDataByCate:查询某基本分类下的所有数据
+//API getAllDataByCate:查询某基本分类下的所有数据,此方法不能用来查看联系人分类
+//返回data型array：
+//data{
+//  integer id;
+//  text filename;
+//  text postfix:;
+//  text path;
+//}
 function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
   console.log('You are using ' + r[0]);
-  
+  if(cate!='Videos' && cate!='Pictures')
+  {
+      console.log("cate "+cate+" is an error cate");
+      return ;
+  }
   if(r[0]=="Fuck")  {
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.getAllDataByCateFromLocal(getAllDataByCateCb,cate);
   }else{
     getAllDataByCateFromHttp(getAllDataByCateCb,cate);
+  }
+}
+
+//API getAllDataByCate:查看联系人分类
+//返回contacts型array：
+//contacts{
+//  integer id;
+//  text name;
+//  text photoPath;
+//}
+function getAllContacts(getAllContactsCb) {
+  console.log("Request handler 'getAllContacts' was called.");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);
+
+  if(r[0]=="Fuck")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getAllContactsFromLocal(getAllContactsCb);
+  }else{
+    getAllContactsFromHttp(getAllContactsCb);
   }
 }
 

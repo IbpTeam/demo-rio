@@ -52,4 +52,29 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
   });
 }
 
+function getAllContactsFromHttp(getAllContactsCb) {
+//  var studentData = CollectionData();
+  $.ajax({
+    url: "/getAllContacts",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getAllContacts","arg":"null"}',
+    success: function(result) {
+      var contacts = new Array();
+      result.forEach(function (each){
+        contacts.push({
+          id:each.id,
+          name:each.name,
+          photoPath:each.photoPath
+        });
+      });
+      getAllContactsCb(contacts);
+    },
+    error: function(e) {
+      alert(e.responseText);
+    }
+  });
+}
+
 

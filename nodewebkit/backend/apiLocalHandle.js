@@ -33,10 +33,28 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
     });
     getAllDataByCateCb(cates);
   }
-  commonDAO.getAllByCateroty(getAllByCaterotyCb,cate);
+  commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
   
 }
 exports.getAllDataByCateFromLocal = getAllDataByCateFromLocal;
+
+function getAllContactsFromLocal(getAllContactsCb) {
+  function getAllByCaterotyCb(data)
+  {
+    var contacts = new Array();
+    data.forEach(function (each){
+      contacts.push({
+        id:each.id,
+        name:each.name,
+        photoPath:each.photoPath
+      });
+    });
+    getAllContactsCb(contacts);
+  }
+  commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+  
+}
+exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
 function rmDataByIdFromLocal(rmDataByIdCb,id) {
   categoryDAO.findAll();
