@@ -11,6 +11,20 @@ function closeDB(database){
 }
 
 /**
+ * @method countTotal
+ *   查询contacts表中类别总数
+ * @param null
+ *   
+ * @return total
+ *   Integer 表中类别总数
+ */
+exports.countTotal = function(){
+  var db = openDB();
+  db.get("select count(*) as total from contacts", countTotalCallBack);
+  closeDB();  
+}
+
+/**
  * @method findAll
  *   查询contacts表中所有数据
  * @param null
@@ -35,19 +49,17 @@ exports.findAll = function(findAllCallBack){
 exports.findById = function(id){
   var db = openDB();
   db.get("select * from contacts where id = ?", id, findByIdCallBack);
-  closeDB();
+  closeDB(db);
 }
 
 /**
- * @method countTotal
- *   查询contacts表中类别总数
- * @param null
- *   
- * @return total
- *   Integer 表中类别总数
+ * @method createItem
+ *   增加一条新联系人信息
+ * @param item
+ *   包含联系人信息的数据对象
  */
-exports.countTotal = function(){
+exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get("select count(*) as total from contacts", countTotalCallBack);
-  closeDB();  
+  db.run("insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime) values (?,?,?,?,?,?,?,?,?)", item.id, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime, createItemCallBack);
+  closeDB(db);
 }

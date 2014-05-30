@@ -50,4 +50,16 @@ exports.countTotal = function(countTotalCallBack){
   var db = openDB();
   db.get("select count(*) as total from pictures", countTotalCallBack);
   closeDB();  
+} 
+
+/**
+ * @method createItem
+ *   增加一条图片信息
+ * @param item
+ *   包含图片信息的数据对象
+ */
+exports.createItem = function(item, createItemCallBack){
+  var db = openDB();
+  db.get("insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,othors) values (null,?,?,?,?,?,?,?,?)", item, createItemCallBack);
+  closeDB();
 }
