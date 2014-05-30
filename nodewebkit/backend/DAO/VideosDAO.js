@@ -11,6 +11,20 @@ function closeDB(database){
 }
 
 /**
+ * @method countTotal
+ *   查询videos表中类别总数
+ * @param null
+ *   
+ * @return total
+ *   Integer 表中类别总数
+ */
+exports.countTotal = function(countTotalCallBack){
+  var db = openDB();
+  db.get("select count(*) as total from videos", countTotalCallBack);
+  closeDB(db);  
+}
+
+/**
  * @method findAll
  *   查询videos表中所有数据
  * @param null
@@ -39,15 +53,13 @@ exports.findById = function(id, findByIdCallBack){
 }
 
 /**
- * @method countTotal
- *   查询videos表中类别总数
- * @param null
- *   
- * @return total
- *   Integer 表中类别总数
+ * @method createItem
+ *   增加一条视频信息
+ * @param item
+ *   包含视频信息的数据对象
  */
-exports.countTotal = function(countTotalCallBack){
+exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get("select count(*) as total from videos", countTotalCallBack);
-  closeDB();  
+  db.get(SQLSTR.CREATEVIDEO, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
+  closeDB(db);
 }

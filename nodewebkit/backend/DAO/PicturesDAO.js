@@ -1,4 +1,5 @@
 var sqlite3 = require('sqlite3');
+var SQLSTR = require("./SQL/SQLStr.js");
 
 //连接数据库
 function openDB(){
@@ -11,6 +12,20 @@ function closeDB(database){
 }
 
 /**
+ * @method countTotal
+ *   查询pictures表中类别总数
+ * @param null
+ *   
+ * @return total
+ *   Integer 表中类别总数
+ */
+exports.countTotal = function(countTotalCallBack){
+  var db = openDB();
+  db.get(SQLSTR.COUNTTOTALPICTURES, countTotalCallBack);
+  closeDB();  
+} 
+
+/**
  * @method findAll
  *   查询pictures表中所有数据
  * @param null
@@ -20,7 +35,7 @@ function closeDB(database){
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all("select * from pictures", findAllCallBack);
+  db.all(SQLSTR.FINDALLPICTURES, findAllCallBack);
   closeDB(db);
 }  
 
@@ -34,20 +49,18 @@ exports.findAll = function(findAllCallBack){
  */
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
-  db.get("select * from pictures where id = ?", id, findByIdCallBack);
-  closeDB();
+  db.get(SQLSTR.FINDPICTUREBYID, id, findByIdCallBack);
+  closeDB(db);
 }
 
 /**
- * @method countTotal
- *   查询pictures表中类别总数
- * @param null
- *   
- * @return total
- *   Integer 表中类别总数
+ * @method createItem
+ *   增加一条图片信息
+ * @param item
+ *   包含图片信息的数据对象
  */
-exports.countTotal = function(countTotalCallBack){
+exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get("select count(*) as total from pictures", countTotalCallBack);
-  closeDB();  
+  db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
+  closeDB(db);
 }

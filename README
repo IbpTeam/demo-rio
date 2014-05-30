@@ -6,3 +6,7 @@
 运行代码
 1.修改nodewebkit目录中backend/router.js，backend/api.js，DAO/CategoryDAO.js三个文件中的绝对路径
 2.执行node-webkit-v0.8.4/nw nodewebkit即可
+
+相关资源
+1.node-js第三方模块sqlite3完整源码资源已上传至github中，克隆地址：git@github.com:IbpTeam/sqlite3.git
+2.此版本sqlit3基于node-webkit 0.8.4进行了rebuild，rebuild方法参见sqlite3模块中README.md文件

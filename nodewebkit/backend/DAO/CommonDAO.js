@@ -12,6 +12,9 @@ exports.getAllByCateroty = function(caterogy, callback) {
           console.log(err);
           callback(null)
         }
+        contacts.forEach(function(contact){
+          contact.id = "1#" + contact.id;
+        });
         callback(contacts)
       });
     }
@@ -23,6 +26,9 @@ exports.getAllByCateroty = function(caterogy, callback) {
           console.log(err);
           callback(null)
         }
+        pictures.forEach(function(picture){
+          picture.id = "2#" + picture.id;
+        });
         callback(pictures)
       });
     }
@@ -34,6 +40,9 @@ exports.getAllByCateroty = function(caterogy, callback) {
           console.log(err);
           callback(null)
         }
+        videos.forEach(function(video){
+          video.id = "3#" + video.id;
+        });
         callback(videos)
       });
     }
@@ -48,14 +57,58 @@ exports.getCategories = function(callback){
       console.log(err);
       callback(null);
     }
+    categories.forEach(function(categorie){
+      categorie.id = "0#" + categorie.id;
+    });
     callback(categories)
   });
 }
 
-exports.createItems = function(category, items, callback){
+exports.createItem = function(category, item, callback){
   switch(category){
     case 'Contacts' : {
-      
+      contactsDAO.createItem(item, function(err){
+        if(err){
+          console.log(err);
+          callback(null);
+        }
+        else{
+          callback('successfull');
+        }
+      });
+    }
+    break;
+    case 'Pictures' : {
+      picturesDAO.createItem(item, function(err){
+        if(err){
+          console.log(err);
+          callback(null);
+        }
+        else{
+          callback('successfull');
+        }
+      });
+    }
+    break;
+    case 'Videos' : {
+      videosDAO.createItem(item, function(err){
+        if(err){
+          console.log(err);
+          callback(null);
+        }
+        else{
+          callback('successfull');
+        }
+      });
+    }
+    break;
+  }
+}
+
+exports.createItems = function(category, items){
+  switch(category){
+    case 'Contacts' : {
+      contactsDAO.createItems(items);
     }
     break;
   }
