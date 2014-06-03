@@ -49,7 +49,21 @@ function close_rmenu()
 function get_cur_file_info_by_id(id){
 	file_to_operate_id = id;	
 	element_to_operate = document.getElementById(id);
-	file_to_operate_name = element_to_operate.innerHTML;	
+	switch(cur_dir_path){
+        case 'root':
+	    file_to_operate_name = get_json_by_id(cur_dir_path, file_to_operate_id).type;
+        break;
+        case 'root/Pictures':
+	    file_to_operate_name = get_json_by_id(cur_dir_path, file_to_operate_id).filename;
+        break;
+        case 'root/Contacts':
+	    file_to_operate_name = get_json_by_id(cur_dir_path, file_to_operate_id).name;
+        break;
+        case 'root/Videos':
+	    file_to_operate_name = get_json_by_id(cur_dir_path, file_to_operate_id).name;
+        break;
+	}
+	//element_to_operate.innerHTML;	
 }
 function get_json_by_id(path, id){
 //	console.log('file_arch_json:%r', file_arch_json);
@@ -99,6 +113,7 @@ function open_exist_dir()
         alert("in open new dir: wrong path.");
     }
 }
+
 function open_new_dir(){
 	var d_id;
 	if(this.id){
@@ -111,6 +126,9 @@ function open_new_dir(){
 //    console.log('pos: %d - %d', dir_ele.offsetTop, dir_ele.offsetTop);
 	var cur_json;
 
+if(file_to_operate_name == 'Contacts'){
+    getAllContacts(get_cur_dir_data);
+}else
 	if(cur_json = get_json_by_id(cur_dir_path, file_to_operate_id)){
 		//console.log('current json:'+ cur_json);
 		if('dir' == cur_json.prop){
@@ -127,8 +145,9 @@ function open_new_dir(){
 	}
 }
 function get_cur_dir_data(text){
-    //console.log('data from server:'+text)
-    var json_obj = JSON.parse(text);
+    console.log('data from server:'+text)
+    //var json_obj = JSON.parse(text);
+    var json_obj = text;
     if(0 == json_obj.length){
     	alert('文件夹内容为空');
     	return false;
@@ -158,7 +177,8 @@ function get_cur_dir_data(text){
     }
 }
 function json_append_prop(text){
-	json_obj = JSON.parse(text);
+	//json_obj = JSON.parse(text);
+	json_obj = text;
 	for(var i=0; i<json_obj.length; i++){
 		json_obj[i]['prop'] = 'dir';
 	}
@@ -181,7 +201,7 @@ function open_root_dir()
     getAllCate(get_root_data);
 }
 function get_root_data(text){
-    console.log('data from server:'+text)
+    //console.log('data from server:'+text)
     cur_dir_path = 'root';
 	file_arch_json[cur_dir_path] = json_append_prop(text);
 	
@@ -382,7 +402,6 @@ function file_on_mouse_down(event){
         if (e.stopPropagation) e.stopPropagation();  // Standard model
         else e.cancelBubble = true;                  // IE
 
-
 //    	clearInterval(timer);
 //    	refresh_content();
         switch(func_state)
@@ -403,6 +422,9 @@ function file_on_mouse_down(event){
         }
     }
 }
+//get_cur_file_info_by_id
+//open_new_dir
+//create_div_by_path
 function create_div_by_path(path_str, json_obj)
 {
     var file = document.createElement("div");
@@ -414,17 +436,27 @@ function create_div_by_path(path_str, json_obj)
     switch(path_str)
     {
         case 'root':
+            var img = document.createElement("img");
+            img.src = '.'+json_obj.path;//
+            img.width = 95;
+            img.height = 70;
+            file.appendChild(img);
             file.appendChild(document.createTextNode(json_obj.type));
         break;
         case 'root/Pictures':
             var img = document.createElement("img");
-            img.src = '/resources/pictures/'+json_obj.filename+'.'+json_obj.postfix;
-            img.width = 90;
+            img.src = '../resources/pictures/'+json_obj.filename+'.'+json_obj.postfix;
+            img.width = 95;
             img.height = 70;
             file.appendChild(img);
             file.appendChild(document.createTextNode(json_obj.filename));
         break;
-        case 'root/Contacts':
+        case 'root/Contacts':        
+            var img = document.createElement("img");
+            img.src = '.'+json_obj.photoPath;//
+            img.width = 95;
+            img.height = 70;
+            file.appendChild(img);
             file.appendChild(document.createTextNode(json_obj.name));
         break;
         case 'root/Videos':
@@ -587,6 +619,7 @@ var dirpath;
 var file_to_operate_id;
 var element_to_operate;
 var file_to_operate_name;
+var cur_dir_path='';
 function window_onload(){
 	dirpath = document.getElementById("id_path");
 	var rmenu = create_rmenu();

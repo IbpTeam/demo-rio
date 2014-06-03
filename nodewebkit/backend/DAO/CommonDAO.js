@@ -79,13 +79,25 @@ exports.createItem = function(category, item, callback){
     }
     break;
     case 'Pictures' : {
-      picturesDAO.createItem(item, function(err, stmt){
+      picturesDAO.createItem(item, function(err){
         if(err){
           console.log(err);
           callback(null);
         }
         else{
-          console.log(stmt.lastID);
+          callback('successfull');
+        }
+      });
+    }
+    break;
+    case 'Videos' : {
+      videosDAO.createItem(item, function(err){
+        if(err){
+          console.log(err);
+          callback(null);
+        }
+        else{
+          callback('successfull');
         }
       });
     }

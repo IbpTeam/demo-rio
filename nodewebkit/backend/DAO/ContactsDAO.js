@@ -1,4 +1,5 @@
 var sqlite3 = require('sqlite3');
+var SQLSTR = require("./SQL/SQLStr.js");
 
 //连接数据库
 function openDB(){
@@ -20,7 +21,7 @@ function closeDB(database){
  */
 exports.countTotal = function(){
   var db = openDB();
-  db.get("select count(*) as total from contacts", countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALCONTACTS, countTotalCallBack);
   closeDB();  
 }
 
@@ -34,7 +35,7 @@ exports.countTotal = function(){
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all("select * from Contacts", findAllCallBack);
+  db.all(SQLSTR.FINDALLCONTACTS, findAllCallBack);
   closeDB(db);
 }  
 
@@ -48,7 +49,7 @@ exports.findAll = function(findAllCallBack){
  */
 exports.findById = function(id){
   var db = openDB();
-  db.get("select * from contacts where id = ?", id, findByIdCallBack);
+  db.get(SQLSTR.FINDCONTACTBYID, id, findByIdCallBack);
   closeDB(db);
 }
 
@@ -60,6 +61,6 @@ exports.findById = function(id){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run("insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime) values (?,?,?,?,?,?,?,?,?)", item.id, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime, createItemCallBack);
+  db.run(SQLSTR.CREATECONTACT, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime, createItemCallBack);
   closeDB(db);
 }
