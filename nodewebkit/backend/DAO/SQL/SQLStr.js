@@ -17,7 +17,7 @@ exports.FINDPICTUREBYID = "select * from pictures where id = ?";
 exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
 
 //SQL used in VideoDAO
-exports.COUNTTOTALVIDEOS = "select count(*) as total from pictures";
-exports.FINDALLVIDEOS = "select * from pictures";
-exports.FINDVIDEOBYID = "select * from pictures where id = ?";
-exports.CREATEVIDEO = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
+exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
+exports.FINDALLVIDEOS = "select * from videos";
+exports.FINDVIDEOBYID = "select * from videos where id = ?";
+exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";

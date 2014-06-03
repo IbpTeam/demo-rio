@@ -1,8 +1,9 @@
 var sqlite3 = require('sqlite3');
+var SQLSTR = require("./SQL/SQLStr.js");
 
 //连接数据库
 function openDB(){
-  return new sqlite3.Database('./db/rio');
+  return new sqlite3.Database('./backend/db/rio');
 }
 
 //关闭数据库
@@ -20,7 +21,7 @@ function closeDB(database){
  */
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
-  db.get("select count(*) as total from videos", countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALVIDEOS, countTotalCallBack);
   closeDB(db);  
 }
 
@@ -34,7 +35,7 @@ exports.countTotal = function(countTotalCallBack){
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all("select * from videos", findAllCallBack);
+  db.all(SQLSTR.FINDALLVIDEOS, findAllCallBack);
   closeDB(db);
 }  
 
@@ -48,7 +49,7 @@ exports.findAll = function(findAllCallBack){
  */
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
-  db.get("select * from videos where id = ?", id, findByIdCallBack);
+  db.get(SQLSTR.FINDVIDEOBYID, id, findByIdCallBack);
   closeDB();
 }
 
