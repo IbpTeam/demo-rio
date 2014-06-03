@@ -3,6 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
+var config = require("./config");
 
 var PORT = 8888,
     mimeTypes = {
@@ -14,6 +15,31 @@ var PORT = 8888,
      "css": "text/css",
      "txt": "text/plain"
 };
+
+
+
+function walk(path,fileList){  
+  var dirList = fs.readdirSync(path);
+  dirList.forEach(function(item){
+    if(fs.statSync(path + '/' + item).isDirectory()){
+      walk(path + '/' + item);
+    }
+    else{
+      fileList.push(path + '/' + item);
+    }
+  });
+}
+
+ 
+function syncDb()
+{
+  var fileList = new Array();
+        fileList.push("aaaaaa");
+  //walk('/home/v1/demo-resources',fileList);
+  console.log(fileList); 
+}
+
+exports.syncDb = syncDb;
 
 function start(route, handle) {
   function onRequest(request, response) {
