@@ -1,0 +1,17 @@
+[
+    {
+        "type": "Contacts",
+        "desc": "Contacts info",
+        "logoPath": "/home/v1/demo-resources/logo/contacts.png"
+    },
+    {
+        "type": "Pictures",
+        "desc": "Pictures info",
+        "logoPath": "/home/v1/demo-resources/logo/pictures.png"
+    },
+    {
+        "type": "Videos",
+        "desc": "Videos info",
+        "logoPath": "/home/v1/demo-resources/logo/videos.png"
+    }
+]
