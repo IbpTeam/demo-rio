@@ -48,7 +48,6 @@ exports.getAllByCateroty = function(caterogy, callback) {
     }
     break;
   }
-
 }
 
 exports.getCategories = function(callback){
@@ -64,16 +63,16 @@ exports.getCategories = function(callback){
   });
 }
 
+
 exports.createItem = function(category, item, callback){
   switch(category){
     case 'Contacts' : {
       contactsDAO.createItem(item, function(err){
         if(err){
-          console.log(err);
-          callback(null);
+          callback(category,item,err);
         }
         else{
-          callback('successfull');
+          callback(category,item,'successfull');
         }
       });
     }
@@ -81,11 +80,10 @@ exports.createItem = function(category, item, callback){
     case 'Pictures' : {
       picturesDAO.createItem(item, function(err){
         if(err){
-          console.log(err);
-          callback(null);
+          callback(category,item,err);
         }
         else{
-          callback('successfull');
+          callback(category,item,'successfull');
         }
       });
     }
@@ -93,18 +91,17 @@ exports.createItem = function(category, item, callback){
     case 'Videos' : {
       videosDAO.createItem(item, function(err){
         if(err){
-          console.log(err);
-          callback(null);
+          callback(category,item,err);
         }
         else{
-          callback('successfull');
+          callback(category,item,'successfull');
         }
       });
     }
     break;
   }
 }
-
+/*
 exports.createItems = function(category, items){
   switch(category){
     case 'Contacts' : {
@@ -112,4 +109,4 @@ exports.createItems = function(category, items){
     }
     break;
   }
-}
+}*/

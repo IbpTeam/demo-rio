@@ -9,4 +9,5 @@ handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
 handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
 handle["/getAllContacts"] = requestHandlers.getAllContactsInHttpServer;
 
+server.syncDb();
 server.start(router.route, handle);
