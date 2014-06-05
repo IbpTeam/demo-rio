@@ -62,10 +62,6 @@ function getAllContactsFromLocal(getAllContactsCb) {
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
 function rmDataByIdFromLocal(rmDataByIdCb,id) {
-  categoryDAO.findAll();
-  categoryDAO.getEmitter().once('findAll', function(data){
-    var json = JSON.stringify(data);
-    getAllCateCb(json);
-  });
+  commonDAO.deleteItemById(id,server.deleteItemCb,rmDataByIdCb);
 }
-exports.getAllCateFromLocal = getAllCateFromLocal;
+exports.rmDataByIdFromLocal = rmDataByIdFromLocal;

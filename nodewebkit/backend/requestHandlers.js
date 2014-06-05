@@ -96,37 +96,26 @@ function getAllDataByCateInHttpServer(response, postData) {
 }
 exports.getAllDataByCateInHttpServer = getAllDataByCateInHttpServer;
 
-function getAllContactsInHttpServer(response, postData) {
+function rmDataByIdInHttpServer(response, postData) {
 
-  console.log("Request handler 'getAllContactsInHttpServer' was called.");
+  console.log("Request handler 'rmDataByIdInHttpServer' was called.");
     console.log(postData);
     postDataJson=JSON.parse(postData);
      console.log('$$$$$$'+postDataJson.arg);
-  if(postDataJson.func != 'getAllContacts'){
+  if(postDataJson.func != 'rmDataById'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
   }
   else{
-    function getAllByCaterotyCb(data)
+    function rmDataByIdCb(result)
     {
-      var contacts = new Array();
-      data.forEach(function (each){
-        contacts.push({
-          id:each.id,
-          name:each.name,
-          photoPath:each.photoPath
-        });
-      });
-      console.log('####'+contacts[1].id);
-      console.log('####'+contacts[1].name);
-      console.log('####'+contacts[1].photoPath);
-      var json=JSON.stringify(contacts);
+      var json=JSON.stringify(result);
       response.writeHead(200, {"Content-Type": "application/json"});
       response.write(json);
       response.end();
     }
-    commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+    commonDAO.deleteItemById(postDataJson.arg,server.deleteItemCb,rmDataByIdCb);
   }
 }
-exports.getAllContactsInHttpServer = getAllContactsInHttpServer;
+exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;

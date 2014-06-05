@@ -64,3 +64,15 @@ exports.createItem = function(item, createItemCallBack){
   db.get(SQLSTR.CREATEVIDEO, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
   closeDB(db);
 }
+
+/**
+ * @method deleteItemById
+ *   根据ID删除表中指定数据
+ * @param id
+ *   videos表中的主键
+ */
+exports.deleteItemById = function(id, deleteItemByIdCallBack){
+  var db = openDB();
+  db.get(SQLSTR.DELETEVIDEO, id, deleteItemByIdCallBack);
+  closeDB(db);
+}

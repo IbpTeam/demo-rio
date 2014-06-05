@@ -48,6 +48,25 @@ function createItemCb(category,item,result,loadResourcesCb)
   }
 }
 
+function deleteItemCb(id,result,rmDataByIdCb)
+{
+
+  if(result.code=='SQLITE_BUSY'){
+    console.log(id+'delete error:'+result.code);
+    sleep(1000);
+    commonDAO.deleteItemById(id,deleteItemCb,rmDataByIdCb);
+  }
+  else if(result=='successfull'){
+    console.log(id+'delete:'+result);
+    rmDataByIdCb('success');
+  }
+  else{
+    console.log(id+'delete:'+result);
+    rmDataByIdCb(result);
+  }
+}
+exports.deleteItemCb = deleteItemCb;
+
 function syncDb(loadResourcesCb,resourcePath)
 {
   console.log("syncDB ..............");

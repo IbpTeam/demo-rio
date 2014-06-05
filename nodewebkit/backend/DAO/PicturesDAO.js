@@ -66,13 +66,14 @@ exports.createItem = function(item, createItemCallBack){
 }
 
 /**
- * @method createItem
- *   增加一条图片信息
- * @param item
- *   包含图片信息的数据对象
+ * @method deleteItemById
+ *   根据ID删除表中指定数据
+ * @param id
+ *   contacts表中的主键
  */
-exports.createItem = function(item, createItemCallBack){
+exports.deleteItemById = function(id, deleteItemByIdCallBack){
+  console.log("delete picture id : " + id);
   var db = openDB();
-  db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
+  db.get(SQLSTR.DELETEPICTURE, id, deleteItemByIdCallBack);
   closeDB(db);
 }

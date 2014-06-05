@@ -64,3 +64,15 @@ exports.createItem = function(item, createItemCallBack){
   db.run(SQLSTR.CREATECONTACT, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime, createItemCallBack);
   closeDB(db);
 }
+
+/**
+ * @method deleteItemById
+ *   根据ID删除表中指定数据
+ * @param id
+ *   pictures表中的主键
+ */
+exports.deleteItemById = function(id, deleteItemByIdCallBack){
+  var db = openDB();
+  db.get(SQLSTR.DELETECONTACT, id, deleteItemByIdCallBack);
+  closeDB(db);
+}
