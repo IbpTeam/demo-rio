@@ -5,7 +5,7 @@ var path = require('path');
 var fs = require('fs');
 //var config = require('./config');
 
-function route(handle, pathname, response, postData) {
+function route(handle, pathname, absolute , response, postData) {
   console.log("About to route a request for " + pathname);
   if (typeof handle[pathname] == 'function') {
     handle[pathname](response, postData);
@@ -14,14 +14,19 @@ function route(handle, pathname, response, postData) {
     //response.writeHead(404, {"Content-Type": "text/plain"});
     //response.write("404 Not found");
     //response.end();
-    var realPath = "."+pathname;
-
+    if(absolute == "query=absolute"){
+      var realPath = pathname;
+    }
+    else{
+      var realPath = "."+pathname;
+    }
     path.exists(realPath, function (exists) {
+    console.log("realPath="+realPath);
         if (!exists) {
             response.writeHead(404, {
                 'Content-Type': 'text/plain'
             });
-            response.write("This request URL " + pathname + " was not found on this server.");
+            response.write("This request URL " + realPath + " was not found on this server.");
             response.end();
         } 
         else {

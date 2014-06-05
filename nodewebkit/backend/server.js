@@ -76,7 +76,7 @@ function syncDb()
           lastModifyTime:mtime,
           others:null
         };
-        commonDAO.createItem(category,newItem,createItemCb);
+//        commonDAO.createItem(category,newItem,createItemCb);
       }
       fs.stat(item,getFileStatCb);
     }
@@ -97,7 +97,7 @@ function syncDb()
             createTime:null,
             lastModifyTime:null
           };
-          commonDAO.createItem(category,newItem,createItemCb);
+//          commonDAO.createItem(category,newItem,createItemCb);
         });
       });
     }
@@ -110,10 +110,12 @@ exports.syncDb = syncDb;
 function start(route, handle) {
   function onRequest(request, response) {
     var postData = "";
+        console.log(url.parse(request.url));
     var pathname = url.parse(request.url).pathname;
-     
-    console.log("Request for " + pathname + " received.");
+    var absolute = url.parse(request.url).query;
 
+    console.log("Request for " + pathname + " received.");
+    console.log("Request for " + absolute );
     request.setEncoding("utf8");
 
     request.addListener("data", function(postDataChunk) {
@@ -121,7 +123,7 @@ function start(route, handle) {
       console.log("Received POST data chunk '"+ postDataChunk + "'.");
     });
     request.addListener("end", function() {
-      route(handle, pathname, response, postData);
+      route(handle, pathname, absolute, response, postData);
     });
 
   }
