@@ -64,15 +64,15 @@ exports.getCategories = function(callback){
 }
 
 
-exports.createItem = function(category, item, callback){
+exports.createItem = function(category, item, callback , loadResourcesCb){
   switch(category){
     case 'Contacts' : {
       contactsDAO.createItem(item, function(err){
         if(err){
-          callback(category,item,err);
+          callback(category,item,err,loadResourcesCb);
         }
         else{
-          callback(category,item,'successfull');
+          callback(category,item,'successfull',loadResourcesCb);
         }
       });
     }
@@ -80,10 +80,10 @@ exports.createItem = function(category, item, callback){
     case 'Pictures' : {
       picturesDAO.createItem(item, function(err){
         if(err){
-          callback(category,item,err);
+          callback(category,item,err,loadResourcesCb);
         }
         else{
-          callback(category,item,'successfull');
+          callback(category,item,'successfull',loadResourcesCb);
         }
       });
     }
@@ -91,10 +91,10 @@ exports.createItem = function(category, item, callback){
     case 'Videos' : {
       videosDAO.createItem(item, function(err){
         if(err){
-          callback(category,item,err);
+          callback(category,item,err,loadResourcesCb);
         }
         else{
-          callback(category,item,'successfull');
+          callback(category,item,'successfull',loadResourcesCb);
         }
       });
     }

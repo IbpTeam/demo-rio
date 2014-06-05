@@ -23,7 +23,7 @@ function getAllCatecb(text){
 
 getAllCate(getAllCatecb);
 */
-
+/*
 function getAllDataByCateCb(text){
     document.write(text[1].id);
     document.write(text[1].filename);
@@ -32,7 +32,7 @@ function getAllDataByCateCb(text){
 }
 
 getAllDataByCate(getAllDataByCateCb,'Pictures');
-
+*/
 
 /*function getAllDataByCateCb(text){
     document.write(text[2].id);
@@ -42,6 +42,11 @@ getAllDataByCate(getAllDataByCateCb,'Pictures');
 
 getAllDataByCate(getAllDataByCateCb,'Contacts');
 */
+function loadResourcesCb(result){
+  document.write(result);
+}
+loadResources(loadResourcesCb,'/home/v1/resources');
+
 </script>
 </body>
 </html>

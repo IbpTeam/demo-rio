@@ -1,6 +1,11 @@
 //var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
+var server = require("./server");
 
+function loadResourcesFromLocal(loadResourcesCb,path) {
+  server.syncDb(loadResourcesCb,path);
+}
+exports.loadResourcesFromLocal = loadResourcesFromLocal;
 
 function getAllCateFromLocal(getAllCateCb) {
   function getCategoriesCb(data)

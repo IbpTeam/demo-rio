@@ -38,6 +38,27 @@ function browser(){
 //  type;
 //  path;
 //}
+function loadResources(loadResourcesCb,path) {
+  console.log("Request handler 'loadResources' was called.");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);
+  
+  if(r[0]=="Fuck")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.loadResourcesFromLocal(loadResourcesCb,path);
+  }else{
+    loadResourcesFromHttp(loadResourcesCb,path);
+  }
+}
+
+//API getAllCate:查询所有基本分类
+//返回cate型array：
+//cate{
+//  id;
+//  type;
+//  path;
+//}
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号

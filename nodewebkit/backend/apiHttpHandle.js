@@ -1,6 +1,23 @@
 //var getAllCate = '{"func":"getAllCate","arg":"null"}';
 //var getAllDataByCate = '{"func":"getAllDataByCate","arg":"cate"}';
 
+function loadResourcesFromHttp(loadResourcesCb,path){
+  $.ajax({
+    url: "/loadResources",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"loadResources","arg":"'+path+'"}',
+    success: function(result) {
+      loadResourcesCb(result);
+    },
+    error: function(e) {
+      loadResourcesCb(e);
+    }
+  });
+}
+
+
 function getAllCateFromHttp(getAllCateCb) {
 //  var studentData = CollectionData();
   $.ajax({
@@ -21,7 +38,7 @@ function getAllCateFromHttp(getAllCateCb) {
       getAllCateCb(cates);
     },
     error: function(e) {
-      alert(e.responseText);
+      getAllCateCb(e);
     }
   });
 }
@@ -47,7 +64,7 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
       getAllDataByCateCb(cates);
     },
     error: function(e) {
-      alert(e.responseText);
+      getAllDataByCateCb(e);
     }
   });
 }
@@ -72,7 +89,7 @@ function getAllContactsFromHttp(getAllContactsCb) {
       getAllContactsCb(contacts);
     },
     error: function(e) {
-      alert(e.responseText);
+      getAllContactsCb(e);
     }
   });
 }

@@ -2,6 +2,7 @@ var querystring = require("querystring");
 var fs = require('fs');
 var categoryDAO = require("./DAO/CategoryDAO");
 var commonDAO = require("./DAO/CommonDAO");
+var server = require("./server");
 
 function start(response, postData) {
   console.log("Request handler 'start' was called.");
@@ -9,10 +10,31 @@ function start(response, postData) {
 }
 exports.start = start;
 
-function getAllCateInHttpServer(response, postData) {
+function loadResourcesInHttpServer(response, postData) {
+  console.log("Request handler 'loadResourcesInHttpServer' was called.");
+    console.log(postData);
+    postDataJson=JSON.parse(postData);
+     console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'loadResources'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else{
+    function loadResourcesCb(result)
+    {
+      var json=JSON.stringify(result);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    }
+    server.syncDb(loadResourcesCb,postDataJson.arg);
+  }
+}
+exports.loadResourcesInHttpServer = loadResourcesInHttpServer;
 
+function getAllCateInHttpServer(response, postData) {
   console.log("Request handler 'getAllCateInHttpServer' was called.");
-  
   if(postData == '{"func":"getAllCate","arg":"null"}'){
     function getCategoriesCb(data)
     {
@@ -40,11 +62,10 @@ function getAllCateInHttpServer(response, postData) {
 exports.getAllCateInHttpServer = getAllCateInHttpServer;
 
 function getAllDataByCateInHttpServer(response, postData) {
-
   console.log("Request handler 'getAllDataByCateInHttpServer' was called.");
-    console.log(postData);
-    postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+  console.log(postData);
+  postDataJson=JSON.parse(postData);
+  console.log('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'getAllDataByCate'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");

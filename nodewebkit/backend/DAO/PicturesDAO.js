@@ -64,3 +64,15 @@ exports.createItem = function(item, createItemCallBack){
   db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
   closeDB(db);
 }
+
+/**
+ * @method createItem
+ *   增加一条图片信息
+ * @param item
+ *   包含图片信息的数据对象
+ */
+exports.createItem = function(item, createItemCallBack){
+  var db = openDB();
+  db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
+  closeDB(db);
+}

@@ -17,25 +17,38 @@ var PORT = 8888,
      "txt": "text/plain"
 };
 
+var writeDbNum=0;
+
 function sleep(milliSeconds) { 
     var startTime = new Date().getTime(); 
     while (new Date().getTime() < startTime + milliSeconds);
 };
 
-function createItemCb(category,item,result)
+function createItemCb(category,item,result,loadResourcesCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
     console.log(item.filename+'insert error:'+result.code);
     sleep(1000);
-    commonDAO.createItem(category,item,createItemCb);
+    commonDAO.createItem(category,item,createItemCb,loadResourcesCb);
+  }
+  else if(result=='successfull'){
+    console.log(item.filename+'insert:'+result);
+    writeDbNum--;
+    console.log('writeDbNum= '+writeDbNum);
+    if(writeDbNum==0){
+      console.log('Read data complete!');
+      loadResourcesCb('success');
+    }
   }
   else{
     console.log(item.filename+'insert:'+result);
+    console.log('Read data failed!');
+    loadResourcesCb(result);
   }
 }
 
-function syncDb()
+function syncDb(loadResourcesCb,resourcePath)
 {
   console.log("syncDB ..............");
   var fileList = new Array();
@@ -50,15 +63,17 @@ function syncDb()
       }
     });
   }
-  walk(config.RESOURCEPATH);
-  console.log(fileList.length);
+  walk(resourcePath);
   console.log(fileList); 
+  writeDbNum=fileList.length;
+  console.log('writeDbNum= '+writeDbNum);
   fileList.forEach(function(item){
     var pointIndex=item.indexOf('.');
     var itemPostfix=item.substr(pointIndex+1);
     var nameindex=item.lastIndexOf('/');
     var itemFilename=item.substring(nameindex+1,pointIndex);
     console.log("read file "+item);
+
     if(itemPostfix == 'jpg' || itemPostfix == 'png'){
       function getFileStatCb(error,stat)
       {
@@ -76,7 +91,7 @@ function syncDb()
           lastModifyTime:mtime,
           others:null
         };
-//        commonDAO.createItem(category,newItem,createItemCb);
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
       }
       fs.stat(item,getFileStatCb);
     }
@@ -84,6 +99,8 @@ function syncDb()
       fs.readFile(item, function (err, data) {
         var json=JSON.parse(data);
         console.log(json);
+        writeDbNum+=json.length-1;
+        console.log('writeDbNum= '+writeDbNum);
         json.forEach(function(each){
           var category='Contacts';
           var newItem={
@@ -97,12 +114,12 @@ function syncDb()
             createTime:null,
             lastModifyTime:null
           };
-//          commonDAO.createItem(category,newItem,createItemCb);
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         });
       });
     }
   });
-  console.log('walk the folder complete!');
+
 }
 
 exports.syncDb = syncDb;
