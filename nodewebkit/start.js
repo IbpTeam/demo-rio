@@ -9,5 +9,7 @@ handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
 handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
 handle["/getAllContacts"] = requestHandlers.getAllContactsInHttpServer;
 handle["/loadResources"] = requestHandlers.loadResourcesInHttpServer;
+handle["/rmDataById"] = requestHandlers.rmDataByIdInHttpServer;
+
 
 server.start(router.route, handle);

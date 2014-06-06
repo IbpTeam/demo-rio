@@ -31,13 +31,10 @@ function browser(){
   return ret.split("|");
 }
 
-//API getAllCate:查询所有基本分类
-//返回cate型array：
-//cate{
-//  id;
-//  type;
-//  path;
-//}
+//API loadResources:读取某个资源文件夹到数据库
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
@@ -119,6 +116,9 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
 
 
 //API rmDataById:通过id删除数据
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
 function rmDataById(rmDataByIdCb,id) {
   console.log("Request handler 'getAllDataByCate' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
@@ -129,7 +129,7 @@ function rmDataById(rmDataByIdCb,id) {
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.rmDataByIdFromLocal(rmDataByIdCb,id);
   }else{
-    getAllDataByCateFromHttp(getAllDataByCateCb,cate);
+    rmDataByIdFromHttp(rmDataByIdCb,id);
   }
 }
 

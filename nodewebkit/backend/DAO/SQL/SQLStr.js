@@ -9,7 +9,7 @@ exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";
 exports.FINDALLCONTACTS = "select * from Contacts";
 exports.FINDCONTACTBYID = "select * from contacts where id = ?";
 exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime) values (null,?,?,?,?,?,?,?,?)";
-exports.DELETEPICTURE = "delete from pictures where id = ?";
+exports.DELETECONTACT = "delete from contacts where id = ?";
 
 //SQL used in PicturesDAO
 exports.COUNTTOTALPICTURES = "select count(*) as total from pictures";

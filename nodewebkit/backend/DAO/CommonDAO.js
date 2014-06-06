@@ -101,12 +101,48 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     break;
   }
 }
-/*
-exports.createItems = function(category, items){
-  switch(category){
-    case 'Contacts' : {
-      contactsDAO.createItems(items);
+
+exports.deleteItemById = function(id, callback ,rmDataByIdCb){
+  console.log("delete id:" + id);
+  var index=id.indexOf('#');
+  var tableId=id.substring(0,index);
+  var dataId=id.substr(index+1);
+    console.log("tableId id:" + tableId);
+        console.log("dataId id:" + dataId);
+  switch(tableId){
+    case '1' : {
+      contactsDAO.deleteItemById(dataId, function(err){
+        if(err){
+          callback(id,err,rmDataByIdCb);
+        }
+        else{
+          callback(id,'successfull',rmDataByIdCb);
+        }
+      });
     }
     break;
+        case '2' : {
+      picturesDAO.deleteItemById(dataId, function(err){
+        if(err){
+          callback(id,err,rmDataByIdCb);
+        }
+        else{
+          callback(id,'successfull',rmDataByIdCb);
+        }
+      });
+    }
+    break;
+        case '3' : {
+      videosDAO.deleteItemById(dataId, function(err){
+        if(err){
+          callback(id,err,rmDataByIdCb);
+        }
+        else{
+          callback(id,'successfull',rmDataByIdCb);
+        }
+      });
+    }
+    break;
+
   }
-}*/
+}

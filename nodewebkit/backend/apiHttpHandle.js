@@ -94,4 +94,19 @@ function getAllContactsFromHttp(getAllContactsCb) {
   });
 }
 
+function rmDataByIdFromHttp(rmDataByIdCb,id){
+    $.ajax({
+    url: "/rmDataById",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"rmDataById","arg":"'+id+'"}',
+    success: function(result) {
+      rmDataByIdCb(result);
+    },
+    error: function(e) {
+      rmDataByIdCb(e);
+    }
+  });
+}
 
