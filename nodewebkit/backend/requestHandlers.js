@@ -108,14 +108,39 @@ function rmDataByIdInHttpServer(response, postData) {
     response.end();
   }
   else{
-    function rmDataByIdCb(result)
-    {
-      var json=JSON.stringify(result);
-      response.writeHead(200, {"Content-Type": "application/json"});
-      response.write(json);
-      response.end();
+    function getItemByIdCb(item){
+      if(item == null){
+        var json=JSON.stringify('success');
+        response.writeHead(200, {"Content-Type": "application/json"});
+        response.write(json);
+        response.end();
+      }
+      else{
+        console.log("delete : "+ item.path);
+        function ulinkCb(result){
+          function rmDataByIdCb(result){
+            console.log("delete result:"+result);
+            var json=JSON.stringify(result);
+            response.writeHead(200, {"Content-Type": "application/json"});
+            response.write(json);
+            response.end();
+          }
+          if(result==null){
+            result='success';
+            commonDAO.deleteItemById(postDataJson.arg,server.deleteItemCb,rmDataByIdCb);
+          }
+          else{
+            console.log("delete result:"+result);
+            var json=JSON.stringify('EACCES');
+            response.writeHead(200, {"Content-Type": "application/json"});
+            response.write(json);
+            response.end();
+          }
+        }
+        fs.unlink(item.path,ulinkCb);
+      }
     }
-    commonDAO.deleteItemById(postDataJson.arg,server.deleteItemCb,rmDataByIdCb);
+    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
   }
 }
 exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;

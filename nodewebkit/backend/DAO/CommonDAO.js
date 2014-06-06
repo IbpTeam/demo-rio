@@ -63,6 +63,50 @@ exports.getCategories = function(callback){
   });
 }
 
+exports.getItemById = function(id, callback){
+  console.log("get id:" + id);
+  var index=id.indexOf('#');
+  var tableId=id.substring(0,index);
+  var dataId=id.substr(index+1);
+    console.log("tableId id:" + tableId);
+        console.log("dataId id:" + dataId);
+  switch(tableId){
+    case '1' : {
+      contactsDAO.findById(dataId,function(err,item){
+        if(err){
+          callback('');
+        }
+        else{
+          callback(item);
+        }
+      });
+    }
+    break;
+        case '2' : {
+      picturesDAO.findById(dataId,function(err,item){
+        if(err){
+          callback('');
+        }
+        else{
+          callback(item);
+        }
+      });
+    }
+    break;
+        case '3' : {
+      videosDAO.findById(dataId,function(err,item){
+        if(err){
+          callback('');
+        }
+        else{
+          callback(item);
+        }
+      });
+    }
+    break;
+
+  }
+}
 
 exports.createItem = function(category, item, callback , loadResourcesCb){
   switch(category){
