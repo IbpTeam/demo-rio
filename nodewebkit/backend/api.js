@@ -133,7 +133,23 @@ function rmDataById(rmDataByIdCb,id) {
   }
 }
 
+//API rmDataById:通过id删除数据
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function getDataById(rmDataByIdCb,id){
+    console.log("Request handler 'getDataById' was called.");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);
+  
+  if(r[0]=="Fuck")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getDataByIdFromLocal(getDataByIdCb,id);
+  }else{
+    getDataByIdFromHttp(getDataByIdCb,id);
+  }
+}
 
 
 
-//exports.getallfile = getallfile;

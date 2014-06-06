@@ -69,7 +69,7 @@ function rmDataByIdFromLocal(rmDataByIdCb,id) {
        rmDataByIdCb(result);
     }
     else{
-      console.log("delete : "+ item.path);
+//      console.log("delete : "+ item.path);
       function ulinkCb(result){
         console.log("delete result:"+result);
         if(result==null){
@@ -87,3 +87,12 @@ function rmDataByIdFromLocal(rmDataByIdCb,id) {
   commonDAO.getItemById(id,getItemByIdCb);
 }
 exports.rmDataByIdFromLocal = rmDataByIdFromLocal;
+
+function getDataByIdFromLocal(getDataByIdCb,id) {
+  function getItemByIdCb(item){
+ //   console.log("read data : "+ item.filename);
+    getDataByIdCb(item);
+  }
+  commonDAO.getItemById(id,getItemByIdCb);
+}
+exports.getDataByIdFromLocal = getDataByIdFromLocal;

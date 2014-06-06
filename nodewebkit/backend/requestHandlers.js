@@ -144,3 +144,27 @@ function rmDataByIdInHttpServer(response, postData) {
   }
 }
 exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;
+
+function getDataByIdInHttpServer(response, postData) {
+
+  console.log("Request handler 'rmDataByIdInHttpServer' was called.");
+    console.log(postData);
+    postDataJson=JSON.parse(postData);
+     console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'getDataById'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else{
+    function getItemByIdCb(item){
+      console.log("delete result:"+item);
+      var json=JSON.stringify(item);
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.write(json);
+      response.end();
+    }
+    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+  }
+}
+exports.getDataByIdInHttpServer = getDataByIdInHttpServer;
