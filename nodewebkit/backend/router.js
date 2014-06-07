@@ -5,8 +5,25 @@ var path = require('path');
 var fs = require('fs');
 //var config = require('./config');
 
+var mimeTypes = {
+     "html": "text/html",
+     "jpeg": "image/jpeg",
+     "jpg": "image/jpeg",
+     "png": "image/png",
+     "js": "text/javascript",
+     "css": "text/css",
+     "txt": "text/plain"
+};
 function route(handle, pathname, absolute , response, postData) {
   console.log("About to route a request for " + pathname);
+   
+    var pos = pathname.lastIndexOf(".");
+    var suffix = '';
+    if(pos != -1){
+        suffix = pathname.substr(pos+1).toLowerCase();
+        //console.log("suffix:", suffix);
+    }
+    
   if (typeof handle[pathname] == 'function') {
     handle[pathname](response, postData);
   } else {
@@ -37,8 +54,17 @@ function route(handle, pathname, absolute , response, postData) {
                     });
                     response.end(err);
                 } else {
+                    var content_type;
+                    switch(suffix){
+                    case 'css':
+                        content_type = mimeTypes[suffix];
+                        break;
+                    default:
+                        content_type = 'text/html';
+                        break;
+                    }
                     response.writeHead(200, {
-                        'Content-Type': 'text/html'
+                        'Content-Type': content_type
                     });
                     response.write(file, "binary");
                     response.end();
