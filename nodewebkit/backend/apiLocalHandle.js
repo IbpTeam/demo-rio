@@ -1,6 +1,7 @@
 //var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 var server = require("./server");
+var fs = require('fs');
 
 function loadResourcesFromLocal(loadResourcesCb,path) {
   server.syncDb(loadResourcesCb,path);
@@ -62,6 +63,36 @@ function getAllContactsFromLocal(getAllContactsCb) {
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
 function rmDataByIdFromLocal(rmDataByIdCb,id) {
-  commonDAO.deleteItemById(id,server.deleteItemCb,rmDataByIdCb);
+  function getItemByIdCb(item){
+    if(item == null){
+       result='success';
+       rmDataByIdCb(result);
+    }
+    else{
+//      console.log("delete : "+ item.path);
+      function ulinkCb(result){
+        console.log("delete result:"+result);
+        if(result==null){
+          result='success';
+          commonDAO.deleteItemById(id,server.deleteItemCb,rmDataByIdCb);
+        }
+        else{
+          result='EACCES';
+          rmDataByIdCb(result);
+        }
+      }
+      fs.unlink(item.path,ulinkCb);
+    }
+  }
+  commonDAO.getItemById(id,getItemByIdCb);
 }
 exports.rmDataByIdFromLocal = rmDataByIdFromLocal;
+
+function getDataByIdFromLocal(getDataByIdCb,id) {
+  function getItemByIdCb(item){
+ //   console.log("read data : "+ item.filename);
+    getDataByIdCb(item);
+  }
+  commonDAO.getItemById(id,getItemByIdCb);
+}
+exports.getDataByIdFromLocal = getDataByIdFromLocal;

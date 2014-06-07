@@ -42,16 +42,33 @@ getAllDataByCate(getAllDataByCateCb,'Pictures');
 
 getAllDataByCate(getAllDataByCateCb,'Contacts');
 */
-
-/*function loadResourcesCb(result){
+/*
+function loadResourcesCb(result){
   document.write(result);
 }
 loadResources(loadResourcesCb,'/home/v1/resources');
+
 */
+/*
 function rmDataByIdCb(result){
   document.write(result);
 }
-rmDataById(rmDataByIdCb,'2#19');
+rmDataById(rmDataByIdCb,'2#22');
+*/
+function getDataByIdCb(result){
+   document.write(result.id);
+   document.write(result.filename);
+   document.write(result.postfix);
+   document.write(result.size);
+   document.write(result.path);
+   document.write(result.location);
+   document.write(result.lastModifyTime);
+   document.write(result.createTime);
+   document.write(result.others);
+}
+
+getDataById(getDataByIdCb,'2#19');
+
 </script>
 </body>
 </html>

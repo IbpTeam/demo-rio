@@ -110,3 +110,18 @@ function rmDataByIdFromHttp(rmDataByIdCb,id){
   });
 }
 
+function getDataByIdFromHttp(getDataByIdCb,id){
+    $.ajax({
+    url: "/getDataById",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getDataById","arg":"'+id+'"}',
+    success: function(result) {
+      getDataByIdCb(result);
+    },
+    error: function(e) {
+      getDataByIdCb(e);
+    }
+  });
+}
