@@ -4,7 +4,7 @@
   "version": "0.1",
   "main": "file-explorer.html",
   "window": {
-    "toolbar": false,
+    "toolbar": true,
     "width": 660,
     "height": 500
   }
