@@ -90,7 +90,7 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
   console.log('You are using ' + r[0]);
-  if(cate!='Contacts' && cate!='Videos' && cate!='Pictures')
+  if(cate!='Contacts' && cate!='Videos' && cate!='Pictures' &&cate!='Documents')
   {
       console.log("cate "+cate+" is an error cate");
       return ;

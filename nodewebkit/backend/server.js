@@ -87,34 +87,14 @@ function syncDb(loadResourcesCb,resourcePath)
   writeDbNum=fileList.length;
   console.log('writeDbNum= '+writeDbNum);
   fileList.forEach(function(item){
-    var pointIndex=item.indexOf('.');
+    var pointIndex=item.lastIndexOf('.');
     var itemPostfix=item.substr(pointIndex+1);
     var nameindex=item.lastIndexOf('/');
     var itemFilename=item.substring(nameindex+1,pointIndex);
     console.log("read file "+item);
 
-    if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-      function getFileStatCb(error,stat)
-      {
-        var category='Pictures';
-        var ctime=stat.ctime;
-        var mtime=stat.mtime;
-        var newItem={
-          id:null,
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:stat.size,
-          path:item,
-          location:null,
-          createTime:ctime,
-          lastModifyTime:mtime,
-          others:null
-        };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-      }
-      fs.stat(item,getFileStatCb);
-    }
-    else if(itemPostfix == 'contacts'){
+    if(itemPostfix == 'contacts'){
+              console.log("postfix= "+itemPostfix);
       fs.readFile(item, function (err, data) {
         var json=JSON.parse(data);
         console.log(json);
@@ -136,6 +116,34 @@ function syncDb(loadResourcesCb,resourcePath)
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         });
       });
+    }
+    else{
+      if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx'){
+        var category='Documents';
+      }          //console.log("postfix= "+itemPostfix);
+      else{
+        var category='Pictures';
+      }
+      function getFileStatCb(error,stat)
+      {
+
+        var ctime=stat.ctime;
+        var mtime=stat.mtime;
+        var newItem={
+          id:null,
+          filename:itemFilename,
+          postfix:itemPostfix,
+          size:stat.size,
+          path:item,
+          project:null,
+          createTime:ctime,
+          lastModifyTime:mtime,
+          others:null
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+      }
+      fs.stat(item,getFileStatCb);
+
     }
   });
 

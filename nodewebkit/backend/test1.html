@@ -23,16 +23,16 @@ function getAllCatecb(text){
 
 getAllCate(getAllCatecb);
 */
-
+/*
 function getAllDataByCateCb(text){
     document.write(text[2].id);
-    document.write(text[2].name);
-    //document.write(text[1].postfix);
-    document.write(text[2].photoPath);
+    document.write(text[2].filename);
+    document.write(text[1].postfix);
+    document.write(text[2].path);
 }
 
-getAllDataByCate(getAllDataByCateCb,'Contacts');
-
+getAllDataByCate(getAllDataByCateCb,'Documents');
+*/
 
 /*function getAllDataByCateCb(text){
     document.write(text[2].id);
@@ -53,23 +53,23 @@ loadResources(loadResourcesCb,'/home/v1/resources');
 function rmDataByIdCb(result){
   document.write(result);
 }
-rmDataById(rmDataByIdCb,'2#22');
+rmDataById(rmDataByIdCb,'4#3');
 */
-/*
+
 function getDataByIdCb(result){
    document.write(result.id);
    document.write(result.filename);
    document.write(result.postfix);
    document.write(result.size);
    document.write(result.path);
-   document.write(result.location);
+   document.write(result.project);
    document.write(result.lastModifyTime);
    document.write(result.createTime);
    document.write(result.others);
 }
 
-getDataById(getDataByIdCb,'2#19');
-*/
+getDataById(getDataByIdCb,'4#4');
+
 </script>
 </body>
 </html>

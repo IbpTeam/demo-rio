@@ -18,9 +18,16 @@ exports.FINDPICTUREBYID = "select * from pictures where id = ?";
 exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
 exports.DELETEPICTURE = "delete from pictures where id = ?";
 
-//SQL used in VideoDAO
+//SQL used in VideosDAO
 exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
 exports.FINDALLVIDEOS = "select * from videos";
 exports.FINDVIDEOBYID = "select * from videos where id = ?";
 exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
 exports.DELETEVIDEO = "delete from videos where id = ?";
+
+//SQL used in DocumentsDAO
+exports.COUNTTOTALDOCUMENTS = "select count(*) as total from documents";
+exports.FINDALLDOCUMENTS = "select * from documents";
+exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
+exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
+exports.DELETEDOCUMENT = "delete from documents where id = ?";

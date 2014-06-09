@@ -3,6 +3,7 @@ var categoryDAO = require("./CategoryDAO");
 var contactsDAO = require("./ContactsDAO");
 var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
+var documentsDAO = require("./DocumentsDAO");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -47,6 +48,20 @@ exports.getAllByCateroty = function(caterogy, callback) {
       });
     }
     break;
+    
+    case 'Documents' : {
+      documentsDAO.findAll(function(err, documents){
+        if(err){
+          console.log(err);
+          callback(null)
+        }
+        documents.forEach(function(document){
+          document.id = "4#" + document.id;
+        });
+        callback(documents)
+      });
+    }
+    break;
   }
 }
 
@@ -82,7 +97,7 @@ exports.getItemById = function(id, callback){
       });
     }
     break;
-        case '2' : {
+    case '2' : {
       picturesDAO.findById(dataId,function(err,item){
         if(err){
           callback('');
@@ -93,7 +108,7 @@ exports.getItemById = function(id, callback){
       });
     }
     break;
-        case '3' : {
+    case '3' : {
       videosDAO.findById(dataId,function(err,item){
         if(err){
           callback('');
@@ -104,7 +119,16 @@ exports.getItemById = function(id, callback){
       });
     }
     break;
-
+    case '4' : {
+      documentsDAO.findById(dataId,function(err,item){
+        if(err){
+          callback('');
+        }
+        else{
+          callback(item);
+        }
+      });
+    }
   }
 }
 
@@ -122,6 +146,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Pictures' : {
+      console.log('insert picture');
       picturesDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -133,6 +158,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Videos' : {
+          console.log('insert video');
       videosDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -143,6 +169,17 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
       });
     }
     break;
+    case 'Documents' : {
+          console.log('insert document');
+      documentsDAO.createItem(item, function(err){
+        if(err){
+          callback(category,item,err,loadResourcesCb);
+        }
+        else{
+          callback(category,item,'successfull',loadResourcesCb);
+        }
+      });
+    }
   }
 }
 
@@ -165,7 +202,7 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
       });
     }
     break;
-        case '2' : {
+    case '2' : {
       picturesDAO.deleteItemById(dataId, function(err){
         if(err){
           callback(id,err,rmDataByIdCb);
@@ -176,7 +213,7 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
       });
     }
     break;
-        case '3' : {
+    case '3' : {
       videosDAO.deleteItemById(dataId, function(err){
         if(err){
           callback(id,err,rmDataByIdCb);
@@ -187,6 +224,15 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
       });
     }
     break;
-
+    case '4' : {
+      documentsDAO.deleteItemById(dataId, function(err){
+        if(err){
+          callback(id,err,rmDataByIdCb);
+        }
+        else{
+          callback(id,'successfull',rmDataByIdCb);
+        }
+      });
+    }
   }
 }
