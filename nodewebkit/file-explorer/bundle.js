@@ -152,7 +152,7 @@ exports.AddressBar = AddressBar;
 var events = require('events');
 var util = require('util');
 //var mime = require('mime');
-//var netcomm = require('/home/cos/Templates/demo-rio/nodewebkit/backend/apiLocalHandle.js');
+//var netcomm = require('/home/cos/Templates/demo-rio/nodewebkit/backend/apilocalHandle.js');
 
 //var fs = require('fs');
 //eval(fs.readFileSync('../backend/api.js')+'');
@@ -160,13 +160,14 @@ var util = require('util');
 function browser(){
   var ua = window.navigator.userAgent,
       ret = "";
+  //console.log('ua', ua);
   if(/Firefox/g.test(ua)){
     ua = ua.split(" ");
     ret="Firefox|"+ua[ua.length-1].split("/")[1];
   }
-  else if(/Fuck/g.test(ua)){
+  else if(/Nodejs/g.test(ua)){
     ua = ua.split(" ");
-    ret = "Fuck|"+ua[ua.length-1].split("/")[1];
+    ret = clienet_local + "|"+ua[ua.length-1].split("/")[1];
   }
   else if(/MSIE/g.test(ua)){
     ua = ua.split(";");
@@ -180,7 +181,7 @@ function browser(){
     ua = ua.split(" ");
     ret = "Chrome|"+ua[ua.length-2].split("/")[1];
   }
-  else if(/^apple\s+/i.test(navigator.vendor)){
+  else if(/^apple\s+/i.test(window.navigator.vendor)){
     ua = ua.split(" ");
     ret = "Safair|"+ua[ua.length-2].split("/")[1];
   }
@@ -190,12 +191,25 @@ function browser(){
   return ret.split("|");
 }
 
+var r=browser();
+var client_type = r[0];
+var clienet_local = 'Nodejs';
+//var ip='192.168.160.176';
 var ip = '127.0.0.1';
 var port = ':8888';
 function getAllCateFromHttp(getAllCateCb) {
 //  var studentData = CollectionData();
+    var ajax_rul = '';
+    console.log('client_type', client_type);
+    console.log('clienet_local', clienet_local);
+    if(client_type == clienet_local){
+        ajax_rul = '/getAllCate';
+    }else{
+        ajax_rul = 'http://' + ip + port + '/getAllCate';
+    }
+    console.log('ajax_rul', ajax_rul);
   $.ajax({
-    url: 'http://' + ip + port + '/getAllCate',
+    url: ajax_rul,
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
@@ -219,6 +233,12 @@ function getAllCateFromHttp(getAllCateCb) {
 
 function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
 //  var studentData = CollectionData();
+    var ajax_rul = '';
+    if(client_type == clienet_local){
+        ajax_rul = '/getAllDataByCate';
+    }else{
+        ajax_rul = 'http://' + ip + port + '/getAllDataByCate';
+    }
   $.ajax({
     url: 'http://' + ip + port + '/getAllDataByCate',
     type: "post",
@@ -244,6 +264,12 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
 }
 function getAllContactsFromHttp(getAllContactsCb) {
 //  var studentData = CollectionData();
+    var ajax_rul = '';
+    if(client_type == clienet_local){
+        ajax_rul = '/getAllContacts';
+    }else{
+        ajax_rul = 'http://' + ip + port + '/getAllContacts';
+    }
   $.ajax({
     url: 'http://' + ip + port + '/getAllContacts',
     type: "post",
@@ -269,12 +295,11 @@ function getAllContactsFromHttp(getAllContactsCb) {
 //console.log('current path in folder_view.js:', process.cwd());
 // Template engine
 function gen_files_view(files){
-    var r=browser();
     var result = [];
     for(var i=0; i<files.length; i++){
         result.push('<div class="file" data-path="' + files[i].path + '">');
         if(files[i].img){
-            if(r[0]=="Fuck"){ 
+            if(client_type == clienet_local){ 
                 result.push('<div class="icon"> <img src="' + files[i].img + '"></div>');
             }else{
                 result.push('<div class="icon"> <img src="' + files[i].img + '?query=absolute"></div>');
