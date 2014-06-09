@@ -96,6 +96,37 @@ function getAllDataByCateInHttpServer(response, postData) {
 }
 exports.getAllDataByCateInHttpServer = getAllDataByCateInHttpServer;
 
+function getAllContactsInHttpServer(response, postData) {
+  console.log("Request handler 'getAllContactsInHttpServer' was called.");
+  console.log(postData);
+  postDataJson=JSON.parse(postData);
+  console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'getAllContacts'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else{
+    function getAllByCaterotyCb(data)
+    {
+      var cates = new Array();
+      data.forEach(function (each){
+        cates.push({
+          id:each.id,
+          name:each.name,
+          photoPath:each.photoPath
+        });
+      });
+      var json=JSON.stringify(cates);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    }
+    commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+  }
+}
+exports.getAllContactsInHttpServer = getAllContactsInHttpServer;
+
 function rmDataByIdInHttpServer(response, postData) {
 
   console.log("Request handler 'rmDataByIdInHttpServer' was called.");
