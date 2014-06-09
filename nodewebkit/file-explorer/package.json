@@ -2,7 +2,7 @@
   "name": "FileExplorer",
   "description": "Simple file explorer.",
   "version": "0.1",
-  "main": "index.html",
+  "main": "file-explorer.html",
   "window": {
     "toolbar": false,
     "width": 660,
