@@ -1,9 +1,10 @@
 global.$ = $;
-//console.log(global.__dirname);//当前路径
+
+//console.log(global.__dirname);
 //console.log(global.__filename);
 //console.log("path:" + process.cwd());
-var abar = require("./file-explorer/node_modules/address_bar.js");//
-var folder_view = require('./file-explorer/node_modules/folder_view.js');//
+var abar = require("address_bar.js");//./file-explorer/node_modules/
+var folder_view = require('folder_view.js');//./file-explorer/node_modules/
 //var path = require('path');
 //var shell = require('nw.gui').Shell;
 
