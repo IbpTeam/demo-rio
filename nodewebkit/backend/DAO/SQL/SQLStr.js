@@ -1,8 +1,8 @@
 //SQL used in CategoryDAO
-exports.COUNTTOTALCATEGORIES = "select count(*) as total from pictures";
-exports.FINDALLCATEGORIES = "select * from pictures";
-exports.FINDCATEGORYBYID = "select * from pictures where id = ?";
-exports.CREATECATEGORY = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
+exports.COUNTTOTALCATEGORIES = "select count(*) as total from Category";
+exports.FINDALLCATEGORIES = "select * from Category";
+exports.FINDCATEGORYBYID = "select * from Category where id = ?";
+//exports.CREATECATEGORY = "insert into category (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
 
 //SQL used in ContactsDAO
 exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";

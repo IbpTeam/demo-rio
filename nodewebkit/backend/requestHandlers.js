@@ -43,7 +43,8 @@ function getAllCateInHttpServer(response, postData) {
         cates.push({
           id:each.id,
           type:each.type,
-          path:each.logoPath
+          path:each.logoPath,
+          desc:each.desc
         });
       });
       var json=JSON.stringify(cates);

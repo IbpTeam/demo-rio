@@ -32,7 +32,8 @@ function getAllCateFromHttp(getAllCateCb) {
         cates.push({
           id:each.id,
           type:each.type,
-          path:each.path
+          path:each.path,
+          desc:each.desc
         });
       });
       getAllCateCb(cates);

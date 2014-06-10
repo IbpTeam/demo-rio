@@ -16,7 +16,8 @@ function getAllCateFromLocal(getAllCateCb) {
       cates.push({
         id:each.id,
         type:each.type,
-        path:each.logoPath
+        path:each.logoPath,
+        desc:each.desc
       });
     });
     getAllCateCb(cates);
