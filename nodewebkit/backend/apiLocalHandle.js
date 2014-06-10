@@ -77,7 +77,7 @@ function rmDataByIdFromLocal(rmDataByIdCb,id) {
           commonDAO.deleteItemById(id,server.deleteItemCb,rmDataByIdCb);
         }
         else{
-          result='EACCES';
+          result='error';
           rmDataByIdCb(result);
         }
       }

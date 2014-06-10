@@ -4,6 +4,7 @@ var contactsDAO = require("./ContactsDAO");
 var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
+var musicsDAO = require("./MusicsDAO");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -59,6 +60,20 @@ exports.getAllByCateroty = function(caterogy, callback) {
           document.id = "4#" + document.id;
         });
         callback(documents)
+      });
+    }
+    break;
+    
+    case 'Musics' : {
+      musicsDAO.findAll(function(err, musics){
+        if(err){
+          console.log(err);
+          callback(null)
+        }
+        musics.forEach(function(music){
+          music.id = "5#" + music.id;
+        });
+        callback(musics)
       });
     }
     break;
@@ -129,6 +144,17 @@ exports.getItemById = function(id, callback){
         }
       });
     }
+    case '5' : {
+      musicsDAO.findById(dataId,function(err,item){
+        if(err){
+          callback('');
+        }
+        else{
+          callback(item);
+        }
+      });
+    }
+    
   }
 }
 
@@ -158,7 +184,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Videos' : {
-          console.log('insert video');
+      console.log('insert video');
       videosDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -170,7 +196,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Documents' : {
-          console.log('insert document');
+      console.log('insert document');
       documentsDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -180,6 +206,20 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
         }
       });
     }
+    break;
+    case 'Musics' : {
+      console.log('insert music');
+      musicsDAO.createItem(item, function(err){
+        if(err){
+          callback(category,item,err,loadResourcesCb);
+        }
+        else{
+          callback(category,item,'successfull',loadResourcesCb);
+        }
+      });
+    }
+    break;    
+    
   }
 }
 
@@ -234,5 +274,16 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
         }
       });
     }
+    case '5' : {
+      musicsDAO.deleteItemById(dataId, function(err){
+        if(err){
+          callback(id,err,rmDataByIdCb);
+        }
+        else{
+          callback(id,'successfull',rmDataByIdCb);
+        }
+      });
+    }    
+    
   }
 }

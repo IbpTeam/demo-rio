@@ -16,22 +16,22 @@
 <script>
 /*
 function getAllCatecb(text){
-    document.write(text[1].id);
-    document.write(text[1].type);
-    document.write(text[1].path);
+    document.write(text[4].id);
+    document.write(text[4].type);
+    document.write(text[4].path);
 }
 
 getAllCate(getAllCatecb);
 */
 /*
 function getAllDataByCateCb(text){
-    document.write(text[2].id);
-    document.write(text[2].filename);
-    document.write(text[1].postfix);
-    document.write(text[2].path);
+    document.write(text[0].id);
+    document.write(text[0].filename);
+    document.write(text[0].postfix);
+    document.write(text[0].path);
 }
 
-getAllDataByCate(getAllDataByCateCb,'Documents');
+getAllDataByCate(getAllDataByCateCb,'Musics');
 */
 
 /*function getAllDataByCateCb(text){
@@ -47,28 +47,28 @@ function loadResourcesCb(result){
   document.write(result);
 }
 loadResources(loadResourcesCb,'/home/v1/resources');
-
 */
+
 /*
 function rmDataByIdCb(result){
   document.write(result);
 }
-rmDataById(rmDataByIdCb,'4#3');
+rmDataById(rmDataByIdCb,'5#1');
 */
 
 function getDataByIdCb(result){
-   document.write(result.id);
+  document.write(result.id);
    document.write(result.filename);
    document.write(result.postfix);
    document.write(result.size);
    document.write(result.path);
-   document.write(result.project);
-   document.write(result.lastModifyTime);
-   document.write(result.createTime);
-   document.write(result.others);
+  // document.write(result.project);
+
+    // document.write(new Date(parseInt(result.lastAccessTime)));
+
 }
 
-getDataById(getDataByIdCb,'4#4');
+getDataById(getDataByIdCb,'5#1');
 
 </script>
 </body>

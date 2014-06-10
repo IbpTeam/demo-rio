@@ -61,7 +61,7 @@ exports.findById = function(id){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATECONTACT, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime, createItemCallBack);
+  db.run(SQLSTR.CREATECONTACT, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, createItemCallBack);
   closeDB(db);
 }
 

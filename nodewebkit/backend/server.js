@@ -118,29 +118,46 @@ function syncDb(loadResourcesCb,resourcePath)
       });
     }
     else{
-      if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx'){
-        var category='Documents';
-      }          //console.log("postfix= "+itemPostfix);
-      else{
-        var category='Pictures';
-      }
       function getFileStatCb(error,stat)
       {
-
-        var ctime=stat.ctime;
         var mtime=stat.mtime;
-        var newItem={
-          id:null,
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:stat.size,
-          path:item,
-          project:null,
-          createTime:ctime,
-          lastModifyTime:mtime,
-          others:null
-        };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+        var ctime=stat.ctime;
+        var size=stat.size;
+        console.log('mtime:'+mtime);
+        console.log('ctime:'+ctime);
+        console.log('size:'+size);
+        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx'){
+          var category='Documents';
+          var newItem={
+            id:null,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:item,
+            project:'上海专项',
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+        }
+        else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+          var category='Pictures';
+          var newItem={
+            id:null,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:item,
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+        }
+
       }
       fs.stat(item,getFileStatCb);
 

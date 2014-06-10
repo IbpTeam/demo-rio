@@ -57,11 +57,11 @@ exports.findById = function(id, findByIdCallBack){
  * @method createItem
  *   增加一条文档信息
  * @param item
- *   包含图片信息的数据对象
+ *   包含文档信息的数据对象
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEDOCUMENT, item.filename, item.postfix, item.size, item.path, item.project, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
+  db.get(SQLSTR.CREATEDOCUMENT, item.filename, item.postfix, item.size, item.path, item.project, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, createItemCallBack);
   closeDB(db);
 }
 

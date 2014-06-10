@@ -13,7 +13,7 @@ function closeDB(database){
 
 /**
  * @method countTotal
- *   查询pictures表中类别总数
+ *   查询musics表中类别总数
  * @param null
  *   
  * @return total
@@ -21,21 +21,21 @@ function closeDB(database){
  */
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
-  db.get(SQLSTR.COUNTTOTALPICTURES, countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALMUSICS, countTotalCallBack);
   closeDB();  
 } 
 
 /**
  * @method findAll
- *   查询pictures表中所有数据
+ *   查询musics表中所有数据
  * @param null
  *
- * @return pictures
+ * @return musics
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all(SQLSTR.FINDALLPICTURES, findAllCallBack);
+  db.all(SQLSTR.FINDALLMUSICS, findAllCallBack);
   closeDB(db);
 }  
 
@@ -43,25 +43,25 @@ exports.findAll = function(findAllCallBack){
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   pictures表中的主键
- * @return pictures
+ *   musics表中的主键
+ * @return musics
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
-  db.get(SQLSTR.FINDPICTUREBYID, id, findByIdCallBack);
+  db.get(SQLSTR.FINDMUSICBYID, id, findByIdCallBack);
   closeDB(db);
 }
 
 /**
  * @method createItem
- *   增加一条图片信息
+ *   增加一条音乐信息
  * @param item
- *   包含图片信息的数据对象
+ *   包含音乐信息的数据对象
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.lastAccessTime, item.others, createItemCallBack);
+  db.get(SQLSTR.CREATEMUSIC, item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, createItemCallBack);
   closeDB(db);
 }
 
@@ -69,11 +69,11 @@ exports.createItem = function(item, createItemCallBack){
  * @method deleteItemById
  *   根据ID删除表中指定数据
  * @param id
- *   contacts表中的主键
+ *   musics表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
-  console.log("delete picture id : " + id);
+  console.log("delete music id : " + id);
   var db = openDB();
-  db.get(SQLSTR.DELETEPICTURE, id, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETEMUSIC, id, deleteItemByIdCallBack);
   closeDB(db);
 }

@@ -83,9 +83,6 @@ function getAllDataByCateInHttpServer(response, postData) {
           path:each.path
         });
       });
-      console.log('####'+cates[1].id);
-      console.log('####'+cates[1].filename);
-      console.log('####'+cates[1].source);
       var json=JSON.stringify(cates);
       response.writeHead(200, {"Content-Type": "application/json"});
       response.write(json);
@@ -162,7 +159,7 @@ function rmDataByIdInHttpServer(response, postData) {
           }
           else{
             console.log("delete result:"+result);
-            var json=JSON.stringify('EACCES');
+            var json=JSON.stringify('error');
             response.writeHead(200, {"Content-Type": "application/json"});
             response.write(json);
             response.end();
