@@ -3,6 +3,7 @@ global.$ = $;
 //console.log(global.__dirname);
 //console.log(global.__filename);
 //console.log("path:" + process.cwd());
+var sbar = require("side_bar.js");//./file-explorer/node_modules/
 var abar = require("address_bar.js");//./file-explorer/node_modules/
 var folder_view = require('folder_view.js');//./file-explorer/node_modules/
 //var path = require('path');
@@ -13,6 +14,7 @@ var folder_view = require('folder_view.js');//./file-explorer/node_modules/
 //    }
 $(document).ready(function() {
     //getAllCate(get_data);
+    var sidebar = new sbar.SideBar($('#sidebar'));
 	var folder = new folder_view.Folder($('#files'), $('#sidebar'));
 	var addressbar = new abar.AddressBar($('#addressbar'));
 
@@ -21,6 +23,7 @@ $(document).ready(function() {
 
 	folder.on('navigate', function(mime) {
 		if (mime.type == 'folder') {
+		    sidebar.set_favorites_focus(mime);
 			addressbar.enter(mime);
 		} else {
 			//shell.openItem(mime.path);
@@ -31,8 +34,13 @@ $(document).ready(function() {
 		    alert(file_propery);
 		}
 	});
-	folder.on('set_address', function(dir) {
+	folder.on('folder_set_favorites', function(dirs) {
+	    sidebar.set_favorites(dirs);
+	});
+	
+	sidebar.on('open_favorite', function(dir) {
 	    //console.log('on set address', dir);
+		folder.open(dir);
 		addressbar.set(dir);
 	});
 	addressbar.on('navigate', function(dir) {

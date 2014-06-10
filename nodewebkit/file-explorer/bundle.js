@@ -194,8 +194,8 @@ function browser(){
 var r=browser();
 var client_type = r[0];
 var clienet_local = 'Nodejs';
-//var ip='192.168.160.176';
-var ip = '127.0.0.1';
+var ip='192.168.160.176';
+//var ip = '127.0.0.1';
 var port = ':8888';
 function getAllCateFromHttp(getAllCateCb) {
 //  var studentData = CollectionData();
