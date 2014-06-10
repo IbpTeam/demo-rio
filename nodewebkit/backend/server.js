@@ -157,6 +157,22 @@ function syncDb(loadResourcesCb,resourcePath)
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         }
+        else if(itemPostfix == 'mp3' ){
+          var category='Musics';
+          var newItem={
+            id:null,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:item,
+            album:'流行',
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+        }        
 
       }
       fs.stat(item,getFileStatCb);
