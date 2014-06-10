@@ -5,6 +5,7 @@ global.$ = $;
 //console.log(global.__dirname);
 //console.log(global.__filename);
 //console.log("path:" + process.cwd());
+var sbar = require("side_bar.js");//./file-explorer/node_modules/
 var abar = require("address_bar.js");//./file-explorer/node_modules/
 var folder_view = require('folder_view.js');//./file-explorer/node_modules/
 //var path = require('path');
@@ -15,6 +16,7 @@ var folder_view = require('folder_view.js');//./file-explorer/node_modules/
 //    }
 $(document).ready(function() {
     //getAllCate(get_data);
+    var sidebar = new sbar.SideBar($('#sidebar'));
 	var folder = new folder_view.Folder($('#files'), $('#sidebar'));
 	var addressbar = new abar.AddressBar($('#addressbar'));
 
@@ -23,6 +25,7 @@ $(document).ready(function() {
 
 	folder.on('navigate', function(mime) {
 		if (mime.type == 'folder') {
+		    sidebar.set_favorites_focus(mime);
 			addressbar.enter(mime);
 		} else {
 			//shell.openItem(mime.path);
@@ -33,8 +36,13 @@ $(document).ready(function() {
 		    alert(file_propery);
 		}
 	});
-	folder.on('set_address', function(dir) {
+	folder.on('folder_set_favorites', function(dirs) {
+	    sidebar.set_favorites(dirs);
+	});
+	
+	sidebar.on('open_favorite', function(dir) {
 	    //console.log('on set address', dir);
+		folder.open(dir);
 		addressbar.set(dir);
 	});
 	addressbar.on('navigate', function(dir) {
@@ -43,7 +51,7 @@ $(document).ready(function() {
 });
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"address_bar.js":2,"folder_view.js":3}],2:[function(require,module,exports){
+},{"address_bar.js":2,"folder_view.js":3,"side_bar.js":4}],2:[function(require,module,exports){
 (function (process){
 var events = require("events");
 var util = require("util");
@@ -148,7 +156,7 @@ exports.AddressBar = AddressBar;
 	*/
 
 }).call(this,require("lppjwH"))
-},{"events":4,"lppjwH":6,"util":8}],3:[function(require,module,exports){
+},{"events":5,"lppjwH":7,"util":9}],3:[function(require,module,exports){
 var events = require('events');
 var util = require('util');
 //var mime = require('mime');
@@ -334,6 +342,7 @@ function Folder(jquery_element, sidebar) {
 	    var file_path = file_json.path;
 	    //console.log('file_json:', file_json);
 	    if(file_json){
+	    /*
             var children = self.side_bar.children('li');
             for(var i=0; i<children.length; i++){
                 child = $(children[i]);
@@ -347,6 +356,7 @@ function Folder(jquery_element, sidebar) {
                     break;
                 }
             }
+            */
 		    self.emit('navigate', file_json);//mime.stat(file_path, file_type)
 		}
 	});
@@ -357,6 +367,7 @@ util.inherits(Folder, events.EventEmitter);
 var global_self;
 var global_dir;
 var file_arch_json = {};
+/*
 Folder.prototype.gen_side_bar = function(root_json){
     var result = [];
     result.push('<li class="nav-header">Favorites</li>');
@@ -400,6 +411,7 @@ Folder.prototype.gen_side_bar = function(root_json){
         }
 	});
 }
+*/
 Folder.prototype.find_json_by_path = function(filepath){
     var all = file_arch_json[global_dir];
     //console.log('global_dir', global_dir);
@@ -423,7 +435,8 @@ Folder.prototype.get_callback_data = function(data_json){
 	        data_json[i]['name'] = data_json[i]['type'];
 	        data_json[i]['type'] = 'folder';	    
 	    }
-	    global_self.gen_side_bar(data_json);
+	    //global_self.gen_side_bar(data_json);	    
+		global_self.emit('folder_set_favorites', data_json);//mime.stat(file_path, file_type)
 	    break;
     case 'root/Contacts':
 	    for(var i=0; i<data_json.length; i++){
@@ -552,7 +565,134 @@ exports.Folder = Folder;
 			} ];
 */
 
-},{"events":4,"util":8}],4:[function(require,module,exports){
+},{"events":5,"util":9}],4:[function(require,module,exports){
+var events = require('events');
+var util = require('util');
+
+// Our type
+function SideBar(jquery_element) {
+	events.EventEmitter.call(this);
+	this.element = jquery_element;
+	this.favorites = $(jquery_element).children('#favorites');
+    //this.side_bar = sidebar;
+	var self = this;
+	/*
+	// Click on blank
+	this.element.parent().on('click', function() {
+		self.element.children('.focus').removeClass('focus');
+	});
+	// Click on file
+	this.element.delegate('.file', 'click', function(e) {
+		self.element.children('.focus').removeClass('focus');
+		$(this).addClass('focus');
+		e.stopPropagation();
+	});
+	// Double click on file
+	this.element.delegate('.file', 'dblclick', function() {
+	    var file_json = self.find_json_by_path($(this).attr('data-path'));
+	    var file_path = file_json.path;
+	    //console.log('file_json:', file_json);
+	    if(file_json){
+            var children = self.side_bar.children('li');
+            for(var i=0; i<children.length; i++){
+                child = $(children[i]);
+                //console.log('child length',child.attr('data-path'), file_path);            
+                if(child.attr('data-path') == file_path){
+                    //console.log("match match");
+                    self.side_bar.children('.active').removeClass('active');
+                    self.side_bar.find('.icon-white').removeClass('icon-white');
+                    child.addClass('active');
+                    child.children('a').children('i').addClass('icon-white ');
+                    break;
+                }
+            }
+		    self.emit('navigate', file_json);//mime.stat(file_path, file_type)
+		}
+	});
+	*/
+}
+
+util.inherits(SideBar, events.EventEmitter);
+
+SideBar.prototype.set_favorites = function(favorites_json){
+    var self = this;
+    var result = [];
+    result.push('<li class="nav-header">Favorites</li>');
+	result.push('<li data-path="root" class="active"><a href="#"><i class="icon-white icon-home"></i> Root</a></li>');
+    for(var i=0; i< favorites_json.length; i++){
+        var str='<li data-path="'+favorites_json[i].path+'"><a href="#"><i class="';
+        switch(favorites_json[i].name)
+        {
+            case 'Contacts':
+                str+='icon-book';
+                break;
+            case 'Pictures':
+                str+='icon-picture';
+                break;
+            case 'Videos':
+                str+='icon-film';
+                break;
+        }
+        str+='"></i> '+favorites_json[i].name+'</a></li>';
+	    result.push(str);
+	}
+	result.push('<li class="divider"></li>');
+	result.push('<li data-path="about"><a href="#"><i class="icon-flag"></i> About</a></li>');
+    self.favorites.html(result.join('\n'));
+	self.favorites.delegate('a', 'click', function() {
+		self.favorites.children('.active').removeClass('active');
+		self.favorites.find('.icon-white').removeClass('icon-white');
+		$(this).parent().addClass('active');
+		$(this).children('i').addClass('icon-white ');
+		var file_path = $(this).parent().attr('data-path');		
+	    //var file_json = global_self.find_json_by_path(file_path);
+	    //console.log('click on side_bar', file_json);
+	    //if(file_json){
+		    //global_self.emit('navigate', file_json);
+		//}
+		if('about' == file_path){
+		    window.alert('in developing...^_^');
+		}else{
+            //self.open(file_path);
+            self.emit('open_favorite', file_path);
+        }
+	});
+}
+SideBar.prototype.set_favorites_focus = function(mime){
+    self = this;
+    var file_path = mime.path;
+    var children = self.favorites.children('li');
+    for(var i=0; i<children.length; i++){
+        child = $(children[i]);
+        //console.log('child length',child.attr('data-path'), file_path);    
+        if(child.attr('data-path') == file_path){
+            //console.log("match match");
+            self.favorites.children('.active').removeClass('active');
+            self.favorites.find('.icon-white').removeClass('icon-white');
+            child.addClass('active');
+            child.children('a').children('i').addClass('icon-white ');
+            break;
+        }
+    }
+}
+SideBar.prototype.find_json_by_path = function(filepath){
+    var all = file_arch_json[global_dir];
+    //console.log('global_dir', global_dir);
+    //console.log('filepath', filepath);
+    //console.log('file_arch_json[global_dir]', file_arch_json[global_dir]);
+    var file = false;
+    for(var i=0; i<all.length; i++){
+        if(all[i].path == filepath){
+            file = all[i];
+            break;
+        }
+    }
+    return file;
+}
+
+exports.SideBar = SideBar;
+
+},{"events":5,"util":9}],5:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -857,7 +997,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -882,7 +1022,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -947,14 +1087,14 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -1544,4 +1684,4 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require("lppjwH"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":7,"inherits":5,"lppjwH":6}]},{},[1])
+},{"./support/isBuffer":8,"inherits":6,"lppjwH":7}]},{},[1])
