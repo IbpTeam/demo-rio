@@ -39,7 +39,15 @@ $(document).ready(function() {
 	folder.on('folder_set_favorites', function(dirs) {
 	    sidebar.set_favorites(dirs);
 	});
-	
+	folder.on('folder_set_tags', function(dirs){
+        sidebar.set_tags(dirs);
+    });
+    folder.on('folder_set_filters', function(dirs){
+        sidebar.set_filters(dirs);
+    });
+    folder.on('folder_set_recent', function(dirs){
+        sidebar.set_recent(dirs);
+    });
 	sidebar.on('open_favorite', function(dir) {
 	    //console.log('on set address', dir);
 		folder.open(dir);
@@ -207,17 +215,17 @@ var ip = '127.0.0.1';
 var port = ':8888';
 function getAllCateFromHttp(getAllCateCb) {
 //  var studentData = CollectionData();
-    var ajax_rul = '';
+    var ajax_url = '';
     console.log('client_type', client_type);
     console.log('clienet_local', clienet_local);
     if(client_type == clienet_local){
-        ajax_rul = '/getAllCate';
+        ajax_url = '/getAllCate';
     }else{
-        ajax_rul = 'http://' + ip + port + '/getAllCate';
+        ajax_url = 'http://' + ip + port + '/getAllCate';
     }
-    console.log('ajax_rul', ajax_rul);
+    console.log('ajax_url', ajax_url);
   $.ajax({
-    url: ajax_rul,
+    url: ajax_url,
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
@@ -241,14 +249,14 @@ function getAllCateFromHttp(getAllCateCb) {
 
 function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
 //  var studentData = CollectionData();
-    var ajax_rul = '';
+    var ajax_url = '';
     if(client_type == clienet_local){
-        ajax_rul = '/getAllDataByCate';
+        ajax_url = '/getAllDataByCate';
     }else{
-        ajax_rul = 'http://' + ip + port + '/getAllDataByCate';
+        ajax_url = 'http://' + ip + port + '/getAllDataByCate';
     }
   $.ajax({
-    url: 'http://' + ip + port + '/getAllDataByCate',
+    url: ajax_url,
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
@@ -272,14 +280,14 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
 }
 function getAllContactsFromHttp(getAllContactsCb) {
 //  var studentData = CollectionData();
-    var ajax_rul = '';
+    var ajax_url = '';
     if(client_type == clienet_local){
-        ajax_rul = '/getAllContacts';
+        ajax_url = '/getAllContacts';
     }else{
-        ajax_rul = 'http://' + ip + port + '/getAllContacts';
+        ajax_url = 'http://' + ip + port + '/getAllContacts';
     }
   $.ajax({
-    url: 'http://' + ip + port + '/getAllContacts',
+    url: ajax_url,
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
@@ -326,14 +334,99 @@ function Folder(jquery_element, sidebar) {
 	this.element = jquery_element;
     this.side_bar = sidebar;
 	var self = this;
+	this.element.parent().on('mousedown', function(e) {
+	    console.log('in this.element mouse down');
+//		console.log('e.pageX', e.pageX);
+//		console.log('e.pageY', e.pageY);
+//		console.log('e.target', e.target);
+//		console.log('e.timeStamp', e.timeStamp);
+//		console.log('e.type', e.type);
+//		console.log('e.which', e.which);	
+        
+		switch(e.which){
+		case 3:
+            var contents = ['创建文件夹', '创建文档', '排列项目', '属性'];
+            //var contents = ['aaa', 'bbb', 'ccc', 'ddd'];
+		    var popup_menu = self.gen_popup_menu(contents);		    
+            var row = this;
+            $(popup_menu).on('mousedown', function(e){
+                //console.log('in popup menu e.target', $(e.target).text());
+                console.log('right button for ', global_dir);//$(row).attr('data-path')
+                //console.log('contents', contents);
+                for(var i=0; i<contents.length; i++){
+                    if($(e.target).text() == contents[i]){
+                        console.log(contents[i] + 'is clicked');
+                    }                
+                }
+		        //e.stopPropagation();  
+            });
+            self.element.append(popup_menu);  
+            self.element.children('.dropdown-menu').css({
+                'display':'block',
+                'position': 'fixed',
+                'left': (e.pageX) + 'px',
+                'top': (e.pageY) + 'px'
+            });
+		    break;
+        case 1:
+		    self.element.children('.focus').removeClass('focus');
+            self.element.children('.dropdown-menu').css({'display':'none'});
+            break;
+        }
+		//e.stopPropagation();
+	});
+	/*
 	// Click on blank
-	this.element.parent().on('click', function() {
+	this.element.parent().on('click', function(e) {
 		self.element.children('.focus').removeClass('focus');
+        self.element.children('.dropdown-menu').css({'display':'none'});
 	});
 	// Click on file
 	this.element.delegate('.file', 'click', function(e) {
 		self.element.children('.focus').removeClass('focus');
 		$(this).addClass('focus');
+		e.stopPropagation();
+	});
+	*/
+	
+	this.element.delegate('.file', 'mousedown', function(e) {
+	    console.log('in file mouse down');
+		self.element.children('.focus').removeClass('focus');
+		$(this).addClass('focus');
+		switch(e.which){
+		case 3:
+		    var contents = ['打开', '编辑', '删除', '属性'];
+		    var popup_menu = self.gen_popup_menu(contents);
+            var file = this;
+            $(popup_menu).on('mousedown', function(e){
+                //console.log('in popup menu e.target', $(e.target).text());
+                console.log('right button for ', $(file).attr('data-path'));
+                //console.log('contents', contents);
+                for(var i=0; i<contents.length; i++){
+                    if($(e.target).text() == contents[i]){
+                        console.log(contents[i] + 'is clicked');
+                    }                
+                }
+		        //e.stopPropagation();  
+            });
+            self.element.append(popup_menu);            
+//            var offset = self.element.parent().offset();
+//            console.log('page:', e.pageX, e.pageY);
+//            console.log('offset:', offset.left, offset.top);
+//    		  console.log('e.target', e.target.toString());
+            self.element.children('.dropdown-menu').css({
+                'display':'block',
+                'position': 'fixed',
+                'left': (e.pageX) + 'px',
+                'top': (e.pageY) + 'px'
+                //'left': (e.pageX - offset.left) + 'px',
+                //'top': (e.pageY - offset.top) + 'px'
+            });
+            break;
+        case 1:
+            self.element.children('.dropdown-menu').css({'display':'none'});
+            break;
+        }
 		e.stopPropagation();
 	});
 	// Double click on file
@@ -342,76 +435,35 @@ function Folder(jquery_element, sidebar) {
 	    var file_path = file_json.path;
 	    //console.log('file_json:', file_json);
 	    if(file_json){
-	    /*
-            var children = self.side_bar.children('li');
-            for(var i=0; i<children.length; i++){
-                child = $(children[i]);
-                //console.log('child length',child.attr('data-path'), file_path);            
-                if(child.attr('data-path') == file_path){
-                    //console.log("match match");
-                    self.side_bar.children('.active').removeClass('active');
-                    self.side_bar.find('.icon-white').removeClass('icon-white');
-                    child.addClass('active');
-                    child.children('a').children('i').addClass('icon-white ');
-                    break;
-                }
-            }
-            */
 		    self.emit('navigate', file_json);//mime.stat(file_path, file_type)
 		}
 	});
+	//to prevent default context menu
+    $('body').bind('contextmenu', function(e) {
+        return false;
+    });
 }
-
 util.inherits(Folder, events.EventEmitter);
 
+Folder.prototype.gen_popup_menu = function(contents){
+    this.element.children('.dropdown-menu').remove();
+    var menu = $('<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu"></ul>');
+    $(menu).attr({
+        'class':'dropdown-menu',
+        'role':'menu',
+        'aria-labelledby': 'dropdownMenu'
+    });
+    var items = [];
+    for(var i=0; i<contents.length; i++){
+        items.push('<li><a tabindex="-1" href="#">' + contents[i] + '</a></li>');
+    }
+    $(menu).html(items.join('\n'));    
+    //<li class="divider"></li>
+    return menu;
+}
 var global_self;
 var global_dir;
 var file_arch_json = {};
-/*
-Folder.prototype.gen_side_bar = function(root_json){
-    var result = [];
-    result.push('<li class="nav-header">Favorites</li>');
-	result.push('<li data-path="root" class="active"><a href="#"><i class="icon-white icon-home"></i> Root</a></li>');
-    for(var i=0; i< root_json.length; i++){
-        var str='<li data-path="'+root_json[i].path+'"><a href="#"><i class="';
-        switch(root_json[i].name)
-        {
-            case 'Contacts':
-                str+='icon-book';
-                break;
-            case 'Pictures':
-                str+='icon-picture';
-                break;
-            case 'Videos':
-                str+='icon-film';
-                break;
-        }
-        str+='"></i> '+root_json[i].name+'</a></li>';
-	    result.push(str);
-	}
-	result.push('<li class="divider"></li>');
-	result.push('<li data-path="about"><a href="#"><i class="icon-flag"></i> About</a></li>');
-    global_self.side_bar.html(result.join('\n'));
-	global_self.side_bar.delegate('a', 'click', function() {
-		global_self.side_bar.children('.active').removeClass('active');
-		global_self.side_bar.find('.icon-white').removeClass('icon-white');
-		$(this).parent().addClass('active');
-		$(this).children('i').addClass('icon-white ');
-		var file_path = $(this).parent().attr('data-path');		
-	    //var file_json = global_self.find_json_by_path(file_path);
-	    //console.log('click on side_bar', file_json);
-	    //if(file_json){
-		    //global_self.emit('navigate', file_json);
-		//}
-		if('about' == file_path){
-		    window.alert('in developing...^_^');
-		}else{
-            global_self.open(file_path);
-            global_self.emit('set_address', file_path);
-        }
-	});
-}
-*/
 Folder.prototype.find_json_by_path = function(filepath){
     var all = file_arch_json[global_dir];
     //console.log('global_dir', global_dir);
@@ -571,11 +623,14 @@ var util = require('util');
 
 // Our type
 function SideBar(jquery_element) {
-	events.EventEmitter.call(this);
-	this.element = jquery_element;
-	this.favorites = $(jquery_element).children('#favorites');
+    events.EventEmitter.call(this);
+    this.element = jquery_element;
+    this.favorites = $(jquery_element).children('#favorites');
+    this.tags = $(jquery_element).children('#tags');
+    this.filters = $(jquery_element).children('#filters');
+    this.recent = $(jquery_element).children('#recent');
     //this.side_bar = sidebar;
-	var self = this;
+    var self = this;
 	/*
 	// Click on blank
 	this.element.parent().on('click', function() {
@@ -614,17 +669,61 @@ function SideBar(jquery_element) {
 
 util.inherits(SideBar, events.EventEmitter);
 
+SideBar.prototype.set_tags = function(json){
+    var self = this;
+    var result = [];
+    result.push('<li class="divider"></li>');
+    result.push('<li class="nav-header">标签</li>');
+    //result.push('<li data-path="about"><a href="#"><i class="icon-flag"></i> About</a></li>');
+    result.push('<a href="#"> 上海项目</a> <a href="#"> 技术研讨会</a>');
+    self.tags.html(result.join('\n'));
+}
+
+SideBar.prototype.set_filters = function(json){
+    var self = this;
+    var result = [];
+    result.push('<li class="divider"></li>');
+    result.push('<li class="nav-header">数据过滤</li>');
+    for(var i=0; i< json.length; i++){
+        switch(json[i].name)
+        {
+            case 'Contacts':
+                result.push('<form action="" name="fxk" method="post"><input type="checkbox" value="A1" name="test" />135开头</form>');
+                break;
+            case 'Pictures':
+                result.push('<form action="" name="fxk" method="post"><input type="checkbox" value="A1" name="test" />版本组</form>');
+                break;
+            case 'Music':
+                result.push('<form action="" name="fxk" method="post"><input type="checkbox" value="A1" name="test" />周杰伦</form>');
+                break;
+            case 'Documents':
+                result.push('<form action="" name="fxk" method="post"><input type="checkbox" value="A1" name="test" />核高基项目</form>');
+                break;
+        }
+    }
+    self.filters.html(result.join('\n'));
+}
+
+SideBar.prototype.set_recent = function(json){
+    var self = this;
+    var result = [];
+    result.push('<li class="divider"></li>');
+    result.push('<li class="divider"></li>');
+    result.push('<li class="nav-header">最近访问</li>');
+    self.recent.html(result.join('\n'));
+}
+
 SideBar.prototype.set_favorites = function(favorites_json){
     var self = this;
     var result = [];
-    result.push('<li class="nav-header">Favorites</li>');
-	result.push('<li data-path="root" class="active"><a href="#"><i class="icon-white icon-home"></i> Root</a></li>');
+    result.push('<li class="nav-header">快捷菜单</li>');
+    result.push('<li data-path="root" class="active"><a href="#"><i class="icon-white icon-home"></i> Home</a></li>');
     for(var i=0; i< favorites_json.length; i++){
         var str='<li data-path="'+favorites_json[i].path+'"><a href="#"><i class="';
         switch(favorites_json[i].name)
         {
             case 'Contacts':
-                str+='icon-book';
+                str+='icon-user';
                 break;
             case 'Pictures':
                 str+='icon-picture';
@@ -632,31 +731,35 @@ SideBar.prototype.set_favorites = function(favorites_json){
             case 'Videos':
                 str+='icon-film';
                 break;
+            case 'Documents':
+                str+='icon-book';
+                break;
+            case 'Musics':
+                str+='icon-music';
+                break;
         }
         str+='"></i> '+favorites_json[i].name+'</a></li>';
-	    result.push(str);
-	}
-	result.push('<li class="divider"></li>');
-	result.push('<li data-path="about"><a href="#"><i class="icon-flag"></i> About</a></li>');
+        result.push(str);
+    }
     self.favorites.html(result.join('\n'));
-	self.favorites.delegate('a', 'click', function() {
-		self.favorites.children('.active').removeClass('active');
-		self.favorites.find('.icon-white').removeClass('icon-white');
-		$(this).parent().addClass('active');
-		$(this).children('i').addClass('icon-white ');
-		var file_path = $(this).parent().attr('data-path');		
-	    //var file_json = global_self.find_json_by_path(file_path);
+    self.favorites.delegate('a', 'click', function() {
+        self.favorites.children('.active').removeClass('active');
+        self.favorites.find('.icon-white').removeClass('icon-white');
+        $(this).parent().addClass('active');
+        $(this).children('i').addClass('icon-white ');
+        var file_path = $(this).parent().attr('data-path');		
+	   //var file_json = global_self.find_json_by_path(file_path);
 	    //console.log('click on side_bar', file_json);
 	    //if(file_json){
 		    //global_self.emit('navigate', file_json);
 		//}
-		if('about' == file_path){
-		    window.alert('in developing...^_^');
-		}else{
+        if('about' == file_path){
+	    window.alert('in developing...^_^');
+        }else{
             //self.open(file_path);
             self.emit('open_favorite', file_path);
         }
-	});
+    });
 }
 SideBar.prototype.set_favorites_focus = function(mime){
     self = this;
