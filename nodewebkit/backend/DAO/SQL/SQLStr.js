@@ -32,9 +32,9 @@ exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
 exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?)";
 exports.DELETEDOCUMENT = "delete from documents where id = ?";
 
-//SQL used in MusicsDAO
-exports.COUNTTOTALMUSICS = "select count(*) as total from musics";
-exports.FINDALLMUSICS = "select * from musics";
-exports.FINDMUSICBYID = "select * from musics where id = ?";
-exports.CREATEMUSIC = "insert into musics (id,filename,postfix,size,path,album,composerName,actorName,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?,?,?)";
-exports.DELETEMUSIC = "delete from musics where id = ?";
+//SQL used in MusicDAO
+exports.COUNTTOTALMUSIC = "select count(*) as total from music";
+exports.FINDALLMUSIC = "select * from music";
+exports.FINDMUSICBYID = "select * from music where id = ?";
+exports.CREATEMUSIC = "insert into music (id,filename,postfix,size,path,album,composerName,actorName,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?,?,?)";
+exports.DELETEMUSIC = "delete from music where id = ?";

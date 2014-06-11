@@ -4,7 +4,7 @@ var contactsDAO = require("./ContactsDAO");
 var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
-var musicsDAO = require("./MusicsDAO");
+var musicDAO = require("./MusicDAO");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -64,16 +64,16 @@ exports.getAllByCateroty = function(caterogy, callback) {
     }
     break;
     
-    case 'Musics' : {
-      musicsDAO.findAll(function(err, musics){
+    case 'Music' : {
+      musicDAO.findAll(function(err, music){
         if(err){
           console.log(err);
           callback(null)
         }
-        musics.forEach(function(music){
-          music.id = "5#" + music.id;
+        music.forEach(function(each){
+          each.id = "5#" + each.id;
         });
-        callback(musics)
+        callback(music)
       });
     }
     break;
@@ -145,7 +145,7 @@ exports.getItemById = function(id, callback){
       });
     }
     case '5' : {
-      musicsDAO.findById(dataId,function(err,item){
+      musicDAO.findById(dataId,function(err,item){
         if(err){
           callback('');
         }
@@ -207,9 +207,9 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
       });
     }
     break;
-    case 'Musics' : {
+    case 'Music' : {
       console.log('insert music');
-      musicsDAO.createItem(item, function(err){
+      musicDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
         }
@@ -275,7 +275,7 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
       });
     }
     case '5' : {
-      musicsDAO.deleteItemById(dataId, function(err){
+      musicDAO.deleteItemById(dataId, function(err){
         if(err){
           callback(id,err,rmDataByIdCb);
         }

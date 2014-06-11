@@ -13,7 +13,7 @@ function closeDB(database){
 
 /**
  * @method countTotal
- *   查询musics表中类别总数
+ *   查询music表中类别总数
  * @param null
  *   
  * @return total
@@ -21,21 +21,21 @@ function closeDB(database){
  */
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
-  db.get(SQLSTR.COUNTTOTALMUSICS, countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALMUSIC, countTotalCallBack);
   closeDB();  
 } 
 
 /**
  * @method findAll
- *   查询musics表中所有数据
+ *   查询music表中所有数据
  * @param null
  *
- * @return musics
+ * @return music
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all(SQLSTR.FINDALLMUSICS, findAllCallBack);
+  db.all(SQLSTR.FINDALLMUSIC, findAllCallBack);
   closeDB(db);
 }  
 
@@ -43,8 +43,8 @@ exports.findAll = function(findAllCallBack){
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   musics表中的主键
- * @return musics
+ *   music表中的主键
+ * @return music
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
 exports.findById = function(id, findByIdCallBack){
@@ -69,7 +69,7 @@ exports.createItem = function(item, createItemCallBack){
  * @method deleteItemById
  *   根据ID删除表中指定数据
  * @param id
- *   musics表中的主键
+ *   music表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
   console.log("delete music id : " + id);

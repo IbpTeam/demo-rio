@@ -44,6 +44,8 @@ Videos = {
   others:
 }
 
+
+
 CommonDAO#createItem(category, item, callback)
 方法：创建一条新数据记录,此方法只针对已有信息类别进行增加。
   1)category : String类型，类别名称，如:Pictures

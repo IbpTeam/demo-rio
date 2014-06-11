@@ -158,7 +158,7 @@ function syncDb(loadResourcesCb,resourcePath)
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         }
         else if(itemPostfix == 'mp3' ){
-          var category='Musics';
+          var category='Music';
           var newItem={
             id:null,
             filename:itemFilename,
