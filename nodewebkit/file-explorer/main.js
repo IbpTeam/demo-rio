@@ -22,7 +22,7 @@ $(document).ready(function() {
 	addressbar.set('root');//
 
 	folder.on('navigate', function(mime) {
-		if (mime.type == 'folder') {
+		if (mime.data_type == 'folder') {
 		    sidebar.set_favorites_focus(mime);
 			addressbar.enter(mime);
 		} else {
