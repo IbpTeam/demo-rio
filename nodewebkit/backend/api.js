@@ -135,7 +135,7 @@ function rmDataById(rmDataByIdCb,id) {
 
 //API getDataById:通过id查看数据所有信息
 //返回具体数据类型对象
-function getDataById(rmDataByIdCb,id){
+function getDataById(getDataByIdCb,id){
     console.log("Request handler 'getDataById' was called.");
   //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
   var r=browser();
@@ -146,6 +146,27 @@ function getDataById(rmDataByIdCb,id){
     apiLocalHandle.getDataByIdFromLocal(getDataByIdCb,id);
   }else{
     getDataByIdFromHttp(getDataByIdCb,id);
+  }
+}
+
+//API getDataSourceById:通过获取数据资源地址
+//返回类型：
+//result{
+//  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
+//  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
+//}
+
+function getDataSourceById(getDataSourceByIdCb,id){
+    console.log("Request handler 'getDataSourceById' was called.");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);
+  
+  if(r[0]=="Fuck")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getDataSourceByIdFromLocal(getDataSourceByIdCb,id);
+  }else{
+    getDataSourceByIdFromHttp(getDataSourceByIdCb,id);
   }
 }
 

@@ -6,16 +6,7 @@ var fs = require('fs');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 
-var PORT = 8888,
-    mimeTypes = {
-     "html": "text/html",
-     "jpeg": "image/jpeg",
-     "jpg": "image/jpeg",
-     "png": "image/png",
-     "js": "text/javascript",
-     "css": "text/css",
-     "txt": "text/plain"
-};
+var PORT = 8888;
 
 var writeDbNum=0;
 

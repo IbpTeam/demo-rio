@@ -126,3 +126,24 @@ function getDataByIdFromHttp(getDataByIdCb,id){
     }
   });
 }
+
+function getDataSourceByIdFromHttp(getDataSourceByIdCb,id){
+    $.ajax({
+    url: "/getDataSourceById",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getDataSourceById","arg":"'+id+'"}',
+    success: function(result) {
+      var source={
+        openmethod:result.openmethod,
+        content:result.content
+      };
+      
+      getDataSourceByIdCb(source);
+    },
+    error: function(e) {
+      getDataSourceByIdCb(e);
+    }
+  });
+}

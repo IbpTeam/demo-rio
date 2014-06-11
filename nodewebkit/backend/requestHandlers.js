@@ -176,7 +176,7 @@ exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;
 
 function getDataByIdInHttpServer(response, postData) {
 
-  console.log("Request handler 'rmDataByIdInHttpServer' was called.");
+  console.log("Request handler 'getDataByIdInHttpServer' was called.");
     console.log(postData);
     postDataJson=JSON.parse(postData);
      console.log('$$$$$$'+postDataJson.arg);
@@ -197,3 +197,32 @@ function getDataByIdInHttpServer(response, postData) {
   }
 }
 exports.getDataByIdInHttpServer = getDataByIdInHttpServer;
+
+function getDataSourceByIdInHttpServer(response, postData) {
+
+  console.log("Request handler 'getDataSourceByIdInHttpServer' was called.");
+    console.log(postData);
+    postDataJson=JSON.parse(postData);
+     console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'getDataSourceById'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else{
+    function getItemByIdCb(item){
+      console.log("read data : "+ item.path);
+      var path='http://localhost:8888'+item.path+'?query=absolute';
+      var source={
+        openmethod:'direct',
+        content:path
+      };
+      var json=JSON.stringify(source);
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.write(json);
+      response.end();
+    }
+    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+  }
+}
+exports.getDataSourceByIdInHttpServer = getDataSourceByIdInHttpServer;

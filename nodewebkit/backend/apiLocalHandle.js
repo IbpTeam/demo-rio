@@ -97,3 +97,17 @@ function getDataByIdFromLocal(getDataByIdCb,id) {
   commonDAO.getItemById(id,getItemByIdCb);
 }
 exports.getDataByIdFromLocal = getDataByIdFromLocal;
+
+function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
+  function getItemByIdCb(item){
+    console.log("read data : "+ item.path);
+    var source={
+      openmethod:'direct',
+      content:item.path
+    };
+    getDataSourceByIdCb(source);
+  }
+  commonDAO.getItemById(id,getItemByIdCb);
+}
+exports.getDataSourceByIdFromLocal = getDataSourceByIdFromLocal;
+

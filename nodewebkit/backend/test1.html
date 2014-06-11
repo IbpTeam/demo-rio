@@ -14,7 +14,7 @@
 </p> -->
 
 <script>
-
+/*
 function getAllCatecb(text){
     document.write(text[4].id);
     document.write(text[4].type);
@@ -23,7 +23,7 @@ function getAllCatecb(text){
 }
 
 getAllCate(getAllCatecb);
-
+*/
 /*
 function getAllDataByCateCb(text){
     document.write(text[0].id);
@@ -63,14 +63,33 @@ function getDataByIdCb(result){
    document.write(result.postfix);
    document.write(result.size);
    document.write(result.path);
-  // document.write(result.project);
+   document.write(result);
 
     // document.write(new Date(parseInt(result.lastAccessTime)));
 
 }
 
-getDataById(getDataByIdCb,'5#1');
+getDataById(getDataByIdCb,'5#2');
 */
+
+function getDataSourceByIdCb(result){
+   document.write(result.openmethod);
+   document.write(result.content);
+   //var path=result;
+
+}
+
+getDataSourceById(getDataSourceByIdCb,'2#2');
+
+
 </script>
+<!--
+<audio controls>
+ <source src="http://localhost:8888/home/v1/resources/musics/whoyouare.mp3?query=absolute" type="audio/mpeg"> 
+
+  
+  Your browser does not support this audio format.
+</audio>-->
+<img src='http://localhost:8888/home/v1/resources/pictures/cat.jpg?query=absolute'  alt="girl" />
 </body>
 </html>
