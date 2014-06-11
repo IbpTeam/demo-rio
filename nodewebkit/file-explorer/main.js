@@ -37,15 +37,12 @@ $(document).ready(function() {
 	folder.on('folder_set_favorites', function(dirs) {
 	    sidebar.set_favorites(dirs);
 	});
-	folder.on('folder_set_tags', function(dirs){
+	folder.on('folder_set_sidebar', function(dirs){
         sidebar.set_tags(dirs);
-    });
-    folder.on('folder_set_filters', function(dirs){
         sidebar.set_filters(dirs);
-    });
-    folder.on('folder_set_recent', function(dirs){
         sidebar.set_recent(dirs);
     });
+    
 	sidebar.on('open_favorite', function(dir) {
 	    //console.log('on set address', dir);
 		folder.open(dir);
