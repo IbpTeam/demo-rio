@@ -1,10 +1,10 @@
 //var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
-var server = require("./server");
+var filesHandle = require("./filesHandle");
 var fs = require('fs');
 
 function loadResourcesFromLocal(loadResourcesCb,path) {
-  server.syncDb(loadResourcesCb,path);
+  filesHandle.syncDb(loadResourcesCb,path);
 }
 exports.loadResourcesFromLocal = loadResourcesFromLocal;
 

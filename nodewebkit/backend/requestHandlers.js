@@ -2,7 +2,7 @@ var querystring = require("querystring");
 var fs = require('fs');
 var categoryDAO = require("./DAO/CategoryDAO");
 var commonDAO = require("./DAO/CommonDAO");
-var server = require("./server");
+var filesHandle = require("./filesHandle");
 
 function start(response, postData) {
   console.log("Request handler 'start' was called.");
@@ -28,7 +28,7 @@ function loadResourcesInHttpServer(response, postData) {
       response.write(json);
       response.end();
     }
-    server.syncDb(loadResourcesCb,postDataJson.arg);
+    filesHandle.syncDb(loadResourcesCb,postDataJson.arg);
   }
 }
 exports.loadResourcesInHttpServer = loadResourcesInHttpServer;
