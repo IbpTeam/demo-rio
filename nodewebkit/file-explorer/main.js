@@ -44,12 +44,16 @@ $(document).ready(function() {
     });
     
 	sidebar.on('open_favorite', function(dir) {
-	    //console.log('on set address', dir);
+//	    console.log('on open_favorite');
 		folder.open(dir);
 		addressbar.set(dir);
 	});
-    sidebar.on('do_filter', function(dir) {
-        sidebar.do_filter(dir);
+    sidebar.on('do_filter', function(dir, keyword) {
+        console.log('wangyu: on do_filter.');
+        sidebar.do_filter(dir, keyword);
+    });
+    sidebar.on('show_filter_result', function(dir) {
+        folder.open(dir);
     });
 	addressbar.on('navigate', function(dir) {
 		folder.open(dir);
