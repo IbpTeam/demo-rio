@@ -48,6 +48,9 @@ $(document).ready(function() {
 		folder.open(dir);
 		addressbar.set(dir);
 	});
+    sidebar.on('do_filter', function(dir) {
+        sidebar.do_filter(dir);
+    });
 	addressbar.on('navigate', function(dir) {
 		folder.open(dir);
 	});
