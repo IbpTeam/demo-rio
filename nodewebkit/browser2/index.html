@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>File Explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+<link href="bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="style.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="../backend/apiHttpHandle.js"></script>
+<script type="text/javascript" src="../backend/api.js"></script>
+<script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="node_modules/address_bar.js"></script>
+<script type="text/javascript" src="node_modules/folder_view.js"></script>
+<script type="text/javascript" src="node_modules/side_bar.js"></script>
+</head>
+<body>
+	<div
+		style="position: absolute; left: 10px; right: 10px; top: 10px; bottom: 10px;">
+		<div id="sidebar" class="well" style="float: left; width: 160px; padding: 8px;">
+			<ul id="favorites" class="nav nav-list">
+				<!--
+				<li class="nav-header">Favorites</li>
+				<li class="active"><a href="#"><i class="icon-white icon-home"></i> Root</a></li>
+				<li><a href="#"><i class="icon-book"></i> Documents</a></li>
+				<li><a href="#"><i class="icon-picture"></i> Pictures</a></li>
+				<li class="nav-header">Network</li>
+				<li class="divider"></li>
+				<li><a href="#"><i class="icon-flag"></i> About</a></li>
+				-->
+			</ul>
+			<ul id="tags" class="nav nav-list">
+			</ul>
+            <ul id="filters" class="nav nav-list">
+			</ul>
+            <ul id="recent" class="nav nav-list">
+			</ul>
+		</div>
+
+		<div
+			style="float: left; position: absolute; left: 210px; right: 0; top: 0; bottom: 50px">
+			<div class="row">
+				<ul id="addressbar" class="breadcrumb"></ul>
+			</div>
+			<div class="row"
+				style="background: #FFF; -webkit-border-radius: 2px; margin: -5px 1px 0 -19px; height: 100%; overflow: auto">
+				<ul style="margin: 5px;" id="files"></ul>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
