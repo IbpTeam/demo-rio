@@ -144,6 +144,7 @@ exports.getItemById = function(id, callback){
         }
       });
     }
+    break;
     case '5' : {
       musicDAO.findById(dataId,function(err,item){
         if(err){
@@ -154,6 +155,7 @@ exports.getItemById = function(id, callback){
         }
       });
     }
+    break;
     
   }
 }
@@ -283,7 +285,81 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
           callback(id,'successfull',rmDataByIdCb);
         }
       });
-    }    
+    }
+    break;    
+    
+  }
+}
+
+exports.updateItemValue = function(id, key, value, callback ){
+  console.log("update id:" + id);
+  console.log("update key:" + key+'='+value);
+  var index=id.indexOf('#');
+  var tableId=id.substring(0,index);
+  var dataId=id.substr(index+1);
+    console.log("tableId id:" + tableId);
+        console.log("dataId id:" + dataId);
+  switch(tableId){
+    case '1' : {
+      contactsDAO.updateItemValue(dataId,key,value, function(err){
+        if(err){
+          callback(id,key,value,err);
+        }
+        else{
+          console.log("update contacts successfull");
+          callback(id,key,value,'successfull');
+        }
+      });
+    }
+    break;
+    case '2' : {
+      picturesDAO.updateItemValue(dataId,key,value, function(err){
+        if(err){
+          callback(id,key,value,err);
+        }
+        else{
+          console.log("update picutres successfull");
+          callback(id,key,value,'successfull');
+        }
+      });
+    }
+    break;
+    case '3' : {
+      videosDAO.updateItemValue(dataId,key,value, function(err){
+        if(err){
+          callback(id,key,value,err);
+        }
+        else{
+          console.log("update videos successfull");
+          callback(id,key,value,'successfull');
+        }
+      });
+    }
+    break;
+    case '4' : {
+      documentsDAO.updateItemValue(dataId,key,value, function(err){
+        if(err){
+          callback(id,key,value,err);
+        }
+        else{
+          console.log("update documents successfull");
+          callback(id,key,value,'successfull');
+        }
+      });
+    }
+    break;
+    case '5' : {
+      musicDAO.updateItemValue(dataId,key,value, function(err){
+        if(err){
+          callback(id,key,value,err);
+        }
+        else{
+          console.log("update musics successfull");
+          callback(id,key,value,'successfull');
+        }
+      });
+    } 
+    break;   
     
   }
 }

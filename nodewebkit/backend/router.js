@@ -13,7 +13,8 @@ var mimeTypes = {
      "js": "text/javascript",
      "css": "text/css",
      "txt": "text/plain",
-     "mp3": "audio/mpeg"
+     "mp3": "audio/mpeg3",
+     "ogg": "audio/mpeg"
 };
 function route(handle, pathname, absolute , response, postData) {
   console.log("About to route a request for " + pathname);
@@ -61,6 +62,9 @@ function route(handle, pathname, absolute , response, postData) {
                         content_type = mimeTypes[suffix];
                         break;
                     case 'mp3':
+                        content_type = mimeTypes[suffix];
+                        break;
+                    case 'ogg':
                         content_type = mimeTypes[suffix];
                         break;
                     default:

@@ -5,6 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
+var filesHandle = require("./filesHandle");
 
 var PORT = 8888;
 
@@ -31,6 +32,7 @@ function start(route, handle) {
 
   http.createServer(onRequest).listen(PORT);
   console.log("Server has started.");
+  filesHandle.monitorFiles('/home/v1/resources');
 }
 
 exports.start = start;

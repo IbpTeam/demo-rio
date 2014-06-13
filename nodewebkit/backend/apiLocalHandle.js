@@ -3,6 +3,9 @@ var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
 var fs = require('fs');
 
+var localflag=1;
+exports.localflag = localflag;
+
 function loadResourcesFromLocal(loadResourcesCb,path) {
   filesHandle.syncDb(loadResourcesCb,path);
 }
@@ -100,12 +103,36 @@ exports.getDataByIdFromLocal = getDataByIdFromLocal;
 
 function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
   function getItemByIdCb(item){
-    console.log("read data : "+ item.path);
-    var source={
-      openmethod:'direct',
-      content:item.path
-    };
-    getDataSourceByIdCb(source);
+    if(item==null){
+      console.log("read data : "+ item);
+      getDataSourceByIdCb('undefined');
+    }
+    else{
+      console.log("read data : "+ item.path);
+      if(item.path!=null){
+        var source={
+          openmethod:'direct',
+          content:item.path
+        };
+      }
+      else{
+        var source={
+          openmethod:'direct',
+          content:item.photoPath
+        };
+      }
+      getDataSourceByIdCb(source);
+      
+      var currentTime = (new Date()).getTime();
+      console.log("time: "+ currentTime);
+      function updateItemValueCb(id,key,value,result){
+        console.log("update DB: "+ result);
+        if(result!='successfull'){
+          commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+        }
+      }
+      commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+    }
   }
   commonDAO.getItemById(id,getItemByIdCb);
 }

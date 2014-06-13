@@ -76,3 +76,20 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
   db.get(SQLSTR.DELETEVIDEO, id, deleteItemByIdCallBack);
   closeDB(db);
 }
+
+/**
+ * @method updateItemValue
+ *   更新指定ID的某一个key
+ * @param id
+ *   pictures表中的主键
+ */
+exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
+  var db = openDB();
+    console.log("udpate vidoes id : " + id);
+        console.log("udpate key=" + key + 'value='+value);
+  //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
+  var sqlstr="UPDATE vidoes SET "+key+" = "+value+" WHERE id = "+id;
+  console.log("sqlstr:" +sqlstr);
+  db.run(sqlstr,updateItemValueCallBack);
+  closeDB(db);
+}

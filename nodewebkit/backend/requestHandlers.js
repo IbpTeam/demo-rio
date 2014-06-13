@@ -211,16 +211,40 @@ function getDataSourceByIdInHttpServer(response, postData) {
   }
   else{
     function getItemByIdCb(item){
-      console.log("read data : "+ item.path);
-      var path='http://localhost:8888'+item.path+'?query=absolute';
-      var source={
-        openmethod:'direct',
-        content:path
-      };
-      var json=JSON.stringify(source);
-      response.writeHead(200, {"Content-Type": "text/plain"});
-      response.write(json);
-      response.end();
+      if(item==null){
+        source=null;
+        var json=JSON.stringify(source);
+        response.writeHead(200, {"Content-Type": "text/plain"});
+        response.write(json);
+        response.end();
+      }
+      else{
+        console.log("read data : "+ item.path);
+        if(item.path!=null){
+          var path='http://localhost:8888'+item.path+'?query=absolute';
+        }
+        else{
+          var path='http://localhost:8888'+item.photoPath+'?query=absolute';
+        }      
+        var source={
+          openmethod:'direct',
+          content:path
+        };
+        var json=JSON.stringify(source);
+        response.writeHead(200, {"Content-Type": "text/plain"});
+        response.write(json);
+        response.end();
+        var currentTime = (new Date()).getTime();
+        
+        console.log("time: "+ currentTime);
+        function updateItemValueCb(id,key,value,result){
+          console.log("update DB: "+ result);
+          if(result!='successfull'){
+            commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+          }
+        }
+        commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+      }
     }
     commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
   }

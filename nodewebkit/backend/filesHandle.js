@@ -148,7 +148,7 @@ function syncDb(loadResourcesCb,resourcePath)
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         }
-        else if(itemPostfix == 'mp3' ){
+        else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
           var category='Music';
           var newItem={
             id:null,
@@ -174,5 +174,17 @@ function syncDb(loadResourcesCb,resourcePath)
 }
 exports.syncDb = syncDb;
 
+function monitorFiles(path){
+  fs.watch(path, function (event, filename) {
+    console.log('event is: ' + event);
+    if(filename){
+      console.log('filename provided: ' + filename);
+    } 
+    else{
+      console.log('filename not provided');
+    }
+  });
+}
+exports.monitorFiles = monitorFiles;
 
 

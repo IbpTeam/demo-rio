@@ -31,20 +31,32 @@ function browser(){
   return ret.split("|");
 }
 
+function isLocal(){
+  var localflag=0;
+  if(typeof(require)=="function"){
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    localflag= apiLocalHandle.localflag;
+  }
+  if(localflag==1){
+    return true;
+  }
+  else{
+    return false;
+  }
+}
+
 //API loadResources:读取某个资源文件夹到数据库
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);
-  
-  if(r[0]=="Fuck")  {
+  if(isLocal())  {
+    console.log('You are in local ');
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.loadResourcesFromLocal(loadResourcesCb,path);
   }else{
+    console.log('You are in remote ');
     loadResourcesFromHttp(loadResourcesCb,path);
   }
 }
@@ -58,14 +70,12 @@ function loadResources(loadResourcesCb,path) {
 //}
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);
-  
-  if(r[0]=="Fuck")  {
+  if(isLocal())  {
+    console.log('You are in local ');
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.getAllCateFromLocal(getAllCateCb);
   }else{
+    console.log('You are in remote ');
     getAllCateFromHttp(getAllCateCb);
   }
 }
@@ -87,15 +97,13 @@ function getAllCate(getAllCateCb) {
 
 function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);
   if(cate!='Contacts' && cate!='Videos' && cate!='Pictures' &&cate!='Documents'&&cate!='Music')
   {
       console.log("cate "+cate+" is an error cate");
       return ;
   }
-  if(r[0]=="Fuck")  {
+  if(isLocal())  {
+    console.log('You are in local ');
     var apiLocalHandle = require("./backend/apiLocalHandle");
     if(cate=='Contacts'){
       apiLocalHandle.getAllContactsFromLocal(getAllDataByCateCb);
@@ -105,6 +113,7 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
     }
     
   }else{
+    console.log('You are in remote ');
     if(cate=='Contacts'){
       getAllContactsFromHttp(getAllDataByCateCb);
     }
@@ -121,14 +130,13 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
 //失败返回失败原因
 function rmDataById(rmDataByIdCb,id) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);
-  
-  if(r[0]=="Fuck")  {
+  if(isLocal())  {
+    console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.rmDataByIdFromLocal(rmDataByIdCb,id);
-  }else{
+  }
+  else{
+    console.log('You are in remote ');
     rmDataByIdFromHttp(rmDataByIdCb,id);
   }
 }
@@ -136,15 +144,13 @@ function rmDataById(rmDataByIdCb,id) {
 //API getDataById:通过id查看数据所有信息
 //返回具体数据类型对象
 function getDataById(getDataByIdCb,id){
-    console.log("Request handler 'getDataById' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);
-  
-  if(r[0]=="Fuck")  {
+  console.log("Request handler 'getDataById' was called.");
+  if(isLocal())  {
+    console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.getDataByIdFromLocal(getDataByIdCb,id);
   }else{
+    console.log('You are in remote '); 
     getDataByIdFromHttp(getDataByIdCb,id);
   }
 }
@@ -157,15 +163,14 @@ function getDataById(getDataByIdCb,id){
 //}
 
 function getDataSourceById(getDataSourceByIdCb,id){
-    console.log("Request handler 'getDataSourceById' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);
-  
-  if(r[0]=="Fuck")  {
+  console.log("Request handler 'getDataSourceById' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
     apiLocalHandle.getDataSourceByIdFromLocal(getDataSourceByIdCb,id);
-  }else{
+  }
+  else{
+    console.log('You are in remote '); 
     getDataSourceByIdFromHttp(getDataSourceByIdCb,id);
   }
 }

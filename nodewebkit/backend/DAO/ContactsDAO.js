@@ -47,7 +47,7 @@ exports.findAll = function(findAllCallBack){
  * @return contacts
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
-exports.findById = function(id){
+exports.findById = function(id,findByIdCallBack){
   var db = openDB();
   db.get(SQLSTR.FINDCONTACTBYID, id, findByIdCallBack);
   closeDB(db);
@@ -74,5 +74,22 @@ exports.createItem = function(item, createItemCallBack){
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
   var db = openDB();
   db.get(SQLSTR.DELETECONTACT, id, deleteItemByIdCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method updateItemValue
+ *   更新指定ID的某一个key
+ * @param id
+ *   pictures表中的主键
+ */
+exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
+  var db = openDB();
+    console.log("udpate contacts id : " + id);
+        console.log("udpate key=" + key + 'value='+value);
+  //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
+  var sqlstr="UPDATE contacts SET "+key+" = "+value+" WHERE id = "+id;
+  console.log("sqlstr:" +sqlstr);
+  db.run(sqlstr);
   closeDB(db);
 }
