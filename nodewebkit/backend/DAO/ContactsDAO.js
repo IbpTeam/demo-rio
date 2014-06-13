@@ -47,7 +47,7 @@ exports.findAll = function(findAllCallBack){
  * @return contacts
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
-exports.findById = function(id){
+exports.findById = function(id,findByIdCallBack){
   var db = openDB();
   db.get(SQLSTR.FINDCONTACTBYID, id, findByIdCallBack);
   closeDB(db);
