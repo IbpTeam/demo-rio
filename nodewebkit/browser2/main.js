@@ -44,7 +44,7 @@ $(document).ready(function() {
     });
     
 	sidebar.on('open_favorite', function(dir) {
-//	    console.log('on open_favorite');
+	    console.log('on open_favorite: ', dir);
 		folder.open(dir);
 		addressbar.set(dir);
 	});
@@ -52,8 +52,10 @@ $(document).ready(function() {
         console.log('wangyu: on do_filter.');
         sidebar.do_filter(dir, keyword);
     });
-    sidebar.on('show_filter_result', function(dir) {
-        folder.open(dir);
+    sidebar.on('show_filter_result', function(filter_json) {
+        console.log('wangyu:', filter_json);
+        folder.get_callback_data(filter_json);
+        //addressbar.set(dir);
     });
 	addressbar.on('navigate', function(dir) {
 		folder.open(dir);
