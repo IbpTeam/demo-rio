@@ -88,7 +88,7 @@ exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
     console.log("udpate vidoes id : " + id);
         console.log("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE vidoes SET "+key+" = "+value+" WHERE id = "+id;
+  var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"' WHERE id = "+id;
   console.log("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);

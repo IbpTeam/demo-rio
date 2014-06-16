@@ -175,5 +175,23 @@ function getDataSourceById(getDataSourceByIdCb,id){
   }
 }
 
+//API updateItemValue:修改数据某一个属性
+//返回类型：
+//成功返回success;
+//失败返回失败原因
+
+function updateDataValue(updateDataValueCb,id,key,value){
+  console.log("Request handler 'updateItemValue' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,id,key,value);
+  }
+  else{
+    console.log('You are in remote '); 
+    updateDataValueFromHttp(updateDataValueCb,id,key,value);
+  }
+}
+
 
 

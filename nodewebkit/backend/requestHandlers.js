@@ -250,3 +250,33 @@ function getDataSourceByIdInHttpServer(response, postData) {
   }
 }
 exports.getDataSourceByIdInHttpServer = getDataSourceByIdInHttpServer;
+
+function updateDataValueInHttpServer(response, postData) {
+
+  console.log("Request handler 'updateDataValueInHttpServer' was called.");
+    console.log(postData);
+    postDataJson=JSON.parse(postData);
+     console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'updateDataValue'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else{
+    function updateItemValueCb(id,key,value,result){
+      console.log("update DB: "+ result);
+      if(result!='successfull'){
+        filesHandle.sleep(1000);
+        commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+      }
+      else{
+        var json=JSON.stringify('success');
+        response.writeHead(200, {"Content-Type": "text/plain"});
+        response.write(json);
+        response.end();
+      }
+    }
+    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,postDataJson.arg3,updateItemValueCb);
+  }
+}
+exports.updateDataValueInHttpServer = updateDataValueInHttpServer;
