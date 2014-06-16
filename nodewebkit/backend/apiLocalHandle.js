@@ -128,6 +128,7 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
       function updateItemValueCb(id,key,value,result){
         console.log("update DB: "+ result);
         if(result!='successfull'){
+          filesHandle.sleep(1000);
           commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
         }
       }
@@ -137,4 +138,19 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
   commonDAO.getItemById(id,getItemByIdCb);
 }
 exports.getDataSourceByIdFromLocal = getDataSourceByIdFromLocal;
+
+function updateDataValueFromLocal(updateDataValueCb,id,key,value) {
+  function updateItemValueCb(id,key,value,result){
+    console.log("update DB: "+ result);
+    if(result!='successfull'){
+      filesHandle.sleep(1000);
+      commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+    }
+    else{
+      updateDataValueCb('success');
+    }
+  }
+  commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+}
+exports.updateDataValueFromLocal = updateDataValueFromLocal;
 

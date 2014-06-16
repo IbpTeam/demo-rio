@@ -12,6 +12,7 @@ handle["/loadResources"] = requestHandlers.loadResourcesInHttpServer;
 handle["/rmDataById"] = requestHandlers.rmDataByIdInHttpServer;
 handle["/getDataById"] = requestHandlers.getDataByIdInHttpServer;
 handle["/getDataSourceById"] = requestHandlers.getDataSourceByIdInHttpServer;
+handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer
 
 
 server.start(router.route, handle);
