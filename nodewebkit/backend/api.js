@@ -177,10 +177,8 @@ function getDataSourceById(getDataSourceByIdCb,id){
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
-//result{
-//  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
-//  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
-//}
+//成功返回success;
+//失败返回失败原因
 
 function updateDataValue(updateDataValueCb,id,key,value){
   console.log("Request handler 'updateItemValue' was called.");
