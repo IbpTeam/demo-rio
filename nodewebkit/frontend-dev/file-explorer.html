@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta content="text/html; charset=UTF-8" http-equiv="content-type">
 <script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+<script src="js/jquery.qrcode.min.js"></script>
 <link href="bootstrap-3.1.1/css/bootstrap.css" rel="stylesheet" type="text/css">
 <script src="bootstrap-3.1.1/js/bootstrap.js"></script>
 <link href="style.css" rel="stylesheet" type="text/css">
@@ -16,7 +17,26 @@
 <script type="text/javascript" src="node_modules/side_bar.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-$(function () { $("[data-toggle='popover']").popover(); });
+//$(function () { $("[data-toggle='popover']").popover(); });
+$('#qrcode').on('click', function(){
+    $('#qrcode').popover({
+    html: true,
+    title: '扫描二维码',
+    content: function () {
+        var div_qr=$('<div></div>');
+        var url='http://www.baidu.com'
+        jQuery(function(){
+            div_qr.qrcode({
+                text: url,
+                width: 150,
+                height: 150
+            });
+        });
+        return div_qr;
+     }
+    });
+    console.log('qrcode button is pressed.');
+});
 });
 </script>
 </head>
@@ -47,7 +67,12 @@ $(function () { $("[data-toggle='popover']").popover(); });
 		</div>
 		<div id="main" class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
 			<div class="row">
+			    <!--
 				<ul id="addressbar" class="breadcrumb"></ul>
+				-->
+				<ul id="addressbar" class="breadcrumb"></ul>
+				<button id="qrcode" style="position:absolute; right:0px; top:0px; color:black; padding: 4px; line-height:1; font-size: 26px" type="button" class="btn btn-default" data-toggle="popover" data-placement="left"><span class="glyphicon glyphicon-qrcode"></span></button>
+				
 			</div>
 			<div class="row" style="height:90%; background: #FFF; -webkit-border-radius: 2px; overflow: auto">
 				<ul id="files" style="margin: 5px; padding:0px"></ul>
