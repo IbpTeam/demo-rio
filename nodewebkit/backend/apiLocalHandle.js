@@ -131,6 +131,42 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
           filesHandle.sleep(1000);
           commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
         }
+        else{
+          var index=id.indexOf('#');
+          var tableId=id.substring(0,index);
+          var dataId=id.substr(index+1);
+          var tableName;
+          switch(tableId){
+            case '1' :{
+              tableName='contacts';
+            }
+            break;
+            case '2' :{
+              tableName='pictures';
+            }
+            break;
+            case '3' :{
+              tableName='videos';
+            }
+            break;
+            case '4' :{
+              tableName='documents';
+            }
+            break;
+            case '5' :{
+              tableName='music';
+            }
+            break;                                    
+          }
+          function updateRecentTableCb(tableName,dataId,time,result){
+            console.log("update recent table: "+ result);
+            if(result!='successfull'){
+              filesHandle.sleep(1000);
+              commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+            }
+          }
+          commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+        }
       }
       commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
     }
@@ -153,4 +189,59 @@ function updateDataValueFromLocal(updateDataValueCb,id,key,value) {
   commonDAO.updateItemValue(id,key,value,updateItemValueCb);
 }
 exports.updateDataValueFromLocal = updateDataValueFromLocal;
+
+function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
+  function getRecentByOrderCb(result){
+    while(result.length>num){
+      result.pop();
+    }
+    var data = new Array();
+    var id;
+    var index=0;
+    function getid(){
+      switch (result[index].tableName){
+        case  'contacts':{
+          id='1#'+result[index].specificId;
+        }
+        break;
+        case  'pictures':{
+          id='2#'+result[index].specificId;
+        }
+        break;
+        case  'videos':{
+          id='3#'+result[index].specificId;
+        }
+        break;
+        case  'documents':{
+          id='4#'+result[index].specificId;
+        }
+        break;
+        case  'music':{
+          id='5#'+result[index].specificId;
+        }
+        break;
+      }
+      index++;
+      return id;
+    }
+    function getItemByIdCb(result){
+      //console.log(result);
+      if(result){
+        
+        data.push(result);
+        if(data.length==num){
+          getRecentAccessDataCb(data);
+        }
+        else{
+          commonDAO.getItemById(getid(),getItemByIdCb);
+        }
+      }
+    }
+    commonDAO.getItemById(getid(),getItemByIdCb);
+
+  }
+  commonDAO.getRecentByOrder(getRecentByOrderCb);
+}
+exports.getRecentAccessDataFromLocal = getRecentAccessDataFromLocal;
+
 

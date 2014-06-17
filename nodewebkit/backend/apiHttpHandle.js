@@ -163,3 +163,19 @@ function updateDataValueFromHttp(updateDataValueCb,id,key,value){
     }
   });
 }
+
+function getRecentAccessDataFromHttp(getRecentAccessDataCb,num){
+    $.ajax({
+    url: "/getRecentAccessData",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getRecentAccessData","arg":"'+num+'"}',
+    success: function(result) {
+      getRecentAccessDataCb(result);
+    },
+    error: function(e) {
+      getRecentAccessDataCb(e);
+    }
+  });
+}

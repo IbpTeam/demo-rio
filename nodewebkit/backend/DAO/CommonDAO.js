@@ -5,6 +5,7 @@ var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
 var musicDAO = require("./MusicDAO");
+var recentDAO = require("./RecentDAO");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -107,6 +108,7 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
+          item.id="1#"+item.id;
           callback(item);
         }
       });
@@ -118,6 +120,7 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
+          item.id="2#"+item.id;        
           callback(item);
         }
       });
@@ -129,6 +132,7 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
+          item.id="3#"+item.id;        
           callback(item);
         }
       });
@@ -140,6 +144,7 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
+          item.id="4#"+item.id;        
           callback(item);
         }
       });
@@ -151,6 +156,7 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
+          item.id="5#"+item.id;        
           callback(item);
         }
       });
@@ -212,6 +218,18 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     case 'Music' : {
       console.log('insert music');
       musicDAO.createItem(item, function(err){
+        if(err){
+          callback(category,item,err,loadResourcesCb);
+        }
+        else{
+          callback(category,item,'successfull',loadResourcesCb);
+        }
+      });
+    }
+    break;
+    case 'recent' : {
+      console.log('insert recent');
+      recentDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
         }
@@ -362,4 +380,26 @@ exports.updateItemValue = function(id, key, value, callback ){
     break;   
     
   }
+}
+
+exports.updateRecentTable = function(tableName,dataId,time,callback){
+  recentDAO.updateTime(tableName,dataId,time, function(err){
+    if(err){
+      callback(tableName,dataId,time,err);
+    }
+    else{
+      console.log("update recent successfull");
+      callback(tableName,dataId,time,'successfull');
+    }
+  });  
+}
+
+exports.getRecentByOrder = function(callback){
+  recentDAO.findAllByOrder(function(err, recent){
+    if(err){
+      console.log(err);
+      callback(null);
+    }
+    callback(recent);
+  });
 }
