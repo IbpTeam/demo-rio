@@ -9,6 +9,7 @@ var commonDAO = require("./DAO/CommonDAO");
 var PORT = 8888;
 
 var writeDbNum=0;
+var writeDbRecentNum=0;
 
 function sleep(milliSeconds) { 
     var startTime = new Date().getTime(); 
@@ -26,11 +27,18 @@ function createItemCb(category,item,result,loadResourcesCb)
   }
   else if(result=='successfull'){
     console.log(item.filename+'insert:'+result);
-    writeDbNum--;
+    if(category=='recent'){
+      writeDbRecentNum--;
+    }
+    else{
+      writeDbNum--;
+    }
     console.log('writeDbNum= '+writeDbNum);
-    if(writeDbNum==0){
+    console.log('writeDbRecentNum= '+writeDbRecentNum);
+    if(writeDbNum==0 && writeDbRecentNum==0){
       console.log('Read data complete!');
       loadResourcesCb('success');
+      
     }
   }
   else{
@@ -39,6 +47,7 @@ function createItemCb(category,item,result,loadResourcesCb)
     loadResourcesCb(result);
   }
 }
+
 
 function deleteItemCb(id,result,rmDataByIdCb)
 {
@@ -77,7 +86,13 @@ function syncDb(loadResourcesCb,resourcePath)
   walk(resourcePath);
   console.log(fileList); 
   writeDbNum=fileList.length;
+  writeDbRecentNum=writeDbNum;
   console.log('writeDbNum= '+writeDbNum);
+  console.log('writeDbRecentNum= '+writeDbRecentNum);
+  var contactId=0;
+  var documentId=0;
+  var pictureId=0;
+  var musicId=0;
   fileList.forEach(function(item){
     var pointIndex=item.lastIndexOf('.');
     var itemPostfix=item.substr(pointIndex+1);
@@ -91,11 +106,14 @@ function syncDb(loadResourcesCb,resourcePath)
         var json=JSON.parse(data);
         console.log(json);
         writeDbNum+=json.length-1;
+        writeDbRecentNum+=json.length-1;
         console.log('writeDbNum= '+writeDbNum);
+        console.log('writeDbRecentNum= '+writeDbRecentNum);
         json.forEach(function(each){
           var category='Contacts';
+          contactId++;
           var newItem={
-            id:null,
+            id:contactId,
             name:each.name,
             phone:each.phone,
             sex:each.sex,
@@ -104,6 +122,15 @@ function syncDb(loadResourcesCb,resourcePath)
             photoPath:each.photoPath,
             createTime:null,
             lastModifyTime:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'contacts',
+            specificId:contactId,
+            lastAccessTime:null,
+            others:null
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         });
@@ -120,8 +147,9 @@ function syncDb(loadResourcesCb,resourcePath)
         console.log('size:'+size);
         if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx'){
           var category='Documents';
+          documentId++;
           var newItem={
-            id:null,
+            id:documentId,
             filename:itemFilename,
             postfix:itemPostfix,
             size:size,
@@ -133,11 +161,21 @@ function syncDb(loadResourcesCb,resourcePath)
             others:null
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'documents',
+            specificId:documentId,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         }
         else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
           var category='Pictures';
+          pictureId++;
           var newItem={
-            id:null,
+            id:pictureId,
             filename:itemFilename,
             postfix:itemPostfix,
             size:size,
@@ -148,11 +186,21 @@ function syncDb(loadResourcesCb,resourcePath)
             others:null
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'pictures',
+            specificId:pictureId,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         }
         else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
           var category='Music';
+          musicId++;
           var newItem={
-            id:null,
+            id:musicId,
             filename:itemFilename,
             postfix:itemPostfix,
             size:size,
@@ -160,6 +208,15 @@ function syncDb(loadResourcesCb,resourcePath)
             album:'流行',
             createTime:ctime,
             lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'music',
+            specificId:musicId,
             lastAccessTime:ctime,
             others:null
           };

@@ -13,29 +13,29 @@ function closeDB(database){
 
 /**
  * @method countTotal
- *   查询contacts表中类别总数
+ *   查询music表中类别总数
  * @param null
  *   
  * @return total
  *   Integer 表中类别总数
  */
-exports.countTotal = function(){
+exports.countTotal = function(countTotalCallBack){
   var db = openDB();
-  db.get(SQLSTR.COUNTTOTALCONTACTS, countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALRECENT, countTotalCallBack);
   closeDB();  
-}
+} 
 
 /**
  * @method findAll
- *   查询contacts表中所有数据
+ *   查询music表中所有数据
  * @param null
  *
- * @return contacts
+ * @return music
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all(SQLSTR.FINDALLCONTACTS, findAllCallBack);
+  db.all(SQLSTR.FINDALLRECENT, findAllCallBack);
   closeDB(db);
 }  
 
@@ -43,25 +43,25 @@ exports.findAll = function(findAllCallBack){
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   contacts表中的主键
- * @return contacts
+ *   music表中的主键
+ * @return music
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
-exports.findById = function(id,findByIdCallBack){
+exports.findById = function(id, findByIdCallBack){
   var db = openDB();
-  db.get(SQLSTR.FINDCONTACTBYID, id, findByIdCallBack);
+  db.get(SQLSTR.FINDRECENTBYID, id, findByIdCallBack);
   closeDB(db);
 }
 
 /**
  * @method createItem
- *   增加一条新联系人信息
+ *   增加一条音乐信息
  * @param item
- *   包含联系人信息的数据对象
+ *   包含音乐信息的数据对象
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, createItemCallBack);
+  db.get(SQLSTR.CREATERECENT, item.tableName,item.specificId,item.lastAccessTime,createItemCallBack);
   closeDB(db);
 }
 
@@ -69,11 +69,12 @@ exports.createItem = function(item, createItemCallBack){
  * @method deleteItemById
  *   根据ID删除表中指定数据
  * @param id
- *   pictures表中的主键
+ *   music表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
+  console.log("delete music id : " + id);
   var db = openDB();
-  db.get(SQLSTR.DELETECONTACT, id, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETERECENT, id, deleteItemByIdCallBack);
   closeDB(db);
 }
 
@@ -85,11 +86,11 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  */
 exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   var db = openDB();
-    console.log("udpate contacts id : " + id);
+    console.log("udpate music id : " + id);
         console.log("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE contacts SET "+key+" = '"+value+"' WHERE id = "+id;
+  var sqlstr="UPDATE recent SET "+key+" = '"+value+"' WHERE id = "+id;
   console.log("sqlstr:" +sqlstr);
-  db.run(sqlstr);
+  db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }

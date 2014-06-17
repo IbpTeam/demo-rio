@@ -5,6 +5,7 @@ var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
 var musicDAO = require("./MusicDAO");
+var recentDAO = require("./RecentDAO");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -217,6 +218,18 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     case 'Music' : {
       console.log('insert music');
       musicDAO.createItem(item, function(err){
+        if(err){
+          callback(category,item,err,loadResourcesCb);
+        }
+        else{
+          callback(category,item,'successfull',loadResourcesCb);
+        }
+      });
+    }
+    break;
+    case 'recent' : {
+      console.log('insert recent');
+      recentDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
         }

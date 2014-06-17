@@ -61,7 +61,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.lastAccessTime, item.others, createItemCallBack);
+  db.get(SQLSTR.CREATEPICTURE, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.lastAccessTime, item.others, createItemCallBack);
   closeDB(db);
 }
 

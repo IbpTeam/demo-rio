@@ -8,7 +8,7 @@ exports.FINDCATEGORYBYID = "select * from Category where id = ?";
 exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";
 exports.FINDALLCONTACTS = "select * from Contacts";
 exports.FINDCONTACTBYID = "select * from contacts where id = ?";
-exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime,lastAccessTime) values (null,?,?,?,?,?,?,?,?,?)";
+exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime,lastAccessTime) values (?,?,?,?,?,?,?,?,?,?)";
 exports.DELETECONTACT = "delete from contacts where id = ?";
 exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
 
@@ -16,7 +16,7 @@ exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
 exports.COUNTTOTALPICTURES = "select count(*) as total from pictures";
 exports.FINDALLPICTURES = "select * from pictures";
 exports.FINDPICTUREBYID = "select * from pictures where id = ?";
-exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?)";
+exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others) values (?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEPICTURE = "delete from pictures where id = ?";
 exports.UPDATEPICTURE = "update pictures set ? = ? where id = ?";
 
@@ -24,7 +24,7 @@ exports.UPDATEPICTURE = "update pictures set ? = ? where id = ?";
 exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
 exports.FINDALLVIDEOS = "select * from videos";
 exports.FINDVIDEOBYID = "select * from videos where id = ?";
-exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?)";
+exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others) values (?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEVIDEO = "delete from videos where id = ?";
 exports.UPDATEVIDEO = "update videos set ? = ? where id = ?";
 
@@ -32,7 +32,7 @@ exports.UPDATEVIDEO = "update videos set ? = ? where id = ?";
 exports.COUNTTOTALDOCUMENTS = "select count(*) as total from documents";
 exports.FINDALLDOCUMENTS = "select * from documents";
 exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
-exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?)";
+exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others) values (?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEDOCUMENT = "delete from documents where id = ?";
 exports.UPDATEDOCUMENT = "update documents set ? = ? where id = ?";
 
@@ -40,6 +40,14 @@ exports.UPDATEDOCUMENT = "update documents set ? = ? where id = ?";
 exports.COUNTTOTALMUSIC = "select count(*) as total from music";
 exports.FINDALLMUSIC = "select * from music";
 exports.FINDMUSICBYID = "select * from music where id = ?";
-exports.CREATEMUSIC = "insert into music (id,filename,postfix,size,path,album,composerName,actorName,createTime,lastModifyTime,lastAccessTime,others) values (null,?,?,?,?,?,?,?,?,?,?,?)";
+exports.CREATEMUSIC = "insert into music (id,filename,postfix,size,path,album,composerName,actorName,createTime,lastModifyTime,lastAccessTime,others) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEMUSIC = "delete from music where id = ?";
 exports.UPDATEMUSIC = "update music set ? = ? where id = ?";
+
+//SQL used in RecentDAO
+exports.COUNTTOTALRECENT = "select count(*) as total from recent";
+exports.FINDALLRECENT = "select * from recent";
+exports.FINDRECENTBYID = "select * from recent where id = ?";
+exports.CREATERECENT = "insert into recent (id,tableName,specificId,lastAccessTime) values (null,?,?,?)";
+exports.DELETERECENT = "delete from recent where id = ?";
+exports.UPDATERECENT = "update recent set ? = ? where id = ?";
