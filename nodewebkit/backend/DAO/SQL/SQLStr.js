@@ -47,7 +47,9 @@ exports.UPDATEMUSIC = "update music set ? = ? where id = ?";
 //SQL used in RecentDAO
 exports.COUNTTOTALRECENT = "select count(*) as total from recent";
 exports.FINDALLRECENT = "select * from recent";
+exports.FINDALLRECENTBYORDER = "select * from recent order by lastAccessTime desc";
 exports.FINDRECENTBYID = "select * from recent where id = ?";
 exports.CREATERECENT = "insert into recent (id,tableName,specificId,lastAccessTime) values (null,?,?,?)";
 exports.DELETERECENT = "delete from recent where id = ?";
 exports.UPDATERECENT = "update recent set ? = ? where id = ?";
+

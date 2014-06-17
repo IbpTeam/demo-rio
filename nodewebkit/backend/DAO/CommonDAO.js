@@ -393,3 +393,13 @@ exports.updateRecentTable = function(tableName,dataId,time,callback){
     }
   });  
 }
+
+exports.getRecentByOrder = function(callback){
+  recentDAO.findAllByOrder(function(err, recent){
+    if(err){
+      console.log(err);
+      callback(null);
+    }
+    callback(recent);
+  });
+}

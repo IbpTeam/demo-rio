@@ -190,3 +190,58 @@ function updateDataValueFromLocal(updateDataValueCb,id,key,value) {
 }
 exports.updateDataValueFromLocal = updateDataValueFromLocal;
 
+function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
+  function getRecentByOrderCb(result){
+    while(result.length>num){
+      result.pop();
+    }
+    var data = new Array();
+    var id;
+    var index=0;
+    function getid(){
+      switch (result[index].tableName){
+        case  'contacts':{
+          id='1#'+result[index].specificId;
+        }
+        break;
+        case  'pictures':{
+          id='2#'+result[index].specificId;
+        }
+        break;
+        case  'videos':{
+          id='3#'+result[index].specificId;
+        }
+        break;
+        case  'documents':{
+          id='4#'+result[index].specificId;
+        }
+        break;
+        case  'music':{
+          id='5#'+result[index].specificId;
+        }
+        break;
+      }
+      index++;
+      return id;
+    }
+    function getItemByIdCb(result){
+      //console.log(result);
+      if(result){
+        
+        data.push(result);
+        if(data.length==num){
+          getRecentAccessDataCb(data);
+        }
+        else{
+          commonDAO.getItemById(getid(),getItemByIdCb);
+        }
+      }
+    }
+    commonDAO.getItemById(getid(),getItemByIdCb);
+
+  }
+  commonDAO.getRecentByOrder(getRecentByOrderCb);
+}
+exports.getRecentAccessDataFromLocal = getRecentAccessDataFromLocal;
+
+

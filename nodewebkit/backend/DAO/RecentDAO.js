@@ -40,6 +40,20 @@ exports.findAll = function(findAllCallBack){
 }  
 
 /**
+ * @method findAll
+ *   查询recent表中所有数据
+ * @param null
+ *
+ * @return recent
+ *   数组对象，数组中每一个元素都是一条数据对象
+ */
+exports.findAllByOrder = function(findAllCallBack){
+  var db = openDB();
+  db.all(SQLSTR.FINDALLRECENTBYORDER, findAllCallBack);
+  closeDB(db);
+}  
+
+/**
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
@@ -96,10 +110,10 @@ exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
 }
 
 /**
- * @method updateItemValue
- *   更新指定ID的某一个key
- * @param id
- *   recent表中的主键
+ * @method updateTime
+ *   更新最近访问时间
+ * @param tableName,dataId,time
+ *   
  */
 exports.updateTime = function(tableName,dataId,time, updateTimeCb){
   var db = openDB();
