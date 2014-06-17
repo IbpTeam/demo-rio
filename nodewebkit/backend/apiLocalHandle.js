@@ -131,6 +131,42 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
           filesHandle.sleep(1000);
           commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
         }
+        else{
+          var index=id.indexOf('#');
+          var tableId=id.substring(0,index);
+          var dataId=id.substr(index+1);
+          var tableName;
+          switch(tableId){
+            case '1' :{
+              tableName='contacts';
+            }
+            break;
+            case '2' :{
+              tableName='pictures';
+            }
+            break;
+            case '3' :{
+              tableName='videos';
+            }
+            break;
+            case '4' :{
+              tableName='documents';
+            }
+            break;
+            case '5' :{
+              tableName='music';
+            }
+            break;                                    
+          }
+          function updateRecentTableCb(tableName,dataId,time,result){
+            console.log("update recent table: "+ result);
+            if(result!='successfull'){
+              filesHandle.sleep(1000);
+              commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+            }
+          }
+          commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+        }
       }
       commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
     }

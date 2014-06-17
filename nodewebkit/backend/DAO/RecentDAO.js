@@ -27,10 +27,10 @@ exports.countTotal = function(countTotalCallBack){
 
 /**
  * @method findAll
- *   查询music表中所有数据
+ *   查询recent表中所有数据
  * @param null
  *
- * @return music
+ * @return recent
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(findAllCallBack){
@@ -43,8 +43,8 @@ exports.findAll = function(findAllCallBack){
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   music表中的主键
- * @return music
+ *   recent表中的主键
+ * @return recent
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
 exports.findById = function(id, findByIdCallBack){
@@ -69,10 +69,10 @@ exports.createItem = function(item, createItemCallBack){
  * @method deleteItemById
  *   根据ID删除表中指定数据
  * @param id
- *   music表中的主键
+ *   recent表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
-  console.log("delete music id : " + id);
+  console.log("delete recent id : " + id);
   var db = openDB();
   db.get(SQLSTR.DELETERECENT, id, deleteItemByIdCallBack);
   closeDB(db);
@@ -82,15 +82,32 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  * @method updateItemValue
  *   更新指定ID的某一个key
  * @param id
- *   pictures表中的主键
+ *   recent表中的主键
  */
 exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   var db = openDB();
-    console.log("udpate music id : " + id);
+    console.log("udpate recent id : " + id);
         console.log("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
   var sqlstr="UPDATE recent SET "+key+" = '"+value+"' WHERE id = "+id;
   console.log("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method updateItemValue
+ *   更新指定ID的某一个key
+ * @param id
+ *   recent表中的主键
+ */
+exports.updateTime = function(tableName,dataId,time, updateTimeCb){
+  var db = openDB();
+  console.log("udpate recent id : " + dataId);
+  //console.log("udpate key=" + key + 'value='+value);
+
+  var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE tableName = '"+tableName+"' and specificId = "+dataId;
+  console.log("sqlstr:" +sqlstr);
+  db.run(sqlstr,updateTimeCb);
   closeDB(db);
 }

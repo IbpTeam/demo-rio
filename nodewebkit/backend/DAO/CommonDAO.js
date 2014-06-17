@@ -381,3 +381,15 @@ exports.updateItemValue = function(id, key, value, callback ){
     
   }
 }
+
+exports.updateRecentTable = function(tableName,dataId,time,callback){
+  recentDAO.updateTime(tableName,dataId,time, function(err){
+    if(err){
+      callback(tableName,dataId,time,err);
+    }
+    else{
+      console.log("update recent successfull");
+      callback(tableName,dataId,time,'successfull');
+    }
+  });  
+}
