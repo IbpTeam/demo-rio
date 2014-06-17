@@ -16,7 +16,6 @@ body {
   margin: 2px;
   width: 80px;
   display: inline-block;
-
   text-align: center;
   vertical-align: top;
 }
@@ -47,8 +46,27 @@ body {
 .file.focus .icon {
   -webkit-filter: invert(20%);
 }
-
-/*add later*/
+/*modify parameter in bootstrap-3.1.1*/
+.breadcrumb .active a {
+  color: #333333;
+}
+#main .breadcrumb {
+  margin-bottom: 8px;
+}
+#sidebar.well-sm {
+  margin-right: -15px;
+  margin-left: -15px;
+  margin-bottom: 6px;
+}
+/*add later by xifei*/
+#main{
+    padding-right: 20px;
+    padding-left: 20px;
+    height: 100%;
+}
+#addressvar {
+  font-size: 13px;
+}
 a {
 color: #0088cc;
 }
@@ -56,8 +74,8 @@ color: #0088cc;
     color: black;
 }
 .nav .nav-header {
-  display: block;
-  padding: 3px 15px;
+   /* display: block;
+padding: 3px 15px;*/
   font-size: 11px;
   font-weight: bold;
   line-height: 18px;
@@ -67,15 +85,18 @@ color: #0088cc;
 }
 
 .nav-list {
-  padding-right: 15px;
-  padding-left: 15px;
+/*  padding-right: 8px;
+  padding-left: 8px;
+  */
   margin-bottom: 0;
 }
 
 .nav-list > li > a,
 .nav-list .nav-header {
+/*
   margin-right: -15px;
   margin-left: -15px;
+  */
   font-size: 13px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
@@ -92,7 +113,7 @@ color: #0088cc;
 }
 
 .nav-list [class^="glyphicon-"] {
-  margin-right: 2px;
+  margin-right: 6px;
 }
 
 .nav-list .divider {
@@ -106,14 +127,16 @@ color: #0088cc;
   border-bottom: 1px solid #ffffff;
   display: list-item;
   text-align: -webkit-match-parent;
-/*
-   -webkit-box-sizing: content-box;
-     -moz-box-sizing: content-box;
-          box-sizing: content-box;
-*/
-/*border-box*/
 }
-
+/*
+.show-grid {
+    border: 1px red solid;
+}
+.show-grid div,ul{
+    border: 1px red solid;
+}
+*/
+/*
 * {
   -webkit-box-sizing: content-box;
      -moz-box-sizing: content-box;
@@ -125,4 +148,6 @@ color: #0088cc;
      -moz-box-sizing: content-box;
           box-sizing: content-box;
 }
+*/
+/*border-box*/
 
