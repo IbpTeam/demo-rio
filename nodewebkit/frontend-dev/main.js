@@ -17,7 +17,7 @@ $(document).ready(function() {
     //getAllCate(get_data);
     configuration();
     var sidebar = new SideBar($('#sidebar'));
-	var folder = new Folder($('#files'), $('#sidebar'));
+	var folder = new Folder($('#files'));
 	var addressbar = new AddressBar($('#addressbar'));
 
 	folder.open('root');//process.cwd()
