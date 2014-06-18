@@ -17,26 +17,7 @@
 <script type="text/javascript" src="node_modules/side_bar.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
-//$(function () { $("[data-toggle='popover']").popover(); });
-$('#qrcode').on('click', function(){
-    $('#qrcode').popover({
-    html: true,
-    title: '扫描二维码',
-    content: function () {
-        var div_qr=$('<div></div>');
-        var url='http://www.baidu.com'
-        jQuery(function(){
-            div_qr.qrcode({
-                text: url,
-                width: 150,
-                height: 150
-            });
-        });
-        return div_qr;
-     }
-    });
-    console.log('qrcode button is pressed.');
-});
+
 });
 </script>
 </head>
@@ -71,7 +52,7 @@ $('#qrcode').on('click', function(){
 				<ul id="addressbar" class="breadcrumb"></ul>
 				-->
 				<ul id="addressbar" class="breadcrumb"></ul>
-				<button id="qrcode" style="position:absolute; right:0px; top:0px; color:black; padding: 4px; line-height:1; font-size: 26px" type="button" class="btn btn-default" data-toggle="popover" data-placement="left"><span class="glyphicon glyphicon-qrcode"></span></button>
+				<button id="qrcode" style="position:absolute; right:0px; top:0px; color:black; padding: 4px; line-height:1; font-size: 26px" type="button" class="btn btn-default" data-toggle="popover" data-placement="auto"><span class="glyphicon glyphicon-qrcode"></span></button>
 				
 			</div>
 			<div class="row" style="height:90%; background: #FFF; -webkit-border-radius: 2px; overflow: auto">
