@@ -68,26 +68,55 @@ $(document).ready(function() {
 function configuration(){
     //$(function () { $("[data-toggle='popover']").popover(); });
     // for qrcode popover
+    /*
+    <div class="popover bottom">
+      <div class="arrow"></div>
+      <h3 class="popover-title">Popover bottom</h3>
+      <div class="popover-content">
+        <p>Sed posuere consectetur est at lobortis. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.</p>
+      </div>
+    </div>
+    */    
     $('#qrcode').on('click', function(){
-        $('#qrcode').popover({
-        html: true,
-        title: '扫描二维码',    
-        //container: 'body',
-        content: function () {
-            var div_qr=$('<div></div>');
-            var url='http://www.baidu.com'
-            jQuery(function(){
-                div_qr.qrcode({
-                    text: url,
-                    width: 150,
-                    height: 150
-                });
+        if($('.popover').length){
+            $('.popover').remove();
+        }else{
+            var popover = $('<div></div>').addClass("popover bottom");
+            popover.append($('<div></div>').addClass("arrow"));
+            popover.append($('<h3>扫描二维码</h3>').addClass("popover-title"));
+            var popover_content = $('<div></div>').addClass("popover-content");
+            popover_content.qrcode({
+                        text: 'http://www.baidu.com',
+                        width: 150,
+                        height: 150
+                    });
+            popover.append(popover_content);
+            
+            var right = $('#frontend').offset().left + $('#frontend').width();
+            var popover_width = 200;//just guess;
+            var btn_bottom = $(this).offset().top + $(this).height();
+            var btn_mid_horizon = $(this).offset().left + $(this).width() / 2;
+            var popover_left = btn_mid_horizon - popover_width / 2;
+            var popover_right = btn_mid_horizon + popover_width / 2;
+            var popover_top = btn_bottom + 'px';
+//            console.log('popover_width', popover_width);
+//            console.log('btn_bottomh', btn_bottom);
+//            console.log('btn_mid_horizon', btn_mid_horizon);
+//            console.log('popover_left', popover_left);
+            popover_left = ((popover_right > right) ? right - popover_width : popover_left)+ 'px';
+            popover.css({
+                'top': popover_top,
+                'left': popover_left,
+                'display': 'block',
             });
-            return div_qr;
-         }
-        });
-        console.log('qrcode button is pressed.');
+            $('#frontend').append(popover);
+        }
+//        console.log('popover', $('.popover').width(), $('.popover').height(), $('.popover').css('padding-top'), $('.popover').css('padding-left'));
+//        console.log('qrcode button is pressed.');
+//        console.log('frontend', $('#frontend').offset().top, $('#frontend').offset().left, $('#frontend').width(), $('#frontend').height(), $('#frontend').css('padding-top'), $('#frontend').css('padding-left'));
+//        console.log('qrcode-button', $(this).offset().top, $(this).offset().left, $(this).width(), $(this).height(), $(this).css('padding-top'), $(this).css('padding-left'));
     });
+    
 	//to prevent default context menu
     $('body').bind('contextmenu', function(e) {
         return false;
