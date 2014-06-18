@@ -1,0 +1,26 @@
+/*folder_view.js*/
+//	    console.log('in this.element mouse down');
+//		console.log('e.pageX', e.pageX);
+//		console.log('e.pageY', e.pageY);
+//		console.log('e.target', e.target);
+//		console.log('e.timeStamp', e.timeStamp);
+//		console.log('e.type', e.type);
+//		console.log('e.which', e.which);
+
+	/*
+	// Click on blank
+	this.element.parent().on('click', function(e) {
+		self.element.children('.focus').removeClass('focus');
+        self.element.children('.dropdown-menu').css({'display':'none'});
+	});
+	// Click on file
+	this.element.delegate('.file', 'click', function(e) {
+		self.element.children('.focus').removeClass('focus');
+		$(this).addClass('focus');
+		e.stopPropagation();
+	});
+	*/
+//    global_self.element.delegate("input", "click", "value", function(){
+//        console.log("we emit do_filter signal.");
+//        global_self.emit('do_filter', data_json);
+//    });
