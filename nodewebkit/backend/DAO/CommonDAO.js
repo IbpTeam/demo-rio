@@ -5,6 +5,7 @@ var picturesDAO = require("./PicturesDAO");
 var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
 var musicDAO = require("./MusicDAO");
+var recentDAO = require("./RecentDAO");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -225,6 +226,18 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
         }
       });
     }
+    break;
+    case 'recent' : {
+      console.log('insert recent');
+      recentDAO.createItem(item, function(err){
+        if(err){
+          callback(category,item,err,loadResourcesCb);
+        }
+        else{
+          callback(category,item,'successfull',loadResourcesCb);
+        }
+      });
+    }
     break;    
     
   }
@@ -367,4 +380,26 @@ exports.updateItemValue = function(id, key, value, callback ){
     break;   
     
   }
+}
+
+exports.updateRecentTable = function(tableName,dataId,time,callback){
+  recentDAO.updateTime(tableName,dataId,time, function(err){
+    if(err){
+      callback(tableName,dataId,time,err);
+    }
+    else{
+      console.log("update recent successfull");
+      callback(tableName,dataId,time,'successfull');
+    }
+  });  
+}
+
+exports.getRecentByOrder = function(callback){
+  recentDAO.findAllByOrder(function(err, recent){
+    if(err){
+      console.log(err);
+      callback(null);
+    }
+    callback(recent);
+  });
 }

@@ -242,6 +242,42 @@ function getDataSourceByIdInHttpServer(response, postData) {
           if(result!='successfull'){
             commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
           }
+          else{
+            var index=id.indexOf('#');
+            var tableId=id.substring(0,index);
+            var dataId=id.substr(index+1);
+            var tableName;
+            switch(tableId){
+              case '1' :{
+                tableName='contacts';
+              }
+              break;
+              case '2' :{
+                tableName='pictures';
+              }
+              break;
+              case '3' :{
+                tableName='videos';
+              }
+              break;
+              case '4' :{
+                tableName='documents';
+              }
+              break;
+              case '5' :{
+                tableName='music';
+              }
+              break;                                    
+            }
+            function updateRecentTableCb(tableName,dataId,time,result){
+              console.log("update recent table: "+ result);
+              if(result!='successfull'){
+                filesHandle.sleep(1000);
+                commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+              }
+            }
+            commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+          }
         }
         commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
       }
@@ -280,3 +316,70 @@ function updateDataValueInHttpServer(response, postData) {
   }
 }
 exports.updateDataValueInHttpServer = updateDataValueInHttpServer;
+
+function getRecentAccessDataInHttpServer(response, postData) {
+
+  console.log("Request handler 'getRecentAccessDataInHttpServer' was called.");
+    console.log(postData);
+    postDataJson=JSON.parse(postData);
+     console.log('$$$$$$'+postDataJson.arg);
+  if(postDataJson.func != 'getRecentAccessData'){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else{
+    function getRecentByOrderCb(result){
+      while(result.length>postDataJson.arg){
+        result.pop();
+      }
+      var data = new Array();
+      var index=0;
+      function getid(){
+        var id;
+        switch (result[index].tableName){
+          case  'contacts':{
+            id='1#'+result[index].specificId;
+          }
+          break;
+          case  'pictures':{
+            id='2#'+result[index].specificId;
+          }
+          break;
+          case  'videos':{
+            id='3#'+result[index].specificId;
+          }
+          break;
+          case  'documents':{
+            id='4#'+result[index].specificId;
+          }
+          break;
+          case  'music':{
+            id='5#'+result[index].specificId;
+          }
+          break;
+        }
+        index++;
+        return id;
+      }
+      function getItemByIdCb(result){
+        //console.log(result);
+        if(result){       
+          data.push(result);
+          if(data.length==postDataJson.arg){
+            var json=JSON.stringify(data);
+            response.writeHead(200, {"Content-Type": "text/plain"});
+            response.write(json);
+            response.end();
+          }
+          else{
+            commonDAO.getItemById(getid(),getItemByIdCb);
+          }
+        }
+      }
+      commonDAO.getItemById(getid(),getItemByIdCb);
+    }
+    commonDAO.getRecentByOrder(getRecentByOrderCb);
+  }
+}
+exports.getRecentAccessDataInHttpServer = getRecentAccessDataInHttpServer;

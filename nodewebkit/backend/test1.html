@@ -71,7 +71,7 @@ function getDataByIdCb(result){
 
 getDataById(getDataByIdCb,'5#2');
 */
-
+/*
 function getDataSourceByIdCb(result){
    document.write(result.openmethod);
    document.write(result.content);
@@ -79,8 +79,8 @@ function getDataSourceByIdCb(result){
 
 }
 
-getDataSourceById(getDataSourceByIdCb,'4#3');
-
+getDataSourceById(getDataSourceByIdCb,'4#11');
+*/
 /*
 function updateDataValueCb(result){
    document.write(result);
@@ -89,6 +89,14 @@ function updateDataValueCb(result){
 
 updateDataValue(updateDataValueCb,'4#8','others','Release Note');
 */
+
+  function getRecentAccessDataCb(result){
+    result.forEach(function (each){
+      document.write(each.id);
+    });
+  }
+  getRecentAccessData(getRecentAccessDataCb,20);
+  
 </script>
 <!--
 <audio controls>

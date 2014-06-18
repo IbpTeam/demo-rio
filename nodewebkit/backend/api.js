@@ -193,5 +193,21 @@ function updateDataValue(updateDataValueCb,id,key,value){
   }
 }
 
+//API getRecentAccessData:获得最近访问数据的信息
+//返回类型：
+//返回具体数据类型对象数组
+
+function getRecentAccessData(getRecentAccessDataCb,num){
+  console.log("Request handler 'updateItemValue' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getRecentAccessDataFromLocal(getRecentAccessDataCb,num);
+  }
+  else{
+    console.log('You are in remote '); 
+    getRecentAccessDataFromHttp(getRecentAccessDataCb,num);
+  }
+}
 
 

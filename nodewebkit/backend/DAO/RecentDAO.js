@@ -13,7 +13,7 @@ function closeDB(database){
 
 /**
  * @method countTotal
- *   查询documents表中类别总数
+ *   查询music表中类别总数
  * @param null
  *   
  * @return total
@@ -21,21 +21,35 @@ function closeDB(database){
  */
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
-  db.get(SQLSTR.COUNTTOTALDOCUMENTS, countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALRECENT, countTotalCallBack);
   closeDB();  
 } 
 
 /**
  * @method findAll
- *   查询documents表中所有数据
+ *   查询recent表中所有数据
  * @param null
  *
- * @return documents
+ * @return recent
  *   数组对象，数组中每一个元素都是一条数据对象
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all(SQLSTR.FINDALLDOCUMENTS, findAllCallBack);
+  db.all(SQLSTR.FINDALLRECENT, findAllCallBack);
+  closeDB(db);
+}  
+
+/**
+ * @method findAll
+ *   查询recent表中所有数据
+ * @param null
+ *
+ * @return recent
+ *   数组对象，数组中每一个元素都是一条数据对象
+ */
+exports.findAllByOrder = function(findAllCallBack){
+  var db = openDB();
+  db.all(SQLSTR.FINDALLRECENTBYORDER, findAllCallBack);
   closeDB(db);
 }  
 
@@ -43,25 +57,25 @@ exports.findAll = function(findAllCallBack){
  * @method findById
  *   根据ID查询表中指定数据
  * @param id
- *   documents表中的主键
- * @return documents
+ *   recent表中的主键
+ * @return recent
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
-  db.get(SQLSTR.FINDDOCUMENTBYID, id, findByIdCallBack);
+  db.get(SQLSTR.FINDRECENTBYID, id, findByIdCallBack);
   closeDB(db);
 }
 
 /**
  * @method createItem
- *   增加一条文档信息
+ *   增加一条音乐信息
  * @param item
- *   包含文档信息的数据对象
+ *   包含音乐信息的数据对象
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEDOCUMENT, item.id,item.filename, item.postfix, item.size, item.path, item.project, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, createItemCallBack);
+  db.get(SQLSTR.CREATERECENT, item.tableName,item.specificId,item.lastAccessTime,createItemCallBack);
   closeDB(db);
 }
 
@@ -69,12 +83,12 @@ exports.createItem = function(item, createItemCallBack){
  * @method deleteItemById
  *   根据ID删除表中指定数据
  * @param id
- *   documents表中的主键
+ *   recent表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
-  console.log("delete document id : " + id);
+  console.log("delete recent id : " + id);
   var db = openDB();
-  db.get(SQLSTR.DELETEDOCUMENT, id, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETERECENT, id, deleteItemByIdCallBack);
   closeDB(db);
 }
 
@@ -82,15 +96,32 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  * @method updateItemValue
  *   更新指定ID的某一个key
  * @param id
- *   pictures表中的主键
+ *   recent表中的主键
  */
 exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   var db = openDB();
-    console.log("udpate documents id : " + id);
+    console.log("udpate recent id : " + id);
         console.log("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE documents SET "+key+" = '"+value+"' WHERE id = "+id;
+  var sqlstr="UPDATE recent SET "+key+" = '"+value+"' WHERE id = "+id;
   console.log("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method updateTime
+ *   更新最近访问时间
+ * @param tableName,dataId,time
+ *   
+ */
+exports.updateTime = function(tableName,dataId,time, updateTimeCb){
+  var db = openDB();
+  console.log("udpate recent id : " + dataId);
+  //console.log("udpate key=" + key + 'value='+value);
+
+  var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE tableName = '"+tableName+"' and specificId = "+dataId;
+  console.log("sqlstr:" +sqlstr);
+  db.run(sqlstr,updateTimeCb);
   closeDB(db);
 }
