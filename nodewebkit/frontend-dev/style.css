@@ -46,7 +46,7 @@ body {
 .file.focus .icon {
   -webkit-filter: invert(20%);
 }
-/*modify parameter in bootstrap-3.1.1*/
+/*****modify for bootstrap-3.1.1*****/
 .breadcrumb .active a {
   color: #333333;
 }
@@ -58,7 +58,16 @@ body {
   margin-left: -15px;
   margin-bottom: 6px;
 }
-/*add later by xifei*/
+.dropdown-menu li > a:hover,
+.dropdown-menu .active > a,
+.dropdown-menu .active > a:hover {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #0088cc;
+}
+/*****add later by wangyu*****/
+
+/*****add later by xifei*****/
 #main{
     padding-right: 20px;
     padding-left: 20px;
