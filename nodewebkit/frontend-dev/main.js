@@ -12,8 +12,10 @@ global.$ = $;
 //    function get_data(text){
 //	console.log('data from server:', text);
 //    }
+
 $(document).ready(function() {
     //getAllCate(get_data);
+    configuration();
     var sidebar = new SideBar($('#sidebar'));
 	var folder = new Folder($('#files'), $('#sidebar'));
 	var addressbar = new AddressBar($('#addressbar'));
@@ -61,3 +63,33 @@ $(document).ready(function() {
 		folder.open(dir);
 	});
 });
+
+
+function configuration(){
+    //$(function () { $("[data-toggle='popover']").popover(); });
+    // for qrcode popover
+    $('#qrcode').on('click', function(){
+        $('#qrcode').popover({
+        html: true,
+        title: '扫描二维码',    
+        //container: 'body',
+        content: function () {
+            var div_qr=$('<div></div>');
+            var url='http://www.baidu.com'
+            jQuery(function(){
+                div_qr.qrcode({
+                    text: url,
+                    width: 150,
+                    height: 150
+                });
+            });
+            return div_qr;
+         }
+        });
+        console.log('qrcode button is pressed.');
+    });
+	//to prevent default context menu
+    $('body').bind('contextmenu', function(e) {
+        return false;
+    });
+}
