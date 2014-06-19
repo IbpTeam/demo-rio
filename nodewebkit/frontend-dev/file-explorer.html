@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta content="text/html; charset=UTF-8" http-equiv="content-type">
 <!--script type="text/javascript" src="js/jquery-1.7.2.js"></script-->
-<link  type="text/css" rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.4.custom.css">
+<link  type="text/css" rel="stylesheet" href="jquery-ui-1.10.4/css/ui-lightness/jquery-ui-1.10.4.custom.css">
 <script src="jquery-ui-1.10.4/js/jquery-1.10.2.js"></script>
 <script src="jquery-ui-1.10.4/js/jquery-ui-1.10.4.custom.js"></script>
 <script src="js/jquery.qrcode.min.js"></script>
@@ -25,11 +25,11 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
-<div id="frontend" style="position: absolute; left: 8px; right: 8px; top: 10px; bottom: 10px;">
+<div style="position: absolute; left: 8px; right: 8px; top: 10px; bottom: 10px;">
 	<div class="container-fluid show-grid" style="height: 100%">
-	<div class="row" style="height: 100%">
+	<div id="frontend" class="row" style="height: 100%">
 		<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-		<div id="sidebar" class="well well-sm">
+		<div id="sidebar" class="row">
 			<ul id="favorites" class="nav nav-list">
 				<!--
 				<li class="nav-header">Favorites</li>
@@ -52,10 +52,9 @@ $(document).ready(function(){
 		<div id="main" class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
 			<div class="row">
 				<ul id="addressbar" class="breadcrumb"></ul>
-				<button id="qrcode" style="position:absolute; right:0px; top:0px; color:black; padding: 4px; line-height:1; font-size: 26px" type="button" class="btn btn-default" data-toggle="popover" data-placement="auto"><span class="glyphicon glyphicon-qrcode"></span></button>
-				
+				<button id="qrcode" type="button" class="btn btn-default" data-toggle="popover"><span class="glyphicon glyphicon-qrcode"></span></button>
 			</div>
-			<div class="row" style="height:90%; background: #FFF; -webkit-border-radius: 2px; overflow: auto">
+			<div class="row" style="height:85%; background: #FFF; -webkit-border-radius: 2px; overflow: auto">
 				<ul id="files" style="margin: 5px; padding:0px"></ul>
 			</div>
 		</div>
