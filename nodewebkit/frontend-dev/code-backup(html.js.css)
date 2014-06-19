@@ -24,3 +24,9 @@
 //        console.log("we emit do_filter signal.");
 //        global_self.emit('do_filter', data_json);
 //    });
+
+            
+//            var offset = self.element.parent().offset();
+//            console.log('page:', e.pageX, e.pageY);
+//            console.log('offset:', offset.left, offset.top);
+//    		  console.log('e.target', e.target.toString());

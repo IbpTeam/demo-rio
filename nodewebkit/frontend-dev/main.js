@@ -116,6 +116,7 @@ function configuration(){
 //        console.log('frontend', $('#frontend').offset().top, $('#frontend').offset().left, $('#frontend').width(), $('#frontend').height(), $('#frontend').css('padding-top'), $('#frontend').css('padding-left'));
 //        console.log('qrcode-button', $(this).offset().top, $(this).offset().left, $(this).width(), $(this).height(), $(this).css('padding-top'), $(this).css('padding-left'));
     });
+
     
 	//to prevent default context menu
     $('body').bind('contextmenu', function(e) {
