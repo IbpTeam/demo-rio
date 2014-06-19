@@ -1,19 +1,57 @@
 <html>
 <head>
-<title>db-check</title>
-<script type="text/javascript" src="js/jquery-1.7.2.js"></script>
+<title>db-managre</title>
+<meta charset="UTF-8">
+<script src="jquery-ui-1.10.4/js/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="../backend/api.js"></script>
 <script type="text/javascript" src="../backend/apiHttpHandle.js"></script>
 </head>
-<meta charset="UTF-8">
 
 <body>
 
 <script>
+var frontend_local = 'Nodejs';
+function browser(){
+  var ua = window.navigator.userAgent,
+      ret = "";
+  console.log('ua', ua);
+  if(/Firefox/g.test(ua)){
+    ua = ua.split(" ");
+    ret="Firefox|"+ua[ua.length-1].split("/")[1];
+  }
+  else if(/Nodejs/g.test(ua)){
+    ua = ua.split(" ");
+    ret = frontend_local + "|"+ua[ua.length-1].split("/")[1];
+  }
+  else if(/MSIE/g.test(ua)){
+    ua = ua.split(";");
+    ret = "IE|"+ua[1].split(" ")[2];
+  }
+  else if(/Opera/g.test(ua)){
+    ua = ua.split(" ");
+    ret = "Opera|"+ua[ua.length-1].split("/")[1];
+  }
+  else if(/Chrome/g.test(ua)){
+    ua = ua.split(" ");
+    ret = "Chrome|"+ua[ua.length-2].split("/")[1];
+  }
+  else if(/^apple\s+/i.test(window.navigator.vendor)){
+    ua = ua.split(" ");
+    ret = "Safair|"+ua[ua.length-2].split("/")[1];
+  }
+  else{
+    ret = "未知浏览器";
+  }
+  return ret.split("|");
+}
+var r=browser();
+var frontend_type = r[0];
+console.log('in db-manager.html, you are using', frontend_type);
+
 function loadResourcesCb(result){
     $("body").css("cursor", "default");
     console.log('end of load resource callback.');
-  document.write(result);
+    document.write(result);
 }
 //API loadResources:读取某个资源文件夹到数据库
 //返回字符串：
@@ -24,29 +62,29 @@ function loadResources(loadResourcesCb,path) {
         path = $('div#db_add #dir_path').text();
     }
     $("body").css("cursor", "wait");
-  console.log("Request handler 'loadResources' was called.");
-  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-  var r=browser();
-  console.log('You are using ' + r[0]);  
-  if(r[0]=="Fuck")  {
-    var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.loadResourcesFromLocal(loadResourcesCb,path);
-  }else{
-    loadResourcesFromHttp(loadResourcesCb,path);
-  }
+    console.log("Insert data to database...");
+    //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+    var r=browser();
+    console.log('You are using ' + r[0]);  
+    if(r[0]=="Nodejs")  {
+        var apiLocalHandle = require("./backend/apiLocalHandle");
+        apiLocalHandle.loadResourcesFromLocal(loadResourcesCb,path);
+    }else{
+        loadResourcesFromHttp(loadResourcesCb,path);
+    }
 }
 //loadResources(loadResourcesCb,'/home/v1/resources');
- function chooseFile(name) {
+function chooseFile(name) {
     var chooser = document.querySelector(name);
     chooser.addEventListener("change", function(evt) {
-      //console.log(this.value);
-      var dir = this.value;
-      if(dir){
-        //document.getElementById('dir_path')
-        $('div#db_add #dir_path').text(dir);
-        $('div#db_add #btn_insert').css({"display":"inline"});
-        $('div#db_add #btn_choose').val("重新选择路径");
-      }
+        //console.log(this.value);
+        var dir = this.value;
+        if(dir){
+            //document.getElementById('dir_path')
+            $('div#db_add #dir_path').text(dir);
+            $('div#db_add #btn_insert').css({"display":"inline"});
+            $('div#db_add #btn_choose').val("重新选择路径");
+        }
     }, false);
     chooser.click();  
   }
@@ -58,9 +96,6 @@ function loadResources(loadResourcesCb,path) {
     <input id="btn_insert" style="display:none;" type="button" onclick="loadResources(loadResourcesCb)" value="扫描路径下的文件，并加入数据库"></input>
 </div>
 <hr>
-<!--
-<input id="dir_path" type="text"></input><br>
--->
 
 </body>
 </html>
