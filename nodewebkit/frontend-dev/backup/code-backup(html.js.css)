@@ -30,3 +30,147 @@
 //            console.log('page:', e.pageX, e.pageY);
 //            console.log('offset:', offset.left, offset.top);
 //    		  console.log('e.target', e.target.toString());
+
+
+/*main.js*/
+/*console.log(global.__dirname);*/
+/*console.log(global.__filename);*/
+/*console.log("path:" + process.cwd());*/
+
+/*folder_view.js*/
+
+var frontend_local = 'Nodejs';
+function browser(){
+    var ua = window.navigator.userAgent, ret = "";
+    console.log('ua', ua);
+    if(/Nodejs/g.test(ua)){
+        ua = ua.split(" ");
+        ret = frontend_local + "|"+ua[ua.length-1].split("/")[1];
+    }
+    else if(/Firefox/g.test(ua)){
+        ua = ua.split(" ");
+        ret="Firefox|"+ua[ua.length-1].split("/")[1];
+    }
+    else if(/MSIE/g.test(ua)){
+        ua = ua.split(";");
+        ret = "IE|"+ua[1].split(" ")[2];
+    }
+    else if(/Opera/g.test(ua)){
+        ua = ua.split(" ");
+        ret = "Opera|"+ua[ua.length-1].split("/")[1];
+    }
+    else if(/Chrome/g.test(ua)){
+        ua = ua.split(" ");
+        ret = "Chrome|"+ua[ua.length-2].split("/")[1];
+    }
+    else if(/^apple\s+/i.test(window.navigator.vendor)){
+        ua = ua.split(" ");
+        ret = "Safair|"+ua[ua.length-2].split("/")[1];
+    }
+    else{
+        ret = "未知浏览器";
+    }
+    console.log('ret', ret);
+    return ret.split("|");
+}
+var r = browser();
+var frontend_type = r[0];
+//var ip='192.168.160.176';
+var ip = '127.0.0.1';
+var port = ':8888';
+
+function getAllCateFromHttp(getAllCateCb) {
+//  var studentData = CollectionData();
+    var ajax_url = '';
+    console.log('frontend_type', frontend_type);
+    console.log('frontend_local', frontend_local);
+    if(frontend_type == frontend_local){
+        ajax_url = 'http://' + ip + port + '/getAllCate';
+    }else{
+        ajax_url = '/getAllCate';
+    }
+    console.log('ajax_url', ajax_url);
+  $.ajax({
+    url: ajax_url,
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getAllCate","arg":"null"}',
+    success: function(result) {
+      var cates = new Array();
+      result.forEach(function (each){
+        cates.push({
+          id:each.id,
+          type:each.type,
+          path:each.path
+        });
+      });
+      getAllCateCb(cates);
+    },
+    error: function(e) {
+      getAllCateCb(e);
+    }
+  });
+}
+
+function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
+//  var studentData = CollectionData();
+    var ajax_url = '';
+    if(frontend_type == frontend_local){
+        ajax_url = 'http://' + ip + port + '/getAllDataByCate';
+    }else{
+        ajax_url = '/getAllDataByCate';
+    }
+  $.ajax({
+    url: ajax_url,
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getAllDataByCate","arg":"'+cate+'"}',
+    success: function(result) {
+      var cates = new Array();
+      result.forEach(function (each){
+        cates.push({
+          id:each.id,
+          filename:each.filename,
+          postfix:each.postfix,
+          path:each.path
+        });
+      });
+      getAllDataByCateCb(cates);
+    },
+    error: function(e) {
+      getAllDataByCateCb(e);
+    }
+  });
+}
+function getAllContactsFromHttp(getAllContactsCb) {
+//  var studentData = CollectionData();
+    var ajax_url = '';
+    if(frontend_type == frontend_local){
+        ajax_url = 'http://' + ip + port + '/getAllContacts';
+    }else{
+        ajax_url = '/getAllContacts';
+    }
+  $.ajax({
+    url: ajax_url,
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getAllContacts","arg":"null"}',
+    success: function(result) {
+      var contacts = new Array();
+      result.forEach(function (each){
+        contacts.push({
+          id:each.id,
+          name:each.name,
+          photoPath:each.photoPath
+        });
+      });
+      getAllContactsCb(contacts);
+    },
+    error: function(e) {
+      getAllContactsCb(e);
+    }
+  });
+}
