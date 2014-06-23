@@ -109,16 +109,22 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
     }
     else{
       console.log("read data : "+ item.path);
-      if(item.path!=null){
+      if(item.postfix==null){
+        var source={
+          openmethod:'direct',
+          content:item.photoPath
+        };
+      }
+      else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
         var source={
           openmethod:'direct',
           content:item.path
         };
       }
-      else{
+      else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
         var source={
-          openmethod:'direct',
-          content:item.photoPath
+          openmethod:'local',
+          content:item.path
         };
       }
       getDataSourceByIdCb(source);

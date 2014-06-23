@@ -220,20 +220,37 @@ function getDataSourceByIdInHttpServer(response, postData) {
       }
       else{
         console.log("read data : "+ item.path);
-        if(item.path!=null){
-          var path='http://localhost:8888'+item.path+'?query=absolute';
+        if(item.postfix==null){
+          var source={
+            openmethod:'direct',
+            content:'http://localhost:8888'+item.photoPath+'?query=absolute'
+          };
+          var json=JSON.stringify(source);
+          response.writeHead(200, {"Content-Type": "text/plain"});
+          response.write(json);
+          response.end();
         }
-        else{
-          var path='http://localhost:8888'+item.photoPath+'?query=absolute';
-        }      
-        var source={
-          openmethod:'direct',
-          content:path
-        };
-        var json=JSON.stringify(source);
-        response.writeHead(200, {"Content-Type": "text/plain"});
-        response.write(json);
-        response.end();
+        else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
+          var source={
+            openmethod:'direct',
+            content:'http://localhost:8888'+item.path+'?query=absolute'
+          };
+          var json=JSON.stringify(source);
+          response.writeHead(200, {"Content-Type": "text/plain"});
+          response.write(json);
+          response.end();
+        }
+        else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+          var source={
+            openmethod:'remote',
+            content:9876
+          };
+          var json=JSON.stringify(source);
+          response.writeHead(200, {"Content-Type": "text/plain"});
+          response.write(json);
+          response.end();
+        }
+
         var currentTime = (new Date()).getTime();
         
         console.log("time: "+ currentTime);
