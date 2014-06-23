@@ -27,7 +27,8 @@ $(document).ready(function() {
 		if (mime['props'].type == 'folder') {
 		    sidebar.set_favorites_focus(mime);
 			addressbar.enter(mime);
-		} else {
+		}
+		else {
 			//shell.openItem(mime.path);
 			var file_propery='';
 		    for(var key in mime){
