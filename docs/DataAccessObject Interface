@@ -1,0 +1,67 @@
+#API
+Data Objects:
+
+Category = {
+  id:
+  type:
+  desc:
+  logoPath:
+}
+
+Contact = {
+  id:
+  name:
+  phone:
+  sex:
+  age:
+  email:
+  photoPath:
+  createTime:
+  lastModifyTime:
+  }
+
+Picture = {
+  id:
+  filename:
+  postfix:
+  size:
+  path:
+  location:
+  createTime:
+  lastModifyTime:
+  others:
+}
+
+Videos = {
+  id:
+  name:
+  postfix:
+  size:
+  type:
+  path:
+  createTime:
+  lastModifyTime:
+  others:
+}
+
+
+
+CommonDAO#createItem(category, item, callback)
+方法：创建一条新数据记录,此方法只针对已有信息类别进行增加。
+  1)category : String类型，类别名称，如:Pictures
+
+  2)item : 与类别相对应的包含新建数据信息的对象,如联系人数据对象
+    item = {
+    id:null,
+    name:'zhang',
+    phone:'1234',
+    sex:'male',
+    age:'17',
+    email:'test@163.com',
+    photoPath:'./resource/photo/test.jpg',
+    createTime:'2014-05-30',
+    lastModifyTime:'2342345'
+    }
+
+  3)callback : 回调函数，如创建失败，将会在控制台中输出错误信息，并返回null。
+               创建成功则返回字符串'successfull'。

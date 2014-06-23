@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>HTML Model</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  </head>
+  <body>
+<link rel="stylesheet" type="text/css" href="browser.css">
+
+<div class="demo-box">
+    <div class="page-header">
+        <h1>文件管理器</h1>
+        <ul id="path" class="breadcrumb">
+            <!--<li class="divider">root</li>
+            <li class="active">Jcrop Plugin</li>-->
+        </ul>
+    </div>
+    <div id="content" class="page-content">
+    </div>
+</div>
+
+<script tpye="text/javascript">
+function gettext(){
+    var xhr = new XMLHttpRequest();
+    console.log("before onreadystatechange");
+    xhr.onreadystatechange = function() {
+        console.log(xhr);
+        if (xhr.readyState == 4) {
+            alert(xhr.responseText);
+        }
+    }
+    xhr.open('GET', 'http://www.baidu.com', true);
+    xhr.send(null);
+}
+function print_json(){
+	var file_arch_json={
+		"root":[
+		        {"id":"0", "name":"音乐"},
+		        {"id":"1", "name":"视频"}, 
+		        {"id":"2", "name":"图像"},
+		        {"id":"3", "name":"游戏"},
+		        {"id":"4", "name":"联系人"},
+		        {"id":"5", "name":"电子书"},
+		        {"id":"6", "name":"小说"},
+		        {"id":"7", "name":"电影"},
+		        {"id":"8", "name":"歌曲"}
+		        ],
+		    "root/音乐":[
+		        {"id":"0", "name":"音乐.mp3"},
+		        {"id":"1", "name":"视频.mp3"}, 
+		        {"id":"2", "name":"图像.mp3"},
+		        {"id":"3", "name":"游戏.mp3"},
+		        {"id":"4", "name":"联系人.mp3"},
+		        {"id":"5", "name":"电子书.mp3"},
+		        {"id":"6", "name":"小说.mp3"},
+		        {"id":"7", "name":"电影.mp3"},
+		        {"id":"8", "name":"歌曲.mp3"}
+		        ],
+		    };
+    var str = '{ "name": "Violet", "occupation": "character" }';
+    console.log('file_arch_json:' + JSON.stringify(file_arch_json['root']));
+    //var obj = str.parseJSON();   
+    //console.log(obj.toJSONString());   
+}
+
+function on_mouse_long_press(event){
+	cur_id = this.id;
+    cur_ele = document.getElementById(this.id);
+	elementToDrag = this;
+    if (document.addEventListener) {
+        //document.addEventListener("mousemove", moveHandler, true);
+        document.addEventListener("mouseup", upHandler, true);
+    }
+    else if (document.attachEvent) {
+        elementToDrag.setCapture();
+        //elementToDrag.attachEvent("onmousemove", moveHandler);
+        elementToDrag.attachEvent("onmouseup", upHandler);
+        elementToDrag.attachEvent("onlosecapture", upHandler);
+    }
+	if (event.stopPropagation) event.stopPropagation();
+    else event.cancelBubble = true;
+    if (event.preventDefault) event.preventDefault();
+    else event.returnValue = false;
+
+    var time_cnt = 0;
+    timer = setInterval(function() {
+    	time_cnt += 10;
+        if (time_cnt >= 100) {
+            clearInterval(timer);
+            alert('time out');
+        }
+    }, 10)
+    /**
+     * This is the handler that captures the final mouseup event that
+     * occurs at the end of a drag.
+     **/
+    function upHandler(e) {
+    	clearInterval(timer);
+        if (!e) e = window.event;  // IE Event Model
+
+        // Unregister the capturing event handlers.
+        if (document.removeEventListener) {  // DOM event model
+            document.removeEventListener("mouseup", upHandler, true);
+            //document.removeEventListener("mousemove", moveHandler, true);
+        }
+        else if (document.detachEvent) {  // IE 5+ Event Model
+            elementToDrag.detachEvent("onlosecapture", upHandler);
+            elementToDrag.detachEvent("onmouseup", upHandler);
+            //elementToDrag.detachEvent("onmousemove", moveHandler);
+            elementToDrag.releaseCapture();
+        }
+
+        // And don't let the event propagate any further.
+        if (e.stopPropagation) e.stopPropagation();  // Standard model
+        else e.cancelBubble = true;                  // IE
+    }
+}
+document.onmousedown = on_mouse_long_press;
+window.onload = print_json;
+</script>
+  </body>
+</html>
