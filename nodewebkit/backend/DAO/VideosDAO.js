@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
@@ -85,11 +86,11 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  */
 exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   var db = openDB();
-    console.log("udpate vidoes id : " + id);
-        console.log("udpate key=" + key + 'value='+value);
+    config.dblog("udpate vidoes id : " + id);
+        config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
   var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"' WHERE id = "+id;
-  console.log("sqlstr:" +sqlstr);
+  config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }

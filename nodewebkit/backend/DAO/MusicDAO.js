@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
@@ -72,7 +73,7 @@ exports.createItem = function(item, createItemCallBack){
  *   music表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
-  console.log("delete music id : " + id);
+  config.dblog("delete music id : " + id);
   var db = openDB();
   db.get(SQLSTR.DELETEMUSIC, id, deleteItemByIdCallBack);
   closeDB(db);
@@ -86,11 +87,11 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  */
 exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   var db = openDB();
-    console.log("udpate music id : " + id);
-        console.log("udpate key=" + key + 'value='+value);
+  config.dblog("udpate music id : " + id);
+  config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
   var sqlstr="UPDATE music SET "+key+" = '"+value+"' WHERE id = "+id;
-  console.log("sqlstr:" +sqlstr);
+  config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }

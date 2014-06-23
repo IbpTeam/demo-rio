@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
