@@ -31,6 +31,7 @@ function start(route, handle) {
   }
 
   http.createServer(onRequest).listen(PORT);
+
   config.riolog("Server has started.");
   filesHandle.monitorFiles('/home/v1/resources');
 }
