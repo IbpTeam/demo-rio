@@ -174,3 +174,41 @@ function getAllContactsFromHttp(getAllContactsCb) {
     }
   });
 }
+
+
+/*main.js*/
+//global.$ = $;
+//global.getAllCate = getAllCate;
+//global.getAllDataByCate = getAllDataByCate;
+//global.rmDataById = rmDataById;
+//global.getDataById = getDataById;
+//global.getDataSourceById = getDataSourceById;
+//global.updateDataValue = updateDataValue;
+//global.getRecentAccessData = getRecentAccessData;
+//var rel_path = '';//./frontend-dev/node_modules/
+//var sbar = require("side_bar.js");
+//var abar = require("address_bar.js");
+//var folder_view = require('folder_view.js');
+
+//var path = require('path');
+//var shell = require('nw.gui').Shell;
+
+
+//    var sidebar = new sbar.SideBar($('#sidebar'));
+//	var addressbar = new abar.AddressBar($('#addressbar'));
+//	var folder = new folder_view.Folder($('#files'));
+//process.cwd()
+
+	folder.on('navigate', function(event, mime) {
+//		if (mime['props'].type == 'folder') {
+		    sidebar.set_favorites_focus(mime);
+			addressbar.enter(mime);
+//		}
+//		else {
+//			//shell.openItem(mime.path);
+//			var file_propery='';
+//		    for(var key in mime){
+//			    file_propery += key + ':' + mime[key] + '\n';
+//		    }
+//		    alert(file_propery);
+//		}

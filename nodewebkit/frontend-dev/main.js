@@ -1,54 +1,44 @@
-//global.$ = $;
-//global.getAllCate = getAllCate;
-//global.getAllDataByCate = getAllDataByCate;
-//global.rmDataById = rmDataById;
-//global.getDataById = getDataById;
-//global.getDataSourceById = getDataSourceById;
-//global.updateDataValue = updateDataValue;
-//global.getRecentAccessData = getRecentAccessData;
-//var rel_path = '';//./frontend-dev/node_modules/
-//var sbar = require("side_bar.js");
-//var abar = require("address_bar.js");
-//var folder_view = require('folder_view.js');
 
-//var path = require('path');
-//var shell = require('nw.gui').Shell;
 pre_config();
 $(document).ready(function() {
-    //getAllCate(get_data);
+    
     configuration();
-//    var sidebar = new sbar.SideBar($('#sidebar'));
-//	var addressbar = new abar.AddressBar($('#addressbar'));
-//	var folder = new folder_view.Folder($('#files'));
 
-//    if($.eventEmitter){
-//        console.log('*in main.js', $.eventEmitter);
-//    }
     var sidebar = new SideBar($('#sidebar'));
 	var folder = new Folder($('#files'));
 	var addressbar = new AddressBar($('#addressbar'));
-
-	folder.open('root');//process.cwd()
+	
+	folder.open('root');
 	addressbar.set('root');
-
+    
 	folder.on('navigate', function(event, mime) {
-//		if (mime['props'].type == 'folder') {
-		    sidebar.set_favorites_focus(mime);
-			addressbar.enter(mime);
-//		}
-//		else {
-//			//shell.openItem(mime.path);
-//			var file_propery='';
-//		    for(var key in mime){
-//			    file_propery += key + ':' + mime[key] + '\n';
-//		    }
-//		    alert(file_propery);
-//		}
+		sidebar.set_favorites_focus(mime['props'].path);
+		addressbar.enter(mime);
 	});
 	folder.on('set_favorites', function(event) {
 	    var messages = Array.prototype.slice.call(arguments, 1);
 	    //console.log('set favorites2.', messages);
 	    sidebar.set_favorites(messages);
+	        
+        //console.log(window.location);        
+        if(window.location.hash){    
+            var dir = window.location.hash.substr(1);
+            var protocol = window.location.protocol;
+            var host = window.location.host;
+            var pathname = window.location.pathname;
+            var href = protocol + '//' + host + pathname;
+            if(dir){
+                console.log('****dir:', dir);
+    //            var mime = {'props':''};
+    //            mime['props'].path = dir;
+    //		    //folder.open(dir);
+    //		    this.emit('navigate', mime);
+		        folder.open(dir);
+		        addressbar.set(dir);
+		        sidebar.set_favorites_focus(dir);
+		        //window.location = href;
+            }
+        }
 	});
 	folder.on('set_sidebar', function(event){
         var messages = Array.prototype.slice.call(arguments, 1);
@@ -57,9 +47,9 @@ $(document).ready(function() {
         sidebar.set_recent(messages);
     });
     
-	sidebar.on('open_favorite', function(event, dirs) {
-		folder.open(dirs);
-		addressbar.set(dirs);
+	sidebar.on('open_favorite', function(event, dir) {
+		folder.open(dir);
+		addressbar.set(dir);
 	});
     sidebar.on('do_filter', function(event, keyword) {
         console.log('wangyu: on do_filter.');
@@ -72,7 +62,7 @@ $(document).ready(function() {
         //addressbar.set(dir);
     });
 	addressbar.on('navigate', function(event, dir) {
-	    console.log('dir:', dir);
+	    //console.log('dir:', dir);
 		folder.open(dir);
 	});
 });
