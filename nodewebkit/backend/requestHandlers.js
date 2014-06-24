@@ -224,7 +224,7 @@ function getDataSourceByIdInHttpServer(response, postData) {
         if(item.postfix==null){
           var source={
             openmethod:'direct',
-            content:'http://localhost:8888'+item.photoPath+'?query=absolute'
+            content:'http://'+config.SERVERIP+':'+config.SERVERPORT+item.photoPath+'?query=absolute'
           };
           var json=JSON.stringify(source);
           response.writeHead(200, {"Content-Type": "text/plain"});
@@ -234,7 +234,7 @@ function getDataSourceByIdInHttpServer(response, postData) {
         else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
           var source={
             openmethod:'direct',
-            content:'http://localhost:8888'+item.path+'?query=absolute'
+            content:'http://'+config.SERVERIP+':'+config.SERVERPORT+item.path+'?query=absolute'
           };
           var json=JSON.stringify(source);
           response.writeHead(200, {"Content-Type": "text/plain"});
