@@ -32,7 +32,7 @@ function start(route, handle) {
 
   http.createServer(onRequest).listen(PORT);
   console.log("Server has started.");
-  filesHandle.monitorFiles('/home/v1/resources');
+  filesHandle.monitorFiles('/home/wangtan/resources');
 }
 
 exports.start = start;

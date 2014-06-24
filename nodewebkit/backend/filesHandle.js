@@ -245,4 +245,35 @@ function monitorFiles(path){
 }
 exports.monitorFiles = monitorFiles;
 
+function openFileByPath(path,callback){
+    var  exec = require('child_process').exec;
+    var comstr = "bash ../backend/vnc/open.sh -doc \"" + path + "\"";
+    //var comstr = "xdg-open " + path;
+    console.log("run vncserver and websockify server ......");
+    console.log("path server: " , comstr);
+    exec(comstr, function(error,stdout,stderr){
+      sys.print('stdout: '+stdout);
+      callback(stdout);
+      sys.print('stderr: '+ error);
+      if (error !== null) {
+        console.log('exec error: '+error);
+      }
+    });
+}
+exports.openFileByPath = openFileByPath;
 
+function closeVNCandWebsockifyServer(port,callback){
+    var  exec = require('child_process').exec;
+    var comstr = "bash ../backend/vnc/close.sh \"" + port + "\"";
+    //var comstr = "xdg-open " + path;
+    console.log("closr vncserver and websockify server ......");
+    exec(comstr, function(error,stdout,stderr){
+      sys.print('stdout: '+stdout);
+      callback(stdout);
+      sys.print('stderr: '+ error);
+      if (error !== null) {
+        console.log('exec error: '+error);
+      }
+    });
+}
+exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
