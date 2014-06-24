@@ -50,24 +50,25 @@ $(document).ready(function() {
 	    //console.log('set favorites2.', messages);
 	    sidebar.set_favorites(messages);
 	});
-	folder.on('set_sidebar', function( dirs){
-        sidebar.set_tags(dirs);
-        sidebar.set_filters(dirs);
-        sidebar.set_recent(dirs);
+	folder.on('set_sidebar', function(event){
+        var messages = Array.prototype.slice.call(arguments, 1);
+        sidebar.set_tags(messages);
+        sidebar.set_filters(messages);
+        sidebar.set_recent(messages);
     });
     
-	sidebar.on('open_favorite', function(event, dir) {
-	    console.log('on open_favorite: ', dir);
-		folder.open(dir);
-		addressbar.set(dir);
+	sidebar.on('open_favorite', function(event, dirs) {
+		folder.open(dirs);
+		addressbar.set(dirs);
 	});
-    sidebar.on('do_filter', function(dir, keyword) {
+    sidebar.on('do_filter', function(event, keyword) {
         console.log('wangyu: on do_filter.');
-        sidebar.do_filter(dir, keyword);
+        var messages = Array.prototype.slice.call(arguments, 1);
+        sidebar.do_filter(messages, keyword);
     });
-    sidebar.on('show_filter_result', function(filter_json) {
-        console.log('wangyu:', filter_json);
-        folder.get_callback_data(filter_json);
+    sidebar.on('show_filter_result', function(event) {
+        var messages = Array.prototype.slice.call(arguments, 1);
+        folder.get_callback_data(messages);
         //addressbar.set(dir);
     });
 	addressbar.on('navigate', function(event, dir) {
