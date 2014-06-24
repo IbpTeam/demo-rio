@@ -242,14 +242,16 @@ function getDataSourceByIdInHttpServer(response, postData) {
           response.end();
         }
         else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+          filesHandle.openFileByPath(item.path,function(port){
           var source={
             openmethod:'remote',
-            content:9876
+            content:port
           };
           var json=JSON.stringify(source);
           response.writeHead(200, {"Content-Type": "text/plain"});
           response.write(json);
           response.end();
+        });
         }
 
         var currentTime = (new Date()).getTime();
@@ -401,3 +403,26 @@ function getRecentAccessDataInHttpServer(response, postData) {
   }
 }
 exports.getRecentAccessDataInHttpServer = getRecentAccessDataInHttpServer;
+
+// close vncserver and websockifyserver on server
+function closeVNCandWebsockifyServerInHttpServer(response, postData){
+    console.log("Request handler 'closeVNCandWebsockServerInHttpServer' was called");
+    console.log("postData");
+    postDataJson=JSON.parse(postData);
+    console.log("arg:****** "+postDataJson.arg);
+    if (postDataJson.func != 'closeVNCandWebsockServer') {
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.write("error func");
+      response.end();
+    }
+    else {
+      websockifyPort = postDataJson.arg;
+      filesHandle.closeVNCandWebsockifyServer(websockifyPort,function(state){
+        var json = JSON.stringify(state);
+        response.writeHead(200, {"Content-Type": "application/json"});
+        response.write(json);
+        response.end();
+      });
+    }
+}
+exports.closeVNCandWebsockifyServerInHttpServer = closeVNCandWebsockifyServerInHttpServer;
