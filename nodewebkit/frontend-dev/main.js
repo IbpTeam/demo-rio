@@ -10,7 +10,30 @@ $(document).ready(function() {
 	
 	folder.open('root');
 	addressbar.set('root');
-    
+
+        
+        //console.log(window.location);        
+        if(window.location.hash){
+            var dir = window.location.hash.substr(1);
+            var protocol = window.location.protocol;
+            var host = window.location.host;
+            var pathname = window.location.pathname;
+            var href = protocol + '//' + host + pathname;
+            if(dir){
+                //console.log('****dir:', dir);
+    //            var mime = {'props':''};
+    //            mime['props'].path = dir;
+    //		    //folder.open(dir);
+    //		    this.emit('navigate', mime);
+		        folder.open(dir);
+		        addressbar.set(dir);
+		        sidebar.set_favorites_focus(dir);
+		        //window.location.hash = '#';
+		        //window.location.href = href;
+		        //window.event.returnValue=false;
+		        //console.log('6666666666666666666',window.location);   
+            }
+        }
 	folder.on('navigate', function(event, mime) {
 		sidebar.set_favorites_focus(mime['props'].path);
 		addressbar.enter(mime);
@@ -19,26 +42,7 @@ $(document).ready(function() {
 	    var messages = Array.prototype.slice.call(arguments, 1);
 	    //console.log('set favorites2.', messages);
 	    sidebar.set_favorites(messages);
-	        
-        //console.log(window.location);        
-        if(window.location.hash){    
-            var dir = window.location.hash.substr(1);
-            var protocol = window.location.protocol;
-            var host = window.location.host;
-            var pathname = window.location.pathname;
-            var href = protocol + '//' + host + pathname;
-            if(dir){
-                console.log('****dir:', dir);
-    //            var mime = {'props':''};
-    //            mime['props'].path = dir;
-    //		    //folder.open(dir);
-    //		    this.emit('navigate', mime);
-		        folder.open(dir);
-		        addressbar.set(dir);
-		        sidebar.set_favorites_focus(dir);
-		        //window.location = href;
-            }
-        }
+
 	});
 	folder.on('set_sidebar', function(event){
         var messages = Array.prototype.slice.call(arguments, 1);
@@ -62,7 +66,7 @@ $(document).ready(function() {
         //addressbar.set(dir);
     });
 	addressbar.on('navigate', function(event, dir) {
-	    //console.log('dir:', dir);
+	    //console.log('**************dir:', dir);
 		folder.open(dir);
 	});
 });

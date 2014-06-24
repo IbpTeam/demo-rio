@@ -39,6 +39,12 @@
 
 /*folder_view.js*/
 
+    
+//    var pos = content.lastIndexOf(".");
+//    var suffix = '';
+//    if(pos != -1){
+//        suffix = content.substr(pos+1).toLowerCase();
+//    }
 var frontend_local = 'Nodejs';
 function browser(){
     var ua = window.navigator.userAgent, ret = "";
