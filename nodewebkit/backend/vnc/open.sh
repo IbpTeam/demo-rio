@@ -9,8 +9,9 @@
 WEBSOCKIFY_PORT=5958
 VNC_PORT=1 
 HOST="localhost"
-W_DIR="/home/wangtan/demo-rio/nodewebkit/backend/vnc/noVNC/utils"
-X_DIR="/home/wangtan/.vnc";
+VNCPATH=$(cd "$(dirname $0)";pwd)
+W_DIR="$VNCPATH/noVNC/utils";
+X_DIR="$HOME/.vnc";
 
 if [ $# != 2 ] 
 then
