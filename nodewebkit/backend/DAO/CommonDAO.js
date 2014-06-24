@@ -404,3 +404,11 @@ exports.getRecentByOrder = function(callback){
     callback(recent);
   });
 }
+
+exports.queryItemInAllByStr = function(str, callback){
+  var itemArray = {};
+  contactsDAO.findAllByStr(str, function(contacts){
+    itemArray.push(items);
+    callback(itemArray);
+});
+}
