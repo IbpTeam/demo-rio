@@ -12,17 +12,17 @@ var PORT = 8888;
 function start(route, handle) {
   function onRequest(request, response) {
     var postData = "";
-        console.log(url.parse(request.url));
+    config.riolog(url.parse(request.url));
     var pathname = url.parse(request.url).pathname;
     var absolute = url.parse(request.url).query;
 
-    console.log("Request for " + pathname + " received.");
-    console.log("Request for " + absolute );
+    config.riolog("Request for " + pathname + " received.");
+    config.riolog("Request for " + absolute );
     request.setEncoding("utf8");
 
     request.addListener("data", function(postDataChunk) {
       postData += postDataChunk;
-      console.log("Received POST data chunk '"+ postDataChunk + "'.");
+      config.riolog("Received POST data chunk '"+ postDataChunk + "'.");
     });
     request.addListener("end", function() {
       route(handle, pathname, absolute, response, postData);
@@ -31,8 +31,9 @@ function start(route, handle) {
   }
 
   http.createServer(onRequest).listen(PORT);
-  console.log("Server has started.");
-  filesHandle.monitorFiles('/home/wangtan/resources');
+
+  config.riolog("Server has started.");
+  filesHandle.monitorFiles('/home/v1/resources');
 }
 
 exports.start = start;

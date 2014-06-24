@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
@@ -86,7 +87,7 @@ exports.createItem = function(item, createItemCallBack){
  *   recent表中的主键
  */
 exports.deleteItemById = function(id, deleteItemByIdCallBack){
-  console.log("delete recent id : " + id);
+  config.dblog("delete recent id : " + id);
   var db = openDB();
   db.get(SQLSTR.DELETERECENT, id, deleteItemByIdCallBack);
   closeDB(db);
@@ -100,11 +101,11 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  */
 exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   var db = openDB();
-    console.log("udpate recent id : " + id);
-        console.log("udpate key=" + key + 'value='+value);
+  config.dblog("udpate recent id : " + id);
+  config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
   var sqlstr="UPDATE recent SET "+key+" = '"+value+"' WHERE id = "+id;
-  console.log("sqlstr:" +sqlstr);
+  config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }
@@ -117,11 +118,11 @@ exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
  */
 exports.updateTime = function(tableName,dataId,time, updateTimeCb){
   var db = openDB();
-  console.log("udpate recent id : " + dataId);
+  config.dblog("udpate recent id : " + dataId);
   //console.log("udpate key=" + key + 'value='+value);
 
   var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE tableName = '"+tableName+"' and specificId = "+dataId;
-  console.log("sqlstr:" +sqlstr);
+  config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateTimeCb);
   closeDB(db);
 }

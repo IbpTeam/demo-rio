@@ -6,13 +6,14 @@ var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
 var musicDAO = require("./MusicDAO");
 var recentDAO = require("./RecentDAO");
+var config = require("../config");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
     case 'Contacts' : {
       contactsDAO.findAll(function(err, contacts){
         if(err){
-          console.log(err);
+          config.dblog(err);
           callback(null)
         }
         contacts.forEach(function(contact){
@@ -26,7 +27,7 @@ exports.getAllByCateroty = function(caterogy, callback) {
     case 'Pictures' : {
       picturesDAO.findAll(function(err, pictures){
         if(err){
-          console.log(err);
+          config.dblog(err);
           callback(null)
         }
         pictures.forEach(function(picture){
@@ -40,7 +41,7 @@ exports.getAllByCateroty = function(caterogy, callback) {
     case 'Videos' : {
       videosDAO.findAll(function(err, videos){
         if(err){
-          console.log(err);
+          config.dblog(err);
           callback(null)
         }
         videos.forEach(function(video){
@@ -54,7 +55,7 @@ exports.getAllByCateroty = function(caterogy, callback) {
     case 'Documents' : {
       documentsDAO.findAll(function(err, documents){
         if(err){
-          console.log(err);
+          config.dblog(err);
           callback(null)
         }
         documents.forEach(function(document){
@@ -68,7 +69,7 @@ exports.getAllByCateroty = function(caterogy, callback) {
     case 'Music' : {
       musicDAO.findAll(function(err, music){
         if(err){
-          console.log(err);
+          config.dblog(err);
           callback(null)
         }
         music.forEach(function(each){
@@ -84,7 +85,7 @@ exports.getAllByCateroty = function(caterogy, callback) {
 exports.getCategories = function(callback){
   categoryDAO.findAll(function(err, categories){
     if(err){
-      console.log(err);
+      config.dblog(err);
       callback(null);
     }
     categories.forEach(function(categorie){
@@ -95,12 +96,12 @@ exports.getCategories = function(callback){
 }
 
 exports.getItemById = function(id, callback){
-  console.log("get id:" + id);
+  config.dblog("get id:" + id);
   var index=id.indexOf('#');
   var tableId=id.substring(0,index);
   var dataId=id.substr(index+1);
-    console.log("tableId id:" + tableId);
-        console.log("dataId id:" + dataId);
+    config.dblog("tableId id:" + tableId);
+        config.dblog("dataId id:" + dataId);
   switch(tableId){
     case '1' : {
       contactsDAO.findById(dataId,function(err,item){
@@ -180,7 +181,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Pictures' : {
-      console.log('insert picture');
+      config.dblog('insert picture');
       picturesDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -192,7 +193,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Videos' : {
-      console.log('insert video');
+      config.dblog('insert video');
       videosDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -204,7 +205,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Documents' : {
-      console.log('insert document');
+      config.dblog('insert document');
       documentsDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -216,7 +217,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'Music' : {
-      console.log('insert music');
+      config.dblog('insert music');
       musicDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -228,7 +229,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
     }
     break;
     case 'recent' : {
-      console.log('insert recent');
+      config.dblog('insert recent');
       recentDAO.createItem(item, function(err){
         if(err){
           callback(category,item,err,loadResourcesCb);
@@ -244,12 +245,12 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
 }
 
 exports.deleteItemById = function(id, callback ,rmDataByIdCb){
-  console.log("delete id:" + id);
+  config.dblog("delete id:" + id);
   var index=id.indexOf('#');
   var tableId=id.substring(0,index);
   var dataId=id.substr(index+1);
-    console.log("tableId id:" + tableId);
-        console.log("dataId id:" + dataId);
+    config.dblog("tableId id:" + tableId);
+        config.dblog("dataId id:" + dataId);
   switch(tableId){
     case '1' : {
       contactsDAO.deleteItemById(dataId, function(err){
@@ -310,13 +311,13 @@ exports.deleteItemById = function(id, callback ,rmDataByIdCb){
 }
 
 exports.updateItemValue = function(id, key, value, callback ){
-  console.log("update id:" + id);
-  console.log("update key:" + key+'='+value);
+  config.dblog("update id:" + id);
+  config.dblog("update key:" + key+'='+value);
   var index=id.indexOf('#');
   var tableId=id.substring(0,index);
   var dataId=id.substr(index+1);
-    console.log("tableId id:" + tableId);
-        console.log("dataId id:" + dataId);
+    config.dblog("tableId id:" + tableId);
+        config.dblog("dataId id:" + dataId);
   switch(tableId){
     case '1' : {
       contactsDAO.updateItemValue(dataId,key,value, function(err){
@@ -324,7 +325,7 @@ exports.updateItemValue = function(id, key, value, callback ){
           callback(id,key,value,err);
         }
         else{
-          console.log("update contacts successfull");
+          config.dblog("update contacts successfull");
           callback(id,key,value,'successfull');
         }
       });
@@ -336,7 +337,7 @@ exports.updateItemValue = function(id, key, value, callback ){
           callback(id,key,value,err);
         }
         else{
-          console.log("update picutres successfull");
+          config.dblog("update picutres successfull");
           callback(id,key,value,'successfull');
         }
       });
@@ -348,7 +349,7 @@ exports.updateItemValue = function(id, key, value, callback ){
           callback(id,key,value,err);
         }
         else{
-          console.log("update videos successfull");
+          config.dblog("update videos successfull");
           callback(id,key,value,'successfull');
         }
       });
@@ -360,7 +361,7 @@ exports.updateItemValue = function(id, key, value, callback ){
           callback(id,key,value,err);
         }
         else{
-          console.log("update documents successfull");
+          config.dblog("update documents successfull");
           callback(id,key,value,'successfull');
         }
       });
@@ -372,7 +373,7 @@ exports.updateItemValue = function(id, key, value, callback ){
           callback(id,key,value,err);
         }
         else{
-          console.log("update musics successfull");
+          config.dblog("update musics successfull");
           callback(id,key,value,'successfull');
         }
       });
@@ -388,7 +389,7 @@ exports.updateRecentTable = function(tableName,dataId,time,callback){
       callback(tableName,dataId,time,err);
     }
     else{
-      console.log("update recent successfull");
+      config.dblog("update recent successfull");
       callback(tableName,dataId,time,'successfull');
     }
   });  
@@ -397,7 +398,7 @@ exports.updateRecentTable = function(tableName,dataId,time,callback){
 exports.getRecentByOrder = function(callback){
   recentDAO.findAllByOrder(function(err, recent){
     if(err){
-      console.log(err);
+      config.dblog(err);
       callback(null);
     }
     callback(recent);

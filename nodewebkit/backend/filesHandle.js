@@ -21,29 +21,29 @@ function createItemCb(category,item,result,loadResourcesCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
-    console.log(item.filename+'insert error:'+result.code);
+    config.riolog(item.filename+'insert error:'+result.code);
     sleep(1000);
     commonDAO.createItem(category,item,createItemCb,loadResourcesCb);
   }
   else if(result=='successfull'){
-    console.log(item.filename+'insert:'+result);
+    config.riolog(item.filename+'insert:'+result);
     if(category=='recent'){
       writeDbRecentNum--;
     }
     else{
       writeDbNum--;
     }
-    console.log('writeDbNum= '+writeDbNum);
-    console.log('writeDbRecentNum= '+writeDbRecentNum);
+    config.riolog('writeDbNum= '+writeDbNum);
+    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
     if(writeDbNum==0 && writeDbRecentNum==0){
-      console.log('Read data complete!');
+      config.riolog('Read data complete!');
       loadResourcesCb('success');
       
     }
   }
   else{
-    console.log(item.filename+'insert:'+result);
-    console.log('Read data failed!');
+    config.riolog(item.filename+'insert:'+result);
+    config.riolog('Read data failed!');
     loadResourcesCb(result);
   }
 }
@@ -53,16 +53,16 @@ function deleteItemCb(id,result,rmDataByIdCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
-    console.log(id+'delete error:'+result.code);
+    config.riolog(id+'delete error:'+result.code);
     sleep(1000);
     commonDAO.deleteItemById(id,deleteItemCb,rmDataByIdCb);
   }
   else if(result=='successfull'){
-    console.log(id+'delete:'+result);
+    config.riolog(id+'delete:'+result);
     rmDataByIdCb('success');
   }
   else{
-    console.log(id+'delete:'+result);
+    config.riolog(id+'delete:'+result);
     rmDataByIdCb(result);
   }
 }
@@ -70,7 +70,7 @@ exports.deleteItemCb = deleteItemCb;
 
 function syncDb(loadResourcesCb,resourcePath)
 {
-  console.log("syncDB ..............");
+  config.riolog("syncDB ..............");
   var fileList = new Array();
   function walk(path){  
     var dirList = fs.readdirSync(path);
@@ -84,11 +84,11 @@ function syncDb(loadResourcesCb,resourcePath)
     });
   }
   walk(resourcePath);
-  console.log(fileList); 
+  config.riolog(fileList); 
   writeDbNum=fileList.length;
   writeDbRecentNum=writeDbNum;
-  console.log('writeDbNum= '+writeDbNum);
-  console.log('writeDbRecentNum= '+writeDbRecentNum);
+  config.riolog('writeDbNum= '+writeDbNum);
+  config.riolog('writeDbRecentNum= '+writeDbRecentNum);
   var contactId=0;
   var documentId=0;
   var pictureId=0;
@@ -98,17 +98,17 @@ function syncDb(loadResourcesCb,resourcePath)
     var itemPostfix=item.substr(pointIndex+1);
     var nameindex=item.lastIndexOf('/');
     var itemFilename=item.substring(nameindex+1,pointIndex);
-    console.log("read file "+item);
+    config.riolog("read file "+item);
 
     if(itemPostfix == 'contacts'){
-              console.log("postfix= "+itemPostfix);
+              config.riolog("postfix= "+itemPostfix);
       fs.readFile(item, function (err, data) {
         var json=JSON.parse(data);
-        console.log(json);
+        config.riolog(json);
         writeDbNum+=json.length-1;
         writeDbRecentNum+=json.length-1;
-        console.log('writeDbNum= '+writeDbNum);
-        console.log('writeDbRecentNum= '+writeDbRecentNum);
+        config.riolog('writeDbNum= '+writeDbNum);
+        config.riolog('writeDbRecentNum= '+writeDbRecentNum);
         json.forEach(function(each){
           var category='Contacts';
           contactId++;
@@ -142,9 +142,9 @@ function syncDb(loadResourcesCb,resourcePath)
         var mtime=stat.mtime;
         var ctime=stat.ctime;
         var size=stat.size;
-        console.log('mtime:'+mtime);
-        console.log('ctime:'+ctime);
-        console.log('size:'+size);
+        config.riolog('mtime:'+mtime);
+        config.riolog('ctime:'+ctime);
+        config.riolog('size:'+size);
         if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx'){
           var category='Documents';
           documentId++;
@@ -234,12 +234,12 @@ exports.syncDb = syncDb;
 
 function monitorFiles(path){
   fs.watch(path, function (event, filename) {
-    console.log('event is: ' + event);
+    config.riolog('event is: ' + event);
     if(filename){
-      console.log('filename provided: ' + filename);
+      config.riolog('filename provided: ' + filename);
     } 
     else{
-      console.log('filename not provided');
+      config.riolog('filename not provided');
     }
   });
 }
