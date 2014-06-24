@@ -1,52 +1,62 @@
-global.$ = $;
+//global.$ = $;
+//global.getAllCate = getAllCate;
+//global.getAllDataByCate = getAllDataByCate;
+//global.rmDataById = rmDataById;
+//global.getDataById = getDataById;
+//global.getDataSourceById = getDataSourceById;
+//global.updateDataValue = updateDataValue;
+//global.getRecentAccessData = getRecentAccessData;
+//var rel_path = '';//./frontend-dev/node_modules/
+//var sbar = require("side_bar.js");
+//var abar = require("address_bar.js");
+//var folder_view = require('folder_view.js');
 
-//console.log(global.__dirname);
-//console.log(global.__filename);
-//console.log("path:" + process.cwd());
-//var sbar = require("side_bar.js");//./file-explorer/node_modules/
-//var abar = require("address_bar.js");//./file-explorer/node_modules/
-//var folder_view = require('folder_view.js');//./file-explorer/node_modules/
 //var path = require('path');
 //var shell = require('nw.gui').Shell;
-
-//    function get_data(text){
-//	console.log('data from server:', text);
-//    }
-
+pre_config();
 $(document).ready(function() {
     //getAllCate(get_data);
     configuration();
+//    var sidebar = new sbar.SideBar($('#sidebar'));
+//	var addressbar = new abar.AddressBar($('#addressbar'));
+//	var folder = new folder_view.Folder($('#files'));
+
+//    if($.eventEmitter){
+//        console.log('*in main.js', $.eventEmitter);
+//    }
     var sidebar = new SideBar($('#sidebar'));
 	var folder = new Folder($('#files'));
 	var addressbar = new AddressBar($('#addressbar'));
 
 	folder.open('root');//process.cwd()
-	addressbar.set('root');//
+	addressbar.set('root');
 
-	folder.on('navigate', function(mime) {
-		if (mime['props'].type == 'folder') {
+	folder.on('navigate', function(event, mime) {
+//		if (mime['props'].type == 'folder') {
 		    sidebar.set_favorites_focus(mime);
 			addressbar.enter(mime);
-		}
-		else {
-			//shell.openItem(mime.path);
-			var file_propery='';
-		    for(var key in mime){
-			    file_propery += key + ':' + mime[key] + '\n';
-		    }
-		    alert(file_propery);
-		}
+//		}
+//		else {
+//			//shell.openItem(mime.path);
+//			var file_propery='';
+//		    for(var key in mime){
+//			    file_propery += key + ':' + mime[key] + '\n';
+//		    }
+//		    alert(file_propery);
+//		}
 	});
-	folder.on('folder_set_favorites', function(dirs) {
-	    sidebar.set_favorites(dirs);
+	folder.on('set_favorites', function(event) {
+	    var messages = Array.prototype.slice.call(arguments, 1);
+	    //console.log('set favorites2.', messages);
+	    sidebar.set_favorites(messages);
 	});
-	folder.on('folder_set_sidebar', function(dirs){
+	folder.on('set_sidebar', function( dirs){
         sidebar.set_tags(dirs);
         sidebar.set_filters(dirs);
         sidebar.set_recent(dirs);
     });
     
-	sidebar.on('open_favorite', function(dir) {
+	sidebar.on('open_favorite', function(event, dir) {
 	    console.log('on open_favorite: ', dir);
 		folder.open(dir);
 		addressbar.set(dir);
@@ -60,11 +70,37 @@ $(document).ready(function() {
         folder.get_callback_data(filter_json);
         //addressbar.set(dir);
     });
-	addressbar.on('navigate', function(dir) {
+	addressbar.on('navigate', function(event, dir) {
+	    console.log('dir:', dir);
 		folder.open(dir);
 	});
 });
 
+function pre_config(){
+    (function(jQuery) {
+      jQuery.eventEmitter = {
+        _JQInit: function() {
+          this._JQ = jQuery(this);
+        },
+        emit: function(evt, data) {
+          !this._JQ && this._JQInit();
+          this._JQ.trigger(evt, data);
+        },
+        once: function(evt, handler) {
+          !this._JQ && this._JQInit();
+          this._JQ.one(evt, handler);
+        },
+        on: function(evt, handler) {
+          !this._JQ && this._JQInit();
+          this._JQ.bind(evt, handler);
+        },
+        off: function(evt, handler) {
+          !this._JQ && this._JQInit();
+          this._JQ.unbind(evt, handler);
+        }
+      };
+    }(jQuery));
+}
 
 function configuration(){
     //$(function () { $("[data-toggle='popover']").popover(); });
@@ -123,4 +159,5 @@ function configuration(){
     $('body').bind('contextmenu', function(e) {
         return false;
     });
+    
 }

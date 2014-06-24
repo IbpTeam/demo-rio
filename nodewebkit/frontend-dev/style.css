@@ -107,7 +107,7 @@ body {
 }
 
 a {
-color: #0088cc;
+    color: #0088cc;
 }
 .glyphicon {
     color: black;
@@ -140,12 +140,12 @@ padding: 3px 15px;*/
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-.nav-list > li > a {
+.nav-list  li  a {
   padding: 3px 15px;
 }
 
-.nav-list > .active > a,
-.nav-list > .active > a:hover {
+.nav-list  .active  a,
+.nav-list  .active  a:hover {
   color: #ffffff;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background-color: #0088cc;

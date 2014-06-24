@@ -3,7 +3,7 @@
 #关闭vncserver 
 #后面跟一个参数 当为数字时，关闭对应的服务，当为all时，关闭所有服务
 
-X_DIR="/home/wangtan/.vnc";
+X_DIR="$HOME/.vnc";
 if [ $# != 1 ]
 then
 	echo "close.sh: Error Input! $#" >&2
