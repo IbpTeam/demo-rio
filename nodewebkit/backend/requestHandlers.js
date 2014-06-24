@@ -3,18 +3,19 @@ var fs = require('fs');
 var categoryDAO = require("./DAO/CategoryDAO");
 var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
+var config = require('./config');
 
 function start(response, postData) {
-  console.log("Request handler 'start' was called.");
+  config.riolog("Request handler 'start' was called.");
   
 }
 exports.start = start;
 
 function loadResourcesInHttpServer(response, postData) {
-  console.log("Request handler 'loadResourcesInHttpServer' was called.");
-    console.log(postData);
+  config.riolog("Request handler 'loadResourcesInHttpServer' was called.");
+    config.riolog(postData);
     postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+    config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'loadResources'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -34,7 +35,7 @@ function loadResourcesInHttpServer(response, postData) {
 exports.loadResourcesInHttpServer = loadResourcesInHttpServer;
 
 function getAllCateInHttpServer(response, postData) {
-  console.log("Request handler 'getAllCateInHttpServer' was called.");
+  config.riolog("Request handler 'getAllCateInHttpServer' was called.");
   if(postData == '{"func":"getAllCate","arg":"null"}'){
     function getCategoriesCb(data)
     {
@@ -63,10 +64,10 @@ function getAllCateInHttpServer(response, postData) {
 exports.getAllCateInHttpServer = getAllCateInHttpServer;
 
 function getAllDataByCateInHttpServer(response, postData) {
-  console.log("Request handler 'getAllDataByCateInHttpServer' was called.");
-  console.log(postData);
+  config.riolog("Request handler 'getAllDataByCateInHttpServer' was called.");
+  config.riolog(postData);
   postDataJson=JSON.parse(postData);
-  console.log('$$$$$$'+postDataJson.arg);
+  config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'getAllDataByCate'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -95,10 +96,10 @@ function getAllDataByCateInHttpServer(response, postData) {
 exports.getAllDataByCateInHttpServer = getAllDataByCateInHttpServer;
 
 function getAllContactsInHttpServer(response, postData) {
-  console.log("Request handler 'getAllContactsInHttpServer' was called.");
-  console.log(postData);
+  config.riolog("Request handler 'getAllContactsInHttpServer' was called.");
+  config.riolog(postData);
   postDataJson=JSON.parse(postData);
-  console.log('$$$$$$'+postDataJson.arg);
+  config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'getAllContacts'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -127,10 +128,10 @@ exports.getAllContactsInHttpServer = getAllContactsInHttpServer;
 
 function rmDataByIdInHttpServer(response, postData) {
 
-  console.log("Request handler 'rmDataByIdInHttpServer' was called.");
-    console.log(postData);
+  config.riolog("Request handler 'rmDataByIdInHttpServer' was called.");
+    config.riolog(postData);
     postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+     config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'rmDataById'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -145,10 +146,10 @@ function rmDataByIdInHttpServer(response, postData) {
         response.end();
       }
       else{
-        console.log("delete : "+ item.path);
+        config.riolog("delete : "+ item.path);
         function ulinkCb(result){
           function rmDataByIdCb(result){
-            console.log("delete result:"+result);
+            config.riolog("delete result:"+result);
             var json=JSON.stringify(result);
             response.writeHead(200, {"Content-Type": "application/json"});
             response.write(json);
@@ -159,7 +160,7 @@ function rmDataByIdInHttpServer(response, postData) {
             commonDAO.deleteItemById(postDataJson.arg,server.deleteItemCb,rmDataByIdCb);
           }
           else{
-            console.log("delete result:"+result);
+            config.riolog("delete result:"+result);
             var json=JSON.stringify('error');
             response.writeHead(200, {"Content-Type": "application/json"});
             response.write(json);
@@ -176,10 +177,10 @@ exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;
 
 function getDataByIdInHttpServer(response, postData) {
 
-  console.log("Request handler 'getDataByIdInHttpServer' was called.");
-    console.log(postData);
+  config.riolog("Request handler 'getDataByIdInHttpServer' was called.");
+    config.riolog(postData);
     postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+     config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'getDataById'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -187,7 +188,7 @@ function getDataByIdInHttpServer(response, postData) {
   }
   else{
     function getItemByIdCb(item){
-      console.log("delete result:"+item);
+      config.riolog("delete result:"+item);
       var json=JSON.stringify(item);
       response.writeHead(200, {"Content-Type": "text/plain"});
       response.write(json);
@@ -200,10 +201,10 @@ exports.getDataByIdInHttpServer = getDataByIdInHttpServer;
 
 function getDataSourceByIdInHttpServer(response, postData) {
 
-  console.log("Request handler 'getDataSourceByIdInHttpServer' was called.");
-    console.log(postData);
+  config.riolog("Request handler 'getDataSourceByIdInHttpServer' was called.");
+    config.riolog(postData);
     postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+     config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'getDataSourceById'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -219,26 +220,43 @@ function getDataSourceByIdInHttpServer(response, postData) {
         response.end();
       }
       else{
-        console.log("read data : "+ item.path);
-        if(item.path!=null){
-          var path='http://localhost:8888'+item.path+'?query=absolute';
+        config.riolog("read data : "+ item.path);
+        if(item.postfix==null){
+          var source={
+            openmethod:'direct',
+            content:'http://localhost:8888'+item.photoPath+'?query=absolute'
+          };
+          var json=JSON.stringify(source);
+          response.writeHead(200, {"Content-Type": "text/plain"});
+          response.write(json);
+          response.end();
         }
-        else{
-          var path='http://localhost:8888'+item.photoPath+'?query=absolute';
-        }      
-        var source={
-          openmethod:'direct',
-          content:path
-        };
-        var json=JSON.stringify(source);
-        response.writeHead(200, {"Content-Type": "text/plain"});
-        response.write(json);
-        response.end();
+        else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
+          var source={
+            openmethod:'direct',
+            content:'http://localhost:8888'+item.path+'?query=absolute'
+          };
+          var json=JSON.stringify(source);
+          response.writeHead(200, {"Content-Type": "text/plain"});
+          response.write(json);
+          response.end();
+        }
+        else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+          var source={
+            openmethod:'remote',
+            content:9876
+          };
+          var json=JSON.stringify(source);
+          response.writeHead(200, {"Content-Type": "text/plain"});
+          response.write(json);
+          response.end();
+        }
+
         var currentTime = (new Date()).getTime();
         
-        console.log("time: "+ currentTime);
+        config.riolog("time: "+ currentTime);
         function updateItemValueCb(id,key,value,result){
-          console.log("update DB: "+ result);
+          config.riolog("update DB: "+ result);
           if(result!='successfull'){
             commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
           }
@@ -270,7 +288,7 @@ function getDataSourceByIdInHttpServer(response, postData) {
               break;                                    
             }
             function updateRecentTableCb(tableName,dataId,time,result){
-              console.log("update recent table: "+ result);
+              config.riolog("update recent table: "+ result);
               if(result!='successfull'){
                 filesHandle.sleep(1000);
                 commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
@@ -289,10 +307,10 @@ exports.getDataSourceByIdInHttpServer = getDataSourceByIdInHttpServer;
 
 function updateDataValueInHttpServer(response, postData) {
 
-  console.log("Request handler 'updateDataValueInHttpServer' was called.");
-    console.log(postData);
+  config.riolog("Request handler 'updateDataValueInHttpServer' was called.");
+    config.riolog(postData);
     postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+     config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'updateDataValue'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -300,7 +318,7 @@ function updateDataValueInHttpServer(response, postData) {
   }
   else{
     function updateItemValueCb(id,key,value,result){
-      console.log("update DB: "+ result);
+      config.riolog("update DB: "+ result);
       if(result!='successfull'){
         filesHandle.sleep(1000);
         commonDAO.updateItemValue(id,key,value,updateItemValueCb);
@@ -319,10 +337,10 @@ exports.updateDataValueInHttpServer = updateDataValueInHttpServer;
 
 function getRecentAccessDataInHttpServer(response, postData) {
 
-  console.log("Request handler 'getRecentAccessDataInHttpServer' was called.");
-    console.log(postData);
+  config.riolog("Request handler 'getRecentAccessDataInHttpServer' was called.");
+    config.riolog(postData);
     postDataJson=JSON.parse(postData);
-     console.log('$$$$$$'+postDataJson.arg);
+     config.riolog('$$$$$$'+postDataJson.arg);
   if(postDataJson.func != 'getRecentAccessData'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");

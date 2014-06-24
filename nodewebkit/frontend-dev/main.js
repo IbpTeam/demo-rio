@@ -17,7 +17,7 @@ $(document).ready(function() {
     //getAllCate(get_data);
     configuration();
     var sidebar = new SideBar($('#sidebar'));
-	var folder = new Folder($('#files'), $('#sidebar'));
+	var folder = new Folder($('#files'));
 	var addressbar = new AddressBar($('#addressbar'));
 
 	folder.open('root');//process.cwd()
@@ -27,7 +27,8 @@ $(document).ready(function() {
 		if (mime['props'].type == 'folder') {
 		    sidebar.set_favorites_focus(mime);
 			addressbar.enter(mime);
-		} else {
+		}
+		else {
 			//shell.openItem(mime.path);
 			var file_propery='';
 		    for(var key in mime){
@@ -116,6 +117,7 @@ function configuration(){
 //        console.log('frontend', $('#frontend').offset().top, $('#frontend').offset().left, $('#frontend').width(), $('#frontend').height(), $('#frontend').css('padding-top'), $('#frontend').css('padding-left'));
 //        console.log('qrcode-button', $(this).offset().top, $(this).offset().left, $(this).width(), $(this).height(), $(this).css('padding-top'), $(this).css('padding-left'));
     });
+
     
 	//to prevent default context menu
     $('body').bind('contextmenu', function(e) {

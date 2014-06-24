@@ -3,7 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
-//var config = require('./config');
+var config = require('./config');
 
 var mimeTypes = {
      "html": "text/html",
@@ -17,7 +17,7 @@ var mimeTypes = {
      "ogg": "audio/mpeg"
 };
 function route(handle, pathname, absolute , response, postData) {
-  console.log("About to route a request for " + pathname);
+  config.riolog("About to route a request for " + pathname);
    
     var pos = pathname.lastIndexOf(".");
     var suffix = '';
@@ -40,7 +40,7 @@ function route(handle, pathname, absolute , response, postData) {
       var realPath = "."+pathname;
     }
     path.exists(realPath, function (exists) {
-    console.log("realPath="+realPath);
+    config.riolog("realPath="+realPath);
         if (!exists) {
             response.writeHead(404, {
                 'Content-Type': 'text/plain'

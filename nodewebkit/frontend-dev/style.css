@@ -50,14 +50,6 @@ body {
 .breadcrumb .active a {
   color: #333333;
 }
-#main .breadcrumb {
-  margin-bottom: 8px;
-}
-#sidebar.well-sm {
-  margin-right: -15px;
-  margin-left: -15px;
-  margin-bottom: 6px;
-}
 .dropdown-menu li > a:hover,
 .dropdown-menu .active > a,
 .dropdown-menu .active > a:hover {
@@ -68,17 +60,52 @@ body {
 /*****add later by wangyu*****/
 
 /*****add later by xifei*****/
+#frontend .row {
+    background: #FFF;
+    -webkit-border-radius: 2px;
+    margin-bottom: 8px;
+}
+
+#sidebar {
+    padding: 9px;
+}
+#qrcode {
+    display: inline-block;
+    float: right;
+    color:black;
+    padding: 0px;
+    margin: 2px;
+    line-height:1;
+    font-size: 30px;
+}
 #main{
     padding-right: 20px;
     padding-left: 20px;
     height: 100%;
     font-size: 13px;
 }
-/*
-#addressvar {
-  font-size: 13px;
+#main .breadcrumb {
+  margin-bottom: 0px;
 }
-*/
+
+#addressbar {
+  display: inline-block;
+}
+
+#div-setting {
+    background: none;
+}
+
+#liststyle {
+    width: 30%;
+}
+#liststyle .ui-slider-range {
+    background: #08c;
+}
+#liststyle .ui-slider-handle {
+    border-color: #08c; 
+}
+
 a {
 color: #0088cc;
 }
@@ -130,7 +157,7 @@ padding: 3px 15px;*/
 
 .nav-list .divider {
   *width: 100%;
-  height: 1px;
+  height: 2px;
   margin: 8px 1px;
   *margin: -5px 0 5px;
   overflow: hidden;
