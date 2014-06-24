@@ -94,3 +94,26 @@ exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
   db.run(sqlstr);
   closeDB(db);
 }
+
+exports.findAllByStr = function(str, findAllByStrCallBack){
+  var db = openDB();
+  var contacts = {};
+  config.dblog("find all by str : " + str);
+  db.run("select * from contacts where name like '%" + str + "%'", function(err, nameRows){
+    if(err) {
+      config.dblog(err);
+    }
+    else{
+      contacts.push(nameRows);
+      db.run("select * from contacts where phone like '%" + str + "%'", function(err, phoneRows){
+        if(err){
+          config.dblog(err);
+        }
+        else{
+          contacts.push(phoneRows);
+          findAllByStrCallBack(contacts);
+        }
+      });
+    }
+  });
+}
