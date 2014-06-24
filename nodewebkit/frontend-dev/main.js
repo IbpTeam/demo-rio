@@ -118,7 +118,7 @@ function configuration(){
             popover.append($('<h3>扫描二维码</h3>').addClass("popover-title"));
             var popover_content = $('<div></div>').addClass("popover-content");
             popover_content.qrcode({
-                        text: 'html5-file-explorer.版本制作组',
+                        text: window.location.href,//'html5-file-explorer.版本制作组',
                         width: 150,
                         height: 150
                     });
