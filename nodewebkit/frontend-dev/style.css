@@ -46,6 +46,35 @@ body {
 .file.focus .icon {
   -webkit-filter: invert(20%);
 }
+/*for file-big*/
+.file-big {
+  padding: 8px;
+  margin: 8px;
+  width: 250px;
+  display: inline-block;
+  text-align: left;
+}
+.file-big p {
+  margin-bottom: 0px;
+}
+.file-big .prop {
+  width: 240px;
+  word-wrap: break-word;
+}
+
+.file-big .icon-big {
+  margin: 4px;
+  margin-top: 0;
+  width: 100px;
+  float: left;
+}
+.file-big .icon-big img{
+  width:100%;
+}
+
+.file-big.focus .icon-big {
+  -webkit-filter: invert(20%);
+}
 /*****modify for bootstrap-3.1.1*****/
 .breadcrumb .active a {
   color: #333333;
@@ -64,6 +93,7 @@ body {
     background: #FFF;
     -webkit-border-radius: 2px;
     margin-bottom: 8px;
+    line-height:1;
 }
 
 #sidebar {
@@ -75,7 +105,6 @@ body {
     color:black;
     padding: 0px;
     margin: 2px;
-    line-height:1;
     font-size: 30px;
 }
 #main{
