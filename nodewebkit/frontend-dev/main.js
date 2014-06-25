@@ -10,7 +10,6 @@ $(document).ready(function() {
 	
 	folder.open('root');
 	addressbar.set('root');
-
         
         //console.log(window.location);        
         if(window.location.hash){
@@ -34,6 +33,7 @@ $(document).ready(function() {
 		        //console.log('6666666666666666666',window.location);   
             }
         }
+        
 	folder.on('navigate', function(event, mime) {
 		sidebar.set_favorites_focus(mime['props'].path);
 		addressbar.enter(mime);
@@ -143,6 +143,7 @@ function configuration(){
             });
             $('#frontend').append(popover);
         }
+        return false;
 //        console.log('popover', $('.popover').width(), $('.popover').height(), $('.popover').css('padding-top'), $('.popover').css('padding-left'));
 //        console.log('qrcode button is pressed.');
 //        console.log('frontend', $('#frontend').offset().top, $('#frontend').offset().left, $('#frontend').width(), $('#frontend').height(), $('#frontend').css('padding-top'), $('#frontend').css('padding-left'));
@@ -153,6 +154,11 @@ function configuration(){
 	//to prevent default context menu
     $('body').bind('contextmenu', function(e) {
         return false;
+    });
+    $('body').bind('click', function(e) {
+        if($('.popover').length){
+            $('.popover').remove();
+        }
     });
     
 }
