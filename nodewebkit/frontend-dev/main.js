@@ -55,11 +55,11 @@ $(document).ready(function() {
 		folder.open(dir);
 		addressbar.set(dir);
 	});
-    sidebar.on('do_filter', function(event, keyword) {
+/*  sidebar.on('do_filter', function(event, keyword, json) {
         console.log('wangyu: on do_filter.');
-        var messages = Array.prototype.slice.call(arguments, 1);
+        var messages = Array.prototype.slice.call(arguments, 2);
         sidebar.do_filter(messages, keyword);
-    });
+    });*/
     sidebar.on('show_filter_result', function(event) {
         var messages = Array.prototype.slice.call(arguments, 1);
         folder.get_callback_data(messages);
