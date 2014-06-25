@@ -45,6 +45,49 @@
 //    if(pos != -1){
 //        suffix = content.substr(pos+1).toLowerCase();
 //    }
+
+/*
+<div class="panel panel-primary">
+      <table class="table">
+        <thead>
+          <tr class='success'>
+            <th>#</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Username</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Mark</td>
+            <td>Otto</td>
+            <td>@mdo</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>@fat</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Larry</td>
+            <td>the Bird</td>
+            <td>@twitter</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+*/
+
+
+//	if(file_arch_json.hasOwnProperty('root')){
+//	    console.log('file_arch_json have root value');
+//	}else{
+//	    console.log('file_arch_json not have root value');	
+//	}
+
 var frontend_local = 'Nodejs';
 function browser(){
     var ua = window.navigator.userAgent, ret = "";

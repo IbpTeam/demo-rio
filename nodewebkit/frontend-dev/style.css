@@ -133,15 +133,15 @@ padding: 3px 15px;*/
 .nav-list > li > a,
 .nav-list .nav-header {
 /*
-  margin-right: -15px;
-  margin-left: -15px;
+  margin-right: -9px;
+  margin-left: -9px;
   */
   font-size: 13px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .nav-list  li  a {
-  padding: 3px 15px;
+  padding: 3px 9px;
 }
 
 .nav-list  .active  a,
@@ -166,6 +166,18 @@ padding: 3px 15px;*/
   border-bottom: 1px solid #ffffff;
   display: list-item;
   text-align: -webkit-match-parent;
+}
+
+.panel .table tbody th {
+    font-weight: normal;
+}
+/*.panel .table a,*/
+.panel .table a:hover {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background-color: #0088cc;
+  text-decoration: none;
+  cursor: pointer;
 }
 /*
 .show-grid {
