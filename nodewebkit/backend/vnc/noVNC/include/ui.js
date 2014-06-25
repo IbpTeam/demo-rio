@@ -1040,13 +1040,13 @@ setBarPosition: function() {
 closeVNCandWebsockServerFromHttp: function(){
     //console.log("run closeVNCandWebsockServerFromHttp ####################################################")
     var ajax_url = '';
-        ajax_url = 'http://' + window.location.host + '/closeVNCandWebsockServer';
+        ajax_url = 'http://' + window.location.host + '/closeVNCandWebsockifyServer';
   $.ajax({
     url: ajax_url,
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"closeVNCandWebsockServer","arg":"'+WebUtil.getQueryVar('port',null)+'"}',
+    data: '{"func":"closeVNCandWebsockifyServer","arg":"'+WebUtil.getQueryVar('port',null)+'"}',
     success: function(json) {
       console.log(json);
     },

@@ -14,6 +14,6 @@ handle["/getDataById"] = requestHandlers.getDataByIdInHttpServer;
 handle["/getDataSourceById"] = requestHandlers.getDataSourceByIdInHttpServer;
 handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer;
 handle["/getRecentAccessData"] = requestHandlers.getRecentAccessDataInHttpServer;
-handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockServerInHttpServer;
+handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifyServerInHttpServer;
 
 server.start(router.route, handle);

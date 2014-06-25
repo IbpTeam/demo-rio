@@ -406,11 +406,11 @@ exports.getRecentAccessDataInHttpServer = getRecentAccessDataInHttpServer;
 
 // close vncserver and websockifyserver on server
 function closeVNCandWebsockifyServerInHttpServer(response, postData){
-    console.log("Request handler 'closeVNCandWebsockServerInHttpServer' was called");
+    console.log("Request handler 'closeVNCandWebsockifyServerInHttpServer' was called");
     console.log("postData");
     postDataJson=JSON.parse(postData);
     console.log("arg:****** "+postDataJson.arg);
-    if (postDataJson.func != 'closeVNCandWebsockServer') {
+    if (postDataJson.func != 'closeVNCandWebsockifyServer') {
       response.writeHead(200, {"Content-Type": "text/plain"});
       response.write("error func");
       response.end();
