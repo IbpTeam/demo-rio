@@ -155,7 +155,7 @@ function getDataById(getDataByIdCb,id){
   }
 }
 
-//API getDataSourceById:通过获取数据资源地址
+//API getDataSourceById:通过id获取数据资源地址
 //返回类型：
 //result{
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
@@ -181,7 +181,7 @@ function getDataSourceById(getDataSourceByIdCb,id){
 //失败返回失败原因
 
 function updateDataValue(updateDataValueCb,id,key,value){
-  console.log("Request handler 'updateItemValue' was called.");
+  console.log("Request handler 'updateDataValue' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
