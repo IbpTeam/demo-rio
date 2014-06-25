@@ -8,5 +8,12 @@ handle["/start"] = requestHandlers.start;
 handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
 handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
 handle["/getAllContacts"] = requestHandlers.getAllContactsInHttpServer;
+handle["/loadResources"] = requestHandlers.loadResourcesInHttpServer;
+handle["/rmDataById"] = requestHandlers.rmDataByIdInHttpServer;
+handle["/getDataById"] = requestHandlers.getDataByIdInHttpServer;
+handle["/getDataSourceById"] = requestHandlers.getDataSourceByIdInHttpServer;
+handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer;
+handle["/getRecentAccessData"] = requestHandlers.getRecentAccessDataInHttpServer;
+handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifyServerInHttpServer;
 
 server.start(router.route, handle);

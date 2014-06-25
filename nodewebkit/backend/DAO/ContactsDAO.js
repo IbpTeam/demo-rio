@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
@@ -47,7 +48,7 @@ exports.findAll = function(findAllCallBack){
  * @return contacts
  *   数组对象，数组中仅有一条指定返回的数据对象
  */
-exports.findById = function(id){
+exports.findById = function(id,findByIdCallBack){
   var db = openDB();
   db.get(SQLSTR.FINDCONTACTBYID, id, findByIdCallBack);
   closeDB(db);
@@ -61,6 +62,58 @@ exports.findById = function(id){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATECONTACT, item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime, createItemCallBack);
+  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, createItemCallBack);
   closeDB(db);
+}
+
+/**
+ * @method deleteItemById
+ *   根据ID删除表中指定数据
+ * @param id
+ *   pictures表中的主键
+ */
+exports.deleteItemById = function(id, deleteItemByIdCallBack){
+  var db = openDB();
+  db.get(SQLSTR.DELETECONTACT, id, deleteItemByIdCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method updateItemValue
+ *   更新指定ID的某一个key
+ * @param id
+ *   pictures表中的主键
+ */
+exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
+  var db = openDB();
+    config.dblog("udpate contacts id : " + id);
+        config.dblog("udpate key=" + key + 'value='+value);
+  //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
+  var sqlstr="UPDATE contacts SET "+key+" = '"+value+"' WHERE id = "+id;
+  config.dblog("sqlstr:" +sqlstr);
+  db.run(sqlstr);
+  closeDB(db);
+}
+
+exports.findAllByStr = function(str, findAllByStrCallBack){
+  var db = openDB();
+  var contacts = {};
+  config.dblog("find all by str : " + str);
+  db.run("select * from contacts where name like '%" + str + "%'", function(err, nameRows){
+    if(err) {
+      config.dblog(err);
+    }
+    else{
+      contacts.push(nameRows);
+      db.run("select * from contacts where phone like '%" + str + "%'", function(err, phoneRows){
+        if(err){
+          config.dblog(err);
+        }
+        else{
+          contacts.push(phoneRows);
+          findAllByStrCallBack(contacts);
+        }
+      });
+    }
+  });
 }

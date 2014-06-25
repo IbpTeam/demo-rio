@@ -1,5 +1,6 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
@@ -61,6 +62,36 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEPICTURE, item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.others, createItemCallBack);
+  db.get(SQLSTR.CREATEPICTURE, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime, item.lastAccessTime, item.others, createItemCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method deleteItemById
+ *   根据ID删除表中指定数据
+ * @param id
+ *   contacts表中的主键
+ */
+exports.deleteItemById = function(id, deleteItemByIdCallBack){
+  config.dblog("delete picture id : " + id);
+  var db = openDB();
+  db.get(SQLSTR.DELETEPICTURE, id, deleteItemByIdCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method updateItemValue
+ *   更新指定ID的某一个key
+ * @param id
+ *   pictures表中的主键
+ */
+exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
+  var db = openDB();
+    config.dblog("udpate picture id : " + id);
+        config.dblog("udpate key=" + key + 'value='+value);
+  //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
+  var sqlstr="UPDATE pictures SET "+key+" = '"+value+"' WHERE id = "+id;
+  config.dblog("sqlstr:" +sqlstr);
+  db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }

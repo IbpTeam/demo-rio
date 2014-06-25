@@ -1,4 +1,6 @@
 var sqlite3 = require('sqlite3');
+var SQLSTR = require("./SQL/SQLStr.js");
+var config = require("../config");
 
 //连接数据库
 function openDB(){
@@ -20,7 +22,7 @@ function closeDB(database){
  */
 exports.findAll = function(findAllCallBack){
   var db = openDB();
-  db.all("select * from Category", findAllCallBack);
+  db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
   closeDB(db);
 }
 
@@ -34,7 +36,7 @@ exports.findAll = function(findAllCallBack){
  */
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
-  db.get("select * from Category where id = ?", id, findByIdCallBack);
+  db.get(SQLSTR.FINDCATEGORYBYID, id, findByIdCallBack);
   closeDB();
 }
 
@@ -48,6 +50,6 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
-  db.get("select count(*) as total from Category", countTotalCallBack);
+  db.get(SQLSTR.COUNTTOTALCATEGORIES, countTotalCallBack);
   closeDB();  
 }
