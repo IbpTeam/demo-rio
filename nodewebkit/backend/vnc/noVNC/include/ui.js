@@ -15,7 +15,7 @@
 window.onscriptsload = function () { UI.load(); };
 window.onload = function () { UI.keyboardinputReset(); };
 //wangtan add function 
-window.onunload = function(evt){
+/*window.onunload = function(evt){
             console.log("run  onunload  ******************");
             var isIE=document.all?true:false;  
             evt = evt ? evt :(window.event ? window.event : null);  
@@ -53,6 +53,17 @@ window.onunload = function(evt){
                 }  
             }  
         };
+        */
+window.onunload = function(evt){
+    evt = evt ? evt :(window.event ? window.event : null);  
+    if(evt.clientX > document.body.clientWidth && evt.clientY < 0 || evt.altKey){
+        UI.closeVNCandWebsockServerFromHttp();
+    }
+    else {
+        UI.closeVNCandWebsockServerFromHttp();
+        console.log("vnc refresh *************************");
+    }
+}
 
 
 Util.load_scripts(["webutil.js", "base64.js", "websock.js", "des.js",
