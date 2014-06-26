@@ -19,6 +19,9 @@ body {
   text-align: center;
   vertical-align: top;
 }
+.file:hover {
+  cursor: pointer;
+}
 
 .file.focus {
   background-color: #08C;
