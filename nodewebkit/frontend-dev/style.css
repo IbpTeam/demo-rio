@@ -201,7 +201,7 @@ padding: 3px 15px;*/
     font-weight: normal;
 }
 /*.panel .table a,*/
-.panel .table a:hover {
+.panel .table tr:hover {
   color: #ffffff;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background-color: #0088cc;
