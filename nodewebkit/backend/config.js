@@ -1,9 +1,13 @@
 var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
 var RESOURCEPATH='/home/v1/demo-rio/nodewebkit/resources';
-var RIODEBUG=0;
-var DBDEBUG=0;
+var RIODEBUG=1;
+var DBDEBUG=1;
 exports.projecthome = PROJECTHOME;
 exports.RESOURCEPATH = RESOURCEPATH;
+var SERVERPORT=8888;
+exports.SERVERPORT = SERVERPORT;
+var SERVERIP="192.168.162.122";
+exports.SERVERIP = SERVERIP;
 
 
 function riolog(str){

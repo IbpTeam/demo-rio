@@ -1,72 +1,103 @@
-global.$ = $;
 
-//console.log(global.__dirname);
-//console.log(global.__filename);
-//console.log("path:" + process.cwd());
-//var sbar = require("side_bar.js");//./file-explorer/node_modules/
-//var abar = require("address_bar.js");//./file-explorer/node_modules/
-//var folder_view = require('folder_view.js');//./file-explorer/node_modules/
-//var path = require('path');
-//var shell = require('nw.gui').Shell;
-
-//    function get_data(text){
-//	console.log('data from server:', text);
-//    }
-
+pre_config();
 $(document).ready(function() {
-    //getAllCate(get_data);
-    configuration();
+    getServerAddress(configuration);
+    //configuration();
+
     var sidebar = new SideBar($('#sidebar'));
 	var folder = new Folder($('#files'));
 	var addressbar = new AddressBar($('#addressbar'));
-
-	folder.open('root');//process.cwd()
-	addressbar.set('root');//
-
-	folder.on('navigate', function(mime) {
-		if (mime['props'].type == 'folder') {
-		    sidebar.set_favorites_focus(mime);
-			addressbar.enter(mime);
-		}
-		else {
-			//shell.openItem(mime.path);
-			var file_propery='';
-		    for(var key in mime){
-			    file_propery += key + ':' + mime[key] + '\n';
-		    }
-		    alert(file_propery);
-		}
+	
+	folder.open('root');
+	addressbar.set('root');
+        
+        //console.log(window.location);        
+        if(window.location.hash){
+            var dir = window.location.hash.substr(1);
+            var protocol = window.location.protocol;
+            var host = window.location.host;
+            var pathname = window.location.pathname;
+            var href = protocol + '//' + host + pathname;
+            if(dir){
+                //console.log('****dir:', dir);
+    //            var mime = {'props':''};
+    //            mime['props'].path = dir;
+    //		    //folder.open(dir);
+    //		    this.emit('navigate', mime);
+		        folder.open(dir);
+		        addressbar.set(dir);
+		        sidebar.set_favorites_focus(dir);
+		        //window.location.hash = '#';
+		        //window.location.href = href;
+		        //window.event.returnValue=false;
+		        //console.log('6666666666666666666',window.location);   
+            }
+        }
+        
+	folder.on('navigate', function(event, mime) {
+		sidebar.set_favorites_focus(mime['props'].path);
+		addressbar.enter(mime);
 	});
-	folder.on('folder_set_favorites', function(dirs) {
-	    sidebar.set_favorites(dirs);
+	folder.on('set_favorites', function(event) {
+	    var messages = Array.prototype.slice.call(arguments, 1);
+	    //console.log('set favorites2.', messages);
+	    sidebar.set_favorites(messages);
+
 	});
-	folder.on('folder_set_sidebar', function(dirs){
-        sidebar.set_tags(dirs);
-        sidebar.set_filters(dirs);
-        sidebar.set_recent(dirs);
+	folder.on('set_sidebar', function(event){
+        var messages = Array.prototype.slice.call(arguments, 1);
+        sidebar.set_tags(messages);
+        sidebar.set_filters(messages);
+        sidebar.set_recent(messages);
     });
     
-	sidebar.on('open_favorite', function(dir) {
-	    console.log('on open_favorite: ', dir);
+	sidebar.on('open_favorite', function(event, dir) {
 		folder.open(dir);
 		addressbar.set(dir);
 	});
-    sidebar.on('do_filter', function(dir, keyword) {
+/*  sidebar.on('do_filter', function(event, keyword, json) {
         console.log('wangyu: on do_filter.');
-        sidebar.do_filter(dir, keyword);
-    });
-    sidebar.on('show_filter_result', function(filter_json) {
-        console.log('wangyu:', filter_json);
-        folder.get_callback_data(filter_json);
+        var messages = Array.prototype.slice.call(arguments, 2);
+        sidebar.do_filter(messages, keyword);
+    });*/
+    sidebar.on('show_filter_result', function(event) {
+        var messages = Array.prototype.slice.call(arguments, 1);
+        folder.get_callback_data(messages);
         //addressbar.set(dir);
     });
-	addressbar.on('navigate', function(dir) {
+	addressbar.on('navigate', function(event, dir) {
+	    //console.log('**************dir:', dir);
 		folder.open(dir);
 	});
 });
 
+function pre_config(){
+    (function(jQuery) {
+      jQuery.eventEmitter = {
+        _JQInit: function() {
+          this._JQ = jQuery(this);
+        },
+        emit: function(evt, data) {
+          !this._JQ && this._JQInit();
+          this._JQ.trigger(evt, data);
+        },
+        once: function(evt, handler) {
+          !this._JQ && this._JQInit();
+          this._JQ.one(evt, handler);
+        },
+        on: function(evt, handler) {
+          !this._JQ && this._JQInit();
+          this._JQ.bind(evt, handler);
+        },
+        off: function(evt, handler) {
+          !this._JQ && this._JQInit();
+          this._JQ.unbind(evt, handler);
+        }
+      };
+    }(jQuery));
+}
 
-function configuration(){
+function configuration(server_addr){
     //$(function () { $("[data-toggle='popover']").popover(); });
     // for qrcode popover
     /*
@@ -87,7 +118,9 @@ function configuration(){
             popover.append($('<h3>扫描二维码</h3>').addClass("popover-title"));
             var popover_content = $('<div></div>').addClass("popover-content");
             popover_content.qrcode({
-                        text: 'html5-file-explorer.版本制作组',
+            //http://192.168.160.176:8888/frontend-dev/file-explorer.html#
+                        text: 'http://' + server_addr.ip + ':' + server_addr.port + '/frontend-dev/file-explorer.html#',
+                        //window.location.href,
                         width: 150,
                         height: 150
                     });
@@ -112,6 +145,7 @@ function configuration(){
             });
             $('#frontend').append(popover);
         }
+        return false;
 //        console.log('popover', $('.popover').width(), $('.popover').height(), $('.popover').css('padding-top'), $('.popover').css('padding-left'));
 //        console.log('qrcode button is pressed.');
 //        console.log('frontend', $('#frontend').offset().top, $('#frontend').offset().left, $('#frontend').width(), $('#frontend').height(), $('#frontend').css('padding-top'), $('#frontend').css('padding-left'));
@@ -123,4 +157,10 @@ function configuration(){
     $('body').bind('contextmenu', function(e) {
         return false;
     });
+    $('body').bind('click', function(e) {
+        if($('.popover').length){
+            $('.popover').remove();
+        }
+    });
+    
 }

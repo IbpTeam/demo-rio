@@ -179,3 +179,19 @@ function getRecentAccessDataFromHttp(getRecentAccessDataCb,num){
     }
   });
 }
+
+function getServerAddressFromHttp(getServerAddressCb,num){
+    $.ajax({
+    url: "/getServerAddress",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getServerAddress","arg":"null"}',
+    success: function(result) {
+      getServerAddressCb(result);
+    },
+    error: function(e) {
+      getServerAddressCb(e);
+    }
+  });
+}

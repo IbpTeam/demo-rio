@@ -79,7 +79,7 @@ function getDataSourceByIdCb(result){
 
 }
 
-getDataSourceById(getDataSourceByIdCb,'4#11');
+getDataSourceById(getDataSourceByIdCb,'4#5');
 */
 /*
 function updateDataValueCb(result){
@@ -89,14 +89,20 @@ function updateDataValueCb(result){
 
 updateDataValue(updateDataValueCb,'4#8','others','Release Note');
 */
-
+/*
   function getRecentAccessDataCb(result){
     result.forEach(function (each){
       document.write(each.id);
     });
   }
-  getRecentAccessData(getRecentAccessDataCb,20);
+  getRecentAccessData(getRecentAccessDataCb,10);
+  */
   
+    function getServerAddressCb(result){
+       document.write(result.ip);
+   document.write(result.port);  
+  }
+  getServerAddress(getServerAddressCb);
 </script>
 <!--
 <audio controls>
