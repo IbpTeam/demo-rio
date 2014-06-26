@@ -19,6 +19,9 @@ body {
   text-align: center;
   vertical-align: top;
 }
+.file:hover {
+  cursor: pointer;
+}
 
 .file.focus {
   background-color: #08C;
@@ -46,6 +49,34 @@ body {
 .file.focus .icon {
   -webkit-filter: invert(20%);
 }
+/*for file-big*/
+.file-big {
+  width: 400px;
+  display: inline-block;
+  text-align: left;
+}
+.file-big .icon-big {
+  padding: 8px;
+  margin-top: 0;
+  width: 128px;
+  display: inline-block;
+}
+.file-big .file-props {
+  margin-top: 0;
+  width: 256px;
+  display: inline-block;
+}
+.file-big p {
+  margin-bottom: 0px;
+}
+
+.file-big .icon-big img{
+  width:100%;
+}
+
+.file-big.focus .icon-big {
+  -webkit-filter: invert(20%);
+}
 /*****modify for bootstrap-3.1.1*****/
 .breadcrumb .active a {
   color: #333333;
@@ -64,6 +95,7 @@ body {
     background: #FFF;
     -webkit-border-radius: 2px;
     margin-bottom: 8px;
+    line-height:1;
 }
 
 #sidebar {
@@ -75,7 +107,6 @@ body {
     color:black;
     padding: 0px;
     margin: 2px;
-    line-height:1;
     font-size: 30px;
 }
 #main{
@@ -133,15 +164,15 @@ padding: 3px 15px;*/
 .nav-list > li > a,
 .nav-list .nav-header {
 /*
-  margin-right: -15px;
-  margin-left: -15px;
+  margin-right: -9px;
+  margin-left: -9px;
   */
   font-size: 13px;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .nav-list  li  a {
-  padding: 3px 15px;
+  padding: 3px 9px;
 }
 
 .nav-list  .active  a,
@@ -166,6 +197,18 @@ padding: 3px 15px;*/
   border-bottom: 1px solid #ffffff;
   display: list-item;
   text-align: -webkit-match-parent;
+}
+
+.panel .table tbody th {
+    font-weight: normal;
+}
+/*.panel .table a,*/
+.panel .table tr:hover {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background-color: #0088cc;
+  text-decoration: none;
+  cursor: pointer;
 }
 /*
 .show-grid {

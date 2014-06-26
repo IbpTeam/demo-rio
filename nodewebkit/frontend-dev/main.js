@@ -1,8 +1,8 @@
 
 pre_config();
 $(document).ready(function() {
-    
-    configuration();
+    getServerAddress(configuration);
+    //configuration();
 
     var sidebar = new SideBar($('#sidebar'));
 	var folder = new Folder($('#files'));
@@ -97,7 +97,7 @@ function pre_config(){
     }(jQuery));
 }
 
-function configuration(){
+function configuration(server_addr){
     //$(function () { $("[data-toggle='popover']").popover(); });
     // for qrcode popover
     /*
@@ -118,7 +118,9 @@ function configuration(){
             popover.append($('<h3>扫描二维码</h3>').addClass("popover-title"));
             var popover_content = $('<div></div>').addClass("popover-content");
             popover_content.qrcode({
-                        text: window.location.href,//'html5-file-explorer.版本制作组',
+            //http://192.168.160.176:8888/frontend-dev/file-explorer.html#
+                        text: 'http://' + server_addr.ip + ':' + server_addr.port + '/frontend-dev/file-explorer.html#',
+                        //window.location.href,
                         width: 150,
                         height: 150
                     });

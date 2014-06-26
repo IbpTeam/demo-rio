@@ -426,3 +426,26 @@ function closeVNCandWebsockifyServerInHttpServer(response, postData){
     }
 }
 exports.closeVNCandWebsockifyServerInHttpServer = closeVNCandWebsockifyServerInHttpServer;
+
+function getServerAddressInHttpServer(response, postData){
+    console.log("Request handler 'getServerAddressInHttpServer' was called");
+    console.log("postData");
+    postDataJson=JSON.parse(postData);
+    console.log("arg:****** "+postDataJson.arg);
+    if (postDataJson.func != 'getServerAddress') {
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.write("error func");
+      response.end();
+    }
+    else {
+      var address={
+        ip:config.SERVERIP,
+        port:config.SERVERPORT
+      };
+      var json = JSON.stringify(address);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    }
+}
+exports.getServerAddressInHttpServer = getServerAddressInHttpServer;

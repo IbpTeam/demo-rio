@@ -210,4 +210,21 @@ function getRecentAccessData(getRecentAccessDataCb,num){
   }
 }
 
+//API getServerAddress:获得最近访问数据的信息
+//返回类型：
+//返回具体数据类型对象数组
+
+function getServerAddress(getServerAddressCb,num){
+  console.log("Request handler 'getServerAddress' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getServerAddressFromLocal(getServerAddressCb,num);
+  }
+  else{
+    console.log('You are in remote '); 
+    getServerAddressFromHttp(getServerAddressCb,num);
+  }
+}
+
 

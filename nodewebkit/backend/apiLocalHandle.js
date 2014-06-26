@@ -251,4 +251,12 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
 }
 exports.getRecentAccessDataFromLocal = getRecentAccessDataFromLocal;
 
+function getServerAddressFromLocal(getServerAddressCb) {
+  var address={
+    ip:config.SERVERIP,
+    port:config.SERVERPORT
+  };
+  getServerAddressCb(address);
+}
+exports.getServerAddressFromLocal = getServerAddressFromLocal;
 
