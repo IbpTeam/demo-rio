@@ -51,26 +51,25 @@ body {
 }
 /*for file-big*/
 .file-big {
-  padding: 8px;
-  margin: 8px;
-  width: 250px;
+  width: 400px;
   display: inline-block;
   text-align: left;
+}
+.file-big .icon-big {
+  padding: 8px;
+  margin-top: 0;
+  width: 128px;
+  display: inline-block;
+}
+.file-big .file-props {
+  margin-top: 0;
+  width: 256px;
+  display: inline-block;
 }
 .file-big p {
   margin-bottom: 0px;
 }
-.file-big .prop {
-  width: 240px;
-  word-wrap: break-word;
-}
 
-.file-big .icon-big {
-  margin: 4px;
-  margin-top: 0;
-  width: 100px;
-  float: left;
-}
 .file-big .icon-big img{
   width:100%;
 }
