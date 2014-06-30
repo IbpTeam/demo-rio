@@ -1,6 +1,7 @@
 {
   "name": "hello",
   "main": "index.html",
+  //"node-main": "start.js",
   "window": {
     "toolbar": true,
     "width": 800,
@@ -9,5 +10,5 @@
   "dependencies": {
     "sqlite3": "~2.2.0"
   },
-  "user-agent": "Fuck %ver %nwver %webkit_ver %osinfo"
+  "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }

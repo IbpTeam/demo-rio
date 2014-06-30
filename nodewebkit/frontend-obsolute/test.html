@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>HTML Model</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  </head>
+  <body>
+<link rel="stylesheet" type="text/css" href="browser.css">
+
+<div class="demo-box">
+    <div class="page-header">
+        <h1>文件管理器</h1>
+        <ul id="path" class="breadcrumb">
+            <!--<li class="divider">root</li>
+            <li class="active">Jcrop Plugin</li>-->
+        </ul>
+    </div>
+    <div id="content" class="page-content">
+    </div>
+</div>
+
+<script tpye="text/javascript">
+function gettext(){
+    var xhr = new XMLHttpRequest();
+    console.log("before onreadystatechange");
+    xhr.onreadystatechange = function() {
+        console.log(xhr);
+        if (xhr.readyState == 4) {
+            alert(xhr.responseText);
+        }
+    }
+    xhr.open('GET', 'http://www.baidu.com', true);
+    xhr.send(null);
+}
+window.onload=gettext;
+</script>
+  </body>
+</html>
