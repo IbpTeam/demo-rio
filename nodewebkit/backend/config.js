@@ -6,8 +6,23 @@ exports.projecthome = PROJECTHOME;
 exports.RESOURCEPATH = RESOURCEPATH;
 var SERVERPORT=8888;
 exports.SERVERPORT = SERVERPORT;
-var SERVERIP="192.168.162.122";
+
+var SERVERNAME="v1";
+exports.SERVERNAME = SERVERNAME;
+
+var SERVERIP;
 exports.SERVERIP = SERVERIP;
+function getAddr(){
+  var os = require('os');
+  var IPv4;
+  for(var i=0;i<os.networkInterfaces().eth0.length;i++){
+    if(os.networkInterfaces().eth0[i].family=='IPv4'){
+      IPv4=os.networkInterfaces().eth0[i].address;
+    }
+  }
+  return IPv4;
+}
+exports.getAddr = getAddr;
 
 
 function riolog(str){
