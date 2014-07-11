@@ -6,6 +6,9 @@ var fs = require('fs');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
+var mdns = require('mdns');
+var util = require('util');
+
 
 function start(route, handle) {
   function onRequest(request, response) {
@@ -29,9 +32,34 @@ function start(route, handle) {
   }
 
   http.createServer(onRequest).listen(config.SERVERPORT);
-
   config.riolog("Server has started.");
-  filesHandle.monitorFiles('/home/v1/resources');
+  //filesHandle.monitorFiles('/home/v1/resources');
 }
 
 exports.start = start;
+
+function listen() {
+  var sequence = [
+      mdns.rst.DNSServiceResolve()
+    , mdns.rst.getaddrinfo({families: [4] })
+  ];
+  var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
+
+  browser.on('serviceUp', function(service) {
+    //var str=JSON.stringify(service);
+    util.log("service up: "+ service.name);
+  });
+  browser.on('serviceDown', function(service) {
+    //var str=JSON.stringify(service);
+    util.log("service down: "+service.name);
+  });
+  util.log("listen to services");
+  browser.start();
+}
+exports.listen = listen;
+
+function advertise() {
+  var ad = mdns.createAdvertisement(mdns.tcp('http'), 4444,{name: config.SERVERNAME});
+  ad.start();
+}
+exports.advertise = advertise;
