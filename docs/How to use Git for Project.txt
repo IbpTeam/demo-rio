@@ -1,0 +1,45 @@
+#使用流程--任务分配时
+1.在IbpTeam下的demo-rio中建立目的性更加清晰的分支，如给非核心开发者提交的分支，如某一任务专用开发的分支
+2.在IbpTeam下demo-rio中创建新issue，issue名称与分支名称想关联，如是分支中的某一组成部分则以 #分支名称#No.的方式添加
+#使用流程--开发时
+1.开发者将IbpTeam下的repository Fork到自己的账户下，并通过clone命令克隆到本地，并通过添加远程的方式将IbpTeam中的demo-rio作为“upstream”来进行使用。
+   git remote add upstream github.com:IbpTeam/demo-rio.git
+2.尽量保证自己本地代码库与upstream一致，时常对自己本地代码库的主干进行更新操作
+   git checkout origin/master
+   git pull upstream master
+3.根据开发目的或任务不同建立本地新分支，分支命名规则: issue名称+开发者
+   git branch issueName+developer
+4.所有关于此分支的开发都应在分支上进行，并提交到自己账户下的demo-rio中进行管理,提交时commit记录应为 分支名称: message
+  git checkout issueName+developer
+  git add xxx
+  git commit -m "issueName+developer: message"
+  git push origin issueName+developer
+5.当需要提交到upstream的固定分支下时，先将本地对应分支中已修改或添加的工作提交到自己账户下的demo-rio中，操作方法如4，然后登陆github.com，进入自己账户下demo-rio的repository，
+在右侧边栏中选择Pull Request，在通过New pull request->Create pull request进行创建新合并请求
+6.创建合并请求时请注意将对比的两个分支base和compare选择为IbpTeam中对应任务分支及自己本地进行开发的分支
+7. 合并请求命名规则：issueName+developer->reviewer
+8.合并请求内容请尽量描述清楚改动原因，改动位置及改动后效果，如果是前段HTML或CSS改动配有截图更加理想
+9.在没有修改账户默认设置情况下（对代码库进行watching，以接受邮件和信息，可在代码库页面右上进行配置），会收到github邮件提示，因邮件可能延迟，所以请开发者提交了Pull request后直接找到代码评审人进行代码复查，我们组里6人都有对IbpTeam中demo-rio的完全读写权限，所以任一人都可以进行代码复查并合并。
+10.复查结束后，请reviewer在对应Pull Request中留言，说明此次修改是否通过，是否会有其他不稳定因素或新问题。
+11.如通过review则请建民或王枫师兄进行IbpTeam中对应分支的合并，并考虑测试问题或是否将此分支与主分支或其他分支再次进行合并
+12.合并分支完成后请合并人确认此功能是否实现或完成，并在issue中留言，留言中请标明Pull Request的完整名称及其他必要信息。
+
+#关于Pull Request
+1.比较合理的使用方式是每个人都将代码库按之前文档Fork出来并clone到本地，通过添加远程的方式将IbpTeam中的demo-rio作为“upstream”来进行使用。
+2.合理的建立分支，不光是作为upstream的IbpTeam中的主干要时常进行分支处理（如可建立给学生们开发使用的分支，按进度分配任务使用的分支等），每个人在开发时也应合理建立自己的分支（如按任务进度建立分支），以便于使用Pull Request更好的与远程进行合并。
+3.对于自己分支及主干的管理要及时，尽量保证自己的主干和upstream统一，时常更新，自己的分支要经过更好的测试，再提交pull request合并到upstream中，再更新回到自己的主干中，下一步开发再重新从主干建立新的分支进行开发，以此类推。
+4.提交Pull Request时请尽量描述清楚改动原因，改动位置及改动后效果，如果是前段HTML或CSS改动配有截图更加理想。
+5.我们组内每一个人都有对IbpTeam的读写权限，所以在Pull Request的时候可以分配给任意一个人，并且两个人合作进行代码review和merge。
+6.请大家经常关注github上我们的issue，每一个issue不论是我们自己提出的还是其他任何人提出的，请大家都保持关注，并提出自己的意见。
+7.提交一个Pull Request后也会行程一个讨论，大家也都最好可以提出自己的意见。
+
+#关于Issue
+1.对于项目中任何疑问、Bug、可以完善的地方都可以通过issue方式提出，不过提出时请注意检查已有的issue，尽量避免重复。
+2.在进行任务分配时，可以先通过创建issue方式进行，在merge时可将issue标示添加到commit中，进行关联。
+3.commit提交格式可以采取分支名称+issue名称+message形式进行，或者其他更好的方式。
+
+相关参考资料：
+http://www.csdn.net/article/2014-04-14/2819293-Contributing-to-Open-Source-on-GitHub
+http://hi.baidu.com/caowlong/item/6e87377a9fd2a73d714423b3
+
+还有其他一些内容是从github中一些比较成熟的项目中提取的，时间比较短所以还看的少一些，希望大家有时间也去看一下，有更好的经验请一起分享，一般是在项目的Readme或者是wiki中会有如何贡献于这个项目的规范说明。
