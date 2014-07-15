@@ -8,12 +8,6 @@ var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
 var mdns = require('mdns');
 var util = require('util');
-//var io = require('socket.io');
-//var io = require('socket.io')(http);
-
-//var apiLocalhandle = require("./apiLocalhandle");
-//var apiHttphandle = require("./apiHttphandle");
-
 
 function start(route, handle) {
   function onRequest(request, response) {
