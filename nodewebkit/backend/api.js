@@ -214,17 +214,34 @@ function getRecentAccessData(getRecentAccessDataCb,num){
 //返回类型：
 //返回具体数据类型对象数组
 
-function getServerAddress(getServerAddressCb,num){
+function getServerAddress(getServerAddressCb){
   console.log("Request handler 'getServerAddress' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getServerAddressFromLocal(getServerAddressCb,num);
+    apiLocalHandle.getServerAddressFromLocal(getServerAddressCb);
   }
   else{
     console.log('You are in remote '); 
-    getServerAddressFromHttp(getServerAddressCb,num);
+    getServerAddressFromHttp(getServerAddressCb);
   }
 }
 
+//API getDeviceDiscoveryService:使用设备发现服务
+//参数分别为设备发现和设备离开的回调函数
+var SOCKETIOPORT=8890;
+function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
+  console.log("Request handler 'getDeviceDiscoveryService' was called.");
+  function getServerAddressCb(result){
+    var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
+    var socket = io.connect(add);  
+    socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
+      deviceUpCb(data);
+    });
+    socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
+      deviceDownCb(data);
+    });
+  }
+  getServerAddress(getServerAddressCb);
+}
 

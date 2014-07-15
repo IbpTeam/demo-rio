@@ -8,6 +8,11 @@ var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
 var mdns = require('mdns');
 var util = require('util');
+//var io = require('socket.io');
+//var io = require('socket.io')(http);
+
+//var apiLocalhandle = require("./apiLocalhandle");
+//var apiHttphandle = require("./apiHttphandle");
 
 
 function start(route, handle) {
@@ -28,38 +33,44 @@ function start(route, handle) {
     request.addListener("end", function() {
       route(handle, pathname, absolute, response, postData);
     });
-
   }
-
   http.createServer(onRequest).listen(config.SERVERPORT);
+  
+  var io = require('socket.io').listen(config.SOCKETIOPORT);
+  io.sockets.on('connection', function (socket) {
+    var sequence = [
+      mdns.rst.DNSServiceResolve()
+    , mdns.rst.getaddrinfo({families: [4] })
+    ];
+    var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
+
+    browser.on('serviceUp', function(service) {
+      socket.emit('mdnsUp', service);
+      var str=JSON.stringify(service);
+      util.log("service up: "+str);
+    });
+    browser.on('serviceDown', function(service) {
+      socket.emit('mdnsDown', service);
+      var str=JSON.stringify(service);
+      util.log("service down: "+str);
+    });
+    util.log("listen to services");
+    browser.start();
+  });
+
   config.riolog("Server has started.");
   //filesHandle.monitorFiles('/home/v1/resources');
 }
 
 exports.start = start;
 
-function listen() {
-  var sequence = [
-      mdns.rst.DNSServiceResolve()
-    , mdns.rst.getaddrinfo({families: [4] })
-  ];
-  var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
+function listen(upFallback,downFallback) {
 
-  browser.on('serviceUp', function(service) {
-    //var str=JSON.stringify(service);
-    util.log("service up: "+ service.name);
-  });
-  browser.on('serviceDown', function(service) {
-    //var str=JSON.stringify(service);
-    util.log("service down: "+service.name);
-  });
-  util.log("listen to services");
-  browser.start();
 }
 exports.listen = listen;
 
 function advertise() {
-  var ad = mdns.createAdvertisement(mdns.tcp('http'), 4444,{name: config.SERVERNAME});
+  var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
   ad.start();
 }
 exports.advertise = advertise;

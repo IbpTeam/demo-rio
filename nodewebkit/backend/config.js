@@ -6,24 +6,17 @@ exports.projecthome = PROJECTHOME;
 exports.RESOURCEPATH = RESOURCEPATH;
 var SERVERPORT=8888;
 exports.SERVERPORT = SERVERPORT;
-
-var SERVERNAME="v1";
-exports.SERVERNAME = SERVERNAME;
+var MDNSPORT=8889;
+exports.MDNSPORT = MDNSPORT;
+var SOCKETIOPORT=8890;
+exports.SOCKETIOPORT = SOCKETIOPORT;
 
 var SERVERIP;
 exports.SERVERIP = SERVERIP;
-function getAddr(){
-  var os = require('os');
-  var IPv4;
-  for(var i=0;i<os.networkInterfaces().eth0.length;i++){
-    if(os.networkInterfaces().eth0[i].family=='IPv4'){
-      IPv4=os.networkInterfaces().eth0[i].address;
-    }
-  }
-  return IPv4;
-}
-exports.getAddr = getAddr;
 
+
+var SERVERNAME;
+exports.SERVERNAME = SERVERNAME;
 
 function riolog(str){
   if(RIODEBUG==1){
@@ -38,3 +31,4 @@ function dblog(str){
   } 
 }
 exports.dblog = dblog;
+
