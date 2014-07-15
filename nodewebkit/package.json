@@ -8,6 +8,7 @@
     "height": 600
   },
   "dependencies": {
+    "socket.io": "^1.0.6",
     "sqlite3": "~2.2.0"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
