@@ -1,3 +1,4 @@
+var util = require('util');
 var RIODEBUG=1;
 var DBDEBUG=1;
 var SERVERPORT=8888;
@@ -8,14 +9,14 @@ exports.SERVERIP = SERVERIP;
 
 function riolog(str){
   if(RIODEBUG==1){
-    console.log(str);
+    util.log(str);
   } 
 }
 exports.riolog = riolog;
 
 function dblog(str){
   if(DBDEBUG==1){
-    console.log(str);
+    util.log(str);
   } 
 }
 exports.dblog = dblog;
