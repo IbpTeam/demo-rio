@@ -31,7 +31,8 @@ function start(route, handle) {
   http.createServer(onRequest).listen(config.SERVERPORT);
 
   config.riolog("Server has started.");
-  filesHandle.monitorFiles('/home/v1/resources');
+  //Unuseful code. When executed in node-main, this code will make node-webkit crash.
+  //filesHandle.monitorFiles('/home/v1/resources');
 }
 
 exports.start = start;
