@@ -33,7 +33,6 @@ function initServer(){
 }
 
 
-
 function sendMsg(IP,MSG){
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
