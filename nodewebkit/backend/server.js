@@ -11,7 +11,7 @@ function start(route, handle) {
   function onRequest(request, response) {
     var postData = "";
     config.riolog(url.parse(request.url));
-    var pathname = url.parse(request.url).pathname;
+    var pathname = decodeURIComponent(url.parse(request.url).pathname);
     var absolute = url.parse(request.url).query;
 
     config.riolog("Request for " + pathname + " received.");
