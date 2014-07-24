@@ -58,7 +58,7 @@
   "homepage": "https://github.com/LearnBoost/socket.io",
   "_id": "socket.io@1.0.6",
   "_shasum": "b566532888dae3ac9058a12f294015ebdfa8084a",
-  "_from": "socket.io@",
+  "_from": "socket.io@^1.0.6",
   "_npmVersion": "1.4.14",
   "_npmUser": {
     "name": "rauchg",
