@@ -3,6 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
+var os = require('os');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 
@@ -244,6 +245,22 @@ function monitorFiles(path){
   });
 }
 exports.monitorFiles = monitorFiles;
+
+function monitorNetlink(path){
+  fs.watch(path, function (event, filename) {
+    config.riolog('event is: ' + event);
+    if(filename){
+      config.riolog('filename provided: ' + filename);
+      sleep(5000);
+      config.SERVERIP=config.getAddr();
+      config.SERVERNAME=os.hostname()+'('+config.SERVERIP+')';
+    } 
+    else{
+      config.riolog('filename not provided');
+    }
+  });
+}
+exports.monitorNetlink = monitorNetlink;
 
 function openFileByPath(path,callback){
     var  exec = require('child_process').exec;
