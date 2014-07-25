@@ -8,6 +8,8 @@ var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
 var mdns = require('mdns');
 var util = require('util');
+var listOfOscDevices={};
+var now= new Date();  
 
 function start(route, handle) {
   function onRequest(request, response) {
@@ -39,29 +41,45 @@ function start(route, handle) {
     var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
 
     browser.on('serviceUp', function(service) {
+      if(!listOfOscDevices[service.name]) {
+        listOfOscDevices[service.name] = service;
+        var cnt = Object.keys(listOfOscDevices).length;
+        console.log('There are '+cnt+' devices');
+      }
       socket.emit('mdnsUp', service);
       var str=JSON.stringify(service);
-      util.log("service up: "+str);
+     // util.log("service up: "+service.name+now.toLocaleTimeString());
+
     });
     browser.on('serviceDown', function(service) {
+      if(listOfOscDevices[service.name]) {
+        delete listOfOscDevices[service.name];
+        var cnt = Object.keys(listOfOscDevices).length;
+        console.log('There are '+cnt+' devices');
+      }
       socket.emit('mdnsDown', service);
       var str=JSON.stringify(service);
-      util.log("service down: "+str);
+     // util.log("service down: "+service.name+now.toLocaleTimeString());
+    });
+    browser.on('serviceChanged', function(service) {
+      /*if(listOfOscDevices[service.name]) {
+        delete listOfOscDevices[service.name];
+        var cnt = Object.keys(listOfOscDevices).length;
+        console.log('There are '+cnt+' devices');
+      }
+      socket.emit('mdnsDown', service);
+      var str=JSON.stringify(service);*/
+      util.log("service changed: "+service.name+now.toLocaleTimeString());
     });
     util.log("listen to services");
     browser.start();
   });
 
   config.riolog("Server has started.");
-  //filesHandle.monitorFiles('/home/v1/resources');
+  filesHandle.monitorNetlink('./var/.netlinkStatus');
 }
 
 exports.start = start;
-
-function listen(upFallback,downFallback) {
-
-}
-exports.listen = listen;
 
 function advertise() {
   var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});

@@ -1,0 +1,1 @@
+cmd_Release/obj.target/netlink.node := flock ./Release/linker.lock g++ -shared -pthread -rdynamic -m32  -Wl,-soname=netlink.node -o Release/obj.target/netlink.node -Wl,--start-group Release/obj.target/netlink/netlink.o -Wl,--end-group 
