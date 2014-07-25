@@ -8,6 +8,7 @@ var musicDAO = require("./MusicDAO");
 var recentDAO = require("./RecentDAO");
 var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
+var uniqueID = require("../uniqueID");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -213,7 +214,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
   }
 
   //Get uniform resource identifier
-  getUniqueID(function(uri){
+  uniqueID.getFileUid(function(uri){
     item.URI = uri;
     createDAO.createItem(item, function(err){
       if(err){
