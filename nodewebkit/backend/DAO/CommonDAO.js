@@ -110,6 +110,7 @@ exports.getItemById = function(id, callback){
         }
         else{
           item.id="1#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");
           callback(item);
         }
       });
@@ -121,7 +122,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="2#"+item.id;        
+          item.id="2#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");    
           callback(item);
         }
       });
@@ -133,7 +135,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="3#"+item.id;        
+          item.id="3#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");        
           callback(item);
         }
       });
@@ -145,7 +148,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="4#"+item.id;        
+          item.id="4#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");        
           callback(item);
         }
       });
@@ -157,7 +161,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="5#"+item.id;        
+          item.id="5#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");        
           callback(item);
         }
       });
