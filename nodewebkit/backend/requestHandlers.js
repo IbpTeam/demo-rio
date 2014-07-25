@@ -449,3 +449,19 @@ function getServerAddressInHttpServer(response, postData){
     }
 }
 exports.getServerAddressInHttpServer = getServerAddressInHttpServer;
+
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function sendFileInHttp(path,adress){
+  //var address = config.SERVERIP;//"http:localhost";
+  fileTranfer.sendfile(path,address);
+}
+exports.sendFileInHttp = sendFileInHttp;
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function receiveFileInHttp(){
+  fileTranfer.receivefile(path);
+}
+exports.receiveFileInHttp = receiveFileInHttp;

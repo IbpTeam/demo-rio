@@ -16,5 +16,8 @@ handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer;
 handle["/getRecentAccessData"] = requestHandlers.getRecentAccessDataInHttpServer;
 handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifyServerInHttpServer;
 handle["/getServerAddress"] = requestHandlers.getServerAddressInHttpServer;
+handle["/fileSend"] = requestHandlers.sendFileInHttp;//By xiquan 2014.7.21
+handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
+
 
 server.start(router.route, handle);

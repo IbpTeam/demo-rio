@@ -195,3 +195,39 @@ function getServerAddressFromHttp(getServerAddressCb,num){
     }
   });
 }
+
+//add function for file transfer 
+//2014.7.18 by xiquan
+function sendFileFromHttp(host){
+      $.ajax({
+    url: "/sendFile",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"sendFile","arg":"'+host+'"}',
+    success: function(result) {
+      console.log("success");
+    },
+    error: function(e) {
+      console.log(e);
+    }
+  });
+}
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function receiveFileFromHttp(path){
+      $.ajax({
+    url: "/receiveFile",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"receiveFile","arg":"'+path+'"}',
+    success: function(result) {
+      console.log("success");
+    },
+    error: function(e) {
+      console.log(e);
+    }
+  });
+}

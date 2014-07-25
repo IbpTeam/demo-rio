@@ -227,4 +227,36 @@ function getServerAddress(getServerAddressCb,num){
   }
 }
 
+//add function for file transfer 
+//2014.7.18 by xiquan
+function fileSend(host){
+  console.log("Request handler 'fileSend' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.sendFileFromLocal(host);
+  }
+  else{
+    console.log('You are in remote '); 
+    sendFileFromHttp(host);
+    //
+  }
+}
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function fileReceive(path){
+  console.log("Request handler 'fileSend' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.receiveFileFromLocal(path);
+  }
+  else{
+    console.log('You are in remote '); 
+    receiveFileFromHttp(path);
+    //
+  }
+}
+
 
