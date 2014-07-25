@@ -67,7 +67,7 @@ function getAllContactsFromLocal(getAllContactsCb) {
 }
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
-function rmDataByIdFromLocal(rmDataByIdCb,id) {
+function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
   function getItemByIdCb(item){
     if(item == null){
        result='success';
@@ -79,7 +79,7 @@ function rmDataByIdFromLocal(rmDataByIdCb,id) {
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemById(id,server.deleteItemCb,rmDataByIdCb);
+          commonDAO.deleteItemById(id,uri,server.deleteItemCb,rmDataByIdCb);
         }
         else{
           result='error';

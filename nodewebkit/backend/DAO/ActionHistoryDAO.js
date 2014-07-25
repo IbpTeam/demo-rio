@@ -46,7 +46,7 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  * @param value 
  *   所修改值
  */
-exports.createDeleteItem = function(dataURI, key, value, createUpdateItemCallBack){
+exports.createUpdateItem = function(dataURI, key, value, createUpdateItemCallBack){
   var db = openDB();
   db.run(SQLSTR.CREATEUPDATEITEM, dataURI, key, value, createUpdateItemCallBack);
   closeDB(db);
