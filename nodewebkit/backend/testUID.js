@@ -1,10 +1,9 @@
 var uniqueID=require('./uniqueID');
 
 
-function A(ex,buf)
+function A(token)
 {
-	token = buf.toString('hex');
-	console.log(token);
+	console.log('Hi token is:'+ token);
 }
 
 uniqueID. SetSysUid();

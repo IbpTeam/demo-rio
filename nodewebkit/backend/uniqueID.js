@@ -81,7 +81,15 @@ var netInfo = os.networkInterfaces();
 //console.log(netInfo);
 function getFileUid(FUNC)
 {
-	crypto.randomBytes(10,FUNC);
+	crypto.randomBytes(10,function(ex,buf)
+	{
+		var sysid = require('./config');
+		sid = sysid.uniqueID;
+		token = buf.toString('hex');
+		sytoken = sid+'#'+token;
+		console.log(sytoken);
+		FUNC(sytoken);
+	});
 }
 
 
