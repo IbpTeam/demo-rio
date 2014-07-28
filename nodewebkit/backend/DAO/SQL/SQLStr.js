@@ -55,8 +55,8 @@ exports.UPDATERECENT = "update recent set ? = ? where id = ?";
 
 
 //SQL used in ActionHistoryDAO
-exprots.CREATEINSERTITEM = "insert inro InsertHistory (id,dataURI) values (null,?)";
-exprots.CREATEDELETEITEM = "insert inro DeleteHistory (id,dataURI) values (null,?)";
-exprots.CREATEUPDATEITEM = "insert inro UpdateHistory (id,dataURI,key,value) values (null,?,?,?)";
-exprots.REMOVEUPDATEITEM = "delete from UpdateHistory where dataURI = ?";
-exprots.REMOVEINSERTITEM = "delete from InsertHistory where dataURI = ?";
+exports.CREATEINSERTITEM = "insert into InsertHistory (id,dataURI) values (null,?)";
+exports.CREATEDELETEITEM = "insert into DeleteHistory (id,dataURI) values (null,?)";
+exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,dataURI,key,value) values (null,?,?,?)";
+exports.REMOVEUPDATEITEM = "delete from UpdateHistory where dataURI = ?";
+exports.REMOVEINSERTITEM = "delete from InsertHistory where dataURI = ?";

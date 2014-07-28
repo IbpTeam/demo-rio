@@ -133,11 +133,11 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
       
       var currentTime = (new Date()).getTime();
       config.riolog("time: "+ currentTime);
-      function updateItemValueCb(id,key,value,result){
+      function updateItemValueCb(id,uri,key,value,result){
         config.riolog("update DB: "+ result);
         if(result!='successfull'){
           filesHandle.sleep(1000);
-          commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+          commonDAO.updateItemValue(id,item.URI,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
         }
         else{
           var index=id.indexOf('#');
@@ -176,25 +176,25 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
           commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
         }
       }
-      commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+      commonDAO.updateItemValue(id,item.URI,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
     }
   }
   commonDAO.getItemById(id,getItemByIdCb);
 }
 exports.getDataSourceByIdFromLocal = getDataSourceByIdFromLocal;
 
-function updateDataValueFromLocal(updateDataValueCb,id,key,value) {
-  function updateItemValueCb(id,key,value,result){
+function updateDataValueFromLocal(updateDataValueCb,id,uri,key,value) {
+  function updateItemValueCb(id,uri,key,value,result){
     config.riolog("update DB: "+ result);
     if(result!='successfull'){
       filesHandle.sleep(1000);
-      commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+      commonDAO.updateItemValue(id,uri,key,value,updateItemValueCb);
     }
     else{
       updateDataValueCb('success');
     }
   }
-  commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+  commonDAO.updateItemValue(id,uri,key,value,updateItemValueCb);
 }
 exports.updateDataValueFromLocal = updateDataValueFromLocal;
 
