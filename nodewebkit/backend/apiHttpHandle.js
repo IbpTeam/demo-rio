@@ -180,7 +180,7 @@ function getRecentAccessDataFromHttp(getRecentAccessDataCb,num){
   });
 }
 
-function getServerAddressFromHttp(getServerAddressCb,num){
+function getServerAddressFromHttp(getServerAddressCb){
     $.ajax({
     url: "/getServerAddress",
     type: "post",

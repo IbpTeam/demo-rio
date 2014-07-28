@@ -1,6 +1,10 @@
+var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var requestHandlers = require("./backend/requestHandlers");
+var util = require('util');
+var os = require('os');
+
 
 var handle = {}
 handle["/"] = requestHandlers.start;
@@ -20,4 +24,13 @@ handle["/fileSend"] = requestHandlers.sendFileInHttp;//By xiquan 2014.7.21
 handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
 
 
+config.SERVERIP=config.getAddr();
+config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
 server.start(router.route, handle);
+server.advertise();
+
+var cp = require('child_process');
+cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
+
+
+
