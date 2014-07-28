@@ -4,7 +4,7 @@ var fs = require('fs');
 var stream = require('stream');
 var config = require('./config.js');
 var i=0;//flag
-
+var port = config.FTPORT;
 //get file name from path
 function getFilename(FILEPATH){
   var pos = FILEPATH.length;
@@ -16,32 +16,31 @@ exports.getFilename = getFilename;
 
 //connect socket to server 
 //start sending
-function startSending(host){
-  var socket = net.connect({port:8080},{host:host});
-  var FILEPATH = '';
+function startSending(host,DIR){
+  var socket = new net.Socket();
   var FILENAME = '';
   var check = '';
-  var DIR ='/home/xiquan/testFile/'
-  socket.on('connect',function() {
+
+  socket.connect(port,host,function(){
     console.log('Client connected !');
-    //socket.write('FILEPATH'+FILEPATH);
-  });
-  socket.on('end', function(){
-    console.log('Client disconnected !');
-  });
-  socket.on('data',function(data){
-    var someString = data.toString();
-    check = someString.substr(0,5);
+
+    socket.on('end', function(){
+      console.log('Client disconnected !');
+    });
+    socket.on('data',function(data){
+      var someString = data.toString();
+      check = someString.substr(0,5);
     console.log(check.toString());////
     if(check == 'START'){
       FILENAME =someString.substr(5);//get file name
       //FILEPATH = someString.substr(5);//get file path
-      console.log(FILEPATH.toString());////
+      console.log('Received at '+DIR.toString()+FILENAME);////
       sendfile(socket,DIR+FILENAME);
     }else{ 
       console.log('Something wrong!');
       socket.end();
     }
+  });
   });
 };
 exports.startSending = startSending;
@@ -57,11 +56,11 @@ function sendfile(socket,FILEPATH){
   readStream.on('data',function(data){
     console.log(data);
   });
-  */
-  readStream.on('close',function() {
-    console.log('File send done !');
-    socket.end();
-  });
+*/
+readStream.on('close',function() {
+  console.log('File send done !');
+  socket.end();
+});
 };
 exports.sendfile = sendfile;
 
