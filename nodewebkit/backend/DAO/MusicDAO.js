@@ -62,20 +62,20 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEMUSIC, item.id,item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, createItemCallBack);
+  db.get(SQLSTR.CREATEMUSIC, item.id,item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, createItemCallBack);
   closeDB(db);
 }
 
 /**
- * @method deleteItemById
- *   根据ID删除表中指定数据
- * @param id
- *   music表中的主键
+ * @method deleteItemByUri
+ *   根据uri删除表中指定数据
+ * @param uri
+ *   music表中的URI
  */
-exports.deleteItemById = function(id, deleteItemByIdCallBack){
-  config.dblog("delete music id : " + id);
+exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
+  config.dblog("delete music uri : " + uri);
   var db = openDB();
-  db.get(SQLSTR.DELETEMUSIC, id, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETEMUSIC, uri, deleteItemByIdCallBack);
   closeDB(db);
 }
 
@@ -85,12 +85,12 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,key,value, updateItemValueCallBack){
   var db = openDB();
-  config.dblog("udpate music id : " + id);
+  config.dblog("udpate music uri : " + uri);
   config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE music SET "+key+" = '"+value+"' WHERE id = "+id;
+  var sqlstr="UPDATE music SET "+key+" = '"+value+"' WHERE URI = "+uri;
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);

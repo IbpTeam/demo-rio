@@ -50,13 +50,13 @@ function createItemCb(category,item,result,loadResourcesCb)
 }
 
 
-function deleteItemCb(id,result,rmDataByIdCb)
+function deleteItemCb(id,uri,result,rmDataByIdCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
     config.riolog(id+'delete error:'+result.code);
     sleep(1000);
-    commonDAO.deleteItemById(id,deleteItemCb,rmDataByIdCb);
+    commonDAO.deleteItemById(id,uri,deleteItemCb,rmDataByIdCb);
   }
   else if(result=='successfull'){
     config.riolog(id+'delete:'+result);
