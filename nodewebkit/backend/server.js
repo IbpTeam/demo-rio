@@ -78,6 +78,7 @@ function start(route, handle) {
   config.riolog("Server has started.");
   //Unuseful code. When executed in node-main, this code will make node-webkit crash.
   //filesHandle.monitorFiles('/home/v1/resources');
+  filesHandle.monitorNetlink('./var/.netlinkStatus');
 }
 
 exports.start = start;
