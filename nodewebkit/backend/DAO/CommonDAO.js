@@ -333,7 +333,7 @@ exports.updateItemValue = function(id, uri, key, value, callback){
     }
     break;
     case '5' : {
-      udpateDAO = musicDAO;
+      updateDAO = musicDAO;
       category = "Music";
     } 
     break;   
@@ -351,7 +351,7 @@ exports.updateItemValue = function(id, uri, key, value, callback){
         }
         else{
           config.dblog("update" + category + "successfull");
-          callback(id,urikey,value,'successfull');
+          callback(id,uri,key,value,'successfull');
         }
       });
     }
