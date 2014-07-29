@@ -112,7 +112,7 @@ exports.getItemById = function(id, callback){
         }
         else{
           item.id="1#"+item.id;
-          item.path=item.path.replace(/\s/g, "%20");
+          item.photoPath=item.photoPath.replace(/\s/g, "%20");
           callback(item);
         }
       });
