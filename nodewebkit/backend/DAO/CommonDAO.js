@@ -342,16 +342,16 @@ exports.updateItemValue = function(id, uri, key, value, callback){
 
   updateDAO.updateItemValueByUri(uri,key,value, function(err){
     if(err){
-      callback(uri,key,value,err);
+      callback(id,uri,key,value,err);
     }
     else{
       actionHistoryDAO.createUpdateItem(uri, key, value, function(err){
         if(err){
-          callback(uri,key,value,err);
+          callback(id,uri,key,value,err);
         }
         else{
           config.dblog("update" + category + "successfull");
-          callback(id,key,value,'successfull');
+          callback(id,urikey,value,'successfull');
         }
       });
     }
