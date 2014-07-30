@@ -42,17 +42,18 @@ function start(route, handle) {
     var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
 
     browser.on('serviceUp', function(service) {
-//      if(!listOfOscDevices[service.name]) {
- //       listOfOscDevices[service.name] = service;
- //      var cnt = Object.keys(listOfOscDevices).length;
- //       console.log('There are '+cnt+' devices');
- //     }
-      socket.emit('mdnsUp', service);
-      var str=JSON.stringify(service.textRecord);
-      util.log("service up: "+str);
-      if(service.textRecord.dataSync){
-        dataSync.start();
+      if(!listOfOscDevices[service.name]) {
+        listOfOscDevices[service.name] = service;
+       var cnt = Object.keys(listOfOscDevices).length;
+        console.log('There are '+cnt+' devices');
       }
+
+      //sendMessage
+      dataSync.start(service.addresses);
+
+      socket.emit('mdnsUp', service);
+//      var str=JSON.stringify(service);
+//      util.log("service up: "+str);
     });
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
@@ -88,11 +89,7 @@ function start(route, handle) {
 exports.start = start;
 
 function advertise() {
-  var text_record = {
-    serverName: config.SERVERNAME,
-    dataSync: true
-  };
-  var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{textRecord: text_record});
+  var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
   ad.start();
 }
 exports.advertise = advertise;
