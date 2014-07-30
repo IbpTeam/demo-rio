@@ -6,6 +6,7 @@ var fs = require('fs');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
+var dataSync = require("./DataSync");
 var mdns = require('mdns');
 var util = require('util');
 var listOfOscDevices={};
@@ -41,15 +42,17 @@ function start(route, handle) {
     var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
 
     browser.on('serviceUp', function(service) {
-      if(!listOfOscDevices[service.name]) {
-        listOfOscDevices[service.name] = service;
-        var cnt = Object.keys(listOfOscDevices).length;
-        console.log('There are '+cnt+' devices');
-      }
+//      if(!listOfOscDevices[service.name]) {
+ //       listOfOscDevices[service.name] = service;
+ //      var cnt = Object.keys(listOfOscDevices).length;
+ //       console.log('There are '+cnt+' devices');
+ //     }
       socket.emit('mdnsUp', service);
-      var str=JSON.stringify(service);
-     // util.log("service up: "+service.name+now.toLocaleTimeString());
-
+      var str=JSON.stringify(service.textRecord);
+      util.log("service up: "+str);
+      if(service.textRecord.dataSync){
+        dataSync.start();
+      }
     });
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
@@ -85,7 +88,11 @@ function start(route, handle) {
 exports.start = start;
 
 function advertise() {
-  var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
+  var text_record = {
+    serverName: config.SERVERNAME,
+    dataSync: true
+  };
+  var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{textRecord: text_record});
   ad.start();
 }
 exports.advertise = advertise;
