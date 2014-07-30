@@ -313,7 +313,7 @@ exports.updateItemValue = function(id, uri, key, value, callback){
   var category = "";
   switch(tableId){
     case '1' : {
-      udpateDAO = contactsDAO;
+      updateDAO = contactsDAO;
       category = "Contacts";
     }
     break;
