@@ -8,4 +8,4 @@ function A(token)
 
 uniqueID. SetSysUid();
 
-uniqueID.getFileUid(A);
+//uniqueID.getFileUid(A);

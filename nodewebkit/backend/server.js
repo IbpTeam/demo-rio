@@ -61,16 +61,17 @@ function start(route, handle) {
       var str=JSON.stringify(service);
      // util.log("service down: "+service.name+now.toLocaleTimeString());
     });
-    browser.on('serviceChanged', function(service) {
-      /*if(listOfOscDevices[service.name]) {
+/*    browser.on('serviceChanged', function(service) {
+      if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
         var cnt = Object.keys(listOfOscDevices).length;
         console.log('There are '+cnt+' devices');
       }
       socket.emit('mdnsDown', service);
-      var str=JSON.stringify(service);*/
+      var str=JSON.stringify(service);
       util.log("service changed: "+service.name+now.toLocaleTimeString());
     });
+*/
     util.log("listen to services");
     browser.start();
   });
