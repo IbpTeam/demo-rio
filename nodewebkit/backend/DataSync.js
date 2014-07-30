@@ -5,11 +5,20 @@
  * @version: 0.0.1
  **/
 
+var msgTransfer = require.("./msgtransfer");
+
 //Init method
-init = function(){
-  console.log("Get data from db");
+function init(){
+  console.log("==============================================");
 }
 
-start = function(ip){
-  console.log("get ip from internet discovery" + ip);
+function start(ip){
+  console.log("get ip from internet discovery : " + ip);
+  msgTransfer.initServer();
+  msgTransfer.sendMsg(ip,"this is a test message!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+  init();
 }
+
+
+//Export method
+exports.start = start;
