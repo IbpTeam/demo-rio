@@ -120,11 +120,15 @@ updateDataValue(updateDataValueCb,'4#8','others','Release Note');
 
 
 function deviceUpCb(data){
-  console.log("device up : "+data.name);
+    if(data.txtRecord!=null){
+  console.log("device up : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
+}
 }
 
 function deviceDownCb(data){
-  console.log("device down : "+data.name);
+  if(data.txtRecord!=null){
+  console.log("device down : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
+}
 }
 getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
 </script>
