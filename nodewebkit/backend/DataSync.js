@@ -15,7 +15,7 @@ function init(initCallback){
 }
 
 function start(ip){
-  console.log("get ip from internet discovery : " + ip);
+//  console.log("get ip from internet discovery : " + ip);
   msgTransfer.sendMsg(""+ip,"syncUpdate");
 //  init();
 }

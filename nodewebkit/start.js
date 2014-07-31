@@ -27,9 +27,8 @@ handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
-server.start(router.route, handle);
 msgTransfer.initServer();
-server.advertise();
+server.start(router.route, handle);
 
 var cp = require('child_process');
 cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');

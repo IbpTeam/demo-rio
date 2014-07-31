@@ -77,6 +77,8 @@ function start(route, handle) {
 */
     util.log("listen to services");
     browser.start();
+    var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
+    ad.start();
   });
 
   config.riolog("Server has started.");
@@ -87,8 +89,3 @@ function start(route, handle) {
 
 exports.start = start;
 
-function advertise() {
-  var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
-  ad.start();
-}
-exports.advertise = advertise;

@@ -50,8 +50,8 @@ function sendMsg(IP,MSG){
 		console.log('Input IP Format Error!');
 		return;
 	};
-	console.log("=========================="+config.SERVERIP)
-	console.log("--------------------------"+IP);
+//	console.log("=========================="+config.SERVERIP)
+//	console.log("--------------------------"+IP);
 	if (IP == config.SERVERIP) {
 		console.log("Input IP is localhost!");
 		return;
@@ -61,6 +61,11 @@ function sendMsg(IP,MSG){
 		client.write(MSG,function(){
 			client.end();
 		});
+	});
+
+	client.on('error',function(err){
+		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
+		client.end();
 	});
 }
 
