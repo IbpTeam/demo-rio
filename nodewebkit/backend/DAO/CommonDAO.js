@@ -213,11 +213,11 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
           callback(category,item,'successfull',loadResourcesCb);
         }
       });
+      return;
     }
     break;    
     
   }
-
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.URI = uri;

@@ -47,13 +47,12 @@ function start(route, handle) {
        var cnt = Object.keys(listOfOscDevices).length;
         console.log('There are '+cnt+' devices');
       }
-
       //sendMessage
       dataSync.start(service.addresses);
-
+      
       socket.emit('mdnsUp', service);
-//      var str=JSON.stringify(service);
-//      util.log("service up: "+str);
+      //var str=JSON.stringify(service);
+      //util.log("service up: "+str);
     });
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
@@ -62,8 +61,8 @@ function start(route, handle) {
         console.log('There are '+cnt+' devices');
       }
       socket.emit('mdnsDown', service);
-      var str=JSON.stringify(service);
-     // util.log("service down: "+service.name+now.toLocaleTimeString());
+     // var str=JSON.stringify(service);
+     //util.log("service down: "+service.name+now.toLocaleTimeString());
     });
 /*    browser.on('serviceChanged', function(service) {
       if(listOfOscDevices[service.name]) {

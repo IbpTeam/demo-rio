@@ -52,6 +52,10 @@ function sendMsg(IP,MSG){
 	};
 	console.log("=========================="+config.SERVERIP)
 	console.log("--------------------------"+IP);
+	if (IP == config.SERVERIP) {
+		console.log("Input IP is localhost!");
+		return;
+	};
 	var  client = new net.Socket();
 	client.connect(config.MSGPORT,IP,function(){
 		client.write(MSG,function(){
