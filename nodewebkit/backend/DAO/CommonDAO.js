@@ -387,3 +387,13 @@ exports.queryItemInAllByStr = function(str, callback){
     callback(itemArray);
 });
 }
+
+exports.findAllActionHistory = function(action, callback){
+  actionHistoryDAO.findAll(action, function(err, actions){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    callback(actions);
+  });
+}

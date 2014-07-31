@@ -1,5 +1,6 @@
-var net = require('net')
-var config = require('./config')
+var net = require('net');
+var config = require('./config');
+var dataSync = require('./DataSync');
 
 
 function initServer(){
@@ -9,10 +10,21 @@ function initServer(){
 		var remotePT = c.remotePort;
 
 	c.on('data', function(data) {
-			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + data);
+//		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + data);
 //			var str1= JSON.parse(data);
 //			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + str1.param);
-		});
+		switch(data){
+			case 'syncUpdate': {
+				console.log("=========================");
+				dataSync.prepUpdate();
+			}
+			break;
+			default: {
+				console.log("this is in default switch on data");
+				console.log(data);
+			}
+		}
+	});
 
 	c.on('close',function(){
 			console.log('Client ' + remoteAD +  ' : ' + remotePT + ' disconnected!');
