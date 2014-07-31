@@ -5,7 +5,7 @@
  * @version: 0.0.1
  **/
 
-var msgTransfer = require.("./msgtransfer");
+var msgTransfer = require("./msgtransfer");
 
 //Init method
 function init(){
