@@ -10,10 +10,10 @@ function initServer(){
 		var remotePT = c.remotePort;
 
 	c.on('data', function(data) {
-//		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + data);
+		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + data);
 //			var str1= JSON.parse(data);
 //			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + str1.param);
-		switch(data){
+		switch(data+""){
 			case 'syncUpdate': {
 				console.log("=========================");
 				dataSync.prepUpdate();
@@ -21,7 +21,7 @@ function initServer(){
 			break;
 			default: {
 				console.log("this is in default switch on data");
-				console.log(data);
+				//console.log(data);
 			}
 		}
 	});
@@ -50,6 +50,8 @@ function sendMsg(IP,MSG){
 		console.log('Input IP Format Error!');
 		return;
 	};
+	console.log("=========================="+config.SERVERIP)
+	console.log("--------------------------"+IP);
 	var  client = new net.Socket();
 	client.connect(config.MSGPORT,IP,function(){
 		client.write(MSG,function(){

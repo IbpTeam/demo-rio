@@ -15,15 +15,16 @@ function init(initCallback){
 }
 
 function start(ip){
-//  console.log("get ip from internet discovery : " + ip);
+  console.log("get ip from internet discovery : " + ip);
   msgTransfer.sendMsg(""+ip,"syncUpdate");
 //  init();
 }
 
 function prepUpdate(){
 	var jsonStr = null;
-	init(function(actions){
-		console.log()
+	init(function(updateActions){
+//		jsonStr = 
+		console.log(updateActions)
 	});
 }
 
