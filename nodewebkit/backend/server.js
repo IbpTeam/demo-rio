@@ -75,7 +75,11 @@ function start(route, handle) {
     });
     util.log("listen to services");
     browser.start();
-    var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
+    var txt_record = {
+      deviceName: config.SERVERNAME,
+      account:config.ACCOUNT
+    };
+    var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
     ad.start();
   });
 
