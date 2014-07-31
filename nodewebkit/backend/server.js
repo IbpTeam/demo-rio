@@ -33,7 +33,7 @@ function start(route, handle) {
   }
   http.createServer(onRequest).listen(config.SERVERPORT);
   
-  var io = require('socket.io').listen(config.SOCKETIOPORT);
+ var io = require('socket.io').listen(config.SOCKETIOPORT);
   io.sockets.on('connection', function (socket) {
     var sequence = [
       mdns.rst.DNSServiceResolve()
@@ -42,11 +42,17 @@ function start(route, handle) {
     var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
 
     browser.on('serviceUp', function(service) {
-      if(!listOfOscDevices[service.name]) {
-        listOfOscDevices[service.name] = service;
-       var cnt = Object.keys(listOfOscDevices).length;
-        console.log('There are '+cnt+' devices');
+      if(service.port==config.MDNSPORT){
+        if(!listOfOscDevices[service.name]) {
+          listOfOscDevices[service.name] = service;
+          var cnt = Object.keys(listOfOscDevices).length;
+          console.log('There are '+cnt+' devices');
+        }
+        socket.emit('mdnsUp', service);
+        var str=JSON.stringify(service);
+        util.log("service up: "+str+now.toLocaleTimeString());
       }
+      
       //sendMessage
       dataSync.start(service.addresses);
       
@@ -59,22 +65,25 @@ function start(route, handle) {
         delete listOfOscDevices[service.name];
         var cnt = Object.keys(listOfOscDevices).length;
         console.log('There are '+cnt+' devices');
+        socket.emit('mdnsDown', service);
+        var str=JSON.stringify(service);
+        util.log("service down: "+str+now.toLocaleTimeString());
       }
       socket.emit('mdnsDown', service);
      // var str=JSON.stringify(service);
      //util.log("service down: "+service.name+now.toLocaleTimeString());
+
     });
-/*    browser.on('serviceChanged', function(service) {
-      if(listOfOscDevices[service.name]) {
+    browser.on('serviceChanged', function(service) {
+      /*if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
         var cnt = Object.keys(listOfOscDevices).length;
         console.log('There are '+cnt+' devices');
       }
       socket.emit('mdnsDown', service);
-      var str=JSON.stringify(service);
-      util.log("service changed: "+service.name+now.toLocaleTimeString());
+      var str=JSON.stringify(service);*/
+    //  util.log("service changed: "+service.name+now.toLocaleTimeString());
     });
-*/
     util.log("listen to services");
     browser.start();
     var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{name: config.SERVERNAME});
