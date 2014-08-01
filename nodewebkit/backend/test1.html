@@ -98,14 +98,14 @@ updateDataValue(updateDataValueCb,'4#8','others','Release Note');
   getRecentAccessData(getRecentAccessDataCb,10);
   */
   
-  
+  /*
     function getServerAddressCb(result){
        document.write(result.ip);
    document.write(result.port);  
   }
   getServerAddress(getServerAddressCb);
 
-
+*/
 
   //fileReceive('/home/xiquan/received/linux.zip');
   //document.write("start receiving");
@@ -118,15 +118,19 @@ updateDataValue(updateDataValueCb,'4#8','others','Release Note');
 
 
 
-/*
+
 function deviceUpCb(data){
-  console.log("device up : "+data.name);
+    if(data.txtRecord!=null){
+  console.log("device up : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
+}
 }
 
 function deviceDownCb(data){
-  console.log("device down : "+data.name);
+  if(data.txtRecord!=null){
+  console.log("device down : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
 }
-getDeviceDiscoveryService(deviceUpCb,deviceDownCb);*/
+}
+getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
 </script>
 <!--
 <audio controls>

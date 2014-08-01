@@ -261,7 +261,7 @@ function fileReceive(path){
 
 //API getDeviceDiscoveryService:使用设备发现服务
 //参数分别为设备发现和设备离开的回调函数
-var SOCKETIOPORT=8890;
+var SOCKETIOPORT=8891;
 function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   console.log("Request handler 'getDeviceDiscoveryService' was called.");
   function getServerAddressCb(result){

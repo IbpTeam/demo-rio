@@ -213,11 +213,11 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
           callback(category,item,'successfull',loadResourcesCb);
         }
       });
+      return;
     }
     break;    
     
   }
-
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.URI = uri;
@@ -386,4 +386,14 @@ exports.queryItemInAllByStr = function(str, callback){
     itemArray.push(items);
     callback(itemArray);
 });
+}
+
+exports.findAllActionHistory = function(action, callback){
+  actionHistoryDAO.findAll(action, function(err, actions){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    callback(actions);
+  });
 }
