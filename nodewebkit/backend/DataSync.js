@@ -7,6 +7,7 @@
 
 var msgTransfer = require("./msgtransfer");
 var commonDAO = require("./DAO/CommonDAO");
+var config = require("./config");
 
 //Init method,retrive data from db
 function init(initCallback){
@@ -35,7 +36,13 @@ function syncUpdateAction(updateCallBack){
 //Send sync request when other devices connect the net.
 function syncRequest(ip){
 //  console.log("get ip from internet discovery : " + ip);
-  msgTransfer.sendMsg(""+ip,"syncUpdate");
+  var requestMsg = {
+  	type: "syncRequest",
+  	account: config.ACCOUNT
+  };
+  var requestStr = JSON.stringify(requestMsg);
+  var ipStr = JSON.stringify(ip);
+  msgTransfer.sendMsg(ipStr,requestStr);
 //  init();
 }
 
