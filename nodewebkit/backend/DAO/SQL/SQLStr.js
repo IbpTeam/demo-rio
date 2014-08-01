@@ -60,3 +60,6 @@ exprots.CREATEDELETEITEM = "insert into DeleteHistory (id,dataURI) values (null,
 exprots.CREATEUPDATEITEM = "insert into UpdateHistory (id,dataURI,key,value) values (null,?,?,?)";
 exprots.REMOVEUPDATEITEM = "delete from UpdateHistory where dataURI = ?";
 exprots.REMOVEINSERTITEM = "delete from InsertHistory where dataURI = ?";
+exports.FINDALLUPDATES = "select * from UpdateHistory";
+exports.FINDALLDELETES = "select * from DeleteHistory";
+exports.FINDALLINSERTS = "select * from InsertHistory";

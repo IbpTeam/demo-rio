@@ -89,7 +89,7 @@ exports.updateItemValueByUri = function(uri,key,value, updateItemValueCallBack){
     config.dblog("udpate vidoes uri : " + uri);
         config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, uri, updateItemValueCallBack);
-  var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"' WHERE URI = "+uri;
+  var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"' WHERE URI =  '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);

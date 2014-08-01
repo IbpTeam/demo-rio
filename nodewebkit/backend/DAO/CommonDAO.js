@@ -112,7 +112,7 @@ exports.getItemById = function(id, callback){
         }
         else{
           item.id="1#"+item.id;
-          item.path=item.path.replace(/\s/g, "%20");
+          item.photoPath=item.photoPath.replace(/\s/g, "%20");
           callback(item);
         }
       });
@@ -213,11 +213,11 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
           callback(category,item,'successfull',loadResourcesCb);
         }
       });
+      return;
     }
     break;    
     
   }
-
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.URI = uri;
@@ -313,7 +313,7 @@ exports.updateItemValue = function(id, uri, key, value, callback){
   var category = "";
   switch(tableId){
     case '1' : {
-      udpateDAO = contactsDAO;
+      updateDAO = contactsDAO;
       category = "Contacts";
     }
     break;
@@ -333,7 +333,7 @@ exports.updateItemValue = function(id, uri, key, value, callback){
     }
     break;
     case '5' : {
-      udpateDAO = musicDAO;
+      updateDAO = musicDAO;
       category = "Music";
     } 
     break;   
@@ -342,16 +342,16 @@ exports.updateItemValue = function(id, uri, key, value, callback){
 
   updateDAO.updateItemValueByUri(uri,key,value, function(err){
     if(err){
-      callback(uri,key,value,err);
+      callback(id,uri,key,value,err);
     }
     else{
       actionHistoryDAO.createUpdateItem(uri, key, value, function(err){
         if(err){
-          callback(uri,key,value,err);
+          callback(id,uri,key,value,err);
         }
         else{
           config.dblog("update" + category + "successfull");
-          callback(id,key,value,'successfull');
+          callback(id,uri,key,value,'successfull');
         }
       });
     }
@@ -386,4 +386,14 @@ exports.queryItemInAllByStr = function(str, callback){
     itemArray.push(items);
     callback(itemArray);
 });
+}
+
+exports.findAllActionHistory = function(action, callback){
+  actionHistoryDAO.findAll(action, function(err, actions){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    callback(actions);
+  });
 }

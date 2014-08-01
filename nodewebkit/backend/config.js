@@ -5,14 +5,15 @@ var os = require('os');
 var RIODEBUG=1;
 var DBDEBUG=1;
 var SERVERPORT=8888;
-var MSGPORT=8889
+var MSGPORT=8889;
 exports.MSGPORT = MSGPORT;
 exports.SERVERPORT = SERVERPORT;
-var MDNSPORT=8889;
+var MDNSPORT=8890;
 exports.MDNSPORT = MDNSPORT;
-var SOCKETIOPORT=8890;
+var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
-
+var ACCOUNT="wangfeng";
+exports.ACCOUNT = ACCOUNT;
 function getAddr(){
   var IPv4;
   //var os = require('os');
@@ -52,4 +53,7 @@ function dblog(str){
   } 
 }
 exports.dblog = dblog;
+
+var uniqueID='69fbf7ae568808801c6a7165d30189e7';
+exports.uniqueID=uniqueID;
 
