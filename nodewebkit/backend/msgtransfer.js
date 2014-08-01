@@ -9,14 +9,14 @@ function initServer(){
 		var remoteAD = c.remoteAddress;
 		var remotePT = c.remotePort;
 
-	c.on('data', function(data) {
-		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + data);
-//			var str1= JSON.parse(data);
+	c.on('data', function(dataStr) {
+		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + dataStr);
+		var data = JSON.parse(dataStr);
 //			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + str1.param);
-		switch(data+""){
+		switch(data){
 			case 'syncUpdate': {
 				console.log("=========================");
-				dataSync.prepUpdate();
+				dataSync.prepUpdate(remoteAD);
 			}
 			break;
 			default: {
