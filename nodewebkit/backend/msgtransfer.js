@@ -9,14 +9,24 @@ function initServer(){
 		var remoteAD = c.remoteAddress;
 		var remotePT = c.remotePort;
 
-	c.on('data', function(dataStr) {
-		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + dataStr);
-		var data = JSON.parse(dataStr);
-//			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + str1.param);
-		switch(data){
-			case 'syncUpdate': {
-				console.log("=========================");
-				dataSync.prepUpdate(remoteAD);
+	c.on('data', function(msgStr) {
+		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
+		var msgObj = JSON.parse(msgStr);
+		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgObj.type);
+		switch(msgObj.type){
+			case 'syncRequest': {
+				//console.log("=========================================");
+				dataSync.syncResponse(msgObj, remoteAD);
+			}
+			break;
+			case 'syncResponse': {
+				//console.log("=========================================");
+				dataSync.syncCheckResponse(msgObj, remoteAD);
+			}
+			break;
+			case 'syncStart': {
+				console.log("=========================================");
+				dataSync.syncStart(msgObj, remoteAD);
 			}
 			break;
 			default: {
@@ -46,12 +56,12 @@ function initServer(){
 
 
 function sendMsg(IP,MSG){
+//	console.log("--------------------------"+IP);
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
 		return;
 	};
 //	console.log("=========================="+config.SERVERIP)
-//	console.log("--------------------------"+IP);
 	if (IP == config.SERVERIP) {
 		console.log("Input IP is localhost!");
 		return;

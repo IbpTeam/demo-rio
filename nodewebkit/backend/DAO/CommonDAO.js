@@ -388,12 +388,41 @@ exports.queryItemInAllByStr = function(str, callback){
 });
 }
 
-exports.findAllActionHistory = function(action, callback){
+exports.findEachActionHistory = function(action, callback){
   actionHistoryDAO.findAll(action, function(err, actions){
     if(err){
       config.dblog(err);
       callback(null);
     }
     callback(actions);
+  });
+}
+
+exports.findAllActionHistory = function(callback){
+  var insertActions = null;
+  var deleteActions = null;
+  var updateActions = null;
+
+  actionHistoryDAO.findAll("insert", function(err, insActions){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    insertActions = insActions;
+    actionHistoryDAO.findAll("delete", function(err, delActions){
+      if(err){
+        config.dblog(err);
+        callback(null);
+      }
+      deleteActions = delActions;
+      actionHistoryDAO.findAll("delete", function(err, updActions){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        updateActions = updActions;
+        callback(insertActions, deleteActions, updateActions);
+      });
+    });
   });
 }
