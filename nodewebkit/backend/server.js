@@ -52,6 +52,13 @@ function start(route, handle) {
         var str=JSON.stringify(service);
         util.log("service up: "+str+now.toLocaleTimeString());
       }
+      
+      //sendMessage
+      dataSync.start(service.addresses);
+      
+      socket.emit('mdnsUp', service);
+      //var str=JSON.stringify(service);
+      //util.log("service up: "+str);
     });
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
@@ -62,6 +69,10 @@ function start(route, handle) {
         var str=JSON.stringify(service);
         util.log("service down: "+str+now.toLocaleTimeString());
       }
+      socket.emit('mdnsDown', service);
+     // var str=JSON.stringify(service);
+     //util.log("service down: "+service.name+now.toLocaleTimeString());
+
     });
     browser.on('serviceChanged', function(service) {
       /*if(listOfOscDevices[service.name]) {

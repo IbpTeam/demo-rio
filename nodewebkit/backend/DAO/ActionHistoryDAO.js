@@ -76,4 +76,34 @@ exports.removeInsertItem = function(dataURI, removeInsertItemCallBack){
   closeDB(db);
 }
 
-
+/**
+ * @method findAll
+ *   查询UpdateHistory表中所有数据
+ * @param null
+ *
+ * @return update history
+ *   数组对象，数组中每一个元素都是一条数据对象
+ */
+exports.findAll = function(action, findAllCallBack){
+  var sqlStr = null;
+  switch(action){
+    case "update":{
+      sqlStr = SQLSTR.FINDALLUPDATES;
+    }
+    break;
+    case "delete":{
+      sqlStr = SQLSTR.FINDALLDELETES;
+    }
+    break;
+    case "insert":{
+      sqlStr = SQLSTR.FINDALLINSERTS;
+    }
+    break;
+    default:{
+      console.log("no action found!");
+    }
+  }
+  var db = openDB();
+  db.all(sqlStr, findAllCallBack);
+  closeDB(db);
+}  
