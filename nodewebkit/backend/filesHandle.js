@@ -26,7 +26,8 @@ function createItemCb(category,item,result,loadResourcesCb)
     sleep(1000);
     commonDAO.createItem(category,item,createItemCb,loadResourcesCb);
   }
-  else if(result=='successfull'){
+
+  else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
     config.riolog(item.filename+'insert:'+result);
     if(category=='recent'){
       writeDbRecentNum--;

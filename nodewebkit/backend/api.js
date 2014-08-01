@@ -180,16 +180,16 @@ function getDataSourceById(getDataSourceByIdCb,id){
 //成功返回success;
 //失败返回失败原因
 
-function updateDataValue(updateDataValueCb,id,key,value){
+function updateDataValue(updateDataValueCb,id,uri,key,value){
   console.log("Request handler 'updateDataValue' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,id,key,value);
+    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,id,uri,key,value);
   }
   else{
     console.log('You are in remote '); 
-    updateDataValueFromHttp(updateDataValueCb,id,key,value);
+    updateDataValueFromHttp(updateDataValueCb,id,uri,key,value);
   }
 }
 
@@ -261,7 +261,7 @@ function fileReceive(path){
 
 //API getDeviceDiscoveryService:使用设备发现服务
 //参数分别为设备发现和设备离开的回调函数
-var SOCKETIOPORT=8890;
+var SOCKETIOPORT=8891;
 function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   console.log("Request handler 'getDeviceDiscoveryService' was called.");
   function getServerAddressCb(result){
