@@ -41,8 +41,7 @@ function syncRequest(ip){
   	account: config.ACCOUNT
   };
   var requestStr = JSON.stringify(requestMsg);
-  var ipStr = JSON.stringify(ip);
-  msgTransfer.sendMsg(ipStr,requestStr);
+  msgTransfer.sendMsg(ip[0],requestStr);
 //  init();
 }
 
