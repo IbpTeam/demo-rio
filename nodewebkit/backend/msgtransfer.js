@@ -20,8 +20,13 @@ function initServer(){
 			}
 			break;
 			case 'syncResponse': {
+				//console.log("=========================================");
+				dataSync.syncCheckResponse(msgObj, remoteAD);
+			}
+			break;
+			case 'syncStart': {
 				console.log("=========================================");
-				//dataSync.syncResponse(msgObj, remoteAD);
+				dataSync.syncStart(msgObj, remoteAD);
 			}
 			break;
 			default: {
