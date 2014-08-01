@@ -1,9 +1,11 @@
+
 //fileTranfer.js
 var net = require("net");
 var fs = require('fs');
 var stream = require('stream');
 var config = require('./config.js');
-var i=0;//flag
+var port = config.FTPORT;
+var DIR = '/home/xiquan/testFile/';
 
 //get file name from path
 function getFilename(FILEPATH){
@@ -14,37 +16,41 @@ function getFilename(FILEPATH){
 };
 exports.getFilename = getFilename;
 
-//connect socket to server 
+//create server listening
 //start sending
-function startSending(host){
-  var socket = net.connect({port:8080},{host:host});
-  var FILEPATH = '';
-  var FILENAME = '';
-  var check = '';
-  var DIR ='/home/xiquan/testFile/'
-  socket.on('connect',function() {
+function initServer(){
+  var server = net.createServer(function(socket){
     console.log('Client connected !');
-    //socket.write('FILEPATH'+FILEPATH);
-  });
-  socket.on('end', function(){
-    console.log('Client disconnected !');
-  });
-  socket.on('data',function(data){
-    var someString = data.toString();
-    check = someString.substr(0,5);
-    console.log(check.toString());////
-    if(check == 'START'){
+    socket.on('end', function(){s
+      console.log('Client disconnected !');
+    });
+    socket.on('data',function(data){
+      var FILENAME = '';
+      var check = '';
+      var someString = data.toString();
+      check = someString.substr(0,5);
+      console.log(check.toString());////
+      if(check == 'START'){
       FILENAME =someString.substr(5);//get file name
       //FILEPATH = someString.substr(5);//get file path
-      console.log(FILEPATH.toString());////
+      console.log('Received at '+DIR.toString()+FILENAME);////
       sendfile(socket,DIR+FILENAME);
     }else{ 
       console.log('Something wrong!');
-      socket.end();
-    }
+      //socket.end();
+    };
+    socket.on('error',function(){
+      console.log('Something wrong! ');
+      console.log(error);
+      socket.close();
+    });
+  });
+  });
+  server.listen(port, function() { 
+    console.log('Ready to send !');
   });
 };
-exports.startSending = startSending;
+exports.initServer = initServer;
 
 //fileSender
 function sendfile(socket,FILEPATH){
@@ -57,42 +63,38 @@ function sendfile(socket,FILEPATH){
   readStream.on('data',function(data){
     console.log(data);
   });
-  */
-  readStream.on('close',function() {
-    console.log('File send done !');
-    socket.end();
-  });
+*/
+readStream.on('close',function() {
+  console.log('File send done !');
+  socket.end();
+});
 };
 exports.sendfile = sendfile;
 
-//create server listening
+//connect socket to server 
 //start receiving when socket connected
-function startReceiving(FILEPATH){
-  var server = net.createServer(function(socket){
-    var fileWriteStream = fs.createWriteStream(FILEPATH);
-    socket.on('data',function(data){
-      fileWriteStream.write(data);
-    });
-    socket.on('end', function(){
-      fileWriteStream.end();
-      server.close();
-      console.log('Socket disconnected !');
-    });
-  });
-  server.on('connection',function(socket){
+function startReceiving(FILEPATH,host){
+  var socket = new net.Socket();
+  var fileWriteStream = fs.createWriteStream(FILEPATH);
+  socket.connect(port,host,function(){
     console.log('Socket connected!');
     var FILENAME = getFilename(FILEPATH);
     console.log('Now receiving '+FILENAME.toString());////
     socket.write('START'+FILENAME);//specifc file name
     //socket.write('START'+FILEPATH);//specific file path
-  });
-  server.on('error', function (e) {
-    if (e.code == 'EADDRINUSE') {
-      console.log('Address in use, retrying...');
-    }
-  });
-  server.listen(8080, function() { 
-    console.log('Ready to receive !');
+    console.log('Client connected !');
+    socket.on('data',function(data){
+      fileWriteStream.write(data);
+    });
+    socket.on('end', function(){
+      fileWriteStream.end();
+      console.log('Socket disconnected !');
+    });
+    socket.on('error', function (e) {
+      if (e.code == 'EADDRINUSE') {
+        console.log('Address in use, retrying...');
+      }
+    });
   });
 }
 exports.startReceiving = startReceiving;

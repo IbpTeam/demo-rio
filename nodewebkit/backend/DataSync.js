@@ -9,6 +9,18 @@ var msgTransfer = require("./msgtransfer");
 var commonDAO = require("./DAO/CommonDAO");
 var config = require("./config");
 
+var ActionHistory = require('./DAO/ActionHistoryDAO');//
+//
+function test(){
+	ActionHistory.createInsertItem('testInsert_1');
+	ActionHistory.createInsertItem('testInsert_2');
+	ActionHistory.createInsertItem('testInsert_3');
+	ActionHistory.createInsertItem('testInsert_4');
+	ActionHistory.createInsertItem('testInsert_5');
+	console.log('hello');
+};
+exports.test = test;
+
 //Init method,retrive data from db
 function syncInitActions(initCallback){
   console.log("init actions history!");
@@ -31,9 +43,10 @@ function syncDeleteAction(deleteCallBack){
 }
 
 //Sync insert action
-function syncInsertAction(insertCallBack){
-	//To-Do
-	insertCallBack();
+function syncInsertAction(other_insertHistory,insertCallBack){
+	commonDAO.findEachActionHistory("insert",function(my_insertHistory){
+		insertCallBack(other_insertHistory,my_insertHistory);
+	});
 }
 
 //Sync insert action
@@ -110,8 +123,17 @@ function syncStart(syncData, adress){
 	syncDeleteAction(function(){
 
 		//Retrive actions after delete, start to sync insert actions 
-		syncInsertAction(function(){
-
+		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
+			insertActions.forEach(function(item){
+				if(isExist(my_insertHistory,item.dataURI)){
+					console.log('---nothing new---');
+				}else{
+					console.log('---something new---');
+					console.log("We got a new item: \r\n");
+					console.log(item);
+					ActionHistory.createInsertItem(item.dataURI);
+				};
+			});
 			////Retrive actions after insert, start to sync update actions 
 			syncUpdateAction(function(){
 
@@ -119,6 +141,17 @@ function syncStart(syncData, adress){
 		});
 	});
 }
+
+//check is exist or not
+function isExist(List,dataURI){
+	var flag = false;
+	List.forEach(function(listItem){
+		if(dataURI === listItem.dataURI){
+			flag = true;
+		}
+	});
+	return flag;
+};
 
 //Sync complete
 function syncComplete(){
