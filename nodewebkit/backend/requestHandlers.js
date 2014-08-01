@@ -242,6 +242,7 @@ function getDataSourceByIdInHttpServer(response, postData) {
           response.end();
         }
         else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+          item.path = decodeURIComponent(item.path);
           filesHandle.openFileByPath(item.path,function(port){
           var source={
             openmethod:'remote',
