@@ -49,16 +49,19 @@ function start(route, handle) {
           console.log('There are '+cnt+' devices');
         }
         socket.emit('mdnsUp', service);
-        var str=JSON.stringify(service);
-        util.log("service up: "+str+now.toLocaleTimeString());
+//        var str=JSON.stringify(service);
+//        util.log("service up: "+str+now.toLocaleTimeString());
+        var serviceRecord = service.txtRecord;
+        if (typeof(serviceRecord) != "undefined") {
+          console.log(serviceRecord.account +"----------------");
+          if (serviceRecord.account == config.ACCOUNT) {
+            //sendMessage
+            dataSync.syncRequest(service.addresses);
+          };
+        };
       }
       
-      //sendMessage
-      dataSync.start(service.addresses);
       
-      socket.emit('mdnsUp', service);
-      //var str=JSON.stringify(service);
-      //util.log("service up: "+str);
     });
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
