@@ -34,24 +34,36 @@ function syncUpdateAction(updateCallBack){
 }
 
 //Send sync request when other devices connect the net.
-function syncRequest(ip){
-//  console.log("get ip from internet discovery : " + ip);
+function syncRequest(address){
+//  console.log("get address from internet discovery : " + address);
   var requestMsg = {
   	type: "syncRequest",
   	account: config.ACCOUNT
   };
   var requestStr = JSON.stringify(requestMsg);
-  msgTransfer.sendMsg(ip[0],requestStr);
+  msgTransfer.sendMsg(address[0],requestStr);
 //  init();
 }
 
 //Confirm request
-function syncResponse(remoteIP){
-	var jsonStr = null;
-	init(function(updateActions){
-		console.log(updateActions);
-		msgTransfer.sendMsg(remoteIP, JSON.stringify(updateActions));
-	});
+function syncResponse(msgObj, address){
+	var resultValue = null;
+	//ToDo something to confirm
+	//example account , list for sync and so on... 
+	resultValue = "OK";
+	var responseMsg = {
+		type: "syncResponse",
+		account: config.ACCOUNT,
+		result: resultValue
+	};
+	var responseStr = JSON.stringify(responseMsg);
+//	console.log(address);
+	msgTransfer.sendMsg(address,responseStr);
+
+//	init(function(updateActions){
+//		console.log(updateActions);
+//		msgTransfer.sendMsg(remoteIP, JSON.stringify(updateActions));
+//	});
 }
 
 //Start sync data
@@ -82,3 +94,4 @@ function syncComplete(){
 //Export method
 exports.syncStart = syncStart;
 exports.syncRequest = syncRequest;
+exports.syncResponse = syncResponse;

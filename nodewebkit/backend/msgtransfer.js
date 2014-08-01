@@ -15,8 +15,13 @@ function initServer(){
 		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgObj.type);
 		switch(msgObj.type){
 			case 'syncRequest': {
+				//console.log("=========================================");
+				dataSync.syncResponse(msgObj, remoteAD);
+			}
+			break;
+			case 'syncResponse': {
 				console.log("=========================================");
-				//dataSync.prepUpdate(remoteAD);
+				//dataSync.syncResponse(msgObj, remoteAD);
 			}
 			break;
 			default: {
@@ -46,12 +51,12 @@ function initServer(){
 
 
 function sendMsg(IP,MSG){
+//	console.log("--------------------------"+IP);
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
 		return;
 	};
 //	console.log("=========================="+config.SERVERIP)
-//	console.log("--------------------------"+IP);
 	if (IP == config.SERVERIP) {
 		console.log("Input IP is localhost!");
 		return;
