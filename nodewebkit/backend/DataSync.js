@@ -18,7 +18,7 @@ function syncInitActions(initCallback){
 //Sync send message method
 //@param Obj
 //     turn to jsonStr
-function syncSendMessage(msgObj, address){
+function syncSendMessage(address, msgObj){
 	
 	var msgStr = JSON.stringify(msgObj);
   	msgTransfer.sendMsg(address,msgStr);

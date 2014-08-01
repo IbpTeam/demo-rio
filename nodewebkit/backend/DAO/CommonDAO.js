@@ -422,6 +422,7 @@ exports.findAllActionHistory = function(callback){
         }
         updateActions = updActions;
         callback(insertActions, deleteActions, updateActions);
+      });
     });
   });
 }
