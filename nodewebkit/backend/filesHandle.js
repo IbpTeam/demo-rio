@@ -104,6 +104,7 @@ function syncDb(loadResourcesCb,resourcePath)
 
     if(itemPostfix == 'contacts'){
               config.riolog("postfix= "+itemPostfix);
+              var currentTime = (new Date()).getTime();
       fs.readFile(item, function (err, data) {
         var json=JSON.parse(data);
         config.riolog(json);
@@ -123,7 +124,8 @@ function syncDb(loadResourcesCb,resourcePath)
             email:each.email,
             photoPath:each.photoPath,
             createTime:null,
-            lastModifyTime:null
+            lastModifyTime:null,
+            lastAccessTime:currentTime
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
           category='recent';
@@ -131,7 +133,7 @@ function syncDb(loadResourcesCb,resourcePath)
             id:null,
             tableName:'contacts',
             specificId:contactId,
-            lastAccessTime:null,
+            lastAccessTime:currentTime,
             others:null
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
