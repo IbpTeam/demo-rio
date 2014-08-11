@@ -1,0 +1,51 @@
+{
+  "name": "hashtable",
+  "version": "0.1.4",
+  "description": "Native hashtables for Node.js",
+  "main": "./index.js",
+  "keywords": [
+    "hash",
+    "map",
+    "hashmap",
+    "hashtable",
+    "container"
+  ],
+  "author": {
+    "name": "Isaac Wagner",
+    "email": "isaacbwagner@gmail.com"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "test-more": "~0.1.1",
+    "runtests": "~0.1.1"
+  },
+  "scripts": {
+    "install": "node-gyp configure build",
+    "test": "runtests test/*.js"
+  },
+  "readme": "HashTable\n=========\n\nSometimes you need to store so much data in memory that V8 can get a bit clogged up. This Node.js module provides an interface to a native hashmap data structure that exists outside of V8's memory constraints.\n\nTo install, simply:\n\n    npm install hashtable\n    \n\"But Isaac, javascript already has hash tables! They're called objects, dummy\"\n---\n\nV8 is great, but was never really meant for driving large software systems. Try adding a few million non-integer keys to an object and you'll start to see things bog down. This module is *not* intended to be a general replacement for javascript objects (that would be silly). Instead, it is meant to be used when you need maps larger than V8's virtual machine can handle.\n\nUsage\n-----\n\nEverything you might want to do first requires a new HashMap object (which corresponds to a native c++ unordered_map):\n\n    var HashTable = require('hashtable');\n    var hashtable = new HashTable();\n    \n    hashtable.put('key', {value: 'value'});\n\n    console.log(hashtable.get('key'));\n    \n    ...\n    \n    > { value: 'value' }\n    \nAnd that's it! Note that values can be any javascript type, including objects. The module properly creates and removes references (aka 'handles' if you know something about v8 internals) as needed, so you don't have to worry about any garbage collection funny business. Just use the module like you would any other javascript library.\n\nThe hash table implementation is provided by C++11's `unordered_map` class. Currently there is no fallback for older compilers. Pull requests welcome.\n\n### `put ( key, value )`\n\nInsert a new key/value pair in the hashmap. The key must be a string, and the value can be any javascript type, including objects.\n\n### `get ( key )`\n\nLookup a value from its key. Will return undefined if the key does not exist.\n\n### `remove ( key )`\n\nRemove a key/value pair by its key. If the key does not exist, no action will be performed.\n\n### `clear ()`\n\nRemoves all key/value pairs from the hash table.\n\n### `size ()`\n\nReturns the number of key/value pairs in the hash table.\n\n### `rehash ( n )`\n\nWill increase the number of buckets to at least `n`, possibly causing a rehash of the hash table. See [unordered_map#rehash](http://www.cplusplus.com/reference/unordered_map/unordered_map/rehash/)\n\n### `reserve ( n )`\n\nGives a hint to the implementation which may cause a rehash to the most appropriate number of buckets to contain `n` key/value pairs. See [unordered_map#reserve](http://www.cplusplus.com/reference/unordered_map/unordered_map/reserve/)\n\n### `max_load_factor ()` or `max_load_factor ( factor )`\n\nEither returns or sets the max load factor of the hash table implementation. This value determines when the hash map is rehashed with a new bucket count. By default it is `1.0`. See [unordered_map#max_load_factor](http://www.cplusplus.com/reference/unordered_map/unordered_map/max_load_factor/)\n\n",
+  "readmeFilename": "README.md",
+  "_id": "hashtable@0.1.4",
+  "dist": {
+    "shasum": "39bbd249c60eb6ec0448df3a149f37b512724e92",
+    "tarball": "http://registry.npmjs.org/hashtable/-/hashtable-0.1.4.tgz"
+  },
+  "_from": "hashtable@",
+  "_npmVersion": "1.3.11",
+  "_npmUser": {
+    "name": "isaacbw",
+    "email": "isaacbwagner@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "isaacbw",
+      "email": "isaacbwagner@gmail.com"
+    }
+  ],
+  "directories": {},
+  "_shasum": "39bbd249c60eb6ec0448df3a149f37b512724e92",
+  "_resolved": "https://registry.npmjs.org/hashtable/-/hashtable-0.1.4.tgz"
+}
