@@ -5,26 +5,17 @@
  * @version: 0.0.1
  **/
 
-var msgTransfer = require("./msgtransfer");
-var commonDAO = require("./DAO/CommonDAO");
-var config = require("./config");
+ var msgTransfer = require("./msgtransfer");
+ var commonDAO = require("./DAO/CommonDAO");
+ var config = require("./config");
+ //var HashTable = require('hashtable');
 
 var ActionHistory = require('./DAO/ActionHistoryDAO');//
-//
-function test(){
-	ActionHistory.createInsertItem('testInsert_1');
-	ActionHistory.createInsertItem('testInsert_2');
-	ActionHistory.createInsertItem('testInsert_3');
-	ActionHistory.createInsertItem('testInsert_4');
-	ActionHistory.createInsertItem('testInsert_5');
-	console.log('hello');
-};
-exports.test = test;
 
 //Init method,retrive data from db
 function syncInitActions(initCallback){
-  console.log("init actions history!");
-  commonDAO.findAllActionHistory(initCallback);
+	console.log("init actions history!");
+	commonDAO.findAllActionHistory(initCallback);
 }
 
 //Sync send message method
@@ -33,13 +24,14 @@ function syncInitActions(initCallback){
 function syncSendMessage(address, msgObj){
 	
 	var msgStr = JSON.stringify(msgObj);
-  	msgTransfer.sendMsg(address,msgStr);
+	msgTransfer.sendMsg(address,msgStr);
 }
 
 //Sync delete action
-function syncDeleteAction(deleteCallBack){
-	//To-Do
-	deleteCallBack();
+function syncDeleteAction(other_deleteHistory,deleteCallBack){
+	commonDAO.findEachActionHistory("delete",function(my_deleteHistory){
+		deleteCallBack(other_deleteHistory,my_deleteHistory);
+	});
 }
 
 //Sync insert action
@@ -51,8 +43,9 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 
 //Sync insert action
 function syncUpdateAction(updateCallBack){
-	//To-Do
-	updateCallBack();
+	commonDAO.findEachActionHistory("update",function(my_updateHistory){
+		updateCallBack(other_updateHistory,my_updateHistory);
+	});
 }
 
 //Send sync request when other devices connect the net.
@@ -80,7 +73,7 @@ function syncResponse(msgObj, address){
 
 //	var responseStr = JSON.stringify(responseMsg);
 //	console.log(address);
-	syncSendMessage(address,responseMsg);
+syncSendMessage(address,responseMsg);
 }
 
 //Check Response
@@ -109,6 +102,55 @@ function syncCheckResponse(msgObj, address){
 	};
 }
 
+
+/**
+ * @method createHash
+ *   将一个数据库表生成hashtable
+ * @param table
+ *  待生成的表数据
+ * @return  hashtable
+ *   返回生成的hashtable
+ */
+ /*
+function  createHash(table)
+{
+	var hashtable = new HashTable();
+	for(var  tmp in table)
+	{
+		hashtable.put(table[tmp].dataURI,table[tmp].id);
+	}
+	return hashtable;
+}*/
+
+/**
+ * @method getDiff
+ *   计算系统中的表和接收到的表的差值
+ * @param table
+ *   接收到的表的JSON数据
+  * @param Htable
+ *   本地数据库表的HashTable
+ * @return  diff
+ *   返回差值，JSON格式
+ */
+ /*
+function getDiff(table,Htable)
+{
+	var diff = [];
+	for(var del in table)
+	{
+		res = Htable.get(table[del].dataURI);
+		if (typeof res == "undefined" ) 
+		{
+			var tmpdif = {};
+			tmpdif["id"] = table[del].id;
+			tmpdif["dataURI"] = table[del].dataURI;
+			diff.push(tmpdif);
+		};
+	}
+	return diff;
+}*/
+
+
 //Start sync data
 function syncStart(syncData, adress){
 	var insertActions = syncData.insertActions;
@@ -120,33 +162,73 @@ function syncStart(syncData, adress){
 	console.log("update actions: " + JSON.stringify(updateActions));
 
 	//Sync data, delete > insert > update
-	syncDeleteAction(function(){
+	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
+		console.log("==========start sync delete!!!==========");
+		var deletetList = new Array();
+		deleteActions.forEach(function(item){
+			if(isExist(my_deleteHistory,item)){
+				console.log('---nothing new---');
+			}else{
+				console.log('---something new---');
+				console.log("---We got a new item:--- \r\n");
+				console.log(item);
+				deletetList.push(item);
+			};
+		});
+		console.log(deletetList);
+		ActionHistory.deleteAll(deletetList);
+		ActionHistory.createAll("delete",deletetList,
+			function(){console.log("---delete insert done!!!---")},
+			function(){console.log("---delete update done!!!---")}
+			);
 
 		//Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
+			console.log("==========start sync insert!!!==========");
+			var insertList = new Array();
 			insertActions.forEach(function(item){
-				if(isExist(my_insertHistory,item.dataURI)){
+				if(isExist(my_insertHistory,item)){
 					console.log('---nothing new---');
 				}else{
 					console.log('---something new---');
-					console.log("We got a new item: \r\n");
+					console.log("---We got a new item:--- \r\n");
 					console.log(item);
-					ActionHistory.createInsertItem(item.dataURI);
+					insertList.push(item);
 				};
 			});
-			////Retrive actions after insert, start to sync update actions 
-			syncUpdateAction(function(){
+			console.log(insertList);
+			ActionHistory.createAll("insert",insertList,function(){console.log("---insert done!!!---")});
 
+			////Retrive actions after insert, start to sync update actions 
+			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
+				console.log("==========start sync update!!!==========");
+				var updateList = new Array();
+				var conflictList = new Array();
+				updateActions.forEach(function(item){
+					if(isExist(my_updateHistory,item)){
+						console.log('---operate on the same file---');
+						console.log(item);
+						conflictList.push(item);
+					}else{
+						console.log('---something new---');
+						console.log("---We got a new item:--- \r\n");
+						console.log(item);
+						updateList.push(item);
+					};
+				});
+				//
+				console.log(updateList);
+				ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});
 	});
 }
 
 //check is exist or not
-function isExist(List,dataURI){
+function isExist(List,item){
 	var flag = false;
 	List.forEach(function(listItem){
-		if(dataURI === listItem.dataURI){
+		if(item.dataURI === listItem.dataURI){
 			flag = true;
 		}
 	});
@@ -159,6 +241,8 @@ function syncComplete(){
 }
 
 //Export method
+//exports.createHash = createHash;
+//exports.getDiff = getDiff;
 exports.syncStart = syncStart;
 exports.syncRequest = syncRequest;
 exports.syncResponse = syncResponse;

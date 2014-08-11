@@ -14,7 +14,7 @@ var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
 var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
-var ACCOUNT="wangfeng";
+var ACCOUNT="xiquan";
 exports.ACCOUNT = ACCOUNT;
 function getAddr(){
   var IPv4;

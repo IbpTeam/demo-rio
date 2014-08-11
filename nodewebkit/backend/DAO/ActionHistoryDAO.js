@@ -107,3 +107,50 @@ exports.findAll = function(action, findAllCallBack){
   db.all(sqlStr, findAllCallBack);
   closeDB(db);
 }  
+
+/**
+ * @method createAll
+ *   insert all items into the insert history from an Array
+ * @param List
+ * List is an Array
+ *
+ */
+exports.createAll = function(action,List,callback){
+  var db = openDB();
+  switch(action){
+    case "insert": {
+      List.forEach(function(item){
+        db.run(SQLSTR.CREATEINSERTITEM, item.dataURI,callback);
+      });
+    }
+    case "delete": {
+      List.forEach(function(item){
+        db.run(SQLSTR.CREATEDELETEITEM, item.dataURI,callback);
+      });
+    }
+    case "update": {
+      List.forEach(function(item){
+        db.run(SQLSTR.CREATEUPDATEITEM, item.dataURI, item.key, item.value, createUpdateItemCallBack);     
+      });
+    }
+  }
+  closeDB(db);
+}
+
+/**
+ * @method deleteAll
+ *   insert all items into the insert history from an Array
+ * @param List
+ * List is an Array
+ *
+ */
+exports.deleteAll = function(List,deleteInsertCallback,deleteUpdateCallback){
+  var db = openDB();
+  List.forEach(function(item){
+    //delete insert history
+    db.run(SQLSTR.REMOVEINSERTITEM, dataURI, deleteInsertCallback);
+    //delete update history
+    db.run(SQLSTR.REMOVEUPDATEITEM, dataURI, deleteUpdateCallback);
+  });
+  closeDB(db);
+}
