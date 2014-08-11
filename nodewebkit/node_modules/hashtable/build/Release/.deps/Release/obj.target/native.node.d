@@ -1,0 +1,1 @@
+cmd_Release/obj.target/native.node := flock ./Release/linker.lock g++ -shared -pthread -rdynamic -m32  -Wl,-soname=native.node -o Release/obj.target/native.node -Wl,--start-group Release/obj.target/native/src/native.o Release/obj.target/native/src/hashtable.o -Wl,--end-group 
