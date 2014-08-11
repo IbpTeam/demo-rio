@@ -331,8 +331,8 @@ ifeq ($(strip $(foreach prefix,$(NO_LOAD),\
 endif
 
 quiet_cmd_regen_makefile = ACTION Regenerating $@
-cmd_regen_makefile = cd $(srcdir); /home/v1/demo-rio/nodewebkit/node_modules/nodegit/node_modules/node-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/v1/demo-rio/nodewebkit/node_modules/nodegit/build/config.gypi -I/home/v1/demo-rio/nodewebkit/node_modules/nodegit/node_modules/node-gyp/addon.gypi -I/home/v1/.node-gyp/0.10.29/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/v1/.node-gyp/0.10.29" "-Dmodule_root_dir=/home/v1/demo-rio/nodewebkit/node_modules/nodegit" binding.gyp
-Makefile: $(srcdir)/../../../../.node-gyp/0.10.29/common.gypi $(srcdir)/node_modules/node-gyp/addon.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp
+cmd_regen_makefile = cd $(srcdir); /usr/local/lib/node_modules/nw-gyp/gyp/gyp_main.py -fmake --ignore-environment "--toplevel-dir=." -I/home/v1/demo-rio/nodewebkit/node_modules/nodegit/build/config.gypi -I/usr/local/lib/node_modules/nw-gyp/addon.gypi -I/home/v1/.nw-gyp/0.8.4/common.gypi "--depth=." "-Goutput_dir=." "--generator-output=build" "-Dlibrary=shared_library" "-Dvisibility=default" "-Dnode_root_dir=/home/v1/.nw-gyp/0.8.4" "-Dmodule_root_dir=/home/v1/demo-rio/nodewebkit/node_modules/nodegit" binding.gyp
+Makefile: $(srcdir)/../../../../../../usr/local/lib/node_modules/nw-gyp/addon.gypi $(srcdir)/../../../../.nw-gyp/0.8.4/common.gypi $(srcdir)/build/config.gypi $(srcdir)/binding.gyp
 	$(call do_cmd,regen_makefile)
 
 # "all" is a concatenation of the "all" targets from all the included
