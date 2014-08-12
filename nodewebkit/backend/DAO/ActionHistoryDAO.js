@@ -123,15 +123,21 @@ exports.createAll = function(action,List,callback){
         db.run(SQLSTR.CREATEINSERTITEM, item.dataURI,callback);
       });
     }
+    break;
     case "delete": {
       List.forEach(function(item){
         db.run(SQLSTR.CREATEDELETEITEM, item.dataURI,callback);
       });
     }
+    break;
     case "update": {
       List.forEach(function(item){
-        db.run(SQLSTR.CREATEUPDATEITEM, item.dataURI, item.key, item.value, createUpdateItemCallBack);     
+        db.run(SQLSTR.CREATEUPDATEITEM, item.dataURI, item.key, item.value, callback);     
       });
+    }
+    break;
+    default: {
+      console.log("Error: not found");
     }
   }
   closeDB(db);
@@ -144,13 +150,13 @@ exports.createAll = function(action,List,callback){
  * List is an Array
  *
  */
-exports.deleteAll = function(List,deleteInsertCallback,deleteUpdateCallback){
+exports.deleteAll = function(List,deleteInsertCallback){
   var db = openDB();
   List.forEach(function(item){
     //delete insert history
-    db.run(SQLSTR.REMOVEINSERTITEM, dataURI, deleteInsertCallback);
+    db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI, deleteInsertCallback);
     //delete update history
-    db.run(SQLSTR.REMOVEUPDATEITEM, dataURI, deleteUpdateCallback);
+    //db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI, deleteUpdateCallback);
   });
   closeDB(db);
 }

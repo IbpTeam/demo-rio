@@ -42,7 +42,7 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 }
 
 //Sync insert action
-function syncUpdateAction(updateCallBack){
+function syncUpdateAction(other_updateHistory,updateCallBack){
 	commonDAO.findEachActionHistory("update",function(my_updateHistory){
 		updateCallBack(other_updateHistory,my_updateHistory);
 	});
@@ -161,32 +161,42 @@ function syncStart(syncData, adress){
 	console.log("delete actions: " + JSON.stringify(deleteActions));
 	console.log("update actions: " + JSON.stringify(updateActions));
 
+    var insertActions_m = new Array();
+	var deletetList = new Array();
+	var insertList = new Array();
+	var updateList = new Array();
+	var conflictList = new Array();	
+
 	//Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
 		console.log("==========start sync delete!!!==========");
-		var deletetList = new Array();
-		deleteActions.forEach(function(item){
-			if(isExist(my_deleteHistory,item)){
+		my_deleteHistory.forEach(function(deleteItem){
+			if (isExist(deleteActions,deleteItem)) {
 				console.log('---nothing new---');
 			}else{
 				console.log('---something new---');
 				console.log("---We got a new item:--- \r\n");
-				console.log(item);
-				deletetList.push(item);
+				console.log(deleteItem);
+				deletetList.push(deleteItem);
 			};
-		});
+			//
+			insertActions.forEach(function(insertItem){
+				if(insertItem.dataURI != deleteItem.dataURI)
+					insertActions_m.push(insertItem);
+			})
+		})
 		console.log(deletetList);
-		ActionHistory.deleteAll(deletetList);
+
+		ActionHistory.deleteAll(deletetList,function(){console.log("---delete done!!!---")});
 		ActionHistory.createAll("delete",deletetList,
-			function(){console.log("---delete insert done!!!---")},
-			function(){console.log("---delete update done!!!---")}
+			function(){console.log("---delete insert done!!!---")}/*,
+			function(){console.log("---delete update done!!!---")}*/
 			);
 
 		//Retrive actions after delete, start to sync insert actions 
-		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
+		syncInsertAction(insertActions_m,function(insertActions_m,my_insertHistory){
 			console.log("==========start sync insert!!!==========");
-			var insertList = new Array();
-			insertActions.forEach(function(item){
+			insertActions_m.forEach(function(item){
 				if(isExist(my_insertHistory,item)){
 					console.log('---nothing new---');
 				}else{
@@ -202,8 +212,6 @@ function syncStart(syncData, adress){
 			////Retrive actions after insert, start to sync update actions 
 			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
 				console.log("==========start sync update!!!==========");
-				var updateList = new Array();
-				var conflictList = new Array();
 				updateActions.forEach(function(item){
 					if(isExist(my_updateHistory,item)){
 						console.log('---operate on the same file---');
@@ -218,7 +226,7 @@ function syncStart(syncData, adress){
 				});
 				//
 				console.log(updateList);
-				ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
+				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});
 	});
