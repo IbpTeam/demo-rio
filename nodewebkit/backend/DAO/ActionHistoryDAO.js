@@ -127,6 +127,8 @@ exports.createAll = function(action,List,callback){
     case "delete": {
       List.forEach(function(item){
         db.run(SQLSTR.CREATEDELETEITEM, item.dataURI,callback);
+        db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI);
+        db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI);
       });
     }
     break;
