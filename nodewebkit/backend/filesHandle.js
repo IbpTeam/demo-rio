@@ -149,7 +149,7 @@ function syncDb(loadResourcesCb,resourcePath)
         config.riolog('mtime:'+mtime);
         config.riolog('ctime:'+ctime);
         config.riolog('size:'+size);
-        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
+        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
           var category='Documents';
           documentId++;
           var newItem={
@@ -225,11 +225,13 @@ function syncDb(loadResourcesCb,resourcePath)
             others:null
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+        }
+        else{
+          writeDbNum --;
+          writeDbRecentNum --;
         }        
-
       }
       fs.stat(item,getFileStatCb);
-
     }
   });
 
