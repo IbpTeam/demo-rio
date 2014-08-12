@@ -153,12 +153,12 @@ exports.createAll = function(action,List,callback){
 exports.test = function(){
   var db = openDB();
 
-  //db.run(SQLSTR.CREATEINSERTITEM, "testSync_1");
-  //db.run(SQLSTR.CREATEINSERTITEM, "testSync_2");
-  //db.run(SQLSTR.CREATEINSERTITEM, "testSync_3");
-  //db.run(SQLSTR.CREATEINSERTITEM, "testSync_4");
-  //db.run(SQLSTR.CREATEINSERTITEM, "testSync_5");
-  //db.run(SQLSTR.CREATEINSERTITEM, "testSync_6");
+  db.run(SQLSTR.CREATEINSERTITEM, "testSync_1");
+  db.run(SQLSTR.CREATEINSERTITEM, "testSync_2");
+  db.run(SQLSTR.CREATEINSERTITEM, "testSync_3");
+  db.run(SQLSTR.CREATEINSERTITEM, "testSync_4");
+  db.run(SQLSTR.CREATEINSERTITEM, "testSync_5");
+  db.run(SQLSTR.CREATEINSERTITEM, "testSync_6");
   db.run(SQLSTR.CREATEINSERTITEM, "testSync_7");
   db.run(SQLSTR.CREATEINSERTITEM, "testSync_8");
   db.run(SQLSTR.CREATEINSERTITEM, "testSync_9");

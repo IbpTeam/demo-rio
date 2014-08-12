@@ -237,7 +237,7 @@ function versionCtrl(){
 }
 
 //check is exist or not
-function isExist(List,item){*
+function isExist(List,item){
 	var flag = false;
 	List.forEach(function(listItem){
 		if(item.dataURI === listItem.dataURI){
