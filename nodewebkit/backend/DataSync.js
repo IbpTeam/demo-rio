@@ -150,9 +150,9 @@ function getDiff(table,Htable)
 	return diff;
 }*/
 
-
 //Start sync data
 function syncStart(syncData, adress){
+	//ActionHistory.test();
 	var insertActions = syncData.insertActions;
 	var deleteActions = syncData.deleteActions;
 	var updateActions = syncData.updateActions;
@@ -161,11 +161,12 @@ function syncStart(syncData, adress){
 	console.log("delete actions: " + JSON.stringify(deleteActions));
 	console.log("update actions: " + JSON.stringify(updateActions));
 
-    var insertActions_m = new Array();
 	var deletetList = new Array();
 	var insertList = new Array();
 	var updateList = new Array();
-	var conflictList = new Array();	
+	var conflictList = new Array();
+	//var myConflict = new Array();
+	//var otherConflict = new Array();	
 
 	//Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
@@ -181,7 +182,7 @@ function syncStart(syncData, adress){
 		});
 		console.log(deletetList);
 		ActionHistory.createAll("delete",deletetList,function(){console.log("==========delete insert done!!!==========")});
-
+        //remove some delete items in insertActions
 		for(var i=0;i<my_deleteHistory.length;i++){
 			for(var j=0;j<insertActions.length;j++){
 				if(my_deleteHistory[i].dataURI === insertActions[j].dataURI)
@@ -192,13 +193,13 @@ function syncStart(syncData, adress){
 		//Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
 			console.log("==========start sync insert!!!==========");
-			insertActions.forEach(function(item){
-				if(isExist(my_insertHistory,item)){
+			insertActions.forEach(function(insertItem){
+				if(isExist(my_insertHistory,insertItem)){
 					console.log('==========nothing new==========');
 				}else{
 					console.log("==========We got a new insert:==========");
-					console.log(item);
-					insertList.push(item);
+					console.log(insertItem);
+					insertList.push(insertItem);
 				};
 			});
 			console.log(insertList);
@@ -207,15 +208,18 @@ function syncStart(syncData, adress){
 			////Retrive actions after insert, start to sync update actions 
 			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
 				console.log("==========start sync update!!!==========");
-				updateActions.forEach(function(item){
-					if(isExist(my_updateHistory,item)){
+				updateActions.forEach(function(updateItem){
+					if(isExist(my_updateHistory,updateItem)){
 						console.log('==========operate on the same file==========');
-						console.log(item);
-						conflictList.push(item);
+						console.log(updateItem);
+						if(isConflict(my_updateHistory,updateItem))
+							conflictList.push(updateItem);
+						else
+							updateList.push(updateItem);
 					}else{
 						console.log("==========We got a new update:==========");
-						console.log(item);
-						updateList.push(item);
+						console.log(updateItem);
+						updateList.push(updateItem);
 					};
 				});
 				//
@@ -226,11 +230,28 @@ function syncStart(syncData, adress){
 	});
 }
 
+//deal with the conflict situation 
+function versionCtrl(){
+    //to be continue ......
+
+}
+
 //check is exist or not
-function isExist(List,item){
+function isExist(List,item){*
 	var flag = false;
 	List.forEach(function(listItem){
 		if(item.dataURI === listItem.dataURI){
+			flag = true;
+		}
+	});
+	return flag;
+}
+
+//check the data is conflict or not
+function isConflict(List,item){
+	var flag = false;
+	List.forEach(function(listItem){
+		if(item.dataURI === listItem.dataURI && item.key === listItem.key){
 			flag = true;
 		}
 	});
