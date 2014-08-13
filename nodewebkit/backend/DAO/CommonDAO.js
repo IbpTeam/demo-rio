@@ -415,7 +415,7 @@ exports.findAllActionHistory = function(callback){
         callback(null);
       }
       deleteActions = delActions;
-      actionHistoryDAO.findAll("delete", function(err, updActions){
+      actionHistoryDAO.findAll("update", function(err, updActions){
         if(err){
           config.dblog(err);
           callback(null);
