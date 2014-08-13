@@ -15,6 +15,7 @@ var ActionHistory = require('./DAO/ActionHistoryDAO');//
 //Init method,retrive data from db
 function syncInitActions(initCallback){
 	console.log("init actions history!");
+
 	commonDAO.findAllActionHistory(initCallback);
 }
 
@@ -84,6 +85,7 @@ function syncCheckResponse(msgObj, address){
 		var insertActions = null;
 		var deleteActions = null;
 		var updateActions = null;
+		//ActionHistory.test();//generate fake update hsitory for test
 		syncInitActions(function(insertArray, deleteArray, updateArray){
 			insertActions = insertArray;
 			deleteActions = deleteArray;
@@ -102,54 +104,6 @@ function syncCheckResponse(msgObj, address){
 	};
 }
 
-
-/**
- * @method createHash
- *   将一个数据库表生成hashtable
- * @param table
- *  待生成的表数据
- * @return  hashtable
- *   返回生成的hashtable
- */
- /*
-function  createHash(table)
-{
-	var hashtable = new HashTable();
-	for(var  tmp in table)
-	{
-		hashtable.put(table[tmp].dataURI,table[tmp].id);
-	}
-	return hashtable;
-}*/
-
-/**
- * @method getDiff
- *   计算系统中的表和接收到的表的差值
- * @param table
- *   接收到的表的JSON数据
-  * @param Htable
- *   本地数据库表的HashTable
- * @return  diff
- *   返回差值，JSON格式
- */
- /*
-function getDiff(table,Htable)
-{
-	var diff = [];
-	for(var del in table)
-	{
-		res = Htable.get(table[del].dataURI);
-		if (typeof res == "undefined" ) 
-		{
-			var tmpdif = {};
-			tmpdif["id"] = table[del].id;
-			tmpdif["dataURI"] = table[del].dataURI;
-			diff.push(tmpdif);
-		};
-	}
-	return diff;
-}*/
-
 //Start sync data
 function syncStart(syncData, adress){
 	//ActionHistory.test();
@@ -165,8 +119,6 @@ function syncStart(syncData, adress){
 	var insertList = new Array();
 	var updateList = new Array();
 	var conflictList = new Array();
-	//var myConflict = new Array();
-	//var otherConflict = new Array();	
 
 	//Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
@@ -223,7 +175,8 @@ function syncStart(syncData, adress){
 					};
 				});
 				//
-				console.log(updateList);
+				console.log("==========here are conflicts==========")
+				console.log(conflictList);
 				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});

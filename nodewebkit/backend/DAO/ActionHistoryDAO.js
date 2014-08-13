@@ -152,34 +152,18 @@ exports.createAll = function(action,List,callback){
 //init a list of action history
 exports.test = function(){
   var db = openDB();
-
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_1");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_2");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_3");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_4");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_5");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_6");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_7");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_8");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_9");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_0");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_10");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_11");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_12");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_13");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_14");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_15");
-  db.run(SQLSTR.CREATEINSERTITEM, "testSync_16");
-
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_1");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_2");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_3");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_17");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_18");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_4");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_5");
-  db.run(SQLSTR.CREATEDELETEITEM, "testSync_6");
-
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_01", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_02", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_03", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_04", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_06", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_07", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_01", "author" , "xiquan");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_02", "filename" , "yourbook.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_03", "author" , "notxiquan");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_04", "time" , "2014.8.8");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "mybook.pdf");
   closeDB(db);
 }
 
