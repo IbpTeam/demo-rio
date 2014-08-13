@@ -23,7 +23,7 @@ function closeDB(database){
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
   db.get(SQLSTR.COUNTTOTALRECENT, countTotalCallBack);
-  closeDB();  
+  closeDB(db);  
 } 
 
 /**
