@@ -73,7 +73,7 @@ function start(route, handle) {
         var str=JSON.stringify(service);
         util.log("service down: "+str+now.toLocaleTimeString());
       }
-      socket.emit('mdnsDown', service);
+      //socket.emit('mdnsDown', service);
      // var str=JSON.stringify(service);
      //util.log("service down: "+service.name+now.toLocaleTimeString());
 
