@@ -33,9 +33,9 @@ CFLAGS_CC_Debug := \
 	-fno-exceptions
 
 INCS_Debug := \
-	-I/home/v1/.node-gyp/0.10.29/src \
-	-I/home/v1/.node-gyp/0.10.29/deps/uv/include \
-	-I/home/v1/.node-gyp/0.10.29/deps/v8/include \
+	-I/home/v1/.nw-gyp/0.8.4/src \
+	-I/home/v1/.nw-gyp/0.8.4/deps/uv/include \
+	-I/home/v1/.nw-gyp/0.8.4/deps/v8/include \
 	-I$(srcdir)/vendor/libgit2/include \
 	-I$(srcdir)/vendor/libgit2/src \
 	-I$(srcdir)/vendor/libgit2/deps/regex \
@@ -61,8 +61,7 @@ CFLAGS_Release := \
 	-Wno-deprecated-declarations \
 	-O2 \
 	-fno-strict-aliasing \
-	-fno-tree-vrp \
-	-fno-omit-frame-pointer
+	-fno-tree-vrp
 
 # Flags passed to only C files.
 CFLAGS_C_Release :=
@@ -73,9 +72,9 @@ CFLAGS_CC_Release := \
 	-fno-exceptions
 
 INCS_Release := \
-	-I/home/v1/.node-gyp/0.10.29/src \
-	-I/home/v1/.node-gyp/0.10.29/deps/uv/include \
-	-I/home/v1/.node-gyp/0.10.29/deps/v8/include \
+	-I/home/v1/.nw-gyp/0.8.4/src \
+	-I/home/v1/.nw-gyp/0.8.4/deps/uv/include \
+	-I/home/v1/.nw-gyp/0.8.4/deps/v8/include \
 	-I$(srcdir)/vendor/libgit2/include \
 	-I$(srcdir)/vendor/libgit2/src \
 	-I$(srcdir)/vendor/libgit2/deps/regex \

@@ -37,7 +37,7 @@ exports.findAll = function(findAllCallBack){
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
   db.get(SQLSTR.FINDCATEGORYBYID, id, findByIdCallBack);
-  closeDB();
+  closeDB(db);
 }
 
 /**
