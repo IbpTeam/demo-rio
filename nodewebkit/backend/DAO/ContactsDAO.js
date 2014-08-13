@@ -20,10 +20,10 @@ function closeDB(database){
  * @return total
  *   Integer 表中类别总数
  */
-exports.countTotal = function(){
+exports.countTotal = function(countTotalCallBack){
   var db = openDB();
   db.get(SQLSTR.COUNTTOTALCONTACTS, countTotalCallBack);
-  closeDB();  
+  closeDB(db);  
 }
 
 /**

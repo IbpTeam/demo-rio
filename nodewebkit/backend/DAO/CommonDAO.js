@@ -10,18 +10,78 @@ var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
+exports.countTotalByCategory = function(category, callback) {
+  switch(category){
+    case 'Contacts' : {
+      contactsDAO.countTotal(function(err, contactsCount){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(contactsCount);
+      });
+    }
+    break;
+  
+    case 'Pictures' : {
+      picturesDAO.countTotal(function(err, picturesCount){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(picturesCount);
+      });
+    }
+    break;
+    
+    case 'Videos' : {
+      videosDAO.countTotal(function(err, videosCount){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(videosCount);
+      });
+    }
+    break;
+    
+    case 'Documents' : {
+      documentsDAO.countTotal(function(err, documentsCount){
+        console.log("documentCount=======:", documentsCount);
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(documentsCount);
+      });
+    }
+    break;
+    
+    case 'Music' : {
+      musicDAO.countTotal(function(err, musicCount){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(musicCount);
+      });
+    }
+    break;
+  }
+}
+
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
     case 'Contacts' : {
       contactsDAO.findAll(function(err, contacts){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
         contacts.forEach(function(contact){
           contact.id = "1#" + contact.id;
         });
-        callback(contacts)
+        callback(contacts);
       });
     }
     break;
@@ -30,12 +90,12 @@ exports.getAllByCateroty = function(caterogy, callback) {
       picturesDAO.findAll(function(err, pictures){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
         pictures.forEach(function(picture){
           picture.id = "2#" + picture.id;
         });
-        callback(pictures)
+        callback(pictures);
       });
     }
     break;
@@ -44,12 +104,12 @@ exports.getAllByCateroty = function(caterogy, callback) {
       videosDAO.findAll(function(err, videos){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
         videos.forEach(function(video){
           video.id = "3#" + video.id;
         });
-        callback(videos)
+        callback(videos);
       });
     }
     break;
@@ -58,12 +118,12 @@ exports.getAllByCateroty = function(caterogy, callback) {
       documentsDAO.findAll(function(err, documents){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
         documents.forEach(function(document){
           document.id = "4#" + document.id;
         });
-        callback(documents)
+        callback(documents);
       });
     }
     break;
@@ -72,12 +132,12 @@ exports.getAllByCateroty = function(caterogy, callback) {
       musicDAO.findAll(function(err, music){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
         music.forEach(function(each){
           each.id = "5#" + each.id;
         });
-        callback(music)
+        callback(music);
       });
     }
     break;
