@@ -54,8 +54,12 @@ function start(route, handle) {
         var serviceRecord = service.txtRecord;
         if (typeof(serviceRecord) != "undefined") {
           console.log(serviceRecord.account +"----------------");
-          if (serviceRecord.account == config.ACCOUNT) {
+          var deviceId = serviceRecord.deviceID;
+          console.log(serviceRecord.deviceID = "================");
+          console.log(deviceId.localeCompare(config.uniqueID) + "-----------------");
+          if (serviceRecord.account == config.ACCOUNT && deviceId.localeCompare(config.uniqueID) > 0) {
             //sendMessage
+            console.log("start to send sync request");
             dataSync.syncRequest(service.addresses);
           };
         };
@@ -91,7 +95,8 @@ function start(route, handle) {
     browser.start();
     var txt_record = {
       deviceName: config.SERVERNAME,
-      account:config.ACCOUNT
+      account:config.ACCOUNT,
+      deviceID:config.uniqueID
     };
     var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
     ad.start();
