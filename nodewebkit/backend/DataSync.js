@@ -35,7 +35,6 @@ function syncInitActions(initCallback){
 //@param Obj
 //     turn to jsonStr
 function syncSendMessage(address, msgObj){
-	
 	var msgStr = JSON.stringify(msgObj);
 	msgTransfer.sendMsg(address,msgStr);
 }
@@ -65,17 +64,17 @@ function syncUpdateAction(other_updateHistory,updateCallBack){
 function syncRequest(address){
   // console.log("get address from internet discovery : " + address);
   switch(currentState){
-	case state.SYNC_IDLE: {
-		console.log("syncRequest=========================================" + currentState);
-		currentState = state.SYNC_REQUEST;
-		var requestMsg = {
-  		type: "syncRequest",
-  		account: config.ACCOUNT
+  	case state.SYNC_IDLE: {
+  		console.log("syncRequest=========================================" + currentState);
+  		currentState = state.SYNC_REQUEST;
+  		var requestMsg = {
+  			type: "syncRequest",
+  			account: config.ACCOUNT
   		};
   		syncSendMessage(address[0],requestMsg);
-	}
-	break;
-	case 'syncResponse': {
+  	}
+  	break;
+  	case 'syncResponse': {
 		//console.log("=========================================");
 		dataSync.syncStart(msgObj, remoteAD);
 	}
@@ -85,7 +84,7 @@ function syncRequest(address){
 //		dataSync.syncStart(msgObj, remoteAD);
 //	}
 //	break;
-	case 'syncComplete': {
+case 'syncComplete': {
 		//console.log("=========================================");
 		//dataSync.syncStart(msgObj, remoteAD);
 	}
@@ -94,7 +93,7 @@ function syncRequest(address){
 		console.log("this is in default switch on data");
 		//console.log(data);
 	}
-  }
+}
 }
 
 //Confirm request
@@ -195,12 +194,12 @@ function syncStart(syncData, adress){
 		console.log(deletetList);
 		ActionHistory.createAll("delete",deletetList,function(){console.log("==========delete insert done!!!==========")});
         //remove some delete items in insertActions
-		for(var i=0;i<my_deleteHistory.length;i++){
-			for(var j=0;j<insertActions.length;j++){
-				if(my_deleteHistory[i].dataURI === insertActions[j].dataURI)
-					insertActions.splice(j,1);
-			}
-		}
+        for(var i=0;i<my_deleteHistory.length;i++){
+        	for(var j=0;j<insertActions.length;j++){
+        		if(my_deleteHistory[i].dataURI === insertActions[j].dataURI)
+        			insertActions.splice(j,1);
+        	}
+        }
 
 		//Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
@@ -244,7 +243,7 @@ function syncStart(syncData, adress){
 				ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});
-	});
+});
 }
 
 //deal with the conflict situation 

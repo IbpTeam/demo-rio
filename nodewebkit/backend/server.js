@@ -69,9 +69,7 @@ function start(route, handle) {
       //        util.log("service up: "+str+now.toLocaleTimeString());
 
     }
-
-
-  });
+  );
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
