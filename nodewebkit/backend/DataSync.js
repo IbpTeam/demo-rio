@@ -57,7 +57,7 @@ function syncUpdateAction(updateCallBack){
 //Send sync request when other devices connect the net.
 function syncRequest(deviceName,deviceId,deviceAddress){
   // console.log("get address from internet discovery : " + address);
-  if (deviceId.localeValue(config.uniqueID) <= 0) {
+  if (deviceId.localeCompare(config.uniqueID) <= 0) {
   	syncError("device id in request is wrong!");
   	return;
   }
@@ -74,7 +74,8 @@ function syncRequest(deviceName,deviceId,deviceAddress){
 		syncList.push(syncDevice);
 		var requestMsg = {
   		type: "syncRequest",
-  		account: config.ACCOUNT
+  		account: config.ACCOUNT,
+  		deviceId: config.uniqueID
   		};
   		syncSendMessage(deviceAddress[0],requestMsg);
 	}
@@ -117,15 +118,15 @@ function syncRequest(deviceName,deviceId,deviceAddress){
 }
 
 //Confirm request
-function syncResponse(msgObj, address){
+function syncResponse(syncData, address){
 
 	switch(currentState){
 	case state.SYNC_IDLE: {
 		console.log("syncResponse=========================================" + currentState);
 		currentState = state.SYNC_REQUEST;
 		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
+			deviceName: syncData.deviceName,
+			deviceId: syncData.deviceId,
 			status: "sync"
 		};
 		syncList.push(syncDevice);
@@ -146,6 +147,7 @@ function syncResponse(msgObj, address){
 				var syncDataObj = {
 					type: "syncResponse",
 					account:config.ACCOUNT,
+					deviceId:config.uniqueID,
 					result: resultValue,
 					insertActions: insertActions,
 					deleteActions: deleteActions,
@@ -224,6 +226,10 @@ function syncCheckResponse(msgObj, address){
 
 //Start sync data
 function syncStart(syncData, adress){
+	deviceID = syncData.deviceId;
+	if (deviceID.localeCompare(config.uniqueID) >0) {
+
+	}
 	var insertActions = syncData.insertActions;
 	var deleteActions = syncData.deleteActions;
 	var updateActions = syncData.updateActions;
