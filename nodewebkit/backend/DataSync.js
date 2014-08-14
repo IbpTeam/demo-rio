@@ -249,7 +249,6 @@ function syncStart(syncData, adress){
 //deal with the conflict situation 
 function versionCtrl(List){
     //to be continue ......
-
 }
 
 //check is exist or not
