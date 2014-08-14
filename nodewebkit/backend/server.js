@@ -33,10 +33,10 @@ function start(route, handle) {
   }
   http.createServer(onRequest).listen(config.SERVERPORT);
   
- var io = require('socket.io').listen(config.SOCKETIOPORT);
+  var io = require('socket.io').listen(config.SOCKETIOPORT);
   io.sockets.on('connection', function (socket) {
     var sequence = [
-      mdns.rst.DNSServiceResolve()
+    mdns.rst.DNSServiceResolve()
     , mdns.rst.getaddrinfo({families: [4] })
     ];
     var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
@@ -64,9 +64,12 @@ function start(route, handle) {
           };
         };
       }
-      
-      
-    });
+      socket.emit('mdnsUp', service);
+      //        var str=JSON.stringify(service);
+      //        util.log("service up: "+str+now.toLocaleTimeString());
+
+    }
+  );
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
@@ -80,7 +83,7 @@ function start(route, handle) {
      // var str=JSON.stringify(service);
      //util.log("service down: "+service.name+now.toLocaleTimeString());
 
-    });
+   });
     browser.on('serviceChanged', function(service) {
       /*if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
@@ -90,7 +93,7 @@ function start(route, handle) {
       socket.emit('mdnsDown', service);
       var str=JSON.stringify(service);*/
     //  util.log("service changed: "+service.name+now.toLocaleTimeString());
-    });
+  });
     util.log("listen to services");
     browser.start();
     var txt_record = {
@@ -102,7 +105,7 @@ function start(route, handle) {
     ad.start();
   });
 
-  config.riolog("Server has started.");
+config.riolog("Server has started.");
   //Unuseful code. When executed in node-main, this code will make node-webkit crash.
   //filesHandle.monitorFiles('/home/v1/resources');
   filesHandle.monitorNetlink('./var/.netlinkStatus');

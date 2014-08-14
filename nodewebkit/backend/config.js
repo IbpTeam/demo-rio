@@ -8,11 +8,13 @@ var SERVERPORT=8888;
 var MSGPORT=8889;
 exports.MSGPORT = MSGPORT;
 exports.SERVERPORT = SERVERPORT;
-var MDNSPORT=8890;
+var FILEPORT=8080;
+exports.FILEPORT=FILEPORT;
+var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
 var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
-var ACCOUNT="wangfeng";
+var ACCOUNT="xiquan";
 exports.ACCOUNT = ACCOUNT;
 function getAddr(){
   var IPv4;
