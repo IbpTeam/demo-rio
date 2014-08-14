@@ -106,7 +106,7 @@ function syncCheckResponse(msgObj, address){
 
 //Start sync data
 function syncStart(syncData, adress){
-	//ActionHistory.test();
+	ActionHistory.test();
 	var insertActions = syncData.insertActions;
 	var deleteActions = syncData.deleteActions;
 	var updateActions = syncData.updateActions;
@@ -164,10 +164,13 @@ function syncStart(syncData, adress){
 					if(isExist(my_updateHistory,updateItem)){
 						console.log('==========operate on the same file==========');
 						console.log(updateItem);
-						if(isConflict(my_updateHistory,updateItem))
+						if(isConflict(my_updateHistory,updateItem)){
+							console.log("conflict!!!!!!!!!!!");
 							conflictList.push(updateItem);
-						else
+						}else{
+							console.log("it's ok!!!!!!!!!!!");
 							updateList.push(updateItem);
+						}
 					}else{
 						console.log("==========We got a new update:==========");
 						console.log(updateItem);
@@ -176,15 +179,16 @@ function syncStart(syncData, adress){
 				});
 				//
 				console.log("==========here are conflicts==========")
-				console.log(conflictList);
-				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
+				console.log(updateList);
+				versionCtrl(conflictList);
+				ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});
 	});
 }
 
 //deal with the conflict situation 
-function versionCtrl(){
+function versionCtrl(List){
     //to be continue ......
 
 }
@@ -201,6 +205,8 @@ function isExist(List,item){
 }
 
 //check the data is conflict or not
+//need more detail
+//to be continue
 function isConflict(List,item){
 	var flag = false;
 	List.forEach(function(listItem){
