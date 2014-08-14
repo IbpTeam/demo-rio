@@ -47,3 +47,4 @@ function initIMServer(){
 		console.log('IMServer Binded! '+ config.MSGPORT);
 	});
 }
+
