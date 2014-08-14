@@ -55,36 +55,62 @@ function syncUpdateAction(updateCallBack){
 }
 
 //Send sync request when other devices connect the net.
-function syncRequest(address){
+function syncRequest(deviceName,deviceId,deviceAddress){
   // console.log("get address from internet discovery : " + address);
+  if (deviceId.localeValue(config.uniqueID) <= 0) {
+  	syncError("device id in request is wrong!");
+  	return;
+  }
+
   switch(currentState){
 	case state.SYNC_IDLE: {
-		console.log("syncRequest=========================================" + currentState);
+		console.log("syncRequest==========" + currentState);
 		currentState = state.SYNC_REQUEST;
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "sync"
+		};
+		syncList.push(syncDevice);
 		var requestMsg = {
   		type: "syncRequest",
   		account: config.ACCOUNT
   		};
-  		syncSendMessage(address[0],requestMsg);
+  		syncSendMessage(deviceAddress[0],requestMsg);
 	}
 	break;
-	case 'syncResponse': {
-		//console.log("=========================================");
-		dataSync.syncStart(msgObj, remoteAD);
+	case state.SYNC_REQUEST: {
+		console.log("syncRequest=============" + currentState);
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "wait"
+		};
+		syncList.push(syncDevice);
 	}
 	break;
-//	case 'syncStart': {
-//		//console.log("=========================================");
-//		dataSync.syncStart(msgObj, remoteAD);
-//	}
-//	break;
-	case 'syncComplete': {
-		//console.log("=========================================");
-		//dataSync.syncStart(msgObj, remoteAD);
+	case state.SYNC_START: {
+		console.log("syncRequest============" + currentState);
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "wait"
+		};
+		syncList.push(syncDevice);
+	}
+	break;
+	case state.SYNC_COMPLETE: {
+		console.log("syncRequest==========" + currentState);
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "wait"
+		};
+		syncList.push(syncDevice);
 	}
 	break;
 	default: {
-		console.log("this is in default switch on data");
+		console.log("this is in default switch in syncRequest");
 		//console.log(data);
 	}
   }
@@ -92,40 +118,80 @@ function syncRequest(address){
 
 //Confirm request
 function syncResponse(msgObj, address){
-	var resultValue = null;
-	//ToDo something to confirm
-	//example account , list for sync and so on... 
-	resultValue = "False";
-	if (typeof(msgObj.result) != "undefined") {
-		//Get and transfer actions
-		var insertActions = null;
-		var deleteActions = null;
-		var updateActions = null;
-		syncInitActions(function(insertArray, deleteArray, updateArray){
-			insertActions = insertArray;
-			deleteActions = deleteArray;
-			updateActions = updateArray;
 
-			if (insertActions != null && deleteActions != null && updateActions != null) {
+	switch(currentState){
+	case state.SYNC_IDLE: {
+		console.log("syncResponse=========================================" + currentState);
+		currentState = state.SYNC_REQUEST;
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "sync"
+		};
+		syncList.push(syncDevice);
+
+  		var resultValue = "False";
+		if (typeof(msgObj.result) != "undefined") {
+			//Get and transfer actions
+			var insertActions = null;
+			var deleteActions = null;
+			var updateActions = null;
+			syncInitActions(function(insertArray, deleteArray, updateArray){
+				insertActions = insertArray;
+				deleteActions = deleteArray;
+				updateActions = updateArray;
+
 				resultValue = "OK";
-			}
 
-			var syncDataObj = {
-				type: "syncResponse",
-				account:config.ACCOUNT,
-				result: resultValue,
-				insertActions: insertActions,
-				deleteActions: deleteActions,
-				updateActions: updateActions
-			};
+				var syncDataObj = {
+					type: "syncResponse",
+					account:config.ACCOUNT,
+					result: resultValue,
+					insertActions: insertActions,
+					deleteActions: deleteActions,
+					updateActions: updateActions
+				};
 
-			syncSendMessage(address, syncDataObj);
-		});
+				syncSendMessage(address, syncDataObj);
+			});
+		}
 	}
-
-//	var responseStr = JSON.stringify(responseMsg);
-//	console.log(address);
-	syncSendMessage(address,responseMsg);
+	break;
+	case state.SYNC_REQUEST: {
+		console.log("syncResponse=========================================" + currentState);
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "wait"
+		};
+		syncList.push(syncDevice);
+	}
+	break;
+	case state.SYNC_START: {
+		console.log("syncResponse=========================================" + currentState);
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "wait"
+		};
+		syncList.push(syncDevice);
+	}
+	break;
+	case state.SYNC_COMPLETE: {
+		console.log("syncResponse=========================================" + currentState);
+		var syncDevice = {
+			deviceName: deviceName,
+			deviceId: deviceId,
+			status: "wait"
+		};
+		syncList.push(syncDevice);
+	}
+	break;
+	default: {
+		console.log("this is in default switch in syncRequest");
+		//console.log(data);
+	}
+  }
 }
 
 /*
@@ -183,6 +249,11 @@ function syncStart(syncData, adress){
 //Sync complete
 function syncComplete(){
 	//To-Do
+}
+
+//Sync error
+function syncError(err){
+	console.log("Sync Error: " + err);
 }
 
 //Export method
