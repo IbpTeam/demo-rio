@@ -50,6 +50,54 @@ exports.countTotalByCategory = function(category, callback) {
   });
 }
 
+exports.getMaxIdByCategory = function(category, callback) {
+  switch(category){ 
+    case 'Pictures' : {
+      picturesDAO.getMaxId(function(err, picturesMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(picturesMaxid);
+      });
+    }
+    break;
+    
+    case 'Videos' : {
+      videosDAO.getMaxId(function(err, videosMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(videosMaxid);
+      });
+    }
+    break;
+    
+    case 'Documents' : {
+      documentsDAO.getMaxId(function(err, documentsMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(documentsMaxid);
+      });
+    }
+    break;
+    
+    case 'Music' : {
+      musicDAO.getMaxId(function(err, musicMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(musicMaxid);
+      });
+    }
+    break;
+  }
+}
+
 exports.getAllByCateroty = function(caterogy, callback) {
 
   var dao = null;

@@ -53,6 +53,13 @@ function loadResourcesCb(result){
     console.log('end of load resource callback.');
     document.write(result);
 }
+
+function addNewFolderCb(result){
+    $("body").css("cursor", "default");
+    console.log('end of add new folder callback.');
+    document.write(result);
+}
+
 //API loadResources:读取某个资源文件夹到数据库
 //返回字符串：
 //成功返回success;
@@ -93,7 +100,8 @@ function chooseFile(name) {
     <input id="fileDialog" style="display:none;" type="file" nwdirectory/><br>
     <input id="btn_choose" type="button" onclick="chooseFile('#fileDialog')" value="选择文件路径"></input>
     <label id="dir_path"></label><br>
-    <input id="btn_insert" style="display:none;" type="button" onclick="loadResources(loadResourcesCb)" value="扫描路径下的文件，并加入数据库"></input>
+    <input id="btn_insert" style="display:none;" type="button" onclick="loadResources(loadResourcesCb)" value="扫描路径下的文件，初始化数据库"></input>
+    <input id="btn_insert" style="display:none;" type="button" onclick="addNewFolder(addNewFolderCb)" value="扫描路径下的文件，添加到数据库"></input>
 </div>
 <hr>
 

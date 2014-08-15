@@ -19,6 +19,7 @@ exports.FINDPICTUREBYID = "select * from pictures where id = ?";
 exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEPICTURE = "delete from pictures where URI = ?";
 exports.UPDATEPICTURE = "update pictures set ? = ? where id = ?";
+exports.GETMAXIDPICTURES = "select max(id) as maxid from pictures";
 
 //SQL used in VideosDAO
 exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
@@ -27,6 +28,7 @@ exports.FINDVIDEOBYID = "select * from videos where id = ?";
 exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEVIDEO = "delete from videos where URI = ?";
 exports.UPDATEVIDEO = "update videos set ? = ? where id = ?";
+exports.GETMAXIDVIDEOS = "select max(id) as maxid from videos";
 
 //SQL used in DocumentsDAO
 exports.COUNTTOTALDOCUMENTS = "select count(*) as total from documents";
@@ -35,6 +37,7 @@ exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
 exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEDOCUMENT = "delete from documents where URI = ?";
 exports.UPDATEDOCUMENT = "update documents set ? = ? where id = ?";
+exports.GETMAXIDDOCUMENTS = "select max(id) as maxid from documents";
 
 //SQL used in MusicDAO
 exports.COUNTTOTALMUSIC = "select count(*) as total from music";
@@ -43,6 +46,7 @@ exports.FINDMUSICBYID = "select * from music where id = ?";
 exports.CREATEMUSIC = "insert into music (id,filename,postfix,size,path,album,composerName,actorName,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEMUSIC = "delete from music where URI = ?";
 exports.UPDATEMUSIC = "update music set ? = ? where id = ?";
+exports.GETMAXIDMUSIC = "select max(id) as maxid from music";
 
 //SQL used in RecentDAO
 exports.COUNTTOTALRECENT = "select count(*) as total from recent";
