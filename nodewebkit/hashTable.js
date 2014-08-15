@@ -1,6 +1,4 @@
 //hashTable.js
-//a hashtable implementation
-
 var Table = require('hashtable');
 
 function HashTable(){

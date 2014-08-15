@@ -249,8 +249,7 @@ function getServerAddress(getServerAddressCb){
   }
 }
 
-//add function for file transfer 
-//2014.7.18 by xiquan
+//API gileSend
 function fileSend(host){
   console.log("Request handler 'fileSend' was called.");
   if(isLocal()){     
@@ -265,8 +264,7 @@ function fileSend(host){
   }
 }
 
-//add function for file transfer 
-//2014.7.21 by xiquan
+//API fileReceiver
 function fileReceive(path){
   console.log("Request handler 'fileSend' was called.");
   if(isLocal()){     
@@ -299,3 +297,21 @@ function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   getServerAddress(getServerAddressCb);
 }
 
+/*
+//API demoDataSync
+function demoDataSync(deviceName,deviceId,deviceAddress){
+  console.log("Start demoDataSync !");
+  function getServerAddressCb(result){
+    var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
+    var socket = io.connect(add);  
+    socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
+      deviceUpCb(data);
+      var dataSync =  require("./backend/DataSync.js");
+      dataSync.syncRequest(deviceName,deviceId,deviceAddress);
+    });
+    socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
+      deviceDownCb(data);
+    });
+  }
+  getServerAddress(getServerAddressCb);
+}*/
