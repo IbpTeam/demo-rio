@@ -27,6 +27,20 @@ exports.countTotal = function(countTotalCallBack){
 }
 
 /**
+ * @method getMaxId
+ *   查询videos表中id的最大值
+ * @param null
+ *   
+ * @return maxid
+ *   Integer 表中id最大值
+ */
+exports.getMaxId = function(getMaxIdCallBack){
+  var db = openDB();
+  db.get(SQLSTR.GETMAXIDVIDEOS, getMaxIdCallBack);
+  closeDB(db);  
+}
+
+/**
  * @method findAll
  *   查询videos表中所有数据
  * @param null

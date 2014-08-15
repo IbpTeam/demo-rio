@@ -351,6 +351,137 @@ function syncDb(loadResourcesCb,resourcePath)
 }
 exports.syncDb = syncDb;
 
+function addNewFolder(addNewFolderCb,resourcePath) {
+  config.riolog("add new folders to DB ..............");
+  var fileList = new Array();
+  function walk(path){  
+    var dirList = fs.readdirSync(path);
+    dirList.forEach(function(item){
+      if(fs.statSync(path + '/' + item).isDirectory()){
+        walk(path + '/' + item);
+      }
+      else{
+        fileList.push(path + '/' + item);
+      }
+    });
+  }
+  walk(resourcePath);
+  config.riolog(fileList); 
+  writeDbNum=fileList.length;
+  writeDbRecentNum=writeDbNum;
+  config.riolog('writeDbNum= '+writeDbNum);
+  config.riolog('writeDbRecentNum= '+writeDbRecentNum);
+  commonDAO.getMaxIdByCategory("Music", function(maxidMusic){
+    var musicId = maxidMusic.maxid;
+    commonDAO.getMaxIdByCategory("Documents", function(maxidDocuments){
+      var documentId = maxidDocuments.maxid;
+      console.log("documentId ======: ", documentId);
+      commonDAO.getMaxIdByCategory("Pictures", function(maxidPictures){
+        var pictureId = maxidPictures.maxid;
+        fileList.forEach(function(item){
+          var pointIndex=item.lastIndexOf('.');
+          var itemPostfix=item.substr(pointIndex+1);
+          var nameindex=item.lastIndexOf('/');
+          var itemFilename=item.substring(nameindex+1,pointIndex);
+          config.riolog("read file "+item);  
+          function getFileStatCb(error,stat)
+      {
+        var mtime=stat.mtime;
+        var ctime=stat.ctime;
+        var size=stat.size;
+        config.riolog('mtime:'+mtime);
+        config.riolog('ctime:'+ctime);
+        config.riolog('size:'+size);
+        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+          var category='Documents';
+          documentId++;
+          var newItem={
+            id:documentId,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:item,
+            project:'上海专项',
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'documents',
+            specificId:documentId,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+        }
+        else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+          var category='Pictures';
+          pictureId++;
+          var newItem={
+            id:pictureId,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:item,
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'pictures',
+            specificId:pictureId,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+        }
+        else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+          var category='Music';
+          musicId++;
+          var newItem={
+            id:musicId,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:item,
+            album:'流行',
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          category='recent';
+          newItem={
+            id:null,
+            tableName:'music',
+            specificId:musicId,
+            lastAccessTime:ctime,
+            others:null
+          };
+          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+        }
+        else{
+          writeDbNum --;
+          writeDbRecentNum --;
+        }        
+      }     
+          fs.stat(item,getFileStatCb);
+        });
+      });
+    });
+  });
+}
+exports.addNewFolder = addNewFolder;
+
 function monitorNetlink(path){
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);

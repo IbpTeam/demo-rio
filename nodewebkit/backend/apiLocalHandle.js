@@ -13,6 +13,11 @@ function loadResourcesFromLocal(loadResourcesCb,path) {
 }
 exports.loadResourcesFromLocal = loadResourcesFromLocal;
 
+function addNewFolderFromLocal(addNewFolderCb,path) {
+  filesHandle.addNewFolder(addNewFolderCb,path);
+}
+exports.addNewFolderFromLocal = addNewFolderFromLocal;
+
 function getAllCateFromLocal(getAllCateCb) {
   function getCategoriesCb(data)
   {

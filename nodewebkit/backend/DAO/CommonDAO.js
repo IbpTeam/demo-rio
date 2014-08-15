@@ -47,7 +47,6 @@ exports.countTotalByCategory = function(category, callback) {
     
     case 'Documents' : {
       documentsDAO.countTotal(function(err, documentsCount){
-        console.log("documentCount=======:", documentsCount);
         if(err){
           config.dblog(err);
           callback(null);
@@ -64,6 +63,54 @@ exports.countTotalByCategory = function(category, callback) {
           callback(null);
         }
         callback(musicCount);
+      });
+    }
+    break;
+  }
+}
+
+exports.getMaxIdByCategory = function(category, callback) {
+  switch(category){ 
+    case 'Pictures' : {
+      picturesDAO.getMaxId(function(err, picturesMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(picturesMaxid);
+      });
+    }
+    break;
+    
+    case 'Videos' : {
+      videosDAO.getMaxId(function(err, videosMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(videosMaxid);
+      });
+    }
+    break;
+    
+    case 'Documents' : {
+      documentsDAO.getMaxId(function(err, documentsMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(documentsMaxid);
+      });
+    }
+    break;
+    
+    case 'Music' : {
+      musicDAO.getMaxId(function(err, musicMaxid){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        callback(musicMaxid);
       });
     }
     break;
