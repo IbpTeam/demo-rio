@@ -19,6 +19,9 @@ var state = {
 	SYNC_COMPLETE:3
 };
 
+var isRemoteComplete = false;
+var remoteDeviceId = null;
+
 var currentState = state.SYNC_IDLE;
 console.log("current state is : " + currentState);
 
@@ -63,25 +66,28 @@ function syncUpdateAction(other_updateHistory,updateCallBack){
 //Send sync request when other devices connect the net.
 function syncRequest(deviceName,deviceId,deviceAddress){
   // console.log("get address from internet discovery : " + address);
-  if (deviceId.localeCompare(config.uniqueID) <= 0) {
+  /*if (deviceId.localeCompare(config.uniqueID) <= 0) {
   	syncError("device id in request is wrong!");
   	return;
-  }
+  }*/
 
   switch(currentState){
 	case state.SYNC_IDLE: {
 		console.log("syncRequest==========" + currentState);
 		currentState = state.SYNC_REQUEST;
+		remoteDeviceId = deviceId;
 		var syncDevice = {
 			deviceName: deviceName,
 			deviceId: deviceId,
+			deviceAddress: deviceAddress,
 			status: "sync"
 		};
-		syncList.push(syncDevice);
+		syncList.unshift(syncDevice);
 		var requestMsg = {
-  		type: "syncRequest",
-  		account: config.ACCOUNT,
-  		deviceId: config.uniqueID
+  			type: "syncRequest",
+  			account: config.ACCOUNT,
+  			deviceId: config.uniqueID,
+  			deviceAddress: config.SERVERIP
   		};
   		syncSendMessage(deviceAddress[0],requestMsg);
 	}
@@ -91,6 +97,7 @@ function syncRequest(deviceName,deviceId,deviceAddress){
 		var syncDevice = {
 			deviceName: deviceName,
 			deviceId: deviceId,
+			deviceAddress: deviceAddress,
 			status: "wait"
 		};
 		syncList.push(syncDevice);
@@ -101,6 +108,7 @@ function syncRequest(deviceName,deviceId,deviceAddress){
 		var syncDevice = {
 			deviceName: deviceName,
 			deviceId: deviceId,
+			deviceAddress: deviceAddress,
 			status: "wait"
 		};
 		syncList.push(syncDevice);
@@ -111,6 +119,7 @@ function syncRequest(deviceName,deviceId,deviceAddress){
 		var syncDevice = {
 			deviceName: deviceName,
 			deviceId: deviceId,
+			deviceAddress: deviceAddress,
 			status: "wait"
 		};
 		syncList.push(syncDevice);
@@ -130,9 +139,11 @@ function syncResponse(syncData, address){
 		case state.SYNC_IDLE: {
 			console.log("syncResponse=========================================" + currentState);
 			currentState = state.SYNC_REQUEST;
+			remoteDeviceId = syncData.deviceId;
 			var syncDevice = {
 				deviceName: syncData.deviceName,
 				deviceId: syncData.deviceId,
+				deviceAddress: syncData.deviceAddress,
 				status: "sync"
 			};
 			syncList.push(syncDevice);
@@ -153,6 +164,8 @@ function syncResponse(syncData, address){
 					type: "syncResponse",
 					account:config.ACCOUNT,
 					deviceId:config.uniqueID,
+					deviceAddress:config.SERVERIP,
+					isRemoteStart:false;
 					result: resultValue,
 					insertActions: insertActions,
 					deleteActions: deleteActions,
@@ -168,6 +181,7 @@ function syncResponse(syncData, address){
 			var syncDevice = {
 				deviceName: syncData.deviceName,
 				deviceId: syncData.deviceId,
+				deviceAddress: syncData.deviceAddress,
 				status: "wait"
 			};
 			syncList.push(syncDevice);
@@ -178,6 +192,7 @@ function syncResponse(syncData, address){
 			var syncDevice = {
 				deviceName: syncData.deviceName,
 				deviceId: syncData.deviceId,
+				deviceAddress: syncData.deviceAddress,
 				status: "wait"
 			};
 			syncList.push(syncDevice);
@@ -188,6 +203,7 @@ function syncResponse(syncData, address){
 			var syncDevice = {
 				deviceName: syncData.deviceName,
 				deviceId: syncData.deviceId,
+				deviceAddress: syncData.deviceAddress,
 				status: "wait"
 			};
 			syncList.push(syncDevice);
@@ -231,14 +247,44 @@ function syncCheckResponse(msgObj, address){
 
 //Start sync data
 function syncStart(syncData, adress){
+	if (remoteDeviceId != syncData.deviceId) {
+		console.log("Sync Start Error: retrive data from different device!");
+		return;
+	}
+	isRemoteStart = syncData.isRemoteStart;
+	if (!isRemoteStart) {
+		var resultValue = "False";
+		//Get and transfer actions
+		var insertActions = null;
+		var deleteActions = null;
+		var updateActions = null;
+		syncInitActions(function(insertArray, deleteArray, updateArray){
+			insertActions = JSON.stringify(insertArray);
+			deleteActions = JSON.stringify(deleteArray);
+			updateActions = JSON.stringify(updateArray);
 
-	deviceID = syncData.deviceId;
-	if (deviceID.localeCompare(config.uniqueID) >0) {
+			resultValue = "OK";
 
+			var syncDataObj = {
+				type: "syncResponse",
+				account:config.ACCOUNT,
+				deviceId:config.uniqueID,
+				deviceAddress:config.SERVERIP,
+				isRemoteStart:true,
+				result: resultValue,
+				insertActions: insertActions,
+				deleteActions: deleteActions,
+				updateActions: updateActions
+			};
+
+			syncSendMessage(address, syncDataObj);
+		});
 	}
 
-	console.log("+++++++++++++++++++++++++++++++++++++++-------------------------------------------");
-	ActionHistory.test();
+	//Change state, start to sync
+	currentState = state.SYNC_START;
+
+	//ActionHistory.test();
 
 	//console.log("insert actions: " + syncData.insertActions);
 	//console.log("delete actions: " + syncData.deleteActions);
@@ -381,8 +427,56 @@ function isConflict(List,item){
 };
 
 //Sync complete
-function syncComplete(){
-	//To-Do
+function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
+	if (deviceId != remoteDeviceId) {
+		console.log("Sync Complete Error: retrive data from different device!");
+		return;
+	}
+	if (isLocal && isComplete) {
+		currentState = state.SYNC_COMPLETE;
+	}else {
+		isRemoteComplete = isComplete;
+	}
+
+	if (syncList.length < 1) {
+		console.log("Sync List Error: List length < 1!");
+		return;
+	}
+
+	if (isRemoteComplete && currentState == state.SYNC_COMPLETE) {
+		console.log("Data Sync is Done!");
+		currentState = state.SYNC_IDLE;
+		isRemoteComplete = false;
+		if (syncList[0].deviceId = deviceId) {
+			syncList.shift();
+		}else{
+			console.log("Sync list may be wrong!")
+			for (var i = 0; i < syncList.length; i++) {
+				if (syncList[i].deviceId == deviceId) {
+					syncList.splice(i,1);
+					break;	
+				}
+			}
+		}
+
+		if (syncList.length < 1) {
+			currentState = state.SYNC_IDLE;
+		}else{
+			currentState = state.SYNC_REQUEST;
+			syncRequest(syncList[0].deviceName,syncList[0].deviceId,syncList[0],deviceAddress);
+		}
+	}
+	else if(currentState == state.SYNC_COMPLETE){
+		var syncDataObj = {
+			type: "syncComplete",
+  			account: config.ACCOUNT,
+  			deviceId: config.uniqueID,
+  			isComplete: true,
+		};
+
+		syncSendMessage(deviceAddress, syncDataObj);
+	}
+
 }
 
 //Sync error

@@ -31,7 +31,7 @@ function initServer(){
 //			break;
 			case 'syncComplete': {
 				//console.log("=========================================");
-				//dataSync.syncStart(msgObj, remoteAD);
+				dataSync.syncComplete(false, msgObj.isComplete,msgObj.deviceId,remoteAD);
 			}
 			break;
 			default: {

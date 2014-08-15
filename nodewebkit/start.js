@@ -3,6 +3,7 @@ var server = require("./backend/server");
 var router = require("./backend/router");
 var msgTransfer = require("./backend/msgtransfer");
 var requestHandlers = require("./backend/requestHandlers");
+var fileHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
 
@@ -32,6 +33,18 @@ server.start(router.route, handle);
 
 var cp = require('child_process');
 cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
+cp.exec('echo $USER',function(error,stdout,stderr){
+  var usrname=stdout.replace("\n","");
+  util.log('mkdir /home/'+usrname+'/.demo-rio');
+  fileHandle.mkdirSync('/home/'+usrname+'/.demo-rio', 0755,function(e){
+  	config.USERCONFIGPATH='/home/'+usrname+'/.demo-rio/';
+    if(e){
+        util.log('mkdir /home/'+usrname+'/.demo-rio fail');
+    }else{
+        util.log('mkdir /home/'+usrname+'/.demo-rio sucess');
+    }
+  });
+ });
 
 
 

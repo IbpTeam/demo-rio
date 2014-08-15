@@ -1,6 +1,8 @@
 var util = require('util');
 var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
 var RESOURCEPATH='/home/v1/demo-rio/nodewebkit/resources';
+var USERCONFIGPATH;
+exports.USERCONFIGPATH = USERCONFIGPATH;
 var os = require('os');
 var RIODEBUG=1;
 var DBDEBUG=1;
