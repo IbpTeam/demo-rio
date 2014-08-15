@@ -165,7 +165,7 @@ function syncResponse(syncData, address){
 					account:config.ACCOUNT,
 					deviceId:config.uniqueID,
 					deviceAddress:config.SERVERIP,
-					isRemoteStart:false;
+					isRemoteStart:false,
 					result: resultValue,
 					insertActions: insertActions,
 					deleteActions: deleteActions,
