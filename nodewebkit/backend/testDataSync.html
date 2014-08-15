@@ -5,6 +5,7 @@
 <script type="text/javascript" src="api.js"></script>
 <script type="text/javascript" src="apiHttpHandle.js"></script>
 <script type="text/javascript" src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+
 </head>
 <meta charset="UTF-8">
 
@@ -28,8 +29,9 @@ function deviceUpCb(data){
     onLine.push("<li>deviceName: " + data.name);
     htmlUp.push("<li>deviceName: " + data.txtRecord.deviceName);
     document.getElementById('deviceUp').innerHTML = htmlUp.join("");
-    document.getElementById('onLine').innerHTML = onLine.join("");   	   	
+    document.getElementById('onLine').innerHTML = onLine.join(""); 
   }
+  //demoDataSync(data.txtRecord.deviceName); 
 }
 
 
