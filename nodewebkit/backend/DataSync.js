@@ -166,8 +166,8 @@ function syncResponse(syncData, address){
 		case state.SYNC_REQUEST: {
 			console.log("syncResponse=========================================" + currentState);
 			var syncDevice = {
-				deviceName: deviceName,
-				deviceId: deviceId,
+				deviceName: syncData.deviceName,
+				deviceId: syncData.deviceId,
 				status: "wait"
 			};
 			syncList.push(syncDevice);
@@ -176,8 +176,8 @@ function syncResponse(syncData, address){
 		case state.SYNC_START: {
 			console.log("syncResponse=========================================" + currentState);
 			var syncDevice = {
-				deviceName: deviceName,
-				deviceId: deviceId,
+				deviceName: syncData.deviceName,
+				deviceId: syncData.deviceId,
 				status: "wait"
 			};
 			syncList.push(syncDevice);
@@ -186,8 +186,8 @@ function syncResponse(syncData, address){
 		case state.SYNC_COMPLETE: {
 			console.log("syncResponse=========================================" + currentState);
 			var syncDevice = {
-				deviceName: deviceName,
-				deviceId: deviceId,
+				deviceName: syncData.deviceName,
+				deviceId: syncData.deviceId,
 				status: "wait"
 			};
 			syncList.push(syncDevice);
@@ -239,13 +239,14 @@ function syncStart(syncData, adress){
 
 	console.log("+++++++++++++++++++++++++++++++++++++++-------------------------------------------");
 	ActionHistory.test();
-	var insertActions = syncData.insertActions;
-	var deleteActions = syncData.deleteActions;
-	var updateActions = syncData.updateActions;
 
-	console.log("insert actions: " + JSON.stringify(insertActions));
-	console.log("delete actions: " + JSON.stringify(deleteActions));
-	console.log("update actions: " + JSON.stringify(updateActions));
+	console.log("insert actions: " + syncData.insertActions);
+	console.log("delete actions: " + syncData.deleteActions);
+	console.log("update actions: " + syncData.updateActions);
+
+	var insertActions = JSON.parse(syncData.insertActions);
+	var deleteActions = JSON.parse(syncData.deleteActions);
+	var updateActions = JSON.parse(syncData.updateActions);
 
 	var deletetList = new Array();
 	var insertList = new Array();
