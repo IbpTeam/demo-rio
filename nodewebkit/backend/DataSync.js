@@ -165,7 +165,7 @@ function syncResponse(syncData, address){
 					account:config.ACCOUNT,
 					deviceId:config.uniqueID,
 					deviceAddress:config.SERVERIP,
-					isRemoteStart:false;
+					isRemoteStart:false,
 					result: resultValue,
 					insertActions: insertActions,
 					deleteActions: deleteActions,
@@ -246,7 +246,7 @@ function syncCheckResponse(msgObj, address){
 */
 
 //Start sync data
-function syncStart(syncData, adress){
+function syncStart(syncData, address){
 	if (remoteDeviceId != syncData.deviceId) {
 		console.log("Sync Start Error: retrive data from different device!");
 		return;
@@ -341,7 +341,9 @@ function syncStart(syncData, adress){
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
 			var myInsert = new hashTable.HashTable();
 			myInsert.createHash(my_insertHistory);
-			insertActions = myInsert.getDiff(my_deleteHistory);
+
+			//remove some repeat insert items in insertActions
+			insertActions = myInsert.getDiff(insertActions,myDelete);
             
 			console.log("==========start sync insert!!!==========");
 			var newInsert = myInsert.getDiff(insertActions,myInsert);
