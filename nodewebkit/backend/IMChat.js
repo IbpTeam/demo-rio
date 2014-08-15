@@ -1,5 +1,5 @@
 var net = require('net');
-var config = require('./config');
+
 
 function initIMServer(){
 	var server =  net.createServer(function(c) {
@@ -10,9 +10,10 @@ function initIMServer(){
 	c.on('data', function(msgStr) {
 		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
 		var msgObj = JSON.parse(msgStr);
-		console.log('MSG type:' + msgObj.type);
-		switch(msgObj.type){
+		console.log('MSG type:' + msgObj[0].type);
+		switch(msgObj[0].type){
 			case 'Chat': {
+				console.log(msgObj[0].message);
 				//console.log("=========================================");
 				//output message and save to database
 				//return success
@@ -43,8 +44,53 @@ function initIMServer(){
 
 
 
-	server.listen(config.MSGPORT, function(){
-		console.log('IMServer Binded! '+ config.MSGPORT);
+	server.listen(8892, function(){
+		console.log('IMServer Binded! '+ 8892);
 	});
 }
 
+function sendIMMsg(IP,PORT,MSG){
+//	console.log("--------------------------"+IP);
+	if ( !net.isIP(IP)) {
+		console.log('Input IP Format Error!');
+		return;
+	};
+//	console.log("=========================="+config.SERVERIP)
+	var  client = new net.Socket();
+	client.connect(PORT,IP,function(){
+		client.write(MSG,function(){
+			client.end();
+		});
+	});
+
+	client.on('error',function(err){
+		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
+		client.end();
+	});
+}
+
+function encapsuMSG(MSG,TYPE,FROM,TO)
+{
+	var MESSAGE = [];
+	var tmp = {};
+	switch(TYPE)
+	{
+		case'Chat':{
+			tmp["from"] = FROM;
+			tmp["to"] = TO;
+			tmp["message"] = MSG;
+			tmp['type'] = TYPE;
+			MESSAGE.push(tmp);
+			var send = JSON.stringify(MESSAGE);
+			return send;
+		}
+		break;
+		default:{
+
+		}
+	}
+}
+
+exports.initIMServer = initIMServer;
+exports.sendIMMsg = sendIMMsg;
+exports.encapsuMSG = encapsuMSG;
