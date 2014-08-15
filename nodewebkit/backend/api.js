@@ -275,6 +275,7 @@ function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   getServerAddress(getServerAddressCb);
 }
 
+/*
 //API demoDataSync
 function demoDataSync(deviceName,deviceId,deviceAddress){
   console.log("Start demoDataSync !");
@@ -291,4 +292,4 @@ function demoDataSync(deviceName,deviceId,deviceAddress){
     });
   }
   getServerAddress(getServerAddressCb);
-}
+}*/

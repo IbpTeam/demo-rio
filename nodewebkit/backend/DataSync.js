@@ -8,7 +8,7 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- //var HashTable = require('./DeleteSync');
+ var HashTable = require('./DeleteSync');
 
 var ActionHistory = require('./DAO/ActionHistoryDAO');//
 
@@ -240,13 +240,20 @@ function syncStart(syncData, adress){
 	console.log("+++++++++++++++++++++++++++++++++++++++-------------------------------------------");
 	ActionHistory.test();
 
-	console.log("insert actions: " + syncData.insertActions);
-	console.log("delete actions: " + syncData.deleteActions);
-	console.log("update actions: " + syncData.updateActions);
+	//console.log("insert actions: " + syncData.insertActions);
+	//console.log("delete actions: " + syncData.deleteActions);
+	//console.log("update actions: " + syncData.updateActions);
 
 	var insertActions = JSON.parse(syncData.insertActions);
 	var deleteActions = JSON.parse(syncData.deleteActions);
 	var updateActions = JSON.parse(syncData.updateActions);
+
+	console.log("insert actions: ");
+	console.log(insertActions);
+	console.log("delete actions: ");
+	console.log(deleteActions);
+	console.log("update actions: ");
+	console.log(updateActions);
 
 	var deletetList = new Array();
 	var insertList = new Array();
@@ -328,6 +335,8 @@ function versionCtrl(List){
 //check is exist or not
 function isExist(List,item){
 	var flag = false;
+	if(List === null)
+		return false;
 	List.forEach(function(listItem){
 		if(item.dataURI === listItem.dataURI){
 			flag = true;
@@ -341,6 +350,8 @@ function isExist(List,item){
 //to be continue
 function isConflict(List,item){
 	var flag = false;
+	if(List === null)
+		return false;
 	List.forEach(function(listItem){
 		if(item.dataURI === listItem.dataURI && item.key === listItem.key){
 			flag = true;
