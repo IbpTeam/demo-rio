@@ -227,8 +227,7 @@ function getServerAddress(getServerAddressCb){
   }
 }
 
-//add function for file transfer 
-//2014.7.18 by xiquan
+//API gileSend
 function fileSend(host){
   console.log("Request handler 'fileSend' was called.");
   if(isLocal()){     
@@ -243,8 +242,7 @@ function fileSend(host){
   }
 }
 
-//add function for file transfer 
-//2014.7.21 by xiquan
+//API fileReceiver
 function fileReceive(path){
   console.log("Request handler 'fileSend' was called.");
   if(isLocal()){     
@@ -276,4 +274,6 @@ function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   }
   getServerAddress(getServerAddressCb);
 }
+
+
 

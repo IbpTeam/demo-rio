@@ -8,7 +8,7 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- var HashTable = require('./DeleteSync');
+ //var HashTable = require('./DeleteSync');
 
 var ActionHistory = require('./DAO/ActionHistoryDAO');//
 
