@@ -20,13 +20,18 @@ function initServer(){
 			}
 			break;
 			case 'syncResponse': {
-				//console.log("=========================================");
-				dataSync.syncCheckResponse(msgObj, remoteAD);
+				console.log("=========================================syncStart");
+				dataSync.syncStart(msgObj, remoteAD);
 			}
 			break;
-			case 'syncStart': {
-				console.log("=========================================");
-				dataSync.syncStart(msgObj, remoteAD);
+//			case 'syncStart': {
+//				//console.log("=========================================");
+//				dataSync.syncStart(msgObj, remoteAD);
+//			}
+//			break;
+			case 'syncComplete': {
+				//console.log("=========================================");
+				dataSync.syncComplete(false, msgObj.isComplete,msgObj.deviceId,remoteAD);
 			}
 			break;
 			default: {

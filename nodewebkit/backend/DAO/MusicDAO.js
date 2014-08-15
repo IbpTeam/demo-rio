@@ -23,8 +23,22 @@ function closeDB(database){
 exports.countTotal = function(countTotalCallBack){
   var db = openDB();
   db.get(SQLSTR.COUNTTOTALMUSIC, countTotalCallBack);
-  closeDB();  
+  closeDB(db);  
 } 
+
+/**
+ * @method getMaxId
+ *   查询music表中id的最大值
+ * @param null
+ *   
+ * @return maxid
+ *   Integer 表中id最大值
+ */
+exports.getMaxId = function(getMaxIdCallBack){
+  var db = openDB();
+  db.get(SQLSTR.GETMAXIDMUSIC, getMaxIdCallBack);
+  closeDB(db);  
+}
 
 /**
  * @method findAll

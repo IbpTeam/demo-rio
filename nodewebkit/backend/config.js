@@ -1,6 +1,8 @@
 var util = require('util');
 var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
 var RESOURCEPATH='/home/v1/demo-rio/nodewebkit/resources';
+var USERCONFIGPATH;
+exports.USERCONFIGPATH = USERCONFIGPATH;
 var os = require('os');
 var RIODEBUG=1;
 var DBDEBUG=1;
@@ -8,13 +10,13 @@ var SERVERPORT=8888;
 var MSGPORT=8889;
 exports.MSGPORT = MSGPORT;
 exports.SERVERPORT = SERVERPORT;
-var FTPORT=8080;//by Xiquan at 2014.7.28
-exports.FTPORT=FTPORT;
+var FILEPORT=8080;
+exports.FILEPORT=FILEPORT;
 var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
 var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
-var ACCOUNT="wangfeng";
+var ACCOUNT="xiquan";
 exports.ACCOUNT = ACCOUNT;
 function getAddr(){
   var IPv4;

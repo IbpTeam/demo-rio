@@ -10,78 +10,141 @@ var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
-exports.getAllByCateroty = function(caterogy, callback) {
-  switch(caterogy){
+exports.countTotalByCategory = function(category, callback) {
+
+  var countDao = null;
+
+  switch(category){
     case 'Contacts' : {
-      contactsDAO.findAll(function(err, contacts){
-        if(err){
-          config.dblog(err);
-          callback(null)
-        }
-        contacts.forEach(function(contact){
-          contact.id = "1#" + contact.id;
-        });
-        callback(contacts)
-      });
+      countDao = contactsDAO;
     }
     break;
   
     case 'Pictures' : {
-      picturesDAO.findAll(function(err, pictures){
+      countDao = picturesDAO;
+    }
+    break;
+    
+    case 'Videos' : {
+      countDao = videosDAO;
+    }
+    break;
+    
+    case 'Documents' : {
+      countDao = documentsDAO;
+    }
+    break;
+    
+    case 'Music' : {
+      countDao = musicDAO;
+    }
+    break;
+  }
+
+  countDao.countTotal(function(err, countNum){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    callback(countNum);
+  });
+}
+
+exports.getMaxIdByCategory = function(category, callback) {
+  switch(category){ 
+    case 'Pictures' : {
+      picturesDAO.getMaxId(function(err, picturesMaxid){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
-        pictures.forEach(function(picture){
-          picture.id = "2#" + picture.id;
-        });
-        callback(pictures)
+        callback(picturesMaxid);
       });
     }
     break;
     
     case 'Videos' : {
-      videosDAO.findAll(function(err, videos){
+      videosDAO.getMaxId(function(err, videosMaxid){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
-        videos.forEach(function(video){
-          video.id = "3#" + video.id;
-        });
-        callback(videos)
+        callback(videosMaxid);
       });
     }
     break;
     
     case 'Documents' : {
-      documentsDAO.findAll(function(err, documents){
+      documentsDAO.getMaxId(function(err, documentsMaxid){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
-        documents.forEach(function(document){
-          document.id = "4#" + document.id;
-        });
-        callback(documents)
+        callback(documentsMaxid);
       });
     }
     break;
     
     case 'Music' : {
-      musicDAO.findAll(function(err, music){
+      musicDAO.getMaxId(function(err, musicMaxid){
         if(err){
           config.dblog(err);
-          callback(null)
+          callback(null);
         }
-        music.forEach(function(each){
-          each.id = "5#" + each.id;
-        });
-        callback(music)
+        callback(musicMaxid);
       });
     }
     break;
   }
+}
+
+exports.getAllByCateroty = function(caterogy, callback) {
+
+  var dao = null;
+  var prefix = null;
+
+  switch(caterogy){
+    case 'Contacts' : {
+      dao = contactsDAO;
+      prefix = "1#";
+    }
+    break;
+  
+    case 'Pictures' : {
+      dao = picturesDAO;
+      prefix = "2#";
+    }
+    break;
+    
+    case 'Videos' : {
+      dao = videosDAO;
+      prefix = "3#";
+    }
+    break;
+    
+    case 'Documents' : {
+      dao = documentsDAO;
+      prefix = "4#";
+    }
+    break;
+    
+    case 'Music' : {
+      dao = musicDAO;
+      prefix = "5#";
+    }
+    break;
+  }
+
+  dao.findAll(function(err, items){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    items.forEach(function(item){
+      item.id = prefix + item.id;
+    });
+    callback(items);
+  });
 }
 
 exports.getCategories = function(callback){
@@ -99,11 +162,14 @@ exports.getCategories = function(callback){
 
 exports.getItemById = function(id, callback){
   config.dblog("get id:" + id);
+  
   var index=id.indexOf('#');
   var tableId=id.substring(0,index);
   var dataId=id.substr(index+1);
-    config.dblog("tableId id:" + tableId);
-        config.dblog("dataId id:" + dataId);
+
+  config.dblog("tableId id:" + tableId);
+  config.dblog("dataId id:" + dataId);
+
   switch(tableId){
     case '1' : {
       contactsDAO.findById(dataId,function(err,item){
@@ -415,7 +481,7 @@ exports.findAllActionHistory = function(callback){
         callback(null);
       }
       deleteActions = delActions;
-      actionHistoryDAO.findAll("delete", function(err, updActions){
+      actionHistoryDAO.findAll("update", function(err, updActions){
         if(err){
           config.dblog(err);
           callback(null);

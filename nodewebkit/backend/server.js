@@ -47,12 +47,20 @@ function start(route, handle) {
           listOfOscDevices[service.name] = service;
           var cnt = Object.keys(listOfOscDevices).length;
           console.log('There are '+cnt+' devices');
-          var serviceRecord = service.txtRecord;
-          if (typeof(serviceRecord) != "undefined") {
-            console.log(serviceRecord.account +"----------------");
-            if (serviceRecord.account == config.ACCOUNT) {
+        }
+        socket.emit('mdnsUp', service);
+//        var str=JSON.stringify(service);
+//        util.log("service up: "+str+now.toLocaleTimeString());
+        var serviceRecord = service.txtRecord;
+        if (typeof(serviceRecord) != "undefined") {
+          console.log(serviceRecord.account +"----------------");
+          var deviceId = serviceRecord.deviceID;
+          console.log(serviceRecord.deviceID + "================");
+          console.log(deviceId.localeCompare(config.uniqueID) + "-----------------");
+          if (serviceRecord.account == config.ACCOUNT && deviceId.localeCompare(config.uniqueID) > 0) {
             //sendMessage
-            dataSync.syncRequest(service.addresses);
+            console.log("start to send sync request");
+            dataSync.syncRequest(service.name,deviceId,service.addresses);
           };
         };
       }
@@ -61,9 +69,7 @@ function start(route, handle) {
       //        util.log("service up: "+str+now.toLocaleTimeString());
 
     }
-
-
-  });
+  );
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
@@ -73,7 +79,7 @@ function start(route, handle) {
         var str=JSON.stringify(service);
         util.log("service down: "+str+now.toLocaleTimeString());
       }
-      socket.emit('mdnsDown', service);
+      //socket.emit('mdnsDown', service);
      // var str=JSON.stringify(service);
      //util.log("service down: "+service.name+now.toLocaleTimeString());
 
@@ -92,7 +98,8 @@ function start(route, handle) {
     browser.start();
     var txt_record = {
       deviceName: config.SERVERNAME,
-      account:config.ACCOUNT
+      account:config.ACCOUNT,
+      deviceID:config.uniqueID
     };
     var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
     ad.start();

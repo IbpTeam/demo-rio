@@ -107,3 +107,82 @@ exports.findAll = function(action, findAllCallBack){
   db.all(sqlStr, findAllCallBack);
   closeDB(db);
 }  
+
+/**
+ * @method createAll
+ *   delete items first and then
+ *   insert all items into the insert history from an Array
+ * @param List
+ * List is an Array
+ *
+ */
+exports.createAll = function(action,List,callback){
+  var db = openDB();
+  switch(action){
+    case "insert": {
+      List.forEach(function(item){
+        db.run(SQLSTR.CREATEINSERTITEM, item.dataURI,callback);
+      });
+    }
+    break;
+    case "delete": {
+      List.forEach(function(item){
+        //create delete history
+        db.run(SQLSTR.CREATEDELETEITEM, item.dataURI,callback);
+        //then delete insert & update history
+        db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI);
+        db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI);
+      });
+    }
+    break;
+    case "update": {
+      List.forEach(function(item){
+        db.run(SQLSTR.CREATEUPDATEITEM, item.dataURI, item.key, item.value,callback);     
+      });
+    }
+    break;
+    default: {
+      console.log("Error: not found");
+    }
+  }
+  closeDB(db);
+}
+
+
+//init a list of action history
+exports.test = function(){
+  var db = openDB();
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_01", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_02", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_03", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_04", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_06", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_07", "filename" , "book.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_01", "author" , "xiquan");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_02", "filename" , "yourbook.pdf");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_03", "author" , "notxiquan");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_04", "time" , "2014.8.8");
+  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "mybook.pdf");
+  closeDB(db);
+}
+
+
+/**
+ * @method deleteAll
+ *   insert all items into the insert history from an Array
+ * @param List
+ * List is an Array
+ *
+ *
+exports.deleteAll = function(List,deleteInsertCallback){
+  var db = openDB();
+  List.forEach(function(item){
+    //delete insert history
+    db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI, deleteInsertCallback);
+    //delete update history
+    //db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI, deleteUpdateCallback);
+  });
+  closeDB(db);
+}
+*/

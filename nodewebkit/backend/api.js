@@ -61,6 +61,28 @@ function loadResources(loadResourcesCb,path) {
   }
 }
 
+//API addNewFolder:添加某个资源文件夹到数据库
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function addNewFolder(addNewFolderCb,path) {
+  console.log("Request handler 'addNewFolder' was called.");
+  if(!path){
+      path = $('div#db_add #dir_path').text();
+  }
+  $("body").css("cursor", "wait");
+  console.log("Insert data to database...");
+  //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+  var r=browser();
+  console.log('You are using ' + r[0]);  
+  if(r[0]=="Nodejs")  {
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.addNewFolderFromLocal(addNewFolderCb,path);
+  }else{
+    console.log('You are in remote, we do not provide add new folder form http function now!');  
+  }
+}
+
 //API getAllCate:查询所有基本分类
 //返回cate型array：
 //cate{
