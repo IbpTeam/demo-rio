@@ -20,7 +20,7 @@ function initServer(){
 			}
 			break;
 			case 'syncResponse': {
-				//console.log("=========================================");
+				console.log("=========================================syncStart");
 				dataSync.syncStart(msgObj, remoteAD);
 			}
 			break;
