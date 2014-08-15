@@ -3,6 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
+var os = require('os');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 
@@ -25,7 +26,8 @@ function createItemCb(category,item,result,loadResourcesCb)
     sleep(1000);
     commonDAO.createItem(category,item,createItemCb,loadResourcesCb);
   }
-  else if(result=='successfull'){
+
+  else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
     config.riolog(item.filename+'insert:'+result);
     if(category=='recent'){
       writeDbRecentNum--;
@@ -49,13 +51,13 @@ function createItemCb(category,item,result,loadResourcesCb)
 }
 
 
-function deleteItemCb(id,result,rmDataByIdCb)
+function deleteItemCb(id,uri,result,rmDataByIdCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
     config.riolog(id+'delete error:'+result.code);
     sleep(1000);
-    commonDAO.deleteItemById(id,deleteItemCb,rmDataByIdCb);
+    commonDAO.deleteItemById(id,uri,deleteItemCb,rmDataByIdCb);
   }
   else if(result=='successfull'){
     config.riolog(id+'delete:'+result);
@@ -102,6 +104,7 @@ function syncDb(loadResourcesCb,resourcePath)
 
     if(itemPostfix == 'contacts'){
               config.riolog("postfix= "+itemPostfix);
+              var currentTime = (new Date()).getTime();
       fs.readFile(item, function (err, data) {
         var json=JSON.parse(data);
         config.riolog(json);
@@ -121,7 +124,8 @@ function syncDb(loadResourcesCb,resourcePath)
             email:each.email,
             photoPath:each.photoPath,
             createTime:null,
-            lastModifyTime:null
+            lastModifyTime:null,
+            lastAccessTime:currentTime
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
           category='recent';
@@ -129,7 +133,7 @@ function syncDb(loadResourcesCb,resourcePath)
             id:null,
             tableName:'contacts',
             specificId:contactId,
-            lastAccessTime:null,
+            lastAccessTime:currentTime,
             others:null
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
@@ -145,7 +149,7 @@ function syncDb(loadResourcesCb,resourcePath)
         config.riolog('mtime:'+mtime);
         config.riolog('ctime:'+ctime);
         config.riolog('size:'+size);
-        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx'){
+        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
           var category='Documents';
           documentId++;
           var newItem={
@@ -244,6 +248,22 @@ function monitorFiles(path){
   });
 }
 exports.monitorFiles = monitorFiles;
+
+function monitorNetlink(path){
+  fs.watch(path, function (event, filename) {
+    config.riolog('event is: ' + event);
+    if(filename){
+      config.riolog('filename provided: ' + filename);
+      sleep(5000);
+      config.SERVERIP=config.getAddr();
+      config.SERVERNAME=os.hostname()+'('+config.SERVERIP+')';
+    } 
+    else{
+      config.riolog('filename not provided');
+    }
+  });
+}
+exports.monitorNetlink = monitorNetlink;
 
 function openFileByPath(path,callback){
     var  exec = require('child_process').exec;

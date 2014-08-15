@@ -1,13 +1,14 @@
 {
   "name": "hello",
   "main": "index.html",
-  //"node-main": "start.js",
+  "node-main": "start.js",
   "window": {
     "toolbar": true,
     "width": 800,
     "height": 600
   },
   "dependencies": {
+    "socket.io": "^1.0.6",
     "sqlite3": "~2.2.0"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"

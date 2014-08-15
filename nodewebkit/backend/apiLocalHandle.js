@@ -1,6 +1,7 @@
 //var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
+var fileTranfer = require("./fileTransfer");//2014.7.18 by shuanzi
 var fs = require('fs');
 var config = require('./config');
 
@@ -67,7 +68,7 @@ function getAllContactsFromLocal(getAllContactsCb) {
 }
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
-function rmDataByIdFromLocal(rmDataByIdCb,id) {
+function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
   function getItemByIdCb(item){
     if(item == null){
        result='success';
@@ -79,7 +80,7 @@ function rmDataByIdFromLocal(rmDataByIdCb,id) {
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemById(id,server.deleteItemCb,rmDataByIdCb);
+          commonDAO.deleteItemById(id,uri,server.deleteItemCb,rmDataByIdCb);
         }
         else{
           result='error';
@@ -123,6 +124,7 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
         };
       }
       else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+        item.path = decodeURIComponent(item.path);
         var source={
           openmethod:'local',
           content:item.path
@@ -132,11 +134,11 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
       
       var currentTime = (new Date()).getTime();
       config.riolog("time: "+ currentTime);
-      function updateItemValueCb(id,key,value,result){
+      function updateItemValueCb(id,uri,key,value,result){
         config.riolog("update DB: "+ result);
         if(result!='successfull'){
           filesHandle.sleep(1000);
-          commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+          commonDAO.updateItemValue(id,item.URI,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
         }
         else{
           var index=id.indexOf('#');
@@ -175,25 +177,25 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
           commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
         }
       }
-      commonDAO.updateItemValue(id,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+      commonDAO.updateItemValue(id,item.URI,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
     }
   }
   commonDAO.getItemById(id,getItemByIdCb);
 }
 exports.getDataSourceByIdFromLocal = getDataSourceByIdFromLocal;
 
-function updateDataValueFromLocal(updateDataValueCb,id,key,value) {
-  function updateItemValueCb(id,key,value,result){
+function updateDataValueFromLocal(updateDataValueCb,id,uri,key,value) {
+  function updateItemValueCb(id,uri,key,value,result){
     config.riolog("update DB: "+ result);
     if(result!='successfull'){
       filesHandle.sleep(1000);
-      commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+      commonDAO.updateItemValue(id,uri,key,value,updateItemValueCb);
     }
     else{
       updateDataValueCb('success');
     }
   }
-  commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+  commonDAO.updateItemValue(id,uri,key,value,updateItemValueCb);
 }
 exports.updateDataValueFromLocal = updateDataValueFromLocal;
 
@@ -260,3 +262,16 @@ function getServerAddressFromLocal(getServerAddressCb) {
 }
 exports.getServerAddressFromLocal = getServerAddressFromLocal;
 
+//add function for file transfer 
+//2014.7.18 by xiquan
+function sendFileFromLocal(host){
+  fileTranfer.startSending(host);
+}
+exports.sendFileFromLocal = sendFileFromLocal;
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function receiveFileFromLocal(path){
+  fileTranfer.startReceiving(path);
+}
+exports.receiveFileFromLocal = receiveFileFromLocal;

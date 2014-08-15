@@ -6,12 +6,17 @@ var fs = require('fs');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
+var dataSync = require("./DataSync");
+var mdns = require('mdns');
+var util = require('util');
+var listOfOscDevices={};
+var now= new Date();  
 
 function start(route, handle) {
   function onRequest(request, response) {
     var postData = "";
     config.riolog(url.parse(request.url));
-    var pathname = url.parse(request.url).pathname;
+    var pathname = decodeURIComponent(url.parse(request.url).pathname);
     var absolute = url.parse(request.url).query;
 
     config.riolog("Request for " + pathname + " received.");
@@ -25,13 +30,79 @@ function start(route, handle) {
     request.addListener("end", function() {
       route(handle, pathname, absolute, response, postData);
     });
-
   }
-
   http.createServer(onRequest).listen(config.SERVERPORT);
+  
+  var io = require('socket.io').listen(config.SOCKETIOPORT);
+  io.sockets.on('connection', function (socket) {
+    var sequence = [
+    mdns.rst.DNSServiceResolve()
+    , mdns.rst.getaddrinfo({families: [4] })
+    ];
+    var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
 
-  config.riolog("Server has started.");
-  filesHandle.monitorFiles('/home/v1/resources');
+    browser.on('serviceUp', function(service) {
+      if(service.port==config.MDNSPORT){
+        if(!listOfOscDevices[service.name]) {
+          listOfOscDevices[service.name] = service;
+          var cnt = Object.keys(listOfOscDevices).length;
+          console.log('There are '+cnt+' devices');
+          var serviceRecord = service.txtRecord;
+          if (typeof(serviceRecord) != "undefined") {
+            console.log(serviceRecord.account +"----------------");
+            if (serviceRecord.account == config.ACCOUNT) {
+            //sendMessage
+            dataSync.syncRequest(service.addresses);
+          };
+        };
+      }
+      socket.emit('mdnsUp', service);
+      //        var str=JSON.stringify(service);
+      //        util.log("service up: "+str+now.toLocaleTimeString());
+
+    }
+
+
+  });
+    browser.on('serviceDown', function(service) {
+      if(listOfOscDevices[service.name]) {
+        delete listOfOscDevices[service.name];
+        var cnt = Object.keys(listOfOscDevices).length;
+        console.log('There are '+cnt+' devices');
+        socket.emit('mdnsDown', service);
+        var str=JSON.stringify(service);
+        util.log("service down: "+str+now.toLocaleTimeString());
+      }
+      socket.emit('mdnsDown', service);
+     // var str=JSON.stringify(service);
+     //util.log("service down: "+service.name+now.toLocaleTimeString());
+
+   });
+    browser.on('serviceChanged', function(service) {
+      /*if(listOfOscDevices[service.name]) {
+        delete listOfOscDevices[service.name];
+        var cnt = Object.keys(listOfOscDevices).length;
+        console.log('There are '+cnt+' devices');
+      }
+      socket.emit('mdnsDown', service);
+      var str=JSON.stringify(service);*/
+    //  util.log("service changed: "+service.name+now.toLocaleTimeString());
+  });
+    util.log("listen to services");
+    browser.start();
+    var txt_record = {
+      deviceName: config.SERVERNAME,
+      account:config.ACCOUNT
+    };
+    var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
+    ad.start();
+  });
+
+config.riolog("Server has started.");
+  //Unuseful code. When executed in node-main, this code will make node-webkit crash.
+  //filesHandle.monitorFiles('/home/v1/resources');
+  filesHandle.monitorNetlink('./var/.netlinkStatus');
 }
 
 exports.start = start;
+

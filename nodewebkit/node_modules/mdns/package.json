@@ -67,7 +67,7 @@
   "gypfile": true,
   "_id": "mdns@2.2.0",
   "_shasum": "61100056c868c34722b5efb7ed551331e57e32f3",
-  "_from": "mdns@2.2.0",
+  "_from": "mdns@",
   "_npmVersion": "1.4.9",
   "_npmUser": {
     "name": "ronkorving",

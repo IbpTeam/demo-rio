@@ -62,19 +62,19 @@ exports.findById = function(id,findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, createItemCallBack);
+  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, item.URI, createItemCallBack);
   closeDB(db);
 }
 
 /**
- * @method deleteItemById
- *   根据ID删除表中指定数据
- * @param id
- *   pictures表中的主键
+ * @method deleteItemByUri
+ *   根据uri删除表中指定数据
+ * @param uri
+ *   pictures表中的URI
  */
-exports.deleteItemById = function(id, deleteItemByIdCallBack){
+exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
   var db = openDB();
-  db.get(SQLSTR.DELETECONTACT, id, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETECONTACT, uri, deleteItemByIdCallBack);
   closeDB(db);
 }
 
@@ -84,14 +84,14 @@ exports.deleteItemById = function(id, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,key,value, updateItemValueCallBack){
   var db = openDB();
-    config.dblog("udpate contacts id : " + id);
+    config.dblog("udpate contacts uri : " + uri);
         config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE contacts SET "+key+" = '"+value+"' WHERE id = "+id;
+  var sqlstr="UPDATE contacts SET "+key+" = '"+value+"' WHERE URI = '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
-  db.run(sqlstr);
+  db.run(sqlstr, updateItemValueCallBack);
   closeDB(db);
 }
 

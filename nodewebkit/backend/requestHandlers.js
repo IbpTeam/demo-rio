@@ -242,6 +242,7 @@ function getDataSourceByIdInHttpServer(response, postData) {
           response.end();
         }
         else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+          item.path = decodeURIComponent(item.path);
           filesHandle.openFileByPath(item.path,function(port){
           var source={
             openmethod:'remote',
@@ -257,10 +258,10 @@ function getDataSourceByIdInHttpServer(response, postData) {
         var currentTime = (new Date()).getTime();
         
         config.riolog("time: "+ currentTime);
-        function updateItemValueCb(id,key,value,result){
+        function updateItemValueCb(id,uri,key,value,result){
           config.riolog("update DB: "+ result);
           if(result!='successfull'){
-            commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+            commonDAO.updateItemValue(postDataJson.arg,item.URI,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
           }
           else{
             var index=id.indexOf('#');
@@ -299,7 +300,7 @@ function getDataSourceByIdInHttpServer(response, postData) {
             commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
           }
         }
-        commonDAO.updateItemValue(postDataJson.arg,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
+        commonDAO.updateItemValue(postDataJson.arg,item.URI,'lastAccessTime',parseInt(currentTime),updateItemValueCb);
       }
     }
     commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
@@ -319,11 +320,11 @@ function updateDataValueInHttpServer(response, postData) {
     response.end();
   }
   else{
-    function updateItemValueCb(id,key,value,result){
+    function updateItemValueCb(id,uri,key,value,result){
       config.riolog("update DB: "+ result);
       if(result!='successfull'){
         filesHandle.sleep(1000);
-        commonDAO.updateItemValue(id,key,value,updateItemValueCb);
+        commonDAO.updateItemValue(id,uri,key,value,updateItemValueCb);
       }
       else{
         var json=JSON.stringify('success');
@@ -332,7 +333,7 @@ function updateDataValueInHttpServer(response, postData) {
         response.end();
       }
     }
-    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,postDataJson.arg3,updateItemValueCb);
+    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,postDataJson.arg3,postDataJson.arg4,updateItemValueCb);
   }
 }
 exports.updateDataValueInHttpServer = updateDataValueInHttpServer;
@@ -449,3 +450,19 @@ function getServerAddressInHttpServer(response, postData){
     }
 }
 exports.getServerAddressInHttpServer = getServerAddressInHttpServer;
+
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function sendFileInHttp(path,adress){
+  //var address = config.SERVERIP;//"http:localhost";
+  fileTranfer.sendfile(path,address);
+}
+exports.sendFileInHttp = sendFileInHttp;
+
+//add function for file transfer 
+//2014.7.21 by xiquan
+function receiveFileInHttp(){
+  fileTranfer.receivefile(path);
+}
+exports.receiveFileInHttp = receiveFileInHttp;

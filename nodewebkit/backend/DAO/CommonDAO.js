@@ -6,7 +6,9 @@ var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
 var musicDAO = require("./MusicDAO");
 var recentDAO = require("./RecentDAO");
+var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
+var uniqueID = require("../uniqueID");
 
 exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
@@ -110,6 +112,7 @@ exports.getItemById = function(id, callback){
         }
         else{
           item.id="1#"+item.id;
+          item.photoPath=item.photoPath.replace(/\s/g, "%20");
           callback(item);
         }
       });
@@ -121,7 +124,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="2#"+item.id;        
+          item.id="2#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");    
           callback(item);
         }
       });
@@ -133,7 +137,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="3#"+item.id;        
+          item.id="3#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");        
           callback(item);
         }
       });
@@ -145,7 +150,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="4#"+item.id;        
+          item.id="4#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");        
           callback(item);
         }
       });
@@ -157,7 +163,8 @@ exports.getItemById = function(id, callback){
           callback('');
         }
         else{
-          item.id="5#"+item.id;        
+          item.id="5#"+item.id;
+          item.path=item.path.replace(/\s/g, "%20");        
           callback(item);
         }
       });
@@ -168,64 +175,32 @@ exports.getItemById = function(id, callback){
 }
 
 exports.createItem = function(category, item, callback , loadResourcesCb){
+  var createDAO = null;
+  //Get uniform resource identifier
+  var uri = "specificURI";
   switch(category){
     case 'Contacts' : {
-      contactsDAO.createItem(item, function(err){
-        if(err){
-          callback(category,item,err,loadResourcesCb);
-        }
-        else{
-          callback(category,item,'successfull',loadResourcesCb);
-        }
-      });
+      createDAO = contactsDAO;
     }
     break;
     case 'Pictures' : {
       config.dblog('insert picture');
-      picturesDAO.createItem(item, function(err){
-        if(err){
-          callback(category,item,err,loadResourcesCb);
-        }
-        else{
-          callback(category,item,'successfull',loadResourcesCb);
-        }
-      });
+      createDAO = picturesDAO;
     }
     break;
     case 'Videos' : {
       config.dblog('insert video');
-      videosDAO.createItem(item, function(err){
-        if(err){
-          callback(category,item,err,loadResourcesCb);
-        }
-        else{
-          callback(category,item,'successfull',loadResourcesCb);
-        }
-      });
+      createDAO = videosDAO;
     }
     break;
     case 'Documents' : {
       config.dblog('insert document');
-      documentsDAO.createItem(item, function(err){
-        if(err){
-          callback(category,item,err,loadResourcesCb);
-        }
-        else{
-          callback(category,item,'successfull',loadResourcesCb);
-        }
-      });
+      createDAO = documentsDAO;
     }
     break;
     case 'Music' : {
       config.dblog('insert music');
-      musicDAO.createItem(item, function(err){
-        if(err){
-          callback(category,item,err,loadResourcesCb);
-        }
-        else{
-          callback(category,item,'successfull',loadResourcesCb);
-        }
-      });
+      createDAO = musicDAO;
     }
     break;
     case 'recent' : {
@@ -238,79 +213,95 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
           callback(category,item,'successfull',loadResourcesCb);
         }
       });
+      return;
     }
     break;    
     
   }
+  //Get uniform resource identifier
+  uniqueID.getFileUid(function(uri){
+    item.URI = uri;
+    createDAO.createItem(item, function(err){
+      if(err){
+        callback(category,item,err,loadResourcesCb);
+      }
+      else{
+        actionHistoryDAO.createInsertItem(item.URI,function(err){
+          if(err){
+            callback(category,item,err,loadResourcesCb);
+          }
+          else{
+            callback(category,item,'successfull',loadResourcesCb);
+          }
+        });
+      }
+    });
+  });
 }
 
-exports.deleteItemById = function(id, callback ,rmDataByIdCb){
+exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
   config.dblog("delete id:" + id);
   var index=id.indexOf('#');
   var tableId=id.substring(0,index);
   var dataId=id.substr(index+1);
     config.dblog("tableId id:" + tableId);
         config.dblog("dataId id:" + dataId);
+  var deleteDAO = null;
   switch(tableId){
     case '1' : {
-      contactsDAO.deleteItemById(dataId, function(err){
-        if(err){
-          callback(id,err,rmDataByIdCb);
-        }
-        else{
-          callback(id,'successfull',rmDataByIdCb);
-        }
-      });
+      deleteDAO = contactsDAO;
     }
     break;
     case '2' : {
-      picturesDAO.deleteItemById(dataId, function(err){
-        if(err){
-          callback(id,err,rmDataByIdCb);
-        }
-        else{
-          callback(id,'successfull',rmDataByIdCb);
-        }
-      });
+      deleteDAO = picturesDAO;
     }
     break;
     case '3' : {
-      videosDAO.deleteItemById(dataId, function(err){
-        if(err){
-          callback(id,err,rmDataByIdCb);
-        }
-        else{
-          callback(id,'successfull',rmDataByIdCb);
-        }
-      });
+      deleteDAO = videosDAO;
     }
     break;
     case '4' : {
-      documentsDAO.deleteItemById(dataId, function(err){
-        if(err){
-          callback(id,err,rmDataByIdCb);
-        }
-        else{
-          callback(id,'successfull',rmDataByIdCb);
-        }
-      });
+      deleteDAO = documentsDAO;
     }
     case '5' : {
-      musicDAO.deleteItemById(dataId, function(err){
-        if(err){
-          callback(id,err,rmDataByIdCb);
-        }
-        else{
-          callback(id,'successfull',rmDataByIdCb);
-        }
-      });
+      deleteDAO = musicDAO;
     }
     break;    
     
   }
+
+  deleteDAO.deleteItemByUri(dataId, uri, function(err){
+    if(err){
+      callback(id,err,rmDataByIdCb);
+    }
+    else{
+      actionHistoryDAO.removeInsertItem(uri, function(err){
+        if(err){
+          callback(id,err,rmDataByIdCb);
+        }
+        else{
+          actionHistoryDAO.removeUpdateItem(uri, function(err){
+            if(err){
+              callback(id,err,rmDataByIdCb);
+            }
+            else{
+              actionHistoryDAO.createDeleteItem(uri,function(err){
+                if(err){
+                  callback(uri,err,rmDataByIdCb);
+                }
+                else{
+                  callback(id,'successfull',rmDataByIdCb);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  })
 }
 
-exports.updateItemValue = function(id, key, value, callback ){
+exports.updateItemValue = function(id, uri, key, value, callback){
   config.dblog("update id:" + id);
   config.dblog("update key:" + key+'='+value);
   var index=id.indexOf('#');
@@ -318,69 +309,53 @@ exports.updateItemValue = function(id, key, value, callback ){
   var dataId=id.substr(index+1);
     config.dblog("tableId id:" + tableId);
         config.dblog("dataId id:" + dataId);
+  var updateDAO = null;
+  var category = "";
   switch(tableId){
     case '1' : {
-      contactsDAO.updateItemValue(dataId,key,value, function(err){
-        if(err){
-          callback(id,key,value,err);
-        }
-        else{
-          config.dblog("update contacts successfull");
-          callback(id,key,value,'successfull');
-        }
-      });
+      updateDAO = contactsDAO;
+      category = "Contacts";
     }
     break;
     case '2' : {
-      picturesDAO.updateItemValue(dataId,key,value, function(err){
-        if(err){
-          callback(id,key,value,err);
-        }
-        else{
-          config.dblog("update picutres successfull");
-          callback(id,key,value,'successfull');
-        }
-      });
+      updateDAO = picturesDAO;
+      category = "Pictures"
     }
     break;
     case '3' : {
-      videosDAO.updateItemValue(dataId,key,value, function(err){
-        if(err){
-          callback(id,key,value,err);
-        }
-        else{
-          config.dblog("update videos successfull");
-          callback(id,key,value,'successfull');
-        }
-      });
+      updateDAO = videosDAO;
+      category = "Videos";
     }
     break;
     case '4' : {
-      documentsDAO.updateItemValue(dataId,key,value, function(err){
-        if(err){
-          callback(id,key,value,err);
-        }
-        else{
-          config.dblog("update documents successfull");
-          callback(id,key,value,'successfull');
-        }
-      });
+      updateDAO = documentsDAO;
+      category = "Documents";
     }
     break;
     case '5' : {
-      musicDAO.updateItemValue(dataId,key,value, function(err){
-        if(err){
-          callback(id,key,value,err);
-        }
-        else{
-          config.dblog("update musics successfull");
-          callback(id,key,value,'successfull');
-        }
-      });
+      updateDAO = musicDAO;
+      category = "Music";
     } 
     break;   
     
   }
+
+  updateDAO.updateItemValueByUri(uri,key,value, function(err){
+    if(err){
+      callback(id,uri,key,value,err);
+    }
+    else{
+      actionHistoryDAO.createUpdateItem(uri, key, value, function(err){
+        if(err){
+          callback(id,uri,key,value,err);
+        }
+        else{
+          config.dblog("update" + category + "successfull");
+          callback(id,uri,key,value,'successfull');
+        }
+      });
+    }
+  });
 }
 
 exports.updateRecentTable = function(tableName,dataId,time,callback){
@@ -411,4 +386,43 @@ exports.queryItemInAllByStr = function(str, callback){
     itemArray.push(items);
     callback(itemArray);
 });
+}
+
+exports.findEachActionHistory = function(action, callback){
+  actionHistoryDAO.findAll(action, function(err, actions){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    callback(actions);
+  });
+}
+
+exports.findAllActionHistory = function(callback){
+  var insertActions = null;
+  var deleteActions = null;
+  var updateActions = null;
+
+  actionHistoryDAO.findAll("insert", function(err, insActions){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    insertActions = insActions;
+    actionHistoryDAO.findAll("delete", function(err, delActions){
+      if(err){
+        config.dblog(err);
+        callback(null);
+      }
+      deleteActions = delActions;
+      actionHistoryDAO.findAll("delete", function(err, updActions){
+        if(err){
+          config.dblog(err);
+          callback(null);
+        }
+        updateActions = updActions;
+        callback(insertActions, deleteActions, updateActions);
+      });
+    });
+  });
 }

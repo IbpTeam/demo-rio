@@ -4,13 +4,13 @@
 <script type="text/javascript" src="jquery-2.1.0.min.js"></script>
 <script type="text/javascript" src="api.js"></script>
 <script type="text/javascript" src="apiHttpHandle.js"></script>
+<script type="text/javascript" src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
 </head>
 <meta charset="UTF-8">
 
 <body>
 <!--<p> 
 <img src="resources/videos.png" width="165" height="60" /> 
-<<<<<<< HEAD
 </p> -->
 
 <script>
@@ -98,11 +98,39 @@ updateDataValue(updateDataValueCb,'4#8','others','Release Note');
   getRecentAccessData(getRecentAccessDataCb,10);
   */
   
+  /*
     function getServerAddressCb(result){
        document.write(result.ip);
    document.write(result.port);  
   }
   getServerAddress(getServerAddressCb);
+
+*/
+
+  //fileReceive('/home/xiquan/received/linux.zip');
+  //document.write("start receiving");
+  //fileSend('/home/xiquan/testFile/linux.zip','http://localhost');
+  //document.write("sending file done");
+ 
+
+
+
+
+
+
+
+function deviceUpCb(data){
+    if(data.txtRecord!=null){
+  console.log("device up : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
+}
+}
+
+function deviceDownCb(data){
+  if(data.txtRecord!=null){
+  console.log("device down : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
+}
+}
+getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
 </script>
 <!--
 <audio controls>
