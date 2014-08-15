@@ -22,7 +22,7 @@ var state = {
 var currentState = state.SYNC_IDLE;
 console.log("current state is : " + currentState);
 
-var syncList = {};
+var syncList = new Array();
 
 //Init method,retrive data from db
 function syncInitActions(initCallback){
@@ -127,26 +127,25 @@ function syncRequest(deviceName,deviceId,deviceAddress){
 function syncResponse(syncData, address){
 
 	switch(currentState){
-	case state.SYNC_IDLE: {
-		console.log("syncResponse=========================================" + currentState);
-		currentState = state.SYNC_REQUEST;
-		var syncDevice = {
-			deviceName: syncData.deviceName,
-			deviceId: syncData.deviceId,
-			status: "sync"
-		};
-		syncList.push(syncDevice);
+		case state.SYNC_IDLE: {
+			console.log("syncResponse=========================================" + currentState);
+			currentState = state.SYNC_REQUEST;
+			var syncDevice = {
+				deviceName: syncData.deviceName,
+				deviceId: syncData.deviceId,
+				status: "sync"
+			};
+			syncList.push(syncDevice);
 
-  		var resultValue = "False";
-		if (typeof(msgObj.result) != "undefined") {
+			var resultValue = "False";
 			//Get and transfer actions
 			var insertActions = null;
 			var deleteActions = null;
 			var updateActions = null;
 			syncInitActions(function(insertArray, deleteArray, updateArray){
-				insertActions = insertArray;
-				deleteActions = deleteArray;
-				updateActions = updateArray;
+				insertActions = JSON.stringify(insertArray);
+				deleteActions = JSON.stringify(deleteArray);
+				updateActions = JSON.stringify(updateArray);
 
 				resultValue = "OK";
 
@@ -163,43 +162,42 @@ function syncResponse(syncData, address){
 				syncSendMessage(address, syncDataObj);
 			});
 		}
-	}
-	break;
-	case state.SYNC_REQUEST: {
-		console.log("syncResponse=========================================" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	case state.SYNC_START: {
-		console.log("syncResponse=========================================" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	case state.SYNC_COMPLETE: {
-		console.log("syncResponse=========================================" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	default: {
-		console.log("this is in default switch in syncRequest");
+		break;
+		case state.SYNC_REQUEST: {
+			console.log("syncResponse=========================================" + currentState);
+			var syncDevice = {
+				deviceName: deviceName,
+				deviceId: deviceId,
+				status: "wait"
+			};
+			syncList.push(syncDevice);
+		}
+		break;
+		case state.SYNC_START: {
+			console.log("syncResponse=========================================" + currentState);
+			var syncDevice = {
+				deviceName: deviceName,
+				deviceId: deviceId,
+				status: "wait"
+			};
+			syncList.push(syncDevice);
+		}
+		break;
+		case state.SYNC_COMPLETE: {
+			console.log("syncResponse=========================================" + currentState);
+			var syncDevice = {
+				deviceName: deviceName,
+				deviceId: deviceId,
+				status: "wait"
+			};
+			syncList.push(syncDevice);
+		}
+		break;
+		default: {
+			console.log("this is in default switch in syncRequest");
 		//console.log(data);
 	}
-  }
+}
 }
 
 /*
@@ -239,7 +237,8 @@ function syncStart(syncData, adress){
 
 	}
 
-	//ActionHistory.test();
+	console.log("+++++++++++++++++++++++++++++++++++++++-------------------------------------------");
+	ActionHistory.test();
 	var insertActions = syncData.insertActions;
 	var deleteActions = syncData.deleteActions;
 	var updateActions = syncData.updateActions;
