@@ -8,7 +8,7 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- //var HashTable = require('hashtable');
+ var HashTable = require('./DeleteSync');
 
 var ActionHistory = require('./DAO/ActionHistoryDAO');//
 
@@ -239,7 +239,7 @@ function syncStart(syncData, adress){
 
 	}
 
-	ActionHistory.test();
+	//ActionHistory.test();
 	var insertActions = syncData.insertActions;
 	var deleteActions = syncData.deleteActions;
 	var updateActions = syncData.updateActions;
