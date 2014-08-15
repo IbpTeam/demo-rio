@@ -13,12 +13,53 @@ var PORT = 8888;
 
 var writeDbNum=0;
 var writeDbRecentNum=0;
-
+var dataPath;
 function sleep(milliSeconds) { 
     var startTime = new Date().getTime(); 
     while (new Date().getTime() < startTime + milliSeconds);
 };
 exports.sleep = sleep;
+
+function monitorFilesCb(path,event,stat){
+  util.log(event+'  :  '+path);
+  var res = path.match(/.git/);
+  if(res!=null){
+    util.log(res);
+  }
+}
+exports.monitorFilesCb = monitorFilesCb;
+function monitorFiles(monitorPath,callback){
+  var watch = require('./watch' ).create(function(watch){
+
+    /*watch.exclude(['*index.js']);
+     watch.exclude(/.*index.js$/);
+     watch.exclude(new RegExp(/.*index.js$/));*/
+    watch.listeners({
+    'createfile': function(path, stat){
+        callback(path, 'createfile',stat);
+      },
+      'deletefile': function(path, stat){
+        callback(path, 'deletefile',stat);
+      },
+      'changefile': function(path, stat){
+        callback(path, 'changefile',stat);
+      },
+      'createdirectory': function(path, stat){
+        callback(path, 'createdirectory',stat);
+      },
+      'deletedirectory': function(path, stat){
+        callback(path, 'deletedirectory',stat);
+      },
+      'changedirectory': function(path, stat){
+        callback(path, 'changedirectory',stat);
+      }
+    }).watchTree(monitorPath, function(err, fileCount, dirCount){
+        util.log('monitor : ', monitorPath);
+    });
+
+});
+}
+exports.monitorFiles = monitorFiles;
 
 function createItemCb(category,item,result,loadResourcesCb)
 {
@@ -42,7 +83,7 @@ function createItemCb(category,item,result,loadResourcesCb)
     if(writeDbNum==0 && writeDbRecentNum==0){
       config.riolog('Read data complete!');
       loadResourcesCb('success');
-      
+      monitorFiles(dataPath,monitorFilesCb);
     }
   }
   else{
@@ -129,22 +170,10 @@ function repoCommit(repoPath,filename,callback)
     });
 }
 
-function monitorFiles(path){
-  fs.watch(path, function (event, filename) {
-    config.riolog('event is: ' + event);
-    if(filename){
-      config.riolog('filename provided: ' + filename);
-    } 
-    else{
-      config.riolog('filename not provided');
-    }
-  });
-}
-exports.monitorFiles = monitorFiles;
-
 function syncDb(loadResourcesCb,resourcePath)
 {
   config.riolog("syncDB ..............");
+  dataPath=resourcePath;
   var fileList = new Array();
   fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
     util.log(config.USERCONFIGPATH+"config.js "+ exists);
@@ -243,7 +272,6 @@ function syncDb(loadResourcesCb,resourcePath)
       //  console.log("repoCommit : "+result);
       //  if(result==null)
       //    return;
-        monitorFiles(resourcePath);
         var mtime=stat.mtime;
         var ctime=stat.ctime;
         var size=stat.size;
