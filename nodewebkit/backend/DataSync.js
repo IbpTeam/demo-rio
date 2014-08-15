@@ -347,6 +347,7 @@ function syncStart(syncData, address){
             
 			console.log("==========start sync insert!!!==========");
 			var newInsert = myInsert.getDiff(insertActions,myInsert);
+
 			/*
 			insertActions.forEach(function(insertItem){
 				if(isExist(my_insertHistory,insertItem)){
@@ -358,6 +359,7 @@ function syncStart(syncData, address){
 				};
 			});
             */
+            
             console.log("==========new insert history==========");
 			console.log(newInsert);
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
