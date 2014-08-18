@@ -45,5 +45,20 @@ function HashTable(){
 		}
 		return diff;
 	}
+	this.getNotDiff = function(){
+		var Nodiff = [];
+		for(var del in array)
+		{
+			res = Htable.get(array[del].dataURI);
+			if (typeof res != "undefined" && typeof res != null) 
+			{
+				var tmpdif = {};
+				tmpdif["id"] = array[del].id;
+				tmpdif["dataURI"] = array[del].dataURI;
+				Nodiff.push(tmpdif);
+			};
+		}
+		return Nodiff;		
+	}
 }
 exports.HashTable = HashTable;

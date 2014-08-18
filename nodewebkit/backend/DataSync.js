@@ -359,7 +359,6 @@ function syncStart(syncData, address){
 				};
 			});
             */
-            
             console.log("==========new insert history==========");
 			console.log(newInsert);
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
