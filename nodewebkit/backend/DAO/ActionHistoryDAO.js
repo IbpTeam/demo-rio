@@ -166,23 +166,3 @@ exports.test = function(){
   db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "mybook.pdf");
   closeDB(db);
 }
-
-
-/**
- * @method deleteAll
- *   insert all items into the insert history from an Array
- * @param List
- * List is an Array
- *
- *
-exports.deleteAll = function(List,deleteInsertCallback){
-  var db = openDB();
-  List.forEach(function(item){
-    //delete insert history
-    db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI, deleteInsertCallback);
-    //delete update history
-    //db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI, deleteUpdateCallback);
-  });
-  closeDB(db);
-}
-*/
