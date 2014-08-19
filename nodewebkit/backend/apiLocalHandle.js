@@ -206,6 +206,9 @@ exports.updateDataValueFromLocal = updateDataValueFromLocal;
 
 function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
   function getRecentByOrderCb(result){
+    if(result[0]==null){
+      return;
+    }
     while(result.length>num){
       result.pop();
     }
@@ -249,6 +252,9 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
         else{
           commonDAO.getItemById(getid(),getItemByIdCb);
         }
+      }
+      else{
+        console.log("No data");
       }
     }
     commonDAO.getItemById(getid(),getItemByIdCb);
