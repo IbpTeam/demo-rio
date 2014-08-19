@@ -1,6 +1,5 @@
 //double link list js
 
-
 var Node = function (pData) {
   this.next = null;
   this.prev = null;
@@ -10,6 +9,22 @@ var Node = function (pData) {
     parent : pData.parent,
     child : pData.child
   };
+}
+
+function getChild(node,data){
+  for(var k in data){
+    if(node.data.child === data[k].edit_id)
+      return data[k];
+  }
+  return "undefined";
+}
+
+function getParent(node,data){
+  for(var k in data){
+    if(node.data.edit_id === data[k].parent)
+      return data[k];
+  }
+  return "undefined";
 }
 
 //the first element is head, contains the base data of this version 
@@ -39,14 +54,14 @@ function linklist() {
     this.tail = newNode;
   }
 
-  //get the node with specific dataURI 
+  //get node with specific dataURI 
   this.getData = function (dataURI) {
     var p = this.head;
     while (p.next != null && p.dataURI !== dataURI)
       p = p.next;
     return p.data;
   }
-  //remove the node with specific dataURI 
+  //remove node with specific dataURI 
   this.removeAt = function (dataURI) {
     this.size--;
     var p = this.head;
@@ -73,6 +88,17 @@ function linklist() {
   //get size
   this.getSize = function(){
     return this.size;
+  }
+
+  this.createFromArray = function(head,array){
+    this.init(head);
+    for(var k in array){
+      //var newNode =  getChild(this.tail,array);
+      var newNode = getParent(this.tail,array);
+      console.log("<this is a child>");
+      console.log(newNode);
+      this.insert(newNode);
+    }
   }
 
   //print data of all elements
@@ -108,4 +134,5 @@ function linklist() {
     console.log("<br/>");
   }
 }
+
 exports.linklist = linklist;

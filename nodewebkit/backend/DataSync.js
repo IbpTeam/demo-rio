@@ -8,9 +8,10 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- var hashTable = require('./hashTable');
+ var hashTable = require("./hashTable");
+ var llist = require("./linkedlist")
 
-var ActionHistory = require('./DAO/ActionHistoryDAO');//
+var ActionHistory = require("./DAO/ActionHistoryDAO");//
 
 var state = {
 	SYNC_IDLE:0,
@@ -301,8 +302,8 @@ function syncStart(syncData, address){
 	console.log("update actions: ");
 	console.log(updateActions);
 
-	var deletetList = new Array();
-	var insertList = new Array();
+	//var deletetList = new Array();
+	//var insertList = new Array();
 	var updateList = new Array();
 	var conflictList = new Array();
 
@@ -315,27 +316,7 @@ function syncStart(syncData, address){
 		var newDelete = myDelete.getDiff(deleteActions,myDelete);
 		console.log("==========new delete history==========");
 		console.log(newDelete);
-		/*
-		deleteActions.forEach(function(deleteItem){
-			if(isExist(my_deleteHistory,deleteItem)){
-				console.log('==========nothing new==========');
-			}else{
-				console.log("==========We got a new delete:==========");
-				console.log(deleteItem);
-				deletetList.push(deleteItem);
-			};
-		});
-        */
 		ActionHistory.createAll("delete",newDelete,function(){console.log("==========delete insert done!!!==========")});
-        /*
-        //remove some delete items in insertActions
-        for(var i=0;i<my_deleteHistory.length;i++){
-        	for(var j=0;j<insertActions.length;j++){
-        		if(my_deleteHistory[i].dataURI === insertActions[j].dataURI)
-        			insertActions.splice(j,1);
-        	}
-        }
-        */
 
 		//Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
@@ -348,17 +329,6 @@ function syncStart(syncData, address){
 			console.log("==========start sync insert!!!==========");
 			var newInsert = myInsert.getDiff(insertActions,myInsert);
 
-			/*
-			insertActions.forEach(function(insertItem){
-				if(isExist(my_insertHistory,insertItem)){
-					console.log('==========nothing new==========');
-				}else{
-					console.log("==========We got a new insert:==========");
-					console.log(insertItem);
-					insertList.push(insertItem);
-				};
-			});
-            */
             console.log("==========new insert history==========");
 			console.log(newInsert);
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
@@ -367,6 +337,18 @@ function syncStart(syncData, address){
 			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
 			    var myUpdate = new hashTable.HashTable();
 			    myUpdate.createHash(my_updateHistory);
+
+			    //insert items (need it's edit_id) should be 
+			    //the head all each version tree
+			    var initTreeHead = my_insertHistory.concat(newInsert);
+
+			    //when all heads are ready 
+			    //then we begin to build all version tree in local
+			    var myTrees = hashTable.HashTable();
+			    for(var k in initTreeHead){
+			    	var newTree = new llist.linklist();
+			    	newTree.createFromArray(my_updateHistory);
+			    }
 
 				console.log("==========start sync update!!!==========");
 				updateActions.forEach(function(updateItem){
