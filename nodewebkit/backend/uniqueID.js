@@ -81,19 +81,30 @@ var netInfo = os.networkInterfaces();
 //console.log(netInfo);
 function getFileUid(FUNC)
 {
-	crypto.randomBytes(10,function(ex,buf)
-	{
-		var sysid = require('./config');
-		sid = sysid.uniqueID;
-		token = buf.toString('hex');
-		sytoken = sid+'#'+token;
-		console.log(sytoken);
-		FUNC(sytoken);
+	getRandomBytes(10,function(token){
+		if (token != null) {
+			var sysid = require('./config');
+			sid = sysid.uniqueID;
+			sytoken = sid+'#'+token;
+			console.log(sytoken);
+			FUNC(sytoken);
+		}
+	});
+}
+
+//Get random bytes
+function getRandomBytes(length, callback){
+	crypto.randomBytes(length,function(ex,buf){
+		if (ex) {
+			console.log("Crypto Exception: get random exception.");
+			callback(null);
+		}else{
+			callback(buf.toString('hex'));
+		}
 	});
 }
 
 
-
-
 exports.SetSysUid = SetSysUid;
-exports.getFileUid=getFileUid;
+exports.getFileUid = getFileUid;
+exports.getRandomBytes = getRandomBytes;
