@@ -292,10 +292,6 @@ function syncStart(syncData, address){
 
 	//ActionHistory.test();
 
-	//console.log("insert actions: " + syncData.insertActions);
-	//console.log("delete actions: " + syncData.deleteActions);
-	//console.log("update actions: " + syncData.updateActions);
-
 	var insertActions = JSON.parse(syncData.insertActions);
 	var deleteActions = JSON.parse(syncData.deleteActions);
 	var updateActions = JSON.parse(syncData.updateActions);
@@ -346,6 +342,17 @@ function syncStart(syncData, address){
 			    var myUpdate = new hashTable.HashTable();
 			    myUpdate.createHash(my_updateHistory);
 
+			    //condition #1 : no conflict oprate on data; new upadte history
+				updateActions.forEach(function(updateItem){
+					if(!isExist(my_updateHistory,updateItem))
+						newUpdateList.push(updateItem);
+				});
+				//ActionHistory.createAll("update",newUpdateList,function(){console.log("---insert update done!!!---")});
+
+                //condition #2 : there are conflicts on operating data
+                //1>no conflict: operate on the same data but the results are the same
+                //2>is conflict: operate on same data and same key
+
 			    //insert items (need it's edit_id) should be 
 			    //the head all each version tree
 			    var initTreeHead = my_insertHistory.concat(newInsert);
@@ -354,7 +361,7 @@ function syncStart(syncData, address){
 
 			    //when all heads are ready 
 			    //then we begin to build all version tree in local
-			    console.log("----------building----------")
+			    console.log("----------building trees----------")
 			    var myTrees = new Array();//new hashTable.HashTable();
 			    for(var k in initTreeHead){
 			    	var newTree = new llist.linklist();
@@ -385,7 +392,7 @@ function syncStart(syncData, address){
 
                 //do version control stuff
                 //is it OK to put syncComplete here?
-                versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
+                //versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
 
                 /*
 				console.log("==========start sync update!!!==========");
@@ -418,7 +425,7 @@ function syncStart(syncData, address){
 }
 
 //deal with the conflict situation 
-function versionCtrlCB(myTrees,other_trees){
+function versionCtrlCB(myTrees,other_trees){                                                                                                                                                                                                                                                                                                                                                                                                           
     //to be continue ......
 }
 
@@ -433,6 +440,11 @@ function isExist(List,item){
 		}
 	});
 	return flag;
+}
+
+//check if the two version 
+function isSame(){
+
 }
 
 //check the data is conflict or not

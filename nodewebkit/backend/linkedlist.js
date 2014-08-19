@@ -54,19 +54,20 @@ function linklist() {
     this.tail = newNode;
   }
 
-  //get node with specific dataURI 
-  this.getData = function (dataURI) {
+  //get node with specific edit_id 
+  this.getData = function (edit_id) {
     var p = this.head;
-    while (p.next != null && p.dataURI !== dataURI)
+    while (p.next != null && p.data.edit_id !== edit_id)
       p = p.next;
     return p.data;
   }
-  //remove node with specific dataURI 
-  this.removeAt = function (dataURI) {
+
+  //remove node with specific edit_id 
+  this.removeAt = function (edit_id) {
     this.size--;
     var p = this.head;
 
-    while (p.next != null && p.dataURI !== dataURI) {
+    while (p.next != null && p.data.edit_id !== edit_id) {
       p = p.next;
     }
 
@@ -74,6 +75,7 @@ function linklist() {
     p.next.prev = p;
     return p.data; //return the removed element      
   }
+
 
   //get tail
   this.getTail = function () {
