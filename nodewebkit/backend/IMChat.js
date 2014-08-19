@@ -1,4 +1,5 @@
 var net = require('net');
+var hashtable = require('hashtable');
 
 
 function initIMServer(){
@@ -91,6 +92,48 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 	}
 }
 
+function createAccountTable()
+{
+	var accounttable = new hashtable();
+	return accounttable;
+}
+
+function insertAccount(TABLE,ACCOUNT,IP)
+{
+	if ( !net.isIP(IP)) {
+		console.log('Input IP Format Error!');
+		return;
+	};
+	TABLE.put(ACCOUNT,IP);
+	return TABLE;
+}
+
+function getIP(TABLE,ACCOUNT)
+{
+	var ip = TABLE.get(ACCOUNT);
+	if (typeof ip == "undefined" ) 
+	{
+		console.log('Get Account IP Error')
+		return;
+	};
+	return ip;
+}
+
+function clearTable(TABLE)
+{
+	return TABLE.clear();
+}
+
+function removeAccount(TABLE,ACCOUNT)
+{
+	return TABLE.remove(ACCOUNT);
+}
+
 exports.initIMServer = initIMServer;
 exports.sendIMMsg = sendIMMsg;
 exports.encapsuMSG = encapsuMSG;
+exports.createAccountTable = createAccountTable;
+exports.insertAccount = insertAccount;
+exports.getIP = getIP;
+exports.clearTable = clearTable;
+exports.removeAccount = removeAccount;
