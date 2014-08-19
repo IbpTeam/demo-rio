@@ -64,6 +64,11 @@ function syncUpdateAction(other_updateHistory,updateCallBack){
 	});
 }
 
+//deal with version control
+function versionCtrl(myTrees,other_trees,versionCtrlCB){
+	versionCtrlCB(myTrees,other_trees);
+}
+
 //Send sync request when other devices connect the net.
 function syncRequest(deviceName,deviceId,deviceAddress){
   // console.log("get address from internet discovery : " + address);
@@ -335,21 +340,52 @@ function syncStart(syncData, address){
 
 			////Retrive actions after insert, start to sync update actions 
 			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
+				console.log("==========start sync update!!!==========");
+				console.log("----------my update actions----------");
+				console.log(updateActions);
 			    var myUpdate = new hashTable.HashTable();
 			    myUpdate.createHash(my_updateHistory);
 
 			    //insert items (need it's edit_id) should be 
 			    //the head all each version tree
 			    var initTreeHead = my_insertHistory.concat(newInsert);
+			    console.log("----------init heads----------");
+			    console.log(initTreeHead);
 
 			    //when all heads are ready 
 			    //then we begin to build all version tree in local
-			    var myTrees = hashTable.HashTable();
+			    console.log("----------building----------")
+			    var myTrees = new Array();//new hashTable.HashTable();
 			    for(var k in initTreeHead){
 			    	var newTree = new llist.linklist();
+			    	newTree.init(initTreeHead[k]);
 			    	newTree.createFromArray(my_updateHistory);
+			    	myTrees.push(newTree);
+			    	console.log("<show me the linklist>")
+			    	newTree.print()
+			    	//myTrees.put(newTree.head.data.dataURI,newTree);
 			    }
+			    console.log("----------my tree----------")
+			    console.log(myTrees);
 
+
+                //build trees from other devices 
+                var other_trees = new Array();
+			    for(var k in initTreeHead){
+			    	var newTree = new llist.linklist();
+			    	newTree.init(initTreeHead[k]);
+			    	newTree.createFromArray(updateActions);
+			    	myTrees.push(newTree);
+			    	console.log("<show me the linklist>")
+			    	newTree.print()
+			    	//myTrees.put(newTree.head.data.dataURI,newTree);
+			    }
+			    console.log("----------other tree----------")
+			    console.log(myTrees);
+
+                //do version control stuff
+                versionCtrl(myTrees,other_trees);
+                /*
 				console.log("==========start sync update!!!==========");
 				updateActions.forEach(function(updateItem){
 					if(isExist(my_updateHistory,updateItem)){
@@ -368,18 +404,19 @@ function syncStart(syncData, address){
 						updateList.push(updateItem);
 					};
 				});
+                */
 				//
-				console.log("==========here are conflicts==========")
-				console.log(updateList);
-				versionCtrl(conflictList);
-				ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
+				//console.log("==========here are conflicts==========")
+				//console.log(updateList);
+				//versionCtrl(conflictList);
+				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});
 });
 }
 
 //deal with the conflict situation 
-function versionCtrl(List){
+function versionCtrlCB(myTrees,other_trees){
     //to be continue ......
 }
 
