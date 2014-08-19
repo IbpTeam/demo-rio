@@ -45,7 +45,7 @@ function HashTable(){
 		}
 		return diff;
 	}
-	this.getNotDiff = function(){
+	this.getNotDiff = function(array,Htable){
 		var Nodiff = [];
 		for(var del in array)
 		{
@@ -59,9 +59,6 @@ function HashTable(){
 			};
 		}
 		return Nodiff;		
-	}
-	this.toArray = function(){
-		
 	}
 }
 exports.HashTable = HashTable;

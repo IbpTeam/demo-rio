@@ -65,7 +65,7 @@ function syncUpdateAction(other_updateHistory,updateCallBack){
 }
 
 //deal with version control
-function versionCtrl(myTrees,other_trees,versionCtrlCB){
+function versionCtrl(myTrees,other_trees,versionCtrlCB,CBsyncComplete){
 	versionCtrlCB(myTrees,other_trees);
 }
 
@@ -292,10 +292,6 @@ function syncStart(syncData, address){
 
 	//ActionHistory.test();
 
-	//console.log("insert actions: " + syncData.insertActions);
-	//console.log("delete actions: " + syncData.deleteActions);
-	//console.log("update actions: " + syncData.updateActions);
-
 	var insertActions = JSON.parse(syncData.insertActions);
 	var deleteActions = JSON.parse(syncData.deleteActions);
 	var updateActions = JSON.parse(syncData.updateActions);
@@ -346,6 +342,17 @@ function syncStart(syncData, address){
 			    var myUpdate = new hashTable.HashTable();
 			    myUpdate.createHash(my_updateHistory);
 
+			    //condition #1 : no conflict oprate on data; new upadte history
+				updateActions.forEach(function(updateItem){
+					if(!isExist(my_updateHistory,updateItem))
+						newUpdateList.push(updateItem);
+				});
+				//ActionHistory.createAll("update",newUpdateList,function(){console.log("---insert update done!!!---")});
+
+                //condition #2 : there are conflicts on operating data
+                //1>no conflict: operate on the same data but the results are the same
+                //2>is conflict: operate on same data and same key
+
 			    //insert items (need it's edit_id) should be 
 			    //the head all each version tree
 			    var initTreeHead = my_insertHistory.concat(newInsert);
@@ -354,7 +361,7 @@ function syncStart(syncData, address){
 
 			    //when all heads are ready 
 			    //then we begin to build all version tree in local
-			    console.log("----------building----------")
+			    console.log("----------building trees----------")
 			    var myTrees = new Array();//new hashTable.HashTable();
 			    for(var k in initTreeHead){
 			    	var newTree = new llist.linklist();
@@ -374,7 +381,7 @@ function syncStart(syncData, address){
 			    for(var k in initTreeHead){
 			    	var newTree = new llist.linklist();
 			    	newTree.init(initTreeHead[k]);
-			    	newTree.createFromArray(updateActions);
+			    	newTree.createFromArray(newTree.head,updateActions);
 			    	myTrees.push(newTree);
 			    	console.log("<show me the linklist>")
 			    	newTree.print()
@@ -384,7 +391,9 @@ function syncStart(syncData, address){
 			    console.log(myTrees);
 
                 //do version control stuff
-                versionCtrl(myTrees,other_trees);
+                //is it OK to put syncComplete here?
+                versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
+
                 /*
 				console.log("==========start sync update!!!==========");
 				updateActions.forEach(function(updateItem){
@@ -416,8 +425,9 @@ function syncStart(syncData, address){
 }
 
 //deal with the conflict situation 
-function versionCtrlCB(myTrees,other_trees){
+function versionCtrlCB(myTrees,other_trees){                                                                                                                                                                                                                                                                                                                                                                                                           
     //to be continue ......
+
 }
 
 //check is exist or not
@@ -433,9 +443,29 @@ function isExist(List,item){
 	return flag;
 }
 
+//check if the two versions are the same
+function isSame(node_1,node_2){
+	if(node_1.data.dataURI !== node_2.data.dataURI){
+		console.log("Error! : not the same data! ");
+		return;
+	}
+
+	if(node_1.data.edit_id === node_2.data.edit_id){
+		return true;
+	}else{
+		if(node_1.data.key === node_2.data.key && node_1.data.value === node_2.data.value)
+			return true;
+		else
+			return false;
+	}
+	//to be continue ...
+	//need to compare with data
+}
+
 //check the data is conflict or not
 //need more detail
 //to be continue
+/*
 function isConflict(List,item){
 	var flag = false;
 	if(List === null)
@@ -447,6 +477,7 @@ function isConflict(List,item){
 	});
 	return flag;
 };
+*/
 
 //Sync complete
 function syncComplete(isLocal,isComplete,deviceId,deviceAddress){

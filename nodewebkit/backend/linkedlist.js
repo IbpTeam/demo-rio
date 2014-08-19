@@ -1,14 +1,11 @@
 //double link list js
 
+var htable = require("../htable_test/testhash");
+
 var Node = function (pData) {
   this.next = null;
   this.prev = null;
-  this.data = {
-    dataURI : pData.dataURI,
-    edit_id : pData.edit_id,
-    parent : pData.parent,
-    child : pData.child
-  };
+  this.data = pData;
 }
 
 function getChild(node,data){
@@ -29,9 +26,6 @@ function getParent(node,data){
 
 //the first element is head, contains the base data of this version 
 function linklist() {
-  this.setTail = function(lastNode){
-    this.tail = lastNode;
-  }
   this.init = function(pData){
     this.head = new Node(pData);
     this.tail = this.head; 
@@ -61,12 +55,22 @@ function linklist() {
       p = p.next;
     return p.data;
   }
+
+  //get node with specific dataURI 
+  this.getNode = function (edit_id) {
+    var p = this.head;
+    while (p.next != null && p.data.edit_id !== edit_id)
+      p = p.next;
+    return p;
+  }
+
+
   //remove node with specific dataURI 
-  this.removeAt = function (dataURI) {
+  this.removeAt = function (edit_id) {
     this.size--;
     var p = this.head;
 
-    while (p.next != null && p.dataURI !== dataURI) {
+    while (p.next != null && p.data.edit_id !== edit_id) {
       p = p.next;
     }
 
@@ -93,11 +97,10 @@ function linklist() {
   this.createFromArray = function(head,array){
     this.init(head);
     for(var k in array){
-      //var newNode =  getChild(this.tail,array);
-      var newNode = getParent(this.tail,array);
-      console.log("<this is a child>");
-      console.log(newNode);
-      this.insert(newNode);
+      var newNode = new Node(getParent(this.tail,array));
+      //console.log("<this is a child>");
+      //console.log(newNode);
+      this.insert(newNode.data);
     }
   }
 
