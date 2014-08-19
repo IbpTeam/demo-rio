@@ -6,7 +6,7 @@ var requestHandlers = require("./backend/requestHandlers");
 var fileHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
-
+var fs = require('fs');
 
 var handle = {}
 handle["/"] = requestHandlers.start;
@@ -38,6 +38,18 @@ cp.exec('echo $USER',function(error,stdout,stderr){
   util.log('mkdir /home/'+usrname+'/.demo-rio');
   fileHandle.mkdirSync('/home/'+usrname+'/.demo-rio', 0755,function(e){
   	config.USERCONFIGPATH='/home/'+usrname+'/.demo-rio/';
+  	fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
+      util.log(config.USERCONFIGPATH+"config.js "+ exists);
+      if(exists==false){
+        util.log("No data");
+      }
+      else{
+        var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+        util.log("monitor : "+dataDir);
+        fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
+      }
+    });
+
     if(e){
         util.log('mkdir /home/'+usrname+'/.demo-rio fail');
     }else{
