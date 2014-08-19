@@ -65,7 +65,7 @@ function syncUpdateAction(other_updateHistory,updateCallBack){
 }
 
 //deal with version control
-function versionCtrl(myTrees,other_trees,versionCtrlCB){
+function versionCtrl(myTrees,other_trees,versionCtrlCB,CBsyncComplete){
 	versionCtrlCB(myTrees,other_trees);
 }
 
@@ -374,7 +374,7 @@ function syncStart(syncData, address){
 			    for(var k in initTreeHead){
 			    	var newTree = new llist.linklist();
 			    	newTree.init(initTreeHead[k]);
-			    	newTree.createFromArray(updateActions);
+			    	newTree.createFromArray(newTree.head,updateActions);
 			    	myTrees.push(newTree);
 			    	console.log("<show me the linklist>")
 			    	newTree.print()
@@ -384,7 +384,9 @@ function syncStart(syncData, address){
 			    console.log(myTrees);
 
                 //do version control stuff
-                versionCtrl(myTrees,other_trees);
+                //is it OK to put syncComplete here?
+                versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
+
                 /*
 				console.log("==========start sync update!!!==========");
 				updateActions.forEach(function(updateItem){
@@ -436,6 +438,7 @@ function isExist(List,item){
 //check the data is conflict or not
 //need more detail
 //to be continue
+/*
 function isConflict(List,item){
 	var flag = false;
 	if(List === null)
@@ -447,6 +450,7 @@ function isConflict(List,item){
 	});
 	return flag;
 };
+*/
 
 //Sync complete
 function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
