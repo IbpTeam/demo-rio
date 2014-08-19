@@ -1,92 +1,111 @@
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
+//double link list js
 
-//double linked list in node
-//extended by xiquan
 
-function init(list) {
-  list._idleNext = list;
-  list._idlePrev = list;
-  list._head = list;
-  list._tail = list;
+var Node = function (pData) {
+  this.next = null;
+  this.prev = null;
+  this.data = {
+    dataURI : pData.dataURI,
+    edit_id : pData.edit_id,
+    parent : pData.parent,
+    child : pData.child
+  };
 }
-exports.init = init;
 
+//the first element is head, contains the base data of this version 
+function linklist() {
+  this.setTail = function(lastNode){
+    this.tail = lastNode;
+  }
+  this.init = function(pData){
+    this.head = new Node(pData);
+    this.tail = this.head; 
+    this.size = 0;
+  }  
 
-// show the most idle item
-function peek(list) {
-  if (list._idlePrev == list) return null;
-  return list._idlePrev;
-}
-exports.peek = peek;
+  this.insert = function (pData) {
+    this.size++;
+    var newNode = new Node(pData);
+    //if only have the head
+    if (this.head.next == null) {
+      this.head.next = newNode;
+      newNode.prev = this.head;
+      this.tail = newNode;
+      return;
+    }
 
-
-// remove the most idle item from the list
-function shift(list) {
-  var first = list._idlePrev;
-  remove(first);
-  return first;
-}
-exports.shift = shift;
-
-
-// remove a item from its list
-function remove(item) {
-  if (item._idleNext) {
-    item._idleNext._idlePrev = item._idlePrev;
+    this.tail.next = newNode;
+    newNode.prev = this.tail;
+    this.tail = newNode;
   }
 
-  if (item._idlePrev) {
-    item._idlePrev._idleNext = item._idleNext;
+  //get the node with specific dataURI 
+  this.getData = function (dataURI) {
+    var p = this.head;
+    while (p.next != null && p.dataURI !== dataURI)
+      p = p.next;
+    return p.data;
+  }
+  //remove the node with specific dataURI 
+  this.removeAt = function (dataURI) {
+    this.size--;
+    var p = this.head;
+
+    while (p.next != null && p.dataURI !== dataURI) {
+      p = p.next;
+    }
+
+    p.next = p.next.next;//p.next = null; 
+    p.next.prev = p;
+    return p.data; //return the removed element      
   }
 
-  item._idleNext = null;
-  item._idlePrev = null;
+  //get tail
+  this.getTail = function () {
+    return this.tail;
+  }
+
+  //get head
+  this.getHead = function(){
+    return this.head;
+  }
+
+  //get size
+  this.getSize = function(){
+    return this.size;
+  }
+
+  //print data of all elements
+  this.print = function () {
+    console.log("We have " + this.size + " elements in total! ");
+    console.log("<br/>");
+    if (this.head.next == null) {
+      return;
+    }
+    var p = this.head.next;
+    while (p.next != null) {
+      console.log(p.data);
+      p = p.next;
+    }
+    console.log(p.data); //print last one 
+    console.log("<br/>");
+  }
+
+  //print data of all elements from the end
+  this.printFromBack = function () {
+    console.log("We have " + this.size + " elements in total! ");
+    console.log("<br/>");
+    var tail = this.getTail();
+    var p = tail;
+
+    if (p == null) {
+      return;
+    }
+    while (p.prev != null) {
+      console.log(p.data);
+      p = p.prev;
+    }
+    console.log("<br/>");
+  }
 }
-exports.remove = remove;
-
-
-// remove a item from its list and place at the end.
-function append(list, item) {
-  remove(item);
-  item._idleNext = list._idleNext;
-  list._idleNext._idlePrev = item;
-  item._idlePrev = list;
-  list._idleNext = item;
-}
-exports.append = append;
-
-
-function isEmpty(list) {
-  return list._idleNext === list;
-}
-exports.isEmpty = isEmpty;
-
-//create link list from array
-function create(array){
-var list = {
-	
-}
-init(list);
-
-
-return list;
-}
+exports.linklist = linklist;
