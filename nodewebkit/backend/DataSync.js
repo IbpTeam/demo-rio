@@ -392,7 +392,7 @@ function syncStart(syncData, address){
 
                 //do version control stuff
                 //is it OK to put syncComplete here?
-                //versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
+                versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
 
                 /*
 				console.log("==========start sync update!!!==========");
@@ -427,6 +427,7 @@ function syncStart(syncData, address){
 //deal with the conflict situation 
 function versionCtrlCB(myTrees,other_trees){                                                                                                                                                                                                                                                                                                                                                                                                           
     //to be continue ......
+
 }
 
 //check is exist or not
@@ -442,9 +443,23 @@ function isExist(List,item){
 	return flag;
 }
 
-//check if the two version 
-function isSame(){
+//check if the two versions are the same
+function isSame(node_1,node_2){
+	if(node_1.data.dataURI !== node_2.data.dataURI){
+		console.log("Error! : not the same data! ");
+		return;
+	}
 
+	if(node_1.data.edit_id === node_2.data.edit_id){
+		return true;
+	}else{
+		if(node_1.data.key === node_2.data.key && node_1.data.value === node_2.data.value)
+			return true;
+		else
+			return false;
+	}
+	//to be continue ...
+	//need to compare with data
 }
 
 //check the data is conflict or not
