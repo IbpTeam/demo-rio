@@ -8,9 +8,10 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- var hashTable = require('./hashTable');
+ var hashTable = require("./hashTable");
+ var llist = require("./linkedlist")
 
-var ActionHistory = require('./DAO/ActionHistoryDAO');//
+var ActionHistory = require("./DAO/ActionHistoryDAO");//
 
 var state = {
 	SYNC_IDLE:0,
@@ -61,6 +62,11 @@ function syncUpdateAction(other_updateHistory,updateCallBack){
 	commonDAO.findEachActionHistory("update",function(my_updateHistory){
 		updateCallBack(other_updateHistory,my_updateHistory);
 	});
+}
+
+//deal with version control
+function versionCtrl(myTrees,other_trees,versionCtrlCB){
+	versionCtrlCB(myTrees,other_trees);
 }
 
 //Send sync request when other devices connect the net.
@@ -301,8 +307,8 @@ function syncStart(syncData, address){
 	console.log("update actions: ");
 	console.log(updateActions);
 
-	var deletetList = new Array();
-	var insertList = new Array();
+	//var deletetList = new Array();
+	//var insertList = new Array();
 	var updateList = new Array();
 	var conflictList = new Array();
 
@@ -315,27 +321,7 @@ function syncStart(syncData, address){
 		var newDelete = myDelete.getDiff(deleteActions,myDelete);
 		console.log("==========new delete history==========");
 		console.log(newDelete);
-		/*
-		deleteActions.forEach(function(deleteItem){
-			if(isExist(my_deleteHistory,deleteItem)){
-				console.log('==========nothing new==========');
-			}else{
-				console.log("==========We got a new delete:==========");
-				console.log(deleteItem);
-				deletetList.push(deleteItem);
-			};
-		});
-        */
 		ActionHistory.createAll("delete",newDelete,function(){console.log("==========delete insert done!!!==========")});
-        /*
-        //remove some delete items in insertActions
-        for(var i=0;i<my_deleteHistory.length;i++){
-        	for(var j=0;j<insertActions.length;j++){
-        		if(my_deleteHistory[i].dataURI === insertActions[j].dataURI)
-        			insertActions.splice(j,1);
-        	}
-        }
-        */
 
 		//Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
@@ -348,27 +334,58 @@ function syncStart(syncData, address){
 			console.log("==========start sync insert!!!==========");
 			var newInsert = myInsert.getDiff(insertActions,myInsert);
 
-			/*
-			insertActions.forEach(function(insertItem){
-				if(isExist(my_insertHistory,insertItem)){
-					console.log('==========nothing new==========');
-				}else{
-					console.log("==========We got a new insert:==========");
-					console.log(insertItem);
-					insertList.push(insertItem);
-				};
-			});
-            */
-            
             console.log("==========new insert history==========");
 			console.log(newInsert);
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
 			////Retrive actions after insert, start to sync update actions 
 			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
+				console.log("==========start sync update!!!==========");
+				console.log("----------my update actions----------");
+				console.log(updateActions);
 			    var myUpdate = new hashTable.HashTable();
 			    myUpdate.createHash(my_updateHistory);
 
+			    //insert items (need it's edit_id) should be 
+			    //the head all each version tree
+			    var initTreeHead = my_insertHistory.concat(newInsert);
+			    console.log("----------init heads----------");
+			    console.log(initTreeHead);
+
+			    //when all heads are ready 
+			    //then we begin to build all version tree in local
+			    console.log("----------building----------")
+			    var myTrees = new Array();//new hashTable.HashTable();
+			    for(var k in initTreeHead){
+			    	var newTree = new llist.linklist();
+			    	newTree.init(initTreeHead[k]);
+			    	newTree.createFromArray(my_updateHistory);
+			    	myTrees.push(newTree);
+			    	console.log("<show me the linklist>")
+			    	newTree.print()
+			    	//myTrees.put(newTree.head.data.dataURI,newTree);
+			    }
+			    console.log("----------my tree----------")
+			    console.log(myTrees);
+
+
+                //build trees from other devices 
+                var other_trees = new Array();
+			    for(var k in initTreeHead){
+			    	var newTree = new llist.linklist();
+			    	newTree.init(initTreeHead[k]);
+			    	newTree.createFromArray(updateActions);
+			    	myTrees.push(newTree);
+			    	console.log("<show me the linklist>")
+			    	newTree.print()
+			    	//myTrees.put(newTree.head.data.dataURI,newTree);
+			    }
+			    console.log("----------other tree----------")
+			    console.log(myTrees);
+
+                //do version control stuff
+                versionCtrl(myTrees,other_trees);
+                /*
 				console.log("==========start sync update!!!==========");
 				updateActions.forEach(function(updateItem){
 					if(isExist(my_updateHistory,updateItem)){
@@ -387,18 +404,19 @@ function syncStart(syncData, address){
 						updateList.push(updateItem);
 					};
 				});
+                */
 				//
-				console.log("==========here are conflicts==========")
-				console.log(updateList);
-				versionCtrl(conflictList);
-				ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
+				//console.log("==========here are conflicts==========")
+				//console.log(updateList);
+				//versionCtrl(conflictList);
+				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
 			});
 		});
 });
 }
 
 //deal with the conflict situation 
-function versionCtrl(List){
+function versionCtrlCB(myTrees,other_trees){
     //to be continue ......
 }
 

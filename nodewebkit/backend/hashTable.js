@@ -9,7 +9,7 @@ function HashTable(){
 		table.put(key,value)
 	}
 	this.get = function (key){
-		table.get(key);
+		return table.get(key);
 	}
 	this.remove = function(key){
 		table.remove(key);
@@ -18,10 +18,10 @@ function HashTable(){
 		table.clear();
 	}
 	this.size = function(){
-		table.size();
+		return table.size();
 	}
 	this.rehash =function(new_size){
-		table.rehash(new_size);
+		return table.rehash(new_size);
 	}
 	this.createHash = function(array){
 		for(var  tmp in array)
@@ -44,6 +44,24 @@ function HashTable(){
 			};
 		}
 		return diff;
+	}
+	this.getNotDiff = function(){
+		var Nodiff = [];
+		for(var del in array)
+		{
+			res = Htable.get(array[del].dataURI);
+			if (typeof res != "undefined" && typeof res != null) 
+			{
+				var tmpdif = {};
+				tmpdif["id"] = array[del].id;
+				tmpdif["dataURI"] = array[del].dataURI;
+				Nodiff.push(tmpdif);
+			};
+		}
+		return Nodiff;		
+	}
+	this.toArray = function(){
+		
 	}
 }
 exports.HashTable = HashTable;
