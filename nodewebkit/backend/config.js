@@ -18,8 +18,6 @@ var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
 var ACCOUNT="xiquan";
 exports.ACCOUNT = ACCOUNT;
-var EMAIL="xiquan@iscas.ac.cn";
-exports.EMAIL = EMAIL;
 function getAddr(){
   var IPv4;
   //var os = require('os');

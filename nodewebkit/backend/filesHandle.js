@@ -2,137 +2,62 @@ var http = require("http");
 var url = require("url");
 var sys = require('sys');
 var path = require('path');
-var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var commonDAO = require("./DAO/CommonDAO");
-var resourceRepo = require("./repo");
+var git = require("nodegit");
 var util = require('util');
-var events = require('events'); 
-
 
 var PORT = 8888;
 
 var writeDbNum=0;
 var writeDbRecentNum=0;
 var dataPath;
-
 function sleep(milliSeconds) { 
     var startTime = new Date().getTime(); 
     while (new Date().getTime() < startTime + milliSeconds);
 };
 exports.sleep = sleep;
 
-var repoCommitStatus =  'idle';
-exports.repoCommitStatus = repoCommitStatus;
-var addCommitList = new Array();
-var rmCommitList = new Array();
-var chCommitList = new Array();
-function monitorFilesCb(path,event){
+function monitorFilesCb(path,event,stat){
   util.log(event+'  :  '+path);
-  var resourcePath=require(config.USERCONFIGPATH+"config.js").dataDir;
   var res = path.match(/.git/);
   if(res!=null){
-    //util.log(res);
-  }
-  else{
-    switch(event){
-      case 'add' : {
-        util.log("new file "+path);
-        addCommitList.push(path);
-        function repoAddCommitCb(){
-         //util.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@addCommitList[0]="+addCommitList[0]); 
-          if(addCommitList[0]!=null){
-            resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
-          }      
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        }
-        if(repoCommitStatus == 'idle'){
-          util.log("emit commit "+addCommitList[0]);
-          repoCommitStatus = 'busy';  
-          resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
-        }
-      }
-      break;
-    
-      case 'unlink' : {
-        util.log("remove file "+path);
-        rmCommitList.push(path);
-        function repoRmCommitCb(){
-          if(rmCommitList[0]!=null){
-            resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
-          }      
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        }
-        if(repoCommitStatus == 'idle'){
-          util.log("emit commit "+rmCommitList[0]);
-          repoCommitStatus = 'busy';  
-          resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
-        }
-      }
-      break;
-
-      case 'change' : {
-        util.log("new file "+path);
-        chCommitList.push(path);
-        function repoChCommitCb(){
-          if(chCommitList[0]!=null){
-            resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
-          }      
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        }
-        if(repoCommitStatus == 'idle'){
-          util.log("emit commit "+chCommitList[0]);
-          repoCommitStatus = 'busy';  
-          resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
-        }
-      }
-      break;
-    }
+    util.log(res);
   }
 }
 exports.monitorFilesCb = monitorFilesCb;
-
 function monitorFiles(monitorPath,callback){
+  var watch = require('./watch' ).create(function(watch){
 
-  var chokidar = require('chokidar'); 
-  var watcher = chokidar.watch('file or dir', {ignored: /[\/\\]\./, persistent: true});
-  watcher
-    .on('add', function(path) {
-      console.log('File', path, 'has been added');
-    })
-    .on('addDir', function(path) {
-      console.log('Directory', path, 'has been added');
-    })
-    .on('change', function(path) {
-      console.log('File', path, 'has been changed');
-    })
-    .on('unlink', function(path) {
-      console.log('File', path, 'has been removed');
-    })
-    .on('unlinkDir', function(path) {
-      console.log('Directory', path, 'has been removed');
-    })
-    .on('error', function(error) {
-      console.error('Error happened', error);
-    })
-  watcher.on('change', function(path, stats) {
-      console.log('File', path, 'changed size to', stats.size);
+    /*watch.exclude(['*index.js']);
+     watch.exclude(/.*index.js$/);
+     watch.exclude(new RegExp(/.*index.js$/));*/
+    watch.listeners({
+    'createfile': function(path, stat){
+        callback(path, 'createfile',stat);
+      },
+      'deletefile': function(path, stat){
+        callback(path, 'deletefile',stat);
+      },
+      'changefile': function(path, stat){
+        callback(path, 'changefile',stat);
+      },
+      'createdirectory': function(path, stat){
+        callback(path, 'createdirectory',stat);
+      },
+      'deletedirectory': function(path, stat){
+        callback(path, 'deletedirectory',stat);
+      },
+      'changedirectory': function(path, stat){
+        callback(path, 'changedirectory',stat);
+      }
+    }).watchTree(monitorPath, function(err, fileCount, dirCount){
+        util.log('monitor : ', monitorPath);
     });
 
-  require('chokidar').watch(monitorPath, {ignored: /[\/\\]\./,ignoreInitial: true}).on('all', function(event, path) {
-    callback(path,event);
-  });
+});
 }
 exports.monitorFiles = monitorFiles;
 
@@ -188,7 +113,62 @@ function deleteItemCb(id,uri,result,rmDataByIdCb)
 }
 exports.deleteItemCb = deleteItemCb;
 
-
+function repoCommit(repoPath,filename,callback)
+{
+      console.log("repoCommit file :"+ filename);
+      //open a git repo
+      git.Repo.open(path.resolve(repoPath+'/.git'), function(openReporError, repo) {
+      if (openReporError) 
+        throw openReporError;
+      console.log("Repo open : "+repo);  
+      //add the file to the index...
+      repo.openIndex(function(openIndexError, index) {
+        if (openIndexError) 
+          throw openIndexError;
+        console.log("Repo index : "+index);
+        index.read(function(readError) {
+          if (readError) 
+            throw readError;  
+          console.log("Repo read : success");
+          index.addByPath(filename.replace(repoPath+'/',''), function(addByPathError) {
+            if (addByPathError) 
+              throw addByPathError;
+            console.log("Repo addByPath : success");
+            index.write(function(writeError) {
+              if (writeError) 
+                throw writeError;
+              console.log("Repo write : success"); 
+              index.writeTree(function(writeTreeError, oid) {
+                if (writeTreeError) 
+                  throw writeTreeError;
+                console.log("Repo writeTree : success");
+                //get HEAD 
+                git.Reference.oidForName(repo, 'HEAD', function(oidForName, head) {
+                  if (oidForName) 
+                    throw oidForName;
+                  console.log("Repo oidForName : "+oidForName);
+                  //get latest commit (will be the parent commit)
+                  repo.getCommit(head, function(getCommitError, parent) {
+                    if (getCommitError) 
+                      throw getCommitError;
+                    var author = git.Signature.create("Wang Feng", "wangfeng@nfs.iscas.ac.cn", 123456789, 60);
+                    var committer = git.Signature.create("Wang Feng", "wangfeng@nfs.iscas.ac.cn", 987654321, 90);
+                    //commit
+                    repo.createCommit('HEAD', author, committer, 'message', oid, [parent], function(error, commitId) {
+                      if (error) 
+                        throw error;
+                      console.log("New Commit:", commitId.sha());
+                      callback(commitId.sha());
+                    });
+                  });  
+                });  
+              });
+            });
+          }); 
+        });  
+      });
+    });
+}
 
 function syncDb(loadResourcesCb,resourcePath)
 {
