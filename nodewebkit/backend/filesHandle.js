@@ -29,6 +29,8 @@ exports.repoCommitStatus = repoCommitStatus;
 var addCommitList = new Array();
 var rmCommitList = new Array();
 var chCommitList = new Array();
+var monitorFilesStatus =  false;
+exports.repoCommitStatus = repoCommitStatus;
 function monitorFilesCb(path,event){
   util.log(event+'  :  '+path);
   var resourcePath=require(config.USERCONFIGPATH+"config.js").dataDir;
@@ -104,27 +106,30 @@ function monitorFilesCb(path,event){
 exports.monitorFilesCb = monitorFilesCb;
 
 function monitorFiles(monitorPath,callback){
-
+  if(monitorFilesStatus==true){
+    return;
+  }
+  monitorFilesStatus=true;
   var chokidar = require('chokidar'); 
   var watcher = chokidar.watch('file or dir', {ignored: /[\/\\]\./, persistent: true});
   watcher
     .on('add', function(path) {
-      console.log('File', path, 'has been added');
+      //console.log('File', path, 'has been added');
     })
     .on('addDir', function(path) {
-      console.log('Directory', path, 'has been added');
+      //console.log('Directory', path, 'has been added');
     })
     .on('change', function(path) {
-      console.log('File', path, 'has been changed');
+      //console.log('File', path, 'has been changed');
     })
     .on('unlink', function(path) {
-      console.log('File', path, 'has been removed');
+      //console.log('File', path, 'has been removed');
     })
     .on('unlinkDir', function(path) {
-      console.log('Directory', path, 'has been removed');
+      //console.log('Directory', path, 'has been removed');
     })
     .on('error', function(error) {
-      console.error('Error happened', error);
+      //console.error('Error happened', error);
     })
   watcher.on('change', function(path, stats) {
       console.log('File', path, 'changed size to', stats.size);
