@@ -1,7 +1,5 @@
 //double link list js
 
-var htable = require("../htable_test/testhash");
-
 var Node = function (pData) {
   this.next = null;
   this.prev = null;
