@@ -1,6 +1,7 @@
 var sqlite3 = require('sqlite3');
 var SQLSTR = require("./SQL/SQLStr.js");
 var config = require("../config");
+var uniqueId = require("../uniqueID");
 
 //连接数据库
 function openDB(){
@@ -20,8 +21,14 @@ function closeDB(database){
  */
 exports.createInsertItem = function(dataURI, createInsertItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATEINSERTITEM, dataURI, createInsertItemCallBack);
-  closeDB(db);
+  uniqueId.getRandomBytes(12,function(randomId){
+    if (randomId != null) {     
+      db.run(SQLSTR.CREATEINSERTITEM, dataURI, randomId,createInsertItemCallBack);
+      closeDB(db);
+    }else{
+      console.log("Action History DAO Exception: randomId is null.");
+    }
+  });
 }
 
 /**
@@ -48,8 +55,14 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  */
 exports.createUpdateItem = function(dataURI, key, value, createUpdateItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATEUPDATEITEM, dataURI, key, value, createUpdateItemCallBack);
-  closeDB(db);
+  uniqueId.getRandomBytes(12,function(randomId){
+    if (randomId != null) {     
+      db.run(SQLSTR.CREATEUPDATEITEM, dataURI, key, value, randomId,createInsertItemCallBack);
+      closeDB(db);
+    }else{
+      console.log("Action History DAO Exception: randomId is null.");
+    }
+  });
 }
 
 /**
