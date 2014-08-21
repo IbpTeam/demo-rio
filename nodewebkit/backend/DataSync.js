@@ -44,7 +44,7 @@ function syncSendMessage(address, msgObj){
 }
 
 //Sync delete action
-function syncDeleteAction_(other_deleteHistory,deleteCallBack){
+function syncDeleteAction(other_deleteHistory,deleteCallBack){
 	commonDAO.findEachActionHistory("delete",function(my_deleteHistory){
 		deleteCallBack(other_deleteHistory,my_deleteHistory);
 	});
@@ -298,7 +298,7 @@ function syncStart(syncData, address){
 	var insertActions = JSON.parse(syncData.insertActions);
 	var deleteActions = JSON.parse(syncData.deleteActions);
 	var updateActions = JSON.parse(syncData.updateActions);
-	var updateOperations = JSON.parse(syncData.updateOperations);
+	var updateOperations; //= JSON.parse(syncData.updateOperations);
 
 	console.log("insert actions: ");
 	console.log(insertActions);
@@ -307,7 +307,7 @@ function syncStart(syncData, address){
 	console.log("update actions: ");
 	console.log(updateActions);
 	console.log("update operations: ");
-	console.log(updateOperations);	
+	// /console.log(updateOperations);	
 
 	//var deletetList = new Array();
 	//var insertList = new Array();

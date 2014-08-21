@@ -23,7 +23,7 @@ exports.createInsertItem = function(dataURI, createInsertItemCallBack){
   var db = openDB();
   uniqueId.getRandomBytes(12,function(randomId){
     if (randomId != null) {     
-      db.run(SQLSTR.CREATEINSERTITEM, dataURI, randomId,createInsertItemCallBack);
+      db.run(SQLSTR.CREATEINSERTITEM, dataURI,createInsertItemCallBack);
       closeDB(db);
     }else{
       console.log("Action History DAO Exception: randomId is null.");
