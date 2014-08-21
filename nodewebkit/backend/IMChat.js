@@ -18,6 +18,8 @@ function initIMServer(){
 				//console.log("=========================================");
 				//output message and save to database
 				//return success
+				var tp = encapsuMSG("1","Reply","A","B");
+				c.write(tp);
 			}
 			break;
 			case 'Reply': {
@@ -51,18 +53,50 @@ function initIMServer(){
 }
 
 function sendIMMsg(IP,PORT,MSG){
-//	console.log("--------------------------"+IP);
+	var count = 0;
+	var id =0;
+
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
 		return;
 	};
-//	console.log("=========================="+config.SERVERIP)
+
 	var  client = new net.Socket();
 	client.connect(PORT,IP,function(){
 		client.write(MSG,function(){
-			client.end();
 		});
 	});
+
+	id =  setInterval(function(C,MSG){
+	if (count <5) 
+	{
+		C.write(MSG);
+		count++;
+	}else
+	{
+		clearInterval(id);
+	};
+	
+	},1000,client,MSG);
+
+	client.on('data',function(RPLY){
+		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort);
+		var  msg = JSON.parse(RPLY);
+		switch(msg[0].type)
+		{
+			case 'Reply': 
+			{
+				if (msg[0].message == 1)
+				{
+					console.log('msg rply received: '+ msg[0].message);
+					clearInterval(id);
+					client.end();
+				};
+			}
+			break;
+		}
+	});
+	//client.end();
 
 	client.on('error',function(err){
 		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
@@ -86,6 +120,15 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			return send;
 		}
 		break;
+		case'Reply':{
+			tmp["from"] = FROM;
+			tmp["to"] = TO;
+			tmp["message"] = MSG;
+			tmp["type"] = TYPE;
+			MESSAGE.push(tmp);
+			var rply = JSON.stringify(MESSAGE);
+			return rply;
+		}
 		default:{
 
 		}
