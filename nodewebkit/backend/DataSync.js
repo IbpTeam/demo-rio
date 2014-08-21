@@ -402,7 +402,7 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 		if(isConflict(my_operation,other_operation)){
 			isConflictCB(my_startNode,other_startNode);
 		}else{
-			continue;
+			//continue;
 		}
 	}
 
@@ -455,13 +455,13 @@ function isConflict(my_operation,other_operation){
 		return undefined;
 	}
 	my_operation.forEach(function(myItem){
-		other_operation.forEach(function(otherItem)){
+		other_operation.forEach(function(otherItem){
 			if(myItem.key === otherItem)
 				return true;
-		}
+		});
 	});
 	return false;
-};
+}
 
 //get operations with specific reversion_id
 function getOperations(reversion_id,operations){
