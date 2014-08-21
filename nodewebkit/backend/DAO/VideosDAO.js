@@ -76,7 +76,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, createItemCallBack);
+  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.revision_id, createItemCallBack);
   closeDB(db);
 }
 
