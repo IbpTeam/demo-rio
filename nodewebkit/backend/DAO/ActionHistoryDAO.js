@@ -134,17 +134,17 @@ exports.createAll = function(action,List,callback){
   switch(action){
     case "insert": {
       List.forEach(function(item){
-        db.run(SQLSTR.CREATEINSERTITEM, item.dataURI,callback);
+        db.run(SQLSTR.CREATEINSERTITEM, item.file_id,callback);
       });
     }
     break;
     case "delete": {
       List.forEach(function(item){
-        //create delete history
-        db.run(SQLSTR.CREATEDELETEITEM, item.dataURI,callback);
         //then delete insert & update history
-        db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI);
-        db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI);
+        db.run(SQLSTR.REMOVEINSERTITEM, item.file_id);
+        db.run(SQLSTR.REMOVEUPDATEITEM, item.file_id);
+        //create delete history
+        db.run(SQLSTR.CREATEDELETEITEM, item.file_id,callback);
       });
     }
     break;

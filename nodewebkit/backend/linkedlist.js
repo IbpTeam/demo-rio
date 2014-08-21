@@ -1,5 +1,18 @@
 //double link list js
 
+
+//structure of this.data
+/***********************
+var data = {
+  reversion_id : "",
+  child : {},
+  parent : {},
+  base_id : "",
+  commit_id : ""
+}
+***********************/
+
+
 var Node = function (pData) {
   this.next = null;
   this.prev = null;
@@ -8,7 +21,7 @@ var Node = function (pData) {
 
 function getChild(node,data){
   for(var k in data){
-    if(node.data.child === data[k].edit_id)
+    if(node.data.child === data[k].reversion_id)
       return data[k];
   }
   return "undefined";
@@ -16,7 +29,7 @@ function getChild(node,data){
 
 function getParent(node,data){
   for(var k in data){
-    if(node.data.edit_id === data[k].parent)
+    if(node.data.reversion_id === data[k].parent)
       return data[k];
   }
   return "undefined";
@@ -47,28 +60,28 @@ function linklist() {
   }
 
   //get node with specific dataURI 
-  this.getData = function (dataURI) {
+  this.getData = function (reversion_id) {
     var p = this.head;
-    while (p.next != null && p.dataURI !== dataURI)
+    while (p.next != null && p.reversion_id !== reversion_id)
       p = p.next;
     return p.data;
   }
 
   //get node with specific dataURI 
-  this.getNode = function (edit_id) {
+  this.getNode = function (reversion_id) {
     var p = this.head;
-    while (p.next != null && p.data.edit_id !== edit_id)
+    while (p.next != null && p.data.reversion_id !== reversion_id)
       p = p.next;
     return p;
   }
 
 
   //remove node with specific dataURI 
-  this.removeAt = function (edit_id) {
+  this.removeAt = function (reversion_id) {
     this.size--;
     var p = this.head;
 
-    while (p.next != null && p.data.edit_id !== edit_id) {
+    while (p.next != null && p.data.reversion_id !== reversion_id) {
       p = p.next;
     }
 

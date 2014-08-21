@@ -44,7 +44,7 @@ function syncSendMessage(address, msgObj){
 }
 
 //Sync delete action
-function syncDeleteAction(other_deleteHistory,deleteCallBack){
+function syncDeleteAction_(other_deleteHistory,deleteCallBack){
 	commonDAO.findEachActionHistory("delete",function(my_deleteHistory){
 		deleteCallBack(other_deleteHistory,my_deleteHistory);
 	});
@@ -58,15 +58,18 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 }
 
 //Sync insert action
-function syncUpdateAction(other_updateHistory,updateCallBack){
-	commonDAO.findEachActionHistory("update",function(my_updateHistory){
-		updateCallBack(other_updateHistory,my_updateHistory);
+function syncUpdateAction(other_updateHistory,other_updateOperations,updateCallBack){
+	commonDAO.findAboutUpdate(function(my_updateHistory,my_updateOperations){
+		updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
 	});
+	//commonDAO.findEachActionHistory("update",function(my_updateHistory,my_updateOperations){
+	//	updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
+	//});
 }
 
 //deal with version control
-function versionCtrl(myTrees,other_trees,versionCtrlCB,CBsyncComplete){
-	versionCtrlCB(myTrees,other_trees);
+function versionCtrl(my_linklist,my_updateOperations,other_linklist,other_updateOperations,versionCtrlCB,CBsyncComplete){
+	versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_updateOperations);
 }
 
 //Send sync request when other devices connect the net.
@@ -78,61 +81,61 @@ function syncRequest(deviceName,deviceId,deviceAddress){
   }*/
 
   switch(currentState){
-	case state.SYNC_IDLE: {
-		console.log("syncRequest==========" + currentState);
-		currentState = state.SYNC_REQUEST;
-		remoteDeviceId = deviceId;
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "sync"
-		};
-		syncList.unshift(syncDevice);
-		var requestMsg = {
+  	case state.SYNC_IDLE: {
+  		console.log("syncRequest==========" + currentState);
+  		currentState = state.SYNC_REQUEST;
+  		remoteDeviceId = deviceId;
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "sync"
+  		};
+  		syncList.unshift(syncDevice);
+  		var requestMsg = {
   			type: "syncRequest",
   			account: config.ACCOUNT,
   			deviceId: config.uniqueID,
   			deviceAddress: config.SERVERIP
   		};
   		syncSendMessage(deviceAddress[0],requestMsg);
-	}
-	break;
-	case state.SYNC_REQUEST: {
-		console.log("syncRequest=============" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	case state.SYNC_START: {
-		console.log("syncRequest============" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	case state.SYNC_COMPLETE: {
-		console.log("syncRequest==========" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	default: {
-		console.log("this is in default switch in syncRequest");
+  	}
+  	break;
+  	case state.SYNC_REQUEST: {
+  		console.log("syncRequest=============" + currentState);
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "wait"
+  		};
+  		syncList.push(syncDevice);
+  	}
+  	break;
+  	case state.SYNC_START: {
+  		console.log("syncRequest============" + currentState);
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "wait"
+  		};
+  		syncList.push(syncDevice);
+  	}
+  	break;
+  	case state.SYNC_COMPLETE: {
+  		console.log("syncRequest==========" + currentState);
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "wait"
+  		};
+  		syncList.push(syncDevice);
+  	}
+  	break;
+  	default: {
+  		console.log("this is in default switch in syncRequest");
 		//console.log(data);
 	}
 }
@@ -295,6 +298,7 @@ function syncStart(syncData, address){
 	var insertActions = JSON.parse(syncData.insertActions);
 	var deleteActions = JSON.parse(syncData.deleteActions);
 	var updateActions = JSON.parse(syncData.updateActions);
+	var updateOperations = JSON.parse(syncData.updateOperations);
 
 	console.log("insert actions: ");
 	console.log(insertActions);
@@ -302,6 +306,8 @@ function syncStart(syncData, address){
 	console.log(deleteActions);
 	console.log("update actions: ");
 	console.log(updateActions);
+	console.log("update operations: ");
+	console.log(updateOperations);	
 
 	//var deletetList = new Array();
 	//var insertList = new Array();
@@ -314,9 +320,11 @@ function syncStart(syncData, address){
 		myDelete.createHash(my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
+		//these are new delete actions
 		var newDelete = myDelete.getDiff(deleteActions,myDelete);
 		console.log("==========new delete history==========");
 		console.log(newDelete);
+		//create delete hository
 		ActionHistory.createAll("delete",newDelete,function(){console.log("==========delete insert done!!!==========")});
 
 		//Retrive actions after delete, start to sync insert actions 
@@ -326,106 +334,55 @@ function syncStart(syncData, address){
 
 			//remove some repeat insert items in insertActions
 			insertActions = myInsert.getDiff(insertActions,myDelete);
-            
+
 			console.log("==========start sync insert!!!==========");
+			//these are new insert actions
 			var newInsert = myInsert.getDiff(insertActions,myInsert);
 
-            console.log("==========new insert history==========");
+			console.log("==========new insert history==========");
 			console.log(newInsert);
+			//create insert hository
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
 			////Retrive actions after insert, start to sync update actions 
-			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
+			syncUpdateAction(updateActions,updateOperations,function(updateActions,my_updateHistory,my_updateOperations){
 				console.log("==========start sync update!!!==========");
 				console.log("----------my update actions----------");
-				console.log(updateActions);
-			    var myUpdate = new hashTable.HashTable();
-			    myUpdate.createHash(my_updateHistory);
+				console.log(my_updateHistory);
+			    //var myUpdate = new hashTable.HashTable();
+			    //myUpdate.createHash(my_updateHistory);
 
-			    //condition #1 : no conflict oprate on data; new upadte history
-				updateActions.forEach(function(updateItem){
-					if(!isExist(my_updateHistory,updateItem))
-						newUpdateList.push(updateItem);
-				});
-				//ActionHistory.createAll("update",newUpdateList,function(){console.log("---insert update done!!!---")});
-
-                //condition #2 : there are conflicts on operating data
-                //1>no conflict: operate on the same data but the results are the same
-                //2>is conflict: operate on same data and same key
-
-			    //insert items (need it's edit_id) should be 
-			    //the head all each version tree
-			    var initTreeHead = my_insertHistory.concat(newInsert);
-			    console.log("----------init heads----------");
-			    console.log(initTreeHead);
-
-			    //when all heads are ready 
-			    //then we begin to build all version tree in local
-			    console.log("----------building trees----------")
-			    var myTrees = new Array();//new hashTable.HashTable();
-			    for(var k in initTreeHead){
-			    	var newTree = new llist.linklist();
-			    	newTree.init(initTreeHead[k]);
-			    	newTree.createFromArray(my_updateHistory);
-			    	myTrees.push(newTree);
-			    	console.log("<show me the linklist>")
-			    	newTree.print()
-			    	//myTrees.put(newTree.head.data.dataURI,newTree);
+                //build link list from my database
+                console.log("----------building my_linklist----------")
+                var my_linklist = new llist.linklist();
+			    for(var k in my_updateHistory){
+			    	my_linklist.init(my_updateHistory[0].base_id);
+			    	my_linklist.createFromArray(my_updateHistory);
+			    	console.log("<show me the linklist>");
+			    	my_linklist.print();
 			    }
-			    console.log("----------my tree----------")
-			    console.log(myTrees);
 
-
-                //build trees from other devices 
-                var other_trees = new Array();
-			    for(var k in initTreeHead){
-			    	var newTree = new llist.linklist();
-			    	newTree.init(initTreeHead[k]);
-			    	newTree.createFromArray(newTree.head,updateActions);
-			    	myTrees.push(newTree);
-			    	console.log("<show me the linklist>")
-			    	newTree.print()
-			    	//myTrees.put(newTree.head.data.dataURI,newTree);
+                //build link list from other devices's data
+                console.log("----------building other_linklist----------")
+                var other_linklist = new llist.linklist();
+			    for(var k in updateActions){
+			    	other_linklist.init(updateActions[0].base_id);
+			    	other_linklist.createFromArray(updateActions);
+			    	console.log("<show me the linklist>");
+			    	other_linklist.print();
 			    }
-			    console.log("----------other tree----------")
-			    console.log(myTrees);
 
                 //do version control stuff
                 //is it OK to put syncComplete here?
-                versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
+                versionCtrl(my_linklist,other_linklist,updateOperations,my_updateOperations,versionCtrlCB,syncComplete);
 
-                /*
-				console.log("==========start sync update!!!==========");
-				updateActions.forEach(function(updateItem){
-					if(isExist(my_updateHistory,updateItem)){
-						console.log('==========operate on the same file==========');
-						console.log(updateItem);
-						if(isConflict(my_updateHistory,updateItem)){
-							console.log("conflict!!!!!!!!!!!");
-							conflictList.push(updateItem);
-						}else{
-							console.log("it's ok!!!!!!!!!!!");
-							updateList.push(updateItem);
-						}
-					}else{
-						console.log("==========We got a new update:==========");
-						console.log(updateItem);
-						updateList.push(updateItem);
-					};
-				});
-                */
-				//
-				//console.log("==========here are conflicts==========")
-				//console.log(updateList);
-				//versionCtrl(conflictList);
-				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
-			});
-		});
+            });
+});
 });
 }
 
 //deal with the conflict situation 
-function versionCtrlCB(myTrees,other_trees){                                                                                                                                                                                                                                                                                                                                                                                                           
+function versionCtrlCB(my_linklist,other_linklist,updateOperations,my_updateOperations,versionCtrlCB,syncComplete){                                                                                                                                                                                                                                                                                                                                                                                                           
     //to be continue ......
 
 }
@@ -522,9 +479,9 @@ function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
 	else if(currentState == state.SYNC_COMPLETE){
 		var syncDataObj = {
 			type: "syncComplete",
-  			account: config.ACCOUNT,
-  			deviceId: config.uniqueID,
-  			isComplete: true,
+			account: config.ACCOUNT,
+			deviceId: config.uniqueID,
+			isComplete: true,
 		};
 
 		syncSendMessage(deviceAddress, syncDataObj);

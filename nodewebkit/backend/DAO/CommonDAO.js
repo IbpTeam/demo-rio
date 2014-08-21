@@ -454,6 +454,27 @@ exports.queryItemInAllByStr = function(str, callback){
 });
 }
 
+exports.findAboutUpdate = function(callback){
+  var update;
+  var operation;
+  actionHistoryDAO.findAll("update", function(err, updates){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    update = updates;
+  });
+
+  actionHistoryDAO.findAll("operation", function(err, operations){
+    if(err){
+      config.dblog(err);
+      callback(null);
+    }
+    operation = operations;
+  });
+  callback(update,operation);
+}
+
 exports.findEachActionHistory = function(action, callback){
   actionHistoryDAO.findAll(action, function(err, actions){
     if(err){
