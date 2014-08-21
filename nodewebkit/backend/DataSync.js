@@ -315,27 +315,7 @@ function syncStart(syncData, address){
 		var newDelete = myDelete.getDiff(deleteActions,myDelete);
 		console.log("==========new delete history==========");
 		console.log(newDelete);
-		/*
-		deleteActions.forEach(function(deleteItem){
-			if(isExist(my_deleteHistory,deleteItem)){
-				console.log('==========nothing new==========');
-			}else{
-				console.log("==========We got a new delete:==========");
-				console.log(deleteItem);
-				deletetList.push(deleteItem);
-			};
-		});
-        */
 		ActionHistory.createAll("delete",newDelete,function(){console.log("==========delete insert done!!!==========")});
-        /*
-        //remove some delete items in insertActions
-        for(var i=0;i<my_deleteHistory.length;i++){
-        	for(var j=0;j<insertActions.length;j++){
-        		if(my_deleteHistory[i].dataURI === insertActions[j].dataURI)
-        			insertActions.splice(j,1);
-        	}
-        }
-        */
 
 		//Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
@@ -347,18 +327,6 @@ function syncStart(syncData, address){
             
 			console.log("==========start sync insert!!!==========");
 			var newInsert = myInsert.getDiff(insertActions,myInsert);
-
-			/*
-			insertActions.forEach(function(insertItem){
-				if(isExist(my_insertHistory,insertItem)){
-					console.log('==========nothing new==========');
-				}else{
-					console.log("==========We got a new insert:==========");
-					console.log(insertItem);
-					insertList.push(insertItem);
-				};
-			});
-            */
             
             console.log("==========new insert history==========");
 			console.log(newInsert);
