@@ -53,7 +53,7 @@ function syncDeleteAction(other_deleteHistory,deleteCallBack){
 //Sync insert action
 function syncInsertAction(other_insertHistory,insertCallBack){
 	commonDAO.findEachActionHistory("insert",function(my_insertHistory){
-		insertCallBack(other_insertHistory,my_insertHistory);
+		insertCallBack(other_insertHistory,my_insertHistory);////////////////////////
 	});
 }
 
@@ -345,7 +345,7 @@ function syncStart(syncData, address){
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
 			////Retrive actions after insert, start to sync update actions 
-			syncUpdateAction(updateActions,updateOperations,function(updateActions,my_updateHistory,my_updateOperations){
+			syncUpdateAction(updateActions,updateOperations,function(updateActions,my_updateHistory,my_updateOperations){//////////////
 				console.log("==========start sync update!!!==========");
 				console.log("----------my update actions----------");
 				console.log(my_updateHistory);
