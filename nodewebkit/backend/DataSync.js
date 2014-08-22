@@ -59,12 +59,12 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 
 //Sync update action
 function syncUpdateAction(other_updateHistory,other_updateOperations,updateCallBack){
-	commonDAO.findAboutUpdate(function(my_updateHistory,my_updateOperations){
-		updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
-	});
-	//commonDAO.findEachActionHistory("update",function(my_updateHistory,my_updateOperations){
+	//commonDAO.findAboutUpdate(function(my_updateHistory,my_updateOperations){
 	//	updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
 	//});
+	commonDAO.findEachActionHistory("update",function(my_updateHistory,my_updateOperations){
+		updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
+	});
 }
 
 //deal with version control
