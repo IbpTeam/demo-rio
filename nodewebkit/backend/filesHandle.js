@@ -31,6 +31,65 @@ var rmCommitList = new Array();
 var chCommitList = new Array();
 var monitorFilesStatus =  false;
 exports.repoCommitStatus = repoCommitStatus;
+
+function addFile(path,resourcePath){
+  util.log("new file "+path);
+  addCommitList.push(path);
+  function repoAddCommitCb(){
+    //util.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@addCommitList[0]="+addCommitList[0]); 
+    if(addCommitList[0]!=null){
+      resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
+    }      
+    else{
+      repoCommitStatus = 'idle';  
+      util.log("commit complete");
+    }
+  }
+  if(repoCommitStatus == 'idle'){
+    util.log("emit commit "+addCommitList[0]);
+    repoCommitStatus = 'busy';  
+    resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
+  }
+}
+
+function rmFile(path,resourcePath){
+  util.log("remove file "+path);
+  rmCommitList.push(path);
+  function repoRmCommitCb(){
+    if(rmCommitList[0]!=null){
+      resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
+    }      
+    else{
+      repoCommitStatus = 'idle';  
+      util.log("commit complete");
+    }
+  }
+  if(repoCommitStatus == 'idle'){
+    util.log("emit commit "+rmCommitList[0]);
+    repoCommitStatus = 'busy';  
+    resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
+  }
+}
+
+function chFile(path,resourcePath){
+  util.log("new file "+path);
+  chCommitList.push(path);
+  function repoChCommitCb(){
+    if(chCommitList[0]!=null){
+      resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
+    }      
+    else{
+      repoCommitStatus = 'idle';  
+      util.log("commit complete");
+    }
+  }
+  if(repoCommitStatus == 'idle'){
+    util.log("emit commit "+chCommitList[0]);
+    repoCommitStatus = 'busy';  
+    resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
+  }
+}
+
 function monitorFilesCb(path,event){
   util.log(event+'  :  '+path);
   var resourcePath=require(config.USERCONFIGPATH+"config.js").dataDir;
@@ -41,63 +100,15 @@ function monitorFilesCb(path,event){
   else{
     switch(event){
       case 'add' : {
-        util.log("new file "+path);
-        addCommitList.push(path);
-        function repoAddCommitCb(){
-         //util.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@addCommitList[0]="+addCommitList[0]); 
-          if(addCommitList[0]!=null){
-            resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
-          }      
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        }
-        if(repoCommitStatus == 'idle'){
-          util.log("emit commit "+addCommitList[0]);
-          repoCommitStatus = 'busy';  
-          resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
-        }
+        addFile(path,resourcePath);
       }
       break;
-    
       case 'unlink' : {
-        util.log("remove file "+path);
-        rmCommitList.push(path);
-        function repoRmCommitCb(){
-          if(rmCommitList[0]!=null){
-            resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
-          }      
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        }
-        if(repoCommitStatus == 'idle'){
-          util.log("emit commit "+rmCommitList[0]);
-          repoCommitStatus = 'busy';  
-          resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
-        }
+        rmFile(path,resourcePath);
       }
       break;
-
       case 'change' : {
-        util.log("new file "+path);
-        chCommitList.push(path);
-        function repoChCommitCb(){
-          if(chCommitList[0]!=null){
-            resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
-          }      
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        }
-        if(repoCommitStatus == 'idle'){
-          util.log("emit commit "+chCommitList[0]);
-          repoCommitStatus = 'busy';  
-          resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
-        }
+        chFile(path,resourcePath);
       }
       break;
     }
