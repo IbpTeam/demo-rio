@@ -488,8 +488,7 @@ function isFileSame(){
 
 //check if the two versions are the same
 function isSame(my_version,other_versoin){
-	var 
-	if()
+
 	//need to compare with data
 
 
