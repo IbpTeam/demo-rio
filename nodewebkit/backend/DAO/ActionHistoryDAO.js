@@ -47,7 +47,7 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  * @param value 
  *   所修改值
  */
-exports.createUpdateItem = function(dataURI, key, value, createUpdateItemCallBack){
+exports.createUpdateHistoryItem = function(dataURI, key, value, version, createUpdateItemCallBack){
   var db = openDB();
   uniqueId.getRandomBytes(12,function(randomId){
     if (randomId != null) {     

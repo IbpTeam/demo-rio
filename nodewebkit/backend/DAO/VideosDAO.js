@@ -76,7 +76,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, createItemCallBack);
+  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id, createItemCallBack);
   closeDB(db);
 }
 
@@ -98,12 +98,12 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValueByUri = function(uri,key,value, updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
   var db = openDB();
     config.dblog("udpate vidoes uri : " + uri);
         config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, uri, updateItemValueCallBack);
-  var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"' WHERE URI =  '"+uri+"'";
+  var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"',version='"+version+"' WHERE URI =  '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);

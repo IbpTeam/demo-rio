@@ -374,7 +374,7 @@ exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
   })
 }
 
-exports.updateItemValue = function(id, uri, key, value, callback){
+exports.updateItemValue = function(id, uri, key, value, version, callback){
   config.dblog("update id:" + id);
   config.dblog("update key:" + key+'='+value);
   var index=id.indexOf('#');
@@ -413,20 +413,27 @@ exports.updateItemValue = function(id, uri, key, value, callback){
     
   }
 
-  updateDAO.updateItemValueByUri(uri,key,value, function(err){
-    if(err){
-      callback(id,uri,key,value,err);
-    }
-    else{
-      actionHistoryDAO.createUpdateItem(uri, key, value, function(err){
+
+  uniqueId.getRandomBytes(12,function(version){
+    if (version != null) {     
+      updateDAO.updateItemValueByUri(uri,key,value,version, function(err){
         if(err){
           callback(id,uri,key,value,err);
         }
         else{
-          config.dblog("update" + category + "successfull");
-          callback(id,uri,key,value,'successfull');
+          actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, function(err){
+            if(err){
+              callback(id,uri,key,value,err);
+            }
+            else{
+              config.dblog("update" + category + "successfull");
+              callback(id,uri,key,value,'successfull');
+            }
+          });
         }
       });
+    }else{
+      console.log("Action History DAO Exception: randomId is null.");
     }
   });
 }

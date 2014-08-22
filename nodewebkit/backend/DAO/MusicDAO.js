@@ -76,7 +76,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEMUSIC, item.id,item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, createItemCallBack);
+  db.get(SQLSTR.CREATEMUSIC, item.id,item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id, createItemCallBack);
   closeDB(db);
 }
 
@@ -99,12 +99,12 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValueByUri = function(uri,key,value, updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
   var db = openDB();
   config.dblog("udpate music uri : " + uri);
   config.dblog("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE music SET "+key+" = '"+value+"' WHERE URI = '"+uri+"'";
+  var sqlstr="UPDATE music SET "+key+" = '"+value+"',version='"+version+"' WHERE URI = '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
