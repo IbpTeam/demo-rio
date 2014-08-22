@@ -383,29 +383,86 @@ function syncStart(syncData, address){
 }
 
 //deal with the conflict situation 
-function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_updateOperations,isConflictCB){                                                                                                                                                                                                                                                                                                                                                                                                           
+function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_updateOperations,isConflictCB,newUpdateCB){                                                                                                                                                                                                                                                                                                                                                                                                           
 	var my_operations = my_updateOperations;
 	var other_operations = other_updateOperations;
 
-	var my_startNode = my_linklist.tail;
-	var other_startNode = other_linklist.tail;
+	var my_head = my_linklist.head;
+	var other_head = other_linklist.head;
+
+	var my_tail = my_linklist.tail;
+	var other_tail = other_linklist.tail;
 
 	var newUpdate = new Array();
 
-	if(my_startNode.reversion_id !== other_startNode.reversion_id){
-		if(!isPrevVersion() && !isPrevVersion()){
-
-		}
+    //fisrt compare the final version
+    ////not the same
+	if(my_tail.version_id !== other_tail.version_id && !isSame(my_tail,other_tail)){
+		var my_coPoint = isPrevVersion(other_tail,my_linklist);
+		var other_coPoint = isPrevVersion(my_tail,other_linklist);
 
 		var my_operation = getOperations(my_startNode.reversion_id,my_operations);
 		var other_operation = getOperations(other_startNode.reversion_id,other_operations);
-		if(isConflict(my_operation,other_operation)){
-			isConflictCB(my_startNode,other_startNode);
-		}else{
-			//continue;
-		}
-	}
 
+        //the final version is not same and is not a prev version of another linklist
+        //considered as a conlict occur
+		if(my_coPoint == null && other_coPoint == null){
+			isConflictCB(my_tail,other_tail);
+		}
+		//other_tail is a prev version of my_linklist
+		else if(my_coPoint !== null){
+			var newUpdateHistory = new Array();
+			var newOperations = new Array();
+
+            //this array will be inserted into db
+			while(other_tail!== other_linklist.head){
+				newUpdateHistory.push(other_tail.data);
+				other_tail = other_tail.prev;
+			}
+			//reset head of my_linklist; would contain 2 children
+			setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
+			newUpdateCB(newUpdateHistory,newOperations);
+			return;
+		}
+		//my_tail is a prev versoin of other_linklist
+		else if(other_coPoint !== null){
+			var newUpdateHistory = new Array();
+			var newOperations = new Array();
+
+            //put my_tail to the coPoint
+			other_coPoint.next.prev = my_tail.version_id;
+			//add coPoint to my_tail.child; would contain 2 children
+			setUpdateHistory("parent",my_linklist.tail.next,other_coPoint.version_id);
+
+            //this array will be inserted into db
+			while(other_tail!== null){
+				newUpdateHistory.push(other_tail.data);
+				other_tail = other_tail.next;
+			}
+			//reset head of my_linklist;should contain 2 child
+			newUpdateCB(newUpdateHistory,newOperations);
+			return;
+		}
+	////final version is the same
+	}else{
+		var newUpdateHistory = new Array();
+		var newOperations = new Array();
+
+		other_tail.prev.child = my_tail.version_id;
+		other_tail.tail = other_tail.prev;
+
+        //this array will be inserted into db
+        while(other_tail!== other_linklist.head){
+        	newUpdateHistory.push(other_tail.data);
+        	other_tail = other_tail.prev;
+        }
+
+		//reset head of my_linklist; would contain 2 children
+		setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
+		newUpdateCB(newUpdateHistory,newOperations);
+
+		return;
+	}
 }
 
 //callback when conflict occurs
@@ -414,9 +471,28 @@ function isConflictCB(my_version,other_version){
 
 }
 
+//to set a update_history with new child or parent
+function setUpdateHistory(key,value,version_id){
+
+}
+
+//add new update information into db
+function newUpdateCB(newUpdateHistory,newOperations){
+
+}
+
 //compare the data to decide if the version is same or not
-function gitCompareFile(){
+function isFileSame(){
 	//to be continue ...
+}
+
+//check if the two versions are the same
+function isSame(my_version,other_versoin){
+	var 
+	if()
+	//need to compare with data
+
+
 }
 
 /*
@@ -437,13 +513,12 @@ function isExist(List,item){
 //check if my_version is a prev version in other_linklist
 function isPrevVersion(Node,linklist){
 	var start = linklist.tail;
-	while(start.next !== null){
-		if(start.reversion_id === Node.reversion_id){
-			return start;
-		}else{
+	while(start !== null){
+		if(start.version_id !== Node.version_id){
 			start = start.parent;
 		}
 	}
+	return start;
 }
 
 //check if keys are conflict
@@ -463,38 +538,15 @@ function isConflict(my_operation,other_operation){
 	return false;
 }
 
-//get operations with specific reversion_id
-function getOperations(reversion_id,operations){
+//get operations with specific version_id
+function getOperations(version_id,operations){
 	var allOperations = new Array();
 	for(var k in operations){
-		if(operations[k].reversion_id === reversion_id)
+		if(operations[k].version_id === version_id)
 			allOperations.push(operations[k]);
 	}
 	return allOperations;
 }
-
-/*
-//check if the two versions are the same
-function isSame(node_1,node_2){
-	if(node_1.data.dataURI !== node_2.data.dataURI){
-        console.log("++++++++++++++++++++++++++++");
-		console.log("Error! : NOT the same data! ");
-        console.log("++++++++++++++++++++++++++++");
-		return;
-	}
-
-	if(node_1.data.reversion_id === node_2.data.reversion_id){
-		return true;
-	}else{
-		if(node_1.data.key === node_2.data.key && node_1.data.value === node_2.data.value)
-			return true;
-		else
-			return false;
-	}
-	//to be continue ...
-	//need to compare with data
-}
-*/
 
 //Sync complete
 function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
