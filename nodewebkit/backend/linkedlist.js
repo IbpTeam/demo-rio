@@ -8,7 +8,6 @@ var data = {
   child : {},
   parent : {},
   base_id : "",
-  commit_id : "",
   operations: ""
 }
 ***********************/

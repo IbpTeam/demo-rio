@@ -393,8 +393,6 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 	var my_tail = my_linklist.tail;
 	var other_tail = other_linklist.tail;
 
-	var newUpdate = new Array();
-
     //fisrt compare the final version
     ////not the same
 	if(my_tail.version_id !== other_tail.version_id && !isSame(my_tail,other_tail)){
@@ -448,19 +446,27 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 		var newUpdateHistory = new Array();
 		var newOperations = new Array();
 
+        //get the last same node of 2 linklist, from this node we start merge
+		while(other_tail!==other_linklist.head || my_tail!==my_linklist.head){
+			if(other_tail.version_id === my_linklist.version_id){
+				other_tail = other_tail.prev;
+				my_tail = my_tail.prev;
+			}
+		}
+
 		other_tail.prev.child = my_tail.version_id;
 		other_tail.tail = other_tail.prev;
+
+		//reset head of my_linklist; would contain 2 children
+		setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
+		newUpdateCB(newUpdateHistory,newOperations);
 
         //this array will be inserted into db
         while(other_tail!== other_linklist.head){
         	newUpdateHistory.push(other_tail.data);
         	other_tail = other_tail.prev;
         }
-
-		//reset head of my_linklist; would contain 2 children
-		setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-		newUpdateCB(newUpdateHistory,newOperations);
-
+        
 		return;
 	}
 }
@@ -488,7 +494,6 @@ function isFileSame(){
 
 //check if the two versions are the same
 function isSame(my_version,other_versoin){
-
 	//need to compare with data
 
 
@@ -606,8 +611,6 @@ function syncError(err){
 }
 
 //Export method
-//exports.createHash = createHash;
-//exports.getDiff = getDiff;
 exports.syncStart = syncStart;
 exports.syncRequest = syncRequest;
 exports.syncResponse = syncResponse;
