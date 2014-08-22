@@ -21,7 +21,9 @@ function initIMServer(){
 		switch(msgObj[0].type){
 			case 'Chat': {
 				console.log(msgObj[0].message);
-				console.log(msgObj[0].time);
+				var msgtime = new Date();
+				msgtime.setTime(msgObj[0].time);
+				console.log(msgtime);
 				//console.log("=========================================");
 				//output message and save to database
 				//return success
@@ -129,7 +131,7 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			tmp["to"] = TO;
 			tmp["message"] = MSG;
 			tmp['type'] = TYPE;
-			tmp['time'] = now.toLocaleString();
+			tmp['time'] = now.getTime();
 			MESSAGE.push(tmp);
 			var send = JSON.stringify(MESSAGE);
 			return send;
@@ -140,7 +142,7 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			tmp["to"] = TO;
 			tmp["message"] = MSG;
 			tmp["type"] = TYPE;
-			tmp['time'] = now.toLocaleString();
+			tmp['time'] = now.getTime();
 			MESSAGE.push(tmp);
 			var rply = JSON.stringify(MESSAGE);
 			return rply;
