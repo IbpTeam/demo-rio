@@ -19,16 +19,10 @@ function closeDB(database){
  * @param dataURI
  *   数据统一资源标识符
  */
-exports.createInsertItem = function(dataURI, createInsertItemCallBack){
-  var db = openDB();
-  uniqueId.getRandomBytes(12,function(randomId){
-    if (randomId != null) {     
-      db.run(SQLSTR.CREATEINSERTITEM, dataURI,createInsertItemCallBack);
-      closeDB(db);
-    }else{
-      console.log("Action History DAO Exception: randomId is null.");
-    }
-  });
+exports.createInsertItem = function(dataURI, version, createInsertItemCallBack){
+  var db = openDB();  
+  db.run(SQLSTR.CREATEINSERTITEM, dataURI,version,createInsertItemCallBack);
+  closeDB(db);
 }
 
 /**

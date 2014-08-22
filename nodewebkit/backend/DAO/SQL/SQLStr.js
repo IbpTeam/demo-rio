@@ -8,7 +8,7 @@ exports.FINDCATEGORYBYID = "select * from Category where id = ?";
 exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";
 exports.FINDALLCONTACTS = "select * from Contacts";
 exports.FINDCONTACTBYID = "select * from contacts where id = ?";
-exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime,lastAccessTime,URI,revision) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime,lastAccessTime,URI,version) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETECONTACT = "delete from contacts where URI = ?";
 exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
 
@@ -16,7 +16,7 @@ exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
 exports.COUNTTOTALPICTURES = "select count(*) as total from pictures";
 exports.FINDALLPICTURES = "select * from pictures";
 exports.FINDPICTUREBYID = "select * from pictures where id = ?";
-exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI,revision) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI,version) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEPICTURE = "delete from pictures where URI = ?";
 exports.UPDATEPICTURE = "update pictures set ? = ? where id = ?";
 exports.GETMAXIDPICTURES = "select max(id) as maxid from pictures";
@@ -25,7 +25,7 @@ exports.GETMAXIDPICTURES = "select max(id) as maxid from pictures";
 exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
 exports.FINDALLVIDEOS = "select * from videos";
 exports.FINDVIDEOBYID = "select * from videos where id = ?";
-exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI,revision) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI,version) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEVIDEO = "delete from videos where URI = ?";
 exports.UPDATEVIDEO = "update videos set ? = ? where id = ?";
 exports.GETMAXIDVIDEOS = "select max(id) as maxid from videos";
@@ -34,7 +34,7 @@ exports.GETMAXIDVIDEOS = "select max(id) as maxid from videos";
 exports.COUNTTOTALDOCUMENTS = "select count(*) as total from documents";
 exports.FINDALLDOCUMENTS = "select * from documents";
 exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
-exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others,URI,revision) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others,URI,version) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETEDOCUMENT = "delete from documents where URI = ?";
 exports.UPDATEDOCUMENT = "update documents set ? = ? where id = ?";
 exports.GETMAXIDDOCUMENTS = "select max(id) as maxid from documents";
@@ -59,9 +59,9 @@ exports.UPDATERECENT = "update recent set ? = ? where id = ?";
 
 
 //SQL used in ActionHistoryDAO
-exports.CREATEINSERTITEM = "insert into InsertHistory (id,file_uri) values (null,?)";
+exports.CREATEINSERTITEM = "insert into InsertHistory (id,file_uri,origin_version) values (null,?,?)";
 exports.CREATEDELETEITEM = "insert into DeleteHistory (id,file_uri) values (null,?)";
-exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,file_uri,key,value,edit_id) values (null,?,?,?,?)";
+exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,version_id,key,value,commit_id) values (null,?,?,?)";
 exports.REMOVEUPDATEITEM = "delete from UpdateHistory where file_uri = ?";
 exports.REMOVEINSERTITEM = "delete from InsertHistory where file_uri = ?";
 exports.FINDALLUPDATES = "select * from UpdateHistory";

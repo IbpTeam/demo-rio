@@ -287,19 +287,26 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.URI = uri;
-    createDAO.createItem(item, function(err){
-      if(err){
-        callback(category,item,err,loadResourcesCb);
-      }
-      else{
-        actionHistoryDAO.createInsertItem(item.URI,function(err){
+    uniqueId.getRandomBytes(12,function(version){
+      if (version != null) {
+        item.version = version;
+        createDAO.createItem(item, function(err){
           if(err){
             callback(category,item,err,loadResourcesCb);
           }
           else{
-            callback(category,item,'successfull',loadResourcesCb);
+            actionHistoryDAO.createInsertItem(item.URI,item.version,function(err){
+              if(err){
+                callback(category,item,err,loadResourcesCb);
+              }
+              else{
+                callback(category,item,'successfull',loadResourcesCb);
+              }
+            });
           }
         });
+      }else{
+        console.log("Action History DAO Exception: randomId is null.");
       }
     });
   });
