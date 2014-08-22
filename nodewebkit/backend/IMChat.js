@@ -1,5 +1,11 @@
 var net = require('net');
 var hashtable = require('hashtable');
+var crypto = require('crypto');
+
+function MD5(str, encoding)
+{
+	return crypto.createHash('md5').update(str).digest(encoding || 'hex');
+}
 
 
 function initIMServer(){
@@ -15,10 +21,11 @@ function initIMServer(){
 		switch(msgObj[0].type){
 			case 'Chat': {
 				console.log(msgObj[0].message);
+				console.log(msgObj[0].time);
 				//console.log("=========================================");
 				//output message and save to database
 				//return success
-				var tp = encapsuMSG("1","Reply","A","B");
+				var tp = encapsuMSG(MD5(msgObj[0].message),"Reply","A","B");
 				c.write(tp);
 			}
 			break;
@@ -45,7 +52,9 @@ function initIMServer(){
 //	c.pipe(c);
 	});
 
-
+	server.on('error',function(err){
+		console.log("Error: "+err.code+" on "+err.syscall);
+	});
 
 	server.listen(8892, function(){
 		console.log('IMServer Binded! '+ 8892);
@@ -55,6 +64,8 @@ function initIMServer(){
 function sendIMMsg(IP,PORT,MSG){
 	var count = 0;
 	var id =0;
+
+	var  pat = JSON.parse(MSG);
 
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
@@ -86,7 +97,7 @@ function sendIMMsg(IP,PORT,MSG){
 		{
 			case 'Reply': 
 			{
-				if (msg[0].message == 1)
+				if (msg[0].message == MD5(pat[0].message))
 				{
 					console.log('msg rply received: '+ msg[0].message);
 					clearInterval(id);
@@ -100,6 +111,7 @@ function sendIMMsg(IP,PORT,MSG){
 
 	client.on('error',function(err){
 		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
+		clearInterval(id);
 		client.end();
 	});
 }
@@ -108,6 +120,8 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 {
 	var MESSAGE = [];
 	var tmp = {};
+	var now = new Date();
+
 	switch(TYPE)
 	{
 		case'Chat':{
@@ -115,6 +129,7 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			tmp["to"] = TO;
 			tmp["message"] = MSG;
 			tmp['type'] = TYPE;
+			tmp['time'] = now.toLocaleString();
 			MESSAGE.push(tmp);
 			var send = JSON.stringify(MESSAGE);
 			return send;
@@ -125,6 +140,7 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			tmp["to"] = TO;
 			tmp["message"] = MSG;
 			tmp["type"] = TYPE;
+			tmp['time'] = now.toLocaleString();
 			MESSAGE.push(tmp);
 			var rply = JSON.stringify(MESSAGE);
 			return rply;
