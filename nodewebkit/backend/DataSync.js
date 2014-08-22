@@ -397,7 +397,7 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 
     //fisrt compare the final version
     ////not the same
-	if(my_tail.version_id !== other_tail.version_id){
+	if(my_tail.version_id !== other_tail.version_id && !isSame(my_tail,other_tail)){
 		var my_coPoint = isPrevVersion(other_tail,my_linklist);
 		var other_coPoint = isPrevVersion(my_tail,other_linklist);
 
@@ -445,8 +445,21 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 		}
 	////final version is the same
 	}else{
-		
+		var newUpdateHistory = new Array();
+		var newOperations = new Array();
 
+		other_tail.prev.child = my_tail.version_id;
+		other_tail.tail = other_tail.prev;
+
+        //this array will be inserted into db
+        while(other_tail!== other_linklist.head){
+        	newUpdateHistory.push(other_tail.data);
+        	other_tail = other_tail.prev;
+        }
+
+		//reset head of my_linklist; would contain 2 children
+		setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
+		newUpdateCB(newUpdateHistory,newOperations);
 
 		return;
 	}
@@ -471,6 +484,15 @@ function newUpdateCB(newUpdateHistory,newOperations){
 //compare the data to decide if the version is same or not
 function isFileSame(){
 	//to be continue ...
+}
+
+//check if the two versions are the same
+function isSame(my_version,other_versoin){
+	var 
+	if()
+	//need to compare with data
+
+
 }
 
 /*
@@ -525,29 +547,6 @@ function getOperations(version_id,operations){
 	}
 	return allOperations;
 }
-
-/*
-//check if the two versions are the same
-function isSame(node_1,node_2){
-	if(node_1.data.dataURI !== node_2.data.dataURI){
-        console.log("++++++++++++++++++++++++++++");
-		console.log("Error! : NOT the same data! ");
-        console.log("++++++++++++++++++++++++++++");
-		return;
-	}
-
-	if(node_1.data.reversion_id === node_2.data.reversion_id){
-		return true;
-	}else{
-		if(node_1.data.key === node_2.data.key && node_1.data.value === node_2.data.value)
-			return true;
-		else
-			return false;
-	}
-	//to be continue ...
-	//need to compare with data
-}
-*/
 
 //Sync complete
 function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
