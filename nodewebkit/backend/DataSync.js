@@ -370,7 +370,7 @@ function syncStart(syncData, address){
 
 
                 var other_updateOperations = {
-                	
+
                 }
 
                 //do version control stuff
@@ -414,7 +414,7 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 			isConflictCB(my_tail,other_tail);
 		}
 		//other_tail is a prev version of my_linklist
-		else if(my_coPoint !== null){
+		else if(my_coPoint !== null ){
 			var newUpdateHistory = new Array();
 			var newOperations = new Array();
 
