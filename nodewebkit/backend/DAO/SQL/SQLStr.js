@@ -67,3 +67,4 @@ exports.REMOVEINSERTITEM = "delete from InsertHistory where file_uri = ?";
 exports.FINDALLUPDATES = "select * from UpdateHistory";
 exports.FINDALLDELETES = "select * from DeleteHistory";
 exports.FINDALLINSERTS = "select * from InsertHistory";
+exports.FINDUPDATEHISTORYBYVERSION = "select * from UpdateHistory where version_id = ?";

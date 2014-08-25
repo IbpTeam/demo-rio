@@ -414,14 +414,14 @@ exports.updateItemValue = function(id, uri, key, value, version, callback){
   }
 
 
-  uniqueId.getRandomBytes(12,function(version){
-    if (version != null) {     
-      updateDAO.updateItemValueByUri(uri,key,value,version, function(err){
+  uniqueId.getRandomBytes(12,function(newVersion){
+    if (newVersion != null) {     
+      updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
         if(err){
           callback(id,uri,key,value,err);
         }
         else{
-          actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, function(err){
+          actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, newVersion, function(err){
             if(err){
               callback(id,uri,key,value,err);
             }

@@ -47,16 +47,11 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  * @param value 
  *   所修改值
  */
-exports.createUpdateHistoryItem = function(dataURI, key, value, version, createUpdateItemCallBack){
+exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVersion, createUpdateItemCallBack){
   var db = openDB();
-  uniqueId.getRandomBytes(12,function(randomId){
-    if (randomId != null) {     
-      db.run(SQLSTR.CREATEUPDATEITEM, dataURI, key, value, randomId,createInsertItemCallBack);
-      closeDB(db);
-    }else{
-      console.log("Action History DAO Exception: randomId is null.");
-    }
-  });
+  db.run(SQLSTR.FINDUPDATEHISTORYBYVERSION, version, ); 
+  db.run(SQLSTR.CREATEUPDATEITEM, dataURI, key, value, randomId,createInsertItemCallBack);
+  closeDB(db);
 }
 
 /**
