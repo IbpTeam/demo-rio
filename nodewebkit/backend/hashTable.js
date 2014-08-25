@@ -1,3 +1,75 @@
+//hashtable in js
+
+//hashtable in javascript
+
+function HashTable(){
+	this.hashtable = {};
+	this.add = _add;
+	this.del = _del;
+	this.getAll = _getAll;
+	this.getValue = _getValue;
+	this.isExist = _isExist;
+	this.createHash = _createHash;
+}
+
+function _add(key,value){
+	if(this.hashtable.hasOwnProperty(key)){
+		var tmpEntry = this.hashtable[key];
+		for(var k in tmpEntry){
+			if(value === tmpEntry[k])
+				console.log("key is Exist!");
+			return;
+		}
+		this.hashtable[key].push(value);
+	}
+	else{
+		var tmp = new Array();
+		tmp.push(value);
+		this.hashtable[key] = tmp;
+	}
+}
+
+function _del(key){
+	if(key in this.hashtable){
+		delete(this.hashtable[key]);
+		console.log("delete done!");
+	}else{
+		console.log("already exsit!")
+	}
+}
+
+function _getValue(key){
+	if(key in this.hashtable)
+		return this.hashtable[key];
+	else
+		return "undefined";
+}
+
+function _getAll(){
+	var list = new Array();
+	for(k in this.hashtable){
+		console.log(k);
+		list.push(k);
+	}
+	return list;
+}
+
+function _isExist(key){
+	if(this.hashtable.hasOwnProperty(key))
+		return true;
+	return false;
+}
+
+function _createHash(List){
+	for(var k in List)
+		this.add(List[k].dataURI,List[k].id);
+	return this.hashtable;
+}
+
+exports.HashTable = HashTable;
+
+
+/*
 //hashTable.js
 //a hashtable implementation
 
@@ -62,3 +134,5 @@ function HashTable(){
 	}
 }
 exports.HashTable = HashTable;
+
+*/
