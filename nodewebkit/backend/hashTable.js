@@ -26,7 +26,7 @@ function HashTable(){
 	this.createHash = function(array){
 		for(var  tmp in array)
 		{
-			table.put(array[tmp].dataURI,array[tmp].id);
+			table.put(array[tmp].file_uri,array[tmp].id);
 		}
 		return table;
 	}
@@ -34,12 +34,12 @@ function HashTable(){
 		var diff = [];
 		for(var del in array)
 		{
-			res = Htable.get(array[del].dataURI);
+			res = Htable.get(array[del].file_uri);
 			if (typeof res == "undefined" ) 
 			{
 				var tmpdif = {};
 				tmpdif["id"] = array[del].id;
-				tmpdif["dataURI"] = array[del].dataURI;
+				tmpdif["file_uri"] = array[del].file_uri;
 				diff.push(tmpdif);
 			};
 		}
@@ -49,12 +49,12 @@ function HashTable(){
 		var Nodiff = [];
 		for(var del in array)
 		{
-			res = Htable.get(array[del].dataURI);
+			res = Htable.get(array[del].file_uri);
 			if (typeof res != "undefined" && typeof res != null) 
 			{
 				var tmpdif = {};
 				tmpdif["id"] = array[del].id;
-				tmpdif["dataURI"] = array[del].dataURI;
+				tmpdif["file_uri"] = array[del].file_uri;
 				Nodiff.push(tmpdif);
 			};
 		}

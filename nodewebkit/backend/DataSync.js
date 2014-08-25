@@ -355,21 +355,22 @@ function syncStart(syncData, address){
                 //build link list from my database
                 console.log("----------building my_linklist----------");
                 var my_linklist = new llist.linklist();
-                for(var k in my_updateHistory){
                 	my_linklist.init(my_updateHistory[0].base_id);
                 	my_linklist.createFromArray(my_updateHistory);
                 	console.log("<show me the linklist>");
                 	my_linklist.print();
-                }
-
+                
                 //build link list from other devices's data
                 console.log("----------building other_linklist----------");
                 var other_linklist = new llist.linklist();
-                for(var k in updateActions){
                 	other_linklist.init(updateActions[0].base_id);
                 	other_linklist.createFromArray(updateActions);
                 	console.log("<show me the linklist>");
                 	other_linklist.print();
+
+
+                var other_updateOperations = {
+                	
                 }
 
                 //do version control stuff
@@ -382,8 +383,10 @@ function syncStart(syncData, address){
 });
 }
 
+
 //deal with the conflict situation 
 function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_updateOperations,isConflictCB,newUpdateCB){                                                                                                                                                                                                                                                                                                                                                                                                           
+
 	var my_operations = my_updateOperations;
 	var other_operations = other_updateOperations;
 
@@ -402,7 +405,10 @@ function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_upda
 		var my_operation = getOperations(my_startNode.reversion_id,my_operations);
 		var other_operation = getOperations(other_startNode.reversion_id,other_operations);
 
-        //the final version is not same and is not a prev version of another linklist
+		//put heads into my_linklist
+
+
+        //the final version is not same and is not any prev version of another linklist
         //considered as a conlict occur
 		if(my_coPoint == null && other_coPoint == null){
 			isConflictCB(my_tail,other_tail);
