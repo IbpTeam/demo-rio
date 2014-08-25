@@ -39,7 +39,13 @@ function addFile(path,resourcePath){
     //util.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@addCommitList[0]="+addCommitList[0]); 
     if(addCommitList[0]!=null){
       resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
-    }      
+    }
+    else if(rmCommitList[0]!=null){
+      resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoAddCommitCb);
+    }  
+    else if(chCommitList[0]!=null){
+      resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoAddCommitCb);
+    } 
     else{
       repoCommitStatus = 'idle';  
       util.log("commit complete");
@@ -58,7 +64,13 @@ function rmFile(path,resourcePath){
   function repoRmCommitCb(){
     if(rmCommitList[0]!=null){
       resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
-    }      
+    } 
+    else if(addCommitList[0]!=null){
+      resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoRmCommitCb);
+    }
+    else if(chCommitList[0]!=null){
+      resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoRmCommitCb);
+    }       
     else{
       repoCommitStatus = 'idle';  
       util.log("commit complete");
@@ -77,7 +89,13 @@ function chFile(path,resourcePath){
   function repoChCommitCb(){
     if(chCommitList[0]!=null){
       resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
-    }      
+    }     
+    else if(addCommitList[0]!=null){
+      resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoChCommitCb);
+    }
+    else if(rmCommitList[0]!=null){
+      resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoChCommitCb);
+    }       
     else{
       repoCommitStatus = 'idle';  
       util.log("commit complete");
