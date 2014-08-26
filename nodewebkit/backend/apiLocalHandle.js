@@ -216,6 +216,9 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
     var id;
     var index=0;
     function getid(){
+      if(result[index]==null){
+        return null;
+      }
       switch (result[index].tableName){
         case  'contacts':{
           id='1#'+result[index].specificId;
@@ -250,7 +253,10 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
           getRecentAccessDataCb(data);
         }
         else{
-          commonDAO.getItemById(getid(),getItemByIdCb);
+          var iid=getid();
+          if(iid!=null){
+            commonDAO.getItemById(iid,getItemByIdCb);
+          }
         }
       }
       else{
