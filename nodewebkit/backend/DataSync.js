@@ -342,12 +342,12 @@ function syncStart(syncData, address){
 			var my_updateHistory = {};//need change
 
 			////Retrive actions after insert, start to sync update actisons 
-			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){//////////////
+			syncUpdateAction(other_updateActions,function(other_updateActions,my_updateActions){//////////////
 				console.log("==========start sync update!!!==========");
-				console.log(updateActions);
+				console.log(other_updateActions);
 
 				console.log("----------my update actions----------");
-				console.log(my_updateHistory);
+				console.log(my_updateActions);
 
                 var my_versions = {
                 	head: "",
@@ -357,8 +357,8 @@ function syncStart(syncData, address){
                 };
                 var m_tmpVersion = new hashTable.hashTable();
                 var m_tmpOperation = new hashTable.hashTable();
-                m_tmpVersion.initHash(my_updateHistory);
-                m_tmpOperation.createHash(my_updateOperations);
+                m_tmpVersion.initVersionHash(my_updateActions);
+                m_tmpOperation.initOperationHash(my_updateActions);
 
                 my_versions.versions = m_tmpVersion;
                 my_versions.operations = m_tmpOperation;
@@ -375,8 +375,8 @@ function syncStart(syncData, address){
 
                 var o_tmpVersion = new hashTable.hashTable();
                 var o_tmpOperation = new hashTable.hashTable();
-                o_tmpVersion.initHash(other_updateHistory);
-                o_tmpOperation.createHash(other_updateOperations);
+                o_tmpVersion.initVersionHash(other_updateActions);
+                o_tmpOperation.initOperationHash(other_updateActions);
 
                 other_versions.versions = o_tmpVersion;
                 other_versions.operations = o_tmpOperation;
