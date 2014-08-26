@@ -84,9 +84,6 @@ function _createHash(List){
 exports.hashTable = hashTable;
 
 
-/*
-//hashTable.js
-//a hashtable implementation
 
 var Table = require('hashtable');
 
@@ -149,5 +146,3 @@ function HashTable(){
 	}
 }
 exports.HashTable = HashTable;
-
-*/

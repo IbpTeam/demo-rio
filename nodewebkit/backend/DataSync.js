@@ -60,13 +60,13 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 //Sync update action
 function syncUpdateAction(other_update,updateCallBack){
 	commonDAO.findEachActionHistory("update",function(my_update){
-		updateCallBack(other_update,my_update,my_updateOperations);
+		updateCallBack(other_update,my_update);
 	});
 }
 
 //deal with version control
-function versionCtrl(my_linklist,other_linklist,versionCtrlCB,CBsyncComplete){
-	versionCtrlCB(my_linklist,other_linklist);
+function versionCtrl(my_versions,other_versions,versionCtrlCB,CBsyncComplete){
+	versionCtrlCB(my_versions,other_versions);
 }
 
 //Send sync request when other devices connect the net.
@@ -312,7 +312,7 @@ function syncStart(syncData, address){
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
 		var myDelete = new hashTable.HashTable();
-		myDelete.createHash(my_deleteHistory);
+		//myDelete.createHash(my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
 		//these are new delete actions
@@ -353,8 +353,8 @@ function syncStart(syncData, address){
                 	versions: null,
                 	operations: null
                 };
-                var m_tmpVersion = new HashTable();
-                var m_tmpOperation = new HashTable();
+                var m_tmpVersion = new hashTable.hashTable();
+                var m_tmpOperation = new hashTable.hashTable();
                 m_tmpVersion.initHash(my_updateHistory);
                 m_tmpOperation.createHash(my_updateOperations);
 
@@ -371,8 +371,8 @@ function syncStart(syncData, address){
                 	operations: null,
                 };
 
-                var o_tmpVersion = new HashTable();
-                var o_tmpOperation = new HashTable();
+                var o_tmpVersion = new hashTable.hashTable();
+                var o_tmpOperation = new hashTable.hashTable();
                 o_tmpVersion.initHash(other_updateHistory);
                 o_tmpOperation.createHash(other_updateOperations);
 
