@@ -318,6 +318,7 @@ function syncStart(syncData, address){
 		console.log("==========start sync delete!!!==========");
 		//these are new delete actions
 		var newDelete = myDelete.getDiff(deleteActions,myDelete);
+
 		console.log("==========new delete history==========");
 		console.log(newDelete);
 		//create delete hository
@@ -343,8 +344,9 @@ function syncStart(syncData, address){
 			////Retrive actions after insert, start to sync update actisons 
 			syncUpdateAction(updateActions,function(updateActions,my_updateActions){//////////////
 				console.log("==========start sync update!!!==========");
-				console.log(updateActions);
-
+				//console.log(updateActions);
+                
+                //trans children and parents from string to array
 				for(var k in my_updateActions){
 					my_updateActions[k].children = JSON.parse(my_updateActions[k].children);
 					my_updateActions[k].parents = JSON.parse(my_updateActions[k].parents);
@@ -399,8 +401,6 @@ function syncStart(syncData, address){
                 //console.log("-------------------------------------------------------")
 
                 versionCtrl(my_versions,other_versions,versionCtrlCB,syncComplete);
-
-
 
         });
 });
