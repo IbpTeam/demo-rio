@@ -21,9 +21,14 @@ function hashTable(){
 function _add(key,value){
 	if(this.hashtable.hasOwnProperty(key)){
 		var tmpEntry = this.hashtable[key];
+		console.log("+++++++++++++++");
+		console.log(tmpEntry);
+		console.log("+++++++++++++++");
 		for(var k in tmpEntry){
 			if(value === tmpEntry[k]){
-				console.log("key is Exist!");
+				console.log("+++++++++++++++");
+				console.log(" key is Exist!");
+				console.log("+++++++++++++++");
 				return;
 			}
 		}
@@ -70,7 +75,7 @@ function _isExist(key){
 function _initVersionHash(List){
 	for(var k in List){
 		var tmpEntry = List[k];
-		console.log(tmpEntry);
+		//console.log(tmpEntry);
 		var version = {
 			version_id : tmpEntry.version_id,
 			parents : tmpEntry.parents,
@@ -92,7 +97,7 @@ function _initVersionHash(List){
 function _initOperationHash(List){
 	for(var k in List){
 		var tmpEntry = List[k];
-		console.log(tmpEntry);
+		//console.log(tmpEntry);
 		var operation = {
 			version_id : tmpEntry.version_id,
 			file_uri : tmpEntry.file_uri,

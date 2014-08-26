@@ -436,7 +436,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 
 			//reset head of my_linklist; would contain 2 children
 			//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-			//newUpdateCB(newUpdateHistory,newOperations);
+			newUpdateCB(newUpdateHistory,newOperations);
 			return;
 		}
 		//my_tail is a prev versoin of other_linklist
@@ -450,7 +450,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
             //this array will be inserted into db
 
 			//reset head of my_linklist;should contain 2 child
-			//newUpdateCB(newUpdateHistory,newOperations);
+			newUpdateCB(newUpdateHistory,newOperations);
 			return;
 		}
 	////final version is the same
@@ -462,7 +462,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 
 		//reset head of my_linklist; would contain 2 children
 		//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-		//newUpdateCB(newUpdateHistory,newOperations);
+		newUpdateCB(newUpdateHistory,newOperations);
 
         //this array will be inserted into db
         
