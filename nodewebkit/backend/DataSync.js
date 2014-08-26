@@ -339,7 +339,9 @@ function syncStart(syncData, address){
 			//create insert hository
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
-			////Retrive actions after insert, start to sync update actions 
+			var my_updateHistory = {};//need change
+
+			////Retrive actions after insert, start to sync update actisons 
 			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){//////////////
 				console.log("==========start sync update!!!==========");
 				console.log(updateActions);
