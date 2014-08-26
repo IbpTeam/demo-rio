@@ -1,22 +1,37 @@
 //double link list js
 
-var Node = function (pData) {
-  this.next = null;
-  this.prev = null;
-  this.data = pData;
+
+//structure of this.data
+/***********************
+var data = {
+  version_id : "",
+  child : {},
+  parent : {},
+  base_id : "",
+  operations: ""s
+}
+***********************/
+
+
+var Node = function (nodeInfo) {
+  this.next = nodeInfo.child;
+  this.prev = nodeInfo.parent;
+  this.version_id = nodeInfo.version_id;
+  this.operations = nodeInfo.operations;
+  this.data = nodeInfo;
 }
 
 function getChild(node,data){
   for(var k in data){
-    if(node.data.child === data[k].edit_id)
+    if(node.data.child === data[k].version_id)
       return data[k];
   }
   return "undefined";
 }
 
-function getParent(node,data){
+function getChildFromParent(node,data){
   for(var k in data){
-    if(node.data.edit_id === data[k].parent)
+    if(node.data.version_id === data[k].parent)
       return data[k];
   }
   return "undefined";
@@ -24,15 +39,15 @@ function getParent(node,data){
 
 //the first element is head, contains the base data of this version 
 function linklist() {
-  this.init = function(pData){
-    this.head = new Node(pData);
+  this.init = function(nodeInfo){
+    this.head = new Node(nodeInfo);
     this.tail = this.head; 
     this.size = 0;
   }  
 
-  this.insert = function (pData) {
+  this.insert = function (nodeInfo) {
     this.size++;
-    var newNode = new Node(pData);
+    var newNode = new Node(nodeInfo);
     //if only have the head
     if (this.head.next == null) {
       this.head.next = newNode;
@@ -47,28 +62,28 @@ function linklist() {
   }
 
   //get node with specific dataURI 
-  this.getData = function (dataURI) {
+  this.getData = function (version_id) {
     var p = this.head;
-    while (p.next != null && p.dataURI !== dataURI)
+    while (p.next != null && p.version_id !== version_id)
       p = p.next;
     return p.data;
   }
 
   //get node with specific dataURI 
-  this.getNode = function (edit_id) {
+  this.getNode = function (version_id) {
     var p = this.head;
-    while (p.next != null && p.data.edit_id !== edit_id)
+    while (p.next != null && p.data.version_id !== version_id)
       p = p.next;
     return p;
   }
 
 
   //remove node with specific dataURI 
-  this.removeAt = function (edit_id) {
+  this.removeAt = function (version_id) {
     this.size--;
     var p = this.head;
 
-    while (p.next != null && p.data.edit_id !== edit_id) {
+    while (p.next != null && p.data.version_id !== version_id) {
       p = p.next;
     }
 
@@ -95,7 +110,7 @@ function linklist() {
   this.createFromArray = function(head,array){
     this.init(head);
     for(var k in array){
-      var newNode = new Node(getParent(this.tail,array));
+      var newNode = new Node(getChildFromParent(this.tail,array));
       //console.log("<this is a child>");
       //console.log(newNode);
       this.insert(newNode.data);
