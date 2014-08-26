@@ -313,7 +313,7 @@ function syncStart(syncData, address){
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
 		var myDelete = new hashTable.hashTable();
-		//myDelete.createHash(my_deleteHistory);
+		myDelete.createHash(my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
 		//these are new delete actions

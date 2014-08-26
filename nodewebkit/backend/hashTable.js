@@ -117,7 +117,7 @@ function _initOperationHash(List){
 
 function _createHash(List){
 	for(var k in List)
-		this.add(List[k].version_id,List[k].id);
+		this.add(List[k].file_uri,List[k].id);
 	return this.hashtable;
 }
 
@@ -125,7 +125,7 @@ function _getDiff(array){
 	var diff = [];
 	for(var del in array)
 	{
-		res = this.getValue(array[del].version_id);
+		res = this.getValue(array[del].file_uri);
 		if (typeof res == "undefined" ) 
 		{
 			var tmpdif = {};
