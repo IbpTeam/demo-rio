@@ -501,8 +501,10 @@ exports.findAllActionHistory = function(callback){
               callback(null);
             }else{
               updActions.forEach(function(updAction){
+                console.log("============================================parents:" + updAction.parents);
+                console.log("============================================children:" + updAction.children);
                 updAction.parents = JSON.parse(updAction.parents);
-                updAction.children = JSON.parse(children);
+                updAction.children = JSON.parse(updAction.children);
               });
               updateActions = updActions;
               callback(insertActions, deleteActions, updateActions);
