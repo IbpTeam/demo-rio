@@ -351,12 +351,18 @@ function getRecentAccessDataInHttpServer(response, postData) {
   }
   else{
     function getRecentByOrderCb(result){
+      if(result[0]==null){
+        return;
+      }
       while(result.length>postDataJson.arg){
         result.pop();
       }
       var data = new Array();
       var index=0;
       function getid(){
+        if(result[index]==null){
+          return null;
+        }
         var id;
         switch (result[index].tableName){
           case  'contacts':{
@@ -394,7 +400,10 @@ function getRecentAccessDataInHttpServer(response, postData) {
             response.end();
           }
           else{
-            commonDAO.getItemById(getid(),getItemByIdCb);
+            var iid=getid();
+            if(iid!=null){
+              commonDAO.getItemById(iid,getItemByIdCb);
+            }
           }
         }
       }
