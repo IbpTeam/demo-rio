@@ -68,8 +68,8 @@ function syncUpdateAction(other_updateHistory,other_updateOperations,updateCallB
 }
 
 //deal with version control
-function versionCtrl(my_linklist,my_updateOperations,other_linklist,other_updateOperations,versionCtrlCB,CBsyncComplete){
-	versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_updateOperations);
+function versionCtrl(my_linklist,other_linklist,versionCtrlCB,CBsyncComplete){
+	versionCtrlCB(my_linklist,other_linklist);
 }
 
 //Send sync request when other devices connect the net.
@@ -349,25 +349,6 @@ function syncStart(syncData, address){
 				console.log("==========start sync update!!!==========");
 				console.log("----------my update actions----------");
 				console.log(my_updateHistory);
-			    //var myUpdate = new hashTable.HashTable();
-			    //myUpdate.createHash(my_updateHistory);
-
-                //build link list from my database
-                console.log("----------building my_linklist----------");
-                var my_linklist = new llist.linklist();
-                my_linklist.init(my_updateHistory[0].base_id);
-                my_linklist.createFromArray(my_updateHistory);
-                console.log("<show me the linklist>");
-                my_linklist.print();
-                
-                //build link list from other devices's data
-                console.log("----------building other_linklist----------");
-                var other_linklist = new llist.linklist();
-                other_linklist.init(updateActions[0].base_id);
-                other_linklist.createFromArray(updateActions);
-                console.log("<show me the linklist>");
-                other_linklist.print();
-
 
                 var my_versions = {
                 	head: "",
@@ -378,7 +359,7 @@ function syncStart(syncData, address){
                 var m_tmpVersion = new HashTable();
                 var m_tmpOperation = new HashTable();
                 m_tmpVersion.initHash(my_updateHistory);
-                m_tmpOperation.initHash(my_updateOperations);
+                m_tmpOperation.createHash(my_updateOperations);
 
                 my_versions.versions = m_tmpVersion;
                 my_versions.operations = m_tmpOperation;
@@ -396,7 +377,7 @@ function syncStart(syncData, address){
                 var o_tmpVersion = new HashTable();
                 var o_tmpOperation = new HashTable();
                 o_tmpVersion.initHash(other_updateHistory);
-                o_tmpOperation.initHash(other_updateOperations);
+                o_tmpOperation.createHash(other_updateOperations);
 
                 other_versions.versions = o_tmpVersion;
                 other_versions.operations = o_tmpOperation;
@@ -420,28 +401,24 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 
 	var my_head = my_versions.head;
 	var my_tail = my_versions.tail;
+	var my_version = my_versions.versions;
 	var other_head = other_versions.head;
 	var other_tail = other_versions.tail;
+	var other_version = other_versions.versions;
 
     //fisrt compare the final version
     ////not the same
-	if(my_tail !== other_tail && !isSame(my_tail,my_versions,other_tail,other_versions)){
-		var my_coPoint = isPrevVersion(other_tail,my_linklist);
-		var other_coPoint = isPrevVersion(my_tail,other_linklist);
-
-		var my_operation = getOperations(my_startNode.reversion_id,my_operations);
-		var other_operation = getOperations(other_startNode.reversion_id,other_operations);
-
-		//put heads into my_linklist
-
+	if(!isSame(my_tail,my_version,other_tail,other_version)){
+		var my_coPoint = my_version.isExist(other_tail);
+		var other_coPoint = other_version.isExist(my_tail);
 
         //the final version is not same and is not any prev version of another linklist
         //considered as a conlict occur
-		if(my_coPoint == null && other_coPoint == null){
+		if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
 			isConflictCB(my_tail,other_tail);
 		}
 		//other_tail is a prev version of my_linklist
-		else if(my_coPoint !== null ){
+		else if(my_version.isExist(other_tail)){
 			var newUpdateHistory = new Array();
 			var newOperations = new Array();
 
@@ -456,7 +433,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 			return;
 		}
 		//my_tail is a prev versoin of other_linklist
-		else if(other_coPoint !== null){
+		else if(other_version.isExist(my_tail)){
 			var newUpdateHistory = new Array();
 			var newOperations = new Array();
 
@@ -504,100 +481,6 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 	}
 }
 
-/*
-//deal with the conflict situation 
-function versionCtrlCB(my_linklist,my_updateOperations,other_linklist,other_updateOperations,isConflictCB,newUpdateCB){                                                                                                                                                                                                                                                                                                                                                                                                           
-
-	var my_operations = my_updateOperations;
-	var other_operations = other_updateOperations;
-
-	var my_head = my_linklist.head;
-	var other_head = other_linklist.head;
-
-	var my_tail = my_linklist.tail;
-	var other_tail = other_linklist.tail;
-
-    //fisrt compare the final version
-    ////not the same
-	if(my_tail.version_id !== other_tail.version_id && !isSame(my_tail,other_tail)){
-		var my_coPoint = isPrevVersion(other_tail,my_linklist);
-		var other_coPoint = isPrevVersion(my_tail,other_linklist);
-
-		var my_operation = getOperations(my_startNode.reversion_id,my_operations);
-		var other_operation = getOperations(other_startNode.reversion_id,other_operations);
-
-		//put heads into my_linklist
-
-
-        //the final version is not same and is not any prev version of another linklist
-        //considered as a conlict occur
-		if(my_coPoint == null && other_coPoint == null){
-			isConflictCB(my_tail,other_tail);
-		}
-		//other_tail is a prev version of my_linklist
-		else if(my_coPoint !== null ){
-			var newUpdateHistory = new Array();
-			var newOperations = new Array();
-
-            //this array will be inserted into db
-			while(other_tail!== other_linklist.head){
-				newUpdateHistory.push(other_tail.data);
-				other_tail = other_tail.prev;
-			}
-			//reset head of my_linklist; would contain 2 children
-			setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-			newUpdateCB(newUpdateHistory,newOperations);
-			return;
-		}
-		//my_tail is a prev versoin of other_linklist
-		else if(other_coPoint !== null){
-			var newUpdateHistory = new Array();
-			var newOperations = new Array();
-
-            //put my_tail to the coPoint
-			other_coPoint.next.prev = my_tail.version_id;
-			//add coPoint to my_tail.child; would contain 2 children
-			setUpdateHistory("parent",my_linklist.tail.next,other_coPoint.version_id);
-
-            //this array will be inserted into db
-			while(other_tail!== null){
-				newUpdateHistory.push(other_tail.data);
-				other_tail = other_tail.next;
-			}
-			//reset head of my_linklist;should contain 2 child
-			newUpdateCB(newUpdateHistory,newOperations);
-			return;
-		}
-	////final version is the same
-	}else{
-		var newUpdateHistory = new Array();
-		var newOperations = new Array();
-
-        //get the last same node of 2 linklist, from this node we start merge
-		while(other_tail!==other_linklist.head || my_tail!==my_linklist.head){
-			if(other_tail.version_id === my_linklist.version_id){
-				other_tail = other_tail.prev;
-				my_tail = my_tail.prev;
-			}
-		}
-
-		other_tail.prev.child = my_tail.version_id;
-		other_tail.tail = other_tail.prev;
-
-		//reset head of my_linklist; would contain 2 children
-		setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-		newUpdateCB(newUpdateHistory,newOperations);
-
-        //this array will be inserted into db
-        while(other_tail!== other_linklist.head){
-        	newUpdateHistory.push(other_tail.data);
-        	other_tail = other_tail.prev;
-        }
-        
-		return;
-	}
-}
-*/
 
 //callback when conflict occurs
 function isConflictCB(my_version,other_version){
@@ -626,14 +509,10 @@ function isSame(my_version,my_versions,other_version,other_versions){
 	var my_operations = my_versions.operations[my_version];
 	var other_operations = other_versions.operations[other_version];
 
-	if(my_version !== other_version){
-		for(var k in my_operations){
-			
-		}
-	}
+	if(my_version !== other_version)
+		return false
 	
-
-
+	return true;
 }
 
 /*
@@ -652,14 +531,9 @@ function isExist(List,item){
 */
 
 //check if my_version is a prev version in other_linklist
-function isPrevVersion(Node,linklist){
-	var start = linklist.tail;
-	while(start !== null){
-		if(start.version_id !== Node.version_id){
-			start = start.parent;
-		}
-	}
-	return start;
+function isPrevVersion(version_id,my_version){
+	if(my_version.isExist(version_id))
+		return my_version.get(version_id);
 }
 
 //check if keys are conflict

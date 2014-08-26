@@ -2,13 +2,17 @@
 
 //hashtable in javascript
 
-function HashTable(){
+
+function hashTable(){
 	this.hashtable = {};
+	this.head = null;
+	this.tail = null;
 	this.add = _add;
 	this.del = _del;
 	this.getAll = _getAll;
 	this.getValue = _getValue;
 	this.isExist = _isExist;
+	this.initHash = _initHash;
 	this.createHash = _createHash;
 }
 
@@ -16,9 +20,10 @@ function _add(key,value){
 	if(this.hashtable.hasOwnProperty(key)){
 		var tmpEntry = this.hashtable[key];
 		for(var k in tmpEntry){
-			if(value === tmpEntry[k])
+			if(value === tmpEntry[k]){
 				console.log("key is Exist!");
-			return;
+				return;
+			}
 		}
 		this.hashtable[key].push(value);
 	}
@@ -30,7 +35,7 @@ function _add(key,value){
 }
 
 function _del(key){
-	if(key in this.hashtable){
+	if(this.hashtable.hasOwnProperty(key)){
 		delete(this.hashtable[key]);
 		console.log("delete done!");
 	}else{
@@ -39,7 +44,7 @@ function _del(key){
 }
 
 function _getValue(key){
-	if(key in this.hashtable)
+	if(this.hashtable.hasOwnProperty(key))
 		return this.hashtable[key];
 	else
 		return "undefined";
@@ -48,8 +53,8 @@ function _getValue(key){
 function _getAll(){
 	var list = new Array();
 	for(k in this.hashtable){
-		console.log(k);
-		list.push(k);
+		//console.log(this.hashtable[k]);
+		list.push(this.hashtable[k][0]);
 	}
 	return list;
 }
@@ -60,13 +65,23 @@ function _isExist(key){
 	return false;
 }
 
-function _createHash(List){
-	for(var k in List)
-		this.add(List[k].dataURI,List[k].id);
+function _initHash(List){
+	this.head = List[0].base_id;
+	for(var k in List){
+		if(List[k].child === null)
+			this.tail = List[k].version_id;
+		this.add(List[k].version_id,List[k]);
+	}
 	return this.hashtable;
 }
 
-exports.HashTable = HashTable;
+function _createHash(List){
+	for(var k in List)
+		this.add(List[k].version_id,List[k]);
+	return this.hashtable;
+}
+
+exports.hashTable = hashTable;
 
 
 /*
