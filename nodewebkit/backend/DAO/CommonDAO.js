@@ -287,19 +287,26 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.URI = uri;
-    createDAO.createItem(item, function(err){
-      if(err){
-        callback(category,item,err,loadResourcesCb);
-      }
-      else{
-        actionHistoryDAO.createInsertItem(item.URI,function(err){
+    uniqueId.getRandomBytes(12,function(version){
+      if (version != null) {
+        item.version = version;
+        createDAO.createItem(item, function(err){
           if(err){
             callback(category,item,err,loadResourcesCb);
           }
           else{
-            callback(category,item,'successfull',loadResourcesCb);
+            actionHistoryDAO.createInsertItem(item.URI,item.version,function(err){
+              if(err){
+                callback(category,item,err,loadResourcesCb);
+              }
+              else{
+                callback(category,item,'successfull',loadResourcesCb);
+              }
+            });
           }
         });
+      }else{
+        console.log("Action History DAO Exception: randomId is null.");
       }
     });
   });
@@ -367,7 +374,7 @@ exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
   })
 }
 
-exports.updateItemValue = function(id, uri, key, value, callback){
+exports.updateItemValue = function(id, uri, key, value, version, callback){
   config.dblog("update id:" + id);
   config.dblog("update key:" + key+'='+value);
   var index=id.indexOf('#');
@@ -406,20 +413,27 @@ exports.updateItemValue = function(id, uri, key, value, callback){
     
   }
 
-  updateDAO.updateItemValueByUri(uri,key,value, function(err){
-    if(err){
-      callback(id,uri,key,value,err);
-    }
-    else{
-      actionHistoryDAO.createUpdateItem(uri, key, value, function(err){
+
+  uniqueId.getRandomBytes(12,function(newVersion){
+    if (newVersion != null) {     
+      updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
         if(err){
-          callback(id,uri,key,value,err);
+          callback(id,uri,key,value,version,err);
         }
         else{
-          config.dblog("update" + category + "successfull");
-          callback(id,uri,key,value,'successfull');
+          actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, newVersion, function(err){
+            if(err){
+              callback(id,uri,key,value,version,err);
+            }
+            else{
+              config.dblog("update" + category + "successfull");
+              callback(id,uri,key,value,version,'successfull');
+            }
+          });
         }
       });
+    }else{
+      console.log("Action History DAO Exception: randomId is null.");
     }
   });
 }
@@ -473,22 +487,29 @@ exports.findAllActionHistory = function(callback){
     if(err){
       config.dblog(err);
       callback(null);
-    }
-    insertActions = insActions;
-    actionHistoryDAO.findAll("delete", function(err, delActions){
-      if(err){
-        config.dblog(err);
-        callback(null);
-      }
-      deleteActions = delActions;
-      actionHistoryDAO.findAll("update", function(err, updActions){
+    }else{
+      insertActions = insActions;
+      actionHistoryDAO.findAll("delete", function(err, delActions){
         if(err){
           config.dblog(err);
           callback(null);
+        }else{
+          deleteActions = delActions;
+          actionHistoryDAO.findAll("update", function(err, updActions){
+            if(err){
+              config.dblog(err);
+              callback(null);
+            }else{
+              updActions.forEach(function(updAction){
+                updAction.parents = JSON.parse(updAction.parents);
+                updAction.children = JSON.parse(children);
+              });
+              updateActions = updActions;
+              callback(insertActions, deleteActions, updateActions);
+            }
+          });
         }
-        updateActions = updActions;
-        callback(insertActions, deleteActions, updateActions);
       });
-    });
+    }
   });
 }
