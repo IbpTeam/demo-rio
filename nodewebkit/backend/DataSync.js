@@ -311,7 +311,7 @@ function syncStart(syncData, address){
 
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
-		var myDelete = new hashTable.HashTable();
+		var myDelete = new hashTable.hashTable();
 		//myDelete.createHash(my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
@@ -324,7 +324,7 @@ function syncStart(syncData, address){
 
 		////Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
-			var myInsert = new hashTable.HashTable();
+			var myInsert = new hashTable.hashTable();
 			myInsert.createHash(my_insertHistory);
 
 			//remove some repeat insert items in insertActions

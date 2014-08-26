@@ -12,8 +12,11 @@ function hashTable(){
 	this.getAll = _getAll;
 	this.getValue = _getValue;
 	this.isExist = _isExist;
-	this.initHash = _initHash;
+	this.initVersionHash = _initVersionHash;
+	this.initOperationHash =_initOperationHash;
 	this.createHash = _createHash;
+	this.getDiff = _getDiff;
+
 }
 
 function _add(key,value){
@@ -65,26 +68,66 @@ function _isExist(key){
 	return false;
 }
 
-function _initHash(List){
-	this.head = List[0].base_id;
+function _initVersionHash(List){
 	for(var k in List){
-		if(List[k].child === null)
-			this.tail = List[k].version_id;
-		this.add(List[k].version_id,List[k]);
+		var tmpEntry = List[k];
+		console.log(tmpEntry);
+		var version = {
+			version_id : tmpEntry.version_id,
+			parents : tmpEntry.parents,
+			children : tmpEntry.children,
+			origin_version : tmpEntry.origin_version
+		}
+		if(version.children === ""){
+			this.head = version.origin_version;
+			this.tail = version.version_id;
+		}
+		this.add(version.version_id,version);
+	}
+	return this.hashtable;
+}
+
+function _initOperationHash(List){
+	for(var k in List){
+		var tmpEntry = List[k];
+		console.log(tmpEntry);
+		var operation = {
+			version_id : tmpEntry.version_id,
+			file_uri : tmpEntry.file_uri,
+			key : tmpEntry.key,
+			value : tmpEntry.value
+		}
+		this.add(version.version_id,version);
 	}
 	return this.hashtable;
 }
 
 function _createHash(List){
 	for(var k in List)
-		this.add(List[k].version_id,List[k]);
+		this.add(List[k].version_id,List[k].id);
 	return this.hashtable;
+}
+
+function _getDiff(array){
+	var diff = [];
+	for(var del in array)
+	{
+		res = this.getValue(array[del].version_id);
+		if (typeof res == "undefined" ) 
+		{
+			var tmpdif = {};
+			tmpdif["id"] = array[del].id;
+			tmpdif["file_uri"] = array[del].file_uri;
+			diff.push(tmpdif);
+		};
+	}
+	return diff;
 }
 
 exports.hashTable = hashTable;
 
 
-
+/*
 var Table = require('hashtable');
 
 function HashTable(){
@@ -146,3 +189,4 @@ function HashTable(){
 	}
 }
 exports.HashTable = HashTable;
+*/
