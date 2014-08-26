@@ -287,7 +287,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.URI = uri;
-    uniqueId.getRandomBytes(12,function(version){
+    uniqueID.getRandomBytes(12,function(version){
       if (version != null) {
         item.version = version;
         createDAO.createItem(item, function(err){
