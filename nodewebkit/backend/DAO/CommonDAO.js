@@ -487,22 +487,29 @@ exports.findAllActionHistory = function(callback){
     if(err){
       config.dblog(err);
       callback(null);
-    }
-    insertActions = insActions;
-    actionHistoryDAO.findAll("delete", function(err, delActions){
-      if(err){
-        config.dblog(err);
-        callback(null);
-      }
-      deleteActions = delActions;
-      actionHistoryDAO.findAll("update", function(err, updActions){
+    }else{
+      insertActions = insActions;
+      actionHistoryDAO.findAll("delete", function(err, delActions){
         if(err){
           config.dblog(err);
           callback(null);
+        }else{
+          deleteActions = delActions;
+          actionHistoryDAO.findAll("update", function(err, updActions){
+            if(err){
+              config.dblog(err);
+              callback(null);
+            }else{
+              updActions.forEach(updAction){
+                updAction.parents = JSON.parse(updAction.parents);
+                updAction.children = JSON.parse(children);
+              }
+              updateActions = updActions;
+              callback(insertActions, deleteActions, updateActions);
+            }
+          });
         }
-        updateActions = updActions;
-        callback(insertActions, deleteActions, updateActions);
       });
-    });
+    }
   });
 }
