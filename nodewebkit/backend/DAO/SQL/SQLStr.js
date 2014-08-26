@@ -63,3 +63,11 @@ exports.REMOVEINSERTITEM = "delete from InsertHistory where dataURI = ?";
 exports.FINDALLUPDATES = "select * from UpdateHistory";
 exports.FINDALLDELETES = "select * from DeleteHistory";
 exports.FINDALLINSERTS = "select * from InsertHistory";
+
+//SQL used in IMchatDAO
+exports.insertrecvSQL = "insert into receivedHistory (id,src,des,message,type,time) values (null,?,?,?,?,?)";
+exports.findrecvbySRC = "select * from receivedHistory where src = ?";
+exports.findrecvbyDES = "select * from receivedHistory where des = ?"
+exports.insertsentSQL = "insert into sentHistory (id,src,des,message,type,time) values (null,?,?,?,?,?)";
+exports.findsentbySRC =  "select * from sentHistory where src = ?";
+exports.findsentbyDES = "select * from sentHistory where des = ?";

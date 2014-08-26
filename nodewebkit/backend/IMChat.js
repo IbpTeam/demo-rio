@@ -1,6 +1,7 @@
 var net = require('net');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
+var dboper = require('./DAO/IMChatDao.js');
 
 function MD5(str, encoding)
 {
@@ -27,6 +28,9 @@ function initIMServer(){
 				//console.log("=========================================");
 				//output message and save to database
 				//return success
+				dboper.dbrecvInsert(msgObj[0].from,msgObj[0].to,msgObj[0].message,msgObj[0].type,msgObj[0].time,function(){
+					console.log("insert into db success!");
+				});
 				var tp = encapsuMSG(MD5(msgObj[0].message),"Reply","A","B");
 				c.write(tp);
 			}
@@ -88,6 +92,7 @@ function sendIMMsg(IP,PORT,MSG){
 	}else
 	{
 		clearInterval(id);
+		console.log("Send message error: no reply ");
 	};
 	
 	},1000,client,MSG);
@@ -101,7 +106,11 @@ function sendIMMsg(IP,PORT,MSG){
 			{
 				if (msg[0].message == MD5(pat[0].message))
 				{
+					var msgtp = JSON.parse(MSG);
 					console.log('msg rply received: '+ msg[0].message);
+					dboper.dbsentInsert(msgtp[0].from,msgtp[0].to,msgtp[0].message,msgtp[0].type,msgtp[0].time,function(){
+						console.log("sent message insert into db success!");
+					});
 					clearInterval(id);
 					client.end();
 				};
