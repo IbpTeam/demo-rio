@@ -58,12 +58,9 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 }
 
 //Sync update action
-function syncUpdateAction(other_updateHistory,other_updateOperations,updateCallBack){
-	//commonDAO.findAboutUpdate(function(my_updateHistory,my_updateOperations){
-	//	updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
-	//});
-	commonDAO.findEachActionHistory("update",function(my_updateHistory,my_updateOperations){
-		updateCallBack(other_updateHistory,my_updateHistory,other_updateOperations,my_updateOperations);
+function syncUpdateAction(other_update,updateCallBack){
+	commonDAO.findEachActionHistory("update",function(my_update){
+		updateCallBack(other_update,my_update,my_updateOperations);
 	});
 }
 
@@ -306,8 +303,6 @@ function syncStart(syncData, address){
 	console.log(deleteActions);
 	console.log("update actions: ");
 	console.log(updateActions);
-	console.log("update operations: ");
-	// /console.log(updateOperations);	
 
 	//var deletetList = new Array();
 	//var insertList = new Array();
@@ -345,8 +340,10 @@ function syncStart(syncData, address){
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
 			////Retrive actions after insert, start to sync update actions 
-			syncUpdateAction(updateActions,updateOperations,function(updateActions,my_updateHistory,my_updateOperations){//////////////
+			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){//////////////
 				console.log("==========start sync update!!!==========");
+				console.log(updateActions);
+
 				console.log("----------my update actions----------");
 				console.log(my_updateHistory);
 
