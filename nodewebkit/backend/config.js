@@ -5,7 +5,7 @@ var USERCONFIGPATH;
 exports.USERCONFIGPATH = USERCONFIGPATH;
 var os = require('os');
 var RIODEBUG=1;
-var DBDEBUG=1;
+var DBDEBUG=0;
 var SERVERPORT=8888;
 var MSGPORT=8889;
 exports.MSGPORT = MSGPORT;

@@ -24,6 +24,7 @@ function sleep(milliSeconds) {
 };
 exports.sleep = sleep;
 
+var initCommit;
 var repoCommitStatus =  'idle';
 exports.repoCommitStatus = repoCommitStatus;
 var addCommitList = new Array();
@@ -192,7 +193,6 @@ function createItemCb(category,item,result,loadResourcesCb)
     if(writeDbNum==0 && writeDbRecentNum==0){
       config.riolog('Read data complete!');
       loadResourcesCb('success');
-      monitorFiles(dataPath,monitorFilesCb);
     }
   }
   else{
@@ -300,7 +300,8 @@ function syncDb(loadResourcesCb,resourcePath)
             photoPath:each.photoPath,
             createTime:null,
             lastModifyTime:null,
-            lastAccessTime:currentTime
+            lastAccessTime:currentTime,
+            commit_id:initCommit
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
           category='recent';
@@ -318,14 +319,15 @@ function syncDb(loadResourcesCb,resourcePath)
     else{
       function getFileStatCb(error,stat)
       {
-        var  exec = require('child_process').exec;
-        var comstr = 'cd ' + resourcePath + ' && git add . && git commit -m "Init"';
-        console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
-        exec(comstr, function(error,stdout,stderr){
+
       //repoCommit(resourcePath,item,function (result){
       //  console.log("repoCommit : "+result);
       //  if(result==null)
       //    return;
+        //util.log("Parent commit = "+resourceRepo.getLatestCommit(resourcePath));
+       // fs.readFile(resourcePath+'/.git/refs/heads/master',function(err,data){
+       //   util.log("Parent commit = "+data);
+       // });
         var mtime=stat.mtime;
         var ctime=stat.ctime;
         var size=stat.size;
@@ -346,7 +348,8 @@ function syncDb(loadResourcesCb,resourcePath)
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
-            others:null
+            others:null,
+            commit_id:initCommit
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
           category='recent';
@@ -371,7 +374,8 @@ function syncDb(loadResourcesCb,resourcePath)
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
-            others:null
+            others:null,
+            commit_id:initCommit
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
           category='recent';
@@ -397,7 +401,8 @@ function syncDb(loadResourcesCb,resourcePath)
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
-            others:null
+            others:null,
+            commit_id:initCommit
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
           category='recent';
@@ -406,7 +411,7 @@ function syncDb(loadResourcesCb,resourcePath)
             tableName:'music',
             specificId:musicId,
             lastAccessTime:ctime,
-            others:null
+            others:null,
           };
           commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
         } 
@@ -414,7 +419,6 @@ function syncDb(loadResourcesCb,resourcePath)
           writeDbNum --;
           writeDbRecentNum --;  
         }     
-        });
       }
       fs.stat(item,getFileStatCb);
 
@@ -425,11 +429,18 @@ function syncDb(loadResourcesCb,resourcePath)
     if (initReporError) 
       throw initReporError;
     console.log("Repo init : "+repo);
-    repoInitCb();
+    var  exec = require('child_process').exec;
+    var comstr = 'cd ' + dataPath + ' && git add . && git commit -m "Init"';
+    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
+    exec(comstr, function(error,stdout,stderr){
+      resourceRepo.getLatestCommit(dataPath,function (commitId){
+        initCommit=commitId.sha();
+        util.log("Head : "+commitId);
+        monitorFiles(dataPath,monitorFilesCb);
+        repoInitCb();
+      });
+    });
   });
-
-  
-
 }
 exports.syncDb = syncDb;
 

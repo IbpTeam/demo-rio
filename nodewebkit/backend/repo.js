@@ -60,6 +60,7 @@ exports.repoAddCommit = function (repoPath,filename,event,callback)
                     var emitter = new events.EventEmitter();
                         emitter.emit('repoCommit_idle'); 
                     console.log("emit commit next commit "+path);*/
+
                       callback();
                     });
                   });  
@@ -129,6 +130,41 @@ exports.repoRmCommit = function (repoPath,filename,callback)
               });
             });
           //}); 
+        });  
+      });
+    });
+}
+
+exports.getLatestCommit = function (repoPath,callback)
+{
+      console.log("getLatestCommit "+repoPath);
+      //open a git repo
+      git.Repo.open(path.resolve(repoPath+'/.git'), function(openReporError, repo) {
+      if (openReporError) 
+        throw openReporError;
+      console.log("Repo open : "+repo);  
+      //add the file to the index...
+      repo.openIndex(function(openIndexError, index) {
+        if (openIndexError) 
+          throw openIndexError;
+        console.log("Repo index : "+index);
+        index.read(function(readError) {
+          if (readError) 
+            throw readError;  
+          console.log("Repo read : success");
+              index.writeTree(function(writeTreeError, oid) {
+                if (writeTreeError) 
+                  throw writeTreeError;
+                console.log("Repo writeTree : success");
+                //get HEAD 
+                git.Reference.oidForName(repo, 'HEAD', function(oidForName, head) {
+                  if (oidForName) 
+                    throw oidForName;
+                  console.log("Repo oidForName : "+oidForName);
+                  //get latest commit (will be the parent commit)
+                  callback(head);
+                });  
+              });
         });  
       });
     });
