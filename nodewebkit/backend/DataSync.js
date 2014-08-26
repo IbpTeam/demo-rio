@@ -425,7 +425,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 
     //fisrt compare the final version
     ////not the same
-	if(my_tail !== other_tail && !isSame(my_tail,other_tail)){
+	if(my_tail !== other_tail && !isSame(my_tail,my_versions,other_tail,other_versions)){
 		var my_coPoint = isPrevVersion(other_tail,my_linklist);
 		var other_coPoint = isPrevVersion(my_tail,other_linklist);
 
@@ -621,8 +621,17 @@ function isFileSame(){
 }
 
 //check if the two versions are the same
-function isSame(my_version,other_versoin){
+function isSame(my_version,my_versions,other_version,other_versions){
 	//need to compare with data
+	var my_operations = my_versions.operations[my_version];
+	var other_operations = other_versions.operations[other_version];
+
+	if(my_version !== other_version){
+		for(var k in my_operations){
+			
+		}
+	}
+	
 
 
 }
