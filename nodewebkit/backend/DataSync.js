@@ -60,6 +60,8 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 //Sync update action
 function syncUpdateAction(other_update,updateCallBack){
 	commonDAO.findEachActionHistory("update",function(my_update){
+		console.log("==================================my_update");
+		console.log(my_update);
 		updateCallBack(other_update,my_update);
 	});
 }
@@ -295,7 +297,6 @@ function syncStart(syncData, address){
 	var insertActions = JSON.parse(syncData.insertActions);
 	var deleteActions = JSON.parse(syncData.deleteActions);
 	var updateActions = JSON.parse(syncData.updateActions);
-	var updateOperations; //= JSON.parse(syncData.updateOperations);
 
 	console.log("insert actions: ");
 	console.log(insertActions);
@@ -339,12 +340,10 @@ function syncStart(syncData, address){
 			//create insert hository
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
-			var my_updateHistory = {};//need change
-
 			////Retrive actions after insert, start to sync update actisons 
-			syncUpdateAction(other_updateActions,function(other_updateActions,my_updateActions){//////////////
+			syncUpdateAction(updateActions,function(updateActions,my_updateActions){//////////////
 				console.log("==========start sync update!!!==========");
-				console.log(other_updateActions);
+				console.log(updateActions);
 
 				console.log("----------my update actions----------");
 				console.log(my_updateActions);
@@ -375,8 +374,8 @@ function syncStart(syncData, address){
 
                 var o_tmpVersion = new hashTable.hashTable();
                 var o_tmpOperation = new hashTable.hashTable();
-                o_tmpVersion.initVersionHash(other_updateActions);
-                o_tmpOperation.initOperationHash(other_updateActions);
+                o_tmpVersion.initVersionHash(updateActions);
+                o_tmpOperation.initOperationHash(updateActions);
 
                 other_versions.versions = o_tmpVersion;
                 other_versions.operations = o_tmpOperation;
@@ -386,8 +385,14 @@ function syncStart(syncData, address){
                 //do version control stuff
                 //is it OK to put syncComplete here?
                 console.log("----------start dealing with version control----------");
-                //versionCtrl(my_linklist,my_updateOperations,other_linklist,other_updateOperations,versionCtrlCB,syncComplete);
+                //console.log("-------------------------------------------------------")
+                //console.log(my_versions);
+                //console.log(other_versions);
+                //console.log("-------------------------------------------------------")
+
                 versionCtrl(my_versions,other_versions,versionCtrlCB,syncComplete);
+
+
 
         });
 });
@@ -398,12 +403,18 @@ function syncStart(syncData, address){
 //deal with the conflict situation 
 function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){                                                                                                                                                                                                                                                                                                                                                                                                           
 
-	var my_head = my_versions.head;
-	var my_tail = my_versions.tail;
+    //console.log("-------------------------------------------------------")
+	var my_head = JSON.parse(my_versions.head);
+	var my_tail = JSON.parse(my_versions.tail);
 	var my_version = my_versions.versions;
-	var other_head = other_versions.head;
-	var other_tail = other_versions.tail;
+	var other_head = JSON.parse(other_versions.head);
+	var other_tail = JSON.parse(other_versions.tail);
 	var other_version = other_versions.versions;
+	//console.log(JSON.parse(my_head))
+	//console.log(my_tail)
+	//console.log(my_versions.versions)
+	//console.log(my_versions.operations)
+	//console.log("-------------------------------------------------------")
 
     //fisrt compare the final version
     ////not the same
@@ -422,13 +433,10 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 			var newOperations = new Array();
 
             //this array will be inserted into db
-			while(other_tail!== other_linklist.head){
-				newUpdateHistory.push(other_tail.data);
-				other_tail = other_tail.prev;
-			}
+
 			//reset head of my_linklist; would contain 2 children
-			setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-			newUpdateCB(newUpdateHistory,newOperations);
+			//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
+			//newUpdateCB(newUpdateHistory,newOperations);
 			return;
 		}
 		//my_tail is a prev versoin of other_linklist
@@ -437,17 +445,12 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 			var newOperations = new Array();
 
             //put my_tail to the coPoint
-			other_coPoint.next.prev = my_tail.version_id;
 			//add coPoint to my_tail.child; would contain 2 children
-			setUpdateHistory("parent",my_linklist.tail.next,other_coPoint.version_id);
 
             //this array will be inserted into db
-			while(other_tail!== null){
-				newUpdateHistory.push(other_tail.data);
-				other_tail = other_tail.next;
-			}
+
 			//reset head of my_linklist;should contain 2 child
-			newUpdateCB(newUpdateHistory,newOperations);
+			//newUpdateCB(newUpdateHistory,newOperations);
 			return;
 		}
 	////final version is the same
@@ -456,25 +459,12 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 		var newOperations = new Array();
 
         //get the last same node of 2 linklist, from this node we start merge
-		while(other_tail!==other_linklist.head || my_tail!==my_linklist.head){
-			if(other_tail.version_id === my_linklist.version_id){
-				other_tail = other_tail.prev;
-				my_tail = my_tail.prev;
-			}
-		}
-
-		other_tail.prev.child = my_tail.version_id;
-		other_tail.tail = other_tail.prev;
 
 		//reset head of my_linklist; would contain 2 children
-		setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-		newUpdateCB(newUpdateHistory,newOperations);
+		//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
+		//newUpdateCB(newUpdateHistory,newOperations);
 
         //this array will be inserted into db
-        while(other_tail!== other_linklist.head){
-        	newUpdateHistory.push(other_tail.data);
-        	other_tail = other_tail.prev;
-        }
         
 		return;
 	}
@@ -505,13 +495,12 @@ function isFileSame(){
 //check if the two versions are the same
 function isSame(my_version,my_versions,other_version,other_versions){
 	//need to compare with data
-	var my_operations = my_versions.operations[my_version];
-	var other_operations = other_versions.operations[other_version];
-
-	if(my_version !== other_version)
-		return false
-	
-	return true;
+    //var tmpversion = my_versions.operations;
+	//var my_operations = tmpversion.getValue(my_version);
+	//var other_operations = other_versions.operations[other_version];
+	if(my_version === other_version)
+		return true;
+	return false;
 }
 
 /*
