@@ -295,14 +295,14 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
             callback(category,item,err,loadResourcesCb);
           }
           else{
-            actionHistoryDAO.createInsertItem(item.URI,item.version,function(err){
-              if(err){
-                callback(category,item,err,loadResourcesCb);
-              }
-              else{
+            function createInsertItemCB(err){
+              if (err) {
+                actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+              }else{
                 callback(category,item,'successfull',loadResourcesCb);
               }
-            });
+            }
+            actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
           }
         });
       }else{
