@@ -63,7 +63,7 @@ exports.CREATEINSERTITEM = "insert into InsertHistory (id,file_uri,origin_versio
 exports.CREATEDELETEITEM = "insert into DeleteHistory (id,file_uri) values (null,?)";
 exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,version_id,parents,children,origin_version) values (null,?,?,?,?)";
 exports.CREATEUPDATEOPERATIONS = "insert into UpdateOperations (id,version_id,file_uri,key,value) values (null,?,?,?,?)";
-exports.REMOVEUPDATEITEM = "delete from UpdateHistory where file_uri = ?";
+exports.REMOVEUPDATEITEM = "delete from UpdateOperations where file_uri = ?";
 exports.REMOVEINSERTITEM = "delete from InsertHistory where file_uri = ?";
 exports.FINDALLUPDATES = "select updatehistory.version_id,file_uri,key,value,origin_version,parents,children from updatehistory,updateoperations where updatehistory.version_id=updateoperations.version_id";
 exports.FINDALLDELETES = "select * from DeleteHistory";

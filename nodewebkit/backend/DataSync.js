@@ -345,7 +345,12 @@ function syncStart(syncData, address){
 				console.log("==========start sync update!!!==========");
 				console.log(updateActions);
 
-				console.log("----------my update actions----------");
+				for(var k in my_updateActions){
+					my_updateActions[k].children = JSON.parse(my_updateActions[k].children);
+					my_updateActions[k].parents = JSON.parse(my_updateActions[k].parents);
+				}
+
+				console.log("==========my update actions==========");
 				console.log(my_updateActions);
 
                 var my_versions = {
@@ -356,8 +361,11 @@ function syncStart(syncData, address){
                 };
                 var m_tmpVersion = new hashTable.hashTable();
                 var m_tmpOperation = new hashTable.hashTable();
+
                 m_tmpVersion.initVersionHash(my_updateActions);
                 m_tmpOperation.initOperationHash(my_updateActions);
+                console.log("----------my tmpversion----------");
+				console.log(m_tmpVersion);
 
                 my_versions.versions = m_tmpVersion;
                 my_versions.operations = m_tmpOperation;
@@ -404,17 +412,12 @@ function syncStart(syncData, address){
 function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){                                                                                                                                                                                                                                                                                                                                                                                                           
 
     //console.log("-------------------------------------------------------")
-	var my_head = JSON.parse(my_versions.head);
-	var my_tail = JSON.parse(my_versions.tail);
+	var my_head = my_versions.head;
+	var my_tail = my_versions.tail;
 	var my_version = my_versions.versions;
-	var other_head = JSON.parse(other_versions.head);
-	var other_tail = JSON.parse(other_versions.tail);
+	var other_head = other_versions.head;
+	var other_tail = other_versions.tail;
 	var other_version = other_versions.versions;
-	//console.log(JSON.parse(my_head))
-	//console.log(my_tail)
-	//console.log(my_versions.versions)
-	//console.log(my_versions.operations)
-	//console.log("-------------------------------------------------------")
 
     //fisrt compare the final version
     ////not the same

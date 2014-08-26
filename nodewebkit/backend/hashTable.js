@@ -21,14 +21,13 @@ function hashTable(){
 function _add(key,value){
 	if(this.hashtable.hasOwnProperty(key)){
 		var tmpEntry = this.hashtable[key];
-		console.log("+++++++++++++++");
-		console.log(tmpEntry);
-		console.log("+++++++++++++++");
+		//console.log("+++++++++++++++");
+		//console.log(tmpEntry);
+		//console.log("+++++++++++++++");
 		for(var k in tmpEntry){
 			if(value === tmpEntry[k]){
 				console.log("+++++++++++++++");
 				console.log(" key is Exist!");
-				console.log("+++++++++++++++");
 				return;
 			}
 		}
@@ -73,23 +72,30 @@ function _isExist(key){
 }
 
 function _initVersionHash(List){
+	//console.log("===========================my list")
+	//console.log(List);
 	for(var k in List){
 		var tmpEntry = List[k];
 		//console.log(tmpEntry);
-		var version = {
-			version_id : tmpEntry.version_id,
-			parents : tmpEntry.parents,
-			children : tmpEntry.children,
-			origin_version : tmpEntry.origin_version
+		if(tmpEntry.children === null){
+			var version = {
+				version_id : tmpEntry.version_id,
+				parents : tmpEntry.parents,
+				children : null,
+				origin_version : tmpEntry.origin_version
+			}
+			this.head = version.origin_version;
+			this.tail = version.version_id;
+			this.add(version.version_id,version);
+		}else{
+			var version = {
+				version_id : tmpEntry.version_id,
+				parents : tmpEntry.parents,
+				children : tmpEntry.children,
+				origin_version : tmpEntry.origin_version
+			}
+			this.add(version.version_id,version);
 		}
-		if(version.children === null){
-			//console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++==")
-			//console.log("head: "+version.origin_version);
-			//console.log("tail: "+version.version_id);
-			this.head = JSON.stringify(version.origin_version);
-			this.tail = JSON.stringify(version.version_id);
-		}
-		this.add(version.version_id,version);
 	}
 	return this.hashtable;
 }
