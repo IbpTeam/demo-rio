@@ -126,12 +126,16 @@ function _getDiff(array){
 	for(var del in array)
 	{
 		res = this.getValue(array[del].file_uri);
-		if (typeof res == "undefined" ) 
+		console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7")
+		console.log(typeof res)
+		if (res === "undefined" ) 
 		{
+			console.log("+++++++++++++++++++++++++++++im here ")
 			var tmpdif = {};
 			tmpdif["id"] = array[del].id;
 			tmpdif["file_uri"] = array[del].file_uri;
 			diff.push(tmpdif);
+			console.log(tmpdif);
 		};
 	}
 	return diff;
