@@ -61,7 +61,8 @@ exports.UPDATERECENT = "update recent set ? = ? where id = ?";
 //SQL used in ActionHistoryDAO
 exports.CREATEINSERTITEM = "insert into InsertHistory (id,file_uri,origin_version) values (null,?,?)";
 exports.CREATEDELETEITEM = "insert into DeleteHistory (id,file_uri) values (null,?)";
-exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,version_id,key,value,commit_id) values (null,?,?,?)";
+exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,version_id,parents,children,origin_version) values (null,?,?,?,?)";
+exports.CREATEUPDATEOPERATIONS = "insert into UpdateOperations (id,version_id,file_uri,key,value) values (null,?,?,?,?)";
 exports.REMOVEUPDATEITEM = "delete from UpdateHistory where file_uri = ?";
 exports.REMOVEINSERTITEM = "delete from InsertHistory where file_uri = ?";
 exports.FINDALLUPDATES = "select * from UpdateHistory";

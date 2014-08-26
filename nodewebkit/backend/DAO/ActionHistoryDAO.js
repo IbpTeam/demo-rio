@@ -49,8 +49,80 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  */
 exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVersion, createUpdateItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.FINDUPDATEHISTORYBYVERSION, version, ); 
-  db.run(SQLSTR.CREATEUPDATEITEM, dataURI, key, value, randomId,createInsertItemCallBack);
+  db.run(SQLSTR.FINDUPDATEHISTORYBYVERSION, version, function(err,record){
+    if (err) {
+      console.log("Error: find update history error" + err);
+      createUpdateItemCallBack(null);
+    }else{
+      var childrenStr = null;
+      var parentsStr = null;
+      var origin_version = null;
+      if (record == null) {
+        var sqlStr = "select * from inserthistory where file_uri = '" + dataURI +"'";
+        db.run(sqlStr, function(err,item){
+          if (err) {
+            console.log("Error: select item from insert history error ! " + err);
+          }else{
+            var parents = new Array();
+            parents.push(item.origin_version);
+            parentsStr = JSON.stringify(parents);
+            origin_version = item.origin_version;
+            db.run(SQLSTR.CREATEUPDATEITEM, newVersion, parentsStr, childrenStr, origin_version,function(err){
+              if (err) {
+                console.log("Error: create update history item error! " + err);
+              }else{
+                db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
+              }
+            });
+          }
+        });
+      }else{
+        if (record.children == null) {
+          var children = new Array();
+          children.push(newVersion);
+          childrenStr = JSON.stringify(children);
+        }else{
+          var children = JSON.parse(record.children);
+          children.push(newVersion);
+          childrenStr = JSON.stringify(children);
+        }
+        var parents = new Array();
+        parents.push(version);
+        parentsStr = JSON.stringify(parents);
+        origin_version = record.origin_version;
+        modifyUpdateHistoryItem(version,"children",childrenStr,function(err){
+          if (err) {
+            console.log("Error: modify UpdateHistory table error!  " + err);
+          }else{
+            db.run(SQLSTR.CREATEUPDATEITEM, newVersion, parentsStr, childrenStr, origin_version,function(err){
+              if (err) {
+                console.log("Error: create update history item error! " + err);
+              }else{
+                db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
+              }
+            });
+          }
+        });
+      }
+    }
+  });
+  closeDB(db);
+}
+
+/**
+ * @method modifyUpdateHistoryItem
+ *   修改一条更新数据信息
+ * @param version 
+ *   
+ * @param key 
+ *   所修改字段名
+ * @param value 
+ *   所修改值
+ */
+exports.modifyUpdateHistoryItem = function(version, key, value, modifyUpdateItemCallBack){
+  var db = openDB();
+  var sqlstr="UPDATE UpdateHistory SET "+key+" = '"+value+"' WHERE version = '"+version+"'";
+  db.run("update UpdateHistory set ", dataURI, key, value, randomId,createInsertItemCallBack);
   closeDB(db);
 }
 
@@ -109,7 +181,11 @@ exports.findAll = function(action, findAllCallBack){
   db.all(sqlStr, findAllCallBack);
   closeDB(db);
 }  
+/*
+exports.findItemByUri = function(tableName, uri){
 
+}
+*/
 /**
  * @method createAll
  *   delete items first and then
