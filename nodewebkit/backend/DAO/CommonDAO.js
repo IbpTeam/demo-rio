@@ -418,16 +418,16 @@ exports.updateItemValue = function(id, uri, key, value, version, callback){
     if (newVersion != null) {     
       updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
         if(err){
-          callback(id,uri,key,value,err);
+          callback(id,uri,key,value,version,err);
         }
         else{
           actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, newVersion, function(err){
             if(err){
-              callback(id,uri,key,value,err);
+              callback(id,uri,key,value,version,err);
             }
             else{
               config.dblog("update" + category + "successfull");
-              callback(id,uri,key,value,'successfull');
+              callback(id,uri,key,value,version,'successfull');
             }
           });
         }
@@ -500,10 +500,10 @@ exports.findAllActionHistory = function(callback){
               config.dblog(err);
               callback(null);
             }else{
-              updActions.forEach(updAction){
+              updActions.forEach(function(updAction){
                 updAction.parents = JSON.parse(updAction.parents);
                 updAction.children = JSON.parse(children);
-              }
+              });
               updateActions = updActions;
               callback(insertActions, deleteActions, updateActions);
             }
