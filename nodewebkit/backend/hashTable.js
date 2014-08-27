@@ -7,6 +7,8 @@ function hashTable(){
 	this.hashtable = {};
 	this.head = null;
 	this.tail = null;
+	this.addChildren = _addChildren;
+	this.addParents = _addParents;
 	this.add = _add;
 	this.del = _del;
 	this.getAll = _getAll;
@@ -16,6 +18,16 @@ function hashTable(){
 	this.initOperationHash =_initOperationHash;
 	this.createHash = _createHash;
 	this.getDiff = _getDiff;
+}
+
+function _addChildren(version_id,newChildren){
+	//var tmpChildrem = this.hashtable[version_id][0].children;
+	this.hashtable[version_id].children = this.hashtable[version_id].children.push(newChildren);
+}
+
+function _addParents(version_id,newParents){
+	//var tmpChildrem = this.hashtable[version_id][0].parents;
+	this.hashtable[version_id].parents = this.hashtable[version_id].parents.concat(newParents);
 }
 
 function _add(key,value){
@@ -60,7 +72,7 @@ function _getAll(){
 	var list = new Array();
 	for(k in this.hashtable){
 		//console.log(this.hashtable[k]);
-		list.push(this.hashtable[k][0]);
+		list.push(this.hashtable[k][0].version_id);
 	}
 	return list;
 }
