@@ -312,7 +312,7 @@ function syncStart(syncData, address){
 
 		console.log("==========start sync delete!!!==========");
 		//these are new delete actions
-		var newDelete = myDelete.getDiff(deleteActions,myDelete);
+		var newDelete = myDelete.getDiff(deleteActions);
 
 		console.log("==========new delete history==========");
 		console.log(newDelete);
@@ -325,11 +325,11 @@ function syncStart(syncData, address){
 			myInsert.createHash(my_insertHistory);
 
 			//remove some repeat insert items in insertActions
-			insertActions = myInsert.getDiff(insertActions,myDelete);
+			insertActions = myInsert.getDiff(insertActions);
 
 			console.log("==========start sync insert!!!==========");
 			//these are new insert actions
-			var newInsert = myInsert.getDiff(insertActions,myInsert);
+			var newInsert = myInsert.getDiff(insertActions);
 
 			console.log("==========new insert history==========");
 			console.log(newInsert);
