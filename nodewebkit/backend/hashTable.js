@@ -37,10 +37,18 @@ function _add(key,value){
 		//console.log(tmpEntry);
 		//console.log("+++++++++++++++");
 		for(var k in tmpEntry){
-			if(value === tmpEntry[k]){
-				console.log("+++++++++++++++");
-				console.log(" key is Exist!");
-				return;
+			if(this.hashtable.hasOwnProperty("file_uri")){
+				if(value === tmpEntry[k]){
+					console.log("+++++++++++++++");
+					console.log(" key is Exist!");
+					return;
+				}
+			}else{
+				if(value.version_id === tmpEntry[k].version_id){
+					console.log("+++++++++++++++");
+					console.log(" key is Exist!");
+					return;					
+				}
 			}
 		}
 		this.hashtable[key].push(value);
@@ -137,15 +145,18 @@ function _getDiff(array){
 	var diff = [];
 	for(var del in array)
 	{
-		res = this.getValue(array[del].file_uri);
-		console.log(typeof res)
-		if (res === "undefined" ) 
+		console.log(array[del]);
+		var tmp;
+		if(array[del].hasOwnProperty("file_uri")){
+			tmp = this.getValue(array[del].file_uri);
+		}
+		else{
+			tmp = this.getValue(array[del].version_id);
+		}
+        console.log(tmp);
+		if (tmp === "undefined" ) 
 		{
-			var tmpdif = {};
-			tmpdif["id"] = array[del].id;
-			tmpdif["file_uri"] = array[del].file_uri;
-			diff.push(tmpdif);
-			console.log(tmpdif);
+			diff.push(tmp);
 		};
 	}
 	return diff;

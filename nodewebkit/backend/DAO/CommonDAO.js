@@ -570,9 +570,9 @@ exports.findAllActionHistory = function(callback){
               updActions.forEach(function(updAction){
                 updAction.parents = JSON.parse(updAction.parents);
                 updAction.children = JSON.parse(updAction.children);
-                console.log("============================================zfbfd:");
-                console.log(updAction.parents);
-                console.log(updAction.children);
+                //console.log("============================================zfbfd:");
+                //console.log(updAction.parents);
+                //console.log(updAction.children);
               });
               updateActions = updActions;
               callback(insertActions, deleteActions, updateActions);
