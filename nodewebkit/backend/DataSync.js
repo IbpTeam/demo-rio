@@ -410,11 +410,11 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 	var my_head = my_versions.head;
 	var my_tail = my_versions.tail;
 	var my_version = my_versions.versions;
-	var my_version_id = my_versions.getAll();
+	var my_version_id = my_versions.versions.getAll();
 	var other_head = other_versions.head;
 	var other_tail = other_versions.tail;
 	var other_version = other_versions.versions;
-	var other_version_id = other_versions.getAll();
+	var other_version_id = other_versions.versions.getAll();
 
     //fisrt compare the final version
     ////not the same
@@ -437,15 +437,15 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
             
             //check each versoin's parents/children if exist in my_versions
             for(var k in newVersion){
-            	var tmpParents = other_versions.getValue(newVersion[k])[0].parents;
-            	var tmpChildren = other_versions.getValue(newVersion[k])[0].children
+            	var tmpParents = other_version.getValue(newVersion[k])[0].parents;
+            	var tmpChildren = other_version.getValue(newVersion[k])[0].children
             	for(var i in tmpParents){
             		//if this version has a parent exists in my_versions
             		//then we need modify related data and renew then in db 
-            		if(my_versions.isExist(tmpParents[i])){
-            			my_versions.addChildren(tmpParents[i],tmpParents[k]);
-            			newUpdateHistory.push(my_versions.getValue(tmpParents[i]));
-            			newUpdateHistory.push(other_versions.getValue(newVersion[k]));
+            		if(my_version.isExist(tmpParents[i])){
+            			my_version.addChildren(tmpParents[i],tmpParents[k]);
+            			newUpdateHistory.push(my_version.getValue(tmpParents[i]));
+            			newUpdateHistory.push(other_version.getValue(newVersion[k]));
                         //setUpdateHistory();
             		}
             		newOperations.push(other_operations.getValue(newVersion[k]));
@@ -453,10 +453,10 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
             	for(var j in tmpParents){
             		//if this version has a child exists in my_versions
             		//then we need modify related data and renew then in db 
-            		if(my_versions.isExist(tmpChildren[j])){
-            			my_versions.addParents(tmpChildren[j],tmpParents[k]);
-            			newUpdateHistory.push(my_versions.getValue(tmpParents[j]));
-            			newUpdateHistory.push(other_versions.getValue(newVersion[k]));  
+            		if(my_version(tmpChildren[j])){
+            			my_version(tmpChildren[j],tmpParents[k]);
+            			newUpdateHistory.push(my_version.getValue(tmpParents[j]));
+            			newUpdateHistory.push(other_version.getValue(newVersion[k]));  
             			//setUpdateHistory()          			
             		}
             		newOperations.push(other_operations.getValue(newVersion[k]));
@@ -474,7 +474,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 
 
 
-			
+
 
 			//reset head of my_linklist;should contain 2 child
 			newUpdateCB(newUpdateHistory,newOperations);
