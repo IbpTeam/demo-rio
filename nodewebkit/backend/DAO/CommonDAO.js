@@ -568,10 +568,11 @@ exports.findAllActionHistory = function(callback){
               callback(null);
             }else{
               updActions.forEach(function(updAction){
-                //console.log("============================================parents:" + updAction.parents);
-                //console.log("============================================children:" + updAction.children);
                 updAction.parents = JSON.parse(updAction.parents);
                 updAction.children = JSON.parse(updAction.children);
+                //console.log("============================================zfbfd:");
+                //console.log(updAction.parents);
+                //console.log(updAction.children);
               });
               updateActions = updActions;
               callback(insertActions, deleteActions, updateActions);
