@@ -69,6 +69,20 @@ exports.findById = function(id, findByIdCallBack){
 }
 
 /**
+ * @method findByPath
+ *   根据path查询表中指定数据
+ * @param id
+ *   documents表中的主键
+ * @return documents
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByPath = function(path, findByPathCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDDOCUMENTBYPATH, path, findByPathCallBack);
+  closeDB(db);
+}
+
+/**
  * @method createItem
  *   增加一条文档信息
  * @param item
