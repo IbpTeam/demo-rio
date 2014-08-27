@@ -472,10 +472,9 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 			var newUpdateHistory = new Array();
 			var newOperations = new Array();
 
-            //put my_tail to the coPoint
-			//add coPoint to my_tail.child; would contain 2 children
 
-            //this array will be inserted into db
+
+			
 
 			//reset head of my_linklist;should contain 2 child
 			newUpdateCB(newUpdateHistory,newOperations);
