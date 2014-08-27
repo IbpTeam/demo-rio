@@ -15,7 +15,7 @@ var events = require('events');
 var PORT = 8888;
 
 var writeDbNum=0;
-var writeDbRecentNum=0;
+//var writeDbRecentNum=0;
 var dataPath;
 
 function sleep(milliSeconds) { 
@@ -32,6 +32,154 @@ var rmCommitList = new Array();
 var chCommitList = new Array();
 var monitorFilesStatus =  false;
 exports.repoCommitStatus = repoCommitStatus;
+
+function addData(itemPath,loadResourcesCb){
+  var pointIndex=itemPath.lastIndexOf('.');
+  var itemPostfix=itemPath.substr(pointIndex+1);
+  var nameindex=itemPath.lastIndexOf('/');
+  var itemFilename=itemPath.substring(nameindex+1,pointIndex);
+  config.riolog("read file "+itemPath);
+  if(itemPostfix == 'contacts'){
+    config.riolog("postfix= "+itemPostfix);
+    var currentTime = (new Date()).getTime();
+    fs.readFile(itemPath, function (err, data) {
+      var json=JSON.parse(data);
+      config.riolog(json);
+      writeDbNum+=json.length-1;
+//      writeDbRecentNum+=json.length-1;
+      config.riolog('writeDbNum= '+writeDbNum);
+//      config.riolog('writeDbRecentNum= '+writeDbRecentNum);
+      json.forEach(function(each){
+        var category='Contacts';
+        var newItem={
+          id:null,
+          name:each.name,
+          phone:each.phone,
+          sex:each.sex,
+          age:each.age,
+          email:each.email,
+          photoPath:each.photoPath,
+          createTime:null,
+          lastModifyTime:null,
+          lastAccessTime:currentTime,
+          commit_id:initCommit
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+/*        category='recent';
+        newItem={
+          id:null,
+          tableName:'contacts',
+          specificId:contactId,
+          lastAccessTime:currentTime,
+          others:null
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+      });
+    });
+  }
+  else{
+    function getFileStatCb(error,stat)
+    {
+     //repoCommit(resourcePath,itemPath,function (result){
+    //  console.log("repoCommit : "+result);
+    //  if(result==null)
+    //    return;
+      //util.log("Parent commit = "+resourceRepo.getLatestCommit(resourcePath));
+     // fs.readFile(resourcePath+'/.git/refs/heads/master',function(err,data){
+     //   util.log("Parent commit = "+data);
+     // });
+      var mtime=stat.mtime;
+      var ctime=stat.ctime;
+      var size=stat.size;
+      //config.riolog('mtime:'+mtime);
+      //config.riolog('ctime:'+ctime);
+      //config.riolog('size:'+size);
+      //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
+      if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+        var category='Documents';
+        var newItem={
+          id:null,
+          filename:itemFilename,
+          postfix:itemPostfix,
+          size:size,
+          path:itemPath,
+          project:'上海专项',
+          createTime:ctime,
+          lastModifyTime:mtime,
+          lastAccessTime:ctime,
+          others:null,
+          commit_id:initCommit
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+/*        category='recent';
+        newItem={
+          id:null,
+          tableName:'documents',
+          specificId:documentId,
+          lastAccessTime:ctime,
+          others:null
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+      }
+      else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+        var category='Pictures';
+        var newItem={
+          id:null,
+          filename:itemFilename,
+          postfix:itemPostfix,
+          size:size,
+          path:itemPath,
+          createTime:ctime,
+          lastModifyTime:mtime,
+          lastAccessTime:ctime,
+          others:null,
+          commit_id:initCommit
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+/*        category='recent';
+        newItem={
+          id:null,
+          tableName:'pictures',
+          specificId:pictureId,
+          lastAccessTime:ctime,
+          others:null
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+      }
+      else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+        var category='Music';
+        var newItem={
+          id:null,
+          filename:itemFilename,
+          postfix:itemPostfix,
+          size:size,
+          path:itemPath,
+          album:'流行',
+          createTime:ctime,
+          lastModifyTime:mtime,
+          lastAccessTime:ctime,
+          others:null,
+          commit_id:initCommit
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
+/*        category='recent';
+        newItem={
+          id:null,
+          tableName:'music',
+          specificId:musicId,
+          lastAccessTime:ctime,
+          others:null,
+        };
+        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+      } 
+      else{
+        writeDbNum --;
+//        writeDbRecentNum --;  
+      }     
+    }
+    fs.stat(itemPath,getFileStatCb);
+  }
+}
 
 function addFile(path,resourcePath){
   util.log("new file "+path);
@@ -183,14 +331,14 @@ function createItemCb(category,item,result,loadResourcesCb)
   else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
     config.riolog(item.filename+'insert:'+result);
     if(category=='recent'){
-      writeDbRecentNum--;
+//      writeDbRecentNum--;
     }
     else{
       writeDbNum--;
     }
     config.riolog('writeDbNum= '+writeDbNum);
-    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-    if(writeDbNum==0 && writeDbRecentNum==0){
+//    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
+    if(writeDbNum==0 ){
       config.riolog('Read data complete!');
       loadResourcesCb('success');
     }
@@ -248,182 +396,27 @@ function syncDb(loadResourcesCb,resourcePath)
   });
   function repoInitCb(){
     function walk(path){  
-    var dirList = fs.readdirSync(path);
-    dirList.forEach(function(item){
-      if(fs.statSync(path + '/' + item).isDirectory()){
-        if(item != '.git'){
-          walk(path + '/' + item);
+      var dirList = fs.readdirSync(path);
+      dirList.forEach(function(item){
+        if(fs.statSync(path + '/' + item).isDirectory()){
+          if(item != '.git'){
+            walk(path + '/' + item);
+          }
         }
-      }
-      else{
-        fileList.push(path + '/' + item);
-      }
-    });
-  }
-  walk(resourcePath);
-  config.riolog(fileList); 
-  writeDbNum=fileList.length;
-  writeDbRecentNum=writeDbNum;
-  config.riolog('writeDbNum= '+writeDbNum);
-  config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-  var contactId=0;
-  var documentId=0;
-  var pictureId=0;
-  var musicId=0;
-  fileList.forEach(function(item){
-    var pointIndex=item.lastIndexOf('.');
-    var itemPostfix=item.substr(pointIndex+1);
-    var nameindex=item.lastIndexOf('/');
-    var itemFilename=item.substring(nameindex+1,pointIndex);
-    config.riolog("read file "+item);
-
-    if(itemPostfix == 'contacts'){
-              config.riolog("postfix= "+itemPostfix);
-              var currentTime = (new Date()).getTime();
-      fs.readFile(item, function (err, data) {
-        var json=JSON.parse(data);
-        config.riolog(json);
-        writeDbNum+=json.length-1;
-        writeDbRecentNum+=json.length-1;
-        config.riolog('writeDbNum= '+writeDbNum);
-        config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-        json.forEach(function(each){
-          var category='Contacts';
-          contactId++;
-          var newItem={
-            id:contactId,
-            name:each.name,
-            phone:each.phone,
-            sex:each.sex,
-            age:each.age,
-            email:each.email,
-            photoPath:each.photoPath,
-            createTime:null,
-            lastModifyTime:null,
-            lastAccessTime:currentTime,
-            commit_id:initCommit
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'contacts',
-            specificId:contactId,
-            lastAccessTime:currentTime,
-            others:null
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-        });
+        else{
+          fileList.push(path + '/' + item);
+        }
       });
     }
-    else{
-      function getFileStatCb(error,stat)
-      {
-
-      //repoCommit(resourcePath,item,function (result){
-      //  console.log("repoCommit : "+result);
-      //  if(result==null)
-      //    return;
-        //util.log("Parent commit = "+resourceRepo.getLatestCommit(resourcePath));
-       // fs.readFile(resourcePath+'/.git/refs/heads/master',function(err,data){
-       //   util.log("Parent commit = "+data);
-       // });
-        var mtime=stat.mtime;
-        var ctime=stat.ctime;
-        var size=stat.size;
-        config.riolog('mtime:'+mtime);
-        config.riolog('ctime:'+ctime);
-        config.riolog('size:'+size);
-        //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
-        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
-          var category='Documents';
-          documentId++;
-          var newItem={
-            id:documentId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            project:'上海专项',
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null,
-            commit_id:initCommit
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'documents',
-            specificId:documentId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-        }
-        else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-          var category='Pictures';
-          pictureId++;
-          var newItem={
-            id:pictureId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null,
-            commit_id:initCommit
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'pictures',
-            specificId:pictureId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-        }
-        else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-          var category='Music';
-          musicId++;
-          var newItem={
-            id:musicId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            album:'流行',
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null,
-            commit_id:initCommit
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'music',
-            specificId:musicId,
-            lastAccessTime:ctime,
-            others:null,
-          };
-          commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-        } 
-        else{
-          writeDbNum --;
-          writeDbRecentNum --;  
-        }     
-      }
-      fs.stat(item,getFileStatCb);
-
-    }
-  });
+    walk(resourcePath);
+    config.riolog(fileList); 
+    writeDbNum=fileList.length;
+//    writeDbRecentNum=writeDbNum;
+    config.riolog('writeDbNum= '+writeDbNum);
+//    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
+    fileList.forEach(function(item){
+      addData(item,loadResourcesCb);
+    });
   }
   git.Repo.init(resourcePath,false,function(initReporError, repo){
     if (initReporError) 
