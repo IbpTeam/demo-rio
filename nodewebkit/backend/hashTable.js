@@ -18,6 +18,7 @@ function hashTable(){
 	this.initOperationHash =_initOperationHash;
 	this.createHash = _createHash;
 	this.getDiff = _getDiff;
+	this.getDiffUpdate = _getDiffUpdate;
 }
 
 function _addChildren(version_id,newChildren){
@@ -39,14 +40,14 @@ function _add(key,value){
 		for(var k in tmpEntry){
 			if(this.hashtable.hasOwnProperty("file_uri")){
 				if(value === tmpEntry[k]){
-					console.log("+++++++++++++++");
-					console.log(" key is Exist!");
+					//console.log("+++++++++++++++");
+					//console.log(" key is Exist!");
 					return;
 				}
 			}else{
 				if(value.version_id === tmpEntry[k].version_id){
-					console.log("+++++++++++++++");
-					console.log(" key is Exist!");
+					//console.log("+++++++++++++++");
+					//console.log(" key is Exist!");
 					return;					
 				}
 			}
@@ -80,7 +81,7 @@ function _getAll(){
 	var list = new Array();
 	for(k in this.hashtable){
 		//console.log(this.hashtable[k]);
-		list.push(this.hashtable[k][0].version_id);
+		list.push(this.hashtable[k][0]);
 	}
 	return list;
 }
@@ -145,15 +146,25 @@ function _getDiff(array){
 	var diff = [];
 	for(var del in array)
 	{
-		console.log(array[del]);
-		var tmp;
-		if(array[del].hasOwnProperty("file_uri")){
-			tmp = this.getValue(array[del].file_uri);
-		}
-		else{
-			tmp = this.getValue(array[del].version_id);
-		}
-        console.log(tmp);
+		var res = this.hashtable.getValue(array[del].file_uri);
+		if (res == "undefined" ) 
+		{
+			var tmpdif = {};
+			tmpdif["id"] = array[del].id;
+			tmpdif["file_uri"] = array[del].file_uri;
+			diff.push(tmpdif);
+		};
+	}
+	return diff;
+}
+
+function _getDiffUpdate(array){
+	var diff = [];
+	console.log(array);
+	for(var del in array)
+	{
+		var tmp = this.getValue(array[del].version_id);
+		console.log(tmp);
 		if (tmp === "undefined" ) 
 		{
 			diff.push(tmp);

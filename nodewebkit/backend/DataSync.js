@@ -350,6 +350,9 @@ function syncStart(syncData, address){
 				console.log("==========my update actions==========");
 				console.log(my_updateActions);
 
+				var myVersions = null;
+                var otherVersion = null;
+
                 var my_versions = {
                 	head: "",
                 	tail: "",
@@ -397,7 +400,9 @@ function syncStart(syncData, address){
                 //console.log(other_versions);
                 //console.log("-------------------------------------------------------")
 
-                versionCtrl(my_versions,other_versions,versionCtrlCB,syncComplete);
+                myVersions = my_versions;
+                otherVersion = other_versions;
+                versionCtrl(myVersions,otherVersion,versionCtrlCB,syncComplete);
 
         });
 });
@@ -468,9 +473,9 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 
 			//reset head of my_linklist; would contain 2 children
 			//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-			console.log("************************************************")
+			console.log("************************************************ update")
 			console.log(newUpdateHistory);
-			console.log("************************************************")
+			console.log("************************************************ operations")
 			console.log(newOperations);	
 			newUpdateCB(newUpdateHistory,newOperations);
 		}
