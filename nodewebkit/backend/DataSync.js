@@ -449,13 +449,10 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 			var newOperations = new Array();
 
             //these are new version's version_id, from other_versions
-            console.log("*****************************************version_id")
+            //console.log("*****************************************version_id")
             var newVersion = my_version.getDiffUpdate(other_version_id);
-            //console.log(other_version_id);           
             //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
-            //console.log(newVersion);
             //console.log("******************other version")
-	        //console.log(other_version)
 
             //check each versoin's parents/children if exist in my_versions
             for(var k in newVersion){
@@ -467,10 +464,6 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
             		//then we need modify related data and renew then in db 
             		if(my_version.isExist(tmpParents[i])){
             			var tmp = my_version.getValue(tmpParents[j])[0];
-            			//console.log("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-            			//console.log(tmpChildren[j])
-            			//console.log(tmp)            			
-            			//console.log(my_version);
 
             			tmp.children.push(newVersion[k].version_id);
             			var newEntry = {
@@ -484,7 +477,6 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
                         //setUpdateHistory();
 
                     }
-                    //newOperations.push(other_version.getValue(newVersion[k]));
                 }
                 for(var j in tmpChildren){
             		//if this version has a child exists in my_versions
@@ -504,11 +496,7 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
             			//setUpdateHistory() 
 
             		}
-            		//newUpdateHistory.push(other_version.getValue(newVersion[k].version_id)[0]);
             	}
-            	//console.log("cccccccccccccccccccccccccccccccccccccccc")
-            	//console.log(other_operations);
-            	//console.log(newVersion[k].version_id);
             	newOperations.push(other_operations.getValue(newVersion[k].version_id));
             }
 
@@ -523,9 +511,18 @@ function versionCtrlCB(my_versions,other_versions,versionCtrlCB,syncComplete){
 		}
 		// #2: my_tail is a prev versoin of other_linklist
 		else if(!my_version.isExist(other_tail) && other_version.isExist(my_tail)){
-			var newUpdateHistory = new Array();
-			var newOperations = new Array();
 			console.log("----------------------------------------------------#22222222");
+			var newUpdateHistory = new Array();
+			var newUpdateEntry = new Array();
+			var newOperations = new Array();
+
+            //these are new version's version_id, from other_versions
+            //console.log("*****************************************version_id")
+            var newVersion = my_version.getDiffUpdate(other_version_id);
+
+
+            
+
 
 
 
