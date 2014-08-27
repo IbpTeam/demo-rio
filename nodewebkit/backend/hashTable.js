@@ -146,8 +146,8 @@ function _getDiff(array){
 	var diff = [];
 	for(var del in array)
 	{
-		res = this.getValue(array[del].file_uri);
-		if (typeof res == "undefined" ) 
+		var res = this.getValue(array[del].file_uri);
+		if ( res === "undefined" ) 
 		{
 			var tmpdif = {};
 			tmpdif["id"] = array[del].id;
