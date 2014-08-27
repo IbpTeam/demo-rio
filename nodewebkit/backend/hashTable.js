@@ -23,12 +23,13 @@ function hashTable(){
 
 function _addChildren(version_id,newChildren){
 	//var tmpChildrem = this.hashtable[version_id][0].children;
-	this.hashtable[version_id].children = this.hashtable[version_id].children.push(newChildren);
+	this.hashtable[version_id].children.push(newChildren);
 }
 
 function _addParents(version_id,newParents){
 	//var tmpChildrem = this.hashtable[version_id][0].parents;
-	this.hashtable[version_id].parents = this.hashtable[version_id].parents.concat(newParents);
+	console.log(this.hashtable[version_id].parents);
+	this.hashtable[version_id].parents.push(newParents);
 }
 
 function _add(key,value){
@@ -38,18 +39,10 @@ function _add(key,value){
 		//console.log(tmpEntry);
 		//console.log("+++++++++++++++");
 		for(var k in tmpEntry){
-			if(this.hashtable.hasOwnProperty("file_uri")){
-				if(value === tmpEntry[k]){
-					//console.log("+++++++++++++++");
-					//console.log(" key is Exist!");
-					return;
-				}
-			}else{
-				if(value.version_id === tmpEntry[k].version_id){
-					//console.log("+++++++++++++++");
-					//console.log(" key is Exist!");
-					return;					
-				}
+			if(value.version_id === tmpEntry[k].version_id){
+				if(value.file_uri !== tmpEntry[k].file_uri)
+					this.hashtable[key].push(value);;
+				return;
 			}
 		}
 		this.hashtable[key].push(value);
@@ -89,7 +82,8 @@ function _getAll(){
 function _isExist(key){
 	if(this.hashtable.hasOwnProperty(key))
 		return true;
-	return false;
+	else
+		return false;
 }
 
 function _initVersionHash(List){
@@ -163,11 +157,11 @@ function _getDiffUpdate(array){
 	console.log(array);
 	for(var del in array)
 	{
-		var tmp = this.getValue(array[del].version_id);
-		console.log(tmp);
-		if (tmp === "undefined" ) 
+		var res = this.getValue(array[del].version_id);
+		console.log(array[del].version_id);
+		if (res === "undefined" ) 
 		{
-			diff.push(tmp);
+			diff.push(array[del]);
 		};
 	}
 	return diff;
