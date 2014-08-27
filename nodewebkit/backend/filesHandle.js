@@ -62,7 +62,8 @@ function addData(itemPath,loadResourcesCb){
           createTime:null,
           lastModifyTime:null,
           lastAccessTime:currentTime,
-          commit_id:initCommit
+          commit_id:initCommit,
+          is_delete:0
         };
         commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
 /*        category='recent';
@@ -108,7 +109,8 @@ function addData(itemPath,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:initCommit
+          commit_id:initCommit,
+          is_delete:0
         };
         commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
 /*        category='recent';
@@ -133,7 +135,8 @@ function addData(itemPath,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:initCommit
+          commit_id:initCommit,
+          is_delete:0
         };
         commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
 /*        category='recent';
@@ -159,7 +162,8 @@ function addData(itemPath,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:initCommit
+          commit_id:initCommit,
+          is_delete:0
         };
         commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
 /*        category='recent';

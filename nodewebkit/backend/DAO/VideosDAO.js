@@ -90,7 +90,7 @@ exports.findByPath = function(path, findByPathCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id, createItemCallBack);
+  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id,item.is_delete, createItemCallBack);
   closeDB(db);
 }
 

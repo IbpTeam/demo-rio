@@ -76,7 +76,7 @@ exports.findByName = function(name,findByNameCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, item.URI, item.version, item.commit_id, createItemCallBack);
+  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, item.URI, item.version, item.commit_id, item.is_delete, createItemCallBack);
   closeDB(db);
 }
 
