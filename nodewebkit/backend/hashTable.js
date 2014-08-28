@@ -22,12 +22,16 @@ function hashTable(){
 }
 
 function _addChildren(version_id,newChildren){
-	//var tmpChildrem = this.hashtable[version_id][0].children;
-	this.hashtable[version_id].children.push(newChildren);
+	if(this.hashtable[version_id].children === null){
+		var children = new Array();
+		children.push(newChildren);
+		this.hashtable[version_id].children = children;
+	}else{
+		this.hashtable[version_id].children.push(newChildren);
+	}
 }
 
 function _addParents(version_id,newParents){
-	//var tmpChildrem = this.hashtable[version_id][0].parents;
 	console.log(this.hashtable[version_id].parents);
 	this.hashtable[version_id].parents.push(newParents);
 }
