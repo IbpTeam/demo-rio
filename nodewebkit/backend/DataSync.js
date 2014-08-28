@@ -434,21 +434,21 @@ function versionCtrlCB(my_versions,other_versions){
     //the final version is not same and is not any prev version of another linklist
     //considered as a conlict occur
     if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
-    	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #11111111");
+    	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # MAY conflict");
     	//console.log(other_tail)
 
     	dealConflict(my_tail,other_tail,dealConflictCB);
     }else{
     // #1: other_tail is a prev version of my_linklist
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #22222222");
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # NO conflict");
     var newUpdateHistory = new Array();
     var newUpdateEntry = new Array();
     var newOperations = new Array();
 
     //these are new version's version_id, from other_versions
     var newVersion = my_version.getDiffUpdate(other_version_id);
-    console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
-    console.log(my_versions)
+    //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
+    //console.log(my_versions)
     //check each versoin's parents/children if exist in my_versions
         for(var k in newVersion){
         	var tmpParents = newVersion[k].parents;
@@ -522,38 +522,34 @@ function isFileSame(){
 }
 
 //check if the two versions are the same
-function isSame(my_version,my_versions,other_version,other_versions){
-	//need to compare with data
-    //var tmpversion = my_versions.operations;
-	//var my_operations = tmpversion.getValue(my_version);
-	//var other_operations = other_versions.operations[other_version];
-	if(my_version === other_version)
-		return true;
-	return false;
-}
+//function isSame(my_version,my_versions,other_version,other_versions){
+//	if(my_version === other_version)
+//		return true;
+//	return false;
+//}
 
 //check if my_version is a prev version in other_linklist
-function isPrevVersion(version_id,my_version){
-	if(my_version.isExist(version_id))
-		return my_version.get(version_id);
-}
+//function isPrevVersion(version_id,my_version){
+//	if(my_version.isExist(version_id))
+//		return my_version.get(version_id);
+//}
 
 //check if keys are conflict
-function isConflict(my_operation,other_operation){
-	if(my_operation == null || other_operation == null){
-		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		console.log("Error: operations of this version in update_operations list is EMPTY");
-		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-		return undefined;
-	}
-	my_operation.forEach(function(myItem){
-		other_operation.forEach(function(otherItem){
-			if(myItem.key === otherItem.key)
-				return true;
-		});
-	});
-	return false;
-}
+//function isConflict(my_operation,other_operation){
+//	if(my_operation == null || other_operation == null){
+//		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//		console.log("Error: operations of this version in update_operations list is EMPTY");
+//		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+//		return undefined;
+//	}
+//	my_operation.forEach(function(myItem){
+//		other_operation.forEach(function(otherItem){
+//			if(myItem.key === otherItem.key)
+//				return true;
+//		});
+//	});
+//	return false;
+//}
 
 //get operations with specific version_id
 function getOperations(version_id,operations){
