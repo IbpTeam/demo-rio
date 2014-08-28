@@ -22,7 +22,7 @@ function hashTable(){
 }
 
 function _addChildren(version_id,newChildren){
-	if(this.hashtable[version_id].children === null){
+	if(this.hashtable[version_id].children == null){
 		var children = new Array();
 		children.push(newChildren);
 		this.hashtable[version_id].children = children;
@@ -32,7 +32,7 @@ function _addChildren(version_id,newChildren){
 }
 
 function _addParents(version_id,newParents){
-	console.log(this.hashtable[version_id].parents);
+	//console.log(this.hashtable[version_id].parents);
 	this.hashtable[version_id].parents.push(newParents);
 }
 
@@ -96,7 +96,7 @@ function _initVersionHash(List){
 	for(var k in List){
 		var tmpEntry = List[k];
 		//console.log(tmpEntry);
-		if(tmpEntry.children === null){
+		if(tmpEntry.children == "" || tmpEntry.children == null){
 			var version = {
 				version_id : tmpEntry.version_id,
 				parents : tmpEntry.parents,
@@ -145,7 +145,7 @@ function _getDiff(array){
 	for(var del in array)
 	{
 		var res = this.getValue(array[del].file_uri);
-		if ( res === "undefined" ) 
+		if ( res == "undefined" ) 
 		{
 			var tmpdif = {};
 			tmpdif["id"] = array[del].id;
@@ -158,12 +158,11 @@ function _getDiff(array){
 
 function _getDiffUpdate(array){
 	var diff = [];
-	console.log(array);
 	for(var del in array)
 	{
 		var res = this.getValue(array[del].version_id);
-		console.log(array[del].version_id);
-		if (res === "undefined" ) 
+		//console.log(array[del].version_id);
+		if (res == "undefined" ) 
 		{
 			diff.push(array[del]);
 		};

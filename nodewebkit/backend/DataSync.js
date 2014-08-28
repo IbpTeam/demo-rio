@@ -337,7 +337,7 @@ function syncStart(syncData, address){
 
 			console.log("==========start sync insert!!!==========");
 			//these are new insert actions
-			var newInsert = myDelete.getDiff(my_deleteHistory);
+			var newInsert = myDelete.getDiff(insertActions);
 
 			console.log("==========new insert history==========");
 			console.log(newInsert);
@@ -416,11 +416,11 @@ function syncStart(syncData, address){
 
 //deal with the conflict situation 
 function versionCtrlCB(my_versions,other_versions){                                                                                                                                                                                                                                                                                                                                                                                                           
-    console.log("==========start dealing with version control==========");
+	console.log("==========start dealing with version control==========");
     //console.log("-------------------------------------------------------")
-	var my_head = my_versions.head;
-	var my_tail = my_versions.tail;
-	var my_version = my_versions.versions;
+    var my_head = my_versions.head;
+    var my_tail = my_versions.tail;
+    var my_version = my_versions.versions;
 	//var my_operations = my_versions.operations;
 	var my_version_id = my_versions.versions.getAll();
 	var other_head = other_versions.head;
@@ -431,18 +431,19 @@ function versionCtrlCB(my_versions,other_versions){
 
     //fisrt compare the final version
     ////not the same
-	if(!isSame(my_tail,my_version,other_tail,other_version)){
-		var my_coPoint = my_version.isExist(other_tail);
-		var other_coPoint = other_version.isExist(my_tail);
+    //if(!isSame(my_tail,my_version,other_tail,other_version)){
+    //	var my_coPoint = my_version.isExist(other_tail);
+    //	var other_coPoint = other_version.isExist(my_tail);
 
         //the final version is not same and is not any prev version of another linklist
         //considered as a conlict occur
-		if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
-			dealConflict(my_tail,other_tail,dealConflictCB);
-		}
+        if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
+        	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #11111111");
+        	dealConflict(my_tail,other_tail,dealConflictCB);
+        }
 		// #1: other_tail is a prev version of my_linklist
 		else if(my_version.isExist(other_tail) || other_version.isExist(my_tail)){
-			console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #11111111");
+			console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #22222222");
 			var newUpdateHistory = new Array();
 			var newUpdateEntry = new Array();
 			var newOperations = new Array();
@@ -477,8 +478,8 @@ function versionCtrlCB(my_versions,other_versions){
             			}
             			newUpdateHistory.push(tmp);
             		}
-                }
-                for(var j in tmpChildren){
+            	}
+            	for(var j in tmpChildren){
             		//if this version has a child exists in my_versions
             		if(my_version.isExist(tmpChildren[j])){
             			var tmp = my_version.getValue(tmpChildren[j])[0];
@@ -497,13 +498,6 @@ function versionCtrlCB(my_versions,other_versions){
             	newUpdateEntry.push(newVersion[k]);
             }
 
-			//console.log("************************************************ update")
-			//console.log(newUpdateHistory);
-			console.log("************************************************ updates & operations")
-			console.log(newUpdateHistory);	
-			console.log(newUpdateEntry);	
-			console.log(newOperations);	
-
 			//then we need modify related data and renew then in db 
 
 			var _newUpdateHistory = newUpdateHistory;
@@ -513,17 +507,20 @@ function versionCtrlCB(my_versions,other_versions){
 		}
 	////final version is the same
 	// #2: final version is same
-}else{
-	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #22222222");
-	var newUpdateHistory = new Array();
-	var newUpdateEntry = new Array();
-	var newOperations = new Array();
+//}//else{
+//	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #22222222");
+//	var newUpdateHistory = new Array();
+//	var newUpdateEntry = new Array();
+//	var newOperations = new Array();
 
-	var _newUpdateHistory = newUpdateHistory;
-	var _newUpdateEntry = newUpdateEntry;
-	var _newOperations = newOperations;
-	setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);        
-}
+
+
+
+//	var _newUpdateHistory = newUpdateHistory;
+//	var _newUpdateEntry = newUpdateEntry;
+//	var _newOperations = newOperations;
+//	setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);        
+//}
 }
 
 
@@ -566,7 +563,7 @@ function isPrevVersion(version_id,my_version){
 
 //check if keys are conflict
 function isConflict(my_operation,other_operation){
-	if(my_operation === null || other_operation){
+	if(my_operation == null || other_operation == null){
 		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		console.log("Error: operations of this version in update_operations list is EMPTY");
 		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -574,7 +571,7 @@ function isConflict(my_operation,other_operation){
 	}
 	my_operation.forEach(function(myItem){
 		other_operation.forEach(function(otherItem){
-			if(myItem.key === otherItem)
+			if(myItem.key === otherItem.key)
 				return true;
 		});
 	});
