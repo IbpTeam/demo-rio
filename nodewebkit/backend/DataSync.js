@@ -418,13 +418,7 @@ function syncStart(syncData, address){
 //deal with the conflict situation 
 function versionCtrlCB(my_versions,other_versions){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
-    //console.log("-------------------------------------------------------")
-
-    for(var k in my_versions.versions){
-    	if(my_versions.versions[k].children != "")
-    		my_versions.versions[k].children = JSON.parse(my_versions.versions[k].children);
-    	my_versions.versions[k].parents = JSON.parse(my_versions.versions[k].parents);
-    }
+    console.log(my_versions)
 
     var my_head = my_versions.head;
     var my_tail = my_versions.tail;
@@ -441,9 +435,8 @@ function versionCtrlCB(my_versions,other_versions){
     //considered as a conlict occur
     if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
     	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #11111111");
-    	console.log(other_tail)
-    	console.log(my_tail)
-    	console.log(my_versions)
+    	//console.log(other_tail)
+
     	dealConflict(my_tail,other_tail,dealConflictCB);
     }else{
     // #1: other_tail is a prev version of my_linklist
@@ -454,9 +447,9 @@ function versionCtrlCB(my_versions,other_versions){
 
     //these are new version's version_id, from other_versions
     var newVersion = my_version.getDiffUpdate(other_version_id);
-        //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
-        //console.log(newVersion)
-        //check each versoin's parents/children if exist in my_versions
+    //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
+    //console.log(my_versions)
+    //check each versoin's parents/children if exist in my_versions
         for(var k in newVersion){
         	var tmpParents = newVersion[k].parents;
         	var tmpChildren = newVersion[k].children;

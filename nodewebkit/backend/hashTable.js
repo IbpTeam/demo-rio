@@ -96,6 +96,7 @@ function _initVersionHash(List){
 	for(var k in List){
 		var tmpEntry = List[k];
 		//console.log(tmpEntry);
+		//console.log(typeof tmpEntry.parents);
 		if(tmpEntry.children == ""){
 			var version = {
 				version_id : tmpEntry.version_id,
@@ -107,6 +108,14 @@ function _initVersionHash(List){
 			this.tail = version.version_id;
 			this.add(version.version_id,version);
 		}else{
+			if(typeof tmpEntry.parents == "string"){
+				//console.log(tmpEntry.parents)//
+				tmpEntry.parents = JSON.parse(tmpEntry.parents);
+			}
+			if(typeof tmpEntry.children == "string"){
+				//console.log(tmpEntry.children)//
+				tmpEntry.children = JSON.parse(tmpEntry.children);		
+			}	
 			var version = {
 				version_id : tmpEntry.version_id,
 				parents : tmpEntry.parents,
