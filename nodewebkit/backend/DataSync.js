@@ -463,7 +463,7 @@ function versionCtrlCB(my_versions,other_versions){
             		//if this version has a parent exists in my_versions
             		if(my_version.isExist(tmpParents[i])){
             			var tmp = my_version.getValue(tmpParents[i])[0];
-            			if(tmp.children === null){
+            			if(tmp.children === ""){
             				var children = new Array();
             				children.push(newVersion[k].version_id);
             				tmp.children = children;

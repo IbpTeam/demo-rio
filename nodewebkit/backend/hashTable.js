@@ -5,8 +5,8 @@
 
 function hashTable(){
 	this.hashtable = {};
-	this.head = null;
-	this.tail = null;
+	this.head = "";
+	this.tail = "";
 	this.addChildren = _addChildren;
 	this.addParents = _addParents;
 	this.add = _add;
@@ -22,7 +22,7 @@ function hashTable(){
 }
 
 function _addChildren(version_id,newChildren){
-	if(this.hashtable[version_id].children == null){
+	if(this.hashtable[version_id].children == ""){
 		var children = new Array();
 		children.push(newChildren);
 		this.hashtable[version_id].children = children;
@@ -44,7 +44,7 @@ function _add(key,value){
 		//console.log("+++++++++++++++");
 		for(var k in tmpEntry){
 			if(value.version_id === tmpEntry[k].version_id){
-				if(value.file_uri !== tmpEntry[k].file_uri)
+				if(value.file_uri != tmpEntry[k].file_uri)
 					this.hashtable[key].push(value);;
 				return;
 			}
@@ -96,11 +96,11 @@ function _initVersionHash(List){
 	for(var k in List){
 		var tmpEntry = List[k];
 		//console.log(tmpEntry);
-		if(tmpEntry.children == "" || tmpEntry.children == null){
+		if(tmpEntry.children == ""){
 			var version = {
 				version_id : tmpEntry.version_id,
 				parents : tmpEntry.parents,
-				children : null,
+				children : "",
 				origin_version : tmpEntry.origin_version
 			}
 			this.head = version.origin_version;
