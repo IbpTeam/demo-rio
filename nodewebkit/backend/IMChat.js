@@ -170,11 +170,68 @@ function createAccountTable()
 
 function insertAccount(TABLE,ACCOUNT,IP)
 {
+	
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
 		return;
 	};
-	TABLE.put(ACCOUNT,IP);
+
+	var ipset = TABLE.get(ACCOUNT);
+	
+	if (typeof ipset == "undefined")
+	 {
+	 	var tmp = [];
+	 	tmp.push(IP);
+	 	TABLE.put(ACCOUNT,tmp);
+	 }
+	 else
+	 {
+	 	ipset.push(IP);
+	 	TABLE.remove(ACCOUNT);
+	 	TABLE.put(ACCOUNT,ipset);
+	 }
+	
+	return TABLE;
+}
+
+function removeAccountIP(TABLE,ACCOUNT,IP)
+{
+	if ( !net.isIP(IP)) {
+		console.log('Input IP Format Error!');
+		return;
+	};
+
+	var ipset =  TABLE.get(ACCOUNT);
+
+	TABLE.remove(ACCOUNT);
+	
+	if (typeof ipset == "undefined")
+	{
+		console.log("Input Account Error or Empty Account!");
+	};
+
+	if (ipset.length == 1) 
+	{
+		return TABLE;
+	};
+
+	var orilength = ipset.length;
+	for (var i = 0; i < ipset.length; i++)
+	{
+		if(ipset[i] == IP)
+		{
+			ipset.splice(i,1);
+			break;
+		}		
+	};
+
+	if (ipset.length == orilength)
+	{
+		console.log("No IP" + IP + "in Account "+ Account);
+	};
+
+	TABLE.put(ACCOUNT,ipset);
+
 	return TABLE;
 }
 
@@ -207,3 +264,4 @@ exports.insertAccount = insertAccount;
 exports.getIP = getIP;
 exports.clearTable = clearTable;
 exports.removeAccount = removeAccount;
+exports.removeAccountIP=removeAccountIP;
