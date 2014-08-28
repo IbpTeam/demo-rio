@@ -673,7 +673,8 @@ exports.findAllActionHistory = function(callback){
             }else{
               updActions.forEach(function(updAction){
                 updAction.parents = JSON.parse(updAction.parents);
-                updAction.children = JSON.parse(updAction.children);
+                if(updAction.children != "")
+                  updAction.children = JSON.parse(updAction.children);
                 //console.log("============================================zfbfd:");
                 //console.log(updAction.parents);
                 //console.log(updAction.children);
