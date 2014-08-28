@@ -7,8 +7,8 @@ function hashTable(){
 	this.hashtable = {};
 	this.head = "";
 	this.tail = "";
-	this.addChildren = _addChildren;
-	this.addParents = _addParents;
+	//this.addChildren = _addChildren;
+	//this.addParents = _addParents;
 	this.add = _add;
 	this.del = _del;
 	this.getAll = _getAll;
@@ -21,20 +21,20 @@ function hashTable(){
 	this.getDiffUpdate = _getDiffUpdate;
 }
 
-function _addChildren(version_id,newChildren){
-	if(this.hashtable[version_id].children == ""){
-		var children = new Array();
-		children.push(newChildren);
-		this.hashtable[version_id].children = children;
-	}else{
-		this.hashtable[version_id].children.push(newChildren);
-	}
-}
+//function _addChildren(version_id,newChildren){
+//	if(this.hashtable[version_id].children == ""){
+//		var children = new Array();
+//		children.push(newChildren);
+//		this.hashtable[version_id].children = children;
+//	}else{
+//		this.hashtable[version_id].children.push(newChildren);
+//	}
+//}
 
-function _addParents(version_id,newParents){
-	//console.log(this.hashtable[version_id].parents);
-	this.hashtable[version_id].parents.push(newParents);
-}
+//function _addParents(version_id,newParents){
+//	//console.log(this.hashtable[version_id].parents);
+//	this.hashtable[version_id].parents.push(newParents);
+//}
 
 function _add(key,value){
 	if(this.hashtable.hasOwnProperty(key)){
@@ -43,9 +43,9 @@ function _add(key,value){
 		//console.log(tmpEntry);
 		//console.log("+++++++++++++++");
 		for(var k in tmpEntry){
-			if(value.version_id === tmpEntry[k].version_id){
-				if(value.file_uri != tmpEntry[k].file_uri)
-					this.hashtable[key].push(value);;
+			if(value.version_id == tmpEntry[k].version_id){
+				if(value.hasOwnProperty("file_uri") && value.file_uri != tmpEntry[k].file_uri)
+					this.hashtable[key].push(value);
 				return;
 			}
 		}
@@ -96,10 +96,8 @@ function _initVersionHash(List){
 	for(var k in List){
 		var tmpEntry = List[k];
 		//console.log(tmpEntry);
-		//console.log(typeof tmpEntry.parents);
 		if(tmpEntry.children == ""){
 			if(typeof tmpEntry.parents == "string"){
-				//console.log(tmpEntry.parents)//
 				tmpEntry.parents = JSON.parse(tmpEntry.parents);
 			}
 			var version = {
@@ -113,11 +111,9 @@ function _initVersionHash(List){
 			this.add(version.version_id,version);
 		}else{
 			if(typeof tmpEntry.parents == "string"){
-				//console.log(tmpEntry.parents)//
 				tmpEntry.parents = JSON.parse(tmpEntry.parents);
 			}
 			if(typeof tmpEntry.children == "string"){
-				//console.log(tmpEntry.children)//
 				tmpEntry.children = JSON.parse(tmpEntry.children);		
 			}	
 			var version = {
@@ -155,11 +151,9 @@ function _createHash(List){
 
 function _getDiff(array){
 	var diff = [];
-	for(var del in array)
-	{
+	for(var del in array){
 		var res = this.getValue(array[del].file_uri);
-		if ( res == "undefined" ) 
-		{
+		if (res == "undefined"){
 			var tmpdif = {};
 			tmpdif["id"] = array[del].id;
 			tmpdif["file_uri"] = array[del].file_uri;
@@ -171,12 +165,10 @@ function _getDiff(array){
 
 function _getDiffUpdate(array){
 	var diff = [];
-	for(var del in array)
-	{
+	for(var del in array){
 		var res = this.getValue(array[del].version_id);
 		//console.log(array[del].version_id);
-		if (res == "undefined" ) 
-		{
+		if (res == "undefined"){
 			diff.push(array[del]);
 		};
 	}
