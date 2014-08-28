@@ -471,9 +471,14 @@ function versionCtrlCB(my_versions,other_versions){
             	for(var i in tmpParents){
             		//if this version has a parent exists in my_versions
             		if(my_version.isExist(tmpParents[i])){
-            			var tmp = my_version.getValue(tmpParents[j])[0];
-
-            			tmp.children.push(newVersion[k].version_id);
+            			var tmp = my_version.getValue(tmpParents[i])[0];
+            			if(tmp.children === null){
+            				var children = new Array();
+            				children.push(newVersion[k].version_id);
+            				tmp.children = children;
+            			}else{
+            				tmp.children.push(newVersion[k].version_id);
+            			}
             			var newEntry = {
             				"version_id": tmp.version_id,
             				"parents": tmp.parents,
@@ -481,7 +486,7 @@ function versionCtrlCB(my_versions,other_versions){
             				"origin_version": tmp.origin_version
             			}
             			newUpdateHistory.push(tmp);
-                    }
+            		}
                 }
                 for(var j in tmpChildren){
             		//if this version has a child exists in my_versions
@@ -521,7 +526,7 @@ function versionCtrlCB(my_versions,other_versions){
 		//reset head of my_linklist; would contain 2 children
 		//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
 
-		newUpdateCB(newUpdateHistory,newOperations);
+		setUpdate(newUpdateHistory,newUpdateEntry,newOperations,setUpdateCB);
 
         //this array will be inserted into db
         
@@ -535,9 +540,8 @@ function dealConflictCB(my_version,other_version){
 
 }
 
-
 //add new update information into db
-function SetUpdateCB(newUpdateHistory,newUpdateEntry,newOperations){
+function setUpdateCB(newUpdateHistory,newUpdateEntry,newOperations){
     console.log("==========dealing with new update==========");
 	console.log(newUpdateHistory);
 	console.log(newUpdateEntry)
