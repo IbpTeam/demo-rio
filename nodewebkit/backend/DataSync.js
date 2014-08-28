@@ -57,7 +57,9 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 
 //Sync update action
 function syncUpdateAction(other_update,updateCallBack){
-		updateCallBack(other_update,my_update);
+    commonDAO.findEachActionHistory("insert",function(my_update){
+	    updateCallBack(other_update,my_update);
+	});
 }
 
 //deal with version control
@@ -345,17 +347,7 @@ function syncStart(syncData, address){
 			////Retrive actions after insert, start to sync update actisons 
 			syncUpdateAction(updateActions,function(updateActions,my_updateActions){//////////////
 				console.log("==========start sync update!!!==========");
-				//console.log(updateActions);
-                
-                //trans children and parents from string to array
-                for(var k in my_updateActions){
-                	if(my_updateActions[k].children !== "" || my_updateActions[k].children !== null)
-                		my_updateActions[k].children = JSON.parse(my_updateActions[k].children);
-                	my_updateActions[k].parents = JSON.parse(my_updateActions[k].parents);
-                }
-
-				//console.log("==========my update actions==========");
-				//console.log(my_updateActions);
+				console.log(updateActions);
 
 				var myVersions = null;
                 var otherVersion = null;
@@ -508,9 +500,16 @@ function versionCtrlCB(my_versions,other_versions){
 			//console.log("************************************************ update")
 			//console.log(newUpdateHistory);
 			console.log("************************************************ updates & operations")
+			console.log(newUpdateHistory);	
+			console.log(newUpdateEntry);	
 			console.log(newOperations);	
+
 			//then we need modify related data and renew then in db 
-			setUpdate(newUpdateHistory,newUpdateEntry,newOperations,setUpdateCB);
+
+			var _newUpdateHistory = newUpdateHistory;
+			var _newUpdateEntry = newUpdateEntry;
+			var _newOperations = newOperations;
+			setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
 		}
 	////final version is the same
 	// #2: final version is same
@@ -519,16 +518,12 @@ function versionCtrlCB(my_versions,other_versions){
 	var newUpdateHistory = new Array();
 	var newUpdateEntry = new Array();
 	var newOperations = new Array();
-        //get the last same node of 2 linklist, from this node we start merge
 
-		//reset head of my_linklist; would contain 2 children
-		//setUpdateHistory("child",other_linklist.head.next,my_linklist.head.version_id);
-
-		setUpdate(newUpdateHistory,newUpdateEntry,newOperations,setUpdateCB);
-
-        //this array will be inserted into db
-        
-	}
+	var _newUpdateHistory = newUpdateHistory;
+	var _newUpdateEntry = newUpdateEntry;
+	var _newOperations = newOperations;
+	setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);        
+}
 }
 
 
