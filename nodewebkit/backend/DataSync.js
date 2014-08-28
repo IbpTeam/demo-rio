@@ -5,13 +5,11 @@
  * @version: 0.0.1
  **/
 
- var msgTransfer = require("./msgtransfer");
- var commonDAO = require("./DAO/CommonDAO");
- var config = require("./config");
- var hashTable = require("./hashTable");
- var llist = require("./linkedlist")
-
-var ActionHistory = require("./DAO/ActionHistoryDAO");//
+var msgTransfer = require("./msgtransfer");
+var commonDAO = require("./DAO/CommonDAO");
+var config = require("./config");
+var hashTable = require("./hashTable");
+var ActionHistory = require("./DAO/ActionHistoryDAO");
 
 var state = {
 	SYNC_IDLE:0,
