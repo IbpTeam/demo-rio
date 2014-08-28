@@ -242,34 +242,40 @@ exports.getItemById = function(id, callback){
 
 exports.createItem = function(category, item, callback , loadResourcesCb){
   var createDAO = null;
+  var tableName = null;
   //Get uniform resource identifier
   var uri = "specificURI";
   switch(category){
     case 'Contacts' : {
       createDAO = contactsDAO;
+      tableName = 'contacts';
     }
     break;
     case 'Pictures' : {
       config.dblog('insert picture');
       createDAO = picturesDAO;
+      tableName = 'pictures';
     }
     break;
     case 'Videos' : {
       config.dblog('insert video');
       createDAO = videosDAO;
+      tableName = 'videos';
     }
     break;
     case 'Documents' : {
       config.dblog('insert document');
       createDAO = documentsDAO;
+      tableName = 'documents';
     }
     break;
     case 'Music' : {
       config.dblog('insert music');
       createDAO = musicDAO;
+      tableName = 'music';
     }
     break;
-    case 'recent' : {
+/*    case 'recent' : {
       config.dblog('insert recent');
       recentDAO.createItem(item, function(err){
         if(err){
@@ -282,7 +288,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
       return;
     }
     break;    
-    
+*/   
   }
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
@@ -295,17 +301,78 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
             callback(category,item,err,loadResourcesCb);
           }
           else{
-            actionHistoryDAO.createInsertItem(item.URI,item.version,function(err){
-              if(err){
-                callback(category,item,err,loadResourcesCb);
+            if(category=='Contacts'){
+              function findByNameCb(err,insertItem){
+                if(err){
+                  console.log("DB "+tableName+" : "+item.name+" error!!");
+                  createDAO.findByName(item.name,findByNameCb);
+                }
+                else{
+                  var newItem={
+                    id:null,
+                    tableName:tableName,
+                    specificId:insertItem.id,
+                    lastAccessTime:insertItem.lastAccessTime
+                  };
+                  function createRecentItemCb(err){
+                    if(err){
+                      recentDAO.createItem(newItem,createRecentItemCb);
+                    }
+                    else{
+                      function createInsertItemCB(err){
+                        if (err) {
+                          actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                        }
+                        else{
+                          callback(category,item,'successfull',loadResourcesCb);
+                        }
+                      }
+                      actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                    }
+                  }
+                  recentDAO.createItem(newItem,createRecentItemCb);
+                }
               }
-              else{
-                callback(category,item,'successfull',loadResourcesCb);
+              createDAO.findByName(item.name,findByNameCb);
+            }
+            else{
+              function findByPathCb(err,insertItem){
+                if(err){
+                  console.log("DB "+tableName+" : "+item.path+" error!!");
+                  createDAO.findByPath(item.path,findByPathCb);
+                }
+                else{
+                  var newItem={
+                    id:null,
+                    tableName:tableName,
+                    specificId:insertItem.id,
+                    lastAccessTime:insertItem.lastAccessTime
+                  };
+                  function createRecentItemCb(err){
+                    if(err){
+                      recentDAO.createItem(newItem,createRecentItemCb);
+                    }
+                    else{
+                      function createInsertItemCB(err){
+                        if (err) {
+                          actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                        }
+                        else{
+                          callback(category,item,'successfull',loadResourcesCb);
+                        }
+                      }
+                      actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                    }
+                  }
+                  recentDAO.createItem(newItem,createRecentItemCb);
+                }
               }
-            });
+              createDAO.findByPath(item.path,findByPathCb);
+            }
           }
         });
-      }else{
+      }
+      else{
         console.log("Action History DAO Exception: randomId is null.");
       }
     });
@@ -414,7 +481,7 @@ exports.updateItemValue = function(id, uri, key, value, version, callback){
   }
 
 
-  uniqueId.getRandomBytes(12,function(newVersion){
+  uniqueID.getRandomBytes(12,function(newVersion){
     if (newVersion != null) {     
       updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
         if(err){
@@ -502,7 +569,11 @@ exports.findAllActionHistory = function(callback){
             }else{
               updActions.forEach(function(updAction){
                 updAction.parents = JSON.parse(updAction.parents);
-                updAction.children = JSON.parse(children);
+                if(updAction.children != "")
+                  updAction.children = JSON.parse(updAction.children);
+                //console.log("============================================zfbfd:");
+                //console.log(updAction.parents);
+                //console.log(updAction.children);
               });
               updateActions = updActions;
               callback(insertActions, deleteActions, updateActions);

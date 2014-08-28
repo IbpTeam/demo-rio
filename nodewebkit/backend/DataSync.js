@@ -5,13 +5,11 @@
  * @version: 0.0.1
  **/
 
- var msgTransfer = require("./msgtransfer");
- var commonDAO = require("./DAO/CommonDAO");
- var config = require("./config");
- var hashTable = require("./hashTable");
- var llist = require("./linkedlist")
-
-var ActionHistory = require("./DAO/ActionHistoryDAO");//
+var msgTransfer = require("./msgtransfer");
+var commonDAO = require("./DAO/CommonDAO");
+var config = require("./config");
+var hashTable = require("./hashTable");
+var ActionHistory = require("./DAO/ActionHistoryDAO");
 
 var state = {
 	SYNC_IDLE:0,
@@ -57,16 +55,26 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 	});
 }
 
-//Sync insert action
-function syncUpdateAction(other_updateHistory,updateCallBack){
-	commonDAO.findEachActionHistory("update",function(my_updateHistory){
-		updateCallBack(other_updateHistory,my_updateHistory);
+//Sync update action
+function syncUpdateAction(other_update,updateCallBack){
+    commonDAO.findEachActionHistory("insert",function(my_update){
+	    updateCallBack(other_update,my_update);
 	});
 }
 
 //deal with version control
-function versionCtrl(myTrees,other_trees,versionCtrlCB,CBsyncComplete){
-	versionCtrlCB(myTrees,other_trees);
+function versionCtrl(my_versions,other_versions,versionCtrlCB,CBsyncComplete){
+	versionCtrlCB(my_versions,other_versions);
+}
+
+//deal with the conflicts
+function dealConflict(my_version,other_version,dealConflictCB){
+	dealConflictCB(my_version,other_version);
+}
+
+//to set a update_history with new child or parent
+function setUpdate(newUpdateHistory,newUpdateEntry,newOperations,SetUpdateCB){
+	SetUpdateCB(newUpdateHistory,newUpdateEntry,newOperations)
 }
 
 //Send sync request when other devices connect the net.
@@ -78,61 +86,61 @@ function syncRequest(deviceName,deviceId,deviceAddress){
   }*/
 
   switch(currentState){
-	case state.SYNC_IDLE: {
-		console.log("syncRequest==========" + currentState);
-		currentState = state.SYNC_REQUEST;
-		remoteDeviceId = deviceId;
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "sync"
-		};
-		syncList.unshift(syncDevice);
-		var requestMsg = {
+  	case state.SYNC_IDLE: {
+  		console.log("syncRequest==========" + currentState);
+  		currentState = state.SYNC_REQUEST;
+  		remoteDeviceId = deviceId;
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "sync"
+  		};
+  		syncList.unshift(syncDevice);
+  		var requestMsg = {
   			type: "syncRequest",
   			account: config.ACCOUNT,
   			deviceId: config.uniqueID,
   			deviceAddress: config.SERVERIP
   		};
   		syncSendMessage(deviceAddress[0],requestMsg);
-	}
-	break;
-	case state.SYNC_REQUEST: {
-		console.log("syncRequest=============" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	case state.SYNC_START: {
-		console.log("syncRequest============" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	case state.SYNC_COMPLETE: {
-		console.log("syncRequest==========" + currentState);
-		var syncDevice = {
-			deviceName: deviceName,
-			deviceId: deviceId,
-			deviceAddress: deviceAddress,
-			status: "wait"
-		};
-		syncList.push(syncDevice);
-	}
-	break;
-	default: {
-		console.log("this is in default switch in syncRequest");
+  	}
+  	break;
+  	case state.SYNC_REQUEST: {
+  		console.log("syncRequest=============" + currentState);
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "wait"
+  		};
+  		syncList.push(syncDevice);
+  	}
+  	break;
+  	case state.SYNC_START: {
+  		console.log("syncRequest============" + currentState);
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "wait"
+  		};
+  		syncList.push(syncDevice);
+  	}
+  	break;
+  	case state.SYNC_COMPLETE: {
+  		console.log("syncRequest==========" + currentState);
+  		var syncDevice = {
+  			deviceName: deviceName,
+  			deviceId: deviceId,
+  			deviceAddress: deviceAddress,
+  			status: "wait"
+  		};
+  		syncList.push(syncDevice);
+  	}
+  	break;
+  	default: {
+  		console.log("this is in default switch in syncRequest");
 		//console.log(data);
 	}
 }
@@ -303,181 +311,285 @@ function syncStart(syncData, address){
 	console.log("update actions: ");
 	console.log(updateActions);
 
-	//var deletetList = new Array();
-	//var insertList = new Array();
-	var updateList = new Array();
-	var conflictList = new Array();
-
-	//Sync data, delete > insert > update
+	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
-		var myDelete = new hashTable.HashTable();
+		var myDelete = new hashTable.hashTable();
 		myDelete.createHash(my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
-		var newDelete = myDelete.getDiff(deleteActions,myDelete);
+		//these are new delete actions
+		var newDelete = myDelete.getDiff(deleteActions);
+
 		console.log("==========new delete history==========");
 		console.log(newDelete);
-		ActionHistory.createAll("delete",newDelete,function(){console.log("==========delete insert done!!!==========")});
 
-		//Retrive actions after delete, start to sync insert actions 
+		//create delete hository
+        var new_delete = newDelete;
+		ActionHistory.createAll("delete",new_delete,function(){console.log("==========delete insert done!!!==========")});
+
+		////Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
-			var myInsert = new hashTable.HashTable();
+			var myInsert = new hashTable.hashTable();
 			myInsert.createHash(my_insertHistory);
 
 			//remove some repeat insert items in insertActions
-			insertActions = myInsert.getDiff(insertActions,myDelete);
-            
-			console.log("==========start sync insert!!!==========");
-			var newInsert = myInsert.getDiff(insertActions,myInsert);
+			insertActions = myInsert.getDiff(insertActions);
 
-            console.log("==========new insert history==========");
+			console.log("==========start sync insert!!!==========");
+			//these are new insert actions
+			var newInsert = myDelete.getDiff(my_deleteHistory);
+
+			console.log("==========new insert history==========");
 			console.log(newInsert);
+
 			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
-			////Retrive actions after insert, start to sync update actions 
-			syncUpdateAction(updateActions,function(updateActions,my_updateHistory){
+			////Retrive actions after insert, start to sync update actisons 
+			syncUpdateAction(updateActions,function(updateActions,my_updateActions){//////////////
 				console.log("==========start sync update!!!==========");
-				console.log("----------my update actions----------");
 				console.log(updateActions);
-			    var myUpdate = new hashTable.HashTable();
-			    myUpdate.createHash(my_updateHistory);
 
-			    //condition #1 : no conflict oprate on data; new upadte history
-				updateActions.forEach(function(updateItem){
-					if(!isExist(my_updateHistory,updateItem))
-						newUpdateList.push(updateItem);
-				});
-				//ActionHistory.createAll("update",newUpdateList,function(){console.log("---insert update done!!!---")});
+				var myVersions = null;
+                var otherVersion = null;
 
-                //condition #2 : there are conflicts on operating data
-                //1>no conflict: operate on the same data but the results are the same
-                //2>is conflict: operate on same data and same key
+                var my_versions = {
+                	head: "",
+                	tail: "",
+                	versions: null,
+                	operations: null
+                };
 
-			    //insert items (need it's edit_id) should be 
-			    //the head all each version tree
-			    var initTreeHead = my_insertHistory.concat(newInsert);
-			    console.log("----------init heads----------");
-			    console.log(initTreeHead);
+                var m_tmpVersion = new hashTable.hashTable();
+                var m_tmpOperation = new hashTable.hashTable();
+                m_tmpVersion.initVersionHash(my_updateActions);
+                m_tmpOperation.initOperationHash(my_updateActions);
+                //console.log("----------my tmpversion----------");
+				//console.log(m_tmpVersion);
 
-			    //when all heads are ready 
-			    //then we begin to build all version tree in local
-			    console.log("----------building trees----------")
-			    var myTrees = new Array();//new hashTable.HashTable();
-			    for(var k in initTreeHead){
-			    	var newTree = new llist.linklist();
-			    	newTree.init(initTreeHead[k]);
-			    	newTree.createFromArray(my_updateHistory);
-			    	myTrees.push(newTree);
-			    	console.log("<show me the linklist>")
-			    	newTree.print()
-			    	//myTrees.put(newTree.head.data.dataURI,newTree);
-			    }
-			    console.log("----------my tree----------")
-			    console.log(myTrees);
+                my_versions.versions = m_tmpVersion;
+                my_versions.operations = m_tmpOperation;
+                my_versions.head = m_tmpVersion.head;
+                my_versions.tail = m_tmpVersion.tail;
 
 
-                //build trees from other devices 
-                var other_trees = new Array();
-			    for(var k in initTreeHead){
-			    	var newTree = new llist.linklist();
-			    	newTree.init(initTreeHead[k]);
-			    	newTree.createFromArray(newTree.head,updateActions);
-			    	myTrees.push(newTree);
-			    	console.log("<show me the linklist>")
-			    	newTree.print()
-			    	//myTrees.put(newTree.head.data.dataURI,newTree);
-			    }
-			    console.log("----------other tree----------")
-			    console.log(myTrees);
+                var other_versions = {
+                	head: "",
+                	tail: "",
+                	versions: null,
+                	operations: null,
+                };
+
+                var o_tmpVersion = new hashTable.hashTable();
+                var o_tmpOperation = new hashTable.hashTable();
+                o_tmpVersion.initVersionHash(updateActions);
+                o_tmpOperation.initOperationHash(updateActions);
+                //console.log("----------other tmpversion----------");
+				//console.log(o_tmpVersion);
+
+                other_versions.versions = o_tmpVersion;
+                other_versions.operations = o_tmpOperation;
+                other_versions.head = o_tmpVersion.head;
+                other_versions.tail = o_tmpVersion.tail;
 
                 //do version control stuff
                 //is it OK to put syncComplete here?
-                versionCtrl(myTrees,other_trees,versionCtrlCB,syncComplete);
 
-                /*
-				console.log("==========start sync update!!!==========");
-				updateActions.forEach(function(updateItem){
-					if(isExist(my_updateHistory,updateItem)){
-						console.log('==========operate on the same file==========');
-						console.log(updateItem);
-						if(isConflict(my_updateHistory,updateItem)){
-							console.log("conflict!!!!!!!!!!!");
-							conflictList.push(updateItem);
-						}else{
-							console.log("it's ok!!!!!!!!!!!");
-							updateList.push(updateItem);
-						}
-					}else{
-						console.log("==========We got a new update:==========");
-						console.log(updateItem);
-						updateList.push(updateItem);
-					};
-				});
-                */
-				//
-				//console.log("==========here are conflicts==========")
-				//console.log(updateList);
-				//versionCtrl(conflictList);
-				//ActionHistory.createAll("update",updateList,function(){console.log("---insert update done!!!---")});
-			});
-		});
+                //console.log("-------------------------------------------------------")
+                //console.log(my_versions);
+                //console.log(other_versions);
+                //console.log("------------------------------------------------------")
+
+                myVersions = my_versions;
+                otherVersion = other_versions;
+                //console.log("--------------------------- myVersion");
+				//console.log(myVersions);
+                //console.log("--------------------------- otherVersion");
+				//console.log(otherVersion);				
+                versionCtrl(myVersions,otherVersion,versionCtrlCB,syncComplete);
+
+        });
+});
 });
 }
 
+
+
 //deal with the conflict situation 
-function versionCtrlCB(myTrees,other_trees){                                                                                                                                                                                                                                                                                                                                                                                                           
-    //to be continue ......
+function versionCtrlCB(my_versions,other_versions){                                                                                                                                                                                                                                                                                                                                                                                                           
+    console.log("==========start dealing with version control==========");
+    //console.log("-------------------------------------------------------")
+	var my_head = my_versions.head;
+	var my_tail = my_versions.tail;
+	var my_version = my_versions.versions;
+	//var my_operations = my_versions.operations;
+	var my_version_id = my_versions.versions.getAll();
+	var other_head = other_versions.head;
+	var other_tail = other_versions.tail;
+	var other_version = other_versions.versions;
+	var other_operations = other_versions.operations;
+	var other_version_id = other_versions.versions.getAll();
+
+    //fisrt compare the final version
+    ////not the same
+	if(!isSame(my_tail,my_version,other_tail,other_version)){
+		var my_coPoint = my_version.isExist(other_tail);
+		var other_coPoint = other_version.isExist(my_tail);
+
+        //the final version is not same and is not any prev version of another linklist
+        //considered as a conlict occur
+		if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
+			dealConflict(my_tail,other_tail,dealConflictCB);
+		}
+		// #1: other_tail is a prev version of my_linklist
+		else if(my_version.isExist(other_tail) || other_version.isExist(my_tail)){
+			console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #11111111");
+			var newUpdateHistory = new Array();
+			var newUpdateEntry = new Array();
+			var newOperations = new Array();
+
+            //these are new version's version_id, from other_versions
+            //console.log("*****************************************version_id")
+            var newVersion = my_version.getDiffUpdate(other_version_id);
+            //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
+            //console.log("******************other version")
+
+            //check each versoin's parents/children if exist in my_versions
+            for(var k in newVersion){
+            	var tmpParents = newVersion[k].parents;
+            	var tmpChildren = newVersion[k].children;
+
+            	for(var i in tmpParents){
+            		//if this version has a parent exists in my_versions
+            		if(my_version.isExist(tmpParents[i])){
+            			var tmp = my_version.getValue(tmpParents[i])[0];
+            			if(tmp.children === null){
+            				var children = new Array();
+            				children.push(newVersion[k].version_id);
+            				tmp.children = children;
+            			}else{
+            				tmp.children.push(newVersion[k].version_id);
+            			}
+            			var newEntry = {
+            				"version_id": tmp.version_id,
+            				"parents": tmp.parents,
+            				"children": tmp.children,
+            				"origin_version": tmp.origin_version
+            			}
+            			newUpdateHistory.push(tmp);
+            		}
+                }
+                for(var j in tmpChildren){
+            		//if this version has a child exists in my_versions
+            		if(my_version.isExist(tmpChildren[j])){
+            			var tmp = my_version.getValue(tmpChildren[j])[0];
+            			//console.log(tmp);
+            			tmp.parents.push(newVersion[k].version_id);
+            			var newEntry = {
+            				"version_id": tmp.version_id,
+            				"parents": tmp.parents,
+            				"children": tmp.children,
+            				"origin_version": tmp.origin_version
+            			}
+            			newUpdateHistory.push(tmp);
+            		}
+            	}
+            	newOperations.push(other_operations.getValue(newVersion[k].version_id));
+            	newUpdateEntry.push(newVersion[k]);
+            }
+
+			//console.log("************************************************ update")
+			//console.log(newUpdateHistory);
+			console.log("************************************************ updates & operations")
+			console.log(newUpdateHistory);	
+			console.log(newUpdateEntry);	
+			console.log(newOperations);	
+
+			//then we need modify related data and renew then in db 
+
+			var _newUpdateHistory = newUpdateHistory;
+			var _newUpdateEntry = newUpdateEntry;
+			var _newOperations = newOperations;
+			setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
+		}
+	////final version is the same
+	// #2: final version is same
+}else{
+	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ #22222222");
+	var newUpdateHistory = new Array();
+	var newUpdateEntry = new Array();
+	var newOperations = new Array();
+
+	var _newUpdateHistory = newUpdateHistory;
+	var _newUpdateEntry = newUpdateEntry;
+	var _newOperations = newOperations;
+	setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);        
+}
+}
+
+
+//callback when conflict occurs
+function dealConflictCB(my_version,other_version){
+	//to be continue ...
 
 }
 
-//check is exist or not
-function isExist(List,item){
-	var flag = false;
-	if(List === null)
-		return false;
-	List.forEach(function(listItem){
-		if(item.dataURI === listItem.dataURI){
-			flag = true;
-		}
-	});
-	return flag;
+//add new update information into db
+function setUpdateCB(newUpdateHistory,newUpdateEntry,newOperations){
+    console.log("==========dealing with new update==========");
+	console.log(newUpdateHistory);
+	console.log(newUpdateEntry)
+	console.log(newOperations);	
+
+}
+
+//compare the data to decide if the version is same or not
+function isFileSame(){
+	//to be continue ...
 }
 
 //check if the two versions are the same
-function isSame(node_1,node_2){
-	if(node_1.data.dataURI !== node_2.data.dataURI){
-		console.log("Error! : not the same data! ");
-		return;
-	}
-
-	if(node_1.data.edit_id === node_2.data.edit_id){
-		return true;
-	}else{
-		if(node_1.data.key === node_2.data.key && node_1.data.value === node_2.data.value)
-			return true;
-		else
-			return false;
-	}
-	//to be continue ...
+function isSame(my_version,my_versions,other_version,other_versions){
 	//need to compare with data
+    //var tmpversion = my_versions.operations;
+	//var my_operations = tmpversion.getValue(my_version);
+	//var other_operations = other_versions.operations[other_version];
+	if(my_version === other_version)
+		return true;
+	return false;
 }
 
-//check the data is conflict or not
-//need more detail
-//to be continue
-/*
-function isConflict(List,item){
-	var flag = false;
-	if(List === null)
-		return false;
-	List.forEach(function(listItem){
-		if(item.dataURI === listItem.dataURI && item.key === listItem.key){
-			flag = true;
-		}
+//check if my_version is a prev version in other_linklist
+function isPrevVersion(version_id,my_version){
+	if(my_version.isExist(version_id))
+		return my_version.get(version_id);
+}
+
+//check if keys are conflict
+function isConflict(my_operation,other_operation){
+	if(my_operation === null || other_operation){
+		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+		console.log("Error: operations of this version in update_operations list is EMPTY");
+		console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+		return undefined;
+	}
+	my_operation.forEach(function(myItem){
+		other_operation.forEach(function(otherItem){
+			if(myItem.key === otherItem)
+				return true;
+		});
 	});
-	return flag;
-};
-*/
+	return false;
+}
+
+//get operations with specific version_id
+function getOperations(version_id,operations){
+	var allOperations = new Array();
+	for(var k in operations){
+		if(operations[k].version_id === version_id)
+			allOperations.push(operations[k]);
+	}
+	return allOperations;
+}
 
 //Sync complete
 function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
@@ -522,14 +634,13 @@ function syncComplete(isLocal,isComplete,deviceId,deviceAddress){
 	else if(currentState == state.SYNC_COMPLETE){
 		var syncDataObj = {
 			type: "syncComplete",
-  			account: config.ACCOUNT,
-  			deviceId: config.uniqueID,
-  			isComplete: true,
+			account: config.ACCOUNT,
+			deviceId: config.uniqueID,
+			isComplete: true,
 		};
 
 		syncSendMessage(deviceAddress, syncDataObj);
 	}
-
 }
 
 //Sync error
@@ -538,8 +649,6 @@ function syncError(err){
 }
 
 //Export method
-//exports.createHash = createHash;
-//exports.getDiff = getDiff;
 exports.syncStart = syncStart;
 exports.syncRequest = syncRequest;
 exports.syncResponse = syncResponse;

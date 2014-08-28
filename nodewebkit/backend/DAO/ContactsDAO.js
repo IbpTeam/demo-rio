@@ -55,6 +55,20 @@ exports.findById = function(id,findByIdCallBack){
 }
 
 /**
+ * @method findByName
+ *   根据ID查询表中指定数据
+ * @param id
+ *   contacts表中的主键
+ * @return contacts
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByName = function(name,findByNameCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDCONTACTBYNAME, name, findByNameCallBack);
+  closeDB(db);
+}
+
+/**
  * @method createItem
  *   增加一条新联系人信息
  * @param item
