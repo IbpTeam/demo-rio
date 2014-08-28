@@ -61,7 +61,7 @@ exports.repoAddCommit = function (repoPath,filename,event,callback)
                         emitter.emit('repoCommit_idle'); 
                     console.log("emit commit next commit "+path);*/
 
-                      callback();
+                      callback(commitId,op);
                     });
                   });  
                 });  
@@ -123,7 +123,7 @@ exports.repoRmCommit = function (repoPath,filename,callback)
                     var emitter = new events.EventEmitter();
                         emitter.emit('repoCommit_idle'); 
                     console.log("emit commit next commit "+path);*/
-                      callback();
+                      callback(commitId,'Delete');
                     });
                   });  
                 });  
