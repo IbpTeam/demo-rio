@@ -73,8 +73,8 @@ function dealConflict(my_version,other_version,dealConflictCB){
 }
 
 //to set a update_history with new child or parent
-function setUpdate(newUpdateHistory,newUpdateEntry,newOperations,SetUpdateCB){
-	SetUpdateCB(newUpdateHistory,newUpdateEntry,newOperations)
+function setUpdate(newUpdateHistory,newUpdateEntry,newOperations,setUpdateCB){
+	setUpdateCB(newUpdateHistory,newUpdateEntry,newOperations)
 }
 
 //Send sync request when other devices connect the net.
