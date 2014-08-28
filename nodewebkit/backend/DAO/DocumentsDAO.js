@@ -83,6 +83,20 @@ exports.findByPath = function(path, findByPathCallBack){
 }
 
 /**
+ * @method findByUri
+ *   根据path查询表中指定数据
+ * @param id
+ *   documents表中的主键
+ * @return documents
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByUri = function(uri, findByUriCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDDOCUMENTBYURI, uri, findByUriCallBack);
+  closeDB(db);
+}
+
+/**
  * @method createItem
  *   增加一条文档信息
  * @param item
@@ -115,11 +129,11 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  */
 exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
   var db = openDB();
-  config.dblog("udpate documents uri : " + uri);
-  config.dblog("udpate key=" + key + 'value='+value);
+  console.log("udpate documents uri : " + uri);
+  console.log("udpate key=" + key + 'value='+value);
   //db.run(SQLSTR.UPDATEPICTURE, key, value, uri, updateItemValueCallBack);
   var sqlstr="UPDATE documents SET "+key+" = '"+value+"',version='"+version+"' WHERE URI = '"+uri+"'";
-  config.dblog("sqlstr:" +sqlstr);
+  console.log("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }

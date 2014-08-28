@@ -69,6 +69,20 @@ exports.findByName = function(name,findByNameCallBack){
 }
 
 /**
+ * @method findByUri
+ *   根据ID查询表中指定数据
+ * @param id
+ *   contacts表中的主键
+ * @return contacts
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByUri = function(uri,findByUriCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDCONTACTBYURI, uri, findByUriCallBack);
+  closeDB(db);
+}
+
+/**
  * @method createItem
  *   增加一条新联系人信息
  * @param item

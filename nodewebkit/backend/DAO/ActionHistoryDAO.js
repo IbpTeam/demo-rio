@@ -58,12 +58,14 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
       var parentsStr = null;
       var origin_version = null;
       if (record == null) {
-        var sqlStr = "select * from inserthistory where file_uri = '" + dataURI +"'";
-        db.run(sqlStr, function(err,item){
+        var sqlStr = "select * from InsertHistory where file_uri = '" + dataURI +"'";
+        console.log("run sql :  " + sqlStr);
+        db.get(sqlStr, function(err,item){
           if (err) {
             console.log("Error: select item from insert history error ! " + err);
           }else{
             var parents = new Array();
+            console.log("update item :  " + item);
             parents.push(item.origin_version);
             parentsStr = JSON.stringify(parents);
             origin_version = item.origin_version;
