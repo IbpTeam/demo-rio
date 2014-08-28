@@ -127,6 +127,29 @@ function sendIMMsg(IP,PORT,MSG){
 	});
 }
 
+function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
+{
+	var ipset =  TABLE.get(ACCOUNT);
+	
+	if (typeof ipset == "undefined")
+	{
+		console.log("destination account not in local lan!");
+		/*
+		here are some server msg send functions!
+		*/
+	};
+
+	/*
+	MSG already be capsuled by encapsuMSG function
+	*/
+	for (var i = 0; i < ipset.length; i++) 
+	{
+		sendIMMSG(ipset[i],IP,PORT);
+	};
+
+	console.log("send " + ipset.length + "IPs in "+ ACCOUNT + "Success!");
+}
+
 function encapsuMSG(MSG,TYPE,FROM,TO)
 {
 	var MESSAGE = [];
@@ -202,13 +225,14 @@ function removeAccountIP(TABLE,ACCOUNT,IP)
 	};
 
 	var ipset =  TABLE.get(ACCOUNT);
-
-	TABLE.remove(ACCOUNT);
 	
 	if (typeof ipset == "undefined")
 	{
 		console.log("Input Account Error or Empty Account!");
+		return;
 	};
+
+	TABLE.remove(ACCOUNT);
 
 	if (ipset.length == 1) 
 	{
@@ -265,3 +289,4 @@ exports.getIP = getIP;
 exports.clearTable = clearTable;
 exports.removeAccount = removeAccount;
 exports.removeAccountIP=removeAccountIP;
+exports.sendMSGbyAccount=sendMSGbyAccount;
