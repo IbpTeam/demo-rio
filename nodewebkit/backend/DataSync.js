@@ -57,9 +57,7 @@ function syncInsertAction(other_insertHistory,insertCallBack){
 
 //Sync update action
 function syncUpdateAction(other_update,updateCallBack){
-	commonDAO.findEachActionHistory("update",function(my_update){
 		updateCallBack(other_update,my_update);
-	});
 }
 
 //deal with version control
