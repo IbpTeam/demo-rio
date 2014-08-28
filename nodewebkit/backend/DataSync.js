@@ -337,13 +337,12 @@ function syncStart(syncData, address){
 
 			console.log("==========start sync insert!!!==========");
 			//these are new insert actions
-			var newInsert = myInsert.getDiff(insertActions);
+			var newInsert = myDelete.getDiff(my_deleteHistory);
 
 			console.log("==========new insert history==========");
 			console.log(newInsert);
-			//create insert hository
-			var new_insert = newInsert
-			ActionHistory.createAll("insert",new_insert,function(){console.log("==========insert done!!!==========")});
+
+			ActionHistory.createAll("insert",newInsert,function(){console.log("==========insert done!!!==========")});
 
 			////Retrive actions after insert, start to sync update actisons 
 			syncUpdateAction(updateActions,function(updateActions,my_updateActions){//////////////
@@ -351,10 +350,11 @@ function syncStart(syncData, address){
 				//console.log(updateActions);
                 
                 //trans children and parents from string to array
-				for(var k in my_updateActions){
-					my_updateActions[k].children = JSON.parse(my_updateActions[k].children);
-					my_updateActions[k].parents = JSON.parse(my_updateActions[k].parents);
-				}
+                for(var k in my_updateActions){
+                	if(my_updateActions[k].children !== "" || my_updateActions[k].children !== null)
+                		my_updateActions[k].children = JSON.parse(my_updateActions[k].children);
+                	my_updateActions[k].parents = JSON.parse(my_updateActions[k].parents);
+                }
 
 				//console.log("==========my update actions==========");
 				//console.log(my_updateActions);
