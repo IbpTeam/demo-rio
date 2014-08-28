@@ -297,6 +297,16 @@ function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   getServerAddress(getServerAddressCb);
 }
 
+//API getDataDir:获取数据路径
+function getDataDir(getDataDirCb){
+  var cp = require('child_process');
+  cp.exec('echo $USER',function(error,stdout,stderr){
+    var usrname=stdout.replace("\n","");
+    var data = require('/home/'+usrname+'/.demo-rio/config');
+    getDataDirCb(data.dataDir);
+ });
+}
+
 /*
 //API demoDataSync
 function demoDataSync(deviceName,deviceId,deviceAddress){

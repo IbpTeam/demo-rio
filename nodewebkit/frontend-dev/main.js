@@ -71,6 +71,11 @@ $(document).ready(function() {
 	});
 });
 
+function folder_view_mode(){
+    var folder = new Folder($('#files'));
+    folder.use_folder_view_mode();
+}
+
 function pre_config(){
     (function(jQuery) {
       jQuery.eventEmitter = {

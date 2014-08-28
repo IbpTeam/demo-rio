@@ -33,12 +33,12 @@ var chCommitList = new Array();
 var monitorFilesStatus =  false;
 exports.repoCommitStatus = repoCommitStatus;
 
-function addData(itemPath,loadResourcesCb){
+function addData(itemPath,commitId,addDataCb){
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
   var itemFilename=itemPath.substring(nameindex+1,pointIndex);
-  config.riolog("read file "+itemPath);
+  util.log("read file "+itemPath);
   if(itemPostfix == 'contacts'){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
@@ -62,32 +62,16 @@ function addData(itemPath,loadResourcesCb){
           createTime:null,
           lastModifyTime:null,
           lastAccessTime:currentTime,
-          commit_id:initCommit
+          commit_id:commitId,
+          is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-/*        category='recent';
-        newItem={
-          id:null,
-          tableName:'contacts',
-          specificId:contactId,
-          lastAccessTime:currentTime,
-          others:null
-        };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
       });
     });
   }
   else{
     function getFileStatCb(error,stat)
     {
-     //repoCommit(resourcePath,itemPath,function (result){
-    //  console.log("repoCommit : "+result);
-    //  if(result==null)
-    //    return;
-      //util.log("Parent commit = "+resourceRepo.getLatestCommit(resourcePath));
-     // fs.readFile(resourcePath+'/.git/refs/heads/master',function(err,data){
-     //   util.log("Parent commit = "+data);
-     // });
       var mtime=stat.mtime;
       var ctime=stat.ctime;
       var size=stat.size;
@@ -108,18 +92,10 @@ function addData(itemPath,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:initCommit
+          commit_id:commitId,
+          is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-/*        category='recent';
-        newItem={
-          id:null,
-          tableName:'documents',
-          specificId:documentId,
-          lastAccessTime:ctime,
-          others:null
-        };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -133,21 +109,13 @@ function addData(itemPath,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:initCommit
+          commit_id:commitId,
+          is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-/*        category='recent';
-        newItem={
-          id:null,
-          tableName:'pictures',
-          specificId:pictureId,
-          lastAccessTime:ctime,
-          others:null
-        };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-        var category='Music';
+        var category='Music'; 
         var newItem={
           id:null,
           filename:itemFilename,
@@ -159,18 +127,10 @@ function addData(itemPath,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:initCommit
+          commit_id:commitId,
+          is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);
-/*        category='recent';
-        newItem={
-          id:null,
-          tableName:'music',
-          specificId:musicId,
-          lastAccessTime:ctime,
-          others:null,
-        };
-        commonDAO.createItem(category,newItem,createItemCb,loadResourcesCb);*/
+        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
       } 
       else{
         writeDbNum --;
@@ -181,79 +141,84 @@ function addData(itemPath,loadResourcesCb){
   }
 }
 
+function repoCommitCb(commitId,op){
+  if(op=='New'){
+    writeDbNum++;
+    addData(addCommitList.shift(),commitId.sha(),function(){
+      if(addCommitList[0]!=null){
+        writeDbNum++;
+        addData(addCommitList[0],function(){
+          resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
+        });
+      }
+      else if(rmCommitList[0]!=null){
+        resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
+      }  
+      else if(chCommitList[0]!=null){
+        resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
+      } 
+      else{
+        repoCommitStatus = 'idle';  
+        util.log("commit complete");
+      }
+    });
+  }
+  else if(op=='Delete'){
+    commonDAO.getItemByPath(rmCommitList.shift(),function (item){
+      commonDAO.updateItemValue(item.id,item.URI,'is_delete',1,item.version,function(){
+        commonDAO.updateItemValue(item.id,item.URI,'commit_id',commitId.sha(),item.version,function(){
+          if(rmCommitList[0]!=null){
+            resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
+          } 
+          else if(addCommitList[0]!=null){
+            writeDbNum++;
+            addData(addCommitList[0],function(){
+              resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
+            });
+          }
+          else if(chCommitList[0]!=null){
+            resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
+          }       
+          else{
+            repoCommitStatus = 'idle';  
+            util.log("commit complete");
+          }
+        }); 
+      });
+    });
+  }
+  else if(op=='Change'){
+    list=chCommitList;
+  }
+}
+
 function addFile(path,resourcePath){
   util.log("new file "+path);
   addCommitList.push(path);
-  function repoAddCommitCb(){
-    //util.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@addCommitList[0]="+addCommitList[0]); 
-    if(addCommitList[0]!=null){
-      resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
-    }
-    else if(rmCommitList[0]!=null){
-      resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoAddCommitCb);
-    }  
-    else if(chCommitList[0]!=null){
-      resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoAddCommitCb);
-    } 
-    else{
-      repoCommitStatus = 'idle';  
-      util.log("commit complete");
-    }
-  }
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+addCommitList[0]);
     repoCommitStatus = 'busy';  
-    resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoAddCommitCb);
+    resourceRepo.repoAddCommit(resourcePath,addCommitList[0],'add',repoCommitCb);
   }
 }
 
 function rmFile(path,resourcePath){
   util.log("remove file "+path);
   rmCommitList.push(path);
-  function repoRmCommitCb(){
-    if(rmCommitList[0]!=null){
-      resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
-    } 
-    else if(addCommitList[0]!=null){
-      resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoRmCommitCb);
-    }
-    else if(chCommitList[0]!=null){
-      resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoRmCommitCb);
-    }       
-    else{
-      repoCommitStatus = 'idle';  
-      util.log("commit complete");
-    }
-  }
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+rmCommitList[0]);
     repoCommitStatus = 'busy';  
-    resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoRmCommitCb);
+    resourceRepo.repoRmCommit(resourcePath,rmCommitList[0],repoCommitCb);
   }
 }
 
 function chFile(path,resourcePath){
   util.log("new file "+path);
   chCommitList.push(path);
-  function repoChCommitCb(){
-    if(chCommitList[0]!=null){
-      resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
-    }     
-    else if(addCommitList[0]!=null){
-      resourceRepo.repoAddCommit(resourcePath,addCommitList.shift(),'add',repoChCommitCb);
-    }
-    else if(rmCommitList[0]!=null){
-      resourceRepo.repoRmCommit(resourcePath,rmCommitList.shift(),repoChCommitCb);
-    }       
-    else{
-      repoCommitStatus = 'idle';  
-      util.log("commit complete");
-    }
-  }
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+chCommitList[0]);
     repoCommitStatus = 'busy';  
-    resourceRepo.repoAddCommit(resourcePath,chCommitList.shift(),'change',repoChCommitCb);
+    resourceRepo.repoAddCommit(resourcePath,chCommitList[0],'change',repoCommitCb);
   }
 }
 
@@ -415,7 +380,7 @@ function syncDb(loadResourcesCb,resourcePath)
     config.riolog('writeDbNum= '+writeDbNum);
 //    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
     fileList.forEach(function(item){
-      addData(item,loadResourcesCb);
+      addData(item,initCommit,loadResourcesCb);
     });
   }
   git.Repo.init(resourcePath,false,function(initReporError, repo){
