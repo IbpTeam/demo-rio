@@ -98,6 +98,10 @@ function _initVersionHash(List){
 		//console.log(tmpEntry);
 		//console.log(typeof tmpEntry.parents);
 		if(tmpEntry.children == ""){
+			if(typeof tmpEntry.parents == "string"){
+				//console.log(tmpEntry.parents)//
+				tmpEntry.parents = JSON.parse(tmpEntry.parents);
+			}
 			var version = {
 				version_id : tmpEntry.version_id,
 				parents : tmpEntry.parents,

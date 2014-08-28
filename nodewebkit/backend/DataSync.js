@@ -447,8 +447,8 @@ function versionCtrlCB(my_versions,other_versions){
 
     //these are new version's version_id, from other_versions
     var newVersion = my_version.getDiffUpdate(other_version_id);
-    //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
-    //console.log(my_versions)
+    console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
+    console.log(my_versions)
     //check each versoin's parents/children if exist in my_versions
         for(var k in newVersion){
         	var tmpParents = newVersion[k].parents;
