@@ -489,15 +489,15 @@ exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
 
 function getItemByUri(uri,getItemByUriCb){
   contactsDAO.findByUri(uri,function(err,item){
-    if(err){
+    if(item == null){
       picturesDAO.findByUri(uri,function(err,item){
-        if(err){
+        if(item == null){
           videosDAO.findByUri(uri,function(err,item){
-            if(err){
+            if(item == null){
               documentsDAO.findByUri(uri,function(err,item){
-                if(err){
+                if(item == null){
                   musicDAO.findByUri(uri,function(err,item){
-                    if(err){
+                    if(item == null){
                       getItemByUriCb(err);
                     }
                     else{
@@ -606,6 +606,37 @@ exports.updateItemValue = function(id, uri, key, value, version, callback){
       console.log("item = "+json);
       update();
     }
+  });
+}
+
+exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryItems, createOperationItems){
+  modifyHistoryItems.forEach(function(modifyItem){    
+    var sqlstr="UPDATE UpdateHistory SET parents='"+modifyItem.parents+"',children='"+modifyItem.children+"' WHERE version_id='"+modifyItem.version_id+"'";
+    function modifyUpdateCb(err,sql){
+      if (err) {
+        console.log("Error: modify update history error ! " + err);
+        actionHistoryDAO.modifyUpdateHistoryItem(sql,modifyUpdateCb);
+      }
+    }
+    actionHistoryDAO.modifyUpdateHistoryItem(sqlstr,modifyUpdateCb);
+  });
+  createHistoryItems.forEach(function(newHistoryItem){
+    function insertUpdateHistoryCb(err,historyItem){
+      if (err) {
+        console.log("Error: insert update history error ! " + err);
+        actionHistoryDAO.insertUpdateHistoryItem(historyItem,insertUpdateHistoryCb);
+      }
+    }
+    actionHistoryDAO.insertUpdateHistoryItem(newHistoryItem,insertUpdateHistoryCb);
+  });
+  createOperationItems.forEach(function(newOperationItem){
+    function insertUpdateOperationCb(err,operationItem){
+      if (err) {
+        console.log("Error: insert update operation error ! " + err);
+        actionHistoryDAO.insertUpdateOperationItem(operationItem,insertUpdateOperationCb);
+      }
+    }
+    actionHistoryDAO.insertUpdateOperationItem(newOperationItem,insertUpdateOperationCb);
   });
 }
 
