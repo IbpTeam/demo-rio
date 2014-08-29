@@ -419,11 +419,12 @@ function syncStart(syncData, address){
 function versionCtrlCB(my_versions,other_versions){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
     console.log(my_versions)
+    //console.log(other_versions)
 
     var my_head = my_versions.head;
     var my_tail = my_versions.tail;
     var my_version = my_versions.versions;
-	//var my_operations = my_versions.operations;
+	var my_operations = my_versions.operations;
 	var my_version_id = my_versions.versions.getAll();
 	var other_head = other_versions.head;
 	var other_tail = other_versions.tail;
@@ -431,20 +432,34 @@ function versionCtrlCB(my_versions,other_versions){
 	var other_operations = other_versions.operations;
 	var other_version_id = other_versions.versions.getAll();
 
+
     //the final version is not same and is not any prev version of another linklist
     //considered as a conlict occur
-    if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail)){
+    if(!my_version.isExist(other_tail) && !other_version.isExist(my_tail) && other_tail != "" && my_tail != ""){
     	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # MAY conflict");
-    	//console.log(other_tail)
-
     	dealConflict(my_tail,other_tail,dealConflictCB);
     }else{
+
     // #1: other_tail is a prev version of my_linklist
     console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # NO conflict");
+    //console.log(other_tail)
     var newUpdateHistory = new Array();
     var newUpdateEntry = new Array();
     var newOperations = new Array();
 
+    if(other_tail == ""){
+    	return;
+    }
+    else if(my_tail == ""){
+    	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ local clean, first time sync")
+    	newUpdateHistory = "";
+    	newUpdateEntry = other_version.getAll();
+    	newOperations = other_operations.getAll();
+    	//console.log(newUpdateEntry)
+    	//console.log(newOperations)
+    }
+    else{
+    	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ normal sync")
     //these are new version's version_id, from other_versions
     var newVersion = my_version.getDiffUpdate(other_version_id);
     //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
@@ -491,8 +506,12 @@ function versionCtrlCB(my_versions,other_versions){
         	newOperations.push(other_operations.getValue(newVersion[k].version_id));
         	newUpdateEntry.push(newVersion[k]);
         }
+    }
 
        //then we need modify related data and renew then in db 
+        //console.log(newUpdateHistory)
+        //console.log(newUpdateEntry)
+        //console.log(newOperations)
         var _newUpdateHistory = newUpdateHistory;
         var _newUpdateEntry = newUpdateEntry;
         var _newOperations = newOperations;
