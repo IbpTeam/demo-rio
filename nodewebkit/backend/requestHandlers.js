@@ -460,6 +460,30 @@ function getServerAddressInHttpServer(response, postData){
 }
 exports.getServerAddressInHttpServer = getServerAddressInHttpServer;
 
+//wangyu: add function for getting data dir
+function getDataDirInHttpServer(response, postData){
+  console.log("Request handler 'getDataDirInHttpServer' was called");
+  console.log("postData");
+  postDataJson=JSON.parse(postData);
+  console.log("arg:****** "+postDataJson.arg);
+  if (postDataJson.func != 'getDataDir') {
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else {
+    var cp = require('child_process');
+    cp.exec('echo $USER',function(error,stdout,stderr){
+      var usrname=stdout.replace("\n","");
+      var data = require('/home/'+usrname+'/.demo-rio/config');
+      var json = JSON.stringify(data.dataDir);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    });
+  }
+}
+exports.getDataDirInHttpServer = getDataDirInHttpServer;
 
 //add function for file transfer 
 //2014.7.21 by xiquan
