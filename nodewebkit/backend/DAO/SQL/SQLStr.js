@@ -6,7 +6,7 @@ exports.FINDCATEGORYBYID = "select * from Category where id = ?";
 
 //SQL used in ContactsDAO
 exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";
-exports.FINDALLCONTACTS = "select * from Contacts";
+exports.FINDALLCONTACTS = "select * from Contacts where is_delete = 0";
 exports.FINDCONTACTBYID = "select * from contacts where id = ?";
 exports.FINDCONTACTBYNAME = "select * from contacts where name = ?";
 exports.FINDCONTACTBYURI = "select * from contacts where uri = ?";
@@ -16,7 +16,7 @@ exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
 
 //SQL used in PicturesDAO
 exports.COUNTTOTALPICTURES = "select count(*) as total from pictures";
-exports.FINDALLPICTURES = "select * from pictures";
+exports.FINDALLPICTURES = "select * from pictures where is_delete = 0";
 exports.FINDPICTUREBYID = "select * from pictures where id = ?";
 exports.FINDPICTUREBYPATH = "select * from pictures where path = ?";
 exports.FINDPICTUREBYURI = "select * from pictures where uri = ?";
@@ -27,7 +27,7 @@ exports.GETMAXIDPICTURES = "select max(id) as maxid from pictures";
 
 //SQL used in VideosDAO
 exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
-exports.FINDALLVIDEOS = "select * from videos";
+exports.FINDALLVIDEOS = "select * from videos where is_delete = 0";
 exports.FINDVIDEOBYID = "select * from videos where id = ?";
 exports.FINDVIDEOBYPATH = "select * from videos where path = ?";
 exports.FINDVIDEOBYURI = "select * from videos where uri = ?";
@@ -38,7 +38,7 @@ exports.GETMAXIDVIDEOS = "select max(id) as maxid from videos";
 
 //SQL used in DocumentsDAO
 exports.COUNTTOTALDOCUMENTS = "select count(*) as total from documents";
-exports.FINDALLDOCUMENTS = "select * from documents";
+exports.FINDALLDOCUMENTS = "select * from documents where is_delete = 0";
 exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
 exports.FINDDOCUMENTBYPATH = "select * from documents where path = ?";
 exports.FINDDOCUMENTBYURI = "select * from documents where uri = ?";
@@ -49,7 +49,7 @@ exports.GETMAXIDDOCUMENTS = "select max(id) as maxid from documents";
 
 //SQL used in MusicDAO
 exports.COUNTTOTALMUSIC = "select count(*) as total from music";
-exports.FINDALLMUSIC = "select * from music";
+exports.FINDALLMUSIC = "select * from music where is_delete = 0";
 exports.FINDMUSICBYID = "select * from music where id = ?";
 exports.FINDMUSICBYPATH = "select * from music where path = ?";
 exports.FINDMUSICBYURI = "select * from music where uri = ?";
