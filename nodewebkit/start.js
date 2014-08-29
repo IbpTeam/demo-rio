@@ -24,7 +24,7 @@ handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifySe
 handle["/getServerAddress"] = requestHandlers.getServerAddressInHttpServer;
 handle["/fileSend"] = requestHandlers.sendFileInHttp;//By xiquan 2014.7.21
 handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
-
+handle["/getDataDir"] = requestHandlers.getDataDirInHttpServer;
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';

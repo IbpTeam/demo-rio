@@ -231,3 +231,20 @@ function receiveFileFromHttp(path){
     }
   });
 }
+
+//wangyu: add function for getting data directory.
+function getDataDirFromHttp(getDataDirCb){
+    $.ajax({
+    url: "/getDataDir",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getDataDir","arg":"null"}',
+    success: function(result) {
+      getDataDirCb(result);
+    },
+    error: function(e) {
+      getDataDirCb(e);
+    }
+  });
+}
