@@ -438,6 +438,11 @@ exports.updateItemValue = function(id, uri, key, value, version, callback){
   });
 }
 
+exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryItems, createOperationItems, callback){
+
+  callback("success");
+}
+
 exports.updateRecentTable = function(tableName,dataId,time,callback){
   recentDAO.updateTime(tableName,dataId,time, function(err){
     if(err){
