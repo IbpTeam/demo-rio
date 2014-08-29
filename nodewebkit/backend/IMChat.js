@@ -3,12 +3,27 @@ var hashtable = require('hashtable');
 var crypto = require('crypto');
 var dboper = require('./DAO/IMChatDao.js');
 
+/*
+* @method MD5
+*  计算某个字符串的MD5值
+* @param str
+*  待计算的字符串
+* @param encoding
+*  编码方式，默认为hex，该参数可省略
+* @return md5
+*  返回md5校验值
+*/
 function MD5(str, encoding)
 {
 	return crypto.createHash('md5').update(str).digest(encoding || 'hex');
 }
 
-
+/*
+* @method initIMServer
+*  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
+* @return null
+*  没有返回值
+*/
 function initIMServer(){
 	var server =  net.createServer(function(c) {
 		console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
@@ -50,12 +65,12 @@ function initIMServer(){
 	c.on('close',function(){
 			console.log('Remote ' + remoteAD +  ' : ' + remotePT + ' disconnected!');
 		});
-//	c.write('Hello!\r\n');
+
 
 	c.on('error',function(){
 			console.log('Unexpected Error!');
 	});
-//	c.pipe(c);
+
 	});
 
 	server.on('error',function(err){
@@ -67,6 +82,20 @@ function initIMServer(){
 	});
 }
 
+/*
+* @method sendMSG
+*  根据IP和端口号来发送封装好的数据，若发送成功，则把成功发送的消息存至本地数据库中。若发送失败，则重新发送（循环5次）
+* @param IP
+*  目的方的IP地址
+* @param PORT
+*  接收方帐号
+* @param MSG
+*  用encapsuMSG包装过的待发送消息
+* @param PORT
+*  消息接收方的通信端口
+* @return null
+*  没有返回值
+*/
 function sendIMMsg(IP,PORT,MSG){
 	var count = 0;
 	var id =0;
@@ -127,6 +156,20 @@ function sendIMMsg(IP,PORT,MSG){
 	});
 }
 
+/*
+* @method sendMSGbyAccount
+*  根据账户来发送消息，该函数从对应表中获取某一帐号所对应的所有IP地址集合，然后遍历该集合，把消息推送到该帐号的所有IP地址
+* @param TABLE
+*  用来存储ACCOUNT和IP对应关系的对应表，若对应表为空，说明该机器不在局域网内，将该消息推送到服务器端
+* @param ACCOUNT
+*  接收方帐号
+* @param MSG
+*  用encapsuMSG包装过的待发送消息
+* @param PORT
+*  消息接收方的通信端口
+* @return null
+*  没有返回值
+*/
 function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 {
 	var ipset =  TABLE.get(ACCOUNT);
@@ -150,6 +193,20 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 	console.log("send " + ipset.length + "IPs in "+ ACCOUNT + "Success!");
 }
 
+/*
+* @method encapsuMSG
+*  将待发送的消息封装成JSON格式，并将JSON数据序列化
+* @param MSG
+*  消息内容，如可以是聊天内容，上下线通知等
+* @param TYPE
+*  消息类型，可以是Chat，Reply等
+* @param FROM
+*  消息的发送方标识，可以是Account帐号
+* @param TO
+*  消息的接收方标识，可以是Account帐号
+* @return rply
+*  封装好，并且已经序列化的消息字符串
+*/
 function encapsuMSG(MSG,TYPE,FROM,TO)
 {
 	var MESSAGE = [];
@@ -185,12 +242,32 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 	}
 }
 
+/*
+* @method createAccountTable
+*  创建用户账户->IP的映射表
+* @param null 
+*   
+* @return accounttable
+*  返回新创建的映射表
+*/
 function createAccountTable()
 {
 	var accounttable = new hashtable();
 	return accounttable;
 }
 
+/*
+* @method insertAccount
+*  在当前账户中插入新的IP地址（包括同一账户多个用户在线情况），若帐号不存在，则创建新的帐号
+* @param TABLE
+*  用createAccountTable函数创建的映射表 
+* @param ACCOUNT
+*  待插入IP的帐号
+* @param IP
+*  新增的IP地址
+* @return TABLE
+*  返回新插入IP的映射表
+*/
 function insertAccount(TABLE,ACCOUNT,IP)
 {
 	
@@ -217,6 +294,18 @@ function insertAccount(TABLE,ACCOUNT,IP)
 	return TABLE;
 }
 
+/*
+* @method removeAccountIP
+*  在当前账户中删除某一下线的IP，若当前IP为帐号对应的唯一IP，则删除该帐号
+* @param TABLE
+*  用createAccountTable函数创建的映射表 
+* @param ACCOUNT
+*  待删除IP的帐号
+* @param IP
+*  要删除的IP地址
+* @return TABLE
+*  返回删除IP的映射表
+*/
 function removeAccountIP(TABLE,ACCOUNT,IP)
 {
 	if ( !net.isIP(IP)) {
@@ -259,6 +348,16 @@ function removeAccountIP(TABLE,ACCOUNT,IP)
 	return TABLE;
 }
 
+/*
+* @method getIP
+*  返回某一账户下对应的所有IP，该返回值是一个包含一个或多个IP的字符串数组
+* @param TABLE
+*  用createAccountTable函数创建的映射表 ，该映射表包含N个账户
+* @param ACCOUNT
+*  想获得IP组的指定帐号
+* @return ip
+*  返回ACCOUNT账户下所对应的全部IP地址
+*/
 function getIP(TABLE,ACCOUNT)
 {
 	var ip = TABLE.get(ACCOUNT);
@@ -270,11 +369,29 @@ function getIP(TABLE,ACCOUNT)
 	return ip;
 }
 
+/*
+* @method clearTable
+*  清空某一个映射表下的全部映射关系
+* @param TABLE
+*  用createAccountTable函数创建的映射表 ，待清空的表名
+* @return null
+*  返回清空了的映射表（为空）
+*/
 function clearTable(TABLE)
 {
 	return TABLE.clear();
 }
 
+/*
+* @method removeAccount
+*  清空某一个映射表下的某个账户映射关系
+* @param TABLE
+*  用createAccountTable函数创建的映射表 ，待删除ACCOUNT的表名
+* @param ACCOUNT
+*  待删除的ACCOUNT名称
+* @return TABLE
+*  返回删除了ACCOUNT对应关系的映射表
+*/
 function removeAccount(TABLE,ACCOUNT)
 {
 	return TABLE.remove(ACCOUNT);
