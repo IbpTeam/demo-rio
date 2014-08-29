@@ -240,36 +240,88 @@ exports.getItemById = function(id, callback){
   }
 }
 
+exports.getItemByPath = function(path, callback){
+  var createDAO = null;
+  var pointIndex=path.lastIndexOf('.');
+  var itemPostfix=path.substr(pointIndex+1);
+  var nameindex=path.lastIndexOf('/');
+  var itemFilename=path.substring(nameindex+1,pointIndex);
+  if(itemPostfix == 'contacts'){
+    createDAO = contactsDAO;
+  }
+  else if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+    createDAO = documentsDAO;
+  }
+  else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+    createDAO = picturesDAO;
+  }
+  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+    createDAO = musicDAO;
+  } 
+  else {
+    callback(null);
+    return;
+  } 
+  if(createDAO==contactsDAO){
+    function findByNameCb(err,item){
+      if(err){
+        createDAO.findByName(path,findByNameCb);
+      }
+      else{
+        callback(item);
+      }
+    }
+    createDAO.findByName(path,findByNameCb);
+  }
+  else{
+    function findByPathCb(err,item){
+      if(err){
+        createDAO.findByPath(path,findByPathCb);
+      }
+      else{
+        callback(item);       
+      }
+    }
+    createDAO.findByPath(path,findByPathCb);
+  }
+}
+
 exports.createItem = function(category, item, callback , loadResourcesCb){
   var createDAO = null;
+  var tableName = null;
   //Get uniform resource identifier
   var uri = "specificURI";
   switch(category){
     case 'Contacts' : {
       createDAO = contactsDAO;
+      tableName = 'contacts';
     }
     break;
     case 'Pictures' : {
       config.dblog('insert picture');
       createDAO = picturesDAO;
+      tableName = 'pictures';
     }
     break;
     case 'Videos' : {
       config.dblog('insert video');
       createDAO = videosDAO;
+      tableName = 'videos';
     }
     break;
     case 'Documents' : {
       config.dblog('insert document');
       createDAO = documentsDAO;
+      tableName = 'documents';
     }
     break;
     case 'Music' : {
       config.dblog('insert music');
       createDAO = musicDAO;
+      tableName = 'music';
     }
     break;
-    case 'recent' : {
+/*    case 'recent' : {
       config.dblog('insert recent');
       recentDAO.createItem(item, function(err){
         if(err){
@@ -282,7 +334,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
       return;
     }
     break;    
-    
+*/   
   }
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
@@ -295,17 +347,78 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
             callback(category,item,err,loadResourcesCb);
           }
           else{
-            function createInsertItemCB(err){
-              if (err) {
-                actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-              }else{
-                callback(category,item,'successfull',loadResourcesCb);
+            if(category=='Contacts'){
+              function findByNameCb(err,insertItem){
+                if(err){
+                  console.log("DB "+tableName+" : "+item.name+" error!!");
+                  createDAO.findByName(item.name,findByNameCb);
+                }
+                else{
+                  var newItem={
+                    id:null,
+                    tableName:tableName,
+                    specificId:insertItem.id,
+                    lastAccessTime:insertItem.lastAccessTime
+                  };
+                  function createRecentItemCb(err){
+                    if(err){
+                      recentDAO.createItem(newItem,createRecentItemCb);
+                    }
+                    else{
+                      function createInsertItemCB(err){
+                        if (err) {
+                          actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                        }
+                        else{
+                          callback(category,item,'successfull',loadResourcesCb);
+                        }
+                      }
+                      actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                    }
+                  }
+                  recentDAO.createItem(newItem,createRecentItemCb);
+                }
               }
+              createDAO.findByName(item.name,findByNameCb);
             }
-            actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+            else{
+              function findByPathCb(err,insertItem){
+                if(err){
+                  console.log("DB "+tableName+" : "+item.path+" error!!");
+                  createDAO.findByPath(item.path,findByPathCb);
+                }
+                else{
+                  var newItem={
+                    id:null,
+                    tableName:tableName,
+                    specificId:insertItem.id,
+                    lastAccessTime:insertItem.lastAccessTime
+                  };
+                  function createRecentItemCb(err){
+                    if(err){
+                      recentDAO.createItem(newItem,createRecentItemCb);
+                    }
+                    else{
+                      function createInsertItemCB(err){
+                        if (err) {
+                          actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                        }
+                        else{
+                          callback(category,item,'successfull',loadResourcesCb);
+                        }
+                      }
+                      actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
+                    }
+                  }
+                  recentDAO.createItem(newItem,createRecentItemCb);
+                }
+              }
+              createDAO.findByPath(item.path,findByPathCb);
+            }
           }
         });
-      }else{
+      }
+      else{
         console.log("Action History DAO Exception: randomId is null.");
       }
     });
@@ -374,66 +487,124 @@ exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
   })
 }
 
-exports.updateItemValue = function(id, uri, key, value, version, callback){
-  config.dblog("update id:" + id);
-  config.dblog("update key:" + key+'='+value);
-  var index=id.indexOf('#');
-  var tableId=id.substring(0,index);
-  var dataId=id.substr(index+1);
-    config.dblog("tableId id:" + tableId);
-        config.dblog("dataId id:" + dataId);
-  var updateDAO = null;
-  var category = "";
-  switch(tableId){
-    case '1' : {
-      updateDAO = contactsDAO;
-      category = "Contacts";
-    }
-    break;
-    case '2' : {
-      updateDAO = picturesDAO;
-      category = "Pictures"
-    }
-    break;
-    case '3' : {
-      updateDAO = videosDAO;
-      category = "Videos";
-    }
-    break;
-    case '4' : {
-      updateDAO = documentsDAO;
-      category = "Documents";
-    }
-    break;
-    case '5' : {
-      updateDAO = musicDAO;
-      category = "Music";
-    } 
-    break;   
-    
-  }
-
-
-  uniqueId.getRandomBytes(12,function(newVersion){
-    if (newVersion != null) {     
-      updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
+function getItemByUri(uri,getItemByUriCb){
+  contactsDAO.findByUri(uri,function(err,item){
+    if(err){
+      picturesDAO.findByUri(uri,function(err,item){
         if(err){
-          callback(id,uri,key,value,version,err);
-        }
-        else{
-          actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, newVersion, function(err){
+          videosDAO.findByUri(uri,function(err,item){
             if(err){
-              callback(id,uri,key,value,version,err);
+              documentsDAO.findByUri(uri,function(err,item){
+                if(err){
+                  musicDAO.findByUri(uri,function(err,item){
+                    if(err){
+                      getItemByUriCb(err);
+                    }
+                    else{
+                      getItemByUriCb(item);
+                    }
+                  });
+                }
+                else{
+                  getItemByUriCb(item);
+                }
+              });
             }
             else{
-              config.dblog("update" + category + "successfull");
-              callback(id,uri,key,value,version,'successfull');
+              getItemByUriCb(item);
             }
           });
         }
+        else{
+          getItemByUriCb(item);
+        }
       });
-    }else{
-      console.log("Action History DAO Exception: randomId is null.");
+    }
+    else{
+      getItemByUriCb(item);
+    }
+  });
+}
+exports.getItemByUri = getItemByUri;
+
+exports.updateItemValue = function(id, uri, key, value, version, callback){
+  var updateDAO=null;
+  function update(){  
+      
+      uniqueID.getRandomBytes(12,function(newVersion){
+      if (newVersion != null) {  
+        console.log(updateDAO+uri+" "+key+" "+value);   
+        updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
+          if(err){
+            console.log("updateItemValueByUri error");
+            callback(id,uri,key,value,version,err);
+          }
+          else{
+            console.log("############update is_delete complete");
+            actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, newVersion, function(err){
+              if(err){
+                callback(id,uri,key,value,version,err);
+              }
+              else{
+                config.dblog("update " + uri + " successfull");
+                callback(id,uri,key,value,version,'successfull');
+              }
+            });
+          }
+        });
+      }
+      else{
+        console.log("Action History DAO Exception: randomId is null.");
+      }
+    });
+  }
+  contactsDAO.findByUri(uri,function(err,item){
+    if(item==null){
+      picturesDAO.findByUri(uri,function(err,item){
+        if(item==null){
+          videosDAO.findByUri(uri,function(err,item){
+            if(item==null){
+              documentsDAO.findByUri(uri,function(err,item){
+                if(item==null){
+                  musicDAO.findByUri(uri,function(err,item){
+                    if(item==null){
+                      callback(err);
+                      return;
+                    }
+                    else{
+                      updateDAO=musicDAO;
+                      console.log("updateDAO = musicDAO");   
+                      update();
+                    }
+                  });
+                }
+                else{
+                  updateDAO=documentsDAO;
+                  console.log("updateDAO = documentsDAO");  
+                  update();
+                }
+              });
+            }
+            else{
+              updateDAO=videosDAO;
+              console.log("updateDAO = videosDAO");  
+              update();
+            }
+          });
+        }
+        else{
+          updateDAO=picturesDAO;
+          console.log("updateDAO = picturesDAO");  
+          update();
+        }
+      });
+    }
+    else{
+      var json=JSON.stringify(item);
+      updateDAO=contactsDAO;
+      console.log("updateDAO = contactsDAO");  
+      console.log("item = "+json);
+      update();
     }
   });
 }
@@ -507,7 +678,11 @@ exports.findAllActionHistory = function(callback){
             }else{
               updActions.forEach(function(updAction){
                 updAction.parents = JSON.parse(updAction.parents);
-                updAction.children = JSON.parse(children);
+                if(updAction.children != "")
+                  updAction.children = JSON.parse(updAction.children);
+                //console.log("============================================zfbfd:");
+                //console.log(updAction.parents);
+                //console.log(updAction.children);
               });
               updateActions = updActions;
               callback(insertActions, deleteActions, updateActions);
