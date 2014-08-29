@@ -92,7 +92,8 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
         parents.push(version);
         parentsStr = JSON.stringify(parents);
         origin_version = record.origin_version;
-        modifyUpdateHistoryItem(version,"children",childrenStr,function(err){
+        var sqlstr="UPDATE UpdateHistory SET children='"+childrenStr+"' WHERE version_id='"+version+"'";
+        modifyUpdateHistoryItem(sqlstr,function(err){
           if (err) {
             console.log("Error: modify UpdateHistory table error!  " + err);
           }else{
@@ -111,6 +112,30 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
   closeDB(db);
 }
 
+exports.insertUpdateHistoryItem = function(item,insertUpdateHistoryCb){
+  var db = openDB();
+  db.run(SQLSTR.CREATEUPDATEITEM,item.version_id,item.parents,item.children,item.origin_version,function(err){
+    if (err) {
+      insertUpdateHistoryCb(err,item);
+    }else{
+      insertUpdateHistoryCb(null,null);
+    }
+  });
+  closeDB(db);
+}
+
+exports.insertUpdateOperationItem = function(item,insertUpdateOperationCb){
+  var db = openDB();
+  db.run(SQLSTR.CREATEUPDATEOPERATIONS,item.version_id,item.file_uri,item.key,item.value,function(err){
+    if (err) {
+      insertUpdateOperationCb(err,item);
+    }else{
+      insertUpdateOperationCb(null,null);
+    }
+  });
+  closeDB(db);
+}
+
 /**
  * @method modifyUpdateHistoryItem
  *   修改一条更新数据信息
@@ -121,10 +146,15 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
  * @param value 
  *   所修改值
  */
-exports.modifyUpdateHistoryItem = function(version, key, value, modifyUpdateItemCallBack){
+exports.modifyUpdateHistoryItem = function(sqlstr, modifyUpdateItemCallBack){
   var db = openDB();
-  var sqlstr="UPDATE UpdateHistory SET "+key+" = '"+value+"' WHERE version = '"+version+"'";
-  db.run("update UpdateHistory set ", dataURI, key, value, randomId,createInsertItemCallBack);
+  db.run(sqlstr,function(err){
+    if (err) {
+      modifyUpdateItemCallBack(err,sqlstr);
+    }else{
+      modifyUpdateItemCallBack(null,null);
+    }
+  });
   closeDB(db);
 }
 
