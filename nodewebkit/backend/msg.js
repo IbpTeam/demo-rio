@@ -1,19 +1,22 @@
 //msg.js
 
+var WebSocketServer = require('ws').Server;
 //var net = require('net');
-var server = require('socket.io')();
-var _client = require('socket.io/node_modules/socket.io-client');
+//var server = require('socket.io')();
+//var io = require('socket.io/node_modules/socket.io-client');
 var config = require('./config');
 var dataSync = require('./DataSync');
 
 
 function initServer(){
+	server = new WebSocketServer({port: config.MSGPORT});
+
 	server.on('connection',function(c) {
-		console.log('Client ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+		console.log('messages ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
 		var remoteAD = c.remoteAddress;
 		var remotePT = c.remotePort;
 
-	c.on('data', function(msgStr) {
+	c.on('message', function(msgStr) {
 		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
 		var msgObj = JSON.parse(msgStr);
 		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgObj.type);
@@ -56,8 +59,6 @@ function initServer(){
 //	c.pipe(c);
 	});
 
-
-
 	server.listen(config.MSGPORT, function(){
 		console.log('Server Binded! '+ config.MSGPORT);
 	});
@@ -65,27 +66,33 @@ function initServer(){
 
 
 function sendMsg(IP,MSG){
-//	console.log("--------------------------"+IP);
-	if ( !net.isIP(IP)) {
-		console.log('Input IP Format Error!');
-		return;
-	};
+	console.log("--------------------------"+IP);
+	//if ( !net.isIP(IP)) {
+	//	console.log('Input IP Format Error!');
+	//	return;
+	//};
 //	console.log("=========================="+config.SERVERIP)
+
+    var ws = new WebSocket('http://'+IP+':'config.MSGPORT);
+
 	if (IP == config.SERVERIP) {
 		console.log("Input IP is localhost!");
 		return;
 	};
-	var  client = new _client();
-	client.connect("'"+IP+":"+config.MSGPORT+"'",function(){
-		client.send(MSG,function(){
-			client.end();
-		});
-	});
+	
+    ws.on('open', function() {
+    ws.send('something');
+    });
+	//var  client = new _client();
+	//client.on('connect',function(){
+	//	console.log("+++++++++++++++++++++++++++++++++++======")
+	//	client.send(MSG);
+	//});
 
-	client.on('error',function(err){
-		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
-		client.end();
-	});
+	//client.on('error',function(err){
+	//	console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
+	//	client.end();
+	//});
 }
 
 exports.initServer=initServer;
