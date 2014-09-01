@@ -114,7 +114,7 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
 
 exports.insertUpdateHistoryItem = function(item,insertUpdateHistoryCb){
   var db = openDB();
-  db.run(SQLSTR.CREATEUPDATEITEM,item.version_id,item.parents,item.children,item.origin_version,function(err){
+  db.run(SQLSTR.CREATEUPDATEITEM,item.version_id,JSON.stringify(item.parents),JSON.stringify(item.children),item.origin_version,function(err){
     if (err) {
       insertUpdateHistoryCb(err,item);
     }else{
@@ -231,6 +231,7 @@ exports.createAll = function(action,List,callback){
   switch(action){
     case "insert": {
       List.forEach(function(item){
+        console.log(item)
         db.run(SQLSTR.CREATEINSERTITEM, item.file_uri,callback);
       });
     }
