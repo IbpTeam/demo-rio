@@ -148,13 +148,13 @@ function getDataSourceByIdFromHttp(getDataSourceByIdCb,id){
   });
 }
 
-function updateDataValueFromHttp(updateDataValueCb,id,uri,key,value,version){
+function updateDataValueFromHttp(updateDataValueCb,uri,version,item){
     $.ajax({
     url: "/updateDataValue",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"updateDataValue","arg1":"'+id+'","arg2":"'+uri+'","arg3":"'+key+'","arg4":"'+value+'","arg5":"'+version+'"}',
+    data: '{"func":"updateDataValue","arg1":"'+uri+'","arg2":"'+version+'","arg3":"'+JSON.stringify(item)+'"}',
     success: function(result) {
       updateDataValueCb(result);
     },

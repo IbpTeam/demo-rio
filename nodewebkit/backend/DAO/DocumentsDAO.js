@@ -127,13 +127,14 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,newVersion,item,updateItemValueCallBack){
   var db = openDB();
-  console.log("udpate documents uri : " + uri);
-  console.log("udpate key=" + key + 'value='+value);
-  //db.run(SQLSTR.UPDATEPICTURE, key, value, uri, updateItemValueCallBack);
-  var sqlstr="UPDATE documents SET "+key+" = '"+value+"',version='"+version+"' WHERE URI = '"+uri+"'";
-  console.log("sqlstr:" +sqlstr);
+  var sqlstr = "update documents set ";
+  for(var attrName in item){
+    sqlstr = sqlstr + attrName + "='" + item[attrName] + "',";
+  }
+  sqlstr = sqlstr + "version='"+newVersion+"' WHERE URI = '"+uri+"'";
+  config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);
 }

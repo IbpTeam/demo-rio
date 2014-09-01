@@ -527,27 +527,27 @@ function getItemByUri(uri,getItemByUriCb){
 }
 exports.getItemByUri = getItemByUri;
 
-exports.updateItemValue = function(id, uri, key, value, version, callback){
+exports.updateItemValue = function(uri, version, item, callback){
   var updateDAO=null;
   function update(){  
       
       uniqueID.getRandomBytes(12,function(newVersion){
       if (newVersion != null) {  
-        console.log(updateDAO+uri+" "+key+" "+value);   
-        updateDAO.updateItemValueByUri(uri,key,value,newVersion, function(err){
+        //console.log(updateDAO+uri+" "+key+" "+value); 
+        updateDAO.updateItemValueByUri(uri,newVersion,item,function(err){
           if(err){
             console.log("updateItemValueByUri error");
-            callback(id,uri,key,value,version,err);
+            callback(uri,version,item,err);
           }
           else{
             console.log("############update is_delete complete");
-            actionHistoryDAO.createUpdateHistoryItem(uri, key, value, version, newVersion, function(err){
+            actionHistoryDAO.createUpdateHistoryItem(uri, version, newVersion, item, function(err){
               if(err){
-                callback(id,uri,key,value,version,err);
+                callback(uri,version,item,err);
               }
               else{
                 config.dblog("update " + uri + " successfull");
-                callback(id,uri,key,value,version,'successfull');
+                callback(uri,version,item,'successfull');
               }
             });
           }
