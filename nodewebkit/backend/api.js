@@ -299,12 +299,16 @@ function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
 
 //API getDataDir:获取数据路径
 function getDataDir(getDataDirCb){
-  var cp = require('child_process');
-  cp.exec('echo $USER',function(error,stdout,stderr){
-    var usrname=stdout.replace("\n","");
-    var data = require('/home/'+usrname+'/.demo-rio/config');
-    getDataDirCb(data.dataDir);
- });
+  console.log("Request handler 'getDataDir' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getDataDirFromLocal(getDataDirCb);
+  }
+  else{
+    console.log('You are in remote '); 
+    getDataDirFromHttp(getDataDirCb);
+  }
 }
 
 /*

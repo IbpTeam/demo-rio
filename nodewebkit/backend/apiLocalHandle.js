@@ -292,3 +292,13 @@ function receiveFileFromLocal(path){
   fileTranfer.startReceiving(path);
 }
 exports.receiveFileFromLocal = receiveFileFromLocal;
+
+function getDataDirFromLocal(getDataDirFromLocalCb){
+  var cp = require('child_process');
+  cp.exec('echo $USER',function(error,stdout,stderr){
+    var usrname=stdout.replace("\n","");
+    var data = require('/home/'+usrname+'/.demo-rio/config');
+    getDataDirFromLocalCb(data.dataDir);
+ });
+}
+exports.getDataDirFromLocal = getDataDirFromLocal;
