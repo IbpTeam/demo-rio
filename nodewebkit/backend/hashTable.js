@@ -145,6 +145,8 @@ function _createHash(List){
 
 function _getDiff(array){
 	var diff = [];
+	if(array == "")
+		return array;
 	for(var del in array){
 		var res = this.getValue(array[del].file_uri);
 		//console.log(res);
@@ -160,6 +162,8 @@ function _getDiff(array){
 
 function _getDiffUpdate(array){
 	var diff = [];
+	if(array == "")
+		return array;
 	for(var del in array){
 		var res = this.getValue(array[del].version_id);
 		//console.log(array[del].version_id);
