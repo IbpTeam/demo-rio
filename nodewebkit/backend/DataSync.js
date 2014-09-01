@@ -5,8 +5,7 @@
  * @version: 0.0.1
  **/
 
- //var msgTransfer = require("./msgtransfer");
-var msgTransfer = require("./msg");
+ var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
  var hashTable = require("./hashTable");

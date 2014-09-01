@@ -1,20 +1,30 @@
-var net = require('net');
+//msg.js
+
+var WebSocketServer = require('ws').Server;
+var WebSocket = require('ws');
+//var net = require('net');
+//var server = require('socket.io')();
+//var io = require('socket.io/node_modules/socket.io-client');
 var config = require('./config');
 var dataSync = require('./DataSync');
 
 
 function initServer(){
-	var server =  net.createServer(function(c) {
-		console.log('Client ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
-		var remoteAD = c.remoteAddress;
-		var remotePT = c.remotePort;
+	server = new WebSocketServer({port: config.MSGPORT});
 
-	c.on('data', function(msgStr) {
-		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
-		var msgObj = JSON.parse(msgStr);
-		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgObj.type);
-		switch(msgObj.type){
-			case 'syncRequest': {
+	server.on('connection',function(c) {
+		console.log('messages ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+		var remoteAD = c._socket.remoteAddress;
+		var remotePT = c._socket.remotePort;
+
+		c.on('message', function(msgStr) {
+			console.log(msgStr)
+
+			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
+			var msgObj = JSON.parse(msgStr);
+			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgObj.type);
+			switch(msgObj.type){
+				case 'syncRequest': {
 				//console.log("=========================================");
 				dataSync.syncResponse(msgObj, remoteAD);
 			}
@@ -24,11 +34,12 @@ function initServer(){
 				dataSync.syncStart(msgObj, remoteAD);
 			}
 			break;
-//			case 'syncStart': {
+//          case 'syncStart': {
 //				//console.log("=========================================");
 //				dataSync.syncStart(msgObj, remoteAD);
 //			}
 //			break;
+
 			case 'syncComplete': {
 				//console.log("=========================================");
 				dataSync.syncComplete(false, msgObj.isComplete,msgObj.deviceId,remoteAD);
@@ -41,46 +52,34 @@ function initServer(){
 		}
 	});
 
-	c.on('close',function(){
+		c.on('close',function(){
 			console.log('Client ' + remoteAD +  ' : ' + remotePT + ' disconnected!');
 		});
-	c.write('Hello!\r\n');
 
-	c.on('error',function(){
+		c.on('error',function(){
 			console.log('Unexpected Error!');
-	});
-//	c.pipe(c);
-	});
-
-
-
-	server.listen(config.MSGPORT, function(){
-		console.log('Server Binded! '+ config.MSGPORT);
+		});
 	});
 }
 
 
 function sendMsg(IP,MSG){
-//	console.log("--------------------------"+IP);
-	if ( !net.isIP(IP)) {
-		console.log('Input IP Format Error!');
-		return;
-	};
-//	console.log("=========================="+config.SERVERIP)
+	console.log("--------------------------"+IP);
+
+	var ws = new WebSocket('http://'+IP+':'+config.MSGPORT);
+
 	if (IP == config.SERVERIP) {
 		console.log("Input IP is localhost!");
 		return;
 	};
-	var  client = new net.Socket();
-	client.connect(config.MSGPORT,IP,function(){
-		client.write(MSG,function(){
-			client.end();
-		});
+
+	ws.on('open', function() {
+		ws.send(MSG);
 	});
 
-	client.on('error',function(err){
+	ws.on('error',function(err){
 		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
-		client.end();
+		ws.close();
 	});
 }
 
