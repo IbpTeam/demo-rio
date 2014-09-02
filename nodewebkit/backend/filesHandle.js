@@ -255,15 +255,21 @@ function monitorFilesCb(path,event){
   else{
     switch(event){
       case 'add' : {
-        addFile(path,resourcePath);
+        if(resourceRepo.mergeFlag==0){
+          addFile(path,resourcePath);
+        }
       }
       break;
       case 'unlink' : {
-        rmFile(path,resourcePath);
+        if(resourceRepo.mergeFlag==0){
+          rmFile(path,resourcePath);
+        }
       }
       break;
       case 'change' : {
-        chFile(path,resourcePath);
+        if(resourceRepo.mergeFlag==0){
+          chFile(path,resourcePath);
+        }
       }
       break;
     }
