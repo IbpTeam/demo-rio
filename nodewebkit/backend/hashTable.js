@@ -71,7 +71,7 @@ function _initVersionHash(List){
 			if(typeof oTempEntry.parents == "string"){
 				oTempEntry.parents = JSON.parse(oTempEntry.parents);
 			}
-			if(oTempEntry.children == "" || oTempEntry.children == null){
+			if(oTempEntry.children == "" || oTempEntry.children == "null"){
 				this.head = oVersion.origin_version;
 				this.tail = oVersion.version_id;
 			}else{
