@@ -242,7 +242,7 @@ exports.createAll = function(action,List,callback){
   switch(action){
     case "insert": {
       List.forEach(function(item){
-        console.log(item)
+        //console.log(item)
         db.run(SQLSTR.CREATEINSERTITEM, item.file_uri,callback);
       });
     }

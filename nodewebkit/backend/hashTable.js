@@ -4,6 +4,7 @@ function hashTable(){
 	this.hashtable = {};
 	this.head = "";
 	this.tail = "";
+	this.isEmpty = true;
 	this.add = _add;
 	this.del = _del;
 	this.getAll = _getAll;
@@ -60,6 +61,10 @@ function _isExist(key){
 }
 
 function _initVersionHash(List){
+	if(List == "")
+		return;
+	else
+		this.isEmpty = false;
 	for(var k in List){
 		var oTempEntry = List[k];
 		if(this.hashtable.hasOwnProperty(oTempEntry.version_id))
@@ -97,6 +102,10 @@ function _initVersionHash(List){
 }
 
 function _initOperationHash(List){
+	if(List == "")
+		return;
+	else
+		this.isEmpty = false;
 	for(var k in List){
 		var oTempEntry = List[k];
 		var oOperation = {
@@ -111,6 +120,10 @@ function _initOperationHash(List){
 }
 
 function _createHash(List){
+	if(List == "")
+		return;
+	else
+		this.isEmpty = false;
 	for(var k in List)
 		this.add(List[k].file_uri,List[k].id);
 	return this.hashtable;
@@ -118,8 +131,7 @@ function _createHash(List){
 
 function _getDiff(array){
 	var oDiff = [];
-	if(array == "")
-		return array;
+
 	for(var del in array){
 		var res = this.getValue(array[del].file_uri);
 		if (res == "undefined"){

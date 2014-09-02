@@ -300,16 +300,17 @@ function syncStart(syncData, address){
 
 	//ActionHistory.test();
 
-	var insertActions = JSON.parse(syncData.insertActions);
-	var deleteActions = JSON.parse(syncData.deleteActions);
-	var updateActions = JSON.parse(syncData.updateActions);
-
-	console.log("insert actions: ");
+  console.log("insert actions: ");
 	console.log(insertActions);
+	var insertActions = JSON.parse(syncData.insertActions);
+
 	console.log("delete actions: ");
 	console.log(deleteActions);
+	var deleteActions = JSON.parse(syncData.deleteActions);
+
 	console.log("update actions: ");
 	console.log(updateActions);
+	var updateActions = JSON.parse(syncData.updateActions);
 
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
@@ -399,20 +400,20 @@ function syncStart(syncData, address){
 
 
 //deal with the conflict situation 
-function versionCtrlCB(my_versions,other_versions){                                                                                                                                                                                                                                                                                                                                                                                                           
+function versionCtrlCB(oMyVersions,oOtherVersions){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
-	console.log(my_versions)
+	console.log(oMyVersions)
 
-	var sMyHead = my_versions.head;
-	var sMyTail = my_versions.tail;
-	var hMyVersion = my_versions.versions;
-	var hMyOperations = my_versions.operations;
-	var oMyVersionId = my_versions.versions.getAll();
-	var sOtherHead = other_versions.head;
-	var sOtherTail = other_versions.tail;
-	var hOtherVersion = other_versions.versions;
-	var hOtherOperations = other_versions.operations;
-	var oOtherVersionId = other_versions.versions.getAll();
+	var sMyHead = oMyVersions.head;
+	var sMyTail = oMyVersions.tail;
+	var hMyVersion = oMyVersions.versions;
+	var hMyOperations = oMyVersions.operations;
+	var oMyVersionId = oMyVersions.versions.getAll();
+	var sOtherHead = oOtherVersions.head;
+	var sOtherTail = oOtherVersions.tail;
+	var hOtherVersion = oOtherVersions.versions;
+	var hOtherOperations = oOtherVersions.operations;
+	var oOtherVersionId = oOtherVersions.versions.getAll();
 
 	var oNewUpdateHistory = new Array();
 	var oNewUpdateEntry = new Array();
@@ -425,7 +426,7 @@ function versionCtrlCB(my_versions,other_versions){
   	dealConflict(sMyTail,sOtherTail,dealConflictCB);
 
   }else{
-    // #1: sOtherTail is a prev version of my_versions
+    // #1: sOtherTail is a prev version of oMyVersions
     console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # NO conflict");
     //console.log(sOtherTail)
 
@@ -445,14 +446,14 @@ function versionCtrlCB(my_versions,other_versions){
     	//these are new version's version_id, from other_versions
     	var oNewVersion = hMyVersion.getDiffUpdate(oOtherVersionId);
     	//console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
-    	//console.log(my_versions)
-    	//check each versoin's parents/children if exist in my_versions
+    	//console.log(oMyVersions)
+    	//check each versoin's parents/children if exist in oMyVersions
     	for(var k in oNewVersion){
     		var oTempParents = oNewVersion[k].parents;
     		var oTempChildren = oNewVersion[k].children;
 
     		for(var i in oTempParents){
-        	//if this version has a parent exists in my_versions
+        	//if this version has a parent exists in oMyVersions
         	if(hMyVersion.isExist(oTempParents[i])){
         		var oParent = hMyVersion.getValue(oTempParents[i])[0];
         		if(oParent.children == ""){
@@ -472,7 +473,7 @@ function versionCtrlCB(my_versions,other_versions){
         	}
         }
         for(var j in oTempChildren){
-        	//if this version has a child exists in my_versions
+        	//if this version has a child exists in oMyVersions
         	if(hMyVersion.isExist(oTempChildren[j])){
         		var oChild = hMyVersion.getValue(oTempChildren[j])[0];
         		oChild.parents.push(oNewVersion[k].version_id);
@@ -505,6 +506,11 @@ function versionCtrlCB(my_versions,other_versions){
 //callback when conflict occurs
 function dealConflictCB(hMyVersion,hOtherVersion){
 	//to be continue ...
+	var readline = require('readline');
+  var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 }
 
