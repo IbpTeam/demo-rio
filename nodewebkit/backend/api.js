@@ -329,3 +329,16 @@ function demoDataSync(deviceName,deviceId,deviceAddress){
   }
   getServerAddress(getServerAddressCb);
 }*/
+
+//API repoMergeForFirstTime:获取remote repo
+function repoMergeForFirstTime(name,branch,address,path){
+  console.log("Request handler 'repoMergeForFirstTime' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var repo = require("./backend/repo");
+    repo.repoMergeForFirstTime(name,branch,address,path);
+  }
+  else{
+    console.log('You are in remote '); 
+  }
+}

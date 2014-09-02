@@ -4,6 +4,8 @@ var config = require("./config");
 var filesHandle = require("./filesHandle");
 var events = require('events'); 
 
+var mergeFlag=0;
+
 exports.repoAddCommit = function (repoPath,filename,event,callback)
 {
       console.log("repoAddCommit file :"+ filename);
@@ -168,4 +170,30 @@ exports.getLatestCommit = function (repoPath,callback)
         });  
       });
     });
+}
+
+exports.repoMergeForFirstTime = function (name,branch,address,path)
+{
+  mergeFlag=1;
+  var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+  var cp = require('child_process');
+  var cmd = 'cd '+dataDir+'&& git remote add '+name+' '+address+':'+path;
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var cmd = 'cd '+dataDir+'&& git fetch '+name;
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      var cmd = 'cd '+dataDir+'&& git checkout -b '+branch+' '+name+'/master';
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        var cmd = 'cd '+dataDir+'&& git checkout master && git merge '+branch;
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          mergeFlag=0;
+        });
+      });
+    });
+  });
 }
