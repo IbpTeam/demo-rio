@@ -103,7 +103,7 @@ function syncRequest(deviceName,deviceId,deviceAddress){
   			deviceId: config.uniqueID,
   			deviceAddress: config.SERVERIP
   		};
-  		syncSendMessage(deviceAddress[0],requestMsg);
+  		syncSendMessage(deviceAddress,requestMsg);
   	}
   	break;
   	case state.SYNC_REQUEST: {
