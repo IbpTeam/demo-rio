@@ -16,7 +16,8 @@
     "nodegit": "~0.1.4",
     "netlink": "~0.0.1",
     "getip": "^0.0.1",
-    "chokidar": "~0.8.4"
+    "chokidar": "~0.8.4",
+    "ws" : "~0.8.4"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }
