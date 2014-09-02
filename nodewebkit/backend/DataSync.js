@@ -389,9 +389,9 @@ function syncStart(syncData, address){
 
 
 					//do version control stuff
-				versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
+					versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
 
-			});
+				});
 });
 });
 }
@@ -402,105 +402,104 @@ function syncStart(syncData, address){
 function versionCtrlCB(my_versions,other_versions){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
 	console.log(my_versions)
-    //console.log(other_versions)
 
-    var sMyHead = my_versions.head;
-    var sMyTail = my_versions.tail;
-    var hMyVersion = my_versions.versions;
-    var hMyOperations = my_versions.operations;
-    var oMyVersionId = my_versions.versions.getAll();
-    var sOtherHead = other_versions.head;
-    var sOtherTail = other_versions.tail;
-    var hOtherVersion = other_versions.versions;
-    var hOtherOperations = other_versions.operations;
-    var oOtherVersionId = other_versions.versions.getAll();
+	var sMyHead = my_versions.head;
+	var sMyTail = my_versions.tail;
+	var hMyVersion = my_versions.versions;
+	var hMyOperations = my_versions.operations;
+	var oMyVersionId = my_versions.versions.getAll();
+	var sOtherHead = other_versions.head;
+	var sOtherTail = other_versions.tail;
+	var hOtherVersion = other_versions.versions;
+	var hOtherOperations = other_versions.operations;
+	var oOtherVersionId = other_versions.versions.getAll();
 
+	var oNewUpdateHistory = new Array();
+	var oNewUpdateEntry = new Array();
+	var oNewOperations = new Array();
 
-    //the final version is not same and is not any prev version of another linklist
-    //considered as a conlict occur
-    if(!hMyVersion.isExist(sOtherTail) && !hOtherVersion.isExist(sMyTail) && sOtherTail != "" && sMyTail != ""){
-    	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # MAY conflict");
-    	dealConflict(sMyTail,sOtherTail,dealConflictCB);
-    }else{
+  //the final version is not same and is not any prev version of another versions
+  //considered as a conlict occur
+  if(!hMyVersion.isExist(sOtherTail) && !hOtherVersion.isExist(sMyTail) && sOtherTail != "" && sMyTail != ""){
+  	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # MAY conflict");
+  	dealConflict(sMyTail,sOtherTail,dealConflictCB);
 
-    // #1: sOtherTail is a prev version of my_linklist
+  }else{
+    // #1: sOtherTail is a prev version of my_versions
     console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ # NO conflict");
     //console.log(sOtherTail)
-    var oNewUpdateHistory = new Array();
-    var oNewUpdateEntry = new Array();
-    var oNewOperations = new Array();
+
 
     if(sOtherTail == ""){
+    	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ nothing new")
     	return;
-    }
-    else if(sMyTail == ""){
+    }else if(sMyTail == ""){
     	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ local clean, first time sync")
     	oNewUpdateHistory = "";
     	oNewUpdateEntry = hOtherVersion.getAll();
     	oNewOperations = hOtherOperations.getAll();
     	//console.log(oNewUpdateEntry)
     	//console.log(oNewOperations)
-    }
-    else{
+    }else{
     	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ normal sync")
-    //these are new version's version_id, from other_versions
-    var oNewVersion = hMyVersion.getDiffUpdate(oOtherVersionId);
-    //console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
-    //console.log(my_versions)
-    //check each versoin's parents/children if exist in my_versions
-    for(var k in oNewVersion){
-    	var oTempParents = oNewVersion[k].parents;
-    	var oTempChildren = oNewVersion[k].children;
+    	//these are new version's version_id, from other_versions
+    	var oNewVersion = hMyVersion.getDiffUpdate(oOtherVersionId);
+    	//console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
+    	//console.log(my_versions)
+    	//check each versoin's parents/children if exist in my_versions
+    	for(var k in oNewVersion){
+    		var oTempParents = oNewVersion[k].parents;
+    		var oTempChildren = oNewVersion[k].children;
 
-    	for(var i in oTempParents){
-        		//if this version has a parent exists in my_versions
-        		if(hMyVersion.isExist(oTempParents[i])){
-        			var oParent = hMyVersion.getValue(oTempParents[i])[0];
-        			if(oParent.children == ""){
-        				var children = new Array();
-        				children.push(oNewVersion[k].version_id);
-        				oParent.children = children;
-        			}else{
-        				oParent.children.push(oNewVersion[k].version_id);
-        			}
-        			var newEntry = {
-        				"version_id": oParent.version_id,
-        				"parents": oParent.parents,
-        				"children": oParent.children,
-        				"origin_version": oParent.origin_version
-        			}
-        			oNewUpdateHistory.push(oParent);
+    		for(var i in oTempParents){
+        	//if this version has a parent exists in my_versions
+        	if(hMyVersion.isExist(oTempParents[i])){
+        		var oParent = hMyVersion.getValue(oTempParents[i])[0];
+        		if(oParent.children == ""){
+        			var children = new Array();
+        			children.push(oNewVersion[k].version_id);
+        			oParent.children = children;
+        		}else{
+        			oParent.children.push(oNewVersion[k].version_id);
         		}
-        	}
-        	for(var j in oTempChildren){
-        		//if this version has a child exists in my_versions
-        		if(hMyVersion.isExist(oTempChildren[j])){
-        			var oChild = hMyVersion.getValue(oTempChildren[j])[0];
-        			oChild.parents.push(oNewVersion[k].version_id);
-        			var newEntry = {
-        				"version_id": oChild.version_id,
-        				"parents": oChild.parents,
-        				"children": oChild.children,
-        				"origin_version": oChild.origin_version
-        			}
-        			oNewUpdateHistory.push(oChild);
+        		var newEntry = {
+        			"version_id": oParent.version_id,
+        			"parents": oParent.parents,
+        			"children": oParent.children,
+        			"origin_version": oParent.origin_version
         		}
+        		oNewUpdateHistory.push(oParent);
         	}
-        	oNewOperations.push(hOtherOperations.getValue(oNewVersion[k].version_id));
-        	oNewUpdateEntry.push(oNewVersion[k]);
         }
-      }
-
-       //then we need modify related data and renew then in db 
-        //console.log(oNewUpdateHistory)
-        //console.log(oNewUpdateEntry)
-        //console.log(oNewOperations)
-        var _newUpdateHistory = oNewUpdateHistory;
-        var _newUpdateEntry = oNewUpdateEntry;
-        var _newOperations = oNewOperations;
-        setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
+        for(var j in oTempChildren){
+        	//if this version has a child exists in my_versions
+        	if(hMyVersion.isExist(oTempChildren[j])){
+        		var oChild = hMyVersion.getValue(oTempChildren[j])[0];
+        		oChild.parents.push(oNewVersion[k].version_id);
+        		var newEntry = {
+        			"version_id": oChild.version_id,
+        			"parents": oChild.parents,
+        			"children": oChild.children,
+        			"origin_version": oChild.origin_version
+        		}
+        		oNewUpdateHistory.push(oChild);
+        	}
+        }
+        oNewOperations.push(hOtherOperations.getValue(oNewVersion[k].version_id));
+        oNewUpdateEntry.push(oNewVersion[k]);
       }
     }
+
+    //then we need modify related data and renew then in db 
+    //console.log(oNewUpdateHistory)
+    //console.log(oNewUpdateEntry)
+    //console.log(oNewOperations)
+    var _newUpdateHistory = oNewUpdateHistory;
+    var _newUpdateEntry = oNewUpdateEntry;
+    var _newOperations = oNewOperations;
+    setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
+  }
+}
 
 
 //callback when conflict occurs
