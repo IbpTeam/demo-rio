@@ -185,7 +185,7 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
       var updateItem = {
         lastAccessTime:parseInt(currentTime)
       };
-      commonDAO.updateItemValue(item.URI,,item.version,updateItem,updateItemValueCb);
+      commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
     }
   }
   commonDAO.getItemById(id,getItemByIdCb);
