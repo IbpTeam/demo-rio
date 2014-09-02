@@ -298,8 +298,6 @@ function syncStart(syncData, address){
 	//Change state, start to sync
 	currentState = state.SYNC_START;
 
-	//ActionHistory.test();
-
   console.log("insert actions: ");
 	console.log(insertActions);
 	var insertActions = JSON.parse(syncData.insertActions);
@@ -351,8 +349,6 @@ function syncStart(syncData, address){
 				console.log(my_updateActions);
 
 				var oMyVersions = {
-					head: "",
-					tail: "",
 					versions: null,
 					operations: null
 				};
@@ -364,13 +360,11 @@ function syncStart(syncData, address){
 
 				oMyVersions.versions = hMyVersion;
 				oMyVersions.operations = hMyOperation;
-				oMyVersions.head = hMyVersion.head;
-				oMyVersions.tail = hMyVersion.tail;
+				//oMyVersions.head = hMyVersion.head;
+				//oMyVersions.tail = hMyVersion.tail;
 
 
 				var oOtherVersions = {
-					head: "",
-					tail: "",
 					versions: null,
 					operations: null,
 				};
@@ -382,8 +376,8 @@ function syncStart(syncData, address){
 
 				oOtherVersions.versions = hOtherVersion;
 				oOtherVersions.operations = hOtherOperation;
-				oOtherVersions.head = hOtherVersion.head;
-				oOtherVersions.tail = hOtherVersion.tail;
+				//oOtherVersions.head = hOtherVersion.head;
+				//oOtherVersions.tail = hOtherVersion.tail;
 
 				var _myVersions = oMyVersions;
 				var _otherVersion = oOtherVersions
@@ -404,13 +398,14 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
 	console.log("==========start dealing with version control==========");
 	console.log(oMyVersions)
 
-	var sMyHead = oMyVersions.head;
-	var sMyTail = oMyVersions.tail;
+	var sMyHead = oMyVersions.versions.head;
+	var sMyTail = oMyVersions.versions.tail;
 	var hMyVersion = oMyVersions.versions;
 	var hMyOperations = oMyVersions.operations;
 	var oMyVersionId = oMyVersions.versions.getAll();
-	var sOtherHead = oOtherVersions.head;
-	var sOtherTail = oOtherVersions.tail;
+	
+	var sOtherHead = oOtherVersions.versions.head;
+	var sOtherTail = oOtherVersions.versions.tail;
 	var hOtherVersion = oOtherVersions.versions;
 	var hOtherOperations = oOtherVersions.operations;
 	var oOtherVersionId = oOtherVersions.versions.getAll();

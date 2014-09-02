@@ -11,7 +11,7 @@ function hashTable(){
 	this.getValue = _getValue;
 	this.isExist = _isExist;
 	this.initVersionHash = _initVersionHash;
-	this.initOperationHash =_initOperationHash;
+	this.initOperationHash = _initOperationHash;
 	this.createHash = _createHash;
 	this.getDiff = _getDiff;
 	this.getDiffUpdate = _getDiffUpdate;
@@ -19,7 +19,6 @@ function hashTable(){
 
 function _add(key,value){
 	if(this.hashtable.hasOwnProperty(key)){
-		//var tmpEntry = this.hashtable[key];
 		this.hashtable[key].push(value);
 	}else{
 		var oTempEntry = new Array();
