@@ -68,7 +68,7 @@ function _initVersionHash(List){
 		for(var k in List){
 			var oTempEntry = List[k];
 			if(this.hashtable.hasOwnProperty(oTempEntry.version_id))
-				return;
+				continue;
 			if(typeof oTempEntry.parents == "string"){
 				oTempEntry.parents = JSON.parse(oTempEntry.parents);
 			}
