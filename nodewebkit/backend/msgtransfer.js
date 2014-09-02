@@ -2,9 +2,6 @@
 
 var WebSocketServer = require('ws').Server;
 var WebSocket = require('ws');
-//var net = require('net');
-//var server = require('socket.io')();
-//var io = require('socket.io/node_modules/socket.io-client');
 var config = require('./config');
 var dataSync = require('./DataSync');
 
@@ -13,9 +10,11 @@ function initServer(){
 	server = new WebSocketServer({port: config.MSGPORT});
 
 	server.on('connection',function(c) {
-		console.log('messages ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+		
 		var remoteAD = c._socket.remoteAddress;
 		var remotePT = c._socket.remotePort;
+
+        console.log('messages ' + remoteAD + ' : ' + remotePT + ' connected!');
 
 		c.on('message', function(msgStr) {
 			console.log(msgStr)
