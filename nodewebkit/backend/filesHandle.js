@@ -32,6 +32,8 @@ var rmCommitList = new Array();
 var chCommitList = new Array();
 var monitorFilesStatus =  false;
 exports.repoCommitStatus = repoCommitStatus;
+var chokidar = require('chokidar'); 
+var watcher;
 
 function addData(itemPath,commitId,addDataCb){
   var pointIndex=itemPath.lastIndexOf('.');
@@ -140,6 +142,38 @@ function addData(itemPath,commitId,addDataCb){
     fs.stat(itemPath,getFileStatCb);
   }
 }
+
+function watcherStart(monitorPath,callback){
+  /*watcher
+    .on('add', function(path) {
+      //console.log('File', path, 'has been added');
+    })
+    .on('addDir', function(path) {
+      //console.log('Directory', path, 'has been added');
+    })
+    .on('change', function(path) {
+      //console.log('File', path, 'has been changed');
+    })
+    .on('unlink', function(path) {
+      //console.log('File', path, 'has been removed');
+    })
+    .on('unlinkDir', function(path) {
+      //console.log('Directory', path, 'has been removed');
+    })
+    .on('error', function(error) {
+      //console.error('Error happened', error);
+    })*/
+  watcher = chokidar.watch(monitorPath, {ignored: /[\/\\]\./,ignoreInitial: true});
+  watcher.on('all', function(event, path) {
+    callback(path,event);
+  });
+}
+exports.watcherStart = watcherStart;
+
+function watcherStop(monitorPath,callback){
+  watcher.close();
+}
+exports.watcherStop = watcherStop;
 
 function repoCommitCb(commitId,op){
   if(op=='New'){
@@ -276,34 +310,7 @@ function monitorFiles(monitorPath,callback){
     return;
   }
   monitorFilesStatus=true;
-  var chokidar = require('chokidar'); 
-  var watcher = chokidar.watch('file or dir', {ignored: /[\/\\]\./, persistent: true});
-  watcher
-    .on('add', function(path) {
-      //console.log('File', path, 'has been added');
-    })
-    .on('addDir', function(path) {
-      //console.log('Directory', path, 'has been added');
-    })
-    .on('change', function(path) {
-      //console.log('File', path, 'has been changed');
-    })
-    .on('unlink', function(path) {
-      //console.log('File', path, 'has been removed');
-    })
-    .on('unlinkDir', function(path) {
-      //console.log('Directory', path, 'has been removed');
-    })
-    .on('error', function(error) {
-      //console.error('Error happened', error);
-    })
-  watcher.on('change', function(path, stats) {
-      console.log('File', path, 'changed size to', stats.size);
-    });
-
-  require('chokidar').watch(monitorPath, {ignored: /[\/\\]\./,ignoreInitial: true}).on('all', function(event, path) {
-    callback(path,event);
-  });
+  watcherStart(monitorPath,callback);
 }
 exports.monitorFiles = monitorFiles;
 

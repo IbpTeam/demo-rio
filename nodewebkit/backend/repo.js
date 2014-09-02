@@ -172,6 +172,7 @@ exports.getLatestCommit = function (repoPath,callback)
 
 exports.repoMergeForFirstTime = function (name,branch,address,path)
 {
+  filesHandle.watcherStop();
   var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
   var cp = require('child_process');
   var cmd = 'cd '+dataDir+'&& git remote add '+name+' '+address+':'+path;
@@ -188,6 +189,7 @@ exports.repoMergeForFirstTime = function (name,branch,address,path)
         var cmd = 'cd '+dataDir+'&& git checkout master && git merge '+branch;
         cp.exec(cmd,function(error,stdout,stderr){
           console.log(stdout+stderr);
+          filesHandle.watcherStart(dataDir,filesHandle.monitorFilesCb);
         });
       });
     });
