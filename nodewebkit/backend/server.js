@@ -61,7 +61,7 @@ function start(route, handle) {
             //sendMessage
             console.log("start to send sync request");
             //service.addresses.push("192.168.161.17");
-            dataSync.syncRequest(service.name,deviceId,service.addresses);
+            dataSync.syncRequest(service.name,deviceId,serviceRecord.addresses);
           };
         };
       }
@@ -100,7 +100,8 @@ function start(route, handle) {
     var txt_record = {
       deviceName: config.SERVERNAME,
       account:config.ACCOUNT,
-      deviceID:config.uniqueID
+      deviceID:config.uniqueID,
+      addresses:config.SERVERIP
     };
     var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
     ad.start();
