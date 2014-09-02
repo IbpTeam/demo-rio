@@ -60,6 +60,7 @@ function start(route, handle) {
           if (serviceRecord.account == config.ACCOUNT && deviceId.localeCompare(config.uniqueID) > 0) {
             //sendMessage
             console.log("start to send sync request");
+            //service.addresses.push("192.168.161.17");
             dataSync.syncRequest(service.name,deviceId,service.addresses);
           };
         };

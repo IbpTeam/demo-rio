@@ -7,78 +7,70 @@ var dataSync = require('./DataSync');
 
 
 function initServer(){
-	server = new WebSocketServer({port: config.MSGPORT});
+	var server = new WebSocketServer({port: config.MSGPORT});
 
-	server.on('connection',function(c) {
-		
-		var remoteAD = c._socket.remoteAddress;
-		var remotePT = c._socket.remotePort;
+	server.on('connection',function(socket) {
 
-        console.log('messages ' + remoteAD + ' : ' + remotePT + ' connected!');
+		var sRemoteAddress = socket._socket.remoteAddress;
+		var sRemotePort = socket._socket.remotePort;
 
-		c.on('message', function(msgStr) {
-			console.log(msgStr)
+		console.log('messages ' + sRemoteAddress + ' : ' + sRemotePort + ' connected!');
 
-			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
-			var msgObj = JSON.parse(msgStr);
-			console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgObj.type);
-			switch(msgObj.type){
+		socket.on('message', function(sMessage) {
+			//console.log(sMessage)
+			console.log('data from :' + sRemoteAddress+ ': ' + sRemotePort+ ' ' + sMessage);
+			var oMessage = JSON.parse(sMessage);
+			console.log('data from :' + sRemoteAddress+ ': ' + sRemotePort+ ' ' + oMessage.type);
+
+			switch(oMessage.type){
 				case 'syncRequest': {
-				//console.log("=========================================");
-				dataSync.syncResponse(msgObj, remoteAD);
+					dataSync.syncResponse(oMessage, sRemoteAddress);
+				}
+				break;
+				case 'syncResponse': {
+					console.log("=========================================syncStart");
+					dataSync.syncStart(oMessage, sRemoteAddress);
+				}
+				break;
+				case 'syncComplete': {
+					dataSync.syncComplete(false, oMessage.isComplete,oMessage.deviceId,sRemoteAddress);
+				}
+				break;
+				default: {
+					console.log("this is in default switch on data");
+					//do version control stuff
+				}
 			}
-			break;
-			case 'syncResponse': {
-				console.log("=========================================syncStart");
-				dataSync.syncStart(msgObj, remoteAD);
-			}
-			break;
-//          case 'syncStart': {
-//				//console.log("=========================================");
-//				dataSync.syncStart(msgObj, remoteAD);
-//			}
-//			break;
-
-			case 'syncComplete': {
-				//console.log("=========================================");
-				dataSync.syncComplete(false, msgObj.isComplete,msgObj.deviceId,remoteAD);
-			}
-			break;
-			default: {
-				console.log("this is in default switch on data");
-				//console.log(data);
-			}
-		}
-	});
-
-		c.on('close',function(){
-			console.log('Client ' + remoteAD +  ' : ' + remotePT + ' disconnected!');
 		});
 
-		c.on('error',function(){
+		socket.on('close',function(){
+			console.log('Client ' + sRemoteAddress +  ' : ' + sRemotePort + ' disconnected!');
+		});
+
+		socket.on('error',function(){
 			console.log('Unexpected Error!');
 		});
 	});
 }
 
 
-function sendMsg(IP,MSG){
+function sendMsg(IP,sMessage){
 	console.log("--------------------------"+IP);
 
-	var ws = new WebSocket('http://'+IP+':'+config.MSGPORT);
+	var socket = new WebSocket('http://'+IP+':'+config.MSGPORT);
 
 	if (IP == config.SERVERIP) {
 		console.log("Input IP is localhost!");
 		return;
 	};
 
-	ws.on('open', function() {
-		ws.send(MSG);
+	socket.on('open', function() {
+		socket.send(sMessage);
 	});
 
-	ws.on('error',function(err){
+	socket.on('error',function(err){
 		console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + IP);
-		ws.close();
+		socket.close();
 	});
 }
 
