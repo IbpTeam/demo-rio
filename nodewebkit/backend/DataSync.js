@@ -514,7 +514,7 @@ function setUpdateCB(oNewUpdateHistory,oNewUpdateEntry,oNewOperations){
 	console.log(oNewUpdateHistory);
 	console.log(oNewUpdateEntry)
 	console.log(oNewOperations);	
-	commonDAO.modifyOrInsertUpdateItems(oNewUpdateHistory,newUpdateEntry,oNewOperations);
+	commonDAO.modifyOrInsertUpdateItems(oNewUpdateHistory,oNewUpdateEntry,oNewOperations);
 
 }
 

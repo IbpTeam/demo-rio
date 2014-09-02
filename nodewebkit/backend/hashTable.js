@@ -76,7 +76,7 @@ function _initVersionHash(List){
 			}
 			this.head = oVersion.origin_version;
 			this.tail = oVersion.version_id;
-			this.add(oVersion.version_id,version);
+			this.add(oVersion.version_id,oVersion);
 		}else{
 			if(typeof oTempEntry.parents == "string"){
 				oTempEntry.parents = JSON.parse(oTempEntry.parents);
@@ -90,7 +90,7 @@ function _initVersionHash(List){
 				children : oTempEntry.children,
 				origin_version : oTempEntry.origin_version
 			}
-			this.add(oVersion.version_id,version);
+			this.add(oVersion.version_id,oVersion);
 		}
 	}
 	return this.hashtable;
