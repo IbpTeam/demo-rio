@@ -258,10 +258,10 @@ function getDataSourceByIdInHttpServer(response, postData) {
         var currentTime = (new Date()).getTime();
         
         config.riolog("time: "+ currentTime);
-        function updateItemValueCb(id,uri,key,value,version,result){
+        function updateItemValueCb(uri,version,cbItem,result){
           config.riolog("update DB: "+ result);
           if(result!='successfull'){
-            commonDAO.updateItemValue(postDataJson.arg,item.URI,'lastAccessTime',parseInt(currentTime),item.version,updateItemValueCb);
+            commonDAO.updateItemValue(uri,version,cbItem,updateItemValueCb);
           }
           else{
             var index=id.indexOf('#');
@@ -300,7 +300,10 @@ function getDataSourceByIdInHttpServer(response, postData) {
             commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
           }
         }
-        commonDAO.updateItemValue(postDataJson.arg,item.URI,'lastAccessTime',parseInt(currentTime),item.version,updateItemValueCb);
+        var updateItem = {
+          lastAccessTime:parseInt(currentTime)
+        };
+        commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
       }
     }
     commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
@@ -320,11 +323,11 @@ function updateDataValueInHttpServer(response, postData) {
     response.end();
   }
   else{
-    function updateItemValueCb(id,uri,key,value,version,result){
+    function updateItemValueCb(uri,version,item,result){
       config.riolog("update DB: "+ result);
       if(result!='successfull'){
         filesHandle.sleep(1000);
-        commonDAO.updateItemValue(id,uri,key,value,version,updateItemValueCb);
+        commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
       }
       else{
         var json=JSON.stringify('success');
@@ -333,7 +336,7 @@ function updateDataValueInHttpServer(response, postData) {
         response.end();
       }
     }
-    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,postDataJson.arg3,postDataJson.arg4,postDataJson.arg5,updateItemValueCb);
+    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,JSON.parse(postDataJson.arg3),updateItemValueCb);
   }
 }
 exports.updateDataValueInHttpServer = updateDataValueInHttpServer;

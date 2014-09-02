@@ -47,7 +47,7 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  * @param value 
  *   所修改值
  */
-exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVersion, createUpdateItemCallBack){
+exports.createUpdateHistoryItem = function(dataURI, version, newVersion, item, createUpdateItemCallBack){
   var db = openDB();
   db.run(SQLSTR.FINDUPDATEHISTORYBYVERSION, version, function(err,record){
     if (err) {
@@ -101,7 +101,11 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
               if (err) {
                 console.log("Error: create update history item error! " + err);
               }else{
-                db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
+                var stmt = db.prepare(SQLSTR.CREATEUPDATEOPERATIONS);
+                for(var key in item){
+                  stmt.run(newVersion,dataURI,key,item[key],createUpdateItemCallBack);
+                }
+                //db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
               }
             });
           }

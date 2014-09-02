@@ -202,16 +202,16 @@ function getDataSourceById(getDataSourceByIdCb,id){
 //成功返回success;
 //失败返回失败原因
 
-function updateDataValue(updateDataValueCb,id,uri,key,value,version){
+function updateDataValue(updateDataValueCb,uri,version,item){
   console.log("Request handler 'updateDataValue' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,id,uri,key,value,version);
+    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,uri,version,item);
   }
   else{
     console.log('You are in remote '); 
-    updateDataValueFromHttp(updateDataValueCb,id,uri,key,value,version);
+    updateDataValueFromHttp(updateDataValueCb,uri,version,item);
   }
 }
 

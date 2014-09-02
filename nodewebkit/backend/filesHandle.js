@@ -162,8 +162,37 @@ function repoCommitCb(commitId,op){
   }
   else if(op=='Delete'){
     commonDAO.getItemByPath(rmCommitList.shift(),function (item){
-      commonDAO.updateItemValue(item.id,item.URI,'is_delete',1,item.version,function(){
-        commonDAO.updateItemValue(item.id,item.URI,'commit_id',commitId.sha(),item.version,function(){
+      var updateItem = {
+        is_delete:1,
+        commit_id:commitId.sha()
+      };
+      commonDAO.updateItemValue(item.URI,item.version,updateItem,function(){
+        if(rmCommitList[0]!=null){
+          resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
+        } 
+        else if(addCommitList[0]!=null){
+          resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
+        }
+        else if(chCommitList[0]!=null){
+          resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
+        }       
+        else{
+          repoCommitStatus = 'idle';  
+          util.log("commit complete");
+        }
+      }); 
+    });
+  }
+  else if(op=='Change'){
+    commonDAO.getItemByPath(chCommitList.shift(),function (item){
+      fs.stat(item.path,function (error,stat){
+        var currentTime = (new Date()).getTime();
+        var updateItem = {
+          lastModifyTime:currentTime,
+          size:stat.size,
+          commit_id:commitId.sha()
+        };
+        commonDAO.updateItemValue(item.URI,item.version,updateItem,function(){
           if(rmCommitList[0]!=null){
             resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
           } 
@@ -177,32 +206,6 @@ function repoCommitCb(commitId,op){
             repoCommitStatus = 'idle';  
             util.log("commit complete");
           }
-        }); 
-      });
-    });
-  }
-  else if(op=='Change'){
-    commonDAO.getItemByPath(chCommitList.shift(),function (item){
-      fs.stat(item.path,function (error,stat){
-        var currentTime = (new Date()).getTime();
-        commonDAO.updateItemValue(item.id,item.URI,'lastModifyTime',currentTime,item.version,function(){
-          commonDAO.updateItemValue(item.id,item.URI,'size',stat.size,item.version,function(){
-            commonDAO.updateItemValue(item.id,item.URI,'commit_id',commitId.sha(),item.version,function(){
-              if(rmCommitList[0]!=null){
-                resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
-              } 
-              else if(addCommitList[0]!=null){
-                resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
-              }
-              else if(chCommitList[0]!=null){
-                resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
-              }       
-              else{
-                repoCommitStatus = 'idle';  
-                util.log("commit complete");
-              }
-            }); 
-          });
         });  
       });
     });
@@ -252,21 +255,15 @@ function monitorFilesCb(path,event){
   else{
     switch(event){
       case 'add' : {
-        if(resourceRepo.mergeFlag==0){
           addFile(path,resourcePath);
-        }
       }
       break;
       case 'unlink' : {
-        if(resourceRepo.mergeFlag==0){
           rmFile(path,resourcePath);
-        }
       }
       break;
       case 'change' : {
-        if(resourceRepo.mergeFlag==0){
           chFile(path,resourcePath);
-        }
       }
       break;
     }
