@@ -16,7 +16,7 @@ var fs = require("fs");
 var assert = require("assert");
 
 var ursaNative = require("../node_modules/ursa/bin/ursaNative");
-var RsaWrap    = ursaNative.RsaWrap;
+var RsaWrap  = ursaNative.RsaWrap;
 var textToNid  = ursaNative.textToNid;
 
 
@@ -44,7 +44,7 @@ var MD5 = "md5";
 
 /** regex that matches PEM files, capturing the file type */
 var PEM_REGEX = 
-    /^(-----BEGIN (.*) KEY-----\r?\n[\/+=a-zA-Z0-9\r\n]*\r?\n-----END \2 KEY-----\r?\n)/m;
+  /^(-----BEGIN (.*) KEY-----\r?\n[\/+=a-zA-Z0-9\r\n]*\r?\n-----END \2 KEY-----\r?\n)/m;
 
 /** "unsealer" key object to authenticate objects */
 var theUnsealer = [ "ursa unsealer" ];
@@ -58,7 +58,7 @@ var theUnsealer = [ "ursa unsealer" ];
  * Return true iff x is either a string or a Buffer.
  */
 function isStringOrBuffer(x) {
-    return (typeof x === STRING) || Buffer.isBuffer(x);
+  return (typeof x === STRING) || Buffer.isBuffer(x);
 }
 
 /**
@@ -67,14 +67,14 @@ function isStringOrBuffer(x) {
  * buffer doesn't seem to be any sort of PEM format file.
  */
 function identifyPemType(buf) {
-    var str = encodeBuffer(buf, UTF8);
-    var match = PEM_REGEX.exec(str);
+  var str = encodeBuffer(buf, UTF8);
+  var match = PEM_REGEX.exec(str);
 
-    if (!match) {
-        return undefined;
-    }
+  if (!match) {
+    return undefined;
+  }
 
-    return match[2];
+  return match[2];
 }
 
 /**
@@ -82,8 +82,8 @@ function identifyPemType(buf) {
  * valid public key file in PEM format.
  */
 function isPublicKeyPem(buf) {
-    var kind = identifyPemType(buf);
-    return (kind == "PUBLIC");
+  var kind = identifyPemType(buf);
+  return (kind == "PUBLIC");
 }
 
 /**
@@ -91,8 +91,8 @@ function isPublicKeyPem(buf) {
  * valid private key file in PEM format.
  */
 function isPrivateKeyPem(buf) {
-    var kind = identifyPemType(buf);
-    return (kind == "RSA PRIVATE");
+  var kind = identifyPemType(buf);
+  return (kind == "RSA PRIVATE");
 }
 
 /**
@@ -101,23 +101,23 @@ function isPrivateKeyPem(buf) {
  * buffer representing an unsigned bigint in big-endian order.
  */
 function toSshBigint(value) {
-    // The output is signed, so we need to add an extra 00 byte at the
-    // head if the high-order bit is set.
-    var prefix00 = ((value[0] & 0x80) !== 0);
-    var length = value.length + (prefix00 ? 1 : 0);
-    var result = new Buffer(length + 4);
-    var offset = 0;
+  // The output is signed, so we need to add an extra 00 byte at the
+  // head if the high-order bit is set.
+  var prefix00 = ((value[0] & 0x80) !== 0);
+  var length = value.length + (prefix00 ? 1 : 0);
+  var result = new Buffer(length + 4);
+  var offset = 0;
 	
-    result.writeUInt32BE(length, offset);
-    offset += 4;
+  result.writeUInt32BE(length, offset);
+  offset += 4;
 
-    if (prefix00) {
+  if (prefix00) {
 	result[offset] = 0;
 	offset++;
-    }
+  }
 
-    value.copy(result, offset);
-    return result;
+  value.copy(result, offset);
+  return result;
 }
 
 /**
@@ -127,47 +127,47 @@ function toSshBigint(value) {
  * For the record, an SSH-style public key file consists of three
  * concatenated values, each one length-prefixed:
  *
- *     literal string "ssh-rsa"
- *     exponent
- *     modulus
+ *   literal string "ssh-rsa"
+ *   exponent
+ *   modulus
  *
  * The literal string header is length-prefixed.  The two numbers are
  * represented as signed big-int values in big-endian order, also
  * length-prefixed.
  */
 function createSshPublicKey(rsa) {
-    var e = toSshBigint(rsa.getExponent());
-    var m = toSshBigint(rsa.getModulus());
+  var e = toSshBigint(rsa.getExponent());
+  var m = toSshBigint(rsa.getModulus());
 
-    var header = toSshBigint(new Buffer("ssh-rsa", UTF8));
-    var result = new Buffer(header.length + m.length + e.length);
-    var offset = 0;
+  var header = toSshBigint(new Buffer("ssh-rsa", UTF8));
+  var result = new Buffer(header.length + m.length + e.length);
+  var offset = 0;
 
-    header.copy(result, offset);
-    offset += header.length;
-    e.copy(result, offset);
-    offset += e.length;
-    m.copy(result, offset);
+  header.copy(result, offset);
+  offset += header.length;
+  e.copy(result, offset);
+  offset += e.length;
+  m.copy(result, offset);
 
-    return result;
+  return result;
 }
 
 /**
  * Validate the given encoding name. Throws an exception if invalid.
  */
 function validateEncoding(encoding) {
-    switch (encoding) {
-        case BASE64:
-        case BINARY:
-        case HEX:
-        case UTF8: {
-            // These are all valid.
-            break;
-        }
-        default: {
-            throw new Error("Invalid encoding: " + encoding);
-        }
+  switch (encoding) {
+    case BASE64:
+    case BINARY:
+    case HEX:
+    case UTF8: {
+      // These are all valid.
+      break;
     }
+    default: {
+      throw new Error("Invalid encoding: " + encoding);
+    }
+  }
 }
 
 /**
@@ -175,12 +175,12 @@ function validateEncoding(encoding) {
  * unmodified if the encoding is undefined.
  */
 function encodeBuffer(buf, encoding) {
-    if (encoding === undefined) {
-        return buf;
-    }
+  if (encoding === undefined) {
+    return buf;
+  }
 
-    validateEncoding(encoding);
-    return buf.toString(encoding);
+  validateEncoding(encoding);
+  return buf.toString(encoding);
 }
 
 /**
@@ -189,16 +189,16 @@ function encodeBuffer(buf, encoding) {
  * encoding is interpreted to mean UTF8.
  */
 function decodeString(str, encoding) {
-    if ((str === undefined) || Buffer.isBuffer(str)) {
-        return str;
-    }
+  if ((str === undefined) || Buffer.isBuffer(str)) {
+    return str;
+  }
 
-    if (encoding === undefined) {
-        encoding = UTF8;
-    }
+  if (encoding === undefined) {
+    encoding = UTF8;
+  }
 
-    validateEncoding(encoding);
-    return new Buffer(str, encoding);
+  validateEncoding(encoding);
+  return new Buffer(str, encoding);
 }
 
 /**
@@ -207,76 +207,76 @@ function decodeString(str, encoding) {
  * a native RsaWrap object.
  */
 function PublicKey(rsa) {
-    var self;
+  var self;
 
-    function getExponent(encoding) {
-        return encodeBuffer(rsa.getExponent(), encoding);
-    }
+  function getExponent(encoding) {
+    return encodeBuffer(rsa.getExponent(), encoding);
+  }
 
-    function getModulus(encoding) {
-        return encodeBuffer(rsa.getModulus(), encoding);
-    }
+  function getModulus(encoding) {
+    return encodeBuffer(rsa.getModulus(), encoding);
+  }
 
-    function toPublicPem(encoding) {
-        return encodeBuffer(rsa.getPublicKeyPem(), encoding);
-    }
+  function toPublicPem(encoding) {
+    return encodeBuffer(rsa.getPublicKeyPem(), encoding);
+  }
 
-    function toPublicSsh(encoding) {
-        return encodeBuffer(createSshPublicKey(rsa), encoding);
-    }
+  function toPublicSsh(encoding) {
+    return encodeBuffer(createSshPublicKey(rsa), encoding);
+  }
 
-    function toPublicSshFingerprint(encoding) {
-        return sshFingerprint(createSshPublicKey(rsa), undefined, encoding);
-    }
+  function toPublicSshFingerprint(encoding) {
+    return sshFingerprint(createSshPublicKey(rsa), undefined, encoding);
+  }
 
-    function encrypt(buf, bufEncoding, outEncoding, padding) {
+  function encrypt(buf, bufEncoding, outEncoding, padding) {
 		
 		//console.log('ursapublic--->'+rsa.getPrivateKeyPem());
-        buf = decodeString(buf, bufEncoding);
-        padding = padding || ursaNative.RSA_PKCS1_OAEP_PADDING;
-        return encodeBuffer(rsa.publicEncrypt(buf, padding), outEncoding);
-    }
+    buf = decodeString(buf, bufEncoding);
+    padding = padding || ursaNative.RSA_PKCS1_OAEP_PADDING;
+    return encodeBuffer(rsa.publicEncrypt(buf, padding), outEncoding);
+  }
 
-    function publicDecrypt(buf, bufEncoding, outEncoding) {
-        buf = decodeString(buf, bufEncoding);
-        return encodeBuffer(rsa.publicDecrypt(buf), outEncoding);
-    }
+  function publicDecrypt(buf, bufEncoding, outEncoding) {
+    buf = decodeString(buf, bufEncoding);
+    return encodeBuffer(rsa.publicDecrypt(buf), outEncoding);
+  }
 
-    function verify(algorithm, hash, sig, encoding) {
-        algorithm = textToNid(algorithm);
-        hash = decodeString(hash, encoding);
-        sig = decodeString(sig, encoding);
-        return rsa.verify(algorithm, hash, sig);
-    }
+  function verify(algorithm, hash, sig, encoding) {
+    algorithm = textToNid(algorithm);
+    hash = decodeString(hash, encoding);
+    sig = decodeString(sig, encoding);
+    return rsa.verify(algorithm, hash, sig);
+  }
 
-    function hashAndVerify(algorithm, buf, sig, encoding) {
-        var verifier = createVerifier(algorithm);
-        verifier.update(buf, encoding);
-        return verifier.verify(self, sig, encoding);
-    }
+  function hashAndVerify(algorithm, buf, sig, encoding) {
+    var verifier = createVerifier(algorithm);
+    verifier.update(buf, encoding);
+    return verifier.verify(self, sig, encoding);
+  }
 
-    function unseal(unsealer) {
-        return (unsealer === theUnsealer) ? self : undefined;
-    }
+  function unseal(unsealer) {
+    return (unsealer === theUnsealer) ? self : undefined;
+  }
 
  function getPublicKeyPem() {
 		 return rsa.getPublicKeyPem();
 	 }
-    self = {
-        encrypt:                encrypt,
-        getExponent:            getExponent,
-        getModulus:             getModulus,
-        hashAndVerify:          hashAndVerify,
-        publicDecrypt:          publicDecrypt,
-        toPublicPem:            toPublicPem,
-        toPublicSsh:            toPublicSsh,
-        toPublicSshFingerprint: toPublicSshFingerprint,
-        verify:                 verify,
-        unseal:                 unseal,
-        getPublicKeyPem:		getPublicKeyPem
-    };
+  self = {
+    encrypt:        encrypt,
+    getExponent:      getExponent,
+    getModulus:       getModulus,
+    hashAndVerify:      hashAndVerify,
+    publicDecrypt:      publicDecrypt,
+    toPublicPem:      toPublicPem,
+    toPublicSsh:      toPublicSsh,
+    toPublicSshFingerprint: toPublicSshFingerprint,
+    verify:         verify,
+    unseal:         unseal,
+    getPublicKeyPem:		getPublicKeyPem
+  };
 
-    return self;
+  return self;
 }
 
 /**
@@ -285,63 +285,63 @@ function PublicKey(rsa) {
  * keypair). The constructor takes a native RsaWrap object.
  */
 function PrivateKey(rsa) {
-    var self;
+  var self;
 
-    function toPrivatePem(encoding) {
+  function toPrivatePem(encoding) {
 		
-        return encodeBuffer(rsa.getPrivateKeyPem(), encoding);
-    }
+    return encodeBuffer(rsa.getPrivateKeyPem(), encoding);
+  }
 
-    function decrypt(buf, bufEncoding, outEncoding, padding) {
+  function decrypt(buf, bufEncoding, outEncoding, padding) {
 		//console.log('ursaprivate--->'+rsa.getPrivateKeyPem());
-        buf = decodeString(buf, bufEncoding);
-        padding = padding || ursaNative.RSA_PKCS1_OAEP_PADDING;
-        return encodeBuffer(rsa.privateDecrypt(buf, padding), outEncoding);
-    }
+    buf = decodeString(buf, bufEncoding);
+    padding = padding || ursaNative.RSA_PKCS1_OAEP_PADDING;
+    return encodeBuffer(rsa.privateDecrypt(buf, padding), outEncoding);
+  }
 
-    function privateEncrypt(buf, bufEncoding, outEncoding) {
-        buf = decodeString(buf, bufEncoding);
-        return encodeBuffer(rsa.privateEncrypt(buf), outEncoding);
-    }
+  function privateEncrypt(buf, bufEncoding, outEncoding) {
+    buf = decodeString(buf, bufEncoding);
+    return encodeBuffer(rsa.privateEncrypt(buf), outEncoding);
+  }
 
-    function sign(algorithm, hash, hashEncoding, outEncoding) {
-        algorithm = textToNid(algorithm);
-        hash = decodeString(hash, hashEncoding);
-        return encodeBuffer(rsa.sign(algorithm, hash), outEncoding);
-    }
+  function sign(algorithm, hash, hashEncoding, outEncoding) {
+    algorithm = textToNid(algorithm);
+    hash = decodeString(hash, hashEncoding);
+    return encodeBuffer(rsa.sign(algorithm, hash), outEncoding);
+  }
 
-    function hashAndSign(algorithm, buf, bufEncoding, outEncoding) {
-        var signer = createSigner(algorithm);
-        signer.update(buf, bufEncoding);
-        return signer.sign(self, outEncoding);
-    }
+  function hashAndSign(algorithm, buf, bufEncoding, outEncoding) {
+    var signer = createSigner(algorithm);
+    signer.update(buf, bufEncoding);
+    return signer.sign(self, outEncoding);
+  }
 
 //	function getPrivateKeyPem(){
 //		 return rsa.getPrivateKeyPem();
 //	}
 	function saveKeys(){
 		fs.appendFile('priKey.pem', rsa.getPrivateKeyPem(), 'utf8',function(err){  
-        if(err)  
-            console.log("fail " + err);  
-        else  
-            console.log("写入文件ok");  
+    if(err)  
+      console.log("fail " + err);  
+    else  
+      console.log("写入文件ok");  
 		});  
 		fs.appendFile('pubKey.pem', rsa.getPublicKeyPem(), 'utf8',function(err){  
 			if(err)  
 				console.log("fail " + err);  
 			else  
-            console.log("写入文件ok");  
+      console.log("写入文件ok");  
 		}); 
 	}
-    self = PublicKey(rsa);
-    self.decrypt        = decrypt;
-    self.hashAndSign    = hashAndSign;
-    self.privateEncrypt = privateEncrypt;
-    self.sign           = sign;
-    self.saveKeys        = saveKeys;
+  self = PublicKey(rsa);
+  self.decrypt = decrypt;
+  self.hashAndSign = hashAndSign;
+  self.privateEncrypt = privateEncrypt;
+  self.sign = sign;
+  self.saveKeys = saveKeys;
    // self.getPrivateKeyPem   = getPrivateKeyPem;
-    self.toPrivatePem   = toPrivatePem;
-    return self;
+  self.toPrivatePem   = toPrivatePem;
+  return self;
 }
 
 
@@ -353,18 +353,18 @@ function PrivateKey(rsa) {
  * Create a new public key object, from the given PEM-encoded file.
  */
 function createPublicKey(pem, encoding) {
-    var rsa = new RsaWrap();
-    pem = decodeString(pem, encoding);
+  var rsa = new RsaWrap();
+  pem = decodeString(pem, encoding);
 
-    try {
-        rsa.setPublicKeyPem(pem);
-    } catch (ex) {
-        if (!isPublicKeyPem(pem)) {
-            throw new Error("Not a public key.");
-        }
-        throw ex;
+  try {
+    rsa.setPublicKeyPem(pem);
+  } catch (ex) {
+    if (!isPublicKeyPem(pem)) {
+      throw new Error("Not a public key.");
     }
-    return PublicKey(rsa);
+    throw ex;
+  }
+  return PublicKey(rsa);
 }
 
 /**
@@ -372,44 +372,44 @@ function createPublicKey(pem, encoding) {
  * optionally decrypting the file with a password.
  */
 function createPrivateKey(pem, password, encoding) {
-    var rsa = new RsaWrap();
-    pem = decodeString(pem, encoding);
-    password = decodeString(password, encoding);
+  var rsa = new RsaWrap();
+  pem = decodeString(pem, encoding);
+  password = decodeString(password, encoding);
 
-    try {
-        // Note: The native code is sensitive to the actual number of
-        // arguments. It's *not* okay to pass undefined as a password.
-        if (password) {
-            rsa.setPrivateKeyPem(pem, password);
-        } else {
-            rsa.setPrivateKeyPem(pem);
-        }
-    } catch (ex) {
-        if (!isPrivateKeyPem(pem)) {
-            throw new Error("Not a private key.");
-        }
-        throw ex;
+  try {
+    // Note: The native code is sensitive to the actual number of
+    // arguments. It's *not* okay to pass undefined as a password.
+    if (password) {
+      rsa.setPrivateKeyPem(pem, password);
+    } else {
+      rsa.setPrivateKeyPem(pem);
     }
-    return PrivateKey(rsa);
+  } catch (ex) {
+    if (!isPrivateKeyPem(pem)) {
+      throw new Error("Not a private key.");
+    }
+    throw ex;
+  }
+  return PrivateKey(rsa);
 }
 
 /**
  * Generate a new private key object (aka a keypair).
  */
 function generatePrivateKey(modulusBits, exponent) {
-    if (modulusBits === undefined) {
-        modulusBits = 2048;
-    }
+  if (modulusBits === undefined) {
+    modulusBits = 2048;
+  }
 
-    if (exponent === undefined) {
-        exponent = 65537;
-    }
+  if (exponent === undefined) {
+    exponent = 65537;
+  }
 
-    var rsa = new RsaWrap();
-    rsa.generatePrivateKey(modulusBits, exponent);
+  var rsa = new RsaWrap();
+  rsa.generatePrivateKey(modulusBits, exponent);
 	//console.log('-----ursaprivate!!!--->'+rsa.getPrivateKeyPem());
 	//console.log('----ursapublic!!!--->'+rsa.getPublicKeyPem());
-    return PrivateKey(rsa);
+  return PrivateKey(rsa);
 }
 
 /**
@@ -418,15 +418,15 @@ function generatePrivateKey(modulusBits, exponent) {
  * a private key file, it must not be encrypted.
  */
 function createKey(pem, encoding) {
-    pem = decodeString(pem, encoding);
+  pem = decodeString(pem, encoding);
 
-    if (isPublicKeyPem(pem)) {
-        return createPublicKey(pem);
-    } else if (isPrivateKeyPem(pem)) {
-        return createPrivateKey(pem);
-    } else {
-        throw new Error("Not a key.");
-    }
+  if (isPublicKeyPem(pem)) {
+    return createPublicKey(pem);
+  } else if (isPrivateKeyPem(pem)) {
+    return createPrivateKey(pem);
+  } else {
+    throw new Error("Not a key.");
+  }
 }
 
 /**
@@ -434,11 +434,11 @@ function createKey(pem, encoding) {
  * public key.
  */
 function sshFingerprint(sshKey, sshEncoding, outEncoding) {
-    var hash = crypto.createHash(MD5);
+  var hash = crypto.createHash(MD5);
 
-    hash.update(decodeString(sshKey, sshEncoding));
-    var result = new Buffer(hash.digest(BINARY), BINARY);
-    return encodeBuffer(result, outEncoding);
+  hash.update(decodeString(sshKey, sshEncoding));
+  var result = new Buffer(hash.digest(BINARY), BINARY);
+  return encodeBuffer(result, outEncoding);
 }
 
 /**
@@ -446,22 +446,22 @@ function sshFingerprint(sshKey, sshEncoding, outEncoding) {
  * private), as constructed by this module.
  */
 function isKey(obj) {
-    var obj2;
+  var obj2;
 
-    try {
-        var unseal = obj.unseal;
-        if (typeof unseal !== "function") {
-            return false;
-        }
-        obj2 = unseal(theUnsealer);
-    } catch (ex) {
-        // Ignore; can't assume that other objects obey any particular
-        // unsealing protocol.
-        // TODO: Log?
-        return false;
+  try {
+    var unseal = obj.unseal;
+    if (typeof unseal !== "function") {
+      return false;
     }
+    obj2 = unseal(theUnsealer);
+  } catch (ex) {
+    // Ignore; can't assume that other objects obey any particular
+    // unsealing protocol.
+    // TODO: Log?
+    return false;
+  }
 
-    return obj2 !== undefined;
+  return obj2 !== undefined;
 }
 
 /**
@@ -469,7 +469,7 @@ function isKey(obj) {
  * constructed by this module.
  */
 function isPrivateKey(obj) {
-    return isKey(obj) && (obj.decrypt !== undefined);
+  return isKey(obj) && (obj.decrypt !== undefined);
 }
 
 /**
@@ -477,28 +477,28 @@ function isPrivateKey(obj) {
  * constructed by this module.
  */
 function isPublicKey(obj) {
-    return isKey(obj) && !isPrivateKey(obj);
+  return isKey(obj) && !isPrivateKey(obj);
 }
 
 /**
  * Assert wrapper for isKey().
  */
 function assertKey(obj) {
-    assert(isKey(obj));
+  assert(isKey(obj));
 }
 
 /**
  * Assert wrapper for isPrivateKey().
  */
 function assertPrivateKey(obj) {
-    assert(isPrivateKey(obj));
+  assert(isPrivateKey(obj));
 }
 
 /**
  * Assert wrapper for isPublicKey().
  */
 function assertPublicKey(obj) {
-    assert(isPublicKey(obj));
+  assert(isPublicKey(obj));
 }
 
 /**
@@ -508,13 +508,13 @@ function assertPublicKey(obj) {
  * else is an error.
  */
 function coercePrivateKey(orig) {
-    if (isPrivateKey(orig)) {
-        return orig;
-    } else if (isStringOrBuffer(orig)) {
-        return createPrivateKey(orig);
-    }
+  if (isPrivateKey(orig)) {
+    return orig;
+  } else if (isStringOrBuffer(orig)) {
+    return createPrivateKey(orig);
+  }
 
-    throw new Error("Not a private key: " + orig);
+  throw new Error("Not a private key: " + orig);
 }
 
 /**
@@ -524,13 +524,13 @@ function coercePrivateKey(orig) {
  * else is an error.
  */
 function coercePublicKey(orig) {
-    if (isPublicKey(orig)) {
-        return orig;
-    } else if (isStringOrBuffer(orig)) {
-        return createPublicKey(orig);
-    }
+  if (isPublicKey(orig)) {
+    return orig;
+  } else if (isStringOrBuffer(orig)) {
+    return createPublicKey(orig);
+  }
 
-    throw new Error("Not a public key: " + orig);
+  throw new Error("Not a public key: " + orig);
 }
 
 /**
@@ -540,13 +540,13 @@ function coercePublicKey(orig) {
  * as PEM. Anything else is an error.
  */
 function coerceKey(orig) {
-    if (isKey(orig)) {
-        return orig;
-    } else if (isStringOrBuffer(orig)) {
-        return createKey(orig);
-    }
+  if (isKey(orig)) {
+    return orig;
+  } else if (isStringOrBuffer(orig)) {
+    return createKey(orig);
+  }
 
-    throw new Error("Not a key: " + orig);
+  throw new Error("Not a key: " + orig);
 }
 
 /**
@@ -554,18 +554,18 @@ function coerceKey(orig) {
  * have the same public part.
  */
 function matchingPublicKeys(key1, key2) {
-    if (!(isKey(key1) && isKey(key2))) {
-        return false;
-    }
+  if (!(isKey(key1) && isKey(key2))) {
+    return false;
+  }
 
-    // This isn't the most efficient implementation, but it will suffice:
-    // We convert both to ssh form, which has very little leeway for
-    // variation, and compare bytes.
-    
-    var ssh1 = key1.toPublicSsh(UTF8);
-    var ssh2 = key2.toPublicSsh(UTF8);
+  // This isn't the most efficient implementation, but it will suffice:
+  // We convert both to ssh form, which has very little leeway for
+  // variation, and compare bytes.
+  
+  var ssh1 = key1.toPublicSsh(UTF8);
+  var ssh2 = key2.toPublicSsh(UTF8);
 
-    return ssh1 === ssh2;
+  return ssh1 === ssh2;
 }
 
 /**
@@ -573,65 +573,65 @@ function matchingPublicKeys(key1, key2) {
  * both public or both private, and have the same contents.
  */
 function equalKeys(key1, key2) {
-    // See above for rationale. In this case, there's no ssh form for
-    // private keys, so we just use PEM for that.
+  // See above for rationale. In this case, there's no ssh form for
+  // private keys, so we just use PEM for that.
 
-    if (isPrivateKey(key1) && isPrivateKey(key2)) {
-        var pem1 = key1.toPrivatePem(UTF8);
-        var pem2 = key2.toPrivatePem(UTF8);
-        return pem1 === pem2;
-    }
+  if (isPrivateKey(key1) && isPrivateKey(key2)) {
+    var pem1 = key1.toPrivatePem(UTF8);
+    var pem2 = key2.toPrivatePem(UTF8);
+    return pem1 === pem2;
+  }
 
-    if (isPublicKey(key1) && isPublicKey(key2)) {
-        return matchingPublicKeys(key1, key2);
-    }
+  if (isPublicKey(key1) && isPublicKey(key2)) {
+    return matchingPublicKeys(key1, key2);
+  }
 
-    return false;
+  return false;
 }
 
 /**
  * Create a signer object.
  */
 function createSigner(algorithm) {
-    var hash = crypto.createHash(algorithm);
+  var hash = crypto.createHash(algorithm);
 
-    function update(buf, bufEncoding) {
-        buf = decodeString(buf, bufEncoding);
-        hash.update(buf);
-    }
+  function update(buf, bufEncoding) {
+    buf = decodeString(buf, bufEncoding);
+    hash.update(buf);
+  }
 
-    function sign(privateKey, outEncoding) {
-        var hashBuf = new Buffer(hash.digest(BINARY), BINARY);
-        return privateKey.sign(algorithm, hashBuf, undefined, outEncoding);
-    }
+  function sign(privateKey, outEncoding) {
+    var hashBuf = new Buffer(hash.digest(BINARY), BINARY);
+    return privateKey.sign(algorithm, hashBuf, undefined, outEncoding);
+  }
 
-    return {
-        sign:   sign,
-        update: update
-    };
+  return {
+    sign:   sign,
+    update: update
+  };
 }
 
 /**
  * Create a verifier object.
  */
 function createVerifier(algorithm) {
-    var hash = crypto.createHash(algorithm);
+  var hash = crypto.createHash(algorithm);
 
-    function update(buf, bufEncoding) {
-        buf = decodeString(buf, bufEncoding);
-        hash.update(buf);
-    }
+  function update(buf, bufEncoding) {
+    buf = decodeString(buf, bufEncoding);
+    hash.update(buf);
+  }
 
-    function verify(publicKey, sig, sigEncoding) {
-        var hashBuf = new Buffer(hash.digest(BINARY), BINARY);
-        sig = decodeString(sig, sigEncoding);
-        return publicKey.verify(algorithm, hashBuf, sig);
-    }
+  function verify(publicKey, sig, sigEncoding) {
+    var hashBuf = new Buffer(hash.digest(BINARY), BINARY);
+    sig = decodeString(sig, sigEncoding);
+    return publicKey.verify(algorithm, hashBuf, sig);
+  }
 
-    return {
-        update: update,
-        verify: verify
-    };
+  return {
+    update: update,
+    verify: verify
+  };
 }
 
 
@@ -640,24 +640,24 @@ function createVerifier(algorithm) {
  */
 
 module.exports = {
-    assertKey:              assertKey,
-    assertPrivateKey:       assertPrivateKey,
-    assertPublicKey:        assertPublicKey,
-    coerceKey:              coerceKey,
-    coercePrivateKey:       coercePrivateKey,
-    coercePublicKey:        coercePublicKey,
-    createKey:              createKey,
-    createPrivateKey:       createPrivateKey,
-    createPublicKey:        createPublicKey,
-    createSigner:           createSigner,
-    createVerifier:         createVerifier,
-    equalKeys:              equalKeys,
-    generatePrivateKey:     generatePrivateKey,
-    isKey:                  isKey,
-    isPrivateKey:           isPrivateKey,
-    isPublicKey:            isPublicKey,
-    matchingPublicKeys:     matchingPublicKeys,
-    sshFingerprint:         sshFingerprint,
-    RSA_PKCS1_PADDING:      ursaNative.RSA_PKCS1_PADDING,
-    RSA_PKCS1_OAEP_PADDING: ursaNative.RSA_PKCS1_OAEP_PADDING,
+  assertKey:        assertKey,
+  assertPrivateKey:     assertPrivateKey,
+  assertPublicKey:    assertPublicKey,
+  coerceKey:        coerceKey,
+  coercePrivateKey:     coercePrivateKey,
+  coercePublicKey:    coercePublicKey,
+  createKey:        createKey,
+  createPrivateKey:     createPrivateKey,
+  createPublicKey:    createPublicKey,
+  createSigner:       createSigner,
+  createVerifier:     createVerifier,
+  equalKeys:        equalKeys,
+  generatePrivateKey:   generatePrivateKey,
+  isKey:          isKey,
+  isPrivateKey:       isPrivateKey,
+  isPublicKey:      isPublicKey,
+  matchingPublicKeys:   matchingPublicKeys,
+  sshFingerprint:     sshFingerprint,
+  RSA_PKCS1_PADDING:    ursaNative.RSA_PKCS1_PADDING,
+  RSA_PKCS1_OAEP_PADDING: ursaNative.RSA_PKCS1_OAEP_PADDING,
 };
