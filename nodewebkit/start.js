@@ -7,6 +7,7 @@ var fileHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
+var uniqueID=require('./backend/uniqueID');
 
 var handle = {}
 handle["/"] = requestHandlers.start;
@@ -48,6 +49,26 @@ cp.exec('echo $USER',function(error,stdout,stderr){
         util.log("monitor : "+dataDir);
         fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
       }
+      fs.exists(config.USERCONFIGPATH+"uniqueID.js", function (exists) {
+  if(exists==false){
+    console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$no");
+    uniqueID.SetSysUid(function(){
+      deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+      console.log("deviceID = "+deviceID);
+    });
+  }
+  else{
+    console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$yes");
+    var deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+    console.log("exist deviceID = "+deviceID);
+    if(deviceID==undefined){
+      uniqueID.SetSysUid(function(){
+        deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+        console.log("deviceID = "+deviceID);
+      });
+    }
+  }
+});
     });
 
     if(e){
@@ -57,6 +78,9 @@ cp.exec('echo $USER',function(error,stdout,stderr){
     }
   });
  });
+
+
+
 
 
 
