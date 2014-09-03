@@ -379,6 +379,28 @@ function syncStart(syncData, address){
 				//oOtherVersions.head = hOtherVersion.head;
 				//oOtherVersions.tail = hOtherVersion.tail;
 
+        var MyVersions = oMyVersions.versions.getAll();
+        var OtherVersions = oOtherVersions.versions.getAll();
+
+
+				var oDistribution = {
+					head:"",
+					tail:"",
+					versions:{}
+				}
+
+
+        var oMyheads = new Array();
+        var oMyTails = new Array();
+        var oOtherHeads = new Array();
+        var oOtherTails = new Array();
+
+        for(var k in MyVersions){
+        	if(MyVersions[k].)
+
+        }
+
+
 				var _myVersions = oMyVersions;
 				var _otherVersion = oOtherVersions
 
