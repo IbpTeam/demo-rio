@@ -5,7 +5,7 @@ var config = require('./config');
 var fs = require('fs');
 
 
-function SetSysUid()
+function SetSysUid(callback)
 {
 	var tmpmac=0;
 	npm.getMac(function(err,macAddress){
@@ -15,19 +15,20 @@ function SetSysUid()
 	var uptime = getUptime();
 	var cpuidle = getCPUidle();
 	var uid = MD5(tmpmac+uptime+cpuidle);
-	writeUnID(uid);
+	writeUnID(uid,callback);
 	});
 }
 
-function writeUnID(id)
+function writeUnID(id,callback)
 {
 	if(typeof config.uniqueID == "undefined")
 	{
 		console.log('uniqueID not defined!');
-		fs.appendFile('./config.js','var uniqueID='+'\''+id+'\''+';'+'\n'+'exports.uniqueID=uniqueID;',function(err){
-		if (err)  throw err;
-		console.log('uniqueID was appended to config.js');
-	});
+		fs.writeFile(config.USERCONFIGPATH+"uniqueID.js",'var uniqueID='+'\''+id+'\''+';'+'\n'+'exports.uniqueID=uniqueID;',function(err){
+		  if (err)  throw err;
+		    console.log('uniqueID was appended to config.js');
+          callback();
+	    });
 	}
 }
 

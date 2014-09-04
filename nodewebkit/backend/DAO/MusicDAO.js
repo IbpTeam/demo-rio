@@ -69,6 +69,34 @@ exports.findById = function(id, findByIdCallBack){
 }
 
 /**
+ * @method findByPath
+ *   根据ID查询表中指定数据
+ * @param id
+ *   music表中的主键
+ * @return music
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByPath = function(path, findByPathCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDMUSICBYPATH, path, findByPathCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method findByUri
+ *   根据ID查询表中指定数据
+ * @param id
+ *   music表中的主键
+ * @return music
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByUri = function(uri, findByUriCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDMUSICBYURI, uri, findByUriCallBack);
+  closeDB(db);
+}
+
+/**
  * @method createItem
  *   增加一条音乐信息
  * @param item
@@ -76,7 +104,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEMUSIC, item.id,item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id, createItemCallBack);
+  db.get(SQLSTR.CREATEMUSIC, item.id,item.filename, item.postfix, item.size, item.path, item.album, item.composerName, item.actorName, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id,item.is_delete, createItemCallBack);
   closeDB(db);
 }
 
@@ -99,12 +127,13 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,newVersion,item,updateItemValueCallBack){
   var db = openDB();
-  config.dblog("udpate music uri : " + uri);
-  config.dblog("udpate key=" + key + 'value='+value);
-  //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE music SET "+key+" = '"+value+"',version='"+version+"' WHERE URI = '"+uri+"'";
+  var sqlstr = "update music set ";
+  for(var attrName in item){
+    sqlstr = sqlstr + attrName + "='" + item[attrName] + "',";
+  }
+  sqlstr = sqlstr + "version='"+newVersion+"' WHERE URI = '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);

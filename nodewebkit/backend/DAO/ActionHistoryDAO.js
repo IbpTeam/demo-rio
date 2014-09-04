@@ -47,9 +47,9 @@ exports.createDeleteItem = function(dataURI, createDeleteItemCallBack){
  * @param value 
  *   所修改值
  */
-exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVersion, createUpdateItemCallBack){
+exports.createUpdateHistoryItem = function(dataURI, version, newVersion, item, createUpdateItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.FINDUPDATEHISTORYBYVERSION, version, function(err,record){
+  db.get(SQLSTR.FINDUPDATEHISTORYBYVERSION,version,function(err,record){
     if (err) {
       console.log("Error: find update history error" + err);
       createUpdateItemCallBack(null);
@@ -58,20 +58,27 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
       var parentsStr = null;
       var origin_version = null;
       if (record == null) {
-        var sqlStr = "select * from inserthistory where file_uri = '" + dataURI +"'";
-        db.run(sqlStr, function(err,item){
+        var sqlStr = "select * from InsertHistory where file_uri = '" + dataURI +"'";
+        console.log("run sql :  " + sqlStr);
+        db.get(sqlStr, function(err,insertItem){
           if (err) {
             console.log("Error: select item from insert history error ! " + err);
           }else{
             var parents = new Array();
-            parents.push(item.origin_version);
+            console.log("update item :  " + item);
+            parents.push(insertItem.origin_version);
             parentsStr = JSON.stringify(parents);
-            origin_version = item.origin_version;
+            origin_version = insertItem.origin_version;
             db.run(SQLSTR.CREATEUPDATEITEM, newVersion, parentsStr, childrenStr, origin_version,function(err){
               if (err) {
                 console.log("Error: create update history item error! " + err);
               }else{
-                db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
+                var stmt = db.prepare(SQLSTR.CREATEUPDATEOPERATIONS);
+                for(var key in item){
+                  stmt.run(newVersion,dataURI,key,item[key],createUpdateItemCallBack);
+                }
+                stmt.finalize();
+                //db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
               }
             });
           }
@@ -90,20 +97,51 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
         parents.push(version);
         parentsStr = JSON.stringify(parents);
         origin_version = record.origin_version;
-        modifyUpdateHistoryItem(version,"children",childrenStr,function(err){
+        var sqlstr="UPDATE UpdateHistory SET children='"+childrenStr+"' WHERE version_id='"+version+"'";
+        db.run(sqlstr,function(err){
           if (err) {
             console.log("Error: modify UpdateHistory table error!  " + err);
           }else{
+            childrenStr = null;
             db.run(SQLSTR.CREATEUPDATEITEM, newVersion, parentsStr, childrenStr, origin_version,function(err){
               if (err) {
                 console.log("Error: create update history item error! " + err);
               }else{
-                db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
+                var stmt = db.prepare(SQLSTR.CREATEUPDATEOPERATIONS);
+                for(var key in item){
+                  stmt.run(newVersion,dataURI,key,item[key],createUpdateItemCallBack);
+                }
+                stmt.finalize();
+                //db.run(SQLSTR.CREATEUPDATEOPERATIONS, newVersion, dataURI, key, value, createUpdateItemCallBack);
               }
             });
           }
         });
       }
+    }
+  });
+  closeDB(db);
+}
+
+exports.insertUpdateHistoryItem = function(item,insertUpdateHistoryCb){
+  var db = openDB();
+  db.run(SQLSTR.CREATEUPDATEITEM,item.version_id,JSON.stringify(item.parents),JSON.stringify(item.children),item.origin_version,function(err){
+    if (err) {
+      insertUpdateHistoryCb(err,item);
+    }else{
+      insertUpdateHistoryCb(null,null);
+    }
+  });
+  closeDB(db);
+}
+
+exports.insertUpdateOperationItem = function(item,insertUpdateOperationCb){
+  var db = openDB();
+  db.run(SQLSTR.CREATEUPDATEOPERATIONS,item.version_id,item.file_uri,item.key,item.value,function(err){
+    if (err) {
+      insertUpdateOperationCb(err,item);
+    }else{
+      insertUpdateOperationCb(null,null);
     }
   });
   closeDB(db);
@@ -119,10 +157,15 @@ exports.createUpdateHistoryItem = function(dataURI, key, value, version, newVers
  * @param value 
  *   所修改值
  */
-exports.modifyUpdateHistoryItem = function(version, key, value, modifyUpdateItemCallBack){
+exports.modifyUpdateHistoryItem = function(sqlstr, modifyUpdateItemCallBack){
   var db = openDB();
-  var sqlstr="UPDATE UpdateHistory SET "+key+" = '"+value+"' WHERE version = '"+version+"'";
-  db.run("update UpdateHistory set ", dataURI, key, value, randomId,createInsertItemCallBack);
+  db.run(sqlstr,function(err){
+    if (err) {
+      modifyUpdateItemCallBack(err,sqlstr);
+    }else{
+      modifyUpdateItemCallBack(null,null);
+    }
+  });
   closeDB(db);
 }
 
@@ -199,23 +242,24 @@ exports.createAll = function(action,List,callback){
   switch(action){
     case "insert": {
       List.forEach(function(item){
-        db.run(SQLSTR.CREATEINSERTITEM, item.dataURI,callback);
+        //console.log(item)
+        db.run(SQLSTR.CREATEINSERTITEM, item.file_uri,callback);
       });
     }
     break;
     case "delete": {
       List.forEach(function(item){
-        //create delete history
-        db.run(SQLSTR.CREATEDELETEITEM, item.dataURI,callback);
         //then delete insert & update history
-        db.run(SQLSTR.REMOVEINSERTITEM, item.dataURI);
-        db.run(SQLSTR.REMOVEUPDATEITEM, item.dataURI);
+        db.run(SQLSTR.REMOVEINSERTITEM, item.file_uri);
+        db.run(SQLSTR.REMOVEUPDATEITEM, item.file_uri);
+        //create delete history
+        db.run(SQLSTR.CREATEDELETEITEM, item.file_uri,callback);
       });
     }
     break;
     case "update": {
       List.forEach(function(item){
-        db.run(SQLSTR.CREATEUPDATEITEM, item.dataURI, item.key, item.value,callback);     
+        db.run(SQLSTR.CREATEUPDATEITEM, item.file_uri, item.key, item.value,callback);     
       });
     }
     break;

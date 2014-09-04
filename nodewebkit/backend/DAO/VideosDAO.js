@@ -65,7 +65,35 @@ exports.findAll = function(findAllCallBack){
 exports.findById = function(id, findByIdCallBack){
   var db = openDB();
   db.get(SQLSTR.FINDVIDEOBYID, id, findByIdCallBack);
-  closeDB();
+  closeDB(db);
+}
+
+/**
+ * @method findByPath
+ *   根据ID查询表中指定数据
+ * @param id
+ *   videos表中的主键
+ * @return videos
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByPath = function(path, findByPathCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDVIDEOBYPATH, path, findByPathCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method findByUri
+ *   根据ID查询表中指定数据
+ * @param id
+ *   videos表中的主键
+ * @return videos
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByUri = function(uri, findByUriCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDVIDEOBYURI, uri, findByUriCallBack);
+  closeDB(db);
 }
 
 /**
@@ -76,7 +104,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id, createItemCallBack);
+  db.get(SQLSTR.CREATEVIDEO, item.id,item.filename, item.postfix, item.size, item.path, item.location, item.createTime, item.lastModifyTime,item.lastAccessTime, item.others, item.URI, item.version, item.commit_id,item.is_delete, createItemCallBack);
   closeDB(db);
 }
 
@@ -98,12 +126,13 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,newVersion,item,updateItemValueCallBack){
   var db = openDB();
-    config.dblog("udpate vidoes uri : " + uri);
-        config.dblog("udpate key=" + key + 'value='+value);
-  //db.run(SQLSTR.UPDATEPICTURE, key, value, uri, updateItemValueCallBack);
-  var sqlstr="UPDATE vidoes SET "+key+" = '"+value+"',version='"+version+"' WHERE URI =  '"+uri+"'";
+  var sqlstr = "update videos set ";
+  for(var attrName in item){
+    sqlstr = sqlstr + attrName + "='" + item[attrName] + "',";
+  }
+  sqlstr = sqlstr + "version='"+newVersion+"' WHERE URI = '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateItemValueCallBack);
   closeDB(db);

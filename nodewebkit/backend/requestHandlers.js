@@ -43,6 +43,8 @@ function getAllCateInHttpServer(response, postData) {
       data.forEach(function (each){
         cates.push({
           id:each.id,
+          uri:each.URI,
+          version:each.version,
           type:each.type,
           path:each.logoPath,
           desc:each.desc
@@ -80,6 +82,8 @@ function getAllDataByCateInHttpServer(response, postData) {
       data.forEach(function (each){
         cates.push({
           id:each.id,
+          uri:each.URI,
+          version:each.version,
           filename:each.filename,
           postfix:each.postfix,
           path:each.path
@@ -112,6 +116,8 @@ function getAllContactsInHttpServer(response, postData) {
       data.forEach(function (each){
         cates.push({
           id:each.id,
+          uri:each.URI,
+          version:each.version,
           name:each.name,
           photoPath:each.photoPath
         });
@@ -138,7 +144,7 @@ function rmDataByIdInHttpServer(response, postData) {
     response.end();
   }
   else{
-    function getItemByIdCb(item){
+    function getItemByUriCb(item){
       if(item == null){
         var json=JSON.stringify('success');
         response.writeHead(200, {"Content-Type": "application/json"});
@@ -170,48 +176,48 @@ function rmDataByIdInHttpServer(response, postData) {
         fs.unlink(item.path,ulinkCb);
       }
     }
-    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+    commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
 exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;
 
-function getDataByIdInHttpServer(response, postData) {
+function getDataByUriInHttpServer(response, postData) {
 
-  config.riolog("Request handler 'getDataByIdInHttpServer' was called.");
+  config.riolog("Request handler 'getDataByUriInHttpServer' was called.");
     config.riolog(postData);
     postDataJson=JSON.parse(postData);
      config.riolog('$$$$$$'+postDataJson.arg);
-  if(postDataJson.func != 'getDataById'){
+  if(postDataJson.func != 'getDataByUri'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
   }
   else{
-    function getItemByIdCb(item){
+    function getItemByUriCb(item){
       config.riolog("delete result:"+item);
       var json=JSON.stringify(item);
       response.writeHead(200, {"Content-Type": "text/plain"});
       response.write(json);
       response.end();
     }
-    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+    commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
-exports.getDataByIdInHttpServer = getDataByIdInHttpServer;
+exports.getDataByUriInHttpServer = getDataByUriInHttpServer;
 
-function getDataSourceByIdInHttpServer(response, postData) {
+function getDataSourceByUriInHttpServer(response, postData) {
 
   config.riolog("Request handler 'getDataSourceByIdInHttpServer' was called.");
     config.riolog(postData);
     postDataJson=JSON.parse(postData);
      config.riolog('$$$$$$'+postDataJson.arg);
-  if(postDataJson.func != 'getDataSourceById'){
+  if(postDataJson.func != 'getDataSourceByUri'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
   }
   else{
-    function getItemByIdCb(item){
+    function getItemByUriCb(item){
       if(item==null){
         source=null;
         var json=JSON.stringify(source);
@@ -258,10 +264,10 @@ function getDataSourceByIdInHttpServer(response, postData) {
         var currentTime = (new Date()).getTime();
         
         config.riolog("time: "+ currentTime);
-        function updateItemValueCb(id,uri,key,value,version,result){
+        function updateItemValueCb(uri,version,cbItem,result){
           config.riolog("update DB: "+ result);
           if(result!='successfull'){
-            commonDAO.updateItemValue(postDataJson.arg,item.URI,'lastAccessTime',parseInt(currentTime),item.version,updateItemValueCb);
+            commonDAO.updateItemValue(uri,version,cbItem,updateItemValueCb);
           }
           else{
             var index=id.indexOf('#');
@@ -300,31 +306,37 @@ function getDataSourceByIdInHttpServer(response, postData) {
             commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
           }
         }
-        commonDAO.updateItemValue(postDataJson.arg,item.URI,'lastAccessTime',parseInt(currentTime),item.version,updateItemValueCb);
+        var updateItem = {
+          lastAccessTime:parseInt(currentTime)
+        };
+        commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
       }
     }
-    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+    commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
-exports.getDataSourceByIdInHttpServer = getDataSourceByIdInHttpServer;
+exports.getDataSourceByUriInHttpServer = getDataSourceByUriInHttpServer;
 
 function updateDataValueInHttpServer(response, postData) {
 
   config.riolog("Request handler 'updateDataValueInHttpServer' was called.");
     config.riolog(postData);
-    postDataJson=JSON.parse(postData);
-     config.riolog('$$$$$$'+postDataJson.arg);
+    var arg3String = postData.substring(postData.indexOf("arg3")+7, postData.length-2);
+    var postDataSub = postData.substring(0, postData.indexOf("arg3")-2);
+    postDataSub += "}";
+    postDataJson=JSON.parse(postDataSub);
+    config.riolog('$$$$$$'+postDataJson.arg1);
   if(postDataJson.func != 'updateDataValue'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
   }
   else{
-    function updateItemValueCb(id,uri,key,value,version,result){
+    function updateItemValueCb(uri,version,item,result){
       config.riolog("update DB: "+ result);
       if(result!='successfull'){
         filesHandle.sleep(1000);
-        commonDAO.updateItemValue(id,uri,key,value,version,updateItemValueCb);
+        commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
       }
       else{
         var json=JSON.stringify('success');
@@ -333,7 +345,7 @@ function updateDataValueInHttpServer(response, postData) {
         response.end();
       }
     }
-    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,postDataJson.arg3,postDataJson.arg4,postDataJson.arg5,updateItemValueCb);
+    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,JSON.parse(arg3String),updateItemValueCb);
   }
 }
 exports.updateDataValueInHttpServer = updateDataValueInHttpServer;
@@ -358,38 +370,7 @@ function getRecentAccessDataInHttpServer(response, postData) {
         result.pop();
       }
       var data = new Array();
-      var index=0;
-      function getid(){
-        if(result[index]==null){
-          return null;
-        }
-        var id;
-        switch (result[index].tableName){
-          case  'contacts':{
-            id='1#'+result[index].specificId;
-          }
-          break;
-          case  'pictures':{
-            id='2#'+result[index].specificId;
-          }
-          break;
-          case  'videos':{
-            id='3#'+result[index].specificId;
-          }
-          break;
-          case  'documents':{
-            id='4#'+result[index].specificId;
-          }
-          break;
-          case  'music':{
-            id='5#'+result[index].specificId;
-          }
-          break;
-        }
-        index++;
-        return id;
-      }
-      function getItemByIdCb(result){
+      function getItemByUriCb(result){
         //console.log(result);
         if(result){       
           data.push(result);
@@ -400,14 +381,11 @@ function getRecentAccessDataInHttpServer(response, postData) {
             response.end();
           }
           else{
-            var iid=getid();
-            if(iid!=null){
-              commonDAO.getItemById(iid,getItemByIdCb);
-            }
+            commonDAO.getItemByUri(uri,getItemByUriCb);
           }
         }
       }
-      commonDAO.getItemById(getid(),getItemByIdCb);
+      commonDAO.getItemByUri(uri,getItemByUriCb);
     }
     commonDAO.getRecentByOrder(getRecentByOrderCb);
   }
@@ -460,6 +438,30 @@ function getServerAddressInHttpServer(response, postData){
 }
 exports.getServerAddressInHttpServer = getServerAddressInHttpServer;
 
+//wangyu: add function for getting data dir
+function getDataDirInHttpServer(response, postData){
+  console.log("Request handler 'getDataDirInHttpServer' was called");
+  console.log("postData");
+  postDataJson=JSON.parse(postData);
+  console.log("arg:****** "+postDataJson.arg);
+  if (postDataJson.func != 'getDataDir') {
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.write("error func");
+    response.end();
+  }
+  else {
+    var cp = require('child_process');
+    cp.exec('echo $USER',function(error,stdout,stderr){
+      var usrname=stdout.replace("\n","");
+      var data = require('/home/'+usrname+'/.demo-rio/config');
+      var json = JSON.stringify(data.dataDir);
+      response.writeHead(200, {"Content-Type": "application/json"});
+      response.write(json);
+      response.end();
+    });
+  }
+}
+exports.getDataDirInHttpServer = getDataDirInHttpServer;
 
 //add function for file transfer 
 //2014.7.21 by xiquan

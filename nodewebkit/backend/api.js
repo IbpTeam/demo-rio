@@ -163,17 +163,17 @@ function rmDataById(rmDataByIdCb,id) {
   }
 }
 
-//API getDataById:通过id查看数据所有信息
+//API getDataByUri:通过uri查看数据所有信息
 //返回具体数据类型对象
-function getDataById(getDataByIdCb,id){
-  console.log("Request handler 'getDataById' was called.");
+function getDataByUri(getDataByUriCb,uri){
+  console.log("Request handler 'getDataByUri' was called.");
   if(isLocal())  {
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getDataByIdFromLocal(getDataByIdCb,id);
+    apiLocalHandle.getDataByUriFromLocal(getDataByUriCb,uri);
   }else{
     console.log('You are in remote '); 
-    getDataByIdFromHttp(getDataByIdCb,id);
+    getDataByUriFromHttp(getDataByUriCb,uri);
   }
 }
 
@@ -184,16 +184,16 @@ function getDataById(getDataByIdCb,id){
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
 
-function getDataSourceById(getDataSourceByIdCb,id){
+function getDataSourceByUri(getDataSourceByUriCb,uri){
   console.log("Request handler 'getDataSourceById' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getDataSourceByIdFromLocal(getDataSourceByIdCb,id);
+    apiLocalHandle.getDataSourceByUriFromLocal(getDataSourceByUriCb,uri);
   }
   else{
     console.log('You are in remote '); 
-    getDataSourceByIdFromHttp(getDataSourceByIdCb,id);
+    getDataSourceByUriFromHttp(getDataSourceByUriCb,uri);
   }
 }
 
@@ -202,16 +202,16 @@ function getDataSourceById(getDataSourceByIdCb,id){
 //成功返回success;
 //失败返回失败原因
 
-function updateDataValue(updateDataValueCb,id,uri,key,value,version){
+function updateDataValue(updateDataValueCb,uri,version,item){
   console.log("Request handler 'updateDataValue' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,id,uri,key,value,version);
+    apiLocalHandle.updateDataValueFromLocal(updateDataValueCb,uri,version,item);
   }
   else{
     console.log('You are in remote '); 
-    updateDataValueFromHttp(updateDataValueCb,id,uri,key,value,version);
+    updateDataValueFromHttp(updateDataValueCb,uri,version,item);
   }
 }
 
@@ -297,6 +297,20 @@ function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
   getServerAddress(getServerAddressCb);
 }
 
+//API getDataDir:获取数据路径
+function getDataDir(getDataDirCb){
+  console.log("Request handler 'getDataDir' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var apiLocalHandle = require("./backend/apiLocalHandle");
+    apiLocalHandle.getDataDirFromLocal(getDataDirCb);
+  }
+  else{
+    console.log('You are in remote '); 
+    getDataDirFromHttp(getDataDirCb);
+  }
+}
+
 /*
 //API demoDataSync
 function demoDataSync(deviceName,deviceId,deviceAddress){
@@ -315,3 +329,16 @@ function demoDataSync(deviceName,deviceId,deviceAddress){
   }
   getServerAddress(getServerAddressCb);
 }*/
+
+//API repoMergeForFirstTime:获取remote repo
+function repoMergeForFirstTime(name,branch,address,path){
+  console.log("Request handler 'repoMergeForFirstTime' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var repo = require("./backend/repo");
+    repo.repoMergeForFirstTime(name,branch,address,path);
+  }
+  else{
+    console.log('You are in remote '); 
+  }
+}

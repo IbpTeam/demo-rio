@@ -7,6 +7,7 @@ var fileHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
+var uniqueID=require('./backend/uniqueID');
 
 var handle = {}
 handle["/"] = requestHandlers.start;
@@ -16,15 +17,15 @@ handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
 handle["/getAllContacts"] = requestHandlers.getAllContactsInHttpServer;
 handle["/loadResources"] = requestHandlers.loadResourcesInHttpServer;
 handle["/rmDataById"] = requestHandlers.rmDataByIdInHttpServer;
-handle["/getDataById"] = requestHandlers.getDataByIdInHttpServer;
-handle["/getDataSourceById"] = requestHandlers.getDataSourceByIdInHttpServer;
+handle["/getDataByUri"] = requestHandlers.getDataByIdInHttpServer;
+handle["/getDataSourceByUri"] = requestHandlers.getDataSourceByIdInHttpServer;
 handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer;
 handle["/getRecentAccessData"] = requestHandlers.getRecentAccessDataInHttpServer;
 handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifyServerInHttpServer;
 handle["/getServerAddress"] = requestHandlers.getServerAddressInHttpServer;
 handle["/fileSend"] = requestHandlers.sendFileInHttp;//By xiquan 2014.7.21
 handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
-
+handle["/getDataDir"] = requestHandlers.getDataDirInHttpServer;
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
@@ -48,8 +49,30 @@ cp.exec('echo $USER',function(error,stdout,stderr){
         util.log("monitor : "+dataDir);
         fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
       }
+      fs.exists(config.USERCONFIGPATH+"uniqueID.js", function (exists) {
+        if(exists==false){
+          console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$no");
+          uniqueID.SetSysUid(function(){
+            deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+            console.log("deviceID = "+deviceID);
+            config.uniqueID=deviceID;
+          });
+        }
+        else{
+          console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$yes");
+          var deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+          console.log("exist deviceID = "+deviceID);
+          config.uniqueID=deviceID;
+          if(deviceID==undefined){
+            uniqueID.SetSysUid(function(){
+              deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+              console.log("deviceID = "+deviceID);
+              config.uniqueID=deviceID;
+            });
+          }
+        }
+      });
     });
-
     if(e){
         util.log('mkdir /home/'+usrname+'/.demo-rio fail');
     }else{
@@ -57,6 +80,9 @@ cp.exec('echo $USER',function(error,stdout,stderr){
     }
   });
  });
+
+
+
 
 
 

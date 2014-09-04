@@ -30,7 +30,9 @@ function getAllCateFromHttp(getAllCateCb) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          URI:each.id,
           id:each.id,
+          version:each.version,
           type:each.type,
           path:each.path,
           desc:each.desc
@@ -56,7 +58,9 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          URI:each.URI,
           id:each.id,
+          version:each.version,
           filename:each.filename,
           postfix:each.postfix,
           path:each.path
@@ -82,7 +86,9 @@ function getAllContactsFromHttp(getAllContactsCb) {
       var contacts = new Array();
       result.forEach(function (each){
         contacts.push({
+          URI:each.URI,
           id:each.id,
+          version:each.version,
           name:each.name,
           photoPath:each.photoPath
         });
@@ -111,50 +117,50 @@ function rmDataByIdFromHttp(rmDataByIdCb,id){
   });
 }
 
-function getDataByIdFromHttp(getDataByIdCb,id){
+function getDataByUriFromHttp(getDataByUriCb,uri){
     $.ajax({
-    url: "/getDataById",
+    url: "/getDataByUri",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"getDataById","arg":"'+id+'"}',
+    data: '{"func":"getDataByUri","arg":"'+uri+'"}',
     success: function(result) {
-      getDataByIdCb(result);
+      getDataByUriCb(result);
     },
     error: function(e) {
-      getDataByIdCb(e);
+      getDataByUriCb(e);
     }
   });
 }
 
-function getDataSourceByIdFromHttp(getDataSourceByIdCb,id){
+function getDataSourceByUriFromHttp(getDataSourceByUriCb,uri){
     $.ajax({
-    url: "/getDataSourceById",
+    url: "/getDataSourceByUri",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"getDataSourceById","arg":"'+id+'"}',
+    data: '{"func":"getDataSourceByUri","arg":"'+uri+'"}',
     success: function(result) {
       var source={
         openmethod:result.openmethod,
         content:result.content
       };
       
-      getDataSourceByIdCb(source);
+      getDataSourceByUriCb(source);
     },
     error: function(e) {
-      getDataSourceByIdCb(e);
+      getDataSourceByUriCb(e);
     }
   });
 }
 
-function updateDataValueFromHttp(updateDataValueCb,id,uri,key,value,version){
+function updateDataValueFromHttp(updateDataValueCb,uri,version,item){
     $.ajax({
     url: "/updateDataValue",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"updateDataValue","arg1":"'+id+'","arg2":"'+uri+'","arg3":"'+key+'","arg4":"'+value+'","arg5":"'+version+'"}',
+    data: '{"func":"updateDataValue","arg1":"'+uri+'","arg2":"'+version+'","arg3":"'+JSON.stringify(item)+'"}',
     success: function(result) {
       updateDataValueCb(result);
     },
@@ -228,6 +234,23 @@ function receiveFileFromHttp(path){
     },
     error: function(e) {
       console.log(e);
+    }
+  });
+}
+
+//wangyu: add function for getting data directory.
+function getDataDirFromHttp(getDataDirCb){
+    $.ajax({
+    url: "/getDataDir",
+    type: "post",
+    contentType: "application/json;charset=utf-8",
+    dataType: "json",
+    data: '{"func":"getDataDir","arg":"null"}',
+    success: function(result) {
+      getDataDirCb(result);
+    },
+    error: function(e) {
+      getDataDirCb(e);
     }
   });
 }

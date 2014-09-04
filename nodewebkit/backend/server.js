@@ -99,7 +99,8 @@ function start(route, handle) {
     var txt_record = {
       deviceName: config.SERVERNAME,
       account:config.ACCOUNT,
-      deviceID:config.uniqueID
+      deviceID:config.uniqueID,
+      addresses:config.SERVERIP
     };
     var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
     ad.start();

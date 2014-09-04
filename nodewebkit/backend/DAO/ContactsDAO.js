@@ -55,6 +55,34 @@ exports.findById = function(id,findByIdCallBack){
 }
 
 /**
+ * @method findByName
+ *   根据ID查询表中指定数据
+ * @param id
+ *   contacts表中的主键
+ * @return contacts
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByName = function(name,findByNameCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDCONTACTBYNAME, name, findByNameCallBack);
+  closeDB(db);
+}
+
+/**
+ * @method findByUri
+ *   根据ID查询表中指定数据
+ * @param id
+ *   contacts表中的主键
+ * @return contacts
+ *   数组对象，数组中仅有一条指定返回的数据对象
+ */
+exports.findByUri = function(uri,findByUriCallBack){
+  var db = openDB();
+  db.get(SQLSTR.FINDCONTACTBYURI, uri, findByUriCallBack);
+  closeDB(db);
+}
+
+/**
  * @method createItem
  *   增加一条新联系人信息
  * @param item
@@ -62,7 +90,7 @@ exports.findById = function(id,findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, item.URI, item.version, item.commit_id, createItemCallBack);
+  db.run(SQLSTR.CREATECONTACT, item.id,item.name, item.phone, item.sex, item.age, item.email, item.photoPath, item.createTime, item.lastModifyTime,item.lastAccessTime, item.URI, item.version, item.commit_id, item.is_delete, createItemCallBack);
   closeDB(db);
 }
 
@@ -84,12 +112,13 @@ exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
  * @param id
  *   pictures表中的主键
  */
-exports.updateItemValueByUri = function(uri,key,value,version,updateItemValueCallBack){
+exports.updateItemValueByUri = function(uri,newVersion,item,updateItemValueCallBack){
   var db = openDB();
-    config.dblog("udpate contacts uri : " + uri);
-        config.dblog("udpate key=" + key + 'value='+value);
-  //db.run(SQLSTR.UPDATEPICTURE, key, value, id, updateItemValueCallBack);
-  var sqlstr="UPDATE contacts SET "+key+" = '"+value+"',version='"+version+"' WHERE URI = '"+uri+"'";
+  var sqlstr = "update contacts set ";
+  for(var attrName in item){
+    sqlstr = sqlstr + attrName + "='" + item[attrName] + "',";
+  }
+  sqlstr = sqlstr + "version='"+newVersion+"' WHERE URI = '"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr, updateItemValueCallBack);
   closeDB(db);

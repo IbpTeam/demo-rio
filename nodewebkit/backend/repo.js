@@ -60,7 +60,8 @@ exports.repoAddCommit = function (repoPath,filename,event,callback)
                     var emitter = new events.EventEmitter();
                         emitter.emit('repoCommit_idle'); 
                     console.log("emit commit next commit "+path);*/
-                      callback();
+
+                      callback(commitId,op);
                     });
                   });  
                 });  
@@ -122,7 +123,7 @@ exports.repoRmCommit = function (repoPath,filename,callback)
                     var emitter = new events.EventEmitter();
                         emitter.emit('repoCommit_idle'); 
                     console.log("emit commit next commit "+path);*/
-                      callback();
+                      callback(commitId,'Delete');
                     });
                   });  
                 });  
@@ -132,4 +133,65 @@ exports.repoRmCommit = function (repoPath,filename,callback)
         });  
       });
     });
+}
+
+exports.getLatestCommit = function (repoPath,callback)
+{
+      console.log("getLatestCommit "+repoPath);
+      //open a git repo
+      git.Repo.open(path.resolve(repoPath+'/.git'), function(openReporError, repo) {
+      if (openReporError) 
+        throw openReporError;
+      console.log("Repo open : "+repo);  
+      //add the file to the index...
+      repo.openIndex(function(openIndexError, index) {
+        if (openIndexError) 
+          throw openIndexError;
+        console.log("Repo index : "+index);
+        index.read(function(readError) {
+          if (readError) 
+            throw readError;  
+          console.log("Repo read : success");
+              index.writeTree(function(writeTreeError, oid) {
+                if (writeTreeError) 
+                  throw writeTreeError;
+                console.log("Repo writeTree : success");
+                //get HEAD 
+                git.Reference.oidForName(repo, 'HEAD', function(oidForName, head) {
+                  if (oidForName) 
+                    throw oidForName;
+                  console.log("Repo oidForName : "+oidForName);
+                  //get latest commit (will be the parent commit)
+                  callback(head);
+                });  
+              });
+        });  
+      });
+    });
+}
+
+exports.repoMergeForFirstTime = function (name,branch,address,path)
+{
+  filesHandle.watcherStop();
+  var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+  var cp = require('child_process');
+  var cmd = 'cd '+dataDir+'&& git remote add '+name+' '+address+':'+path;
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var cmd = 'cd '+dataDir+'&& git fetch '+name;
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      var cmd = 'cd '+dataDir+'&& git checkout -b '+branch+' '+name+'/master';
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        var cmd = 'cd '+dataDir+'&& git checkout master && git merge '+branch;
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          filesHandle.watcherStart(dataDir,filesHandle.monitorFilesCb);
+        });
+      });
+    });
+  });
 }
