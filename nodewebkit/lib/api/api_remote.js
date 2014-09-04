@@ -1,4 +1,4 @@
-// API lib.
+//Config
 console.log("head of api.js.");
 var WDC= {};
 WDC.isDebug = true;
@@ -9,10 +9,7 @@ WDC.isDebug = true;
  * with the length of array.
  **/
 WDC.requireAPI = function(apilist, callback){
-  var i;
-  for (i = 0; i < apilist.length; i += 1){
-    setTimeout(callback(require('./lib/api/' + apilist[i])), 0);
-  }
+  requirejs(apilist, callback);
 }
 
 console.log("end of api.js.");

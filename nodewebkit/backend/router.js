@@ -33,11 +33,16 @@ function route(handle, pathname, absolute , response, postData) {
     //response.writeHead(404, {"Content-Type": "text/plain"});
     //response.write("404 Not found");
     //response.end();
+    var realPath;
     if(absolute == "query=absolute"){
-      var realPath = pathname;
+      realPath = pathname;
     }
     else{
-      var realPath = "."+pathname;
+      realPath = "."+pathname;
+    }
+    //Use api_remote.js for /lib/api.js
+    if (pathname == "/lib/api.js") {
+      realPath = "./lib/api_remote.js";
     }
     path.exists(realPath, function (exists) {
     config.riolog("realPath="+realPath);
