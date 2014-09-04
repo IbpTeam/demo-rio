@@ -353,7 +353,6 @@ function syncStart(syncData, address){
 				console.log("==========start sync update!!!==========");
 				console.log(my_updateActions);
 
-
 				var _myVersions = buildData(my_updateActions);
 				var _otherVersion = buildData(updateActions);
 
@@ -372,7 +371,7 @@ function buildData(oUpdateActions){
 	var hOperations = new hashTable();
 	hOperations.initHash("operation",oUpdateActions);
 	//var oOperations = hOperations.getAll();
-	var oVersionsTable = new object();
+	var oVersionsTable = {};
 
   //build an object for each origin_version(each file)
   if(oUpdateActions != ""){
@@ -388,7 +387,7 @@ function buildData(oUpdateActions){
   }
 
   //build hashtable for each origin_version(each file)
-  var oVersionsOrigin = new object();
+  var oVersionsOrigin = {};
   for(var k in oVersionsTable[k]){
   	var hVersion= new hashTable();
   	hVersion.initHash("version",oVersionsTable[k]);
@@ -410,8 +409,12 @@ function versionCtrlCB(oMyVersions,oOtherVersions,doVersionCtrlCB){
 
 	var hMyOperations = oMyVersions.operations;
 	var hOtherOperations =oOtherVersions.operations;
+	if(oOtherVersions = ""){
+		console.log("Nothing New!!!")
+		return;
+	}
 
-	for(var k in oMyVersions){
+	for(var k in oOtherVersions){
 		var hMyVersion = oMyVersions[k];
 		var hOtherVersion = oOtherVersions[k];
 		doVersionCtrlCB(hMyVersion,hMyOperations,hOtherVersion,hOtherOperations);

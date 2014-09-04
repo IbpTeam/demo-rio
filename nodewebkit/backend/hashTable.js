@@ -13,7 +13,7 @@ function hashTable(){
 	//this.initVersionHash = _initVersionHash;
 	this.initHash = _initHash;
 	this.getDiff = _getDiff;
-	this.getDiffUpdate = _getDiffUpdate;
+	//this.getDiffUpdate = _getDiffUpdate;
 }
 
 function _add(key,value){
