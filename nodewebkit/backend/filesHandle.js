@@ -144,25 +144,6 @@ function addData(itemPath,commitId,addDataCb){
 }
 
 function watcherStart(monitorPath,callback){
-  /*watcher
-    .on('add', function(path) {
-      //console.log('File', path, 'has been added');
-    })
-    .on('addDir', function(path) {
-      //console.log('Directory', path, 'has been added');
-    })
-    .on('change', function(path) {
-      //console.log('File', path, 'has been changed');
-    })
-    .on('unlink', function(path) {
-      //console.log('File', path, 'has been removed');
-    })
-    .on('unlinkDir', function(path) {
-      //console.log('Directory', path, 'has been removed');
-    })
-    .on('error', function(error) {
-      //console.error('Error happened', error);
-    })*/
   watcher = chokidar.watch(monitorPath, {ignored: /[\/\\]\./,ignoreInitial: true});
   watcher.on('all', function(event, path) {
     callback(path,event);

@@ -50,30 +50,29 @@ cp.exec('echo $USER',function(error,stdout,stderr){
         fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
       }
       fs.exists(config.USERCONFIGPATH+"uniqueID.js", function (exists) {
-  if(exists==false){
-    console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$no");
-    uniqueID.SetSysUid(function(){
-      deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
-      console.log("deviceID = "+deviceID);
-      config.uniqueID=deviceID;
-    });
-  }
-  else{
-    console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$yes");
-    var deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
-    console.log("exist deviceID = "+deviceID);
-    if(deviceID==undefined){
-      uniqueID.SetSysUid(function(){
-        deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
-        console.log("deviceID = "+deviceID);
+        if(exists==false){
+          console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$no");
+          uniqueID.SetSysUid(function(){
+            deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+            console.log("deviceID = "+deviceID);
+            config.uniqueID=deviceID;
+          });
+        }
+        else{
+          console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$yes");
+          var deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+          console.log("exist deviceID = "+deviceID);
+          config.uniqueID=deviceID;
+          if(deviceID==undefined){
+            uniqueID.SetSysUid(function(){
+              deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
+              console.log("deviceID = "+deviceID);
               config.uniqueID=deviceID;
-
+            });
+          }
+        }
       });
-    }
-  }
-});
     });
-
     if(e){
         util.log('mkdir /home/'+usrname+'/.demo-rio fail');
     }else{

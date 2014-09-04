@@ -60,7 +60,8 @@ function dblog(str){
 }
 exports.dblog = dblog;
 
-
+var uniqueID;
+exports.uniqueID = uniqueID;
 
 var uniqueID;
 exports.uniqueID = uniqueID;

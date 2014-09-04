@@ -43,6 +43,8 @@ function getAllCateInHttpServer(response, postData) {
       data.forEach(function (each){
         cates.push({
           id:each.id,
+          uri:each.URI,
+          version:each.version,
           type:each.type,
           path:each.logoPath,
           desc:each.desc
@@ -80,6 +82,8 @@ function getAllDataByCateInHttpServer(response, postData) {
       data.forEach(function (each){
         cates.push({
           id:each.id,
+          uri:each.URI,
+          version:each.version,
           filename:each.filename,
           postfix:each.postfix,
           path:each.path
@@ -112,6 +116,8 @@ function getAllContactsInHttpServer(response, postData) {
       data.forEach(function (each){
         cates.push({
           id:each.id,
+          uri:each.URI,
+          version:each.version,
           name:each.name,
           photoPath:each.photoPath
         });
@@ -315,8 +321,11 @@ function updateDataValueInHttpServer(response, postData) {
 
   config.riolog("Request handler 'updateDataValueInHttpServer' was called.");
     config.riolog(postData);
-    postDataJson=JSON.parse(postData);
-     config.riolog('$$$$$$'+postDataJson.arg);
+    var arg3String = postData.substring(postData.indexOf("arg3")+7, postData.length-2);
+    var postDataSub = postData.substring(0, postData.indexOf("arg3")-2);
+    postDataSub += "}";
+    postDataJson=JSON.parse(postDataSub);
+    config.riolog('$$$$$$'+postDataJson.arg1);
   if(postDataJson.func != 'updateDataValue'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
@@ -336,7 +345,7 @@ function updateDataValueInHttpServer(response, postData) {
         response.end();
       }
     }
-    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,JSON.parse(postDataJson.arg3),updateItemValueCb);
+    commonDAO.updateItemValue(postDataJson.arg1,postDataJson.arg2,JSON.parse(arg3String),updateItemValueCb);
   }
 }
 exports.updateDataValueInHttpServer = updateDataValueInHttpServer;
