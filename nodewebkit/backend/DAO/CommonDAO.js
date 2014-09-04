@@ -320,8 +320,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
           }
           else{
             var oNewItem = {
-              tableName:sTableName,
-              specificId:item.URI,
+              fileUri:item.URI,
               lastAccessTime:item.lastAccessTime
             };
             function createRecentItemCb(err){
@@ -412,46 +411,6 @@ exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
     }
   })
 }
-
-function getItemByUri(uri,getItemByUriCb){
-  contactsDAO.findByUri(uri,function(err,item){
-    if(item == null){
-      picturesDAO.findByUri(uri,function(err,item){
-        if(item == null){
-          videosDAO.findByUri(uri,function(err,item){
-            if(item == null){
-              documentsDAO.findByUri(uri,function(err,item){
-                if(item == null){
-                  musicDAO.findByUri(uri,function(err,item){
-                    if(item == null){
-                      getItemByUriCb(err);
-                    }
-                    else{
-                      getItemByUriCb(item);
-                    }
-                  });
-                }
-                else{
-                  getItemByUriCb(item);
-                }
-              });
-            }
-            else{
-              getItemByUriCb(item);
-            }
-          });
-        }
-        else{
-          getItemByUriCb(item);
-        }
-      });
-    }
-    else{
-      getItemByUriCb(item);
-    }
-  });
-}
-exports.getItemByUri = getItemByUri;
 
 exports.updateItemValue = function(uri, version, item, callback){
   var updateDAO=null;
@@ -566,14 +525,14 @@ exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryIt
   });
 }
 
-exports.updateRecentTable = function(tableName,dataId,time,callback){
-  recentDAO.updateTime(tableName,dataId,time, function(err){
+exports.updateRecentTable = function(uri,time,callback){
+  recentDAO.updateTime(uri,time, function(err){
     if(err){
-      callback(tableName,dataId,time,err);
+      callback(uri,time,err);
     }
     else{
       config.dblog("update recent successfull");
-      callback(tableName,dataId,time,'successfull');
+      callback(uri,time,'successfull');
     }
   });  
 }

@@ -76,7 +76,7 @@ exports.findById = function(id, findByIdCallBack){
  */
 exports.createItem = function(item, createItemCallBack){
   var db = openDB();
-  db.get(SQLSTR.CREATERECENT, item.tableName,item.specificId,item.lastAccessTime,createItemCallBack);
+  db.get(SQLSTR.CREATERECENT,item.fileUri,item.lastAccessTime,createItemCallBack);
   closeDB(db);
 }
 
@@ -116,12 +116,12 @@ exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
  * @param tableName,dataId,time
  *   
  */
-exports.updateTime = function(tableName,dataId,time, updateTimeCb){
+exports.updateTime = function(uri,time, updateTimeCb){
   var db = openDB();
   config.dblog("udpate recent id : " + dataId);
   //console.log("udpate key=" + key + 'value='+value);
 
-  var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE tableName = '"+tableName+"' and specificId = "+dataId;
+  var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE file_uri = "+uri;
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateTimeCb);
   closeDB(db);
