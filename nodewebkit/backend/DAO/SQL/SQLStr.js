@@ -9,7 +9,7 @@ exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";
 exports.FINDALLCONTACTS = "select * from Contacts where is_delete = 0";
 exports.FINDCONTACTBYID = "select * from contacts where id = ?";
 exports.FINDCONTACTBYNAME = "select * from contacts where is_delete = 0 and name = ?";
-exports.FINDCONTACTBYURI = "select * from contacts where uri = ?";
+exports.FINDCONTACTBYURI = "select id,name,age,sex,email,phone,photoPath as path,createTime,lastAccessTime,lastModifyTime,version,commit_id,is_delete,URI from contacts where uri = ?";
 exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime,lastAccessTime,URI,version,commit_id,is_delete) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 exports.DELETECONTACT = "delete from contacts where URI = ?";
 exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
@@ -63,7 +63,7 @@ exports.COUNTTOTALRECENT = "select count(*) as total from recent";
 exports.FINDALLRECENT = "select * from recent";
 exports.FINDALLRECENTBYORDER = "select * from recent order by lastAccessTime desc";
 exports.FINDRECENTBYID = "select * from recent where id = ?";
-exports.CREATERECENT = "insert into recent (id,tableName,specificId,lastAccessTime) values (null,?,?,?)";
+exports.CREATERECENT = "insert into recent (id,file_uri,lastAccessTime) values (null,?,?)";
 exports.DELETERECENT = "delete from recent where id = ?";
 exports.UPDATERECENT = "update recent set ? = ? where id = ?";
 
