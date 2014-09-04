@@ -60,6 +60,5 @@ function dblog(str){
 }
 exports.dblog = dblog;
 
-var uniqueID='69fbf7ae568808801c6a7165d30189e6';
-exports.uniqueID=uniqueID;
+
 
