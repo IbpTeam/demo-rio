@@ -25,6 +25,8 @@ function getAllCateFromLocal(getAllCateCb) {
     data.forEach(function (each){
       cates.push({
         id:each.id,
+        uri:each.URI,
+        version:each.version,
         type:each.type,
         path:each.logoPath,
         desc:each.desc
@@ -43,6 +45,8 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
     data.forEach(function (each){
       cates.push({
         id:each.id,
+        uri:each.URI,
+        version:each.version,
         filename:each.filename,
         postfix:each.postfix,
         path:each.path
@@ -62,6 +66,8 @@ function getAllContactsFromLocal(getAllContactsCb) {
     data.forEach(function (each){
       contacts.push({
         id:each.id,
+        uri:each.URI,
+        version:each.version,
         name:each.name,
         photoPath:each.photoPath
       });
