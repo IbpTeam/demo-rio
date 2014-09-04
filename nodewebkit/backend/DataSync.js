@@ -313,11 +313,11 @@ function syncStart(syncData, address){
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
 		var hMyDelete = new hashTable.hashTable();
-		hMyDelete.createHash(my_deleteHistory);
+		hMyDelete.initHash("file_uri",my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
 		//these are new delete actions
-		var oNewDelete = hMyDelete.getDiff(deleteActions);
+		var oNewDelete = hMyDelete.getDiff("file_uri",deleteActions);
 
 		console.log("==========new delete history==========");
 		console.log(oNewDelete);
@@ -329,14 +329,14 @@ function syncStart(syncData, address){
 		////Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
 			var hMyInsert = new hashTable.hashTable();
-			hMyInsert.createHash(my_insertHistory);
+			hMyInsert.initHash("file_uri",my_insertHistory);
 
 			//remove some repeat insert items in insertActions
-			insertActions = hMyInsert.getDiff(insertActions);
+			insertActions = hMyInsert.getDiff("file_uri",insertActions);
 
 			console.log("==========start sync insert!!!==========");
 			//these are new insert actions
-			var oNewInsert = hMyDelete.getDiff(insertActions);
+			var oNewInsert = hMyDelete.getDiff("file_uri",insertActions);
 
 			console.log("==========new insert history==========");
 			console.log(oNewInsert);
@@ -347,10 +347,15 @@ function syncStart(syncData, address){
 			syncUpdateAction(updateActions,function(updateActions,my_updateActions){
 				console.log("==========start sync update!!!==========");
 				console.log(my_updateActions);
+        
+        //build my version table based on key == origin_version
+				var oMyVersionsTable = new hashTable.hashTable();
+				var oOperations = oMyVersionsTable.initHash("operation",my_updateActions);
 
-				var oMyVersions = new Array();
-				for(var k in my_updateActions){
-
+				if(my_updateActions != ""){
+					oMyVersionsTable.isEmpty = false;
+					for(var k in my_updateActions)
+						this.add(my_updateActions[k].origin_version,List[k]);
 				}
 
 
@@ -359,7 +364,7 @@ function syncStart(syncData, address){
 
 				var hMyVersion = new hashTable.hashTable();
 				var hMyOperation = new hashTable.hashTable();
-				hMyVersion.initVersionHash(my_updateActions);
+				hMyVersion.initVersionHash("version",my_updateActions);
 				hMyOperation.initOperationHash(my_updateActions);
 
 				oMyVersions.versions = hMyVersion;
@@ -381,8 +386,8 @@ function syncStart(syncData, address){
 
 				var hOtherVersion = new hashTable.hashTable();
 				var hOtherOperation = new hashTable.hashTable();
-				hOtherVersion.initVersionHash(updateActions);
-				hOtherOperation.initOperationHash(updateActions);
+				hOtherVersion.initHash("version",updateActions);
+				hOtherOperation.initHash("operation",supdateActions);
 
 				oOtherVersions.versions = hOtherVersion;
 				oOtherVersions.operations = hOtherOperation;
@@ -465,7 +470,7 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
     }else{
     	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ normal sync")
     	//these are new version's version_id, from other_versions
-    	var oNewVersion = hMyVersion.getDiffUpdate(oOtherVersionId);
+    	var oNewVersion = hMyVersion.getDiff("version_id",oOtherVersionId);
     	//console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
     	//console.log(oMyVersions)
     	//check each versoin's parents/children if exist in oMyVersions
@@ -555,12 +560,6 @@ function isFileSame(){
 //	if(my_version === other_version)
 //		return true;
 //	return false;
-//}
-
-//check if my_version is a prev version in other_linklist
-//function isPrevVersion(version_id,my_version){
-//	if(my_version.isExist(version_id))
-//		return my_version.get(version_id);
 //}
 
 //check if keys are conflict
