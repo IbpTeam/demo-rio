@@ -372,11 +372,11 @@ function getRecentAccessDataInHttpServer(response, postData) {
             response.end();
           }
           else{
-            commonDAO.getItemByUri(uri,getItemByIdCb);
+            commonDAO.getItemByUri(uri,getItemByUriCb);
           }
         }
       }
-      commonDAO.getItemByUri(uri,getItemByIdCb);
+      commonDAO.getItemByUri(uri,getItemByUriCb);
     }
     commonDAO.getRecentByOrder(getRecentByOrderCb);
   }

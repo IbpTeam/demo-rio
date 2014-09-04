@@ -30,7 +30,7 @@ function getAllCateFromHttp(getAllCateCb) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
-          id:each.id,
+          URI:each.id,
           type:each.type,
           path:each.path,
           desc:each.desc
@@ -56,7 +56,7 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
-          id:each.id,
+          URI:each.URI,
           filename:each.filename,
           postfix:each.postfix,
           path:each.path
@@ -82,7 +82,7 @@ function getAllContactsFromHttp(getAllContactsCb) {
       var contacts = new Array();
       result.forEach(function (each){
         contacts.push({
-          id:each.id,
+          URI:each.URI,
           name:each.name,
           photoPath:each.photoPath
         });
