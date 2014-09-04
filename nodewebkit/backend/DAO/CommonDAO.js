@@ -10,6 +10,16 @@ var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
+//连接数据库
+function openDB(){
+  return new sqlite3.Database('./backend/db/rio');
+}
+
+//关闭数据库
+function closeDB(database){
+  database.close();
+}
+
 exports.countTotalByCategory = function(category, callback) {
 
   var countDao = null;
@@ -256,6 +266,31 @@ exports.getItemByPath = function(path, callback){
     }
     createDAO.findByPath(path,findByPathCb);
   }
+}
+
+/**
+ * @method createItems
+ *   
+ * @param items
+ *
+ * @param callback
+ */
+exports.createItems = function(items,callback){
+  var aSqlArray = new Array();
+  items.forEach(function(item){
+    var sSqlStr = "insert into " + item.category;
+    var sKeyStr = " (id";
+    var sValueStr = ") values (null";
+    for(var key in item){
+      sKeyStr = sKeyStr + "," + key;
+      sValueStr = sValueStr + "," + item[key];
+    }
+    sSqlStr = sSqlStr + sKeyStr + sValueStr + ")";
+    console.log(sSqlStr);     
+  });
+  //var oDB = openDB();
+  //db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
+  //closeDB(oDB);
 }
 
 exports.createItem = function(category, item, callback , loadResourcesCb){
