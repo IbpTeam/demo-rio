@@ -94,6 +94,7 @@ function _initVersionHash(List){
 }
 */
 
+/*
 function _initOperationHash(List){
 	if(List != "" ){
 		this.isEmpty = false;
@@ -111,6 +112,7 @@ function _initOperationHash(List){
 		return this.hashtable;
 	}
 }
+*/
 
 function _initHash(sKey,List){
 	if(List != ""){
@@ -121,14 +123,23 @@ function _initHash(sKey,List){
 					this.add(List[k].file_uri,List[k].id);
 			}
 			break;
-			case "origin_version":{
-				for(var k in List)
-					this.add(List[k].origin_version,List[k].id);
-			}
-			break;
 			case "version_id":{
 				for(var k in List)
 					this.add(List[k].version_id,List[k].id);
+			}
+			break;
+			case "origin_version":{
+				for(var k in List){
+					var oTempEntry = List[k];
+
+					var oVersion = {
+						version_id : oTempEntry.version_id,
+						parents : oTempEntry.parents,
+						children : oTempEntry.children,
+						origin_version : oTempEntry.origin_version
+					}
+					this.add(List[k].origin_version,List[k].id);
+				}
 			}
 			break;
 			case "operation":{
@@ -179,7 +190,7 @@ function _initHash(sKey,List){
 	}else{
 		return this.hashtable;
 	}
-	
+
 }
 
 function _getDiff(sKey,array){

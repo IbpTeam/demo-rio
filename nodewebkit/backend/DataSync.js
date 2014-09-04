@@ -8,7 +8,7 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- var hashTable = require("./hashTable");
+ var hashTable = require("./hashTable").hashTable;
  var ActionHistory = require("./DAO/ActionHistoryDAO");
 
  var state = {
@@ -61,6 +61,11 @@ function syncUpdateAction(other_update,updateCallBack){
 		updateCallBack(other_update,my_update);
 	});
 }
+
+//build data(htables of update history and operation) for versionm control
+//function buildData(updateActions,buidDataCB){
+//	buidDataCB(updateActions);
+//}
 
 //deal with version control
 function versionCtrl(my_versions,other_versions,versionCtrlCB,CBsyncComplete){
@@ -298,7 +303,7 @@ function syncStart(syncData, address){
 	//Change state, start to sync
 	currentState = state.SYNC_START;
 
-  console.log("insert actions: ");
+	console.log("insert actions: ");
 	console.log(insertActions);
 	var insertActions = JSON.parse(syncData.insertActions);
 
@@ -312,7 +317,7 @@ function syncStart(syncData, address){
 
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
-		var hMyDelete = new hashTable.hashTable();
+		var hMyDelete = new hashTable();
 		hMyDelete.initHash("file_uri",my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
@@ -328,7 +333,7 @@ function syncStart(syncData, address){
 
 		////Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
-			var hMyInsert = new hashTable.hashTable();
+			var hMyInsert = new hashTable();
 			hMyInsert.initHash("file_uri",my_insertHistory);
 
 			//remove some repeat insert items in insertActions
@@ -347,84 +352,60 @@ function syncStart(syncData, address){
 			syncUpdateAction(updateActions,function(updateActions,my_updateActions){
 				console.log("==========start sync update!!!==========");
 				console.log(my_updateActions);
-        
-        //build my version table based on key == origin_version
-				var oMyVersionsTable = new hashTable.hashTable();
-				var oOperations = oMyVersionsTable.initHash("operation",my_updateActions);
-
-				if(my_updateActions != ""){
-					oMyVersionsTable.isEmpty = false;
-					for(var k in my_updateActions)
-						this.add(my_updateActions[k].origin_version,List[k]);
-				}
 
 
-
-
-
-				var hMyVersion = new hashTable.hashTable();
-				var hMyOperation = new hashTable.hashTable();
-				hMyVersion.initVersionHash("version",my_updateActions);
-				hMyOperation.initOperationHash(my_updateActions);
-
-				oMyVersions.versions = hMyVersion;
-				oMyVersions.operations = hMyOperation;
-				//oMyVersions.head = hMyVersion.head;
-				//oMyVersions.tail = hMyVersion.tail;
-
-
-
-
-
-
-
-
-				var oOtherVersions = {
-					versions: null,
-					operations: null,
-				};
-
-				var hOtherVersion = new hashTable.hashTable();
-				var hOtherOperation = new hashTable.hashTable();
-				hOtherVersion.initHash("version",updateActions);
-				hOtherOperation.initHash("operation",supdateActions);
-
-				oOtherVersions.versions = hOtherVersion;
-				oOtherVersions.operations = hOtherOperation;
-				//oOtherVersions.head = hOtherVersion.head;
-				//oOtherVersions.tail = hOtherVersion.tail;
-
-        var MyVersions = oMyVersions.versions.getAll();
-        var OtherVersions = oOtherVersions.versions.getAll();
-
-
-				var oDistribution = {
-					head:"",
-					tail:"",
-					versions:{}
-				}
-
-
-        var oMyheads = new Array();
-        var oMyTails = new Array();
-        var oOtherHeads = new Array();
-        var oOtherTails = new Array();
-
-				var _myVersions = oMyVersions;
-				var _otherVersion = oOtherVersions
+				var _myVersions = buidData(my_updateActions);
+				var _otherVersion = buidData(updateActions);
 
 
 					//do version control stuff
-					versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
+					//versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
 
 				});
-});
+		});
 });
 }
 
+//build my data for version ctrl
+function buidData(oUpdateActions){
+
+	//build my versions table and operation hashtable
+	var hOperations = new hashTable();
+	hOperations.initHash("operation",oUpdateActions);
+	var oOperations = hOperations.getAll();
+	var oVersionsTable = new object();
+	var oVersionsOrigin = new Array();
+
+  //build an object for each origin_version(each file)
+  if(oUpdateActions != ""){
+  	for(var k in oUpdateActions){
+  		if(oVersionsTable.hasOwnProperty(oUpdateActions[k].origin_version)){
+  			oVersionsTable[oUpdateActions[k].origin_version].push(oUpdateActions[k]);
+  		}else{
+  			var oTempEntry = new Array();
+  			oTempEntry.push(List[k]);
+  			oVersionsTable[oUpdateActions[k].origin_version] = oTempEntry;
+  		}
+  	}
+  }
+
+  //build hashtable for each origin_version(each file)
+  for(var k in oVersionsTable[k]){
+  	var hVersion= new hashTable();
+  	hVersion.initHash("version",oVersionsTable[k]);
+  	oVersionsOrigin.push(hVersion);
+  }
+
+  var oData = {
+  	versions: oVersionsOrigin,
+  	operations: oOperations,
+  };
+
+  return oData;
+}
 
 
-//deal with the conflict situation 
+//callback when deal with the conflict situation 
 function versionCtrlCB(oMyVersions,oOtherVersions){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
 	console.log(oMyVersions)
@@ -533,10 +514,10 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
 function dealConflictCB(hMyVersion,hOtherVersion){
 	//to be continue ...
 	var readline = require('readline');
-  var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+	var rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout
+	});
 
 }
 
