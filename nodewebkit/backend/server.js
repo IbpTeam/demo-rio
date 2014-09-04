@@ -56,8 +56,8 @@ function start(route, handle) {
           console.log(serviceRecord.account +"----------------");
           var deviceId = serviceRecord.deviceID;
           console.log(serviceRecord.deviceID + "================");
-          console.log(deviceId.localCompare(config.uniqueID) + "-----------------");
-          if (serviceRecord.account == config.ACCOUNT && deviceId.localCompare(config.uniqueID) > 0) {
+          console.log(deviceId.localeCompare(config.uniqueID) + "-----------------");
+          if (serviceRecord.account == config.ACCOUNT && deviceId.localeCompare(config.uniqueID) > 0) {
             //sendMessage
             console.log("start to send sync request");
             dataSync.syncRequest(service.name,deviceId,service.addresses);
