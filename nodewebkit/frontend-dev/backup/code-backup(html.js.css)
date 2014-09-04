@@ -230,8 +230,8 @@ function getAllContactsFromHttp(getAllContactsCb) {
 //global.getAllCate = getAllCate;
 //global.getAllDataByCate = getAllDataByCate;
 //global.rmDataById = rmDataById;
-//global.getDataById = getDataById;
-//global.getDataSourceById = getDataSourceById;
+//global.getDataByUri = getDataByUri;
+//global.getDataSourceByUri = getDataSourceByUri;
 //global.updateDataValue = updateDataValue;
 //global.getRecentAccessData = getRecentAccessData;
 //var rel_path = '';//./frontend-dev/node_modules/

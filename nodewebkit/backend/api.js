@@ -163,17 +163,17 @@ function rmDataById(rmDataByIdCb,id) {
   }
 }
 
-//API getDataById:通过id查看数据所有信息
+//API getDataByUri:通过uri查看数据所有信息
 //返回具体数据类型对象
-function getDataById(getDataByIdCb,id){
-  console.log("Request handler 'getDataById' was called.");
+function getDataByUri(getDataByUriCb,uri){
+  console.log("Request handler 'getDataByUri' was called.");
   if(isLocal())  {
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getDataByIdFromLocal(getDataByIdCb,id);
+    apiLocalHandle.getDataByUriFromLocal(getDataByUriCb,uri);
   }else{
     console.log('You are in remote '); 
-    getDataByIdFromHttp(getDataByIdCb,id);
+    getDataByUriFromHttp(getDataByUriCb,uri);
   }
 }
 
@@ -184,16 +184,16 @@ function getDataById(getDataByIdCb,id){
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
 
-function getDataSourceById(getDataSourceByIdCb,id){
+function getDataSourceByUri(getDataSourceByUriCb,uri){
   console.log("Request handler 'getDataSourceById' was called.");
   if(isLocal()){     
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.getDataSourceByIdFromLocal(getDataSourceByIdCb,id);
+    apiLocalHandle.getDataSourceByUriFromLocal(getDataSourceByUriCb,uri);
   }
   else{
     console.log('You are in remote '); 
-    getDataSourceByIdFromHttp(getDataSourceByIdCb,id);
+    getDataSourceByUriFromHttp(getDataSourceByUriCb,uri);
   }
 }
 
