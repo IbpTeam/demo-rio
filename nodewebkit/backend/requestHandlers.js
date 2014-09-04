@@ -138,7 +138,7 @@ function rmDataByIdInHttpServer(response, postData) {
     response.end();
   }
   else{
-    function getItemByIdCb(item){
+    function getItemByUriCb(item){
       if(item == null){
         var json=JSON.stringify('success');
         response.writeHead(200, {"Content-Type": "application/json"});
@@ -170,48 +170,48 @@ function rmDataByIdInHttpServer(response, postData) {
         fs.unlink(item.path,ulinkCb);
       }
     }
-    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+    commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
 exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;
 
-function getDataByIdInHttpServer(response, postData) {
+function getDataByUriInHttpServer(response, postData) {
 
-  config.riolog("Request handler 'getDataByIdInHttpServer' was called.");
+  config.riolog("Request handler 'getDataByUriInHttpServer' was called.");
     config.riolog(postData);
     postDataJson=JSON.parse(postData);
      config.riolog('$$$$$$'+postDataJson.arg);
-  if(postDataJson.func != 'getDataById'){
+  if(postDataJson.func != 'getDataByUri'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
   }
   else{
-    function getItemByIdCb(item){
+    function getItemByUriCb(item){
       config.riolog("delete result:"+item);
       var json=JSON.stringify(item);
       response.writeHead(200, {"Content-Type": "text/plain"});
       response.write(json);
       response.end();
     }
-    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+    commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
-exports.getDataByIdInHttpServer = getDataByIdInHttpServer;
+exports.getDataByUriInHttpServer = getDataByUriInHttpServer;
 
-function getDataSourceByIdInHttpServer(response, postData) {
+function getDataSourceByUriInHttpServer(response, postData) {
 
   config.riolog("Request handler 'getDataSourceByIdInHttpServer' was called.");
     config.riolog(postData);
     postDataJson=JSON.parse(postData);
      config.riolog('$$$$$$'+postDataJson.arg);
-  if(postDataJson.func != 'getDataSourceById'){
+  if(postDataJson.func != 'getDataSourceByUri'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
   }
   else{
-    function getItemByIdCb(item){
+    function getItemByUriCb(item){
       if(item==null){
         source=null;
         var json=JSON.stringify(source);
@@ -306,10 +306,10 @@ function getDataSourceByIdInHttpServer(response, postData) {
         commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
       }
     }
-    commonDAO.getItemById(postDataJson.arg,getItemByIdCb);
+    commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
-exports.getDataSourceByIdInHttpServer = getDataSourceByIdInHttpServer;
+exports.getDataSourceByUriInHttpServer = getDataSourceByUriInHttpServer;
 
 function updateDataValueInHttpServer(response, postData) {
 
@@ -361,38 +361,7 @@ function getRecentAccessDataInHttpServer(response, postData) {
         result.pop();
       }
       var data = new Array();
-      var index=0;
-      function getid(){
-        if(result[index]==null){
-          return null;
-        }
-        var id;
-        switch (result[index].tableName){
-          case  'contacts':{
-            id='1#'+result[index].specificId;
-          }
-          break;
-          case  'pictures':{
-            id='2#'+result[index].specificId;
-          }
-          break;
-          case  'videos':{
-            id='3#'+result[index].specificId;
-          }
-          break;
-          case  'documents':{
-            id='4#'+result[index].specificId;
-          }
-          break;
-          case  'music':{
-            id='5#'+result[index].specificId;
-          }
-          break;
-        }
-        index++;
-        return id;
-      }
-      function getItemByIdCb(result){
+      function getItemByUriCb(result){
         //console.log(result);
         if(result){       
           data.push(result);
@@ -403,14 +372,11 @@ function getRecentAccessDataInHttpServer(response, postData) {
             response.end();
           }
           else{
-            var iid=getid();
-            if(iid!=null){
-              commonDAO.getItemById(iid,getItemByIdCb);
-            }
+            commonDAO.getItemByUri(uri,getItemByIdCb);
           }
         }
       }
-      commonDAO.getItemById(getid(),getItemByIdCb);
+      commonDAO.getItemByUri(uri,getItemByIdCb);
     }
     commonDAO.getRecentByOrder(getRecentByOrderCb);
   }

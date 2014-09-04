@@ -111,39 +111,39 @@ function rmDataByIdFromHttp(rmDataByIdCb,id){
   });
 }
 
-function getDataByIdFromHttp(getDataByIdCb,id){
+function getDataByUriFromHttp(getDataByUriCb,uri){
     $.ajax({
-    url: "/getDataById",
+    url: "/getDataByUri",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"getDataById","arg":"'+id+'"}',
+    data: '{"func":"getDataByUri","arg":"'+uri+'"}',
     success: function(result) {
-      getDataByIdCb(result);
+      getDataByUriCb(result);
     },
     error: function(e) {
-      getDataByIdCb(e);
+      getDataByUriCb(e);
     }
   });
 }
 
-function getDataSourceByIdFromHttp(getDataSourceByIdCb,id){
+function getDataSourceByUriFromHttp(getDataSourceByUriCb,uri){
     $.ajax({
-    url: "/getDataSourceById",
+    url: "/getDataSourceByUri",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"getDataSourceById","arg":"'+id+'"}',
+    data: '{"func":"getDataSourceByUri","arg":"'+uri+'"}',
     success: function(result) {
       var source={
         openmethod:result.openmethod,
         content:result.content
       };
       
-      getDataSourceByIdCb(source);
+      getDataSourceByUriCb(source);
     },
     error: function(e) {
-      getDataSourceByIdCb(e);
+      getDataSourceByUriCb(e);
     }
   });
 }
