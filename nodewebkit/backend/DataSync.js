@@ -357,9 +357,8 @@ function syncStart(syncData, address){
 				var _myVersions = buildData(my_updateActions);
 				var _otherVersion = buildData(updateActions);
 
-
-					//do version control stuff
-					//versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
+				//do version control stuff
+				versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
 
 				});
 		});
@@ -404,23 +403,52 @@ function buildData(oUpdateActions){
   return oData;
 }
 
-
-//callback when deal with the conflict situation 
-function versionCtrlCB(oMyVersions,oOtherVersions){                                                                                                                                                                                                                                                                                                                                                                                                           
+//callback when deal with version control stuff
+function versionCtrlCB(oMyVersions,oOtherVersions,doVersionCtrlCB){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
-	console.log(oMyVersions)
+	console.log(oMyVersions);
 
+	var hMyOperations = oMyVersions.operations;
+	var hOtherOperations =oOtherVersions.operations;
+
+	for(var k in oMyVersions){
+		var hMyVersion = oMyVersions[k];
+		var hOtherVersion = oOtherVersions[k];
+		doVersionCtrlCB(hMyVersion,hMyOperations,hOtherVersion,hOtherOperations);
+	}
+}
+
+//callback when deal with versions of each file in versionCtrlCB
+function doVersionCtrlCB(hMyVersion,hMyOperations,hOtherVersion,hOtherOperations){
+
+	var sMyHead = hMyVersion.head;
+	var sMyTail = oMyVersions.tail;
+	//var hMyVersion = oMyVersions.versions;
+	//var hMyOperations = oMyVersions.operations;
+	var oMyVersionId = hMyVersion.getAll();
+	
+	var sOtherHead = hOtherVersion.head;
+	var sOtherTail = hOtherVersion.tail;
+	//var hOtherVersion = oOtherVersions.versions;
+	//var hOtherOperations = oOtherVersions.operations;
+	var oOtherVersionId = hOtherVersion.getAll();
+
+	var oNewUpdateHistory = new Array();
+	var oNewUpdateEntry = new Array();
+	var oNewOperations = new Array();
+/*
 	var sMyHead = oMyVersions.versions.head;
 	var sMyTail = oMyVersions.versions.tail;
 	var hMyVersion = oMyVersions.versions;
-	var hMyOperations = oMyVersions.operations;
+	//var hMyOperations = oMyVersions.operations;
 	var oMyVersionId = oMyVersions.versions.getAll();
 	
 	var sOtherHead = oOtherVersions.versions.head;
 	var sOtherTail = oOtherVersions.versions.tail;
 	var hOtherVersion = oOtherVersions.versions;
-	var hOtherOperations = oOtherVersions.operations;
+	//var hOtherOperations = oOtherVersions.operations;
 	var oOtherVersionId = oOtherVersions.versions.getAll();
+*/
 
 	var oNewUpdateHistory = new Array();
 	var oNewUpdateEntry = new Array();
