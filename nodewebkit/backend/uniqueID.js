@@ -25,10 +25,10 @@ function writeUnID(id,callback)
 	{
 		console.log('uniqueID not defined!');
 		fs.writeFile(config.USERCONFIGPATH+"uniqueID.js",'var uniqueID='+'\''+id+'\''+';'+'\n'+'exports.uniqueID=uniqueID;',function(err){
-		if (err)  throw err;
-		console.log('uniqueID was appended to config.js');
-        callback();
-	});
+		  if (err)  throw err;
+		    console.log('uniqueID was appended to config.js');
+          callback();
+	    });
 	}
 }
 
