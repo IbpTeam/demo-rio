@@ -24,8 +24,8 @@ function getAllCateFromLocal(getAllCateCb) {
     var cates = new Array();
     data.forEach(function (each){
       cates.push({
-        id:each.id,
-        uri:each.URI,
+
+        URI:each.id,
         version:each.version,
         type:each.type,
         path:each.logoPath,
@@ -44,8 +44,7 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
     var cates = new Array();
     data.forEach(function (each){
       cates.push({
-        id:each.id,
-        uri:each.URI,
+        URI:each.URI,
         version:each.version,
         filename:each.filename,
         postfix:each.postfix,
@@ -65,9 +64,8 @@ function getAllContactsFromLocal(getAllContactsCb) {
     var contacts = new Array();
     data.forEach(function (each){
       contacts.push({
-        id:each.id,
-        uri:each.URI,
         version:each.version,
+        URI:each.URI,
         name:each.name,
         photoPath:each.photoPath
       });
@@ -80,7 +78,7 @@ function getAllContactsFromLocal(getAllContactsCb) {
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
 function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
-  function getItemByIdCb(item){
+  function getItemByUriCb(item){
     if(item == null){
        result='success';
        rmDataByIdCb(result);
@@ -101,24 +99,25 @@ function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
       fs.unlink(item.path,ulinkCb);
     }
   }
-  commonDAO.getItemById(id,getItemByIdCb);
+  commonDAO.getItemByUri(id,getItemByUriCb);
 }
 exports.rmDataByIdFromLocal = rmDataByIdFromLocal;
 
-function getDataByIdFromLocal(getDataByIdCb,id) {
-  function getItemByIdCb(item){
- //   console.log("read data : "+ item.filename);
-    getDataByIdCb(item);
+function getDataByUriFromLocal(getDataByUriCb,uri) {
+    console.log("read data : ========================="+ uri);
+  function getItemByUriCb(item){
+    console.log("read data : ========================="+ item.URI);
+    getDataByUriCb(item);
   }
-  commonDAO.getItemById(id,getItemByIdCb);
+  commonDAO.getItemByUri(uri,getItemByUriCb);
 }
-exports.getDataByIdFromLocal = getDataByIdFromLocal;
+exports.getDataByUriFromLocal = getDataByUriFromLocal;
 
-function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
-  function getItemByIdCb(item){
+function getDataSourceByUriFromLocal(getDataSourceByUriCb,id) {
+  function getItemByUriCb(item){
     if(item==null){
       config.riolog("read data : "+ item);
-      getDataSourceByIdCb('undefined');
+      getDataSourceByUriCb('undefined');
     }
     else{
       config.riolog("read data : "+ item.path);
@@ -141,7 +140,7 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
           content:item.path
         };
       }
-      getDataSourceByIdCb(source);
+      getDataSourceByUriCb(source);
       
       var currentTime = (new Date()).getTime();
       config.riolog("time: "+ currentTime);
@@ -152,40 +151,14 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
           commonDAO.updateItemValue(uri,version,cbItem,updateItemValueCb);
         }
         else{
-          var index=id.indexOf('#');
-          var tableId=id.substring(0,index);
-          var dataId=id.substr(index+1);
-          var tableName;
-          switch(tableId){
-            case '1' :{
-              tableName='contacts';
-            }
-            break;
-            case '2' :{
-              tableName='pictures';
-            }
-            break;
-            case '3' :{
-              tableName='videos';
-            }
-            break;
-            case '4' :{
-              tableName='documents';
-            }
-            break;
-            case '5' :{
-              tableName='music';
-            }
-            break;                                    
-          }
-          function updateRecentTableCb(tableName,dataId,time,result){
+          function updateRecentTableCb(uri,time,result){
             config.riolog("update recent table: "+ result);
             if(result!='successfull'){
               filesHandle.sleep(1000);
-              commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+              commonDAO.updateRecentTable(uri,parseInt(currentTime),updateRecentTableCb);
             }
           }
-          commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+          commonDAO.updateRecentTable(uri,parseInt(currentTime),updateRecentTableCb);
         }
       }
       var updateItem = {
@@ -194,9 +167,9 @@ function getDataSourceByIdFromLocal(getDataSourceByIdCb,id) {
       commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
     }
   }
-  commonDAO.getItemById(id,getItemByIdCb);
+  commonDAO.getItemByUri(uri,getItemByUriCb);
 }
-exports.getDataSourceByIdFromLocal = getDataSourceByIdFromLocal;
+exports.getDataSourceByUriFromLocal = getDataSourceByUriFromLocal;
 
 function updateDataValueFromLocal(updateDataValueCb,uri,version,item) {
   function updateItemValueCb(uri,version,item,result){
@@ -222,38 +195,7 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
       result.pop();
     }
     var data = new Array();
-    var id;
-    var index=0;
-    function getid(){
-      if(result[index]==null){
-        return null;
-      }
-      switch (result[index].tableName){
-        case  'contacts':{
-          id='1#'+result[index].specificId;
-        }
-        break;
-        case  'pictures':{
-          id='2#'+result[index].specificId;
-        }
-        break;
-        case  'videos':{
-          id='3#'+result[index].specificId;
-        }
-        break;
-        case  'documents':{
-          id='4#'+result[index].specificId;
-        }
-        break;
-        case  'music':{
-          id='5#'+result[index].specificId;
-        }
-        break;
-      }
-      index++;
-      return id;
-    }
-    function getItemByIdCb(result){
+    function getItemByUriCb(result){
       //console.log(result);
       if(result){
         
@@ -262,17 +204,14 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
           getRecentAccessDataCb(data);
         }
         else{
-          var iid=getid();
-          if(iid!=null){
-            commonDAO.getItemById(iid,getItemByIdCb);
-          }
+          commonDAO.getItemByUri(uri,getItemByUriCb);
         }
       }
       else{
         console.log("No data");
       }
     }
-    commonDAO.getItemById(getid(),getItemByIdCb);
+    commonDAO.getItemByUri(uri,getItemByUriCb);
 
   }
   commonDAO.getRecentByOrder(getRecentByOrderCb);
