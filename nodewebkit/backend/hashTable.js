@@ -49,9 +49,8 @@ function _getAll(){
 			for(var j in this.hashtable[k])
 				list.push(this.hashtable[k][j]);
 		}
-	}else{
-		return list;
 	}
+	return list;
 }
 
 function _isExist(key){
@@ -188,7 +187,7 @@ function _initHash(sKey,List){
 			}
 		}
 	}else{
-		return this.hashtable;
+		return;
 	}
 
 }
@@ -223,9 +222,8 @@ function _getDiff(sKey,array){
 			console.log("===================");
 			return "undefined";
 		}
-	}else{
-		return oDiff;
 	}
+	return oDiff;
 }
 
 //function _getDiffUpdate(array){

@@ -505,7 +505,7 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
     var _newUpdateHistory = oNewUpdateHistory;
     var _newUpdateEntry = oNewUpdateEntry;
     var _newOperations = oNewOperations;
-    setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
+    return setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
   }
 }
 
@@ -520,7 +520,7 @@ function setUpdateCB(oNewUpdateHistory,oNewUpdateEntry,oNewOperations){
 	console.log(oNewUpdateHistory);
 	console.log(oNewUpdateEntry)
 	console.log(oNewOperations);	
-	commonDAO.modifyOrInsertUpdateItems(oNewUpdateHistory,oNewUpdateEntry,oNewOperations);
+	return commonDAO.modifyOrInsertUpdateItems(oNewUpdateHistory,oNewUpdateEntry,oNewOperations);
 
 }
 
