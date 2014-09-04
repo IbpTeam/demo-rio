@@ -18,7 +18,7 @@ function hashTable(){
 }
 
 function _add(key,value){
-	if(this.hashtable.hasOwnProperty(key)){
+	if(this.isExist[key]){
 		this.hashtable[key].push(value);
 	}else{
 		var oTempEntry = new Array();
@@ -28,7 +28,7 @@ function _add(key,value){
 }
 
 function _del(key){
-	if(this.hashtable.hasOwnProperty(key)){
+	if(this.isExist[key]){
 		delete(this.hashtable[key]);
 		console.log("delete done!");
 	}else{
@@ -37,7 +37,7 @@ function _del(key){
 }
 
 function _getValue(key){
-	if(this.hashtable.hasOwnProperty(key))
+	if(this.isExist[key])
 		return this.hashtable[key];
 	else
 		return "undefined";
@@ -55,7 +55,7 @@ function _getAll(){
 }
 
 function _isExist(key){
-	if(this.hashtable.hasOwnProperty(key))
+	if(this.hashtable[key] == "undefined")
 		return true;
 	else
 		return false;
@@ -66,7 +66,7 @@ function _initVersionHash(List){
 		this.isEmpty = false;
 		for(var k in List){
 			var oTempEntry = List[k];
-			if(this.hashtable.hasOwnProperty(oTempEntry.version_id))
+			if(this.isExist[oTempEntry.version_id])
 				continue;
 			if(typeof oTempEntry.parents == "string"){
 				oTempEntry.parents = JSON.parse(oTempEntry.parents);

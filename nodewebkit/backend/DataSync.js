@@ -348,10 +348,14 @@ function syncStart(syncData, address){
 				console.log("==========start sync update!!!==========");
 				console.log(my_updateActions);
 
-				var oMyVersions = {
-					versions: null,
-					operations: null
-				};
+				var oMyVersions = new Array();
+				for(var k in my_updateActions){
+
+				}
+
+
+
+
 
 				var hMyVersion = new hashTable.hashTable();
 				var hMyOperation = new hashTable.hashTable();
@@ -362,6 +366,12 @@ function syncStart(syncData, address){
 				oMyVersions.operations = hMyOperation;
 				//oMyVersions.head = hMyVersion.head;
 				//oMyVersions.tail = hMyVersion.tail;
+
+
+
+
+
+
 
 
 				var oOtherVersions = {
@@ -394,12 +404,6 @@ function syncStart(syncData, address){
         var oMyTails = new Array();
         var oOtherHeads = new Array();
         var oOtherTails = new Array();
-
-        for(var k in MyVersions){
-        	if(MyVersions[k].)
-
-        }
-
 
 				var _myVersions = oMyVersions;
 				var _otherVersion = oOtherVersions
