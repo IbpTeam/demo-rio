@@ -354,8 +354,8 @@ function syncStart(syncData, address){
 				console.log(my_updateActions);
 
 
-				var _myVersions = buidData(my_updateActions);
-				var _otherVersion = buidData(updateActions);
+				var _myVersions = buildData(my_updateActions);
+				var _otherVersion = buildData(updateActions);
 
 
 					//do version control stuff
@@ -367,14 +367,13 @@ function syncStart(syncData, address){
 }
 
 //build my data for version ctrl
-function buidData(oUpdateActions){
+function buildData(oUpdateActions){
 
 	//build my versions table and operation hashtable
 	var hOperations = new hashTable();
 	hOperations.initHash("operation",oUpdateActions);
-	var oOperations = hOperations.getAll();
+	//var oOperations = hOperations.getAll();
 	var oVersionsTable = new object();
-	var oVersionsOrigin = new Array();
 
   //build an object for each origin_version(each file)
   if(oUpdateActions != ""){
@@ -390,15 +389,16 @@ function buidData(oUpdateActions){
   }
 
   //build hashtable for each origin_version(each file)
+  var oVersionsOrigin = new object();
   for(var k in oVersionsTable[k]){
   	var hVersion= new hashTable();
   	hVersion.initHash("version",oVersionsTable[k]);
-  	oVersionsOrigin.push(hVersion);
+  	oVersionsOrigin[oVersionsTable[k].head] = oVersionsTable[k];
   }
 
   var oData = {
   	versions: oVersionsOrigin,
-  	operations: oOperations,
+  	operations: hOperations,
   };
 
   return oData;
@@ -509,16 +509,9 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
   }
 }
 
-
 //callback when conflict occurs
 function dealConflictCB(hMyVersion,hOtherVersion){
 	//to be continue ...
-	var readline = require('readline');
-	var rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout
-	});
-
 }
 
 //add new update information into db
