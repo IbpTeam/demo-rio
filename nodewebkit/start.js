@@ -55,6 +55,7 @@ cp.exec('echo $USER',function(error,stdout,stderr){
     uniqueID.SetSysUid(function(){
       deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
       console.log("deviceID = "+deviceID);
+      config.uniqueID=deviceID;
     });
   }
   else{
@@ -65,6 +66,8 @@ cp.exec('echo $USER',function(error,stdout,stderr){
       uniqueID.SetSysUid(function(){
         deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
         console.log("deviceID = "+deviceID);
+              config.uniqueID=deviceID;
+
       });
     }
   }

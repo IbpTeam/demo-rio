@@ -62,3 +62,5 @@ exports.dblog = dblog;
 
 
 
+var uniqueID;
+exports.uniqueID = uniqueID;
