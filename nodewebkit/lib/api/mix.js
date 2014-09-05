@@ -1,13 +1,16 @@
-!function(factory) {
-  if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
-    var target = module['exports'] || exports; 
-    factory(target);
-  } else if (typeof define === 'function' && define['amd']) {
-    define(['exports'], factory);
-  }
-}(function(apiExports){
-  var api = typeof apiExports !== 'undefined' ? apiExports : {};
-  api.getHello = function(){
-    return 'Hello World'; 
-  }
-})
+exports.getHello = function(callback){
+  setTimeout(callback("Hello World"), 0);
+}
+
+exports.getHello2 = function(callback){
+  setTimeout(callback("Hello", "World", 2), 0);
+}
+
+exports.getHello3 = function(callback){
+  require('util').log("test require");;
+  setTimeout(callback({str1:"Hello", str2:"World"}, [1, 2, "33"]), 0);
+}
+
+exports.openDev = function(callback){
+  setTimeout(callback(true), 0);
+}
