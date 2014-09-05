@@ -12,7 +12,7 @@ WDC.isDebug = true;
 WDC.requireAPI = function(apilist, callback){
   var i;
   for (i = 0; i < apilist.length; i += 1){
-    apilist[i] = './lib/api/' + apilist[i];
+    apilist[i] = '/lib/api/' + apilist[i] + '.js';
   }
   requirejs(apilist, callback);
 }

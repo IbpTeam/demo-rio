@@ -1,3 +1,4 @@
+//This file is generated manually.
 define(function(){
   var o={};
   function sendrequest(a, ar){
@@ -19,6 +20,10 @@ define(function(){
   }
   o.getHello3 = function(){
     sendrequest("mix.getHello3", Array.prototype.slice.call(arguments));
+  }
+  o.openDev = function(callback){
+    console.log("openDev is not supported now.");
+    setTimeout(callback(false), 0);
   }
   return o;
 })

@@ -1,53 +1,14 @@
 <html>
-<head>
-<title>db-managre</title>
-<meta charset="UTF-8">
-<script src="jquery-ui-1.10.4/js/jquery-1.10.2.js"></script>
-<script type="text/javascript" src="../backend/api.js"></script>
-<script type="text/javascript" src="../backend/apiHttpHandle.js"></script>
-</head>
-
+  <head>
+    <title>db-managre</title>
+    <meta charset="UTF-8">
+    <script src="/lib/require.js"></script>
+    <script src="/lib/jquery.js"></script>
+    <script src="/lib/api.js"></script>
+  </head>
 <body>
 
 <script>
-var frontend_local = 'Nodejs';
-function browser(){
-  var ua = window.navigator.userAgent,
-      ret = "";
-  console.log('ua', ua);
-  if(/Firefox/g.test(ua)){
-    ua = ua.split(" ");
-    ret="Firefox|"+ua[ua.length-1].split("/")[1];
-  }
-  else if(/Nodejs/g.test(ua)){
-    ua = ua.split(" ");
-    ret = frontend_local + "|"+ua[ua.length-1].split("/")[1];
-  }
-  else if(/MSIE/g.test(ua)){
-    ua = ua.split(";");
-    ret = "IE|"+ua[1].split(" ")[2];
-  }
-  else if(/Opera/g.test(ua)){
-    ua = ua.split(" ");
-    ret = "Opera|"+ua[ua.length-1].split("/")[1];
-  }
-  else if(/Chrome/g.test(ua)){
-    ua = ua.split(" ");
-    ret = "Chrome|"+ua[ua.length-2].split("/")[1];
-  }
-  else if(/^apple\s+/i.test(window.navigator.vendor)){
-    ua = ua.split(" ");
-    ret = "Safair|"+ua[ua.length-2].split("/")[1];
-  }
-  else{
-    ret = "未知浏览器";
-  }
-  return ret.split("|");
-}
-var r=browser();
-var frontend_type = r[0];
-console.log('in db-manager.html, you are using', frontend_type);
-
 function loadResourcesCb(result){
     $("body").css("cursor", "default");
     console.log('end of load resource callback.');
@@ -65,20 +26,15 @@ function addNewFolderCb(result){
 //成功返回success;
 //失败返回失败原因
 function loadResources(loadResourcesCb,path) {
+  WDC.requireAPI(['data'], function(data){
     if(!path){
         path = $('div#db_add #dir_path').text();
     }
     $("body").css("cursor", "wait");
     console.log("Insert data to database...");
     //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
-    var r=browser();
-    console.log('You are using ' + r[0]);  
-    if(r[0]=="Nodejs")  {
-        var apiLocalHandle = require("./backend/apiLocalHandle");
-        apiLocalHandle.loadResourcesFromLocal(loadResourcesCb,path);
-    }else{
-        loadResourcesFromHttp(loadResourcesCb,path);
-    }
+    data.loadResources(loadResourcesCb,path);
+  });
 }
 //loadResources(loadResourcesCb,'/home/v1/resources');
 function chooseFile(name) {
@@ -101,7 +57,7 @@ function chooseFile(name) {
     <input id="btn_choose" type="button" onclick="chooseFile('#fileDialog')" value="选择文件路径"></input>
     <label id="dir_path"></label><br>
     <input id="btn_insert" style="display:none;" type="button" onclick="loadResources(loadResourcesCb)" value="扫描路径下的文件，初始化数据库"></input>
-    <input id="btn_insert" style="display:none;" type="button" onclick="addNewFolder(addNewFolderCb)" value="扫描路径下的文件，添加到数据库"></input>
+    <input id="btn_insert" style="display:none;" type="button" onclick="WDC.requireAPI(['data'], function(data){data.addNewFolder(addNewFolderCb)});" value="扫描路径下的文件，添加到数据库"></input>
 </div>
 <hr>
 

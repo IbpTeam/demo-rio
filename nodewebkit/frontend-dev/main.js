@@ -1,7 +1,10 @@
 
 pre_config();
-$(document).ready(function() {
-    getServerAddress(configuration);
+var DataAPI;
+WDC.requireAPI(['data'], function(data){
+  DataAPI=data;
+  $(document).ready(function() {
+    DataAPI.getServerAddress(configuration);
     //configuration();
 
     var sidebar = new SideBar($('#sidebar'));
@@ -69,6 +72,7 @@ $(document).ready(function() {
 	    //console.log('**************dir:', dir);
 		folder.open(dir);
 	});
+  });
 });
 
 function folder_view_mode(){
