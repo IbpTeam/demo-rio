@@ -119,7 +119,7 @@ function getAllContactsInHttpServer(response, postData) {
           uri:each.URI,
           version:each.version,
           name:each.name,
-          photoPath:each.photoPath
+          photoPath:each.path
         });
       });
       var json=JSON.stringify(cates);
@@ -230,7 +230,7 @@ function getDataSourceByUriInHttpServer(response, postData) {
         if(item.postfix==null){
           var source={
             openmethod:'direct',
-            content:'http://'+config.SERVERIP+':'+config.SERVERPORT+item.photoPath+'?query=absolute'
+            content:'http://'+config.SERVERIP+':'+config.SERVERPORT+item.path+'?query=absolute'
           };
           var json=JSON.stringify(source);
           response.writeHead(200, {"Content-Type": "text/plain"});

@@ -90,7 +90,7 @@ function getAllContactsFromHttp(getAllContactsCb) {
           id:each.id,
           version:each.version,
           name:each.name,
-          photoPath:each.photoPath
+          photoPath:each.path
         });
       });
       getAllContactsCb(contacts);

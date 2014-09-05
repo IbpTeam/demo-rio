@@ -288,6 +288,7 @@ exports.createItems = function(items,callback){
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ")";
     console.log(sSqlStr);     
   });
+  console.log("num====================="+items.length);
   //var oDB = openDB();
   //db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
   //closeDB(oDB);

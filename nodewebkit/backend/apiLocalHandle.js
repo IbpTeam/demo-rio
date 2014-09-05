@@ -67,7 +67,7 @@ function getAllContactsFromLocal(getAllContactsCb) {
         version:each.version,
         URI:each.URI,
         name:each.name,
-        photoPath:each.photoPath
+        photoPath:each.path
       });
     });
     getAllContactsCb(contacts);
@@ -113,7 +113,7 @@ function getDataByUriFromLocal(getDataByUriCb,uri) {
 }
 exports.getDataByUriFromLocal = getDataByUriFromLocal;
 
-function getDataSourceByUriFromLocal(getDataSourceByUriCb,id) {
+function getDataSourceByUriFromLocal(getDataSourceByUriCb,uri) {
   function getItemByUriCb(item){
     if(item==null){
       config.riolog("read data : "+ item);
@@ -124,7 +124,7 @@ function getDataSourceByUriFromLocal(getDataSourceByUriCb,id) {
       if(item.postfix==null){
         var source={
           openmethod:'direct',
-          content:item.photoPath
+          content:item.path
         };
       }
       else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
@@ -187,14 +187,15 @@ function updateDataValueFromLocal(updateDataValueCb,uri,version,item) {
 exports.updateDataValueFromLocal = updateDataValueFromLocal;
 
 function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
-  function getRecentByOrderCb(result){
-    if(result[0]==null){
+  function getRecentByOrderCb(recentResult){
+    if(recentResult[0]==null){
       return;
     }
-    while(result.length>num){
-      result.pop();
+    while(recentResult.length>num){
+      recentResult.pop();
     }
     var data = new Array();
+    var iCount = 0;
     function getItemByUriCb(result){
       //console.log(result);
       if(result){
@@ -204,14 +205,15 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
           getRecentAccessDataCb(data);
         }
         else{
-          commonDAO.getItemByUri(uri,getItemByUriCb);
+          iCount++;
+          commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
         }
       }
       else{
         console.log("No data");
       }
     }
-    commonDAO.getItemByUri(uri,getItemByUriCb);
+    commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
 
   }
   commonDAO.getRecentByOrder(getRecentByOrderCb);
