@@ -101,18 +101,18 @@ function getAllContactsFromHttp(getAllContactsCb) {
   });
 }
 
-function rmDataByIdFromHttp(rmDataByIdCb,id){
+function rmDataByUriFromHttp(rmDataByUriCb,uri){
     $.ajax({
-    url: "/rmDataById",
+    url: "/rmDataByUri",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"rmDataById","arg":"'+id+'"}',
+    data: '{"func":"rmDataByUri","arg":"'+uri+'"}',
     success: function(result) {
-      rmDataByIdCb(result);
+      rmDataByUriCb(result);
     },
     error: function(e) {
-      rmDataByIdCb(e);
+      rmDataByUriCb(e);
     }
   });
 }

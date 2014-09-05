@@ -77,11 +77,11 @@ function getAllContactsFromLocal(getAllContactsCb) {
 }
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
-function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
+function rmDataByUriFromLocal(rmDataByUriCb,uri) {
   function getItemByUriCb(item){
     if(item == null){
        result='success';
-       rmDataByIdCb(result);
+       rmDataByUriCb(result);
     }
     else{
 //      console.log("delete : "+ item.path);
@@ -89,11 +89,11 @@ function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemById(id,uri,server.deleteItemCb,rmDataByIdCb);
+          commonDAO.deleteItemByUri(uri,server.deleteItemCb,rmDataByUriCb);
         }
         else{
           result='error';
-          rmDataByIdCb(result);
+          rmDataByUriCb(result);
         }
       }
       fs.unlink(item.path,ulinkCb);
@@ -101,7 +101,7 @@ function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
   }
   commonDAO.getItemByUri(id,getItemByUriCb);
 }
-exports.rmDataByIdFromLocal = rmDataByIdFromLocal;
+exports.rmDataByUriFromLocal = rmDataByUriFromLocal;
 
 function getDataByUriFromLocal(getDataByUriCb,uri) {
     console.log("read data : ========================="+ uri);
