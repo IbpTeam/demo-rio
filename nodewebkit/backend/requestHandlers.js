@@ -119,7 +119,7 @@ function getAllContactsInHttpServer(response, postData) {
           uri:each.URI,
           version:each.version,
           name:each.name,
-          photoPath:each.photoPath
+          photoPath:each.path
         });
       });
       var json=JSON.stringify(cates);
@@ -132,13 +132,13 @@ function getAllContactsInHttpServer(response, postData) {
 }
 exports.getAllContactsInHttpServer = getAllContactsInHttpServer;
 
-function rmDataByIdInHttpServer(response, postData) {
+function rmDataByUriInHttpServer(response, postData) {
 
-  config.riolog("Request handler 'rmDataByIdInHttpServer' was called.");
+  config.riolog("Request handler 'rmDataByUriInHttpServer' was called.");
     config.riolog(postData);
     postDataJson=JSON.parse(postData);
      config.riolog('$$$$$$'+postDataJson.arg);
-  if(postDataJson.func != 'rmDataById'){
+  if(postDataJson.func != 'rmDataByUri'){
     response.writeHead(200, {"Content-Type": "text/plain"});
     response.write("error func");
     response.end();
@@ -154,7 +154,7 @@ function rmDataByIdInHttpServer(response, postData) {
       else{
         config.riolog("delete : "+ item.path);
         function ulinkCb(result){
-          function rmDataByIdCb(result){
+          function rmDataByUriCb(result){
             config.riolog("delete result:"+result);
             var json=JSON.stringify(result);
             response.writeHead(200, {"Content-Type": "application/json"});
@@ -163,7 +163,7 @@ function rmDataByIdInHttpServer(response, postData) {
           }
           if(result==null){
             result='success';
-            commonDAO.deleteItemById(postDataJson.arg,server.deleteItemCb,rmDataByIdCb);
+            commonDAO.deleteItemByUri(postDataJson.arg,server.deleteItemCb,rmDataByUriCb);
           }
           else{
             config.riolog("delete result:"+result);
@@ -179,7 +179,7 @@ function rmDataByIdInHttpServer(response, postData) {
     commonDAO.getItemByUri(postDataJson.arg,getItemByUriCb);
   }
 }
-exports.rmDataByIdInHttpServer = rmDataByIdInHttpServer;
+exports.rmDataByUriInHttpServer = rmDataByUriInHttpServer;
 
 function getDataByUriInHttpServer(response, postData) {
 
@@ -230,7 +230,7 @@ function getDataSourceByUriInHttpServer(response, postData) {
         if(item.postfix==null){
           var source={
             openmethod:'direct',
-            content:'http://'+config.SERVERIP+':'+config.SERVERPORT+item.photoPath+'?query=absolute'
+            content:'http://'+config.SERVERIP+':'+config.SERVERPORT+item.path+'?query=absolute'
           };
           var json=JSON.stringify(source);
           response.writeHead(200, {"Content-Type": "text/plain"});
@@ -381,11 +381,11 @@ function getRecentAccessDataInHttpServer(response, postData) {
             response.end();
           }
           else{
-            commonDAO.getItemByUri(uri,getItemByIdCb);
+            commonDAO.getItemByUri(uri,getItemByUriCb);
           }
         }
       }
-      commonDAO.getItemByUri(uri,getItemByIdCb);
+      commonDAO.getItemByUri(uri,getItemByUriCb);
     }
     commonDAO.getRecentByOrder(getRecentByOrderCb);
   }

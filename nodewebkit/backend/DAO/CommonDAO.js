@@ -288,6 +288,7 @@ exports.createItems = function(items,callback){
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ")";
     console.log(sSqlStr);     
   });
+  console.log("num====================="+items.length);
   //var oDB = openDB();
   //db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
   //closeDB(oDB);
@@ -385,64 +386,51 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
   });
 }
 
-exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
-  config.dblog("delete id:" + id);
-  var index=id.indexOf('#');
-  var tableId=id.substring(0,index);
-  var dataId=id.substr(index+1);
-    config.dblog("tableId id:" + tableId);
-        config.dblog("dataId id:" + dataId);
-  var deleteDAO = null;
-  switch(tableId){
-    case '1' : {
-      deleteDAO = contactsDAO;
+exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
+  config.dblog("delete uri:" + uri);
+  
+  var aUri = uri.split('#');
+  if (aUri.length != 3) {
+    config.dblog("Error: uri is wrong in getItemByUri!");
+    callback(uri,"Error: uri is wrong in getItemByUri!",rmDataByUriCb);
+    return;
+  }
+  var sTableName = aUri[2];
+  config.dblog("GetItemByUri: TableName is:" + sTableName);
+
+  var oDeleteDao = null;
+
+  switch(sTableName){
+    case 'contacts' : {
+      oDeleteDao = contactsDAO;
     }
     break;
-    case '2' : {
-      deleteDAO = picturesDAO;
+    case 'pictures' : {
+      oDeleteDao = picturesDAO;
     }
     break;
-    case '3' : {
-      deleteDAO = videosDAO;
+    case 'videos' : {
+      oDeleteDao = videosDAO;
     }
     break;
-    case '4' : {
-      deleteDAO = documentsDAO;
+    case 'documents' : {
+      oDeleteDao = documentsDAO;
     }
-    case '5' : {
-      deleteDAO = musicDAO;
+    break;
+    case 'music' : {
+      oDeleteDao = musicDAO;
     }
-    break;    
-    
+    break;
+    default:{
+      config.dblog("GetItemByUri: this is default in switch!");
+    }
   }
 
-  deleteDAO.deleteItemByUri(dataId, uri, function(err){
+  oDeleteDao.deleteItemByUri(uri, function(err){
     if(err){
-      callback(id,err,rmDataByIdCb);
-    }
-    else{
-      actionHistoryDAO.removeInsertItem(uri, function(err){
-        if(err){
-          callback(id,err,rmDataByIdCb);
-        }
-        else{
-          actionHistoryDAO.removeUpdateItem(uri, function(err){
-            if(err){
-              callback(id,err,rmDataByIdCb);
-            }
-            else{
-              actionHistoryDAO.createDeleteItem(uri,function(err){
-                if(err){
-                  callback(uri,err,rmDataByIdCb);
-                }
-                else{
-                  callback(id,'successfull',rmDataByIdCb);
-                }
-              });
-            }
-          });
-        }
-      });
+      callback(uri,err,rmDataByUriCb);
+    }else{
+      callback(uri,"successfull",rmDataByUriCb);
     }
   })
 }

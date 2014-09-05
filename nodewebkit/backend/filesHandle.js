@@ -327,21 +327,21 @@ function createItemCb(category,item,result,loadResourcesCb)
 }
 
 
-function deleteItemCb(id,uri,result,rmDataByIdCb)
+function deleteItemCb(uri,result,rmDataByUriCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
     config.riolog(id+'delete error:'+result.code);
     sleep(1000);
-    commonDAO.deleteItemById(id,uri,deleteItemCb,rmDataByIdCb);
+    commonDAO.deleteItemByUri(uri,deleteItemCb,rmDataByUriCb);
   }
   else if(result=='successfull'){
     config.riolog(id+'delete:'+result);
-    rmDataByIdCb('success');
+    rmDataByUriCb('success');
   }
   else{
     config.riolog(id+'delete:'+result);
-    rmDataByIdCb(result);
+    rmDataByUriCb(result);
   }
 }
 exports.deleteItemCb = deleteItemCb;

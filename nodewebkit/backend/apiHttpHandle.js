@@ -30,8 +30,8 @@ function getAllCateFromHttp(getAllCateCb) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          URI:each.id,
           id:each.id,
-          uri:each.uri,
           version:each.version,
           type:each.type,
           path:each.path,
@@ -58,8 +58,8 @@ function getAllDataByCateFromHttp(getAllDataByCateCb,cate) {
       var cates = new Array();
       result.forEach(function (each){
         cates.push({
+          URI:each.URI,
           id:each.id,
-          uri:each.uri,
           version:each.version,
           filename:each.filename,
           postfix:each.postfix,
@@ -86,11 +86,11 @@ function getAllContactsFromHttp(getAllContactsCb) {
       var contacts = new Array();
       result.forEach(function (each){
         contacts.push({
+          URI:each.URI,
           id:each.id,
-          uri:each.uri,
           version:each.version,
           name:each.name,
-          photoPath:each.photoPath
+          photoPath:each.path
         });
       });
       getAllContactsCb(contacts);
@@ -101,18 +101,18 @@ function getAllContactsFromHttp(getAllContactsCb) {
   });
 }
 
-function rmDataByIdFromHttp(rmDataByIdCb,id){
+function rmDataByUriFromHttp(rmDataByUriCb,uri){
     $.ajax({
-    url: "/rmDataById",
+    url: "/rmDataByUri",
     type: "post",
     contentType: "application/json;charset=utf-8",
     dataType: "json",
-    data: '{"func":"rmDataById","arg":"'+id+'"}',
+    data: '{"func":"rmDataByUri","arg":"'+uri+'"}',
     success: function(result) {
-      rmDataByIdCb(result);
+      rmDataByUriCb(result);
     },
     error: function(e) {
-      rmDataByIdCb(e);
+      rmDataByUriCb(e);
     }
   });
 }
