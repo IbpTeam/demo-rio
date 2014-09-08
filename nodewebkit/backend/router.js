@@ -40,16 +40,10 @@ function route(handle, pathname, absolute , response, postData) {
   } else if (typeof handle[pathname] == 'function') {
     handle[pathname](response, postData);
   } else {
-    var realPath;
-    if(absolute == "query=absolute"){
-      realPath = pathname;
-    }
-    else{
-      realPath = "."+pathname;
-    }
     //Use api_remote.js for /lib/api.js
+    var realPath;
     if (pathname == "/lib/api.js") {
-      realPath = "./lib/api_remote.js";
+      pathname = "/lib/api_remote.js";
     }else if (pathname.lastIndexOf("/lib/api/", 0) === 0 && pathname.indexOf(".js", pathname.length - 3) !== -1) {
       realPath = "."+pathname.replace(/.js$/,"_remote.js");
       var onehandle = require(".."+pathname.substring(0, pathname.length - 3));
@@ -76,52 +70,61 @@ function route(handle, pathname, absolute , response, postData) {
           return;
         }
       });
+      return;
     }
-    path.exists(realPath, function (exists) {
-    config.riolog("realPath="+realPath);
+    path.exists("."+pathname, function (exists) {
+      config.riolog("pathname="+pathname);
+      if (!exists) {
+        realPath = pathname;
+      }else {
+        realPath = "." + pathname;
+      }
+      path.exists(realPath, function (exists) {
+      config.riolog("realPath="+realPath);
         if (!exists) {
-            response.writeHead(404, {
-                'Content-Type': 'text/plain'
-            });
-            response.write("This request URL " + realPath + " was not found on this server.");
-            response.end();
+          response.writeHead(404, {
+            'Content-Type': 'text/plain'
+          });
+          response.write("This request URL " + realPath + " was not found on this server.");
+          response.end();
         } 
         else {
-            fs.readFile(realPath, "binary", function (err, file) {
-                if (err) {
-                    response.writeHead(500, {
-                        'Content-Type': 'text/plain'
-                    });
-                    response.end(err);
-                } else {
-                    var content_type;
-                    switch(suffix){
-                    case 'css':
-                        content_type = mimeTypes[suffix];
-                        break;
-                    case 'mp3':
-                        content_type = mimeTypes[suffix];
-                        break;
-                    case 'ogg':
-                        content_type = mimeTypes[suffix];
-                        break;
-                    case 'js':
-                        content_type = mimeTypes[suffix];
-                        break;
-                    default:
-                        content_type = 'text/html';
-                        break;
-                    }
-                    response.writeHead(200, {
-                        'Content-Type': content_type
-                    });
-                    response.write(file, "binary");
-                    response.end();
-                }
-            });
+          fs.readFile(realPath, "binary", function (err, file) {
+            if (err) {
+              response.writeHead(500, {
+                  'Content-Type': 'text/plain'
+              });
+              response.end(err);
+            } else {
+              var content_type;
+              switch(suffix){
+              case 'css':
+                content_type = mimeTypes[suffix];
+                break;
+              case 'mp3':
+                content_type = mimeTypes[suffix];
+                break;
+              case 'ogg':
+                content_type = mimeTypes[suffix];
+                break;
+              case 'js':
+                content_type = mimeTypes[suffix];
+                break;
+              default:
+                content_type = 'text/html';
+                break;
+              }
+              response.writeHead(200, {
+                'Content-Type': content_type
+              });
+              response.write(file, "binary");
+              response.end();
+            }
+          });
         }
       });
-   }
+    });
+  }
 }
 
 exports.route = route;
