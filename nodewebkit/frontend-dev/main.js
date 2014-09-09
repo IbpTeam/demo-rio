@@ -1,8 +1,11 @@
 
 pre_config();
 var DataAPI;
-WDC.requireAPI(['data'], function(data){
+var AppAPI;
+WDC.requireAPI(['data', 'app'], function(data, app){
+  console.log("data:" +  data + " app:" + app);
   DataAPI=data;
+  AppAPI=app;
   $(document).ready(function() {
     DataAPI.getServerAddress(configuration);
     //configuration();

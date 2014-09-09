@@ -12,5 +12,7 @@ exports.getHello3 = function(callback){
 }
 
 exports.openDev = function(callback){
+  var gui = global.window.nwDispatcher.requireNwGui();
+  gui.Window.get().showDevTools();
   setTimeout(callback(true), 0);
 }

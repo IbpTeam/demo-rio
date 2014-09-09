@@ -17,15 +17,24 @@
     <script>
       console.log("head of body.");
       WDC.requireAPI(["mix"], function(mix){
-              console.log("mix:" + mix);
-              mix.getHello(function(str1){console.log("mix.getHello:" + str1)});
-              mix.getHello2(function(str1, str2, num){console.log("mix.getHello2:" + str1 + " " + str2 + " "  + num)});
-              mix.getHello3(function(obj1, obj2){
-                console.log("mix.getHello3:" + typeof obj1.str1 + " " + typeof obj1 + " "  + typeof obj2)
-              });
-              mix.openDev(function(res){
-                console.log("mix.openDev:" + typeof res + " " + res);
-              });
+        console.log("mix:" + mix);
+        mix.getHello(function(str1){console.log("mix.getHello:" + str1)});
+        mix.getHello2(function(str1, str2, num){console.log("mix.getHello2:" + str1 + " " + str2 + " "  + num)});
+        mix.getHello3(function(obj1, obj2){
+          console.log("mix.getHello3:" + typeof obj1.str1 + " " + typeof obj1 + " "  + typeof obj2)
+        });
+        mix.openDev(function(res){
+          console.log("mix.openDev:" + typeof res + " " + res);
+        });
+      });
+      WDC.requireAPI(["app"], function(app){
+        console.log("app:" + app);
+        app.getAppDataDir(function (dataPath){
+          console.log("AppDataDir:" + dataPath);
+        });
+        app.getAppArgv(function (argv){
+          console.log("AppArgv:" + argv);
+        });
       });
     </script>
   </body>

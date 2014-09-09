@@ -161,6 +161,13 @@ function getDataSourceById(getDataSourceByIdCb,id){
           content:item.path
         };
       }
+      else {
+        item.path = decodeURIComponent(item.path);
+        var source={
+          openmethod:'local',
+          content:item.path
+        };
+      }
       getDataSourceByIdCb(source);
       
       var currentTime = (new Date()).getTime();
@@ -218,11 +225,26 @@ function getDataSourceById(getDataSourceByIdCb,id){
 }
 exports.getDataSourceById = getDataSourceById;
 
+//API openDataSourceById: 打开数据
+//返回类型：
+//回调函数带一个参数，内容是一个div，用于显示应用数据，如果是本地打开文件，则显示成功打开信息
+function openLocalDataSourceById(openDataSourceByIdCb, content){
+  var sys = require('sys');
+  var exec = require('child_process').exec;
+  var commend = "xdg-open \"" + content + "\"";
+  exec(commend, function(error,stdout,stderr){
+    sys.print('stdout: ' + stdout);
+    sys.print('stderr: ' + error);
+  });
+  file_content = "成功打开文件" + content;
+  openDataSourceByIdCb(file_content);
+}
+exports.openLocalDataSourceById = openLocalDataSourceById;
+
 //API updateItemValue:修改数据某一个属性
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-
 function updateDataValue(updateDataValueCb,uri,version,item){
   console.log("Request handler 'updateDataValue' was called.");
   function updateItemValueCb(uri,version,item,result){
@@ -323,18 +345,6 @@ function getServerAddress(getServerAddressCb){
   getServerAddressCb(address);
 }
 exports.getServerAddress = getServerAddress;
-
-//API getDataDir:获取数据路径
-function getDataDir(getDataDirCb){
-  console.log("Request handler 'getDataDir' was called.");
-  var cp = require('child_process');
-  cp.exec('echo $USER',function(error,stdout,stderr){
-    var usrname=stdout.replace("\n","");
-    var data = require('/home/'+usrname+'/.demo-rio/config');
-    getDataDirCb(data.dataDir);
- });
-}
-exports.getDataDir = getDataDir;
 
 function getAllContacts(getAllContactsCb) {
   function getAllByCaterotyCb(data)

@@ -10,9 +10,12 @@ WDC.isDebug = true;
  **/
 WDC.requireAPI = function(apilist, callback){
   var i;
+  var apiArr = new Array(apilist.length);
   for (i = 0; i < apilist.length; i += 1){
-    setTimeout(callback(require('./lib/api/' + apilist[i])), 0);
+    apiArr[i] = require('./lib/api/' + apilist[i]);
   }
+  console.log("apiArr:" + apiArr);
+  setTimeout(function(){callback.apply(null, apiArr)}, 0);
 }
 
 console.log("end of api.js.");

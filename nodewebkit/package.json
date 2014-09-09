@@ -1,6 +1,6 @@
 {
   "name": "hello",
-  "main": "test.html",
+  "main": "index.html",
   "node-main": "start.js",
   "window": {
     "toolbar": true,

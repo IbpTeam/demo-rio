@@ -16,6 +16,7 @@ var mimeTypes = {
      "mp3": "audio/mpeg3",
      "ogg": "audio/mpeg"
 };
+
 function route(handle, pathname, absolute , response, postData) {
   config.riolog("About to route a request for " + pathname);
    
@@ -68,6 +69,21 @@ function route(handle, pathname, absolute , response, postData) {
           response.write('return o;});', "binary");
           response.end();
           return;
+        }else {
+          fs.readFile(realPath, "binary", function (err, file) {
+            if (err) {
+              response.writeHead(500, {
+                  'Content-Type': 'text/plain'
+              });
+              response.end(err);
+            } else {
+              response.writeHead(200, {
+                'Content-Type': mimeTypes['js']
+              });
+              response.write(file, "binary");
+              response.end();
+            }
+          });
         }
       });
       return;
