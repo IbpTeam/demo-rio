@@ -36,7 +36,7 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,commitId){
+function addData(itemPath,commitId,addDataCb){
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');

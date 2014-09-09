@@ -70,17 +70,21 @@ exports.createItem = function(category,item,loadResourcesCb){
   }
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
+    item.category = category;
     item.URI = uri + sTableName;
     uniqueID.getRandomBytes(12,function(version){
       if (version != null) {
         item.version = version;
+        sortObj(item,createDesFile)
       }
       else{
         console.log("Exception: randomId is null.");
+        return;
       }
     });
   });
-  sortObj(item,createDesFile)
+
+
 }
 
 exports.testMethod = function(arg1,arg2){
