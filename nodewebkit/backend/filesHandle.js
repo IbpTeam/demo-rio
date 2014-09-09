@@ -36,7 +36,7 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,commitId,addDataCb){
+function addData(itemPath,commitId){
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
@@ -68,7 +68,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createDesFileCb);
+        dataDes.createItem(category,newItem,createItemCb);
       });
     });
   }
@@ -98,7 +98,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createDesFileCb);
+        dataDes.createItem(category,newItem,createItemCb);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -115,7 +115,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createDesFileCb);
+        dataDes.createItem(category,newItem,createItemCb);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -133,7 +133,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createDesFileCb);
+        dataDes.createItem(category,newItem,createItemCb);
       } 
       else{
         writeDbNum --;
@@ -142,6 +142,10 @@ function addData(itemPath,commitId,addDataCb){
     }
     fs.stat(itemPath,getFileStatCb);
   }
+}
+
+function createItemCb(newItem){
+  dataDes.createDesFile(newItem);
 }
 
 function watcherStart(monitorPath,callback){
@@ -296,13 +300,11 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
+/*
 function createItemCb(category,item,result,loadResourcesCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
-    config.riolog(item.filename+'insert error:'+result.code);
-    sleep(1000);
-    dataDes.createItem(category,item,createItemCb,loadResourcesCb);
   }
 
   else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
@@ -326,6 +328,7 @@ function createItemCb(category,item,result,loadResourcesCb)
     loadResourcesCb(result);
   }
 }
+*/
 
 
 function deleteItemCb(uri,result,rmDataByUriCb)
