@@ -67,7 +67,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       });
     });
   }
@@ -97,7 +97,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -114,7 +114,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -132,7 +132,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       } 
       else{
         writeDbNum --;
@@ -141,6 +141,23 @@ function addData(itemPath,commitId,addDataCb){
     }
     fs.stat(itemPath,getFileStatCb);
   }
+}
+
+function createDesFileCb(newItem){
+  //console.log(newItem)
+  //if (error) throw error;  
+  var sItem = JSON.stringify(newItem,null,4);
+  var sFileName = newItem.filename || newItem.name;
+  var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
+  console.log(config.RESOURCEPATH);
+  fs.writeFile(spath, sItem,{flag:'w+'},function (err) {
+    if (err) {
+      console.log("writeFile error!")
+      throw err;
+    }
+    console.log("descriptioin file done!")
+    return "success";
+  });
 }
 
 function watcherStart(monitorPath,callback){

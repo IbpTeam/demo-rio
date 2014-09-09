@@ -1,6 +1,7 @@
 var util = require('util');
 var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
-var RESOURCEPATH='/home/v1/demo-rio/nodewebkit/resources';
+var RESOURCEPATH="/home/xiquan/resources";
+exports.RESOURCEPATH = RESOURCEPATH;
 var USERCONFIGPATH;
 exports.USERCONFIGPATH = USERCONFIGPATH;
 var os = require('os');
