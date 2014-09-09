@@ -10,13 +10,12 @@
  *
  * @version:0.2.1
  **/
-
  var config = require("../config");
  var uniqueID = require("../uniqueID");
  var fs = require('fs');
 
 
- exports.createDesFile = function(newItem){
+function createDesFile(newItem){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
@@ -27,12 +26,18 @@
       throw err;
     }else{
       console.log("successful");
-      //callback('success');
     }
   });
 }
 
-exports.createItem = function(category,item,createItemCb,loadResourcesCb){
+function sortObj(Item,callback){
+
+
+  var oNewItem = Item;//{};
+  callback(oNewItem);
+}
+
+exports.createItem = function(category,item,loadResourcesCb){
   var sTableName = null;
   //Get uniform resource identifier
   var uri = "specificURI";
@@ -75,7 +80,7 @@ exports.createItem = function(category,item,createItemCb,loadResourcesCb){
       }
     });
   });
-  createItemCb(item);
+  sortObj(item,createDesFile)
 }
 
 exports.testMethod = function(arg1,arg2){

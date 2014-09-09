@@ -68,7 +68,7 @@ function addData(itemPath,commitId){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createItemCb);
+        dataDes.createItem(category,newItem);
       });
     });
   }
@@ -98,7 +98,7 @@ function addData(itemPath,commitId){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createItemCb);
+        dataDes.createItem(category,newItem);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -115,7 +115,7 @@ function addData(itemPath,commitId){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createItemCb);
+        dataDes.createItem(category,newItem);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -133,7 +133,7 @@ function addData(itemPath,commitId){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,createItemCb);
+        dataDes.createItem(category,newItem);
       } 
       else{
         writeDbNum --;
@@ -142,10 +142,6 @@ function addData(itemPath,commitId){
     }
     fs.stat(itemPath,getFileStatCb);
   }
-}
-
-function createItemCb(newItem){
-  dataDes.createDesFile(newItem);
 }
 
 function watcherStart(monitorPath,callback){
