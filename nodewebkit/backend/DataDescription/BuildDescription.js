@@ -31,9 +31,15 @@ function createDesFile(newItem){
 }
 
 function sortObj(Item,callback){
-
-
-  var oNewItem = Item;//{};
+  var sTags = [];
+  var oNewItem = {}
+  for(k in Item){
+    sTags.push(k);
+  }
+  sTags.sort();
+  for(k in sTags){
+    oNewItem[sTags[k]] = Item[sTags[k]];
+  }
   callback(oNewItem);
 }
 
@@ -71,20 +77,15 @@ exports.createItem = function(category,item,loadResourcesCb){
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
     item.category = category;
-    item.URI = uri + sTableName;
-    uniqueID.getRandomBytes(12,function(version){
-      if (version != null) {
-        item.version = version;
-        sortObj(item,createDesFile)
-      }
-      else{
-        console.log("Exception: randomId is null.");
-        return;
-      }
-    });
+    if (uri != null) {
+      item.URI = uri + sTableName;
+      sortObj(item,createDesFile)
+    }
+    else{
+      console.log("Exception: randomId is null.");
+      return;
+    }
   });
-
-
 }
 
 exports.testMethod = function(arg1,arg2){
