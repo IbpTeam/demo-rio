@@ -1,4 +1,15 @@
 //BuildDescription.js
+/**
+ * @Copyright:
+ * 
+ * @Description: support API 
+ *
+ * @author: Wangfeng Xiquan Yuanzhe
+ *
+ * @Data:2014.9.9
+ *
+ * @version:0.2.1
+ **/
 
 var config = require("../config");
 var uniqueID = require("../uniqueID");
@@ -112,4 +123,8 @@ exports.createItem = function(category, item , createDesFileCb){
   });
   //console.log(item);
   //createDesFileCb(item);
+
+exports.testMethod = function(arg1,arg2){
+	//TODO
+
 }
