@@ -6,7 +6,8 @@ var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
 var config = require("./config");
-var commonDAO = require("./DAO/CommonDAO");
+//var commonDAO = require("./DAO/CommonDAO");
+var dataDes = require("./DataDescription/BuildDescription")
 var resourceRepo = require("./repo");
 var util = require('util');
 var events = require('events'); 
@@ -67,7 +68,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
+        dataDes.createItem(category,newItem);
       });
     });
   }
@@ -97,7 +98,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
+        dataDes.createItem(category,newItem);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -114,7 +115,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
+        dataDes.createItem(category,newItem);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -132,7 +133,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
+        dataDes.createItem(category,newItem);
       } 
       else{
         writeDbNum --;
@@ -141,23 +142,6 @@ function addData(itemPath,commitId,addDataCb){
     }
     fs.stat(itemPath,getFileStatCb);
   }
-}
-
-function createDesFileCb(newItem){
-  //console.log(newItem)
-  //if (error) throw error;  
-  var sItem = JSON.stringify(newItem,null,4);
-  var sFileName = newItem.filename || newItem.name;
-  var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
-  console.log(config.RESOURCEPATH);
-  fs.writeFile(spath, sItem,{flag:'w+'},function (err) {
-    if (err) {
-      console.log("writeFile error!")
-      throw err;
-    }
-    console.log("descriptioin file done!")
-    return "success";
-  });
 }
 
 function watcherStart(monitorPath,callback){
@@ -312,13 +296,11 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
+/*
 function createItemCb(category,item,result,loadResourcesCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
-    config.riolog(item.filename+'insert error:'+result.code);
-    sleep(1000);
-    commonDAO.createItem(category,item,createItemCb,loadResourcesCb);
   }
 
   else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
@@ -342,6 +324,7 @@ function createItemCb(category,item,result,loadResourcesCb)
     loadResourcesCb(result);
   }
 }
+*/
 
 
 function deleteItemCb(uri,result,rmDataByUriCb)
@@ -486,7 +469,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
           category='recent';
           newItem={
             id:null,
@@ -495,7 +478,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
         }
         else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
           var category='Pictures';
@@ -511,7 +494,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
           category='recent';
           newItem={
             id:null,
@@ -520,7 +503,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
         }
         else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
           var category='Music';
@@ -537,7 +520,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
           category='recent';
           newItem={
             id:null,
@@ -546,7 +529,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
         }
         else{
           writeDbNum --;

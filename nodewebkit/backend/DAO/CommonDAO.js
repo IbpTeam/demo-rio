@@ -386,7 +386,7 @@ exports.createItem = function(category, item, callback , createDesFileCb , loadR
     });
   });
   //console.log(item);
-  createDesFileCb(item);
+  //createDesFileCb(item);
 }
 
 exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
