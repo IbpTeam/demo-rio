@@ -16,28 +16,27 @@
  var path = require("path");
 
 
-function createDesFile(newItem,itemDesPath){
+ function createDesFile(newItem,itemDesPath){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
-  var _spath = itemDesPath+'/'+sFileName+'.txt'
-  console.log(_spath);
-  //console.log(config.RESOURCEPATH);
-  fs.writeFile(spath, sItem,{flag:'w+'},function (err) {
+  var pos = "." + (newItem.path).replace(/.+\./, "");
+  var spath = itemDesPath+'/'+sFileName+pos+'.txt';
+  //console.log(spath);
+  fs.writeFile(spath, sItem,{flag:'wx'},function (err) {
     if (err) {
       console.log("================");
       console.log("writeFile error!");
       console.log("================");
-      throw err;
+      console.log(err)
+      return;
     }else{
-      //console.log("successful");
+      console.log("successful");
     }
   });
 }
 
 function sortObj(Item,itemDesPath,callback){
   var sTags = [];
-
   var oNewItem = {}
   for(var k in Item){
     sTags.push(k);
@@ -49,8 +48,8 @@ function sortObj(Item,itemDesPath,callback){
   callback(oNewItem,itemDesPath);
 }
 
-exports.createItem = function(category,item,loadResourcesCb){
-  
+exports.createItem = function(category,item,itemDesPath,loadResourcesCb){
+
   //Get uniform resource identifier
   var uri = "specificURI";
 
@@ -59,7 +58,7 @@ exports.createItem = function(category,item,loadResourcesCb){
     if (uri != null) {
 
       item.URI = uri + "#" + category;
-      sortObj(item,createDesFile)
+      sortObj(item,itemDesPath,createDesFile)
     }
     else{
       console.log("Exception: URI is null.");

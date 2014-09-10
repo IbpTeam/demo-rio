@@ -36,8 +36,8 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,commitId,addDataCb){
-  console.log(itemDesPath);
+function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
+  //console.log(itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
@@ -381,10 +381,11 @@ function syncDb(loadResourcesCb,resourcePath)
           if(item != '.git' && item != '.des'){
               fs.mkdir(pathDes + '/' + item, function(err){
                 if(err){ 
-                  console.log("Dir exists!")
+                  console.log("Dir exists!");
+                  console.log(err);
                   return;
                 }
-                console.log(pathDes);
+                //console.log(pathDes);
               });              
             walk(path + '/' + item,pathDes + '/' + item);
           }
@@ -400,10 +401,6 @@ function syncDb(loadResourcesCb,resourcePath)
     config.riolog(fileList); 
     writeDbNum=fileList.length;
     config.riolog('writeDbNum= '+writeDbNum);
-
-    //fileList.forEach(function(item){
-    //  addData(item,itemDesDir,initCommit,loadResourcesCb);
-    //});
 
     for(var k=0;k<fileList.length;k++){
       addData(fileList[k],fileDesDir[k],initCommit,loadResourcesCb);
