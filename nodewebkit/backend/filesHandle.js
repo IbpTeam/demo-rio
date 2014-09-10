@@ -352,76 +352,79 @@ function syncDb(loadResourcesCb,resourcePath)
 {
   config.riolog("syncDB ..............");
   dataPath=resourcePath;
-  var fileList = new Array();
-  var fileDesDir = new Array();
-  fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
-    util.log(config.USERCONFIGPATH+"config.js "+ exists);
-    if(exists==false){
-      var oldDataDir=null;
-    }
-    else{
-      var oldDataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-    }
-    util.log("oldDataDir = "+oldDataDir);
-    if(oldDataDir==null || oldDataDir!=resourcePath){
-      var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
-      util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
-      fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
-        if(e) throw e;
-      });
-    }
-  });
-  function repoInitCb(){
-    function walk(path,pathDes){  
-      var dirList = fs.readdirSync(path);
-      dirList.forEach(function(item){
-        //console.log(pathDes);
-        if(fs.statSync(path + '/' + item).isDirectory()){
-          if(item != '.git' && item != '.des'){
-              fs.mkdir(pathDes + '/' + item, function(err){
-                if(err){ 
-                  console.log("Dir exists!");
-                  console.log(err);
-                  return;
-                }
-                //console.log(pathDes);
-              });              
-            walk(path + '/' + item,pathDes + '/' + item);
-          }
+  fs.mkdir(dataPath+'/.des',function (err){
+    if(err) {
+      console.log("mk resourcePath error!");
+      console.log(err);
+      return;
+    }else{
+      var fileList = new Array();
+      var fileDesDir = new Array();
+      fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
+        util.log(config.USERCONFIGPATH+"config.js "+ exists);
+        if(exists==false){
+          var oldDataDir=null;
         }
         else{
-          //console.log(pathDes)
-          fileDesDir.push(pathDes);
-          fileList.push(path + '/' + item);
+          var oldDataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+        }
+        util.log("oldDataDir = "+oldDataDir);
+        if(oldDataDir==null || oldDataDir!=resourcePath){
+          var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
+          util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
+          fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
+            if(e) throw e;
+          });
         }
       });
-    }
-    walk(resourcePath,resourcePath+'/.des');
-    config.riolog(fileList); 
-    writeDbNum=fileList.length;
-    config.riolog('writeDbNum= '+writeDbNum);
-
-    for(var k=0;k<fileList.length;k++){
-      var isLoadEnd = (k == (fileList.length-1));
-      console.log(isLoadEnd);
-      addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
-    }
-  }
-  git.Repo.init(resourcePath,false,function(initReporError, repo){
-    if (initReporError) 
-      throw initReporError;
-    console.log("Repo init : "+repo);
-    var  exec = require('child_process').exec;
-    var comstr = 'cd ' + dataPath + ' && git add . && git commit -m "Init"';
-    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
-    exec(comstr, function(error,stdout,stderr){
-      resourceRepo.getLatestCommit(dataPath,function (commitId){
-        initCommit=commitId.sha();
-        util.log("Head : "+commitId);
-        monitorFiles(dataPath,monitorFilesCb);
-        repoInitCb();
+      function repoInitCb(){
+        function walk(path,pathDes){  
+          var dirList = fs.readdirSync(path);
+          dirList.forEach(function(item){
+            if(fs.statSync(path + '/' + item).isDirectory()){
+              if(item != '.git' && item != '.des'){
+                fs.mkdir(pathDes + '/' + item, function(err){
+                  if(err){ 
+                    console.log("mkdir error!");
+                    console.log(err);
+                    return;
+                  }
+                });              
+                walk(path + '/' + item,pathDes + '/' + item);
+              }
+            }
+            else{
+              fileDesDir.push(pathDes);
+              fileList.push(path + '/' + item);
+            }
+          });
+        }
+        walk(resourcePath,resourcePath+'/.des');
+        config.riolog(fileList); 
+        writeDbNum=fileList.length;
+        config.riolog('writeDbNum= '+writeDbNum);
+        for(var k=0;k<fileList.length;k++){
+          var isLoadEnd = (k == (fileList.length-1));
+          addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
+        }
+      }
+      git.Repo.init(resourcePath,false,function(initReporError, repo){
+        if (initReporError) 
+          throw initReporError;
+        console.log("Repo init : "+repo);
+        var  exec = require('child_process').exec;
+        var comstr = 'cd ' + dataPath + ' && git add . && git commit -m "Init"';
+        console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
+        exec(comstr, function(error,stdout,stderr){
+          resourceRepo.getLatestCommit(dataPath,function (commitId){
+            initCommit=commitId.sha();
+            util.log("Head : "+commitId);
+            monitorFiles(dataPath,monitorFilesCb);
+            repoInitCb();
+          });
+        });
       });
-    });
+    }
   });
 }
 exports.syncDb = syncDb;
