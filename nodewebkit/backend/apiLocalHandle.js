@@ -47,6 +47,8 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
         path:each.path
       });
     });
+    var json=JSON.stringify(data);
+    console.log(json);
     getAllDataByCateCb(cates);
   }
   commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);

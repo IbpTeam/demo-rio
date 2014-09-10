@@ -24,16 +24,18 @@ function getAllCatecb(text){
 
 getAllCate(getAllCatecb);
 */
-/*
+
 function getAllDataByCateCb(text){
-    document.write(text[0].id);
+    /*document.write(text[0].id);
     document.write(text[0].filename);
     document.write(text[0].postfix);
-    document.write(text[0].path);
+    document.write(text[0].path);*/
+    var json=JSON.stringify(text[0]);
+    document.write(json);
 }
 
-getAllDataByCate(getAllDataByCateCb,'Music');
-*/
+getAllDataByCate(getAllDataByCateCb,'Documents');
+
 
 /*function getAllDataByCateCb(text){
     document.write(text[2].id);
@@ -118,7 +120,7 @@ updateDataValue(updateDataValueCb,'4#8','others','Release Note');
 
 
 
-
+/*
 function deviceUpCb(data){
     if(data.txtRecord!=null){
   console.log("device up : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
@@ -130,7 +132,7 @@ function deviceDownCb(data){
   console.log("device down : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
 }
 }
-getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+getDeviceDiscoveryService(deviceUpCb,deviceDownCb);*/
 </script>
 <!--
 <audio controls>
