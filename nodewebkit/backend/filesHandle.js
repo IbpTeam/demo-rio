@@ -352,7 +352,7 @@ function syncDb(loadResourcesCb,resourcePath)
 {
   config.riolog("syncDB ..............");
   dataPath=resourcePath;
-  fs.mkdir(dataPath+'/des.', function (err){
+  fs.mkdir(dataPath+'/.des', function (err){
     console.log(err);
     return;
   })
@@ -384,7 +384,7 @@ function syncDb(loadResourcesCb,resourcePath)
           if(item != '.git' && item != '.des'){
               fs.mkdir(pathDes + '/' + item, function(err){
                 if(err){ 
-                  console.log("Dir exists!");
+                  console.log("mkdir error!");
                   console.log(err);
                   return;
                 }
@@ -407,7 +407,6 @@ function syncDb(loadResourcesCb,resourcePath)
 
     for(var k=0;k<fileList.length;k++){
       var isLoadEnd = (k == (fileList.length-1));
-      console.log(isLoadEnd);
       addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
     }
   }
