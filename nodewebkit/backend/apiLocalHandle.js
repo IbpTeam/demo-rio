@@ -210,7 +210,6 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
       }
     }
     commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
-
   }
   commonDAO.getRecentByOrder(getRecentByOrderCb);
 }
