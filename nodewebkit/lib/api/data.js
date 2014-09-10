@@ -37,7 +37,7 @@ function getAllCate(getAllCateCb) {
     var cates = new Array();
     data.forEach(function (each){
       cates.push({
-        id:each.id,
+        URI:each.URI,
         type:each.type,
         path:each.logoPath,
         desc:each.desc
@@ -71,7 +71,7 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
     var cates = new Array();
     data.forEach(function (each){
       cates.push({
-        id:each.id,
+        URI:each.URI,
         filename:each.filename,
         postfix:each.postfix,
         path:each.path
@@ -87,9 +87,9 @@ exports.getAllDataByCate = getAllDataByCate;
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
-function rmDataById(rmDataByIdCb,id) {
+function rmDataById(rmDataByIdCb,id, uri) {
   console.log("Request handler 'rmDataById' was called.");
-  function getItemByIdCb(item){
+  function getItemByUriCb(item){
     if(item == null){
        result='success';
        rmDataByIdCb(result);
@@ -110,35 +110,35 @@ function rmDataById(rmDataByIdCb,id) {
       fs.unlink(item.path,ulinkCb);
     }
   }
-  commonDAO.getItemById(id,getItemByIdCb);
+  commonDAO.getItemByUri(uri,getItemByUriCb);
 }
 exports.rmDataById = rmDataById;
 
-//API getDataById:通过id查看数据所有信息
+//API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
-function getDataById(getDataByIdCb,id){
-  console.log("Request handler 'getDataById' was called.");
-  function getItemByIdCb(item){
- //   console.log("read data : "+ item.filename);
-    getDataByIdCb(item);
+function getDataByUri(getDataByUriCb,uri) {
+    console.log("read data : ========================="+ uri);
+  function getItemByUriCb(item){
+    console.log("read data : ========================="+ item.URI);
+    getDataByUriCb(item);
   }
-  commonDAO.getItemById(id,getItemByIdCb);
+  commonDAO.getItemByUri(uri,getItemByUriCb);
 }
-exports.getDataById = getDataById;
+exports.getDataByUri = getDataByUri;
 
-//API getDataSourceById:通过id获取数据资源地址
+//API getDataSourceByUri:通过Uri获取数据资源地址
 //返回类型：
 //result{
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
 
-function getDataSourceById(getDataSourceByIdCb,id){
+function getDataSourceByUri(getDataSourceByUriCb,id){
   console.log("Request handler 'getDataSourceById' was called.");
-  function getItemByIdCb(item){
+  function getItemByUriCb(item){
     if(item==null){
       config.riolog("read data : "+ item);
-      getDataSourceByIdCb('undefined');
+      getDataSourceByUriCb('undefined');
     }
     else{
       config.riolog("read data : "+ item.path);
@@ -168,7 +168,7 @@ function getDataSourceById(getDataSourceByIdCb,id){
           content:item.path
         };
       }
-      getDataSourceByIdCb(source);
+      getDataSourceByUriCb(source);
       
       var currentTime = (new Date()).getTime();
       config.riolog("time: "+ currentTime);
@@ -179,40 +179,14 @@ function getDataSourceById(getDataSourceByIdCb,id){
           commonDAO.updateItemValue(uri,version,cbItem,updateItemValueCb);
         }
         else{
-          var index=id.indexOf('#');
-          var tableId=id.substring(0,index);
-          var dataId=id.substr(index+1);
-          var tableName;
-          switch(tableId){
-            case '1' :{
-              tableName='contacts';
-            }
-            break;
-            case '2' :{
-              tableName='pictures';
-            }
-            break;
-            case '3' :{
-              tableName='videos';
-            }
-            break;
-            case '4' :{
-              tableName='documents';
-            }
-            break;
-            case '5' :{
-              tableName='music';
-            }
-            break;                                    
-          }
-          function updateRecentTableCb(tableName,dataId,time,result){
+          function updateRecentTableCb(uri,time,result){
             config.riolog("update recent table: "+ result);
             if(result!='successfull'){
               filesHandle.sleep(1000);
-              commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+              commonDAO.updateRecentTable(uri,parseInt(currentTime),updateRecentTableCb);
             }
           }
-          commonDAO.updateRecentTable(tableName,dataId,parseInt(currentTime),updateRecentTableCb);
+          commonDAO.updateRecentTable(uri,parseInt(currentTime),updateRecentTableCb);
         }
       }
       var updateItem = {
@@ -221,14 +195,14 @@ function getDataSourceById(getDataSourceByIdCb,id){
       commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
     }
   }
-  commonDAO.getItemById(id,getItemByIdCb);
+  commonDAO.getItemByUri(id,getItemByUriCb);
 }
-exports.getDataSourceById = getDataSourceById;
+exports.getDataSourceByUri = getDataSourceByUri;
 
 //API openDataSourceById: 打开数据
 //返回类型：
 //回调函数带一个参数，内容是一个div，用于显示应用数据，如果是本地打开文件，则显示成功打开信息
-function openLocalDataSourceById(openDataSourceByIdCb, content){
+function openLocalDataSourceByPath(openDataSourceByPathCb, content){
   var sys = require('sys');
   var exec = require('child_process').exec;
   var commend = "xdg-open \"" + content + "\"";
@@ -237,9 +211,9 @@ function openLocalDataSourceById(openDataSourceByIdCb, content){
     sys.print('stderr: ' + error);
   });
   file_content = "成功打开文件" + content;
-  openDataSourceByIdCb(file_content);
+  openDataSourceByPathCb(file_content);
 }
-exports.openLocalDataSourceById = openLocalDataSourceById;
+exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
@@ -275,38 +249,7 @@ function getRecentAccessData(getRecentAccessDataCb,num){
       result.pop();
     }
     var data = new Array();
-    var id;
-    var index=0;
-    function getid(){
-      if(result[index]==null){
-        return null;
-      }
-      switch (result[index].tableName){
-        case  'contacts':{
-          id='1#'+result[index].specificId;
-        }
-        break;
-        case  'pictures':{
-          id='2#'+result[index].specificId;
-        }
-        break;
-        case  'videos':{
-          id='3#'+result[index].specificId;
-        }
-        break;
-        case  'documents':{
-          id='4#'+result[index].specificId;
-        }
-        break;
-        case  'music':{
-          id='5#'+result[index].specificId;
-        }
-        break;
-      }
-      index++;
-      return id;
-    }
-    function getItemByIdCb(result){
+    function getItemByUriCb(result){
       //console.log(result);
       if(result){
         
@@ -315,17 +258,14 @@ function getRecentAccessData(getRecentAccessDataCb,num){
           getRecentAccessDataCb(data);
         }
         else{
-          var iid=getid();
-          if(iid!=null){
-            commonDAO.getItemById(iid,getItemByIdCb);
-          }
+          commonDAO.getItemByUri(uri,getItemByUriCb);
         }
       }
       else{
         console.log("No data");
       }
     }
-    commonDAO.getItemById(getid(),getItemByIdCb);
+    commonDAO.getItemByUri(uri,getItemByUriCb);
 
   }
   commonDAO.getRecentByOrder(getRecentByOrderCb);
@@ -352,7 +292,7 @@ function getAllContacts(getAllContactsCb) {
     var contacts = new Array();
     data.forEach(function (each){
       contacts.push({
-        id:each.id,
+        URI:each.URI,
         name:each.name,
         photoPath:each.photoPath
       });

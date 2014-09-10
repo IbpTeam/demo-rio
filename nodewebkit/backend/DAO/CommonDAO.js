@@ -10,6 +10,16 @@ var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
+//连接数据库
+function openDB(){
+  return new sqlite3.Database('./backend/db/rio');
+}
+
+//关闭数据库
+function closeDB(database){
+  database.close();
+}
+
 exports.countTotalByCategory = function(category, callback) {
 
   var countDao = null;
@@ -106,31 +116,31 @@ exports.getAllByCateroty = function(caterogy, callback) {
   switch(caterogy){
     case 'Contacts' : {
       dao = contactsDAO;
-      prefix = "1#";
+      //prefix = "1#";
     }
     break;
   
     case 'Pictures' : {
       dao = picturesDAO;
-      prefix = "2#";
+      //prefix = "2#";
     }
     break;
     
     case 'Videos' : {
       dao = videosDAO;
-      prefix = "3#";
+      //prefix = "3#";
     }
     break;
     
     case 'Documents' : {
       dao = documentsDAO;
-      prefix = "4#";
+      //prefix = "4#";
     }
     break;
     
     case 'Music' : {
       dao = musicDAO;
-      prefix = "5#";
+      //prefix = "5#";
     }
     break;
   }
@@ -140,9 +150,9 @@ exports.getAllByCateroty = function(caterogy, callback) {
       config.dblog(err);
       callback(null);
     }
-    items.forEach(function(item){
-      item.id = prefix + item.id;
-    });
+    //items.forEach(function(item){
+    //  item.id = prefix + item.id;
+    //});
     callback(items);
   });
 }
@@ -160,84 +170,56 @@ exports.getCategories = function(callback){
   });
 }
 
-exports.getItemById = function(id, callback){
-  config.dblog("get id:" + id);
+exports.getItemByUri = function(uri, callback){
+  config.dblog("Get item by uri: " + uri);
   
-  var index=id.indexOf('#');
-  var tableId=id.substring(0,index);
-  var dataId=id.substr(index+1);
-
-  config.dblog("tableId id:" + tableId);
-  config.dblog("dataId id:" + dataId);
-
-  switch(tableId){
-    case '1' : {
-      contactsDAO.findById(dataId,function(err,item){
-        if(err){
-          callback('');
-        }
-        else{
-          item.id="1#"+item.id;
-          item.photoPath=item.photoPath.replace(/\s/g, "%20");
-          callback(item);
-        }
-      });
-    }
-    break;
-    case '2' : {
-      picturesDAO.findById(dataId,function(err,item){
-        if(err){
-          callback('');
-        }
-        else{
-          item.id="2#"+item.id;
-          item.path=item.path.replace(/\s/g, "%20");    
-          callback(item);
-        }
-      });
-    }
-    break;
-    case '3' : {
-      videosDAO.findById(dataId,function(err,item){
-        if(err){
-          callback('');
-        }
-        else{
-          item.id="3#"+item.id;
-          item.path=item.path.replace(/\s/g, "%20");        
-          callback(item);
-        }
-      });
-    }
-    break;
-    case '4' : {
-      documentsDAO.findById(dataId,function(err,item){
-        if(err){
-          callback('');
-        }
-        else{
-          item.id="4#"+item.id;
-          item.path=item.path.replace(/\s/g, "%20");        
-          callback(item);
-        }
-      });
-    }
-    break;
-    case '5' : {
-      musicDAO.findById(dataId,function(err,item){
-        if(err){
-          callback('');
-        }
-        else{
-          item.id="5#"+item.id;
-          item.path=item.path.replace(/\s/g, "%20");        
-          callback(item);
-        }
-      });
-    }
-    break;
-    
+  var aUri = uri.split('#');
+  if (aUri.length != 3) {
+    config.dblog("Error: uri is wrong in getItemByUri!");
+    callback(null);
+    return;
   }
+  var sTableName = aUri[2];
+  config.dblog("GetItemByUri: TableName is:" + sTableName);
+
+  var oDao = null;
+
+  switch(sTableName){
+    case 'contacts' : {
+      oDao = contactsDAO;
+    }
+    break;
+    case 'pictures' : {
+      oDao = picturesDAO;
+    }
+    break;
+    case 'videos' : {
+      oDao = videosDAO;
+    }
+    break;
+    case 'documents' : {
+      oDao = documentsDAO;
+    }
+    break;
+    case 'music' : {
+      oDao = musicDAO;
+    }
+    break;
+    default:{
+      config.dblog("GetItemByUri: this is default in switch!");
+    }
+  }
+
+  //Find item by uri in specific table
+  oDao.findByUri(uri,function(err,item){
+    if(err){
+      callback(null);
+    }
+    else{
+      item.path=item.path.replace(/\s/g, "%20");
+      callback(item);
+    }
+  });
 }
 
 exports.getItemByPath = function(path, callback){
@@ -286,39 +268,64 @@ exports.getItemByPath = function(path, callback){
   }
 }
 
+/**
+ * @method createItems
+ *   
+ * @param items
+ *
+ * @param callback
+ */
+exports.createItems = function(items,callback){
+  var aSqlArray = new Array();
+  items.forEach(function(item){
+    var sSqlStr = "insert into " + item.category;
+    var sKeyStr = " (id";
+    var sValueStr = ") values (null";
+    for(var key in item){
+      sKeyStr = sKeyStr + "," + key;
+      sValueStr = sValueStr + "," + item[key];
+    }
+    sSqlStr = sSqlStr + sKeyStr + sValueStr + ")";
+    console.log(sSqlStr);     
+  });
+  //var oDB = openDB();
+  //db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
+  //closeDB(oDB);
+}
+
 exports.createItem = function(category, item, callback , loadResourcesCb){
   var createDAO = null;
-  var tableName = null;
+  var sTableName = null;
   //Get uniform resource identifier
   var uri = "specificURI";
   switch(category){
     case 'Contacts' : {
       createDAO = contactsDAO;
-      tableName = 'contacts';
+      sTableName = '#contacts';
     }
     break;
     case 'Pictures' : {
       config.dblog('insert picture');
       createDAO = picturesDAO;
-      tableName = 'pictures';
+      sTableName = '#pictures';
     }
     break;
     case 'Videos' : {
       config.dblog('insert video');
       createDAO = videosDAO;
-      tableName = 'videos';
+      sTableName = '#videos';
     }
     break;
     case 'Documents' : {
       config.dblog('insert document');
       createDAO = documentsDAO;
-      tableName = 'documents';
+      sTableName = '#documents';
     }
     break;
     case 'Music' : {
       config.dblog('insert music');
       createDAO = musicDAO;
-      tableName = 'music';
+      sTableName = '#music';
     }
     break;
 /*    case 'recent' : {
@@ -338,7 +345,7 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
   }
   //Get uniform resource identifier
   uniqueID.getFileUid(function(uri){
-    item.URI = uri;
+    item.URI = uri + sTableName;
     uniqueID.getRandomBytes(12,function(version){
       if (version != null) {
         item.version = version;
@@ -347,74 +354,27 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
             callback(category,item,err,loadResourcesCb);
           }
           else{
-            if(category=='Contacts'){
-              function findByNameCb(err,insertItem){
-                if(err){
-                  console.log("DB "+tableName+" : "+item.name+" error!!");
-                  createDAO.findByName(item.name,findByNameCb);
-                }
-                else{
-                  var newItem={
-                    id:null,
-                    tableName:tableName,
-                    specificId:insertItem.id,
-                    lastAccessTime:insertItem.lastAccessTime
-                  };
-                  function createRecentItemCb(err){
-                    if(err){
-                      recentDAO.createItem(newItem,createRecentItemCb);
-                    }
-                    else{
-                      function createInsertItemCB(err){
-                        if (err) {
-                          actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-                        }
-                        else{
-                          callback(category,item,'successfull',loadResourcesCb);
-                        }
-                      }
-                      actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-                    }
-                  }
-                  recentDAO.createItem(newItem,createRecentItemCb);
-                }
+            var oNewItem = {
+              fileUri:item.URI,
+              lastAccessTime:item.lastAccessTime
+            };
+            function createRecentItemCb(err){
+              if(err){
+                recentDAO.createItem(oNewItem,createRecentItemCb);
               }
-              createDAO.findByName(item.name,findByNameCb);
-            }
-            else{
-              function findByPathCb(err,insertItem){
-                if(err){
-                  console.log("DB "+tableName+" : "+item.path+" error!!");
-                  createDAO.findByPath(item.path,findByPathCb);
-                }
-                else{
-                  var newItem={
-                    id:null,
-                    tableName:tableName,
-                    specificId:insertItem.id,
-                    lastAccessTime:insertItem.lastAccessTime
-                  };
-                  function createRecentItemCb(err){
-                    if(err){
-                      recentDAO.createItem(newItem,createRecentItemCb);
-                    }
-                    else{
-                      function createInsertItemCB(err){
-                        if (err) {
-                          actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-                        }
-                        else{
-                          callback(category,item,'successfull',loadResourcesCb);
-                        }
-                      }
-                      actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-                    }
+              else{
+                function createInsertItemCB(err){
+                  if (err) {
+                    actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
                   }
-                  recentDAO.createItem(newItem,createRecentItemCb);
+                  else{
+                    callback(category,item,'successfull',loadResourcesCb);
+                  }
                 }
+                actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
               }
-              createDAO.findByPath(item.path,findByPathCb);
             }
+            recentDAO.createItem(oNewItem,createRecentItemCb);
           }
         });
       }
@@ -486,46 +446,6 @@ exports.deleteItemById = function(id, uri, callback ,rmDataByIdCb){
     }
   })
 }
-
-function getItemByUri(uri,getItemByUriCb){
-  contactsDAO.findByUri(uri,function(err,item){
-    if(item == null){
-      picturesDAO.findByUri(uri,function(err,item){
-        if(item == null){
-          videosDAO.findByUri(uri,function(err,item){
-            if(item == null){
-              documentsDAO.findByUri(uri,function(err,item){
-                if(item == null){
-                  musicDAO.findByUri(uri,function(err,item){
-                    if(item == null){
-                      getItemByUriCb(err);
-                    }
-                    else{
-                      getItemByUriCb(item);
-                    }
-                  });
-                }
-                else{
-                  getItemByUriCb(item);
-                }
-              });
-            }
-            else{
-              getItemByUriCb(item);
-            }
-          });
-        }
-        else{
-          getItemByUriCb(item);
-        }
-      });
-    }
-    else{
-      getItemByUriCb(item);
-    }
-  });
-}
-exports.getItemByUri = getItemByUri;
 
 exports.updateItemValue = function(uri, version, item, callback){
   var updateDAO=null;
@@ -646,14 +566,14 @@ exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryIt
   }
 }
 
-exports.updateRecentTable = function(tableName,dataId,time,callback){
-  recentDAO.updateTime(tableName,dataId,time, function(err){
+exports.updateRecentTable = function(uri,time,callback){
+  recentDAO.updateTime(uri,time, function(err){
     if(err){
-      callback(tableName,dataId,time,err);
+      callback(uri,time,err);
     }
     else{
       config.dblog("update recent successfull");
-      callback(tableName,dataId,time,'successfull');
+      callback(uri,time,'successfull');
     }
   });  
 }

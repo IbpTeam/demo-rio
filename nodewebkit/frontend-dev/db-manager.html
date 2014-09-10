@@ -2,23 +2,23 @@
   <head>
     <title>db-managre</title>
     <meta charset="UTF-8">
-    <script src="/lib/require.js"></script>
-    <script src="/lib/jquery.js"></script>
-    <script src="/lib/api.js"></script>
+    <script src="../lib/require.js"></script>
+    <script src="../lib/jquery.js"></script>
+    <script src="../lib/api.js"></script>
   </head>
 <body>
 
 <script>
 function loadResourcesCb(result){
-    $("body").css("cursor", "default");
-    console.log('end of load resource callback.');
-    document.write(result);
+  $("body").css("cursor", "default");
+  console.log('end of load resource callback.');
+  document.write(result);
 }
 
 function addNewFolderCb(result){
-    $("body").css("cursor", "default");
-    console.log('end of add new folder callback.');
-    document.write(result);
+  $("body").css("cursor", "default");
+  console.log('end of add new folder callback.');
+  document.write(result);
 }
 
 //API loadResources:读取某个资源文件夹到数据库
@@ -38,18 +38,18 @@ function loadResources(loadResourcesCb,path) {
 }
 //loadResources(loadResourcesCb,'/home/v1/resources');
 function chooseFile(name) {
-    var chooser = document.querySelector(name);
-    chooser.addEventListener("change", function(evt) {
-        //console.log(this.value);
-        var dir = this.value;
-        if(dir){
-            //document.getElementById('dir_path')
-            $('div#db_add #dir_path').text(dir);
-            $('div#db_add #btn_insert').css({"display":"inline"});
-            $('div#db_add #btn_choose').val("重新选择路径");
-        }
-    }, false);
-    chooser.click();  
+  var chooser = document.querySelector(name);
+  chooser.addEventListener("change", function(evt) {
+    //console.log(this.value);
+    var dir = this.value;
+    if(dir){
+      //document.getElementById('dir_path')
+      $('div#db_add #dir_path').text(dir);
+      $('div#db_add #btn_insert').css({"display":"inline"});
+      $('div#db_add #btn_choose').val("重新选择路径");
+    }
+  }, false);
+  chooser.click();
   }
 </script>
 <div id="db_add">
@@ -60,6 +60,5 @@ function chooseFile(name) {
     <input id="btn_insert" style="display:none;" type="button" onclick="WDC.requireAPI(['data'], function(data){data.addNewFolder(addNewFolderCb)});" value="扫描路径下的文件，添加到数据库"></input>
 </div>
 <hr>
-
 </body>
 </html>
