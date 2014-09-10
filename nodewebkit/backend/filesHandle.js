@@ -352,6 +352,10 @@ function syncDb(loadResourcesCb,resourcePath)
 {
   config.riolog("syncDB ..............");
   dataPath=resourcePath;
+  fs.mkdir(dataPath+'/des.', function (err){
+    console.log(err);
+    return;
+  })
   var fileList = new Array();
   var fileDesDir = new Array();
   fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {

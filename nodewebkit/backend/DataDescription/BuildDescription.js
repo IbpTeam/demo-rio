@@ -25,13 +25,13 @@ var ABSOLUTE_PATH = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
 
 /** 
  * @Method: createDesFile
- *    create description file for specific file in its target dir
+ *    create description file for specific file in its target dir.
  * @param: newItem
- *    a new item object with informations for description
+ *    a new item object with informations for description.
  * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not 
+ *    a boolean var to tell the resource loading is end or not.
  * @param: loadResourcesCb
- *    No arguments other than a file name array are given to the completion callback.
+ *    callback when loading resouce ends.
  **/
 function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   var sItem = JSON.stringify(newItem,null,4);
@@ -58,17 +58,17 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
 
 /** 
  * @Method: sortObj
- *    sort the object element by tags
+ *    sort the object element by tags.
  * @param: Item
- *    an item object with informations for description
+ *    an item object with informations for description.
  * @param: itemDesPath
- *    the path that a description file shoud be writen at
+ *    the path that a description file shoud be writen at.
  * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not 
+ *    a boolean var to tell the resource loading is end or not.
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  * @param: loadResourcesCb
- *    No arguments other than a file name array are given to the completion callback.
+ *    callback when loading resouce ends.
  **/
 function sortObj(Item,itemDesPath,callback,isLoadEnd,loadResourcesCb){
   var sTags = [];
@@ -86,17 +86,17 @@ function sortObj(Item,itemDesPath,callback,isLoadEnd,loadResourcesCb){
 
 /** 
  * @Method: createItem
- *    create description file
+ *    create description file.
  * @param: item
- *    an item object with informations for description
+ *    an item object with informations for description.
  * @param: itemDesPath
- *    the path that a description file shoud be writen at
+ *    the path that a description file shoud be writen at.
  * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not 
+ *    a boolean var to tell the resource loading is end or not. 
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  * @param: loadResourcesCb
- *    No arguments other than a file name array are given to the completion callback.
+ *    callback when loading resouce ends.
  **/
 exports.createItem = function(category,item,itemDesPath,isLoadEnd,loadResourcesCb){
 
