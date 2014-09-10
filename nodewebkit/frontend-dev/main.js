@@ -1,76 +1,83 @@
 
 pre_config();
-$(document).ready(function() {
-  getServerAddress(configuration);
-  //configuration();
+var DataAPI;
+var AppAPI;
+WDC.requireAPI(['data', 'app'], function(data, app){
+  console.log("data:" +  data + " app:" + app);
+  DataAPI=data;
+  AppAPI=app;
+  $(document).ready(function() {
+    DataAPI.getServerAddress(configuration);
+    //configuration();
 
-  var sidebar = new SideBar($('#sidebar'));
-  var folder = new Folder($('#files'));
-  var addressbar = new AddressBar($('#addressbar'));
-  
-  folder.open('root');
-  addressbar.set('root');
+    var sidebar = new SideBar($('#sidebar'));
+    var folder = new Folder($('#files'));
+    var addressbar = new AddressBar($('#addressbar'));
     
-    //console.log(window.location);    
-    if(window.location.hash){
-      var dir = window.location.hash.substr(1);
-      var protocol = window.location.protocol;
-      var host = window.location.host;
-      var pathname = window.location.pathname;
-      var href = protocol + '//' + host + pathname;
-      if(dir){
-        //console.log('****dir:', dir);
-  //      var mime = {'props':''};
-  //      mime['props'].path = dir;
-  //      //folder.open(dir);
-  //      this.emit('navigate', mime);
-        folder.open(dir);
-        addressbar.set(dir);
-        sidebar.set_favorites_focus(dir);
-        //window.location.hash = '#';
-        //window.location.href = href;
-        //window.event.returnValue=false;
-        //console.log('6666666666666666666',window.location);   
+    folder.open('root');
+    addressbar.set('root');
+      
+      //console.log(window.location);    
+      if(window.location.hash){
+        var dir = window.location.hash.substr(1);
+        var protocol = window.location.protocol;
+        var host = window.location.host;
+        var pathname = window.location.pathname;
+        var href = protocol + '//' + host + pathname;
+        if(dir){
+          //console.log('****dir:', dir);
+    //      var mime = {'props':''};
+    //      mime['props'].path = dir;
+    //      //folder.open(dir);
+    //      this.emit('navigate', mime);
+          folder.open(dir);
+          addressbar.set(dir);
+          sidebar.set_favorites_focus(dir);
+          //window.location.hash = '#';
+          //window.location.href = href;
+          //window.event.returnValue=false;
+          //console.log('6666666666666666666',window.location);   
+        }
       }
-    }
-    
-  folder.on('navigate', function(event, mime) {
-    sidebar.set_favorites_focus(mime['props'].path);
-    addressbar.enter(mime);
-  });
-  folder.on('set_favorites', function(event) {
-    var messages = Array.prototype.slice.call(arguments, 1);
-    //console.log('set favorites2.', messages);
-    sidebar.set_favorites(messages);
-
-  });
-  folder.on('set_sidebar', function(event){
-    var messages = Array.prototype.slice.call(arguments, 1);
-    sidebar.set_tags(messages);
-    sidebar.set_filters(messages);
-    sidebar.set_recent(messages);
-  });
+      
+    folder.on('navigate', function(event, mime) {
+      sidebar.set_favorites_focus(mime['props'].path);
+      addressbar.enter(mime);
+    });
+    folder.on('set_favorites', function(event) {
+      var messages = Array.prototype.slice.call(arguments, 1);
+      //console.log('set favorites2.', messages);
+      sidebar.set_favorites(messages);
   
-  sidebar.on('open_favorite', function(event, dir) {
-    folder.open(dir);
-    addressbar.set(dir);
-  });
-/*  sidebar.on('do_filter', function(event, keyword, json) {
-    console.log('wangyu: on do_filter.');
-    var messages = Array.prototype.slice.call(arguments, 2);
-    sidebar.do_filter(messages, keyword);
-  });*/
-  sidebar.on('show_filter_result', function(event) {
-    var messages = Array.prototype.slice.call(arguments, 1);
-    folder.get_callback_data(messages);
-    //addressbar.set(dir);
-  });
-  addressbar.on('navigate', function(event, dir) {
-    //console.log('**************dir:', dir);
-    folder.open(dir);
-  });
-  addressbar.on('fold_mode_view', function() {
-    folder.use_folder_view_mode();
+    });
+    folder.on('set_sidebar', function(event){
+      var messages = Array.prototype.slice.call(arguments, 1);
+      sidebar.set_tags(messages);
+      sidebar.set_filters(messages);
+      sidebar.set_recent(messages);
+    });
+    
+    sidebar.on('open_favorite', function(event, dir) {
+      folder.open(dir);
+      addressbar.set(dir);
+    });
+  /*  sidebar.on('do_filter', function(event, keyword, json) {
+      console.log('wangyu: on do_filter.');
+      var messages = Array.prototype.slice.call(arguments, 2);
+      sidebar.do_filter(messages, keyword);
+    });*/
+    sidebar.on('show_filter_result', function(event) {
+      var messages = Array.prototype.slice.call(arguments, 1);
+      folder.get_callback_data(messages);
+      //addressbar.set(dir);
+    });
+    addressbar.on('navigate', function(event, dir) {
+      //console.log('**************dir:', dir);
+      folder.open(dir);
+    });
+    addressbar.on('fold_mode_view', function() {
+      folder.use_folder_view_mode();
+    });
   });
 });
 
