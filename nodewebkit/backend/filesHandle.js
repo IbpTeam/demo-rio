@@ -6,7 +6,8 @@ var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
 var config = require("./config");
-var commonDAO = require("./DAO/CommonDAO");
+//var commonDAO = require("./DAO/CommonDAO");
+var dataDes = require("./DataDescription/BuildDescription")
 var resourceRepo = require("./repo");
 var util = require('util');
 var events = require('events'); 
@@ -35,7 +36,8 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,commitId,addDataCb){
+function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
+  //console.log(itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
@@ -67,7 +69,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       });
     });
   }
@@ -97,7 +99,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -114,7 +116,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -132,11 +134,10 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       } 
       else{
         writeDbNum --;
-//        writeDbRecentNum --;  
       }     
     }
     fs.stat(itemPath,getFileStatCb);
@@ -295,13 +296,11 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
+/*
 function createItemCb(category,item,result,loadResourcesCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
-    config.riolog(item.filename+'insert error:'+result.code);
-    sleep(1000);
-    commonDAO.createItem(category,item,createItemCb,loadResourcesCb);
   }
 
   else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
@@ -325,23 +324,24 @@ function createItemCb(category,item,result,loadResourcesCb)
     loadResourcesCb(result);
   }
 }
+*/
 
 
-function deleteItemCb(id,uri,result,rmDataByIdCb)
+function deleteItemCb(uri,result,rmDataByUriCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
     config.riolog(id+'delete error:'+result.code);
     sleep(1000);
-    commonDAO.deleteItemById(id,uri,deleteItemCb,rmDataByIdCb);
+    commonDAO.deleteItemByUri(uri,deleteItemCb,rmDataByUriCb);
   }
   else if(result=='successfull'){
     config.riolog(id+'delete:'+result);
-    rmDataByIdCb('success');
+    rmDataByUriCb('success');
   }
   else{
     config.riolog(id+'delete:'+result);
-    rmDataByIdCb(result);
+    rmDataByUriCb(result);
   }
 }
 exports.deleteItemCb = deleteItemCb;
@@ -353,6 +353,7 @@ function syncDb(loadResourcesCb,resourcePath)
   config.riolog("syncDB ..............");
   dataPath=resourcePath;
   var fileList = new Array();
+  var fileDesDir = new Array();
   fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
     util.log(config.USERCONFIGPATH+"config.js "+ exists);
     if(exists==false){
@@ -366,33 +367,45 @@ function syncDb(loadResourcesCb,resourcePath)
       var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
       util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
       fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
-          if(e) throw e;
+        if(e) throw e;
       });
     }
   });
   function repoInitCb(){
-    function walk(path){  
+    function walk(path,pathDes){  
       var dirList = fs.readdirSync(path);
       dirList.forEach(function(item){
+        //console.log(pathDes);
         if(fs.statSync(path + '/' + item).isDirectory()){
-          if(item != '.git'){
-            walk(path + '/' + item);
+          if(item != '.git' && item != '.des'){
+              fs.mkdir(pathDes + '/' + item, function(err){
+                if(err){ 
+                  console.log("Dir exists!");
+                  console.log(err);
+                  return;
+                }
+                //console.log(pathDes);
+              });              
+            walk(path + '/' + item,pathDes + '/' + item);
           }
         }
         else{
+          //console.log(pathDes)
+          fileDesDir.push(pathDes);
           fileList.push(path + '/' + item);
         }
       });
     }
-    walk(resourcePath);
+    walk(resourcePath,resourcePath+'/.des');
     config.riolog(fileList); 
     writeDbNum=fileList.length;
-//    writeDbRecentNum=writeDbNum;
     config.riolog('writeDbNum= '+writeDbNum);
-//    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-    fileList.forEach(function(item){
-      addData(item,initCommit,loadResourcesCb);
-    });
+
+    for(var k=0;k<fileList.length;k++){
+      var isLoadEnd = (k == (fileList.length-1));
+      console.log(isLoadEnd);
+      addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
+    }
   }
   git.Repo.init(resourcePath,false,function(initReporError, repo){
     if (initReporError) 
@@ -469,7 +482,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
           category='recent';
           newItem={
             id:null,
@@ -478,7 +491,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
         }
         else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
           var category='Pictures';
@@ -494,7 +507,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
           category='recent';
           newItem={
             id:null,
@@ -503,7 +516,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
         }
         else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
           var category='Music';
@@ -520,7 +533,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
           category='recent';
           newItem={
             id:null,
@@ -529,7 +542,7 @@ function addNewFolder(addNewFolderCb,resourcePath) {
             lastAccessTime:ctime,
             others:null
           };
-          commonDAO.createItem(category,newItem,createItemCb,addNewFolderCb);
+          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
         }
         else{
           writeDbNum --;

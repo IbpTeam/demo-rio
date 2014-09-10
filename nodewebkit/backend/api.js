@@ -146,20 +146,20 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
 }
 
 
-//API rmDataById:通过id删除数据
+//API rmDataByUri:通过uri删除数据
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
-function rmDataById(rmDataByIdCb,id) {
+function rmDataByUri(rmDataByUriCb,uri) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if(isLocal())  {
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.rmDataByIdFromLocal(rmDataByIdCb,id);
+    apiLocalHandle.rmDataByUriFromLocal(rmDataByUriCb,uri);
   }
   else{
     console.log('You are in remote ');
-    rmDataByIdFromHttp(rmDataByIdCb,id);
+    rmDataByUriFromHttp(rmDataByUriCb,uri);
   }
 }
 
@@ -311,24 +311,6 @@ function getDataDir(getDataDirCb){
   }
 }
 
-/*
-//API demoDataSync
-function demoDataSync(deviceName,deviceId,deviceAddress){
-  console.log("Start demoDataSync !");
-  function getServerAddressCb(result){
-    var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
-    var socket = io.connect(add);  
-    socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
-      deviceUpCb(data);
-      var dataSync =  require("./backend/DataSync.js");
-      dataSync.syncRequest(deviceName,deviceId,deviceAddress);
-    });
-    socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
-      deviceDownCb(data);
-    });
-  }
-  getServerAddress(getServerAddressCb);
-}*/
 
 //API repoMergeForFirstTime:获取remote repo
 function repoMergeForFirstTime(name,branch,address,path){
@@ -337,6 +319,18 @@ function repoMergeForFirstTime(name,branch,address,path){
     console.log('You are in local '); 
     var repo = require("./backend/repo");
     repo.repoMergeForFirstTime(name,branch,address,path);
+  }
+  else{
+    console.log('You are in remote '); 
+  }
+}
+
+function addData(json,tagPath,addDataCb){
+  console.log("Request handler 'addData' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var tagFilesHandle = require("./backend/tagFilesHandle");
+    tagFilesHandle.addData(json,tagPath,addDataCb);
   }
   else{
     console.log('You are in remote '); 
