@@ -401,9 +401,8 @@ function syncDb(loadResourcesCb,resourcePath)
     writeDbNum=fileList.length;
     config.riolog('writeDbNum= '+writeDbNum);
 
-    var k = 0;
-    for(k;k<fileList.length;k++){
-      var isLoadEnd = (k == (fileList.length-1))
+    for(var k=0;k<fileList.length;k++){
+      var isLoadEnd = (k == (fileList.length-1));
       console.log(isLoadEnd);
       addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
     }
