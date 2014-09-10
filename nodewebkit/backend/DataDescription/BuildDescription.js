@@ -13,6 +13,7 @@
  var config = require("../config");
  var uniqueID = require("../uniqueID");
  var fs = require('fs');
+ var path = require("path");
 
 
 function createDesFile(newItem,itemDesPath){
@@ -36,63 +37,33 @@ function createDesFile(newItem,itemDesPath){
 
 function sortObj(Item,itemDesPath,callback){
   var sTags = [];
-  var oNewItem = {};
-  for(k in Item){
+
+  var oNewItem = {}
+  for(var k in Item){
     sTags.push(k);
   }
   sTags.sort();
-  for(k in sTags){
+  for(var k in sTags){
     oNewItem[sTags[k]] = Item[sTags[k]];
   }
   callback(oNewItem,itemDesPath);
 }
 
-exports.createItem = function(category,item,itemDesPath,loadResourcesCb){
-  var sTableName = null;
+exports.createItem = function(category,item,loadResourcesCb){
+  
   //Get uniform resource identifier
   var uri = "specificURI";
-  
-  switch(category){
-    case 'Contacts' : {
-      sTableName = '#contacts';
-    }
-    break;
-    case 'Pictures' : {
-      config.dblog('insert picture');
-      sTableName = '#pictures';
-    }
-    break;
-    case 'Videos' : {
-      config.dblog('insert video');
-      sTableName = '#videos';
-    }
-    break;
-    case 'Documents' : {
-      config.dblog('insert document');
-      sTableName = '#documents';
-    }
-    break;
-    case 'Music' : {
-      config.dblog('insert music');
-      sTableName = '#music';
-    }
-    break; 
-  }
-  //Get uniform resource identifier
+
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
-      item.URI = uri + sTableName;
-      sortObj(item,itemDesPath,createDesFile)
+
+      item.URI = uri + "#" + category;
+      sortObj(item,createDesFile)
     }
     else{
       console.log("Exception: URI is null.");
       return;
     }
   });
-}
-
-exports.testMethod = function(arg1,arg2){
-	//TODO
-
 }

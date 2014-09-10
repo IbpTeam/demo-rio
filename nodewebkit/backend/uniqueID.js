@@ -87,7 +87,7 @@ function getFileUid(FUNC)
 			var sysid = require('./config');
 			sid = sysid.uniqueID;
 			sytoken = sid+'#'+token;
-			console.log(sytoken);
+			//console.log(sytoken);
 			FUNC(sytoken);
 		}
 	});
