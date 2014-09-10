@@ -1,0 +1,10 @@
+backend:                 The main implement
+frontend-dev:            The code of Data Manager APP
+frontend-obsolute:       The old code of Data Manager APP
+index.html:              The Main entry of project
+lib:                     The api lib, jquery lib and so on.
+node_modules:            The link of node_modules
+package.json:            The manifest of project.
+README:                  This file
+start.js:                The entry of server.
+test:                    The dir contain test files.
