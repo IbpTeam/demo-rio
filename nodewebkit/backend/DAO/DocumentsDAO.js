@@ -114,10 +114,10 @@ exports.createItem = function(item, createItemCallBack){
  * @param uri
  *   documents表中的URI
  */
-exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
+exports.deleteItemByUri = function(uri, deleteItemByUriCallBack){
   config.dblog("delete document uri : " + uri);
   var db = openDB();
-  db.get(SQLSTR.DELETEDOCUMENT, uri, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETEDOCUMENT, uri, deleteItemByUriCallBack);
   closeDB(db);
 }
 

@@ -118,10 +118,10 @@ exports.updateItemValue = function(id,key,value, updateItemValueCallBack){
  */
 exports.updateTime = function(uri,time, updateTimeCb){
   var db = openDB();
-  config.dblog("udpate recent id : " + dataId);
+  //config.dblog("udpate recent id : " + dataId);
   //console.log("udpate key=" + key + 'value='+value);
 
-  var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE file_uri = "+uri;
+  var sqlstr="UPDATE recent SET lastAccessTime = '"+time+"' WHERE file_uri='"+uri+"'";
   config.dblog("sqlstr:" +sqlstr);
   db.run(sqlstr,updateTimeCb);
   closeDB(db);

@@ -67,7 +67,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       });
     });
   }
@@ -97,7 +97,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -114,7 +114,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -132,7 +132,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        commonDAO.createItem(category,newItem,createItemCb,addDataCb);
+        commonDAO.createItem(category,newItem,createItemCb,createDesFileCb,addDataCb);
       } 
       else{
         writeDbNum --;
@@ -141,6 +141,23 @@ function addData(itemPath,commitId,addDataCb){
     }
     fs.stat(itemPath,getFileStatCb);
   }
+}
+
+function createDesFileCb(newItem){
+  //console.log(newItem)
+  //if (error) throw error;  
+  var sItem = JSON.stringify(newItem,null,4);
+  var sFileName = newItem.filename || newItem.name;
+  var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
+  console.log(config.RESOURCEPATH);
+  fs.writeFile(spath, sItem,{flag:'w+'},function (err) {
+    if (err) {
+      console.log("writeFile error!")
+      throw err;
+    }
+    console.log("descriptioin file done!")
+    return "success";
+  });
 }
 
 function watcherStart(monitorPath,callback){
@@ -327,21 +344,21 @@ function createItemCb(category,item,result,loadResourcesCb)
 }
 
 
-function deleteItemCb(id,uri,result,rmDataByIdCb)
+function deleteItemCb(uri,result,rmDataByUriCb)
 {
 
   if(result.code=='SQLITE_BUSY'){
     config.riolog(id+'delete error:'+result.code);
     sleep(1000);
-    commonDAO.deleteItemById(id,uri,deleteItemCb,rmDataByIdCb);
+    commonDAO.deleteItemByUri(uri,deleteItemCb,rmDataByUriCb);
   }
   else if(result=='successfull'){
     config.riolog(id+'delete:'+result);
-    rmDataByIdCb('success');
+    rmDataByUriCb('success');
   }
   else{
     config.riolog(id+'delete:'+result);
-    rmDataByIdCb(result);
+    rmDataByUriCb(result);
   }
 }
 exports.deleteItemCb = deleteItemCb;

@@ -146,20 +146,20 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
 }
 
 
-//API rmDataById:通过id删除数据
+//API rmDataByUri:通过uri删除数据
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
-function rmDataById(rmDataByIdCb,id) {
+function rmDataByUri(rmDataByUriCb,uri) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if(isLocal())  {
     console.log('You are in local '); 
     var apiLocalHandle = require("./backend/apiLocalHandle");
-    apiLocalHandle.rmDataByIdFromLocal(rmDataByIdCb,id);
+    apiLocalHandle.rmDataByUriFromLocal(rmDataByUriCb,uri);
   }
   else{
     console.log('You are in remote ');
-    rmDataByIdFromHttp(rmDataByIdCb,id);
+    rmDataByUriFromHttp(rmDataByUriCb,uri);
   }
 }
 

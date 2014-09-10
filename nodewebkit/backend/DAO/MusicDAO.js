@@ -114,10 +114,10 @@ exports.createItem = function(item, createItemCallBack){
  * @param uri
  *   music表中的URI
  */
-exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
+exports.deleteItemByUri = function(uri, deleteItemByUriCallBack){
   config.dblog("delete music uri : " + uri);
   var db = openDB();
-  db.get(SQLSTR.DELETEMUSIC, uri, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETEMUSIC, uri, deleteItemByUriCallBack);
   closeDB(db);
 }
 
