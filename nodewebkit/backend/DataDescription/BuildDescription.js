@@ -15,24 +15,28 @@
  var fs = require('fs');
 
 
-function createDesFile(newItem){
+function createDesFile(newItem,itemDesPath){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
-  console.log(config.RESOURCEPATH);
+  var _spath = itemDesPath+'/'+sFileName+'.txt'
+  console.log(_spath);
+  //console.log(config.RESOURCEPATH);
   fs.writeFile(spath, sItem,{flag:'w+'},function (err) {
     if (err) {
+      console.log("================");
       console.log("writeFile error!");
+      console.log("================");
       throw err;
     }else{
-      console.log("successful");
+      //console.log("successful");
     }
   });
 }
 
-function sortObj(Item,callback){
+function sortObj(Item,itemDesPath,callback){
   var sTags = [];
-  var oNewItem = {}
+  var oNewItem = {};
   for(k in Item){
     sTags.push(k);
   }
@@ -40,10 +44,10 @@ function sortObj(Item,callback){
   for(k in sTags){
     oNewItem[sTags[k]] = Item[sTags[k]];
   }
-  callback(oNewItem);
+  callback(oNewItem,itemDesPath);
 }
 
-exports.createItem = function(category,item,loadResourcesCb){
+exports.createItem = function(category,item,itemDesPath,loadResourcesCb){
   var sTableName = null;
   //Get uniform resource identifier
   var uri = "specificURI";
@@ -79,10 +83,10 @@ exports.createItem = function(category,item,loadResourcesCb){
     item.category = category;
     if (uri != null) {
       item.URI = uri + sTableName;
-      sortObj(item,createDesFile)
+      sortObj(item,itemDesPath,createDesFile)
     }
     else{
-      console.log("Exception: randomId is null.");
+      console.log("Exception: URI is null.");
       return;
     }
   });
