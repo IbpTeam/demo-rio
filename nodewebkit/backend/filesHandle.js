@@ -36,7 +36,8 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,commitId,addDataCb){
+function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
+  //console.log(itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
@@ -68,7 +69,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem);
+        dataDes.createItem(category,newItem,itemDesPath);
       });
     });
   }
@@ -98,7 +99,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem);
+        dataDes.createItem(category,newItem,itemDesPath);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -115,7 +116,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem);
+        dataDes.createItem(category,newItem,itemDesPath);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -133,7 +134,7 @@ function addData(itemPath,commitId,addDataCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem);
+        dataDes.createItem(category,newItem,itemDesPath);
       } 
       else{
         writeDbNum --;
@@ -353,6 +354,7 @@ function syncDb(loadResourcesCb,resourcePath)
   config.riolog("syncDB ..............");
   dataPath=resourcePath;
   var fileList = new Array();
+  var fileDesDir = new Array();
   fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
     util.log(config.USERCONFIGPATH+"config.js "+ exists);
     if(exists==false){
@@ -366,33 +368,44 @@ function syncDb(loadResourcesCb,resourcePath)
       var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
       util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
       fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
-          if(e) throw e;
+        if(e) throw e;
       });
     }
   });
   function repoInitCb(){
-    function walk(path){  
+    function walk(path,pathDes){  
       var dirList = fs.readdirSync(path);
       dirList.forEach(function(item){
+        //console.log(pathDes);
         if(fs.statSync(path + '/' + item).isDirectory()){
-          if(item != '.git'){
-            walk(path + '/' + item);
+          if(item != '.git' && item != '.des'){
+              fs.mkdir(pathDes + '/' + item, function(err){
+                if(err){ 
+                  console.log("Dir exists!");
+                  console.log(err);
+                  return;
+                }
+                //console.log(pathDes);
+              });              
+            walk(path + '/' + item,pathDes + '/' + item);
           }
         }
         else{
+          //console.log(pathDes)
+          fileDesDir.push(pathDes);
           fileList.push(path + '/' + item);
         }
       });
     }
-    walk(resourcePath);
+    walk(resourcePath,resourcePath+'/.des');
     config.riolog(fileList); 
     writeDbNum=fileList.length;
-//    writeDbRecentNum=writeDbNum;
     config.riolog('writeDbNum= '+writeDbNum);
-//    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-    fileList.forEach(function(item){
-      addData(item,initCommit,loadResourcesCb);
-    });
+
+    for(var k=0;k<fileList.length;k++){
+      addData(fileList[k],fileDesDir[k],initCommit,loadResourcesCb);
+    }
+
   }
   git.Repo.init(resourcePath,false,function(initReporError, repo){
     if (initReporError) 

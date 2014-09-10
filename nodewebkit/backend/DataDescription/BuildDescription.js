@@ -16,22 +16,26 @@
  var path = require("path");
 
 
-function createDesFile(newItem){
+ function createDesFile(newItem,itemDesPath){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var spath = config.RESOURCEPATH+'/.des/'+sFileName+'.txt'
-  console.log(config.RESOURCEPATH);
-  fs.writeFile(spath, sItem,{flag:'w+'},function (err) {
+  var pos = "." + (newItem.path).replace(/.+\./, "");
+  var spath = itemDesPath+'/'+sFileName+pos+'.txt';
+  //console.log(spath);
+  fs.writeFile(spath, sItem,{flag:'wx'},function (err) {
     if (err) {
+      console.log("================");
       console.log("writeFile error!");
-      throw err;
+      console.log("================");
+      console.log(err)
+      return;
     }else{
       console.log("successful");
     }
   });
 }
 
-function sortObj(Item,callback){
+function sortObj(Item,itemDesPath,callback){
   var sTags = [];
   var oNewItem = {}
   for(var k in Item){
@@ -41,22 +45,23 @@ function sortObj(Item,callback){
   for(var k in sTags){
     oNewItem[sTags[k]] = Item[sTags[k]];
   }
-  callback(oNewItem);
+  callback(oNewItem,itemDesPath);
 }
 
-exports.createItem = function(category,item,loadResourcesCb){
-  
+exports.createItem = function(category,item,itemDesPath,loadResourcesCb){
+
   //Get uniform resource identifier
   var uri = "specificURI";
 
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
+
       item.URI = uri + "#" + category;
-      sortObj(item,createDesFile)
+      sortObj(item,itemDesPath,createDesFile)
     }
     else{
-      console.log("Exception: randomId is null.");
+      console.log("Exception: URI is null.");
       return;
     }
   });
