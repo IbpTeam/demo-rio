@@ -19,7 +19,6 @@ var path = require("path");
 var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
 var TAGS_DIR = "#tags"; //Directory #tags,include tag values
 var FILE_CONFIG = "config.js";
-var ABSOLUTE_PATH = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
 
 function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   var sItem = JSON.stringify(newItem,null,4);
@@ -85,8 +84,9 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,loadResourcesC
  *    No arguments other than a file name array are given to the completion callback.
  **/
 function getAllValues(key,callback){
+  var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
   //Through path module,get key's full path
-  var sFullPath = path.join(ABSOLUTE_PATH,TAG_PATH,key);
+  var sFullPath = path.join(sAbsolutePath,TAG_PATH,key);
   console.log("Full path: " + sFullPath);
 
   //Read dir,get file name array
@@ -144,7 +144,8 @@ function getFiles(path, callback){
  *    In array, each element match one line in file.
  **/
 exports.getTagFiles = function(tag,callback){
-  var sFullPath = path.join(ABSOLUTE_PATH,TAG_PATH,TAGS_DIR,tag);
+  var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
+  var sFullPath = path.join(sAbsolutePath,TAG_PATH,TAGS_DIR,tag);
   console.log("Full path: " + sFullPath);
   getFiles(sFullPath,callback);
 }
@@ -161,7 +162,8 @@ exports.getTagFiles = function(tag,callback){
  *    In array, each element match one line in file.
  **/
 exports.getAttrFiles = function(attrKey,attrValue,callback){
-  var sFullPath = path.join(ABSOLUTE_PATH,TAG_PATH,attrKey,attrValue);
+  var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
+  var sFullPath = path.join(sAbsolutePath,TAG_PATH,attrKey,attrValue);
   console.log("Full path: " + sFullPath);
   getFiles(sFullPath,callback);
 }
