@@ -269,22 +269,3 @@ exports.createAll = function(action,List,callback){
   }
   closeDB(db);
 }
-
-
-//init a list of action history
-exports.test = function(){
-  var db = openDB();
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_01", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_02", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_03", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_04", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_06", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_07", "filename" , "book.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_01", "author" , "xiquan");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_02", "filename" , "yourbook.pdf");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_03", "author" , "notxiquan");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_04", "time" , "2014.8.8");
-  db.run(SQLSTR.CREATEUPDATEITEM, "testUpdate_05", "filename" , "mybook.pdf");
-  closeDB(db);
-}

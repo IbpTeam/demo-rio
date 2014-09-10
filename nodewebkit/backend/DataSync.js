@@ -8,7 +8,7 @@
  var msgTransfer = require("./msgtransfer");
  var commonDAO = require("./DAO/CommonDAO");
  var config = require("./config");
- var hashTable = require("./hashTable");
+ var hashTable = require("./hashTable").hashTable;
  var ActionHistory = require("./DAO/ActionHistoryDAO");
 
  var state = {
@@ -61,6 +61,11 @@ function syncUpdateAction(other_update,updateCallBack){
 		updateCallBack(other_update,my_update);
 	});
 }
+
+//build data(htables of update history and operation) for versionm control
+//function buildData(updateActions,buidDataCB){
+//	buidDataCB(updateActions);
+//}
 
 //deal with version control
 function versionCtrl(my_versions,other_versions,versionCtrlCB,CBsyncComplete){
@@ -298,9 +303,7 @@ function syncStart(syncData, address){
 	//Change state, start to sync
 	currentState = state.SYNC_START;
 
-	//ActionHistory.test();
-
-  console.log("insert actions: ");
+	console.log("insert actions: ");
 	console.log(insertActions);
 	var insertActions = JSON.parse(syncData.insertActions);
 
@@ -314,12 +317,12 @@ function syncStart(syncData, address){
 
 	////Sync data, delete > insert > update
 	syncDeleteAction(deleteActions,function(deleteActions,my_deleteHistory){
-		var hMyDelete = new hashTable.hashTable();
-		hMyDelete.createHash(my_deleteHistory);
+		var hMyDelete = new hashTable();
+		hMyDelete.initHash("file_uri",my_deleteHistory);
 
 		console.log("==========start sync delete!!!==========");
 		//these are new delete actions
-		var oNewDelete = hMyDelete.getDiff(deleteActions);
+		var oNewDelete = hMyDelete.getDiff("file_uri",deleteActions);
 
 		console.log("==========new delete history==========");
 		console.log(oNewDelete);
@@ -330,15 +333,15 @@ function syncStart(syncData, address){
 
 		////Retrive actions after delete, start to sync insert actions 
 		syncInsertAction(insertActions,function(insertActions,my_insertHistory){
-			var hMyInsert = new hashTable.hashTable();
-			hMyInsert.createHash(my_insertHistory);
+			var hMyInsert = new hashTable();
+			hMyInsert.initHash("file_uri",my_insertHistory);
 
 			//remove some repeat insert items in insertActions
-			insertActions = hMyInsert.getDiff(insertActions);
+			insertActions = hMyInsert.getDiff("file_uri",insertActions);
 
 			console.log("==========start sync insert!!!==========");
 			//these are new insert actions
-			var oNewInsert = hMyDelete.getDiff(insertActions);
+			var oNewInsert = hMyDelete.getDiff("file_uri",insertActions);
 
 			console.log("==========new insert history==========");
 			console.log(oNewInsert);
@@ -350,70 +353,105 @@ function syncStart(syncData, address){
 				console.log("==========start sync update!!!==========");
 				console.log(my_updateActions);
 
-				var oMyVersions = {
-					head: "",
-					tail: "",
-					versions: null,
-					operations: null
-				};
+				var _myVersions = buildData(my_updateActions);
+				var _otherVersion = buildData(updateActions);
 
-				var hMyVersion = new hashTable.hashTable();
-				var hMyOperation = new hashTable.hashTable();
-				hMyVersion.initVersionHash(my_updateActions);
-				hMyOperation.initOperationHash(my_updateActions);
-
-				oMyVersions.versions = hMyVersion;
-				oMyVersions.operations = hMyOperation;
-				oMyVersions.head = hMyVersion.head;
-				oMyVersions.tail = hMyVersion.tail;
-
-
-				var oOtherVersions = {
-					head: "",
-					tail: "",
-					versions: null,
-					operations: null,
-				};
-
-				var hOtherVersion = new hashTable.hashTable();
-				var hOtherOperation = new hashTable.hashTable();
-				hOtherVersion.initVersionHash(updateActions);
-				hOtherOperation.initOperationHash(updateActions);
-
-				oOtherVersions.versions = hOtherVersion;
-				oOtherVersions.operations = hOtherOperation;
-				oOtherVersions.head = hOtherVersion.head;
-				oOtherVersions.tail = hOtherVersion.tail;
-
-				var _myVersions = oMyVersions;
-				var _otherVersion = oOtherVersions
-
-
-					//do version control stuff
-					versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
+				//do version control stuff
+				versionCtrl(_myVersions,_otherVersion,versionCtrlCB,syncComplete);
 
 				});
-});
+		});
 });
 }
 
+//build my data for version ctrl
+function buildData(oUpdateActions){
 
+	//build my versions table and operation hashtable
+	var hOperations = new hashTable();
+	hOperations.initHash("operation",oUpdateActions);
+	//var oOperations = hOperations.getAll();
+	var oVersionsTable = {};
 
-//deal with the conflict situation 
-function versionCtrlCB(oMyVersions,oOtherVersions){                                                                                                                                                                                                                                                                                                                                                                                                           
+  //build an object for each origin_version(each file)
+  if(oUpdateActions != ""){
+  	for(var k in oUpdateActions){
+  		if(oVersionsTable.hasOwnProperty(oUpdateActions[k].origin_version)){
+  			oVersionsTable[oUpdateActions[k].origin_version].push(oUpdateActions[k]);
+  		}else{
+  			var oTempEntry = new Array();
+  			oTempEntry.push(List[k]);
+  			oVersionsTable[oUpdateActions[k].origin_version] = oTempEntry;
+  		}
+  	}
+  }
+
+  //build hashtable for each origin_version(each file)
+  var oVersionsOrigin = {};
+  for(var k in oVersionsTable[k]){
+  	var hVersion= new hashTable();
+  	hVersion.initHash("version",oVersionsTable[k]);
+  	oVersionsOrigin[oVersionsTable[k].head] = oVersionsTable[k];
+  }
+
+  var oData = {
+  	versions: oVersionsOrigin,
+  	operations: hOperations,
+  };
+
+  return oData;
+}
+
+//callback when deal with version control stuff
+function versionCtrlCB(oMyVersions,oOtherVersions,doVersionCtrlCB){                                                                                                                                                                                                                                                                                                                                                                                                           
 	console.log("==========start dealing with version control==========");
-	console.log(oMyVersions)
+	console.log(oMyVersions);
 
-	var sMyHead = oMyVersions.head;
-	var sMyTail = oMyVersions.tail;
-	var hMyVersion = oMyVersions.versions;
 	var hMyOperations = oMyVersions.operations;
+	var hOtherOperations =oOtherVersions.operations;
+	if(oOtherVersions = ""){
+		console.log("Nothing New!!!")
+		return;
+	}
+
+	for(var k in oOtherVersions){
+		var hMyVersion = oMyVersions[k];
+		var hOtherVersion = oOtherVersions[k];
+		doVersionCtrlCB(hMyVersion,hMyOperations,hOtherVersion,hOtherOperations);
+	}
+}
+
+//callback when deal with versions of each file in versionCtrlCB
+function doVersionCtrlCB(hMyVersion,hMyOperations,hOtherVersion,hOtherOperations){
+
+	var sMyHead = hMyVersion.head;
+	var sMyTail = oMyVersions.tail;
+	//var hMyVersion = oMyVersions.versions;
+	//var hMyOperations = oMyVersions.operations;
+	var oMyVersionId = hMyVersion.getAll();
+	
+	var sOtherHead = hOtherVersion.head;
+	var sOtherTail = hOtherVersion.tail;
+	//var hOtherVersion = oOtherVersions.versions;
+	//var hOtherOperations = oOtherVersions.operations;
+	var oOtherVersionId = hOtherVersion.getAll();
+
+	var oNewUpdateHistory = new Array();
+	var oNewUpdateEntry = new Array();
+	var oNewOperations = new Array();
+/*
+	var sMyHead = oMyVersions.versions.head;
+	var sMyTail = oMyVersions.versions.tail;
+	var hMyVersion = oMyVersions.versions;
+	//var hMyOperations = oMyVersions.operations;
 	var oMyVersionId = oMyVersions.versions.getAll();
-	var sOtherHead = oOtherVersions.head;
-	var sOtherTail = oOtherVersions.tail;
+	
+	var sOtherHead = oOtherVersions.versions.head;
+	var sOtherTail = oOtherVersions.versions.tail;
 	var hOtherVersion = oOtherVersions.versions;
-	var hOtherOperations = oOtherVersions.operations;
+	//var hOtherOperations = oOtherVersions.operations;
 	var oOtherVersionId = oOtherVersions.versions.getAll();
+*/
 
 	var oNewUpdateHistory = new Array();
 	var oNewUpdateEntry = new Array();
@@ -444,7 +482,7 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
     }else{
     	console.log("+++++++++++++++++++++++++++++++++++++++++++++++++ normal sync")
     	//these are new version's version_id, from other_versions
-    	var oNewVersion = hMyVersion.getDiffUpdate(oOtherVersionId);
+    	var oNewVersion = hMyVersion.getDiff("version_id",oOtherVersionId);
     	//console.log("*****************************************newVersionnnnnnnnnnnnnnnnnnnnnnnnnn")
     	//console.log(oMyVersions)
     	//check each versoin's parents/children if exist in oMyVersions
@@ -498,20 +536,13 @@ function versionCtrlCB(oMyVersions,oOtherVersions){
     var _newUpdateHistory = oNewUpdateHistory;
     var _newUpdateEntry = oNewUpdateEntry;
     var _newOperations = oNewOperations;
-    setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
+    return setUpdate(_newUpdateHistory,_newUpdateEntry,_newOperations,setUpdateCB);
   }
 }
-
 
 //callback when conflict occurs
 function dealConflictCB(hMyVersion,hOtherVersion){
 	//to be continue ...
-	var readline = require('readline');
-  var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
 }
 
 //add new update information into db
@@ -520,7 +551,7 @@ function setUpdateCB(oNewUpdateHistory,oNewUpdateEntry,oNewOperations){
 	console.log(oNewUpdateHistory);
 	console.log(oNewUpdateEntry)
 	console.log(oNewOperations);	
-	commonDAO.modifyOrInsertUpdateItems(oNewUpdateHistory,oNewUpdateEntry,oNewOperations);
+	return commonDAO.modifyOrInsertUpdateItems(oNewUpdateHistory,oNewUpdateEntry,oNewOperations);
 
 }
 
@@ -534,12 +565,6 @@ function isFileSame(){
 //	if(my_version === other_version)
 //		return true;
 //	return false;
-//}
-
-//check if my_version is a prev version in other_linklist
-//function isPrevVersion(version_id,my_version){
-//	if(my_version.isExist(version_id))
-//		return my_version.get(version_id);
 //}
 
 //check if keys are conflict
