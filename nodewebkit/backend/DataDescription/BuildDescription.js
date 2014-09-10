@@ -35,7 +35,7 @@ var FILE_CONFIG = "config.js";
 function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var pos = "." + (newItem.path).replace(/.+\./, "");
+  var pos = (newItem.path).substring((newItem.path).lastIndexOf("."),(newItem.path).length);
   var sPath = itemDesPath+'/'+sFileName+pos+'.md';
   //console.log(spath);
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
