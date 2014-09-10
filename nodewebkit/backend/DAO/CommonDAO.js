@@ -294,11 +294,12 @@ exports.createItems = function(items,callback){
   //closeDB(oDB);
 }
 
-exports.createItem = function(category, item, callback , loadResourcesCb){
+exports.createItem = function(category, item, callback , createDesFileCb , loadResourcesCb){
   var createDAO = null;
   var sTableName = null;
   //Get uniform resource identifier
   var uri = "specificURI";
+
   switch(category){
     case 'Contacts' : {
       createDAO = contactsDAO;
@@ -384,6 +385,8 @@ exports.createItem = function(category, item, callback , loadResourcesCb){
       }
     });
   });
+  //console.log(item);
+  //createDesFileCb(item);
 }
 
 exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
