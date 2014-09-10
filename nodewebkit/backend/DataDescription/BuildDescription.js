@@ -15,27 +15,30 @@
  var fs = require('fs');
  var path = require("path");
 
-
- function createDesFile(newItem,itemDesPath){
+ function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var pos = "." + (newItem.path).replace(/.+\./, "");
-  var spath = itemDesPath+'/'+sFileName+pos+'.txt';
+  var spath = itemDesPath+'/'+sFileName+pos+'.md';
   //console.log(spath);
   fs.writeFile(spath, sItem,{flag:'wx'},function (err) {
     if (err) {
       console.log("================");
       console.log("writeFile error!");
       console.log("================");
-      console.log(err)
+      if(isLoadEnd)
+        loadResourcesCb("successful");
       return;
     }else{
-      console.log("successful");
+      console.log("write description file success");
+      //console.log(isLoadEnd);
+      if(isLoadEnd)
+        loadResourcesCb("successful");
     }
   });
 }
 
-function sortObj(Item,itemDesPath,callback){
+function sortObj(Item,itemDesPath,callback,isLoadEnd,loadResourcesCb){
   var sTags = [];
   var oNewItem = {}
   for(var k in Item){
@@ -45,10 +48,10 @@ function sortObj(Item,itemDesPath,callback){
   for(var k in sTags){
     oNewItem[sTags[k]] = Item[sTags[k]];
   }
-  callback(oNewItem,itemDesPath);
+  callback(oNewItem,itemDesPath,isLoadEnd,loadResourcesCb);
 }
 
-exports.createItem = function(category,item,itemDesPath,loadResourcesCb){
+exports.createItem = function(category,item,itemDesPath,isLoadEnd,loadResourcesCb){
 
   //Get uniform resource identifier
   var uri = "specificURI";
@@ -58,7 +61,7 @@ exports.createItem = function(category,item,itemDesPath,loadResourcesCb){
     if (uri != null) {
 
       item.URI = uri + "#" + category;
-      sortObj(item,itemDesPath,createDesFile)
+      sortObj(item,itemDesPath,createDesFile,isLoadEnd,loadResourcesCb)
     }
     else{
       console.log("Exception: URI is null.");

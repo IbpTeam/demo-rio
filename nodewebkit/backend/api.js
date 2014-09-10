@@ -311,24 +311,6 @@ function getDataDir(getDataDirCb){
   }
 }
 
-/*
-//API demoDataSync
-function demoDataSync(deviceName,deviceId,deviceAddress){
-  console.log("Start demoDataSync !");
-  function getServerAddressCb(result){
-    var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
-    var socket = io.connect(add);  
-    socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
-      deviceUpCb(data);
-      var dataSync =  require("./backend/DataSync.js");
-      dataSync.syncRequest(deviceName,deviceId,deviceAddress);
-    });
-    socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
-      deviceDownCb(data);
-    });
-  }
-  getServerAddress(getServerAddressCb);
-}*/
 
 //API repoMergeForFirstTime:获取remote repo
 function repoMergeForFirstTime(name,branch,address,path){
