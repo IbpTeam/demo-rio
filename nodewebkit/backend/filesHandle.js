@@ -354,7 +354,7 @@ function syncDb(loadResourcesCb,resourcePath)
   dataPath=resourcePath;
   fs.mkdir(dataPath+'/.des',function (err){
     if(err) {
-      console.log("mkdir resourcePath error!");
+      console.log("mk resourcePath error!");
       console.log(err);
       return;
     }else{
