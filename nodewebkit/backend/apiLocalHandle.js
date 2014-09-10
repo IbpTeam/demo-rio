@@ -4,6 +4,7 @@ var filesHandle = require("./filesHandle");
 var fileTranfer = require("./fileTransfer");//2014.7.18 by shuanzi
 var fs = require('fs');
 var config = require('./config');
+var dataDes = require("./DataDescription/BuildDescription");
 
 var localflag=1;
 exports.localflag = localflag;
@@ -19,26 +20,21 @@ function addNewFolderFromLocal(addNewFolderCb,path) {
 exports.addNewFolderFromLocal = addNewFolderFromLocal;
 
 function getAllCateFromLocal(getAllCateCb) {
-  function getCategoriesCb(data)
-  {
-    var cates = new Array();
-    data.forEach(function (each){
-      cates.push({
-
-        URI:each.id,
-        version:each.version,
-        type:each.type,
-        path:each.logoPath,
-        desc:each.desc
-      });
+  var cates = new Array();
+  dataDes.getAttrValues("category",function(files){
+    files.forEach(function(file){
+      var item = {
+        type:file
+      };
+      cates.push(item);
     });
     getAllCateCb(cates);
-  }
-  commonDAO.getCategories(getCategoriesCb);
+  });
 }
 exports.getAllCateFromLocal = getAllCateFromLocal;
 
 function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
+  console.log("================----------------------++++++++++++++++++++=");
   function getAllByCaterotyCb(data)
   {
     var cates = new Array();
