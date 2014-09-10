@@ -36,7 +36,7 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
+function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
   //console.log(itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
@@ -69,7 +69,7 @@ function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,itemDesPath);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       });
     });
   }
@@ -99,7 +99,7 @@ function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,itemDesPath);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       }
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
@@ -116,7 +116,7 @@ function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,itemDesPath);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       }
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
@@ -134,11 +134,10 @@ function addData(itemPath,itemDesPath,commitId,addDataCb,loadResourcesCb){
           commit_id:commitId,
           is_delete:0
         };
-        dataDes.createItem(category,newItem,itemDesPath);
+        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       } 
       else{
         writeDbNum --;
-//        writeDbRecentNum --;  
       }     
     }
     fs.stat(itemPath,getFileStatCb);
@@ -403,9 +402,10 @@ function syncDb(loadResourcesCb,resourcePath)
     config.riolog('writeDbNum= '+writeDbNum);
 
     for(var k=0;k<fileList.length;k++){
-      addData(fileList[k],fileDesDir[k],initCommit,loadResourcesCb);
+      var isLoadEnd = (k == (fileList.length-1));
+      console.log(isLoadEnd);
+      addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
     }
-
   }
   git.Repo.init(resourcePath,false,function(initReporError, repo){
     if (initReporError) 
