@@ -1,12 +1,22 @@
 var util = require('util');
-var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
-var RESOURCEPATH="/home/xiquan/resources";
-exports.RESOURCEPATH = RESOURCEPATH;
+var os = require('os');
+
+/*
+ * Config Path
+ * */
+var RESOURCEPATH;
 var USERCONFIGPATH;
 exports.USERCONFIGPATH = USERCONFIGPATH;
-var os = require('os');
+
+/*
+ * Debug Config
+ * */
 var RIODEBUG=1;
 var DBDEBUG=1;
+
+/*
+ * Server network config
+ * */
 var SERVERPORT=8888;
 var MSGPORT=8889;
 exports.MSGPORT = MSGPORT;
@@ -17,10 +27,14 @@ var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
 var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
-var ACCOUNT="xiquan";
-exports.ACCOUNT = ACCOUNT;
-var EMAIL="xiquan@iscas.ac.cn";
-exports.EMAIL = EMAIL;
+var SERVERIP;
+exports.SERVERIP = SERVERIP;
+var SERVERNAME;
+exports.SERVERNAME = SERVERNAME;
+
+/*
+ * Network API
+ * */
 function getAddr(){
   var IPv4;
   //var os = require('os');
@@ -40,13 +54,10 @@ function getAddr(){
 }
 exports.getAddr = getAddr;
 
-var SERVERIP;
-exports.SERVERIP = SERVERIP;
 
-
-var SERVERNAME;
-exports.SERVERNAME = SERVERNAME;
-
+/*
+ * Log functions
+ * */
 function riolog(str){
   if(RIODEBUG==1){
     util.log(str);
@@ -60,9 +71,6 @@ function dblog(str){
   } 
 }
 exports.dblog = dblog;
-
-var uniqueID;
-exports.uniqueID = uniqueID;
 
 var uniqueID;
 exports.uniqueID = uniqueID;
