@@ -114,9 +114,9 @@ exports.createItem = function(item, createItemCallBack){
  * @param uri
  *   videos表中的URI
  */
-exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
+exports.deleteItemByUri = function(uri, deleteItemByUriCallBack){
   var db = openDB();
-  db.get(SQLSTR.DELETEVIDEO, uri, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETEVIDEO, uri, deleteItemByUriCallBack);
   closeDB(db);
 }
 

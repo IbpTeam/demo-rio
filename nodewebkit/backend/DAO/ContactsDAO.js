@@ -100,9 +100,9 @@ exports.createItem = function(item, createItemCallBack){
  * @param uri
  *   pictures表中的URI
  */
-exports.deleteItemByUri = function(uri, deleteItemByIdCallBack){
+exports.deleteItemByUri = function(uri, deleteItemByUriCallBack){
   var db = openDB();
-  db.get(SQLSTR.DELETECONTACT, uri, deleteItemByIdCallBack);
+  db.get(SQLSTR.DELETECONTACT, uri, deleteItemByUriCallBack);
   closeDB(db);
 }
 

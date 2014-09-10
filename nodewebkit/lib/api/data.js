@@ -38,6 +38,7 @@ function getAllCate(getAllCateCb) {
     data.forEach(function (each){
       cates.push({
         URI:each.URI,
+        version:each.version,
         type:each.type,
         path:each.logoPath,
         desc:each.desc
@@ -72,6 +73,7 @@ function getAllDataByCate(getAllDataByCateCb,cate) {
     data.forEach(function (each){
       cates.push({
         URI:each.URI,
+        version:each.version,
         filename:each.filename,
         postfix:each.postfix,
         path:each.path
@@ -87,7 +89,7 @@ exports.getAllDataByCate = getAllDataByCate;
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
-function rmDataById(rmDataByIdCb,id, uri) {
+function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataById' was called.");
   function getItemByUriCb(item){
     if(item == null){
@@ -100,11 +102,11 @@ function rmDataById(rmDataByIdCb,id, uri) {
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemById(id,uri,server.deleteItemCb,rmDataByIdCb);
+          commonDAO.deleteItemByUri(uri,server.deleteItemCb,rmDataByUriCb);
         }
         else{
           result='error';
-          rmDataByIdCb(result);
+          rmDataByUriCb(result);
         }
       }
       fs.unlink(item.path,ulinkCb);
@@ -112,7 +114,7 @@ function rmDataById(rmDataByIdCb,id, uri) {
   }
   commonDAO.getItemByUri(uri,getItemByUriCb);
 }
-exports.rmDataById = rmDataById;
+exports.rmDataByUri = rmDataByUri;
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
@@ -145,7 +147,7 @@ function getDataSourceByUri(getDataSourceByUriCb,id){
       if(item.postfix==null){
         var source={
           openmethod:'direct',
-          content:item.photoPath
+          content:item.path
         };
       }
       else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
@@ -241,14 +243,15 @@ exports.updateDataValue = updateDataValue;
 
 function getRecentAccessData(getRecentAccessDataCb,num){
   console.log("Request handler 'getRecentAccessData' was called.");
-  function getRecentByOrderCb(result){
-    if(result[0]==null){
+  function getRecentByOrderCb(recentResult){
+    if(recentResult[0]==null){
       return;
     }
-    while(result.length>num){
-      result.pop();
+    while(recentResult.length>num){
+      recentResult.pop();
     }
     var data = new Array();
+    var iCount = 0;
     function getItemByUriCb(result){
       //console.log(result);
       if(result){
@@ -258,14 +261,15 @@ function getRecentAccessData(getRecentAccessDataCb,num){
           getRecentAccessDataCb(data);
         }
         else{
-          commonDAO.getItemByUri(uri,getItemByUriCb);
+          iCount++;
+          commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
         }
       }
       else{
         console.log("No data");
       }
     }
-    commonDAO.getItemByUri(uri,getItemByUriCb);
+    commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
 
   }
   commonDAO.getRecentByOrder(getRecentByOrderCb);

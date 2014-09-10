@@ -72,12 +72,5 @@ function dblog(str){
 }
 exports.dblog = dblog;
 
-/*
- * Other Setting
- * */
-var ACCOUNT="xiquan";
-exports.ACCOUNT = ACCOUNT;
-var EMAIL="xiquan@iscas.ac.cn";
-exports.EMAIL = EMAIL;
-var uniqueID='69fbf7ae568808801c6a7165d30189e6';
-exports.uniqueID=uniqueID;
+var uniqueID;
+exports.uniqueID = uniqueID;

@@ -25,6 +25,7 @@ function getAllCateFromLocal(getAllCateCb) {
     data.forEach(function (each){
       cates.push({
         URI:each.id,
+        version:each.version,
         type:each.type,
         path:each.logoPath,
         desc:each.desc
@@ -43,6 +44,7 @@ function getAllDataByCateFromLocal(getAllDataByCateCb,cate) {
     data.forEach(function (each){
       cates.push({
         URI:each.URI,
+        version:each.version,
         filename:each.filename,
         postfix:each.postfix,
         path:each.path
@@ -61,9 +63,10 @@ function getAllContactsFromLocal(getAllContactsCb) {
     var contacts = new Array();
     data.forEach(function (each){
       contacts.push({
+        version:each.version,
         URI:each.URI,
         name:each.name,
-        photoPath:each.photoPath
+        photoPath:each.path
       });
     });
     getAllContactsCb(contacts);
@@ -73,11 +76,11 @@ function getAllContactsFromLocal(getAllContactsCb) {
 }
 exports.getAllContactsFromLocal = getAllContactsFromLocal;
 
-function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
+function rmDataByUriFromLocal(rmDataByUriCb,uri) {
   function getItemByUriCb(item){
     if(item == null){
        result='success';
-       rmDataByIdCb(result);
+       rmDataByUriCb(result);
     }
     else{
 //      console.log("delete : "+ item.path);
@@ -85,11 +88,11 @@ function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemById(id,uri,server.deleteItemCb,rmDataByIdCb);
+          commonDAO.deleteItemByUri(uri,server.deleteItemCb,rmDataByUriCb);
         }
         else{
           result='error';
-          rmDataByIdCb(result);
+          rmDataByUriCb(result);
         }
       }
       fs.unlink(item.path,ulinkCb);
@@ -97,7 +100,7 @@ function rmDataByIdFromLocal(rmDataByIdCb,id,uri) {
   }
   commonDAO.getItemByUri(id,getItemByUriCb);
 }
-exports.rmDataByIdFromLocal = rmDataByIdFromLocal;
+exports.rmDataByUriFromLocal = rmDataByUriFromLocal;
 
 function getDataByUriFromLocal(getDataByUriCb,uri) {
     console.log("read data : ========================="+ uri);
@@ -109,7 +112,7 @@ function getDataByUriFromLocal(getDataByUriCb,uri) {
 }
 exports.getDataByUriFromLocal = getDataByUriFromLocal;
 
-function getDataSourceByUriFromLocal(getDataSourceByUriCb,id) {
+function getDataSourceByUriFromLocal(getDataSourceByUriCb,uri) {
   function getItemByUriCb(item){
     if(item==null){
       config.riolog("read data : "+ item);
@@ -120,7 +123,7 @@ function getDataSourceByUriFromLocal(getDataSourceByUriCb,id) {
       if(item.postfix==null){
         var source={
           openmethod:'direct',
-          content:item.photoPath
+          content:item.path
         };
       }
       else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
@@ -183,14 +186,15 @@ function updateDataValueFromLocal(updateDataValueCb,uri,version,item) {
 exports.updateDataValueFromLocal = updateDataValueFromLocal;
 
 function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
-  function getRecentByOrderCb(result){
-    if(result[0]==null){
+  function getRecentByOrderCb(recentResult){
+    if(recentResult[0]==null){
       return;
     }
-    while(result.length>num){
-      result.pop();
+    while(recentResult.length>num){
+      recentResult.pop();
     }
     var data = new Array();
+    var iCount = 0;
     function getItemByUriCb(result){
       //console.log(result);
       if(result){
@@ -200,15 +204,15 @@ function getRecentAccessDataFromLocal(getRecentAccessDataCb,num) {
           getRecentAccessDataCb(data);
         }
         else{
-          commonDAO.getItemByUri(uri,getItemByUriCb);
+          iCount++;
+          commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
         }
       }
       else{
         console.log("No data");
       }
     }
-    commonDAO.getItemByUri(uri,getItemByUriCb);
-
+    commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
   }
   commonDAO.getRecentByOrder(getRecentByOrderCb);
 }
