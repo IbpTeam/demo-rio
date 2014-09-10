@@ -342,3 +342,15 @@ function repoMergeForFirstTime(name,branch,address,path){
     console.log('You are in remote '); 
   }
 }
+
+function addData(json,tagPath,addDataCb){
+  console.log("Request handler 'addData' was called.");
+  if(isLocal()){     
+    console.log('You are in local '); 
+    var tagFilesHandle = require("./backend/tagFilesHandle");
+    tagFilesHandle.addData(json,tagPath,addDataCb);
+  }
+  else{
+    console.log('You are in remote '); 
+  }
+}
