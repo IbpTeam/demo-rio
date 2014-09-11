@@ -25,5 +25,8 @@ define(function(){
     console.log("openDev is not supported now.");
     setTimeout(callback(false), 0);
   }
+  o.isLocal = function(callback){
+    setTimeout(callback(false), 0);
+  }
   return o;
 })
