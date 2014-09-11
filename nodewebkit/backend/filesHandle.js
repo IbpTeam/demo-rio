@@ -6,7 +6,6 @@ var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
 var config = require("./config");
-//var commonDAO = require("./DAO/CommonDAO");
 var dataDes = require("./DataDescription/BuildDescription");
 var resourceRepo = require("./repo");
 var util = require('util');
@@ -16,7 +15,6 @@ var events = require('events');
 var PORT = 8888;
 
 var writeDbNum=0;
-//var writeDbRecentNum=0;
 var dataPath;
 
 function sleep(milliSeconds) { 
@@ -37,22 +35,18 @@ var chokidar = require('chokidar');
 var watcher;
 
 function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
-  //console.log(itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
   var itemFilename=itemPath.substring(nameindex+1,pointIndex);
-  util.log("read file "+itemPath);
   if(itemPostfix == 'contacts'){
-    config.riolog("postfix= "+itemPostfix);
+/*    config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     fs.readFile(itemPath, function (err, data) {
       var json=JSON.parse(data);
       config.riolog(json);
       writeDbNum+=json.length-1;
-//      writeDbRecentNum+=json.length-1;
       config.riolog('writeDbNum= '+writeDbNum);
-//      config.riolog('writeDbRecentNum= '+writeDbRecentNum);
       json.forEach(function(each){
         var category='Contacts';
         var newItem={
@@ -71,7 +65,7 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       });
-    });
+    });*/
   }
   else{
     function getFileStatCb(error,stat)
@@ -79,10 +73,6 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
       var mtime=stat.mtime;
       var ctime=stat.ctime;
       var size=stat.size;
-      //config.riolog('mtime:'+mtime);
-      //config.riolog('ctime:'+ctime);
-      //config.riolog('size:'+size);
-      //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
       if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
         var category='Documents';
         var newItem={
@@ -296,37 +286,6 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
-/*
-function createItemCb(category,item,result,loadResourcesCb)
-{
-
-  if(result.code=='SQLITE_BUSY'){
-  }
-
-  else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
-    config.riolog(item.filename+'insert:'+result);
-    if(category=='recent'){
-//      writeDbRecentNum--;
-    }
-    else{
-      writeDbNum--;
-    }
-    config.riolog('writeDbNum= '+writeDbNum);
-//    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-    if(writeDbNum==0 ){
-      config.riolog('Read data complete!');
-      loadResourcesCb('success');
-    }
-  }
-  else{
-    config.riolog(item.filename+'insert:'+result);
-    config.riolog('Read data failed!');
-    loadResourcesCb(result);
-  }
-}
-*/
-
-
 function deleteItemCb(uri,result,rmDataByUriCb)
 {
 
@@ -345,8 +304,6 @@ function deleteItemCb(uri,result,rmDataByUriCb)
   }
 }
 exports.deleteItemCb = deleteItemCb;
-
-
 
 function syncDb(loadResourcesCb,resourcePath)
 {
@@ -429,137 +386,6 @@ function syncDb(loadResourcesCb,resourcePath)
 }
 exports.syncDb = syncDb;
 
-function addNewFolder(addNewFolderCb,resourcePath) {
-  config.riolog("add new folders to DB ..............");
-  var fileList = new Array();
-  function walk(path){  
-    var dirList = fs.readdirSync(path);
-    dirList.forEach(function(item){
-      if(fs.statSync(path + '/' + item).isDirectory()){
-        walk(path + '/' + item);
-      }
-      else{
-        fileList.push(path + '/' + item);
-      }
-    });
-  }
-  walk(resourcePath);
-  config.riolog(fileList); 
-  writeDbNum=fileList.length;
-  writeDbRecentNum=writeDbNum;
-  config.riolog('writeDbNum= '+writeDbNum);
-  config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-  commonDAO.getMaxIdByCategory("Music", function(maxidMusic){
-    var musicId = maxidMusic.maxid;
-    commonDAO.getMaxIdByCategory("Documents", function(maxidDocuments){
-      var documentId = maxidDocuments.maxid;
-      console.log("documentId ======: ", documentId);
-      commonDAO.getMaxIdByCategory("Pictures", function(maxidPictures){
-        var pictureId = maxidPictures.maxid;
-        fileList.forEach(function(item){
-          var pointIndex=item.lastIndexOf('.');
-          var itemPostfix=item.substr(pointIndex+1);
-          var nameindex=item.lastIndexOf('/');
-          var itemFilename=item.substring(nameindex+1,pointIndex);
-          config.riolog("read file "+item);  
-          function getFileStatCb(error,stat)
-      {
-        var mtime=stat.mtime;
-        var ctime=stat.ctime;
-        var size=stat.size;
-        config.riolog('mtime:'+mtime);
-        config.riolog('ctime:'+ctime);
-        config.riolog('size:'+size);
-        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
-          var category='Documents';
-          documentId++;
-          var newItem={
-            id:documentId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            project:'上海专项',
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'documents',
-            specificId:documentId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-        }
-        else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-          var category='Pictures';
-          pictureId++;
-          var newItem={
-            id:pictureId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'pictures',
-            specificId:pictureId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-        }
-        else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-          var category='Music';
-          musicId++;
-          var newItem={
-            id:musicId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            album:'流行',
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'music',
-            specificId:musicId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-        }
-        else{
-          writeDbNum --;
-          writeDbRecentNum --;
-        }        
-      }     
-          fs.stat(item,getFileStatCb);
-        });
-      });
-    });
-  });
-}
-exports.addNewFolder = addNewFolder;
-
 function monitorNetlink(path){
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
@@ -608,32 +434,7 @@ function closeVNCandWebsockifyServer(port,callback){
     });
 }
 exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
-/*
-function mkdirSync(url,mode,cb){
-    var path = require("path"), arr = url.split("/");
-                util.log("mkdir "+cur);
-    mode = mode || 0755;
-    cb = cb || function(){};
-    if(arr[0]==="."){//处理 ./aaa
-        arr.shift();
-    }
-    if(arr[0] == ".."){//处理 ../ddd/d
-        arr.splice(0,2,arr[0]+"/"+arr[1])
-    }
-    function inner(cur){
-        if(!path.existsSync(cur)){//不存在就创建一个
-            util.log("mkdir "+cur);
-            fs.mkdirSync(cur, mode);
-        }
-        if(arr.length){
-            inner(cur + "/"+arr.shift());
-        }else{
-            cb();
-        }
-    }
-    arr.length && inner(arr.shift());
-}
-*/
+
 function mkdirSync(dirpath, mode, callback) {
     path.exists(dirpath, function(exists) {
         if(exists) {

@@ -35,6 +35,7 @@ var FILE_CONFIG = "config.js";
 function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
+  console.log("newItem.path = "+newItem.path);
   var pos = (newItem.path).substring((newItem.path).lastIndexOf("."),(newItem.path).length);
   var sPath = itemDesPath+'/'+sFileName+pos+'.md';
   //console.log(spath);
@@ -46,7 +47,7 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
         loadResourcesCb("successful");
       return;
     }else{
-      console.log("write description file success");
+      // /console.log("write description file success");
       //console.log(isLoadEnd);
       if(isLoadEnd)
         loadResourcesCb("successful");
