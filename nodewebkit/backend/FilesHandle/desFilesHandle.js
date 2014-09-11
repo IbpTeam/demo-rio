@@ -45,6 +45,7 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
     if (err) {
       console.log("================");
       console.log("writeFile error!");
+      console.log(err);
       if(isLoadEnd)
         isEndCallback("successful");
       return;
