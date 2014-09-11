@@ -1,7 +1,7 @@
 var path = require('path');
 var git = require("nodegit");
-var config = require("./config");
-var filesHandle = require("./filesHandle");
+var config = require("../config");
+var filesHandle = require("../filesHandle");
 var events = require('events'); 
 
 exports.repoInit = function (repoPath,callback)
@@ -73,11 +73,6 @@ exports.repoAddCommit = function (repoPath,filename,event,callback)
                       if (error) 
                         throw error;
                       console.log("New Commit:", commitId.sha());
-                     /*filesHandle.repoCommitStatus = 'idle';
-                    var emitter = new events.EventEmitter();
-                        emitter.emit('repoCommit_idle'); 
-                    console.log("emit commit next commit "+path);*/
-
                       callback(commitId,op);
                     });
                   });  
@@ -136,10 +131,6 @@ exports.repoRmCommit = function (repoPath,filename,callback)
                       if (error) 
                         throw error;
                       console.log("New Commit:", commitId.sha());
-                     /*filesHandle.repoCommitStatus = 'idle';
-                    var emitter = new events.EventEmitter();
-                        emitter.emit('repoCommit_idle'); 
-                    console.log("emit commit next commit "+path);*/
                       callback(commitId,'Delete');
                     });
                   });  

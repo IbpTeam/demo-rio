@@ -1,8 +1,7 @@
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
-var msgTransfer = require("./backend/msgtransfer");
-var requestHandlers = require("./backend/requestHandlers");
+var msgTransfer = require("./backend/Transfer/msgtransfer");
 var fileHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
@@ -10,26 +9,10 @@ var fs = require('fs');
 var uniqueID=require('./backend/uniqueID');
 
 var handle = {}
-handle["/"] = requestHandlers.start;
-handle["/start"] = requestHandlers.start;
-handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
-handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
-handle["/getAllContacts"] = requestHandlers.getAllContactsInHttpServer;
-handle["/loadResources"] = requestHandlers.loadResourcesInHttpServer;
-handle["/rmDataByUri"] = requestHandlers.rmDataByUriInHttpServer;
-handle["/getDataByUri"] = requestHandlers.getDataByUriInHttpServer;
-handle["/getDataSourceByUri"] = requestHandlers.getDataSourceByIdInHttpServer;
-handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer;
-handle["/getRecentAccessData"] = requestHandlers.getRecentAccessDataInHttpServer;
-handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifyServerInHttpServer;
-handle["/getServerAddress"] = requestHandlers.getServerAddressInHttpServer;
-handle["/fileSend"] = requestHandlers.sendFileInHttp;//By xiquan 2014.7.21
-handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
-handle["/getDataDir"] = requestHandlers.getDataDirInHttpServer;
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
-msgTransfer.initServer();
+//msgTransfer.initServer();
 server.start(router.route, handle);
 
 var cp = require('child_process');
@@ -80,9 +63,3 @@ cp.exec('echo $USER',function(error,stdout,stderr){
     }
   });
  });
-
-
-
-
-
-
