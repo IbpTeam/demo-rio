@@ -9,7 +9,7 @@ var config = require('../../backend/config');
 //失败返回失败原因
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.syncDb(loadResourcesCb,path);
+  filesHandle.initData(loadResourcesCb,path);
 }
 exports.loadResources = loadResources;
 
