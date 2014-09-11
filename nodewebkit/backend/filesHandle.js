@@ -30,11 +30,19 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
+function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
   var pointIndex=itemPath.lastIndexOf('.');
-  var itemPostfix=itemPath.substr(pointIndex+1);
-  var nameindex=itemPath.lastIndexOf('/');
-  var itemFilename=itemPath.substring(nameindex+1,pointIndex);
+  if(pointIndex == -1){
+    var itemPostfix= "none";
+    var nameindex=itemPath.lastIndexOf('/');
+    var itemFilename=itemPath.substring(nameindex+1,itemPath.length);
+  }else{
+    var itemPostfix=itemPath.substr(pointIndex+1);
+    var nameindex=itemPath.lastIndexOf('/');
+    var itemFilename=itemPath.substring(nameindex+1,pointIndex);
+  }
+
+  util.log("read file "+itemPath);
   if(itemPostfix == 'contacts'){
 /*    config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
@@ -67,7 +75,11 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
       var mtime=stat.mtime;
       var ctime=stat.ctime;
       var size=stat.size;
-      if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+      //config.riolog('mtime:'+mtime);
+      //config.riolog('ctime:'+ctime);
+      //config.riolog('size:'+size);
+      //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
+      if(itemPostfix == 'none' || itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
         var category='Documents';
         var newItem={
           filename:itemFilename,
