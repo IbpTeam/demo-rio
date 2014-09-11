@@ -1,8 +1,7 @@
-//BuildDescription.js
 /**
  * @Copyright:
  * 
- * @Description: support API 
+ * @Description: support API for ../fileHandle.js
  *
  * @author: Wangfeng Xiquan Yuanzhe
  *
@@ -14,6 +13,7 @@ var config = require("../config");
 var uniqueID = require("../uniqueID");
 var fs = require('fs');
 var path = require("path");
+var bfh = require("./basicFileHandle");
 
 // @const
 var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
@@ -117,34 +117,13 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,isEndCallback)
 }
 
 /** 
- * @Method: getAllValues
- *    Get values of an attribute/all tags.
- * @param: key
- *    Attribute's key or string "#tags" for tags
- * @param: callback
- *    No arguments other than a file name array are given to the completion callback.
- **/
-function getAllValues(key,callback){
-  var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
-  //Through path module,get key's full path
-  var sFullPath = path.join(sAbsolutePath,TAG_PATH,key);
-  console.log("Full path: " + sFullPath);
-
-  //Read dir,get file name array
-  fs.readdir(sFullPath,function(err,files){
-    if (err) throw err;
-    callback(files);
-  });
-}
-
-/** 
  * @Method: getAllTags
  *    Get all tags.
  * @param: callback
  *    No arguments other than a values array of tags are given to the completion callback.
  **/
 exports.getAllTags = function(callback){
-  getAllValues(TAGS_DIR,callback);
+  bfh.getAllValues(TAGS_DIR,callback);
 }
 
 /** 
@@ -156,23 +135,7 @@ exports.getAllTags = function(callback){
  *    No arguments other than a values array of specific are given to the completion callback.
  **/
 exports.getAttrValues = function(attrKey, callback){
-  getAllValues(attrKey,callback);
-}
-
-/** 
- * @Method: getFiles
- *    Get file contents.
- * @param: path
- *    Full path 
- * @param: callback
- *    No arguments other than an array of specific are given to the completion callback.
- *    In array, each element match one line in file.
- **/
-function getFiles(path, callback){
-  fs.readFile(path, function(err, data){
-  	if (err) throw err;
-
-  });
+  bfh.getAllValues(attrKey,callback);
 }
 
 /** 
@@ -188,7 +151,7 @@ exports.getTagFiles = function(tag,callback){
   var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
   var sFullPath = path.join(sAbsolutePath,TAG_PATH,TAGS_DIR,tag);
   console.log("Full path: " + sFullPath);
-  getFiles(sFullPath,callback);
+  bfh.getFiles(sFullPath,callback);
 }
 
 /** 
@@ -206,5 +169,5 @@ exports.getAttrFiles = function(attrKey,attrValue,callback){
   var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
   var sFullPath = path.join(sAbsolutePath,TAG_PATH,attrKey,attrValue);
   console.log("Full path: " + sFullPath);
-  getFiles(sFullPath,callback);
+  bfh.getFiles(sFullPath,callback);
 }
