@@ -1,3 +1,4 @@
+var commonDAO = require("../../backend/DAO/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var fs = require('fs');
 var config = require('../../backend/config');
@@ -16,9 +17,27 @@ var config = require('../../backend/config');
  */
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.initData(loadResourcesCb,path);
+  filesHandle.syncDb(loadResourcesCb,path);
 }
 exports.loadResources = loadResources;
+
+/**
+ * @method addNewFolder
+ *    添加某个资源文件夹到数据库
+ *
+ * @param1 addNewFolderCb
+ *   回调函数
+ *   @result
+ *      string，success代表成功，其他代表失败原因
+ *
+ * @param2 path
+ *   string，要添加文件夹的路径
+ */
+function addNewFolder(addNewFolderCb,path) {
+  console.log("Request handler 'addNewFolder' was called.");
+  filesHandle.addNewFolder(addNewFolderCb,path);
+}
+exports.addNewFolder = addNewFolder;
 
 /**
  * @method getAllCate
