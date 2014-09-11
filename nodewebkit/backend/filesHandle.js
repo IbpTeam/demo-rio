@@ -6,13 +6,10 @@ var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
 var config = require("./config");
-var dataDes = require("./DataDescription/BuildDescription");
-var resourceRepo = require("./repo");
+var dataDes = require("./FilesHandle/desFilesHandle");
+var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
-
-
-var PORT = 8888;
 
 var writeDbNum=0;
 var dataPath;
@@ -410,15 +407,16 @@ function closeVNCandWebsockifyServer(port,callback){
 exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
 
 function mkdirSync(dirpath, mode, callback) {
-    path.exists(dirpath, function(exists) {
-        if(exists) {
-                callback(dirpath);
-        } else {
-                //尝试创建父目录，然后再创建当前目录
-                mkdirSync(path.dirname(dirpath), mode, function(){
-                        fs.mkdir(dirpath, mode, callback);
-                });
-        }
-    });
+  path.exists(dirpath, function(exists) {
+    if(exists) {
+      callback(dirpath);
+    } 
+    else {
+      //尝试创建父目录，然后再创建当前目录
+      mkdirSync(path.dirname(dirpath), mode, function(){
+        fs.mkdir(dirpath, mode, callback);
+      });
+    }
+  });
 };
 exports.mkdirSync = mkdirSync;
