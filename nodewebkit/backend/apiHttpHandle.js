@@ -1,21 +1,3 @@
-//var getAllCate = '{"func":"getAllCate","arg":"null"}';
-//var getAllDataByCate = '{"func":"getAllDataByCate","arg":"cate"}';
-
-function loadResourcesFromHttp(loadResourcesCb,path){
-  $.ajax({
-    url: "/loadResources",
-    type: "post",
-    contentType: "application/json;charset=utf-8",
-    dataType: "json",
-    data: '{"func":"loadResources","arg":"'+path+'"}',
-    success: function(result) {
-      loadResourcesCb(result);
-    },
-    error: function(e) {
-      loadResourcesCb(e);
-    }
-  });
-}
 
 
 function getAllCateFromHttp(getAllCateCb) {
