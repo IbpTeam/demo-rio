@@ -37,11 +37,17 @@ var chokidar = require('chokidar');
 var watcher;
 
 function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
-  //console.log(itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
-  var itemPostfix=itemPath.substr(pointIndex+1);
-  var nameindex=itemPath.lastIndexOf('/');
-  var itemFilename=itemPath.substring(nameindex+1,pointIndex);
+  if(pointIndex == -1){
+    var itemPostfix= "none";
+    var nameindex=itemPath.lastIndexOf('/');
+    var itemFilename=itemPath.substring(nameindex+1,itemPath.length);
+  }else{
+    var itemPostfix=itemPath.substr(pointIndex+1);
+    var nameindex=itemPath.lastIndexOf('/');
+    var itemFilename=itemPath.substring(nameindex+1,pointIndex);
+  }
+
   util.log("read file "+itemPath);
   if(itemPostfix == 'contacts'){
     config.riolog("postfix= "+itemPostfix);
@@ -83,7 +89,7 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
       //config.riolog('ctime:'+ctime);
       //config.riolog('size:'+size);
       //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
-      if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+      if(itemPostfix == 'none' || itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
         var category='Documents';
         var newItem={
           id:null,
