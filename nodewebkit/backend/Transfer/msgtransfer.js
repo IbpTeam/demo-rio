@@ -3,7 +3,6 @@
 var WebSocketServer = require('ws').Server;
 var WebSocket = require('ws');
 var config = require('./config');
-var dataSync = require('./DataSync');
 
 
 function initServer(){
