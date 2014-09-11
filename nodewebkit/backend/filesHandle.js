@@ -7,12 +7,19 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
+<<<<<<< HEAD
 var resourceRepo = require("./repo");
 var util = require('util');
 var events = require('events'); 
 
 var PORT = 8888;
 
+=======
+var resourceRepo = require("./FilesHandle/repo");
+var util = require('util');
+var events = require('events'); 
+
+>>>>>>> ff7d780d8ee7521a0de3e149a63de3e1dcf7bedb
 var writeDbNum=0;
 var dataPath;
 
@@ -421,15 +428,16 @@ function closeVNCandWebsockifyServer(port,callback){
 exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
 
 function mkdirSync(dirpath, mode, callback) {
-    path.exists(dirpath, function(exists) {
-        if(exists) {
-                callback(dirpath);
-        } else {
-                //尝试创建父目录，然后再创建当前目录
-                mkdirSync(path.dirname(dirpath), mode, function(){
-                        fs.mkdir(dirpath, mode, callback);
-                });
-        }
-    });
+  path.exists(dirpath, function(exists) {
+    if(exists) {
+      callback(dirpath);
+    } 
+    else {
+      //尝试创建父目录，然后再创建当前目录
+      mkdirSync(path.dirname(dirpath), mode, function(){
+        fs.mkdir(dirpath, mode, callback);
+      });
+    }
+  });
 };
 exports.mkdirSync = mkdirSync;

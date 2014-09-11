@@ -2,7 +2,6 @@ var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var msgTransfer = require("./backend/Transfer/msgtransfer");
-var requestHandlers = require("./backend/requestHandlers");
 var fileHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
@@ -13,7 +12,7 @@ var handle = {}
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
-msgTransfer.initServer();
+//msgTransfer.initServer();
 server.start(router.route, handle);
 
 var cp = require('child_process');
