@@ -10,22 +10,6 @@ var fs = require('fs');
 var uniqueID=require('./backend/uniqueID');
 
 var handle = {}
-handle["/"] = requestHandlers.start;
-handle["/start"] = requestHandlers.start;
-handle["/getAllCate"] = requestHandlers.getAllCateInHttpServer;
-handle["/getAllDataByCate"] = requestHandlers.getAllDataByCateInHttpServer;
-handle["/getAllContacts"] = requestHandlers.getAllContactsInHttpServer;
-handle["/loadResources"] = requestHandlers.loadResourcesInHttpServer;
-handle["/rmDataByUri"] = requestHandlers.rmDataByUriInHttpServer;
-handle["/getDataByUri"] = requestHandlers.getDataByUriInHttpServer;
-handle["/getDataSourceByUri"] = requestHandlers.getDataSourceByIdInHttpServer;
-handle["/updateDataValue"] = requestHandlers.updateDataValueInHttpServer;
-handle["/getRecentAccessData"] = requestHandlers.getRecentAccessDataInHttpServer;
-handle["/closeVNCandWebsockifyServer"] = requestHandlers.closeVNCandWebsockifyServerInHttpServer;
-handle["/getServerAddress"] = requestHandlers.getServerAddressInHttpServer;
-handle["/fileSend"] = requestHandlers.sendFileInHttp;//By xiquan 2014.7.21
-handle["/fileReceive"] = requestHandlers.receiveFileInHttp;//By xiquan 2014.7.21
-handle["/getDataDir"] = requestHandlers.getDataDirInHttpServer;
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
@@ -80,9 +64,3 @@ cp.exec('echo $USER',function(error,stdout,stderr){
     }
   });
  });
-
-
-
-
-
-
