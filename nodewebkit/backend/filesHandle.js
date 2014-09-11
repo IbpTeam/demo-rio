@@ -7,19 +7,10 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
-<<<<<<< HEAD
-var resourceRepo = require("./repo");
-var util = require('util');
-var events = require('events'); 
-
-var PORT = 8888;
-
-=======
 var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
 
->>>>>>> ff7d780d8ee7521a0de3e149a63de3e1dcf7bedb
 var writeDbNum=0;
 var dataPath;
 
