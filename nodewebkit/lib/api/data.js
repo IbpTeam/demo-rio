@@ -3,33 +3,57 @@ var filesHandle = require("../../backend/filesHandle");
 var fileTranfer = require("../../backend/fileTransfer");//2014.7.18 by shuanzi
 var fs = require('fs');
 var config = require('../../backend/config');
-//API loadResources:读取某个资源文件夹到数据库
-//返回字符串：
-//成功返回success;
-//失败返回失败原因
+
+/**
+ * @method loadResources
+ *   读取某个资源文件夹到数据库
+ *
+ * @param1 loadResourcesCb
+ *   回调函数
+ *   @result
+ *      string，success代表成功，其他代表失败原因
+ *
+ * @param2 path
+ *   string，要加载资源的路径
+ */
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
   filesHandle.initData(loadResourcesCb,path);
 }
 exports.loadResources = loadResources;
 
-//API addNewFolder:添加某个资源文件夹到数据库
-//返回字符串：
-//成功返回success;
-//失败返回失败原因
+/**
+ * @method addNewFolder
+ *    添加某个资源文件夹到数据库
+ *
+ * @param1 addNewFolderCb
+ *   回调函数
+ *   @result
+ *      string，success代表成功，其他代表失败原因
+ *
+ * @param2 path
+ *   string，要添加文件夹的路径
+ */
 function addNewFolder(addNewFolderCb,path) {
   console.log("Request handler 'addNewFolder' was called.");
   filesHandle.addNewFolder(addNewFolderCb,path);
 }
 exports.addNewFolder = addNewFolder;
 
-//API getAllCate:查询所有基本分类
-//返回cate型array：
-//cate{
-//  id;
-//  type;
-//  path;
-//}
+/**
+ * @method getAllCate
+ *   查询所有基本分类
+ *
+ * @param1 getAllCateCb
+ *   回调函数
+ *   @result
+ *     array[cate]: 分类数组
+ *        cate{
+ *           id;
+ *           type;
+ *           path;
+ *        }
+ */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
   function getCategoriesCb(data)
@@ -37,7 +61,7 @@ function getAllCate(getAllCateCb) {
     var cates = new Array();
     data.forEach(function (each){
       cates.push({
-        URI:each.URI,
+        URI:each.id,
         version:each.version,
         type:each.type,
         path:each.logoPath,
@@ -50,40 +74,88 @@ function getAllCate(getAllCateCb) {
 }
 exports.getAllCate = getAllCate;
 
-//API getAllDataByCate:查询某基本分类下的所有数据,此方法不能用来查看联系人分类
-//图片视频等返回data型array：
-//data{
-//  id;
-//  filename;
-//  postfix:;
-//  path;
-//}
-//联系人返回contacts类型array：
-//contacts{
-//  id;
-//  name;
-//  photoPath;
-//}
-
+/**
+ * @method getAllDataByCate
+ *   查询某基本分类下的所有数据
+ *
+ * @param1 getAllDataByCateCb
+ *   回调函数
+ *   @result
+ *     array[cate]: 数据数组
+ *        如果是联系人，则返回数据如下：
+ *        cate{
+ *           URI;
+ *           version;
+ *           name;
+ *           photPath;
+ *        }
+ *        如果是其他类型，则返回数据如下：
+ *        cate{
+ *           URI;
+ *           version;
+ *           filename;
+ *           postfix;
+ *           path;
+ *        }
+ */
 function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  function getAllByCaterotyCb(data)
-  {
-    var cates = new Array();
-    data.forEach(function (each){
-      cates.push({
-        URI:each.URI,
-        version:each.version,
-        filename:each.filename,
-        postfix:each.postfix,
-        path:each.path
+  if(cate == 'Contacts'){
+    getAllContacts(getAllDataByCateCb);
+    return;
+  }else {
+    function getAllByCaterotyCb(data)
+    {
+      var cates = new Array();
+      data.forEach(function (each){
+        cates.push({
+          URI:each.URI,
+          version:each.version,
+          filename:each.filename,
+          postfix:each.postfix,
+          path:each.path
+        });
       });
-    });
-    getAllDataByCateCb(cates);
+      getAllDataByCateCb(cates);
+    }
+    commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
   }
-  commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
 }
 exports.getAllDataByCate = getAllDataByCate;
+
+/**
+ * @method getAllContacts
+ *   获得所有联系人数组
+ *
+ * @param1 getAllContactsCb
+ *   回调函数
+ *   @result
+ *     array[cate]: 联系人数组
+ *        cate数据如下：
+ *        cate{
+ *           URI;
+ *           version;
+ *           name;
+ *           photPath;
+ *        }
+ */
+function getAllContacts(getAllContactsCb) {
+  function getAllByCaterotyCb(data)
+  {
+    var contacts = new Array();
+    data.forEach(function (each){
+      contacts.push({
+        URI:each.URI,
+        version:each.version,
+        name:each.name,
+        photoPath:each.path
+      });
+    });
+    getAllContactsCb(contacts);
+  }
+  commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+}
+exports.getAllContacts = getAllContacts;
 
 //API rmDataById:通过id删除数据
 //返回字符串：
@@ -289,21 +361,4 @@ function getServerAddress(getServerAddressCb){
   getServerAddressCb(address);
 }
 exports.getServerAddress = getServerAddress;
-
-function getAllContacts(getAllContactsCb) {
-  function getAllByCaterotyCb(data)
-  {
-    var contacts = new Array();
-    data.forEach(function (each){
-      contacts.push({
-        URI:each.URI,
-        name:each.name,
-        photoPath:each.photoPath
-      });
-    });
-    getAllContactsCb(contacts);
-  }
-  commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
-}
-exports.getAllContacts = getAllContacts;
 
