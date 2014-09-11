@@ -4,9 +4,7 @@ var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
 var config = require("./config");
-var commonDAO = require("./DAO/CommonDAO");
 var filesHandle = require("./filesHandle");
-var dataSync = require("./DataSync");
 var mdns = require('mdns');
 var util = require('util');
 var listOfOscDevices={};
@@ -60,7 +58,6 @@ function start(route, handle) {
           if (serviceRecord.account == config.ACCOUNT && deviceId.localeCompare(config.uniqueID) > 0) {
             //sendMessage
             console.log("start to send sync request");
-            dataSync.syncRequest(service.name,deviceId,service.addresses);
           };
         };
       }

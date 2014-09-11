@@ -1,8 +1,8 @@
 //msg.js
-
+/*
 var WebSocketServer = require('ws').Server;
 var WebSocket = require('ws');
-var config = require('./config');
+var config = require('../config');
 var dataSync = require('./DataSync');
 
 
@@ -76,3 +76,4 @@ function sendMsg(IP,sMessage){
 
 exports.initServer=initServer;
 exports.sendMsg=sendMsg;
+*/

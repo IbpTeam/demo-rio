@@ -38,8 +38,6 @@ function route(handle, pathname, absolute , response, postData) {
     }
     args.unshift(sendresponse);
     handle[apiPathArr[0]][apiPathArr[1]].apply(null, args);
-  } else if (typeof handle[pathname] == 'function') {
-    handle[pathname](response, postData);
   } else {
     //Use api_remote.js for /lib/api.js
     var realPath;
