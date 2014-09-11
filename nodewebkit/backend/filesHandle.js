@@ -6,7 +6,6 @@ var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
 var config = require("./config");
-//var commonDAO = require("./DAO/CommonDAO");
 var dataDes = require("./DataDescription/BuildDescription");
 var resourceRepo = require("./repo");
 var util = require('util');
@@ -16,7 +15,6 @@ var events = require('events');
 var PORT = 8888;
 
 var writeDbNum=0;
-//var writeDbRecentNum=0;
 var dataPath;
 
 function sleep(milliSeconds) { 
@@ -25,7 +23,6 @@ function sleep(milliSeconds) {
 };
 exports.sleep = sleep;
 
-var initCommit;
 var repoCommitStatus =  'idle';
 exports.repoCommitStatus = repoCommitStatus;
 var addCommitList = new Array();
@@ -36,27 +33,22 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
-  //console.log(itemDesPath);
+function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
   var pointIndex=itemPath.lastIndexOf('.');
   var itemPostfix=itemPath.substr(pointIndex+1);
   var nameindex=itemPath.lastIndexOf('/');
   var itemFilename=itemPath.substring(nameindex+1,pointIndex);
-  util.log("read file "+itemPath);
   if(itemPostfix == 'contacts'){
-    config.riolog("postfix= "+itemPostfix);
+/*    config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     fs.readFile(itemPath, function (err, data) {
       var json=JSON.parse(data);
       config.riolog(json);
       writeDbNum+=json.length-1;
-//      writeDbRecentNum+=json.length-1;
       config.riolog('writeDbNum= '+writeDbNum);
-//      config.riolog('writeDbRecentNum= '+writeDbRecentNum);
       json.forEach(function(each){
         var category='Contacts';
         var newItem={
-          id:null,
           name:each.name,
           phone:each.phone,
           sex:each.sex,
@@ -66,12 +58,11 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
           createTime:null,
           lastModifyTime:null,
           lastAccessTime:currentTime,
-          commit_id:commitId,
           is_delete:0
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       });
-    });
+    });*/
   }
   else{
     function getFileStatCb(error,stat)
@@ -79,14 +70,9 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
       var mtime=stat.mtime;
       var ctime=stat.ctime;
       var size=stat.size;
-      //config.riolog('mtime:'+mtime);
-      //config.riolog('ctime:'+ctime);
-      //config.riolog('size:'+size);
-      //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
       if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
         var category='Documents';
         var newItem={
-          id:null,
           filename:itemFilename,
           postfix:itemPostfix,
           size:size,
@@ -96,7 +82,6 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:commitId,
           is_delete:0
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
@@ -104,7 +89,6 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
       else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
         var category='Pictures';
         var newItem={
-          id:null,
           filename:itemFilename,
           postfix:itemPostfix,
           size:size,
@@ -113,7 +97,6 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:commitId,
           is_delete:0
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
@@ -121,7 +104,6 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
       else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
         var category='Music'; 
         var newItem={
-          id:null,
           filename:itemFilename,
           postfix:itemPostfix,
           size:size,
@@ -131,7 +113,6 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
           lastModifyTime:mtime,
           lastAccessTime:ctime,
           others:null,
-          commit_id:commitId,
           is_delete:0
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
@@ -158,7 +139,7 @@ function watcherStop(monitorPath,callback){
 exports.watcherStop = watcherStop;
 
 function repoCommitCb(commitId,op){
-  if(op=='New'){
+/*  if(op=='New'){
     writeDbNum++;
     addData(addCommitList.shift(),commitId.sha(),function(){
       if(addCommitList[0]!=null){
@@ -225,7 +206,7 @@ function repoCommitCb(commitId,op){
         });  
       });
     });
-  }
+  }*/
 }
 
 function addFile(path,resourcePath){
@@ -296,37 +277,6 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
-/*
-function createItemCb(category,item,result,loadResourcesCb)
-{
-
-  if(result.code=='SQLITE_BUSY'){
-  }
-
-  else if(result=='successfull'||result.code=='SQLITE_CONSTRAINT'){
-    config.riolog(item.filename+'insert:'+result);
-    if(category=='recent'){
-//      writeDbRecentNum--;
-    }
-    else{
-      writeDbNum--;
-    }
-    config.riolog('writeDbNum= '+writeDbNum);
-//    config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-    if(writeDbNum==0 ){
-      config.riolog('Read data complete!');
-      loadResourcesCb('success');
-    }
-  }
-  else{
-    config.riolog(item.filename+'insert:'+result);
-    config.riolog('Read data failed!');
-    loadResourcesCb(result);
-  }
-}
-*/
-
-
 function deleteItemCb(uri,result,rmDataByUriCb)
 {
 
@@ -346,216 +296,69 @@ function deleteItemCb(uri,result,rmDataByUriCb)
 }
 exports.deleteItemCb = deleteItemCb;
 
-
-
-function syncDb(loadResourcesCb,resourcePath)
+function initData(loadResourcesCb,resourcePath)
 {
   config.riolog("syncDB ..............");
   dataPath=resourcePath;
-  var fileList = new Array();
-  var fileDesDir = new Array();
-  fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
-    util.log(config.USERCONFIGPATH+"config.js "+ exists);
-    if(exists==false){
-      var oldDataDir=null;
+  fs.mkdir(dataPath+'/.des',function (err){
+    if(err) {
+      console.log("mk resourcePath error!");
+      console.log(err);
+      return;
     }
     else{
-      var oldDataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-    }
-    util.log("oldDataDir = "+oldDataDir);
-    if(oldDataDir==null || oldDataDir!=resourcePath){
-      var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
-      util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
-      fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
-        if(e) throw e;
+      var fileList = new Array();
+      var fileDesDir = new Array();
+      fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
+        util.log(config.USERCONFIGPATH+"config.js "+ exists);
+        if(exists==false){
+          var oldDataDir=null;
+        }
+        else{
+          var oldDataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+        }
+        util.log("oldDataDir = "+oldDataDir);
+        if(oldDataDir==null || oldDataDir!=resourcePath){
+          var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
+          util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
+          fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
+            if(e) throw e;
+          });
+        }
       });
-    }
-  });
-  function repoInitCb(){
-    function walk(path,pathDes){  
-      var dirList = fs.readdirSync(path);
-      dirList.forEach(function(item){
-        //console.log(pathDes);
-        if(fs.statSync(path + '/' + item).isDirectory()){
-          if(item != '.git' && item != '.des'){
+      function walk(path,pathDes){  
+        var dirList = fs.readdirSync(path);
+        dirList.forEach(function(item){
+          if(fs.statSync(path + '/' + item).isDirectory()){
+            if(item != '.git' && item != '.des'){
               fs.mkdir(pathDes + '/' + item, function(err){
                 if(err){ 
-                  console.log("Dir exists!");
+                  console.log("mkdir error!");
                   console.log(err);
                   return;
                 }
-                //console.log(pathDes);
               });              
-            walk(path + '/' + item,pathDes + '/' + item);
+              walk(path + '/' + item,pathDes + '/' + item);
+            }
           }
-        }
-        else{
-          //console.log(pathDes)
-          fileDesDir.push(pathDes);
-          fileList.push(path + '/' + item);
-        }
-      });
-    }
-    walk(resourcePath,resourcePath+'/.des');
-    config.riolog(fileList); 
-    writeDbNum=fileList.length;
-    config.riolog('writeDbNum= '+writeDbNum);
-
-    for(var k=0;k<fileList.length;k++){
-      var isLoadEnd = (k == (fileList.length-1));
-      console.log(isLoadEnd);
-      addData(fileList[k],fileDesDir[k],initCommit,isLoadEnd,loadResourcesCb);
-    }
-  }
-  git.Repo.init(resourcePath,false,function(initReporError, repo){
-    if (initReporError) 
-      throw initReporError;
-    console.log("Repo init : "+repo);
-    var  exec = require('child_process').exec;
-    var comstr = 'cd ' + dataPath + ' && git add . && git commit -m "Init"';
-    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
-    exec(comstr, function(error,stdout,stderr){
-      resourceRepo.getLatestCommit(dataPath,function (commitId){
-        initCommit=commitId.sha();
-        util.log("Head : "+commitId);
-        monitorFiles(dataPath,monitorFilesCb);
-        repoInitCb();
-      });
-    });
-  });
-}
-exports.syncDb = syncDb;
-
-function addNewFolder(addNewFolderCb,resourcePath) {
-  config.riolog("add new folders to DB ..............");
-  var fileList = new Array();
-  function walk(path){  
-    var dirList = fs.readdirSync(path);
-    dirList.forEach(function(item){
-      if(fs.statSync(path + '/' + item).isDirectory()){
-        walk(path + '/' + item);
-      }
-      else{
-        fileList.push(path + '/' + item);
-      }
-    });
-  }
-  walk(resourcePath);
-  config.riolog(fileList); 
-  writeDbNum=fileList.length;
-  writeDbRecentNum=writeDbNum;
-  config.riolog('writeDbNum= '+writeDbNum);
-  config.riolog('writeDbRecentNum= '+writeDbRecentNum);
-  commonDAO.getMaxIdByCategory("Music", function(maxidMusic){
-    var musicId = maxidMusic.maxid;
-    commonDAO.getMaxIdByCategory("Documents", function(maxidDocuments){
-      var documentId = maxidDocuments.maxid;
-      console.log("documentId ======: ", documentId);
-      commonDAO.getMaxIdByCategory("Pictures", function(maxidPictures){
-        var pictureId = maxidPictures.maxid;
-        fileList.forEach(function(item){
-          var pointIndex=item.lastIndexOf('.');
-          var itemPostfix=item.substr(pointIndex+1);
-          var nameindex=item.lastIndexOf('/');
-          var itemFilename=item.substring(nameindex+1,pointIndex);
-          config.riolog("read file "+item);  
-          function getFileStatCb(error,stat)
-      {
-        var mtime=stat.mtime;
-        var ctime=stat.ctime;
-        var size=stat.size;
-        config.riolog('mtime:'+mtime);
-        config.riolog('ctime:'+ctime);
-        config.riolog('size:'+size);
-        if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
-          var category='Documents';
-          documentId++;
-          var newItem={
-            id:documentId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            project:'上海专项',
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'documents',
-            specificId:documentId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-        }
-        else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-          var category='Pictures';
-          pictureId++;
-          var newItem={
-            id:pictureId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'pictures',
-            specificId:pictureId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-        }
-        else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-          var category='Music';
-          musicId++;
-          var newItem={
-            id:musicId,
-            filename:itemFilename,
-            postfix:itemPostfix,
-            size:size,
-            path:item,
-            album:'流行',
-            createTime:ctime,
-            lastModifyTime:mtime,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-          category='recent';
-          newItem={
-            id:null,
-            tableName:'music',
-            specificId:musicId,
-            lastAccessTime:ctime,
-            others:null
-          };
-          dataDes.createItem(category,newItem,createItemCb,addNewFolderCb);
-        }
-        else{
-          writeDbNum --;
-          writeDbRecentNum --;
-        }        
-      }     
-          fs.stat(item,getFileStatCb);
+          else{
+            fileDesDir.push(pathDes);
+            fileList.push(path + '/' + item);
+          }
         });
-      });
-    });
+      }
+      walk(resourcePath,resourcePath+'/.des');
+      config.riolog(fileList); 
+      writeDbNum=fileList.length;
+      config.riolog('writeDbNum= '+writeDbNum);
+      for(var k=0;k<fileList.length;k++){
+        var isLoadEnd = (k == (fileList.length-1));
+        addData(fileList[k],fileDesDir[k],isLoadEnd,loadResourcesCb);
+      }
+    }
   });
 }
-exports.addNewFolder = addNewFolder;
+exports.initData = initData;
 
 function monitorNetlink(path){
   fs.watch(path, function (event, filename) {
@@ -605,32 +408,7 @@ function closeVNCandWebsockifyServer(port,callback){
     });
 }
 exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
-/*
-function mkdirSync(url,mode,cb){
-    var path = require("path"), arr = url.split("/");
-                util.log("mkdir "+cur);
-    mode = mode || 0755;
-    cb = cb || function(){};
-    if(arr[0]==="."){//处理 ./aaa
-        arr.shift();
-    }
-    if(arr[0] == ".."){//处理 ../ddd/d
-        arr.splice(0,2,arr[0]+"/"+arr[1])
-    }
-    function inner(cur){
-        if(!path.existsSync(cur)){//不存在就创建一个
-            util.log("mkdir "+cur);
-            fs.mkdirSync(cur, mode);
-        }
-        if(arr.length){
-            inner(cur + "/"+arr.shift());
-        }else{
-            cb();
-        }
-    }
-    arr.length && inner(arr.shift());
-}
-*/
+
 function mkdirSync(dirpath, mode, callback) {
     path.exists(dirpath, function(exists) {
         if(exists) {

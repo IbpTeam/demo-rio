@@ -20,22 +20,35 @@ var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
 var TAGS_DIR = "#tags"; //Directory #tags,include tag values
 var FILE_CONFIG = "config.js";
 
+
+
+/** 
+ * @Method: createDesFile
+ *    create description file for specific file in its target dir.
+ * @param: newItem
+ *    a new item object with informations for description.
+ * @param: isLoadEnd
+ *    a boolean var to tell the resource loading is end or not.
+ * @param: loadResourcesCb
+ *    callback when loading resouce ends.
+ **/
 function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var pos = "." + (newItem.path).replace(/.+\./, "");
-  var spath = itemDesPath+'/'+sFileName+pos+'.md';
+  console.log("newItem.path = "+newItem.path+"newItem = "+newItem);
+  var pos = (newItem.path).substring((newItem.path).lastIndexOf("."),(newItem.path).length);
+  var sPath = itemDesPath+'/'+sFileName+pos+'.md';
   //console.log(spath);
-  fs.writeFile(spath, sItem,{flag:'wx'},function (err) {
+  fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
     if (err) {
       console.log("================");
       console.log("writeFile error!");
-      console.log("================");
+      console.log(err);
       if(isLoadEnd)
         loadResourcesCb("successful");
       return;
     }else{
-      console.log("write description file success");
+      // /console.log("write description file success");
       //console.log(isLoadEnd);
       if(isLoadEnd)
         loadResourcesCb("successful");
@@ -43,6 +56,21 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,loadResourcesCb){
   });
 }
 
+
+/** 
+ * @Method: sortObj
+ *    sort the object element by tags.
+ * @param: Item
+ *    an item object with informations for description.
+ * @param: itemDesPath
+ *    the path that a description file shoud be writen at.
+ * @param: isLoadEnd
+ *    a boolean var to tell the resource loading is end or not.
+ * @param: callback
+ *    No arguments other than a file name array are given to the completion callback.
+ * @param: loadResourcesCb
+ *    callback when loading resouce ends.
+ **/
 function sortObj(Item,itemDesPath,callback,isLoadEnd,loadResourcesCb){
   var sTags = [];
   var oNewItem = {}
@@ -56,6 +84,21 @@ function sortObj(Item,itemDesPath,callback,isLoadEnd,loadResourcesCb){
   callback(oNewItem,itemDesPath,isLoadEnd,loadResourcesCb);
 }
 
+
+/** 
+ * @Method: createItem
+ *    create description file.
+ * @param: item
+ *    an item object with informations for description.
+ * @param: itemDesPath
+ *    the path that a description file shoud be writen at.
+ * @param: isLoadEnd
+ *    a boolean var to tell the resource loading is end or not. 
+ * @param: callback
+ *    No arguments other than a file name array are given to the completion callback.
+ * @param: loadResourcesCb
+ *    callback when loading resouce ends.
+ **/
 exports.createItem = function(category,item,itemDesPath,isLoadEnd,loadResourcesCb){
 
   //Get uniform resource identifier
@@ -64,7 +107,6 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,loadResourcesC
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
-
       item.URI = uri + "#" + category;
       sortObj(item,itemDesPath,createDesFile,isLoadEnd,loadResourcesCb)
     }
@@ -78,9 +120,9 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,loadResourcesC
 /** 
  * @Method: getAllValues
  *    Get values of an attribute/all tags.
- * @patam: key
+ * @param: key
  *    Attribute's key or string "#tags" for tags
- * @patam: callback
+ * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
 function getAllValues(key,callback){
@@ -99,7 +141,7 @@ function getAllValues(key,callback){
 /** 
  * @Method: getAllTags
  *    Get all tags.
- * @patam: callback
+ * @param: callback
  *    No arguments other than a values array of tags are given to the completion callback.
  **/
 exports.getAllTags = function(callback){
@@ -109,9 +151,9 @@ exports.getAllTags = function(callback){
 /** 
  * @Method: getAttrValues
  *    Get all tags.
- * @patam: attrKey
+ * @param: attrKey
  *    Key of the specific attribute 
- * @patam: callback
+ * @param: callback
  *    No arguments other than a values array of specific are given to the completion callback.
  **/
 exports.getAttrValues = function(attrKey, callback){
@@ -121,9 +163,9 @@ exports.getAttrValues = function(attrKey, callback){
 /** 
  * @Method: getFiles
  *    Get file contents.
- * @patam: path
+ * @param: path
  *    Full path 
- * @patam: callback
+ * @param: callback
  *    No arguments other than an array of specific are given to the completion callback.
  *    In array, each element match one line in file.
  **/
@@ -137,9 +179,9 @@ function getFiles(path, callback){
 /** 
  * @Method: getTagFiles
  *    Get files by specific tag.
- * @patam: tag
+ * @param: tag
  *    Specific tag
- * @patam: callback
+ * @param: callback
  *    No arguments other than an array of specific are given to the completion callback.
  *    In array, each element match one line in file.
  **/
@@ -153,11 +195,11 @@ exports.getTagFiles = function(tag,callback){
 /** 
  * @Method: getTagFiles
  *    Get files by specific tag.
- * @patam: attrKey
+ * @param: attrKey
  *    Specific attribute
- * @patam: attrValue
+ * @param: attrValue
  *    Value of this attribute
- * @patam: callback
+ * @param: callback
  *    No arguments other than an array of specific are given to the completion callback.
  *    In array, each element match one line in file.
  **/

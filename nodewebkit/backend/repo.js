@@ -4,6 +4,23 @@ var config = require("./config");
 var filesHandle = require("./filesHandle");
 var events = require('events'); 
 
+exports.repoInit = function (repoPath,callback)
+{
+  git.Repo.init(resourcePath,false,function(initReporError, repo){
+    if (initReporError) 
+      throw initReporError;
+    console.log("Repo init : "+repo);
+    var  exec = require('child_process').exec;
+    var comstr = 'cd ' + dataPath + ' && git add . && git commit -m "Init"';
+    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
+    exec(comstr, function(error,stdout,stderr){
+      if(error){
+        console.log("Git init error");
+      }
+    });
+  });  
+}
+
 exports.repoAddCommit = function (repoPath,filename,event,callback)
 {
       console.log("repoAddCommit file :"+ filename);
@@ -195,3 +212,4 @@ exports.repoMergeForFirstTime = function (name,branch,address,path)
     });
   });
 }
+
