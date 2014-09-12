@@ -17,7 +17,7 @@ var config = require('../../backend/config');
  */
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.syncDb(loadResourcesCb,path);
+  filesHandle.initData(loadResourcesCb,path);
 }
 exports.loadResources = loadResources;
 

@@ -29,6 +29,7 @@ cp.exec('echo $USER',function(error,stdout,stderr){
       }
       else{
         var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+        config.RESOURCEPATH=dataDir;
         util.log("monitor : "+dataDir);
         fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
       }

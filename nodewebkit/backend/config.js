@@ -4,9 +4,10 @@ var os = require('os');
 /*
  * Config Path
  * */
-var RESOURCEPATH;
 var USERCONFIGPATH;
 exports.USERCONFIGPATH = USERCONFIGPATH;
+var RESOURCEPATH;
+exports.RESOURCEPATH = RESOURCEPATH;
 
 /*
  * Debug Config
