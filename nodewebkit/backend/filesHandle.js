@@ -10,6 +10,7 @@ var dataDes = require("./FilesHandle/desFilesHandle");
 var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
+//var csv2json = require('csv2json-stream');
 
 var writeDbNum=0;
 var dataPath;
@@ -43,9 +44,10 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
   }
 
   util.log("read file "+itemPath);
-  if(itemPostfix == 'contacts'){
-/*    config.riolog("postfix= "+itemPostfix);
+  if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
+    config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
+    //csv2json.csvTojson(itemPath,function(json){console.log(json)});
     fs.readFile(itemPath, function (err, data) {
       var json=JSON.parse(data);
       config.riolog(json);
@@ -67,7 +69,7 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       });
-    });*/
+    });
   }
   else{
     function getFileStatCb(error,stat)
