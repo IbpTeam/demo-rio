@@ -8,49 +8,6 @@ var ursaED = require('./ursaED');
 var keySizeBits = 1024;
 
 
-
-
-function loadPriKeySync(keypath)
-{
-	var exist = fs.existsSync(keypath);
-	if (exist) {
-		console.log('local private key exists');
-        		var prikey=fs.readFileSync(keypath).toString('utf-8');
-        		console.log("private key load successful!");
-        		keyPair= ursa.createKey(prikey);
-        		pubKey=keyPair.getPublicKeyPem();
-        		return keyPair;
-	}else{
-		console.log('local private key do not exist');
-		return;
-	}
-}
-
-function loadRSAKey(keyPair)
-{
-  fs.exists('./key/priKey.pem', function(exists) {
-      if(exists){
-        console.log('local private key exists');
-        var prikey=fs.readFileSync('./key/priKey.pem').toString('utf-8');
-        console.log("private key load successful!");
-        keyPair= ursa.createKey(prikey);
-        pubKey=keyPair.getPublicKeyPem();
-      }else{
-        console.log('local private key not exists');
-        keyPair= ursa.generatePrivateKey(keySizeBits, size);
-        keyPair.saveKeys('');
-        pubKey=keyPair.getPublicKeyPem();
-      }
-   //   keyPair= ursa.generatePrivateKey(keySizeBits, size);
-    });  
-}
-
-function getPubkey(keyPair)
-{
-  //var pubKey=keyPair.getPublicKeyPem();
-  //return pubKey;
-}
-
 /*
 * @method MD5
 *  计算某个字符串的MD5值
@@ -76,8 +33,8 @@ function initIMServer(){
 	/*
 	we should load the keyPair first, in order to encrypt messages with RSA
 	*/
-	var keyPair = loadPriKeySync('./key/priKey.pem');
-	var pubkey = getPubkey(keyPair);
+	var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
+	var pubKey = ursaED.loadPubKeySync('./key/priKey.pem');
 	var keySizeBits = 1024;
 
 	var server =  net.createServer(function(c) {
@@ -107,6 +64,7 @@ function initIMServer(){
 				dboper.dbrecvInsert(msgObj[0].from,msgObj[0].to,msgObj[0].message,msgObj[0].type,msgObj[0].time,function(){
 					console.log("insert into db success!");
 				});
+				//console.log("pubkey is "+pubKey);
 				var tp = encapsuMSG(MD5(msgObj[0].message),"Reply","A","B",pubKey);
 				c.write(tp);
 			}
@@ -192,11 +150,11 @@ function sendIMMsg(IP,PORT,MSG,KEYPAIR){
 	},1000,client,MSG);
 
 	client.on('data',function(RPLY){
-		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort);
+		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+RPLY);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		///////////////this part should be replaced by local prikey//////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		var keyPair = loadPriKeySync('./key/priKey.pem');
+		var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
 		var decrply = ursaED.decrypt(keyPair,RPLY.toString('utf-8'), keySizeBits/8);
 		console.log("decry message:"+decrply);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,4 +440,3 @@ exports.clearTable = clearTable;
 exports.removeAccount = removeAccount;
 exports.removeAccountIP=removeAccountIP;
 exports.sendMSGbyAccount=sendMSGbyAccount;
-exports.loadPriKeySync=loadPriKeySync;
