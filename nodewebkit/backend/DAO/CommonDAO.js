@@ -1,4 +1,15 @@
-//var config = require("./config");
+/**
+ * @Copyright:
+ * 
+ * @Description: Data access object api, used in file handle to connect database.
+ *
+ * @author: Yuanzhe
+ *
+ * @Data:2014.9.11
+ *
+ * @version:0.2.1
+ **/
+
 var categoryDAO = require("./CategoryDAO");
 var contactsDAO = require("./ContactsDAO");
 var picturesDAO = require("./PicturesDAO");
@@ -6,7 +17,6 @@ var videosDAO = require("./VideosDAO");
 var documentsDAO = require("./DocumentsDAO");
 var musicDAO = require("./MusicDAO");
 var recentDAO = require("./RecentDAO");
-var actionHistoryDAO = require("./ActionHistoryDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
