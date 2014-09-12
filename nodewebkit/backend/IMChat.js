@@ -10,12 +10,12 @@ var keySizeBits = 1024;
 
 
 
-function loadPriKeySync()
+function loadPriKeySync(keypath)
 {
-	var exist = fs.existsSync('./key/priKey.pem');
+	var exist = fs.existsSync(keypath);
 	if (exist) {
 		console.log('local private key exists');
-        		var prikey=fs.readFileSync('./key/priKey.pem').toString('utf-8');
+        		var prikey=fs.readFileSync(keypath).toString('utf-8');
         		console.log("private key load successful!");
         		keyPair= ursa.createKey(prikey);
         		pubKey=keyPair.getPublicKeyPem();
@@ -76,7 +76,7 @@ function initIMServer(){
 	/*
 	we should load the keyPair first, in order to encrypt messages with RSA
 	*/
-	var keyPair = loadPriKeySync();
+	var keyPair = loadPriKeySync('./key/priKey.pem');
 	var pubkey = getPubkey(keyPair);
 	var keySizeBits = 1024;
 
@@ -196,7 +196,7 @@ function sendIMMsg(IP,PORT,MSG,KEYPAIR){
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		///////////////this part should be replaced by local prikey//////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		var keyPair = loadPriKeySync();
+		var keyPair = loadPriKeySync('./key/priKey.pem');
 		var decrply = ursaED.decrypt(keyPair,RPLY.toString('utf-8'), keySizeBits/8);
 		console.log("decry message:"+decrply);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
