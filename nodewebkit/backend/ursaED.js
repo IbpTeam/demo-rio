@@ -1,4 +1,5 @@
 var ursa = require('./newUrsa');
+var fs = require('fs');
 function encrypt(keyPair,clearText, keySizeBytes){
   var buffer = new Buffer(clearText);
   var maxBufferSize = keySizeBytes - 42; //according to ursa documentation
@@ -52,5 +53,66 @@ function decrypt(keyPair,encryptedString, keySizeBytes){
 function test(){
 	console.log('test');
 }
+
+function loadPriKeySync(keypath)
+{
+  var exist = fs.existsSync(keypath);
+  if (exist) {
+    console.log('local private key exists');
+            var prikey=fs.readFileSync(keypath).toString('utf-8');
+            console.log("private key load successful!");
+            keyPair= ursa.createKey(prikey);
+         //   pubKey=keyPair.getPublicKeyPem();
+            return keyPair;
+  }else{
+    console.log('local private key do not exist');
+    return;
+  }
+}
+
+function loadPubKeySync(keypath)
+{
+  var exist = fs.existsSync(keypath);
+  if (exist) {
+    console.log('local public key exists');
+            var prikey=fs.readFileSync(keypath).toString('utf-8');
+            console.log("public key load successful!");
+            keyPair= ursa.createKey(prikey);
+           pubKey=keyPair.getPublicKeyPem();
+            return pubKey;
+  }else{
+    console.log('local public key do not exist');
+    return;
+  }
+}
+
+function loadRSAKey(keyPair)
+{
+  fs.exists('./key/priKey.pem', function(exists) {
+      if(exists){
+        console.log('local private key exists');
+        var prikey=fs.readFileSync('./key/priKey.pem').toString('utf-8');
+        console.log("private key load successful!");
+        keyPair= ursa.createKey(prikey);
+        pubKey=keyPair.getPublicKeyPem();
+      }else{
+        console.log('local private key not exists');
+        keyPair= ursa.generatePrivateKey(keySizeBits, size);
+        keyPair.saveKeys('');
+        pubKey=keyPair.getPublicKeyPem();
+      }
+   //   keyPair= ursa.generatePrivateKey(keySizeBits, size);
+    });  
+}
+
+function getPubkey(keyPair)
+{
+  //var pubKey=keyPair.getPublicKeyPem();
+  //return pubKey;
+}
+
 exports.encrypt = encrypt;
 exports.decrypt = decrypt;
+exports.loadPriKeySync = loadPriKeySync;
+exports.loadRSAKey = loadRSAKey;
+exports.loadPubKeySync = loadPubKeySync;

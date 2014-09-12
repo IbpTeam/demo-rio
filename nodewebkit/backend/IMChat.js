@@ -2,6 +2,11 @@ var net = require('net');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
 var dboper = require('./DAO/IMChatDao.js');
+var fs = require('fs');
+var ursa = require('./newUrsa');
+var ursaED = require('./ursaED');
+var keySizeBits = 1024;
+
 
 /*
 * @method MD5
@@ -25,14 +30,27 @@ function MD5(str, encoding)
 *  没有返回值
 */
 function initIMServer(){
+	/*
+	we should load the keyPair first, in order to encrypt messages with RSA
+	*/
+	var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
+	var pubKey = ursaED.loadPubKeySync('./key/priKey.pem');
+	var keySizeBits = 1024;
+
 	var server =  net.createServer(function(c) {
-		console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
-		var remoteAD = c.remoteAddress;
-		var remotePT = c.remotePort;
+	console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+	var remoteAD = c.remoteAddress;
+	var remotePT = c.remotePort;
 
 	c.on('data', function(msgStr) {
 		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
-		var msgObj = JSON.parse(msgStr);
+		/*
+		keyPair to be intergrated by Account Server
+		keyPair should be loaded by local account
+		*/
+		var decrypteds = ursaED.decrypt(keyPair,msgStr.toString('utf-8'), keySizeBits/8);
+    		console.log('解密：'+decrypteds);
+		var msgObj = JSON.parse(decrypteds);
 		console.log('MSG type:' + msgObj[0].type);
 		switch(msgObj[0].type){
 			case 'Chat': {
@@ -46,7 +64,8 @@ function initIMServer(){
 				dboper.dbrecvInsert(msgObj[0].from,msgObj[0].to,msgObj[0].message,msgObj[0].type,msgObj[0].time,function(){
 					console.log("insert into db success!");
 				});
-				var tp = encapsuMSG(MD5(msgObj[0].message),"Reply","A","B");
+				//console.log("pubkey is "+pubKey);
+				var tp = encapsuMSG(MD5(msgObj[0].message),"Reply","A","B",pubKey);
 				c.write(tp);
 			}
 			break;
@@ -93,14 +112,18 @@ function initIMServer(){
 *  用encapsuMSG包装过的待发送消息
 * @param PORT
 *  消息接收方的通信端口
+*@param KEYPAIR
+*接收方的pubkey生成的keypair
 * @return null
 *  没有返回值
 */
-function sendIMMsg(IP,PORT,MSG){
+function sendIMMsg(IP,PORT,MSG,KEYPAIR){
 	var count = 0;
 	var id =0;
 
-	var  pat = JSON.parse(MSG);
+	var dec = ursaED.decrypt(KEYPAIR,MSG, keySizeBits/8);
+
+	var  pat = JSON.parse(dec);
 
 	if ( !net.isIP(IP)) {
 		console.log('Input IP Format Error!');
@@ -127,15 +150,22 @@ function sendIMMsg(IP,PORT,MSG){
 	},1000,client,MSG);
 
 	client.on('data',function(RPLY){
-		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort);
-		var  msg = JSON.parse(RPLY);
+		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+RPLY);
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///////////////this part should be replaced by local prikey//////////////////////////////
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
+		var decrply = ursaED.decrypt(keyPair,RPLY.toString('utf-8'), keySizeBits/8);
+		console.log("decry message:"+decrply);
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		var  msg = JSON.parse(decrply);
 		switch(msg[0].type)
 		{
 			case 'Reply': 
 			{
 				if (msg[0].message == MD5(pat[0].message))
 				{
-					var msgtp = JSON.parse(MSG);
+					var msgtp = pat;
 					console.log('msg rply received: '+ msg[0].message);
 					dboper.dbsentInsert(msgtp[0].from,msgtp[0].to,msgtp[0].message,msgtp[0].type,msgtp[0].time,function(){
 						console.log("sent message insert into db success!");
@@ -187,7 +217,7 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 	*/
 	for (var i = 0; i < ipset.length; i++) 
 	{
-		sendIMMSG(ipset[i],IP,PORT);
+		sendIMMSG(ipset[i],IP,PORT,keyPair);
 	};
 
 	console.log("send " + ipset.length + "IPs in "+ ACCOUNT + "Success!");
@@ -207,11 +237,12 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 * @return rply
 *  封装好，并且已经序列化的消息字符串
 */
-function encapsuMSG(MSG,TYPE,FROM,TO)
+function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
 {
 	var MESSAGE = [];
 	var tmp = {};
 	var now = new Date();
+	var pubkeyPair = ursa.createKey(PUBKEY);
 
 	switch(TYPE)
 	{
@@ -223,7 +254,8 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			tmp['time'] = now.getTime();
 			MESSAGE.push(tmp);
 			var send = JSON.stringify(MESSAGE);
-			return send;
+			var encryptedmsg = ursaED.encrypt(pubkeyPair ,send, keySizeBits/8);
+			return encryptedmsg;
 		}
 		break;
 		case'Reply':{
@@ -234,7 +266,8 @@ function encapsuMSG(MSG,TYPE,FROM,TO)
 			tmp['time'] = now.getTime();
 			MESSAGE.push(tmp);
 			var rply = JSON.stringify(MESSAGE);
-			return rply;
+			var encryptedmsg = ursaED.encrypt(pubkeyPair ,rply, keySizeBits/8);
+			return encryptedmsg;
 		}
 		default:{
 

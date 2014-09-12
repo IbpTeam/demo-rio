@@ -29,7 +29,7 @@ var server = net.createServer(function(c){
         keyPair= ursa.generatePrivateKey(keySizeBits, size);
         keyPair.saveKeys('');
       }
-      keyPair= ursa.generatePrivateKey(keySizeBits, size);
+   //   keyPair= ursa.generatePrivateKey(keySizeBits, size);
       pubKey=keyPair.getPublicKeyPem();
       c.write(pubKey);
     });  
