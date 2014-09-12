@@ -16,17 +16,25 @@ function deviceStateCb(signal, arg){
 	    	break;
     }
 }
-mdns.addDeviceListener(deviceStateCb);
-mdns.createServer();
 
-setTimeout(function(){
+function devicePublishCb(){
     var name = 'demo-rio';
     var address = '192.168.160.176';
     var port = '80';
     var txtarray = ['demo-rio', 'hello'];
     mdns.entryGroupCommit(name, address, port, txtarray)
-}, 2000);
+}
 
+mdns.addDeviceListener(deviceStateCb);
+mdns.createServer(devicePublishCb);
+
+//setTimeout(function(){
+//    var name = 'demo-rio';
+//    var address = '192.168.160.176';
+//    var port = '80';
+//    var txtarray = ['demo-rio', 'hello'];
+//    mdns.entryGroupCommit(name, address, port, txtarray)
+//}, 2000);
 
 setTimeout(function(){mdns.showDeviceList()}, 4000);
 

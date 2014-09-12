@@ -8,7 +8,7 @@ var serviceBrowserPath, entryGroupPath;
 var server, serviceBrowser, entryGroup;
 var deviceListeners = new Array();
 var deviceList = new Object();
-
+var devicePublishCb;
 /**
  * @method addDeviceListener
  *  为signal ItemNew和ItemRemove添加回调方法
@@ -118,8 +118,12 @@ exports.entryGroupReset = entryGroupReset;
  * @method createServer
  *  启动服务，包括ServiceBrowser和EntryGroup
  *
+ * @param1 publishCb
+ *   发布设备的回调方法，在entrygroup服务启动后被回调。
+ *
  */
-function createServer(){
+function createServer(publishCb){
+    devicePublishCb = publishCb;
     bus.getInterface('org.freedesktop.Avahi', '/', 'org.freedesktop.Avahi.Server', function(err, iface) {
         if (err != null){
             console.log(err);
@@ -192,9 +196,11 @@ function startEntryGroup(path){
         iface.AddService['error'] = function(err) {
             console.log(err);
          }
-        // iface.AddService['finish'] = function(arg) {
-        //     console.log('finish add service.');
-        // }
+        iface.AddService['finish'] = function(arg) {
+            //console.log('finish add service.');
+         }
+
+        devicePublishCb();
     });    
 }
 
