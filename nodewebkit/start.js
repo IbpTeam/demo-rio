@@ -1,67 +1,114 @@
+/**
+ * @Copyright:
+ * 
+ * @Description: Data access object api, used in file handle to connect database.
+ *
+ * @author: WangFeng Yuanzhe
+ *
+ * @Data:2014.9.15
+ *
+ * @version:0.2.1
+ **/
+
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var msgTransfer = require("./backend/Transfer/msgtransfer");
-var filesHandle = require("./backend/filesHandle");
+var fileHandle = require("./backend/filesHandle");
+var uniqueID=require('./backend/uniqueID');
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
-var uniqueID=require('./backend/uniqueID');
-
+var cp = require('child_process');
+var path = require('path');
 var handle = {}
 
-config.SERVERIP=config.getAddr();
-config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
-config.ACCOUNT = os.hostname()+'('+config.SERVERIP+')';
-//msgTransfer.initServer();
-server.start(router.route, handle);
+// @const
+var HOME_DIR = "/home";
+var DEMO_RIO = ".demo-rio";
+var CONFIG_JS = "config.js";
+var UNIQUEID_JS = "uniqueID.js";
 
-var cp = require('child_process');
-cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
-cp.exec('echo $USER',function(error,stdout,stderr){
-  var usrname=stdout.replace("\n","");
-  util.log('mkdir /home/'+usrname+'/.demo-rio');
-  filesHandle.mkdirSync('/home/'+usrname+'/.demo-rio', 0755,function(e){
-  	config.USERCONFIGPATH='/home/'+usrname+'/.demo-rio/';
-  	fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
-      util.log(config.USERCONFIGPATH+"config.js "+ exists);
-      if(exists==false){
-        util.log("No data");
+//
+var sFullPath;
+
+/** 
+ * @Method: startApp
+ *    Start this application and initialization.
+ **/
+function startApp(){
+  config.SERVERIP=config.getAddr();
+  config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
+  config.ACCOUNT = os.hostname()+'('+config.SERVERIP+')';
+  server.start(router.route, handle);
+
+  cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
+  cp.exec('echo $USER',function(error,stdout,stderr){
+    var sUserName=stdout.replace("\n","");
+    sFullPath = path.join(HOME_DIR,sUserName,DEMO_RIO);
+    util.log('mkdir ' + sFullPath);
+    fs.exists(sFullPath,function(rioExists){
+      if(!rioExists){
+        fs.mkdir(sFullPath, 0755, function(err){
+          if(err) throw err;
+          initializeApp();
+        });
+        return;
       }
-      else{
-        var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-        config.RESOURCEPATH=dataDir;
-        util.log("monitor : "+dataDir);
-        filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
-      }
-      fs.exists(config.USERCONFIGPATH+"uniqueID.js", function (exists) {
-        if(exists==false){
-          console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$no");
-          uniqueID.SetSysUid(function(){
-            deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
-            console.log("deviceID = "+deviceID);
-            config.uniqueID=deviceID;
-          });
-        }
-        else{
-          console.log("$$$$$$$$$$$$"+config.USERCONFIGPATH+"uniqueID.js$$$$$$$$$$$$$$$$$$$$$$yes");
-          var deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
-          console.log("exist deviceID = "+deviceID);
-          config.uniqueID=deviceID;
-          if(deviceID==undefined){
-            uniqueID.SetSysUid(function(){
-              deviceID=require(config.USERCONFIGPATH+"uniqueID.js").uniqueID;
-              console.log("deviceID = "+deviceID);
-              config.uniqueID=deviceID;
-            });
-          }
-        }
-      });
+      initializeApp();
     });
-    if(e){
-        util.log('mkdir /home/'+usrname+'/.demo-rio fail');
-    }else{
-        util.log('mkdir /home/'+usrname+'/.demo-rio sucess');
-    }
   });
-});
+}
+
+/** 
+ * @Method: startApp
+ *    initialize config/uniqueid.js.
+ **/
+function initializeApp(){
+  config.USERCONFIGPATH = sFullPath;
+  var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
+  var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
+  console.log("Config Path is : " + sConfigPath);
+  console.log("UniqueID Path is : " + sUniqueIDPath);
+
+  fs.exists(sConfigPath, function (configExists) {
+    if(!configExists){
+      console.log("Error: Config Path is not exist!" + sConfigPath);
+      return;
+    }
+    var dataDir=require(sConfigPath).dataDir;
+    config.RESOURCEPATH=dataDir;
+    util.log("monitor : "+dataDir);
+    fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
+    fs.exists(sUniqueIDPath, function (uniqueExists) {
+      if(!uniqueExists){
+        console.log("UniqueID.js is not exists, start to set sys uid.");
+        setSysUid(null);
+        return;
+      }
+      console.log("UniqueID.js is exist.");
+      var deviceID=require(sUniqueIDPath).uniqueID;
+      setSysUid(deviceID);
+    });
+  });
+ }
+
+/** 
+ * @Method: setSysUid
+ *    set system unique id.
+ **/
+function setSysUid(deviceID){
+  if(deviceID == undefined || deviceID == null){
+    uniqueID.SetSysUid(function(){
+      deviceID=require(sUniqueIDPath).uniqueID;
+      console.log("deviceID = "+deviceID);
+      config.uniqueID=deviceID;
+    });
+  }else{
+    console.log("deviceID = "+deviceID);
+    config.uniqueID=deviceID;
+  }
+}
+
+// Start
+startApp();
