@@ -2,7 +2,7 @@ var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var msgTransfer = require("./backend/Transfer/msgtransfer");
-var fileHandle = require("./backend/filesHandle");
+var filesHandle = require("./backend/filesHandle");
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
@@ -12,6 +12,7 @@ var handle = {}
 
 config.SERVERIP=config.getAddr();
 config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
+config.ACCOUNT = os.hostname()+'('+config.SERVERIP+')';
 //msgTransfer.initServer();
 server.start(router.route, handle);
 
@@ -20,7 +21,7 @@ cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 cp.exec('echo $USER',function(error,stdout,stderr){
   var usrname=stdout.replace("\n","");
   util.log('mkdir /home/'+usrname+'/.demo-rio');
-  fileHandle.mkdirSync('/home/'+usrname+'/.demo-rio', 0755,function(e){
+  filesHandle.mkdirSync('/home/'+usrname+'/.demo-rio', 0755,function(e){
   	config.USERCONFIGPATH='/home/'+usrname+'/.demo-rio/';
   	fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
       util.log(config.USERCONFIGPATH+"config.js "+ exists);
@@ -31,7 +32,7 @@ cp.exec('echo $USER',function(error,stdout,stderr){
         var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
         config.RESOURCEPATH=dataDir;
         util.log("monitor : "+dataDir);
-        fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
+        filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
       }
       fs.exists(config.USERCONFIGPATH+"uniqueID.js", function (exists) {
         if(exists==false){
@@ -63,4 +64,4 @@ cp.exec('echo $USER',function(error,stdout,stderr){
         util.log('mkdir /home/'+usrname+'/.demo-rio sucess');
     }
   });
- });
+});

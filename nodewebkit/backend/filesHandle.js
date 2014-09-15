@@ -26,11 +26,12 @@ var addCommitList = new Array();
 var rmCommitList = new Array();
 var chCommitList = new Array();
 var monitorFilesStatus =  false;
-exports.repoCommitStatus = repoCommitStatus;
+exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
 function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
+  console.log("add itemDesPath = "+itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
@@ -44,30 +45,6 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
 
   util.log("read file "+itemPath);
   if(itemPostfix == 'contacts'){
-/*    config.riolog("postfix= "+itemPostfix);
-    var currentTime = (new Date()).getTime();
-    fs.readFile(itemPath, function (err, data) {
-      var json=JSON.parse(data);
-      config.riolog(json);
-      writeDbNum+=json.length-1;
-      config.riolog('writeDbNum= '+writeDbNum);
-      json.forEach(function(each){
-        var category='Contacts';
-        var newItem={
-          name:each.name,
-          phone:each.phone,
-          sex:each.sex,
-          age:each.age,
-          email:each.email,
-          photoPath:each.photoPath,
-          createTime:null,
-          lastModifyTime:null,
-          lastAccessTime:currentTime,
-          is_delete:0
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      });
-    });*/
   }
   else{
     function getFileStatCb(error,stat)
@@ -148,6 +125,11 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
   }
 }
 
+function rmData(itemPath,itemDesPath,rmDataCb){
+  console.log("rm itemDesPath = "+itemDesPath);
+  dataDes.deleteItem(itemPath,itemDesPath,rmDataCb);
+}
+
 function watcherStart(monitorPath,callback){
   watcher = chokidar.watch(monitorPath, {ignored: /[\/\\]\./,ignoreInitial: true});
   watcher.on('all', function(event, path) {
@@ -161,75 +143,72 @@ function watcherStop(monitorPath,callback){
 }
 exports.watcherStop = watcherStop;
 
-function repoCommitCb(commitId,op){
-/*  if(op=='New'){
-    writeDbNum++;
-    addData(addCommitList.shift(),commitId.sha(),function(){
-      if(addCommitList[0]!=null){
-        resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
-      }
-      else if(rmCommitList[0]!=null){
-        resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
-      }  
-      else if(chCommitList[0]!=null){
-        resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
-      } 
-      else{
-        repoCommitStatus = 'idle';  
-        util.log("commit complete");
-      }
+function addFileCb(){
+  /******************
+  *write DB
+  ******************/
+  addCommitList.shift();
+  if(addCommitList[0]!=null){
+    var path=addCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    var isLoadEnd=1;
+    addData(path,itemDesPath,isLoadEnd,function(){
+      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
   }
-  else if(op=='Delete'){
-    commonDAO.getItemByPath(rmCommitList.shift(),function (item){
-      var updateItem = {
-        is_delete:1,
-        commit_id:commitId.sha()
-      };
-      commonDAO.updateItemValue(item.URI,item.version,updateItem,function(){
-        if(rmCommitList[0]!=null){
-          resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
-        } 
-        else if(addCommitList[0]!=null){
-          resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
-        }
-        else if(chCommitList[0]!=null){
-          resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
-        }       
-        else{
-          repoCommitStatus = 'idle';  
-          util.log("commit complete");
-        }
-      }); 
+  else if(rmCommitList[0]!=null){
+    var path=rmCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    rmData(path,itemDesPath,function(){
+      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
     });
   }
-  else if(op=='Change'){
-    commonDAO.getItemByPath(chCommitList.shift(),function (item){
-      fs.stat(item.path,function (error,stat){
-        var currentTime = (new Date()).getTime();
-        var updateItem = {
-          lastModifyTime:currentTime,
-          size:stat.size,
-          commit_id:commitId.sha()
-        };
-        commonDAO.updateItemValue(item.URI,item.version,updateItem,function(){
-          if(rmCommitList[0]!=null){
-            resourceRepo.repoRmCommit(dataPath,rmCommitList[0],repoCommitCb);
-          } 
-          else if(addCommitList[0]!=null){
-            resourceRepo.repoAddCommit(dataPath,addCommitList[0],'add',repoCommitCb);
-          }
-          else if(chCommitList[0]!=null){
-            resourceRepo.repoAddCommit(dataPath,chCommitList[0],'change',repoCommitCb);
-          }       
-          else{
-            repoCommitStatus = 'idle';  
-            util.log("commit complete");
-          }
-        });  
-      });
+  else{
+    repoCommitStatus = 'idle';  
+    util.log("commit complete");
+  }
+}
+
+function rmFileCb(){
+  /******************
+  *write DB
+  ******************/
+  rmCommitList.shift();
+  if(rmCommitList[0]!=null){
+    var path=rmCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    rmData(path,itemDesPath,function(){
+      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
     });
-  }*/
+  }
+  else if(addCommitList[0]!=null){
+    var path=addCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    var isLoadEnd=1;
+    addData(path,itemDesPath,isLoadEnd,function(){
+      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    });
+  }
+  else{
+    repoCommitStatus = 'idle';  
+    util.log("commit complete");
+  }
 }
 
 function addFile(path,resourcePath){
@@ -239,7 +218,16 @@ function addFile(path,resourcePath){
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+addCommitList[0]);
     repoCommitStatus = 'busy';  
-    resourceRepo.repoAddCommit(resourcePath,addCommitList[0],'add',repoCommitCb);
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    var isLoadEnd=1;
+    console.log("itemDesPath="+itemDesPath);
+    addData(path,itemDesPath,isLoadEnd,function(){
+      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    });
   }
 }
 
@@ -247,10 +235,18 @@ function rmFile(path,resourcePath){
   dataPath=resourcePath;
   util.log("remove file "+path);
   rmCommitList.push(path);
+  console.log("repoCommitStatus="+repoCommitStatus);
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+rmCommitList[0]);
     repoCommitStatus = 'busy';  
-    resourceRepo.repoRmCommit(resourcePath,rmCommitList[0],repoCommitCb);
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    rmData(path,itemDesPath,function(){
+      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+    });
   }
 }
 
@@ -321,13 +317,13 @@ exports.deleteItemCb = deleteItemCb;
 
 function initData(loadResourcesCb,resourcePath)
 {
-  config.riolog("syncDB ..............");
+  config.riolog("initData ..............");
   dataPath=resourcePath;
   fs.mkdir(dataPath+'/.des',function (err){
     if(err) {
       console.log("mk resourcePath error!");
       console.log(err);
-      return;
+      //return;
     }
     else{
       var fileList = new Array();
@@ -374,9 +370,12 @@ function initData(loadResourcesCb,resourcePath)
       config.riolog(fileList); 
       writeDbNum=fileList.length;
       config.riolog('writeDbNum= '+writeDbNum);
+      function isEndCallback(){
+        resourceRepo.repoInit(resourcePath,loadResourcesCb);
+      }
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        addData(fileList[k],fileDesDir[k],isLoadEnd,loadResourcesCb);
+        addData(fileList[k],fileDesDir[k],isLoadEnd,isEndCallback);
       }
     }
   });
