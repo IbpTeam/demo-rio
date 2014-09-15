@@ -10,7 +10,7 @@ var dataDes = require("./FilesHandle/desFilesHandle");
 var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
-var csv2json = require('./csvTojson');
+var csvtojson = require('./csvTojson');
 
 var writeDbNum=0;
 var dataPath;
@@ -47,7 +47,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
-    csv2json.csvTojson(itemPath,function(json){console.log(json)});
+    csvtojson.csvTojson(itemPath,function(json){console.log(json)});
     /*
     fs.readFile(itemPath, function (err, data) {
       var json=JSON.parse(data);
