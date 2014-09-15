@@ -81,8 +81,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
           createTime:ctime,
           lastModifyTime:mtime,
           lastAccessTime:ctime,
-          others:null,
-          is_delete:0
+          tags:null
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       }
@@ -96,8 +95,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
           createTime:ctime,
           lastModifyTime:mtime,
           lastAccessTime:ctime,
-          others:null,
-          is_delete:0
+          tags:null
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       }
@@ -112,8 +110,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
           createTime:ctime,
           lastModifyTime:mtime,
           lastAccessTime:ctime,
-          others:null,
-          is_delete:0
+          tags:null
         };
         dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
       } 
@@ -128,6 +125,13 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
 function rmData(itemPath,itemDesPath,rmDataCb){
   console.log("rm itemDesPath = "+itemDesPath);
   dataDes.deleteItem(itemPath,itemDesPath,rmDataCb);
+}
+
+function chData(itemPath,attrs,itemDesPath,chDataCb){
+  console.log("rm itemDesPath = "+itemDesPath);
+  console.log("!!!!!!!!!!!!!!!!!!!");
+  console.log(attrs);
+  dataDes.updateItem(itemPath,attrs,itemDesPath,chDataCb);
 }
 
 function watcherStart(monitorPath,callback){
@@ -158,6 +162,23 @@ function addFileCb(){
     var isLoadEnd=1;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    });
+  }
+  else if(chCommitList[0]!=null){
+    var path=chCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    fs.stat(path,function(error,stat){
+      var attrs={
+        size:stat.size,
+        lastModifyTime:(new Date()).getTime()
+      };
+      chData(path,attrs,itemDesPath,function(){
+        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+      });
     });
   }
   else if(rmCommitList[0]!=null){
@@ -203,6 +224,74 @@ function rmFileCb(){
     var isLoadEnd=1;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    });
+  }
+  else if(chCommitList[0]!=null){
+    var path=chCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    fs.stat(path,function(error,stat){
+      var attrs={
+        size:stat.size,
+        lastModifyTime:(new Date()).getTime()
+      };
+      chData(path,attrs,itemDesPath,function(){
+        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+      });
+    });
+  }
+  else{
+    repoCommitStatus = 'idle';  
+    util.log("commit complete");
+  }
+}
+
+function chFileCb(){
+  /******************
+  *write DB
+  ******************/
+  chCommitList.shift();
+  if(chCommitList[0]!=null){
+    var path=chCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    fs.stat(path,function(error,stat){
+      var attrs={
+        size:stat.size,
+        lastModifyTime:(new Date()).getTime()
+      };
+      chData(path,attrs,itemDesPath,function(){
+        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+      });
+    });
+  }
+  else if(addCommitList[0]!=null){
+    var path=addCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    var isLoadEnd=1;
+    addData(path,itemDesPath,isLoadEnd,function(){
+      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    });
+  }
+  else if(rmCommitList[0]!=null){
+    var path=rmCommitList[0];
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    rmData(path,itemDesPath,function(){
+      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
     });
   }
   else{
@@ -252,12 +341,27 @@ function rmFile(path,resourcePath){
 
 function chFile(path,resourcePath){
   dataPath=resourcePath;
-  util.log("new file "+path);
+  util.log("change file "+path);
   chCommitList.push(path);
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+chCommitList[0]);
     repoCommitStatus = 'busy';  
-    resourceRepo.repoAddCommit(resourcePath,chCommitList[0],'change',repoCommitCb);
+    var nameindex=path.lastIndexOf('/');
+    var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
+    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var fileName=path.substring(nameindex+1,path.length);
+    var desFilePath=itemDesPath+"/"+fileName+".md";
+    fs.stat(path,function(error,stat){
+      var attrs={
+        size:stat.size,
+        lastModifyTime:stat.mtime
+      };
+      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      console.log(attrs);
+      chData(path,attrs,itemDesPath,function(){
+        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+      });
+    });
   }
 }
 

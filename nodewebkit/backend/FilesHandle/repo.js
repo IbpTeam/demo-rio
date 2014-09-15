@@ -57,6 +57,22 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback)
   });
 }
 
+exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback)
+{
+  var  exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "Change : '+sourceFilePath+' and description file."';
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
+  exec(comstr, function(error,stdout,stderr){
+    if(error){
+      console.log("Git add error");
+    }
+    else{
+      console.log("Git add success");
+      callback();
+    }
+  });
+}
+
 exports.getLatestCommit = function (repoPath,callback)
 {
       console.log("getLatestCommit "+repoPath);
