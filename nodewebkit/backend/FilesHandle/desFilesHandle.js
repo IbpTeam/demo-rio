@@ -14,6 +14,7 @@ var uniqueID = require("../uniqueID");
 var fs = require('fs');
 var path = require("path");
 var bfh = require("./basicFileHandle");
+var repo = require("./repo");
 
 // @const
 var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
@@ -46,13 +47,16 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      if(isLoadEnd)
-        isEndCallback("successful");
+      if(isLoadEnd){
+        repo.repoInit(config.RESOURCEPATH,isEndCallback);
+      }
       return;
-    }else{
+    }
+    else{
       console.log("write description file success");
-      if(isLoadEnd)
-        isEndCallback("successful");
+      if(isLoadEnd){
+        repo.repoInit(config.RESOURCEPATH,isEndCallback);
+      }
     }
   });
 }
@@ -104,12 +108,11 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,isEndCallback)
 
   //Get uniform resource identifier
   var uri = "specificURI";
-
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
       item.URI = uri + "#" + category;
-      sortObj(item,itemDesPath,createDesFile,isLoadEnd,isEndCallback)
+      sortObj(item,itemDesPath,createDesFile,isLoadEnd,isEndCallback);
     }
     else{
       console.log("Exception: URI is null.");

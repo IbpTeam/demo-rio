@@ -30,7 +30,7 @@ exports.repoCommitStatus = repoCommitStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
+function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
@@ -75,11 +75,25 @@ function addData(itemPath,itemDesPath,commitId,isLoadEnd,loadResourcesCb){
       var mtime=stat.mtime;
       var ctime=stat.ctime;
       var size=stat.size;
-      //config.riolog('mtime:'+mtime);
-      //config.riolog('ctime:'+ctime);
-      //config.riolog('size:'+size);
-      //if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == '' || itemPostfix == 'sh'){
-      if(itemPostfix == 'none' || itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+      if(itemPostfix == 'none' || 
+         itemPostfix == 'ppt' || 
+         itemPostfix == 'pptx'|| 
+         itemPostfix == 'doc'|| 
+         itemPostfix == 'docx'|| 
+         itemPostfix == 'wps'|| 
+         itemPostfix == 'odt'|| 
+         itemPostfix == 'et'|| 
+         itemPostfix == 'txt'|| 
+         itemPostfix == 'xls'|| 
+         itemPostfix == 'xlsx' || 
+         itemPostfix == 'ods' || 
+         itemPostfix == 'zip' || 
+         itemPostfix == 'sh' || 
+         itemPostfix == 'gz' || 
+         itemPostfix == 'html' || 
+         itemPostfix == 'et' || 
+         itemPostfix == 'odt' || 
+         itemPostfix == 'pdf'){
         var category='Documents';
         var newItem={
           filename:itemFilename,
