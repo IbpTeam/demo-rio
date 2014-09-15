@@ -15,6 +15,8 @@ var fs = require('fs');
 var path = require("path");
 var bfh = require("./basicFileHandle");
 var repo = require("./repo");
+var filesHandle = require("../filesHandle");
+
 
 // @const
 var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
@@ -48,14 +50,14 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
       console.log("writeFile error!");
       console.log(err);
       if(isLoadEnd){
-        repo.repoInit(config.RESOURCEPATH,isEndCallback);
+        isEndCallback();
       }
       return;
     }
     else{
       console.log("write description file success");
       if(isLoadEnd){
-        repo.repoInit(config.RESOURCEPATH,isEndCallback);
+        isEndCallback();
       }
     }
   });
@@ -118,6 +120,31 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,isEndCallback)
       console.log("Exception: URI is null.");
       return;
     }
+  });
+}
+
+/** 
+ * @Method: deleteItem
+ *    create description file.
+ * @param: item
+ *    an item object with informations for description.
+ * @param: itemDesPath
+ *    the path that a description file shoud be writen at.
+ * @param: callback
+ *    No arguments other than a file name array are given to the completion callback.
+ **/
+exports.deleteItem = function(rmItem,itemDesPath,callback){
+  var nameindex=rmItem.lastIndexOf('/');
+  var fileName=rmItem.substring(nameindex+1,rmItem.length);
+  var desFilePath=itemDesPath+"/"+fileName+".md";
+  fs.unlink(desFilePath,function (err) {
+    if (err) {
+      console.log("delete error!");
+    }
+    else{
+      console.log("delete description file success");
+      callback();
+    } 
   });
 }
 
