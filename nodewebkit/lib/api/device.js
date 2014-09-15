@@ -55,11 +55,8 @@ function callDeviceListener(type, args){
  *
  * @param1 showDeviceListCb
  *   回调函数
- *  @signal
- *   string, 代表信号类型，设备上线为ItemNew，设备下线为ItemRemove。
- *  @args
- *   array, 设备发送的相关信息。[interface, protocol, name, type, domain, flags]
-*
+ *  @object{address: object{interface,protocol,name,stype,domain,host,aprotocol,address,port,txt,flags}}
+ *
  */
 function showDeviceList(showDeviceListCb){
   showDeviceListCb(deviceList);
@@ -155,7 +152,6 @@ function createServer(devicePublishCb){
     }
     iface.ResolveService['timeout'] = 1000;
     iface.ResolveService['finish'] = function(result) {
-      // console.log("ResolveService finish");
       obj = new Object();
       obj.interface = result[0];
       obj.protocol = result[1];
@@ -191,7 +187,7 @@ function startEntryGroup(path, devicePublishCb){
       console.log(err);
      }
     iface.AddService['finish'] = function(arg) {
-      //console.log('finish add service.');
+      console.log('finish add service.');
      }
 
     devicePublishCb();
@@ -272,7 +268,6 @@ function createServiceBrowser(){
     if (err != null){
       console.log(err);
     }
-    //server = iface;
 
     iface.ServiceBrowserNew['error'] = function(err) {
       console.log("ServiceBrowserNew: " + err);
