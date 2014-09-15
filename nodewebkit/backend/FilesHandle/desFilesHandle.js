@@ -47,7 +47,7 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
       }
       return;
     }else{
-      console.log("write description file success");
+      //console.log("write description file success");
       if(isLoadEnd){
         isEndCallback("successful");
       }
