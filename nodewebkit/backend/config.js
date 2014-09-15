@@ -34,6 +34,14 @@ var SERVERNAME;
 exports.SERVERNAME = SERVERNAME;
 
 /*
+ * account
+ * */
+var ACCOUNT;
+exports.ACCOUNT = ACCOUNT;
+var EMAIL="cos_ibp@iscas.ac.cn";
+exports.EMAIL = EMAIL;
+
+/*
  * Network API
  * */
 function getAddr(){
