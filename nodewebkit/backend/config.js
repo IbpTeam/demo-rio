@@ -4,9 +4,10 @@ var os = require('os');
 /*
  * Config Path
  * */
-var RESOURCEPATH;
 var USERCONFIGPATH;
 exports.USERCONFIGPATH = USERCONFIGPATH;
+var RESOURCEPATH;
+exports.RESOURCEPATH = RESOURCEPATH;
 
 /*
  * Debug Config
@@ -31,6 +32,14 @@ var SERVERIP;
 exports.SERVERIP = SERVERIP;
 var SERVERNAME;
 exports.SERVERNAME = SERVERNAME;
+
+/*
+ * account
+ * */
+var ACCOUNT;
+exports.ACCOUNT = ACCOUNT;
+var EMAIL="cos_ibp@iscas.ac.cn";
+exports.EMAIL = EMAIL;
 
 /*
  * Network API
