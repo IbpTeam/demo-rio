@@ -20,6 +20,11 @@ var recentDAO = require("./RecentDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
+// @const
+var BEGIN_TRANS = "begin tansaction;";
+var ROLLBACK_TRANS = "rollback;";
+var COMMIT_TRANS = "commit;";
+
 //连接数据库
 function openDB(){
   return new sqlite3.Database('./backend/db/rio');
@@ -279,6 +284,57 @@ exports.getItemByPath = function(path, callback){
 }
 
 /**
+ * @method execSQL
+ *    Execute the specific sql string.
+ * @param sql
+ *    Specific SQL string to execute.
+ * @param callback
+ */
+function execSQL(sql,callback){
+  //Open database
+  var oDb = openDB();
+  oDb.exec(sql,function(err){
+    if(err){
+      console.log("Error:execute SQL error.");
+      console.log("Info :" + err);
+      rollbackTrans(oDb,callback);
+      return;
+    }
+    commitTrans(oDb,callback);
+  });
+}
+
+/**
+ * @method rollbackTrans
+ *    Execute the specific sql string.
+ * @param sql
+ *    Specific SQL string to execute.
+ * @param callback
+ */
+function rollbackTrans(db,callback){
+  db.run(ROLLBACK_TRANS,function(err){
+    if(err) throw err;
+    callback("rollback");
+    closeDB(db);
+  });
+}
+
+/**
+ * @method commitTrans
+ *    Execute the specific sql string.
+ * @param sql
+ *    Specific SQL string to execute.
+ * @param callback
+ */
+function commitTrans(db,callback){
+  db.run(COMMIT_TRANS,function(err){
+    if(err) throw err;
+    callback("commit");
+    closeDB(db);
+  });
+}
+
+/**
  * @method createItems
  *   
  * @param items
@@ -286,22 +342,25 @@ exports.getItemByPath = function(path, callback){
  * @param callback
  */
 exports.createItems = function(items,callback){
-  var aSqlArray = new Array();
+  //var aSqlArray = new Array();
+  var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
-    var sSqlStr = "insert into " + item.category;
+    var oTempItem = item;
+    sSqlStr = sSqlStr + "insert into " + oTempItem.category;
+    //Delete attribute category and id from this obj.
+    delete oTempItem.category;
+    delete oTempItem.id;
     var sKeyStr = " (id";
     var sValueStr = ") values (null";
     for(var key in item){
       sKeyStr = sKeyStr + "," + key;
       sValueStr = sValueStr + "," + item[key];
     }
-    sSqlStr = sSqlStr + sKeyStr + sValueStr + ")";
-    console.log(sSqlStr);     
+    sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
   });
-  console.log("num====================="+items.length);
-  //var oDB = openDB();
-  //db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
-  //closeDB(oDB);
+
+  // Exec sql
+  execSQL(sSqlStr,callback);
 }
 
 exports.createItem = function(category, item, callback , createDesFileCb , loadResourcesCb){
