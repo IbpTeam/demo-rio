@@ -18,7 +18,8 @@
     "getip": "^0.0.1",
     "chokidar": "~0.8.4",
     "ws" : "~0.8.4",
-    "csv2json-stream" : "~0.8.4"
+    "csv2json-stream" : "~0.8.4",
+    "csvtojson" : "~0.8.4"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }

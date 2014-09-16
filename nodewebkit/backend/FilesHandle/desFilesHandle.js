@@ -32,6 +32,7 @@ var FILE_CONFIG = "config.js";
  *    callback when loading resouce ends.
  **/
 function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
+  console.log(newItem.path)
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var posIndex = (newItem.path).lastIndexOf(".");

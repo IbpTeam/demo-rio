@@ -47,7 +47,23 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
-    csvtojson.csvTojson(itemPath,function(json){console.log(json)});
+    csvtojson.csvTojson(itemPath,function(json){
+      var oJson = JSON.parse(json);
+      console.log(oJson.length)
+      var category = 'Contacts';
+      for(var k=0;k<oJson.length;k++){
+        console.log(oJson[k])
+        if(oJson[k] == "")
+          continue;
+        else{
+          oJson[k].path = itemPath;
+          oJson[k].name = itemFilename+k;
+          var oNewItem = oJson[k];
+          dataDes.createItem(category,oNewItem,itemDesPath,isLoadEnd,loadResourcesCb);
+        }
+      }
+    });
+
     /*
     fs.readFile(itemPath, function (err, data) {
       var json=JSON.parse(data);
