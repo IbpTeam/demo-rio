@@ -48,46 +48,22 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     csvtojson.csvTojson(itemPath,function(json){
-      var oJson = JSON.parse(json);
-      console.log(oJson.length)
+      //var oJson = JSON.parse(json);
+      console.log(oJson);
       var category = 'Contacts';
       for(var k=0;k<oJson.length;k++){
-        console.log(oJson[k])
-        if(oJson[k] == "")
-          continue;
-        else{
+        //console.log(oJson[k])
+        var sCode = "\u59D3";
+        if(oJson[k].hasOwnProperty(sCode)){
+          //console.log(oJson[k][sCode]);
           oJson[k].path = itemPath;
-          oJson[k].name = itemFilename+k;
+          oJson[k].name = oJson[k][sCode];
+          oJson[k].currentTime = currentTime;
           var oNewItem = oJson[k];
           dataDes.createItem(category,oNewItem,itemDesPath,isLoadEnd,loadResourcesCb);
         }
       }
     });
-
-    /*
-    fs.readFile(itemPath, function (err, data) {
-      var json=JSON.parse(data);
-      config.riolog(json);
-      writeDbNum+=json.length-1;
-      config.riolog('writeDbNum= '+writeDbNum);
-      json.forEach(function(each){
-        var category='Contacts';
-        var newItem={
-          name:each.name,
-          phone:each.phone,
-          sex:each.sex,
-          age:each.age,
-          email:each.email,
-          photoPath:each.photoPath,
-          createTime:null,
-          lastModifyTime:null,
-          lastAccessTime:currentTime,
-          is_delete:0
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      });
-    });
-    */
   }
   else{
     function getFileStatCb(error,stat)
@@ -470,7 +446,7 @@ function initData(loadResourcesCb,resourcePath)
     if(err) {
       console.log("mk resourcePath error!");
       console.log(err);
-      //return;
+      return;
     }
     else{
       var fileList = new Array();
