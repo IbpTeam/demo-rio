@@ -60,8 +60,7 @@ function start(route, handle) {
         };
       }
       socket.emit('mdnsUp', service);
-    }
-  );
+    });
     browser.on('serviceDown', function(service) {
       if(listOfOscDevices[service.name]) {
         delete listOfOscDevices[service.name];
@@ -71,21 +70,7 @@ function start(route, handle) {
         var str=JSON.stringify(service);
         util.log("service down: "+str+now.toLocaleTimeString());
       }
-      //socket.emit('mdnsDown', service);
-     // var str=JSON.stringify(service);
-     //util.log("service down: "+service.name+now.toLocaleTimeString());
-
-   });
-    browser.on('serviceChanged', function(service) {
-      /*if(listOfOscDevices[service.name]) {
-        delete listOfOscDevices[service.name];
-        var cnt = Object.keys(listOfOscDevices).length;
-        console.log('There are '+cnt+' devices');
-      }
-      socket.emit('mdnsDown', service);
-      var str=JSON.stringify(service);*/
-    //  util.log("service changed: "+service.name+now.toLocaleTimeString());
-  });
+    });
     util.log("listen to services");
     browser.start();
     var txt_record = {
@@ -98,9 +83,7 @@ function start(route, handle) {
     ad.start();
   });
 
-config.riolog("Server has started.");
-  //Unuseful code. When executed in node-main, this code will make node-webkit crash.
-  //filesHandle.monitorFiles('/home/v1/resources');
+  config.riolog("Server has started.");
   filesHandle.monitorNetlink('./var/.netlinkStatus');
 }
 
