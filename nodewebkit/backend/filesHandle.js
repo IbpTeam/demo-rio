@@ -128,9 +128,7 @@ function rmData(itemPath,itemDesPath,rmDataCb){
 }
 
 function chData(itemPath,attrs,itemDesPath,chDataCb){
-  console.log("rm itemDesPath = "+itemDesPath);
-  console.log("!!!!!!!!!!!!!!!!!!!");
-  console.log(attrs);
+  console.log("ch itemDesPath = "+itemDesPath);
   dataDes.updateItem(itemPath,attrs,itemDesPath,chDataCb);
 }
 
@@ -356,8 +354,6 @@ function chFile(path,resourcePath){
         size:stat.size,
         lastModifyTime:stat.mtime
       };
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      console.log(attrs);
       chData(path,attrs,itemDesPath,function(){
         resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
       });

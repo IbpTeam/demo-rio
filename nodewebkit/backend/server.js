@@ -47,8 +47,6 @@ function start(route, handle) {
           console.log('There are '+cnt+' devices');
         }
         socket.emit('mdnsUp', service);
-//        var str=JSON.stringify(service);
-//        util.log("service up: "+str+now.toLocaleTimeString());
         var serviceRecord = service.txtRecord;
         if (typeof(serviceRecord) != "undefined") {
           console.log(serviceRecord.account +"----------------");
@@ -62,9 +60,6 @@ function start(route, handle) {
         };
       }
       socket.emit('mdnsUp', service);
-      //        var str=JSON.stringify(service);
-      //        util.log("service up: "+str+now.toLocaleTimeString());
-
     }
   );
     browser.on('serviceDown', function(service) {
