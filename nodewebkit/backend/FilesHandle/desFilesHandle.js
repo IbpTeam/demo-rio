@@ -28,14 +28,16 @@ var FILE_CONFIG = "config.js";
  * @Method: createDesFile
  *    create description file for specific file in its target dir.
  * @param: newItem
- *    a new item object with informations for description.
+ *    object : with informations for description.
  * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not.
+ *    boolean : tell the resource loading is end or not.
  *    @param: "successful"
- * @param: isEndCallback
+ * @param: callback
  *    callback when loading resouce ends.
+ *    @param: isLoadEnd
+ *    boolean
  **/
-function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
+function createDesFile(newItem,itemDesPath,isLoadEnd,callback){
   //console.log(newItem.path)
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
@@ -43,19 +45,15 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
   var pos = (posIndex == -1) ? "" : (newItem.path).substring(posIndex,(newItem.path).length);
   var sPath = itemDesPath+'/'+sFileName+pos+'.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
-    if (err) {
+    if(err){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      if(isLoadEnd){
-        isEndCallback("successful");
-      }
-      return;
+      //return;
+      callback(isLoadEnd);
     }else{
-      //console.log("write description file success");
-      if(isLoadEnd){
-        isEndCallback("successful");
-      }
+      console.log(itemDesPath+" done!");
+      callback(isLoadEnd);
     }
   });
 }
@@ -100,13 +98,18 @@ function sortObj(Item,callback){
 exports.createItem = function(category,item,itemDesPath,isLoadEnd,isEndCallback){
 
   //Get uniform resource identifier
+  console.log(isLoadEnd)
   var uri = "specificURI";
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
       item.URI = uri + "#" + category;
       sortObj(item,function(oNewItem){
-        createDesFile(oNewItem,itemDesPath,isLoadEnd,isEndCallback);
+        createDesFile(oNewItem,itemDesPath,isLoadEnd,function(isLoadEnd){
+          if(isLoadEnd){
+            isEndCallback("successful");
+          }
+        });
       });
     }
     else{
