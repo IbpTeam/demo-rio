@@ -22,24 +22,6 @@ function loadResources(loadResourcesCb,path) {
 exports.loadResources = loadResources;
 
 /**
- * @method addNewFolder
- *    添加某个资源文件夹到数据库
- *
- * @param1 addNewFolderCb
- *   回调函数
- *   @result
- *      string，success代表成功，其他代表失败原因
- *
- * @param2 path
- *   string，要添加文件夹的路径
- */
-function addNewFolder(addNewFolderCb,path) {
-  console.log("Request handler 'addNewFolder' was called.");
-  filesHandle.addNewFolder(addNewFolderCb,path);
-}
-exports.addNewFolder = addNewFolder;
-
-/**
  * @method getAllCate
  *   查询所有基本分类
  *
@@ -221,13 +203,25 @@ function getDataSourceByUri(getDataSourceByUriCb,id){
           content:item.path
         };
       }
-      else if(item.postfix=='jpg'||item.postfix=='png'||item.postfix=='txt'||item.postfix=='ogg'){
+      else if(item.postfix=='none'||
+              item.postfix=='jpg'||
+              item.postfix=='png'||
+              item.postfix=='txt'||
+              item.postfix=='ogg'){
         var source={
           openmethod:'direct',
           content:item.path
         };
       }
-      else if(item.postfix == 'ppt' || item.postfix == 'pptx'|| item.postfix == 'doc'|| item.postfix == 'docx'|| item.postfix == 'wps'|| item.postfix == 'odt'|| item.postfix == 'et'||  item.postfix == 'xls'|| item.postfix == 'xlsx'){
+      else if(item.postfix == 'ppt' ||
+              item.postfix == 'pptx'|| 
+              item.postfix == 'doc'|| 
+              item.postfix == 'docx'|| 
+              item.postfix == 'wps'|| 
+              item.postfix == 'odt'|| 
+              item.postfix == 'et'||  
+              item.postfix == 'xls'|| 
+              item.postfix == 'xlsx'){
         item.path = decodeURIComponent(item.path);
         var source={
           openmethod:'local',
