@@ -31,6 +31,7 @@ var FILE_CONFIG = "config.js";
  *    a new item object with informations for description.
  * @param: isLoadEnd
  *    a boolean var to tell the resource loading is end or not.
+ *    @param: "successful"
  * @param: isEndCallback
  *    callback when loading resouce ends.
  **/
@@ -65,16 +66,10 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
  *    sort the object element by tags.
  * @param: Item
  *    an item object with informations for description.
- * @param: itemDesPath
- *    the path that a description file shoud be writen at.
- * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not.
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
- * @param: isEndCallback
- *    callback when loading resouce ends.
  **/
-function sortObj(Item,itemDesPath,callback,isLoadEnd,isEndCallback){
+function sortObj(Item,callback){
   var sTags = [];
   var oNewItem = {}
   for(var k in Item){
@@ -84,7 +79,7 @@ function sortObj(Item,itemDesPath,callback,isLoadEnd,isEndCallback){
   for(var k in sTags){
     oNewItem[sTags[k]] = Item[sTags[k]];
   }
-  callback(oNewItem,itemDesPath,isLoadEnd,isEndCallback);
+  callback(oNewItem);
 }
 
 
@@ -110,7 +105,9 @@ exports.createItem = function(category,item,itemDesPath,isLoadEnd,isEndCallback)
     item.category = category;
     if (uri != null) {
       item.URI = uri + "#" + category;
-      sortObj(item,itemDesPath,createDesFile,isLoadEnd,isEndCallback);
+      sortObj(item,function(oNewItem){
+        createDesFile(oNewItem,itemDesPath,isLoadEnd,isEndCallback);
+      });
     }
     else{
       console.log("Exception: URI is null.");

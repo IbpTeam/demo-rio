@@ -48,12 +48,11 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     csvtojson.csvTojson(itemPath,function(json){
-      //var oJson = JSON.parse(json);
-      console.log(oJson);
+      var oJson = JSON.parse(json);
       var category = 'Contacts';
       for(var k=0;k<oJson.length;k++){
         //console.log(oJson[k])
-        var sCode = "\u59D3";
+        var sCode = "\u59D3";//"姓"
         if(oJson[k].hasOwnProperty(sCode)){
           //console.log(oJson[k][sCode]);
           oJson[k].path = itemPath;
