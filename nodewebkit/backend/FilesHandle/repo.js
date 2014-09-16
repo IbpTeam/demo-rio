@@ -57,39 +57,55 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback)
   });
 }
 
+exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback)
+{
+  var  exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "Change : '+sourceFilePath+' and description file."';
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
+  exec(comstr, function(error,stdout,stderr){
+    if(error){
+      console.log("Git add error");
+    }
+    else{
+      console.log("Git add success");
+      callback();
+    }
+  });
+}
+
 exports.getLatestCommit = function (repoPath,callback)
 {
-      console.log("getLatestCommit "+repoPath);
-      //open a git repo
-      git.Repo.open(path.resolve(repoPath+'/.git'), function(openReporError, repo) {
-      if (openReporError) 
-        throw openReporError;
-      console.log("Repo open : "+repo);  
-      //add the file to the index...
-      repo.openIndex(function(openIndexError, index) {
-        if (openIndexError) 
-          throw openIndexError;
-        console.log("Repo index : "+index);
-        index.read(function(readError) {
-          if (readError) 
-            throw readError;  
-          console.log("Repo read : success");
-              index.writeTree(function(writeTreeError, oid) {
-                if (writeTreeError) 
-                  throw writeTreeError;
-                console.log("Repo writeTree : success");
-                //get HEAD 
-                git.Reference.oidForName(repo, 'HEAD', function(oidForName, head) {
-                  if (oidForName) 
-                    throw oidForName;
-                  console.log("Repo oidForName : "+oidForName);
-                  //get latest commit (will be the parent commit)
-                  callback(head);
-                });  
-              });
-        });  
-      });
+  console.log("getLatestCommit "+repoPath);
+  //open a git repo
+  git.Repo.open(path.resolve(repoPath+'/.git'), function(openReporError, repo) {
+  if (openReporError) 
+    throw openReporError;
+  console.log("Repo open : "+repo);  
+  //add the file to the index...
+  repo.openIndex(function(openIndexError, index) {
+    if (openIndexError) 
+      throw openIndexError;
+    console.log("Repo index : "+index);
+    index.read(function(readError) {
+      if (readError) 
+        throw readError;  
+      console.log("Repo read : success");
+      index.writeTree(function(writeTreeError, oid) {
+        if (writeTreeError) 
+          throw writeTreeError;
+        console.log("Repo writeTree : success");
+        //get HEAD 
+          git.Reference.oidForName(repo, 'HEAD', function(oidForName, head) {
+            if (oidForName) 
+              throw oidForName;
+            console.log("Repo oidForName : "+oidForName);
+            //get latest commit (will be the parent commit)
+            callback(head);
+          });  
+        });
+      });  
     });
+  });
 }
 
 exports.repoMergeForFirstTime = function (name,branch,address,path)

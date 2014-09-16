@@ -149,6 +149,50 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
 }
 
 /** 
+ * @Method: updateItem
+ *    create description file.
+ * @param: item
+ *    an item object with informations for description.
+ * @param: itemDesPath
+ *    the path that a description file shoud be writen at.
+ * @param: callback
+ *    No arguments other than a file name array are given to the completion callback.
+ **/
+exports.updateItem = function(chItem,attrs,itemDesPath,callback){
+  var nameindex=chItem.lastIndexOf('/');
+  var fileName=chItem.substring(nameindex+1,chItem.length);
+  var desFilePath=itemDesPath+"/"+fileName+".md";
+  fs.readFile(desFilePath,'utf8',function(err,data){
+    if (err) {
+      console.log("read file error!");
+    }
+    else{
+      var json=JSON.parse(data);
+      for(var attr in attrs){
+        json[attr]=attrs[attr];
+      }
+      var sItem = JSON.stringify(json,null,4);
+      fs.open(desFilePath,"w",0644,function(err,fd){
+        if(err){
+          console.log("open des file error!");         
+        }
+        else{
+          fs.write(fd,sItem,0,'utf8',function(err){  
+            if (err) {
+              console.log("write des file error!");
+              console.log(err);
+            }
+            else{
+              callback();
+            }
+          });
+        }
+      });
+    } 
+  });
+}
+
+/** 
  * @Method: getAllTags
  *    Get all tags.
  * @param: callback
