@@ -72,13 +72,13 @@ function initializeApp(){
 
   fs.exists(sConfigPath, function (configExists) {
     if(!configExists){
-      console.log("Error: Config Path is not exist!" + sConfigPath);
-      return;
+      console.log("No data");
+    }else{
+      var dataDir=require(sConfigPath).dataDir;
+      config.RESOURCEPATH=dataDir;
+      util.log("monitor : "+dataDir);
+      fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
     }
-    var dataDir=require(sConfigPath).dataDir;
-    config.RESOURCEPATH=dataDir;
-    util.log("monitor : "+dataDir);
-    fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
         console.log("UniqueID.js is not exists, start to set sys uid.");

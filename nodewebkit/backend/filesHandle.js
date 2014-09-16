@@ -1,7 +1,7 @@
 var http = require("http");
 var url = require("url");
 var sys = require('sys');
-var path = require('path');
+var pathModule = require('path');
 var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
@@ -364,7 +364,7 @@ function chFile(path,resourcePath){
     repoCommitStatus = 'busy';  
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
-    var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+    var itemDesPath=pathModule.join(config.RESOURCEPATH,".des",addPath);
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     fs.stat(path,function(error,stat){
@@ -381,7 +381,8 @@ function chFile(path,resourcePath){
 
 function monitorFilesCb(path,event){
   util.log(event+'  :  '+path);
-  var resourcePath=require(config.USERCONFIGPATH+"config.js").dataDir;
+  var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
+  var resourcePath=require(sConfigPath).dataDir;
   var res = path.match(/.git/);
   if(res!=null){
     //util.log(res);
@@ -427,19 +428,20 @@ function initData(loadResourcesCb,resourcePath)
     else{
       var fileList = new Array();
       var fileDesDir = new Array();
-      fs.exists(config.USERCONFIGPATH+"config.js", function (exists) {
-        util.log(config.USERCONFIGPATH+"config.js "+ exists);
+      var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
+      fs.exists(sConfigPath, function (exists) {
+        util.log(sConfigPath+ exists);
         if(exists==false){
           var oldDataDir=null;
         }
         else{
-          var oldDataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+          var oldDataDir=require(sConfigPath).dataDir;
         }
         util.log("oldDataDir = "+oldDataDir);
         if(oldDataDir==null || oldDataDir!=resourcePath){
           var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
           util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
-          fs.writeFile(config.USERCONFIGPATH+"config.js",context,function(e){
+          fs.writeFile(sConfigPath,context,function(e){
             if(e) throw e;
           });
         }
