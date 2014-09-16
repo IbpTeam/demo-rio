@@ -35,14 +35,11 @@ var FILE_CONFIG = "config.js";
  *    callback when loading resouce ends.
  **/
 function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
+  //console.log(newItem.path)
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var posIndex = (newItem.path).lastIndexOf(".");
-  if(posIndex != -1){
-    var pos = (newItem.path).substring(posIndex,(newItem.path).length);
-  }else{
-    var pos = "";
-  }
+  var pos = (posIndex == -1) ? "" : (newItem.path).substring(posIndex,(newItem.path).length);
   var sPath = itemDesPath+'/'+sFileName+pos+'.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
     if (err) {
@@ -50,14 +47,13 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
       console.log("writeFile error!");
       console.log(err);
       if(isLoadEnd){
-        isEndCallback();
+        isEndCallback("successful");
       }
       return;
-    }
-    else{
-      console.log("write description file success");
+    }else{
+      //console.log("write description file success");
       if(isLoadEnd){
-        isEndCallback();
+        isEndCallback("successful");
       }
     }
   });

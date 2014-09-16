@@ -10,6 +10,7 @@ var dataDes = require("./FilesHandle/desFilesHandle");
 var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
+var csvtojson = require('./csvTojson');
 
 var writeDbNum=0;
 var dataPath;
@@ -31,7 +32,6 @@ var chokidar = require('chokidar');
 var watcher;
 
 function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
-  console.log("add itemDesPath = "+itemDesPath);
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
@@ -43,8 +43,27 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
 
-  util.log("read file "+itemPath);
-  if(itemPostfix == 'contacts'){
+  //util.log("read file "+itemPath);
+  if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
+    config.riolog("postfix= "+itemPostfix);
+    var currentTime = (new Date()).getTime();
+    csvtojson.csvTojson(itemPath,function(json){
+      //var oJson = JSON.parse(json);
+      console.log(oJson);
+      var category = 'Contacts';
+      for(var k=0;k<oJson.length;k++){
+        //console.log(oJson[k])
+        var sCode = "\u59D3";
+        if(oJson[k].hasOwnProperty(sCode)){
+          //console.log(oJson[k][sCode]);
+          oJson[k].path = itemPath;
+          oJson[k].name = oJson[k][sCode];
+          oJson[k].currentTime = currentTime;
+          var oNewItem = oJson[k];
+          dataDes.createItem(category,oNewItem,itemDesPath,isLoadEnd,loadResourcesCb);
+        }
+      }
+    });
   }
   else{
     function getFileStatCb(error,stat)
@@ -404,7 +423,7 @@ function initData(loadResourcesCb,resourcePath)
     if(err) {
       console.log("mk resourcePath error!");
       console.log(err);
-      //return;
+      return;
     }
     else{
       var fileList = new Array();
