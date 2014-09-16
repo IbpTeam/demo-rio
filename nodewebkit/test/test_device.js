@@ -1,4 +1,4 @@
-var mdns = require('./device');
+var mdns = require('../lib/api/device.js');
 function deviceStateCb(signal, args){
   var interface = args[0];
   var protocol = args[1];
@@ -18,10 +18,9 @@ function deviceStateCb(signal, args){
 
 function devicePublishCb(){
   var name = 'demo-rio';
-  var address = '192.168.160.176';
   var port = '80';
   var txtarray = ['demo-rio', 'hello'];
-  mdns.entryGroupCommit(name, address, port, txtarray)
+  mdns.entryGroupCommit(name,  port, txtarray)
 }
 
 function showDeviceListCb(args){
@@ -40,13 +39,13 @@ function showDeviceListCb(args){
   }  
 }
 mdns.addDeviceListener(deviceStateCb);
-mdns.setShowDeviceListCb(showDeviceListCb);
+//mdns.setShowDeviceListCb(showDeviceListCb);
 mdns.createServer(devicePublishCb);
-setTimeout(function(){mdns.showDeviceList()}, 2000);
+setTimeout(function(){mdns.showDeviceList(showDeviceListCb)}, 2000);
 
 setTimeout(function(){
   mdns.entryGroupReset()
 }, 4000);
 
 
-setTimeout(function(){mdns.showDeviceList()}, 6000);
+setTimeout(function(){mdns.showDeviceList(showDeviceListCb)}, 6000);
