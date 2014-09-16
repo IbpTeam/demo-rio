@@ -66,7 +66,6 @@ exports.showDeviceList = showDeviceList;
 function deleteADevice(name){
   var obj;
   for(address in deviceList){
-  // console.log(p + " : ", deviceList[p]);
   obj = deviceList[address]
   if(obj.name == name){
     delete deviceList[address];
@@ -91,8 +90,7 @@ function deleteADevice(name){
  *   设备附加信息
  *
  */
-function entryGroupCommit(name , address, port, strarray){
-  // console.log('value of entryGroupCommit: ', name , address, port, strarray);
+function entryGroupCommit(name , port, strarray){
   var byteArray = new Array();
   for(var i=0; i<strarray.length; i++){
   byteArray.push(stringToByteArray(strarray[i]));
@@ -166,10 +164,10 @@ function createServer(devicePublishCb){
       txt = new Array();
       for(var i=0; i<txtorig.length; i++){
         txt.push(arrayToString(txtorig[i]));
-      }
-       obj.txt = txt;
-       obj.flags  = result[10];
-       deviceList[obj.address] = obj;
+       }
+      obj.txt = txt;
+      obj.flags  = result[10];
+      deviceList[obj.address] = obj;
     };
   });
 }
@@ -202,11 +200,11 @@ function startServiceBrowser(path){
     }
     serviceBrowser = iface;
     iface.on('ItemNew', function(arg) {
-    //if(arguments[1] != 1 && arguments[2] == 'demo-rio'){
+    if(arguments[1] != 1 && arguments[2] == 'demo-rio'){
       server.ResolveService(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], -1, 0);
       //server.ResolveService(2, 1, 'TestService', '_http._tcp', 'local', -1, 0);
       callDeviceListener('ItemNew', arguments);
-    //}
+    }
     });
     iface.on('ItemRemove', function(arg) {
       var interface = arguments[0];
@@ -215,10 +213,10 @@ function startServiceBrowser(path){
       var type = arguments[3];
       var domain = arguments[4];
       var flags = arguments[5];
-    //if(arguments[1] != 1 && arguments[2] == 'demo-rio'){
+    if(arguments[1] != 1 && arguments[2] == 'demo-rio'){
       deleteADevice(name);
       callDeviceListener('ItemRemove', arguments);
-    //}
+    }
     });
   });
 }

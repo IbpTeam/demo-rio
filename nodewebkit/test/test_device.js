@@ -18,10 +18,9 @@ function deviceStateCb(signal, args){
 
 function devicePublishCb(){
   var name = 'demo-rio';
-  var address = '192.168.160.176';
   var port = '80';
   var txtarray = ['demo-rio', 'hello'];
-  mdns.entryGroupCommit(name, address, port, txtarray)
+  mdns.entryGroupCommit(name,  port, txtarray)
 }
 
 function showDeviceListCb(args){
