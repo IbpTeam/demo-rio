@@ -147,9 +147,7 @@ function rmData(itemPath,itemDesPath,rmDataCb){
 }
 
 function chData(itemPath,attrs,itemDesPath,chDataCb){
-  console.log("rm itemDesPath = "+itemDesPath);
-  console.log("!!!!!!!!!!!!!!!!!!!");
-  console.log(attrs);
+  console.log("ch itemDesPath = "+itemDesPath);
   dataDes.updateItem(itemPath,attrs,itemDesPath,chDataCb);
 }
 
@@ -375,8 +373,6 @@ function chFile(path,resourcePath){
         size:stat.size,
         lastModifyTime:stat.mtime
       };
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      console.log(attrs);
       chData(path,attrs,itemDesPath,function(){
         resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
       });
@@ -418,25 +414,6 @@ function monitorFiles(monitorPath,callback){
   watcherStart(monitorPath,callback);
 }
 exports.monitorFiles = monitorFiles;
-
-function deleteItemCb(uri,result,rmDataByUriCb)
-{
-
-  if(result.code=='SQLITE_BUSY'){
-    config.riolog(id+'delete error:'+result.code);
-    sleep(1000);
-    commonDAO.deleteItemByUri(uri,deleteItemCb,rmDataByUriCb);
-  }
-  else if(result=='successfull'){
-    config.riolog(id+'delete:'+result);
-    rmDataByUriCb('success');
-  }
-  else{
-    config.riolog(id+'delete:'+result);
-    rmDataByUriCb(result);
-  }
-}
-exports.deleteItemCb = deleteItemCb;
 
 function initData(loadResourcesCb,resourcePath)
 {

@@ -145,7 +145,7 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
 }
 
 /** 
- * @Method: deleteItem
+ * @Method: updateItem
  *    create description file.
  * @param: item
  *    an item object with informations for description.
@@ -164,17 +164,9 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
     }
     else{
       var json=JSON.parse(data);
-      console.log("origin json:");
-      console.log(json);
-      console.log("change json:");
-      console.log(attrs);
       for(var attr in attrs){
-        console.log("change json."+attr+" to "+attrs[attr]);
-
         json[attr]=attrs[attr];
       }
-      console.log("write json:");
-      console.log(json);
       var sItem = JSON.stringify(json,null,4);
       fs.open(desFilePath,"w",0644,function(err,fd){
         if(err){

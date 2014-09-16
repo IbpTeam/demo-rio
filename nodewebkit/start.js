@@ -13,7 +13,6 @@
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
-var msgTransfer = require("./backend/Transfer/msgtransfer");
 var fileHandle = require("./backend/filesHandle");
 var uniqueID=require('./backend/uniqueID');
 var util = require('util');
@@ -61,7 +60,7 @@ function startApp(){
 }
 
 /** 
- * @Method: startApp
+ * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
 function initializeApp(){
@@ -83,24 +82,26 @@ function initializeApp(){
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
         console.log("UniqueID.js is not exists, start to set sys uid.");
-        setSysUid(null);
+        setSysUid(null,sUniqueIDPath);
         return;
       }
       console.log("UniqueID.js is exist.");
       var deviceID=require(sUniqueIDPath).uniqueID;
-      setSysUid(deviceID);
+      setSysUid(deviceID,sUniqueIDPath);
     });
   });
+
+  //start to init database
  }
 
 /** 
  * @Method: setSysUid
  *    set system unique id.
  **/
-function setSysUid(deviceID){
+function setSysUid(deviceID,uniqueIDPath){
   if(deviceID == undefined || deviceID == null){
     uniqueID.SetSysUid(function(){
-      deviceID=require(sUniqueIDPath).uniqueID;
+      deviceID=require(uniqueIDPath).uniqueID;
       console.log("deviceID = "+deviceID);
       config.uniqueID=deviceID;
     });
