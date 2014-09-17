@@ -7,7 +7,7 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
-var CommonDAO = require("./DAO/CommonDAO")
+var commonDAO = require("./DAO/CommonDAO")
 var resourceRepo = require("./FilesHandle/repo");
 var device = require("./devices");
 var util = require('util');
@@ -540,7 +540,7 @@ function initData(loadResourcesCb,resourcePath)
           if(isLoadEnd){
             //console.log(oNewItems);
             resourceRepo.repoInit(resourcePath,loadResourcesCb);
-            CommonDAO.createItems(oNewItems,function(result){
+            commonDAO.createItems(oNewItems,function(result){
              console.log(result);
            });
           }
@@ -550,6 +550,28 @@ function initData(loadResourcesCb,resourcePath)
   });
 }
 exports.initData = initData;
+
+
+function getAllCategories(getAllCateCb) {
+  function getCategoriesCb(data)
+  {
+    var cates = new Array();
+    data.forEach(function (each){
+      cates.push({
+        URI:each.id,
+        version:each.version,
+        type:each.type,
+        path:each.logoPath,
+        desc:each.desc
+      });
+    });
+    getAllCateCb(cates);
+  }
+  commonDAO.getCategories(getCategoriesCb);
+}
+exports.getAllCategories = getAllCategories;
+
+
 
 function monitorNetlink(path){
   fs.watch(path, function (event, filename) {

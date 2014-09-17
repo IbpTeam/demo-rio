@@ -37,21 +37,7 @@ exports.loadResources = loadResources;
  */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  function getCategoriesCb(data)
-  {
-    var cates = new Array();
-    data.forEach(function (each){
-      cates.push({
-        URI:each.id,
-        version:each.version,
-        type:each.type,
-        path:each.logoPath,
-        desc:each.desc
-      });
-    });
-    getAllCateCb(cates);
-  }
-  commonDAO.getCategories(getCategoriesCb);
+  filesHandle.getAllCategories(getAllCateCb)
 }
 exports.getAllCate = getAllCate;
 
