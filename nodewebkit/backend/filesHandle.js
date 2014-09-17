@@ -7,16 +7,20 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
+var CommonDAO = require("./DAO/CommonDAO")
 var resourceRepo = require("./FilesHandle/repo");
+var device = require("./devices");
 var util = require('util');
 var events = require('events'); 
+var csvtojson = require('./csvTojson');
+var uniqueID = require("./uniqueID");
 
 var writeDbNum=0;
 var dataPath;
 
 function sleep(milliSeconds) { 
-    var startTime = new Date().getTime(); 
-    while (new Date().getTime() < startTime + milliSeconds);
+  var startTime = new Date().getTime(); 
+  while (new Date().getTime() < startTime + milliSeconds);
 };
 exports.sleep = sleep;
 
@@ -30,8 +34,7 @@ exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
-  console.log("add itemDesPath = "+itemDesPath);
+function addData(itemPath,itemDesPath,isLoadEnd,callback){
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
@@ -42,84 +45,157 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
     var nameindex=itemPath.lastIndexOf('/');
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
+  if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
 
-  util.log("read file "+itemPath);
-  if(itemPostfix == 'contacts'){
+    config.riolog("postfix= "+itemPostfix);
+    var currentTime = (new Date()).getTime();
+    csvtojson.csvTojson(itemPath,function(json){
+      var oJson = JSON.parse(json);
+
+      var category = 'Contacts';
+      for(var k=0;k<oJson.length;k++){
+        var sCode = "\u59D3";//"姓"
+        if(oJson[k].hasOwnProperty(sCode)){
+          oJson[k].path = itemPath;
+          oJson[k].name = oJson[k][sCode];
+          oJson[k].currentTime = currentTime;
+          var oNewItem = oJson[k];
+          dataDes.createItem(category,oNewItem,itemDesPath);
+          uniqueID.getFileUid(function(uri){
+            var oItem = {
+              id:null,
+              URI:uri + "#" + category,
+              category:category,
+              commit_id: "",
+              version:"",
+              is_delete:0,
+              name:oNewItem["\u59D3"],
+              phone:110120119,
+              sex:"Phd",
+              age:35,
+              email:"my@email.com",
+              postfix:itemPostfix,
+              id:"",
+              photoPath:itemPath,
+              location:"Mars",
+              createTime:currentTime,
+              lastModifyTime:currentTime,
+              lastAccessTime:currentTime,
+              currentTime:currentTime,
+            }
+            callback(isLoadEnd,oItem);
+          })
+        }
+      }
+    });
+}
+else{
+  function getFileStatCb(error,stat)
+  {
+    var mtime=stat.mtime;
+    var ctime=stat.ctime;
+    var size=stat.size;
+    if(itemPostfix == 'none' || 
+     itemPostfix == 'ppt' || 
+     itemPostfix == 'pptx'|| 
+     itemPostfix == 'doc'|| 
+     itemPostfix == 'docx'|| 
+     itemPostfix == 'wps'|| 
+     itemPostfix == 'odt'|| 
+     itemPostfix == 'et'|| 
+     itemPostfix == 'txt'|| 
+     itemPostfix == 'xls'|| 
+     itemPostfix == 'xlsx' || 
+     itemPostfix == 'ods' || 
+     itemPostfix == 'zip' || 
+     itemPostfix == 'sh' || 
+     itemPostfix == 'gz' || 
+     itemPostfix == 'html' || 
+     itemPostfix == 'et' || 
+     itemPostfix == 'odt' || 
+     itemPostfix == 'pdf'){
+      var category='Documents';
+    var oNewItem = {};
+    uniqueID.getFileUid(function(uri){
+      oNewItem={
+        id:"",
+        URI:uri + "#" + category,
+        category:category,
+        commit_id: null,
+        version:null,
+        is_delete:0,
+        others:null,
+        filename:itemFilename,
+        postfix:itemPostfix,
+        size:size,
+        path:itemPath,
+        project:'上海专项',
+        createTime:ctime,
+        lastModifyTime:mtime,
+        lastAccessTime:ctime,
+      };
+      dataDes.createItem(category,oNewItem,itemDesPath);
+      callback(isLoadEnd,oNewItem);
+    });
   }
+  else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+    var category='Pictures';
+    var oNewItem = {};
+    uniqueID.getFileUid(function(uri){
+      var oNewItem={
+        URI:uri + "#" + category,
+        category:category,
+        commit_id: null,
+        version:null,
+        is_delete:0,
+        filename:itemFilename,
+        postfix:itemPostfix,
+        id:null,
+        size:size,
+        path:itemPath,
+        location:"Mars",
+        createTime:ctime,
+        lastModifyTime:mtime,
+        lastAccessTime:ctime,
+        others:null,
+      };
+      dataDes.createItem(category,oNewItem,itemDesPath);
+      callback(isLoadEnd,oNewItem);
+    })
+  }
+  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+    var category='Music'; 
+    var oNewItem = {};
+    uniqueID.getFileUid(function(uri){
+        var oNewItem = {
+        id:null,
+        URI:uri + "#" + category,
+        category:category,
+        commit_id: null,
+        version:null,
+        is_delete:0,
+        others:null,
+        filename:itemFilename,
+        postfix:itemPostfix,
+        size:size,
+        path:itemPath,
+        album:'流行',
+        composerName:"Xiquan",
+        actorName:"Xiquan",
+        createTime:ctime,
+        lastModifyTime:mtime,
+        lastAccessTime:ctime,
+      };
+      dataDes.createItem(category,oNewItem,itemDesPath);
+      callback(isLoadEnd,oNewItem);
+    })
+  } 
   else{
-    function getFileStatCb(error,stat)
-    {
-      var mtime=stat.mtime;
-      var ctime=stat.ctime;
-      var size=stat.size;
-      if(itemPostfix == 'none' || 
-         itemPostfix == 'ppt' || 
-         itemPostfix == 'pptx'|| 
-         itemPostfix == 'doc'|| 
-         itemPostfix == 'docx'|| 
-         itemPostfix == 'wps'|| 
-         itemPostfix == 'odt'|| 
-         itemPostfix == 'et'|| 
-         itemPostfix == 'txt'|| 
-         itemPostfix == 'xls'|| 
-         itemPostfix == 'xlsx' || 
-         itemPostfix == 'ods' || 
-         itemPostfix == 'zip' || 
-         itemPostfix == 'sh' || 
-         itemPostfix == 'gz' || 
-         itemPostfix == 'html' || 
-         itemPostfix == 'et' || 
-         itemPostfix == 'odt' || 
-         itemPostfix == 'pdf'){
-        var category='Documents';
-        var newItem={
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:size,
-          path:itemPath,
-          project:'上海专项',
-          createTime:ctime,
-          lastModifyTime:mtime,
-          lastAccessTime:ctime,
-          tags:null
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      }
-      else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-        var category='Pictures';
-        var newItem={
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:size,
-          path:itemPath,
-          createTime:ctime,
-          lastModifyTime:mtime,
-          lastAccessTime:ctime,
-          tags:null
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      }
-      else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-        var category='Music'; 
-        var newItem={
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:size,
-          path:itemPath,
-          album:'流行',
-          createTime:ctime,
-          lastModifyTime:mtime,
-          lastAccessTime:ctime,
-          tags:null
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      } 
-      else{
-        writeDbNum --;
-      }     
-    }
-    fs.stat(itemPath,getFileStatCb);
-  }
+    writeDbNum --;
+  }     
+}
+fs.stat(itemPath,getFileStatCb);
+}
 }
 
 function rmData(itemPath,itemDesPath,rmDataCb){
@@ -372,15 +448,15 @@ function monitorFilesCb(path,event){
   else{
     switch(event){
       case 'add' : {
-          addFile(path,resourcePath);
+        addFile(path,resourcePath);
       }
       break;
       case 'unlink' : {
-          rmFile(path,resourcePath);
+        rmFile(path,resourcePath);
       }
       break;
       case 'change' : {
-          chFile(path,resourcePath);
+        chFile(path,resourcePath);
       }
       break;
     }
@@ -405,7 +481,7 @@ function initData(loadResourcesCb,resourcePath)
     if(err) {
       console.log("mk resourcePath error!");
       console.log(err);
-      //return;
+      return;
     }
     else{
       var fileList = new Array();
@@ -458,7 +534,17 @@ function initData(loadResourcesCb,resourcePath)
       }
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        addData(fileList[k],fileDesDir[k],isLoadEnd,isEndCallback);
+        var oNewItems = new Array();
+        addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
+          oNewItems.push(oNewItem);
+          if(isLoadEnd){
+            //console.log(oNewItems);
+            resourceRepo.repoInit(resourcePath,loadResourcesCb);
+            CommonDAO.createItems(oNewItems,function(result){
+             console.log(result);
+           });
+          }
+        });
       }
     }
   });
@@ -482,8 +568,8 @@ function monitorNetlink(path){
 exports.monitorNetlink = monitorNetlink;
 
 function openFileByPath(path,callback){
-    var  exec = require('child_process').exec;
-    var comstr = "bash ./backend/vnc/open.sh -doc \"" + path + "\"";
+  var  exec = require('child_process').exec;
+  var comstr = "bash ./backend/vnc/open.sh -doc \"" + path + "\"";
     //var comstr = "xdg-open " + path;
     console.log("run vncserver and websockify server ......");
     console.log("path server: " , comstr);
@@ -495,10 +581,10 @@ function openFileByPath(path,callback){
         console.log('exec error: '+error);
       }
     });
-}
-exports.openFileByPath = openFileByPath;
+  }
+  exports.openFileByPath = openFileByPath;
 
-function closeVNCandWebsockifyServer(port,callback){
+  function closeVNCandWebsockifyServer(port,callback){
     var  exec = require('child_process').exec;
     var comstr = "bash ./backend/vnc/close.sh \"" + port + "\"";
     //var comstr = "xdg-open " + path;
@@ -511,20 +597,33 @@ function closeVNCandWebsockifyServer(port,callback){
         console.log('exec error: '+error);
       }
     });
-}
-exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
+  }
+  exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
 
-function mkdirSync(dirpath, mode, callback) {
-  path.exists(dirpath, function(exists) {
-    if(exists) {
-      callback(dirpath);
-    } 
-    else {
+  function mkdirSync(dirpath, mode, callback) {
+    path.exists(dirpath, function(exists) {
+      if(exists) {
+        callback(dirpath);
+      } 
+      else {
       //尝试创建父目录，然后再创建当前目录
       mkdirSync(path.dirname(dirpath), mode, function(){
         fs.mkdir(dirpath, mode, callback);
       });
     }
   });
+
 };
 exports.mkdirSync = mkdirSync;
+
+function firstSync(){
+  resourceRepo.repoMergeForFirstTime(device.devicesList[0].name,
+                                     device.devicesList[0].branchName,
+                                     device.devicesList[0].ip,
+                                     device.devicesList[0].resourcePath,
+                                     function(){
+    console.log("merge success!");
+  });
+}
+exports.firstSync = firstSync;
+
