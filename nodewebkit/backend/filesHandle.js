@@ -59,60 +59,62 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
           oJson[k].currentTime = currentTime;
           var oNewItem = oJson[k];
           dataDes.createItem(category,oNewItem,itemDesPath);
-          var oItem = {
-            category:category,
-            commit_id: "",
-            version:"",
-            is_delete:0,
-            name:oJson[k][sCode],
-            phone:110120119,
-            sex:"Phd",
-            age:35,
-            email:"my@email.com",
-            postfix:itemPostfix,
-            id:"",
-            photoPath:itemPath,
-            location:"Mars",
-            createTime:currentTime,
-            lastModifyTime:currentTime,
-            lastAccessTime:currentTime,
-            currentTime:currentTime,
-          }
-          //console.log(oItem);
-          callback(isLoadEnd,oItem);
+          uniqueID.getFileUid(function(uri){
+            var oItem = {
+              id:null,
+              URI:uri,
+              category:category,
+              commit_id: "",
+              version:"",
+              is_delete:0,
+              name:oNewItem["\u59D3"],
+              phone:110120119,
+              sex:"Phd",
+              age:35,
+              email:"my@email.com",
+              postfix:itemPostfix,
+              id:"",
+              photoPath:itemPath,
+              location:"Mars",
+              createTime:currentTime,
+              lastModifyTime:currentTime,
+              lastAccessTime:currentTime,
+              currentTime:currentTime,
+            }
+            callback(isLoadEnd,oItem);
+          })
         }
       }
     });
-
-  }
-  else{
-    function getFileStatCb(error,stat)
-    {
-      var mtime=stat.mtime;
-      var ctime=stat.ctime;
-      var size=stat.size;
-      if(itemPostfix == 'none' || 
-       itemPostfix == 'ppt' || 
-       itemPostfix == 'pptx'|| 
-       itemPostfix == 'doc'|| 
-       itemPostfix == 'docx'|| 
-       itemPostfix == 'wps'|| 
-       itemPostfix == 'odt'|| 
-       itemPostfix == 'et'|| 
-       itemPostfix == 'txt'|| 
-       itemPostfix == 'xls'|| 
-       itemPostfix == 'xlsx' || 
-       itemPostfix == 'ods' || 
-       itemPostfix == 'zip' || 
-       itemPostfix == 'sh' || 
-       itemPostfix == 'gz' || 
-       itemPostfix == 'html' || 
-       itemPostfix == 'et' || 
-       itemPostfix == 'odt' || 
-       itemPostfix == 'pdf'){
-        var category='Documents';
-      var oNewItem = {};
-      uniqueID.getFileUid(function(uri){
+}
+else{
+  function getFileStatCb(error,stat)
+  {
+    var mtime=stat.mtime;
+    var ctime=stat.ctime;
+    var size=stat.size;
+    if(itemPostfix == 'none' || 
+     itemPostfix == 'ppt' || 
+     itemPostfix == 'pptx'|| 
+     itemPostfix == 'doc'|| 
+     itemPostfix == 'docx'|| 
+     itemPostfix == 'wps'|| 
+     itemPostfix == 'odt'|| 
+     itemPostfix == 'et'|| 
+     itemPostfix == 'txt'|| 
+     itemPostfix == 'xls'|| 
+     itemPostfix == 'xlsx' || 
+     itemPostfix == 'ods' || 
+     itemPostfix == 'zip' || 
+     itemPostfix == 'sh' || 
+     itemPostfix == 'gz' || 
+     itemPostfix == 'html' || 
+     itemPostfix == 'et' || 
+     itemPostfix == 'odt' || 
+     itemPostfix == 'pdf'){
+      var category='Documents';
+    var oNewItem = {};
+    uniqueID.getFileUid(function(uri){
       oNewItem={
         id:"",
         URI:uri,//uri + "#" + category;
@@ -132,14 +134,14 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
       };
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
-      });
+    });
 
-    }
-    else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-      
-      var category='Pictures';
-      var oNewItem = {};
-      uniqueID.getFileUid(function(uri){
+  }
+  else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+
+    var category='Pictures';
+    var oNewItem = {};
+    uniqueID.getFileUid(function(uri){
       var oNewItem={
         URI:uri,//uri + "#" + category;
         category:category,
@@ -160,11 +162,11 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
     })
-    }
-    else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-      var category='Music'; 
-      var oNewItem = {};
-      uniqueID.getFileUid(function(uri){
+  }
+  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+    var category='Music'; 
+    var oNewItem = {};
+    uniqueID.getFileUid(function(uri){
       var oNewItem={
         id:null,
         URI:uri,//uri + "#" + category;
@@ -187,13 +189,12 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
     })
-    
-    } 
-    else{
-      writeDbNum --;
-    }     
-  }
-  fs.stat(itemPath,getFileStatCb);
+  } 
+  else{
+    writeDbNum --;
+  }     
+}
+fs.stat(itemPath,getFileStatCb);
 }
 }
 
