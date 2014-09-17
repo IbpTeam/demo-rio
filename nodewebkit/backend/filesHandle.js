@@ -9,6 +9,7 @@ var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
 var CommonDAO = require("./DAO/CommonDAO")
 var resourceRepo = require("./FilesHandle/repo");
+var device = require("./devices");
 var util = require('util');
 var events = require('events'); 
 var csvtojson = require('./csvTojson');
@@ -50,6 +51,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var currentTime = (new Date()).getTime();
     csvtojson.csvTojson(itemPath,function(json){
       var oJson = JSON.parse(json);
+
       var category = 'Contacts';
       for(var k=0;k<oJson.length;k++){
         var sCode = "\u59D3";//"姓"
@@ -610,5 +612,18 @@ function openFileByPath(path,callback){
       });
     }
   });
-  };
-  exports.mkdirSync = mkdirSync;
+
+};
+exports.mkdirSync = mkdirSync;
+
+function firstSync(){
+  resourceRepo.repoMergeForFirstTime(device.devicesList[0].name,
+                                     device.devicesList[0].branchName,
+                                     device.devicesList[0].ip,
+                                     device.devicesList[0].resourcePath,
+                                     function(){
+    console.log("merge success!");
+  });
+}
+exports.firstSync = firstSync;
+

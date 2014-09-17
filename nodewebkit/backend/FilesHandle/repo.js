@@ -11,7 +11,7 @@ exports.repoInit = function (repoPath,callback)
       throw initReporError;
     console.log("Repo init : "+repo);
     var  exec = require('child_process').exec;
-    var comstr = 'cd ' + repoPath + ' && git add . && git commit -m "Init"';
+    var comstr = 'cd ' + repoPath + ' && git add . && git commit -m "On device '+config.SERVERNAME+' #Init resource#"';
     console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
     exec(comstr, function(error,stdout,stderr){
       if(error){
@@ -28,7 +28,7 @@ exports.repoInit = function (repoPath,callback)
 exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "Add : '+sourceFilePath+' and description file."';
+  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -44,7 +44,7 @@ exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback)
 exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "Delete : '+sourceFilePath+' and description file."';
+  var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -60,14 +60,14 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback)
 exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "Change : '+sourceFilePath+' and description file."';
+  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
-      console.log("Git add error");
+      console.log("Git change error");
     }
     else{
-      console.log("Git add success");
+      console.log("Git change success");
       callback();
     }
   });
@@ -108,7 +108,7 @@ exports.getLatestCommit = function (repoPath,callback)
   });
 }
 
-exports.repoMergeForFirstTime = function (name,branch,address,path)
+exports.repoMergeForFirstTime = function (name,branch,address,path,callback)
 {
   filesHandle.watcherStop();
   var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;

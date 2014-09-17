@@ -15,6 +15,7 @@ var server = require("./backend/server");
 var router = require("./backend/router");
 var fileHandle = require("./backend/filesHandle");
 var uniqueID=require('./backend/uniqueID');
+var device = require("./backend/devices");
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
@@ -88,6 +89,7 @@ function initializeApp(){
       console.log("UniqueID.js is exist.");
       var deviceID=require(sUniqueIDPath).uniqueID;
       setSysUid(deviceID,sUniqueIDPath);
+      device.getDeviceList();
     });
   });
 
