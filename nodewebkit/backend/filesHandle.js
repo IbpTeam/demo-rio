@@ -165,7 +165,7 @@ else{
     var category='Music'; 
     var oNewItem = {};
     uniqueID.getFileUid(function(uri){
-      var oNewItem={
+        var oNewItem = {
         id:null,
         URI:uri,//uri + "#" + category;
         category:category,
