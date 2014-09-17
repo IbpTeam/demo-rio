@@ -62,7 +62,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
           uniqueID.getFileUid(function(uri){
             var oItem = {
               id:null,
-              URI:uri,
+              URI:uri + "#" + category,
               category:category,
               commit_id: "",
               version:"",
@@ -117,7 +117,7 @@ else{
     uniqueID.getFileUid(function(uri){
       oNewItem={
         id:"",
-        URI:uri,//uri + "#" + category;
+        URI:uri + "#" + category,
         category:category,
         commit_id: null,
         version:null,
@@ -141,7 +141,7 @@ else{
     var oNewItem = {};
     uniqueID.getFileUid(function(uri){
       var oNewItem={
-        URI:uri,//uri + "#" + category;
+        URI:uri + "#" + category,
         category:category,
         commit_id: null,
         version:null,
@@ -167,7 +167,7 @@ else{
     uniqueID.getFileUid(function(uri){
         var oNewItem = {
         id:null,
-        URI:uri,//uri + "#" + category;
+        URI:uri + "#" + category,
         category:category,
         commit_id: null,
         version:null,
