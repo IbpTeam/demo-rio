@@ -20,12 +20,29 @@ var recentDAO = require("./RecentDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 
-//连接数据库
+// @const
+var BEGIN_TRANS = "begin transaction;";
+var ROLLBACK_TRANS = "rollback;";
+var COMMIT_TRANS = "commit;";
+
+
+/**
+ * @method openDB
+ *    Open the database.
+ * @return db
+ *    The database object.
+ */
 function openDB(){
   return new sqlite3.Database('./backend/db/rio');
 }
 
-//关闭数据库
+
+/**
+ * @method closeDB
+ *    Close the database.
+ * @param database
+ *    The database object.
+ */
 function closeDB(database){
   database.close();
 }
@@ -279,124 +296,89 @@ exports.getItemByPath = function(path, callback){
 }
 
 /**
+ * @method execSQL
+ *    Execute the specific sql string.
+ * @param sql
+ *    Specific SQL string to execute.
+ * @param callback
+ *    If provided,this function will be called when the sql was executed successfully
+ *    or when an err occurred, if successfull will return string "commit", otherwise "rollback"
+ */
+function execSQL(sql,callback){
+  //Open database
+  var oDb = openDB();
+  oDb.exec(sql,function(err){
+    if(err){
+      console.log("Error:execute SQL error.");
+      console.log("Info :" + err);
+      rollbackTrans(oDb,callback);
+      return;
+    }
+    commitTrans(oDb,callback);
+  });
+}
+
+/**
+ * @method rollbackTrans
+ *    If an err occurred,this method will be executed, rollback.
+ * @param db
+ *    The database obj.
+ * @param callback
+ */
+function rollbackTrans(db,callback){
+  db.run(ROLLBACK_TRANS,function(err){
+    if(err) throw err;
+    callback("rollback");
+    closeDB(db);
+  });
+}
+
+/**
+ * @method commitTrans
+ *    If execute successfully, this method will be executed, commit transaction.
+ * @param sql
+ *    The database obj.
+ * @param callback
+ */
+function commitTrans(db,callback){
+  db.run(COMMIT_TRANS,function(err){
+    if(err) throw err;
+    callback("commit");
+    closeDB(db);
+  });
+}
+
+/**
  * @method createItems
  *   
  * @param items
- *
+ *    An obj Array, each obj must has attribute category&&URI match table&&URI,
+ *    other attributes match field in table.
  * @param callback
+ *    Retrive "commit" when successfully
+ *    Retrive "rollback" when error
  */
 exports.createItems = function(items,callback){
-  var aSqlArray = new Array();
+  //var aSqlArray = new Array();
+  var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
-    var sSqlStr = "insert into " + item.category;
+    var oTempItem = item;
+    sSqlStr = sSqlStr + "insert into " + oTempItem.category;
+    //Delete attribute category and id from this obj.
+    delete oTempItem.category;
+    delete oTempItem.id;
     var sKeyStr = " (id";
     var sValueStr = ") values (null";
     for(var key in item){
       sKeyStr = sKeyStr + "," + key;
-      sValueStr = sValueStr + "," + item[key];
+      sValueStr = sValueStr + ",'" + item[key] + "'";
     }
-    sSqlStr = sSqlStr + sKeyStr + sValueStr + ")";
-    console.log(sSqlStr);     
+    sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
+    sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + item.URI + "','" + item.lastAccessTime + "');";
   });
-  console.log("num====================="+items.length);
-  //var oDB = openDB();
-  //db.all(SQLSTR.FINDALLCATEGORIES, findAllCallBack);
-  //closeDB(oDB);
-}
 
-exports.createItem = function(category, item, callback , createDesFileCb , loadResourcesCb){
-  var createDAO = null;
-  var sTableName = null;
-  //Get uniform resource identifier
-  var uri = "specificURI";
-
-  switch(category){
-    case 'Contacts' : {
-      createDAO = contactsDAO;
-      sTableName = '#contacts';
-    }
-    break;
-    case 'Pictures' : {
-      config.dblog('insert picture');
-      createDAO = picturesDAO;
-      sTableName = '#pictures';
-    }
-    break;
-    case 'Videos' : {
-      config.dblog('insert video');
-      createDAO = videosDAO;
-      sTableName = '#videos';
-    }
-    break;
-    case 'Documents' : {
-      config.dblog('insert document');
-      createDAO = documentsDAO;
-      sTableName = '#documents';
-    }
-    break;
-    case 'Music' : {
-      config.dblog('insert music');
-      createDAO = musicDAO;
-      sTableName = '#music';
-    }
-    break;
-/*    case 'recent' : {
-      config.dblog('insert recent');
-      recentDAO.createItem(item, function(err){
-        if(err){
-          callback(category,item,err,loadResourcesCb);
-        }
-        else{
-          callback(category,item,'successfull',loadResourcesCb);
-        }
-      });
-      return;
-    }
-    break;    
-*/   
-  }
-  //Get uniform resource identifier
-  uniqueID.getFileUid(function(uri){
-    item.URI = uri + sTableName;
-    uniqueID.getRandomBytes(12,function(version){
-      if (version != null) {
-        item.version = version;
-        createDAO.createItem(item, function(err){
-          if(err){
-            callback(category,item,err,loadResourcesCb);
-          }
-          else{
-            var oNewItem = {
-              fileUri:item.URI,
-              lastAccessTime:item.lastAccessTime
-            };
-            function createRecentItemCb(err){
-              if(err){
-                recentDAO.createItem(oNewItem,createRecentItemCb);
-              }
-              else{
-                function createInsertItemCB(err){
-                  if (err) {
-                    actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-                  }
-                  else{
-                    callback(category,item,'successfull',loadResourcesCb);
-                  }
-                }
-                actionHistoryDAO.createInsertItem(item.URI,item.version,createInsertItemCB);
-              }
-            }
-            recentDAO.createItem(oNewItem,createRecentItemCb);
-          }
-        });
-      }
-      else{
-        console.log("Action History DAO Exception: randomId is null.");
-      }
-    });
-  });
-  //console.log(item);
-  createDesFileCb(item);
+  // Exec sql
+  execSQL(sSqlStr,callback);
 }
 
 exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
