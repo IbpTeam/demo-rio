@@ -22,9 +22,9 @@ var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
 
 // @const
-var BEGIN_TRANS = "begin transaction;";
-var ROLLBACK_TRANS = "rollback;";
-var COMMIT_TRANS = "commit;";
+var BEGIN_TRANS = "BEGIN TRANSACTION;";
+var ROLLBACK_TRANS = "ROLLBACK";
+var COMMIT_TRANS = "COMMIT;";
 
 
 /**
@@ -371,12 +371,14 @@ exports.createItems = function(items,callback){
     delete oTempItem.id;
     var sKeyStr = " (id";
     var sValueStr = ") values (null";
-    for(var key in item){
+    for(var key in oTempItem){
       sKeyStr = sKeyStr + "," + key;
-      sValueStr = sValueStr + ",'" + item[key] + "'";
+      if(typeof oTempItem[key] == 'string')
+        oTempItem[key] = oTempItem[key].replace("'","''");
+      sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
     }
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-    sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + item.URI + "','" + item.lastAccessTime + "');";
+    sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
   });
   console.log("==============="+sSqlStr);
 
