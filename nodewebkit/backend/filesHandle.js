@@ -135,10 +135,8 @@ else{
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
     });
-
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-
     var category='Pictures';
     var oNewItem = {};
     uniqueID.getFileUid(function(uri){
