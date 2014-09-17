@@ -8,6 +8,7 @@ var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
 var resourceRepo = require("./FilesHandle/repo");
+var device = require("./devices");
 var util = require('util');
 var events = require('events'); 
 var csvtojson = require('./csvTojson');
@@ -48,7 +49,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     csvtojson.csvTojson(itemPath,function(json){
-      //var oJson = JSON.parse(json);
+      var oJson = JSON.parse(json);
       console.log(oJson);
       var category = 'Contacts';
       for(var k=0;k<oJson.length;k++){
@@ -549,7 +550,11 @@ function mkdirSync(dirpath, mode, callback) {
 exports.mkdirSync = mkdirSync;
 
 function firstSync(){
-  resourceRepo.repoMergeForFirstTime("other","HP","192.168.160.72","/home/v1/resources",function(){
+  resourceRepo.repoMergeForFirstTime(device.devicesList[0].name,
+                                     device.devicesList[0].branchName,
+                                     device.devicesList[0].ip,
+                                     device.devicesList[0].resourcePath,
+                                     function(){
     console.log("merge success!");
   });
 }
