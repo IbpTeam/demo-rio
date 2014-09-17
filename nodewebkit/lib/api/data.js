@@ -355,3 +355,8 @@ function getServerAddress(getServerAddressCb){
 }
 exports.getServerAddress = getServerAddress;
 
+
+function repoMergeForFirstTime(){
+  filesHandle.firstSync();
+}
+exports.repoMergeForFirstTime = repoMergeForFirstTime;

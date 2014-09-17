@@ -64,10 +64,10 @@ exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback)
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
-      console.log("Git add error");
+      console.log("Git change error");
     }
     else{
-      console.log("Git add success");
+      console.log("Git change success");
       callback();
     }
   });
@@ -108,7 +108,7 @@ exports.getLatestCommit = function (repoPath,callback)
   });
 }
 
-exports.repoMergeForFirstTime = function (name,branch,address,path)
+exports.repoMergeForFirstTime = function (name,branch,address,path,callback)
 {
   filesHandle.watcherStop();
   var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
