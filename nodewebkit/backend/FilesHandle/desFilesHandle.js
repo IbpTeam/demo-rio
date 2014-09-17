@@ -95,14 +95,12 @@ function sortObj(Item,callback){
  *    callback when loading resouce ends.
  **/
 exports.createItem = function(category,item,itemDesPath,callback){
-
   //Get uniform resource identifier
-  //console.log(isLoadEnd);
   var uri = "specificURI";
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
-      item.URI = uri + "#" + category;
+      //item.URI = uri + "#" + category;
       sortObj(item,function(oNewItem){
         createDesFile(oNewItem,itemDesPath,function(){
           //console.log("createItem success!")

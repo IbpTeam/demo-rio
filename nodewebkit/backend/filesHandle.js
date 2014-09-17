@@ -12,13 +12,14 @@ var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
 var csvtojson = require('./csvTojson');
+var uniqueID = require("./uniqueID");
 
 var writeDbNum=0;
 var dataPath;
 
 function sleep(milliSeconds) { 
-    var startTime = new Date().getTime(); 
-    while (new Date().getTime() < startTime + milliSeconds);
+  var startTime = new Date().getTime(); 
+  while (new Date().getTime() < startTime + milliSeconds);
 };
 exports.sleep = sleep;
 
@@ -32,7 +33,7 @@ exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,callback){
+function addData(itemPath,itemDesPath,isLoadEnd,callback){
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
@@ -44,6 +45,7 @@ function addData(itemPath,itemDesPath,callback){
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
+/*
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     csvtojson.csvTojson(itemPath,function(json){
@@ -57,9 +59,31 @@ function addData(itemPath,itemDesPath,callback){
           oJson[k].currentTime = currentTime;
           var oNewItem = oJson[k];
           dataDes.createItem(category,oNewItem,itemDesPath);
+          var oItem = {
+            category:category,
+            commit_id: "",
+            version:"",
+            is_delete:0,
+            name:oJson[k][sCode],
+            phone:110120119,
+            sex:"Phd",
+            age:35,
+            email:"my@email.com",
+            postfix:itemPostfix,
+            id:"",
+            photoPath:itemPath,
+            location:"Mars",
+            createTime:currentTime,
+            lastModifyTime:currentTime,
+            lastAccessTime:currentTime,
+            currentTime:currentTime,
+          }
+          //console.log(oItem);
+          callback(isLoadEnd,oItem);
         }
       }
     });
+*/
   }
   else{
     function getFileStatCb(error,stat)
@@ -87,7 +111,16 @@ function addData(itemPath,itemDesPath,callback){
        itemPostfix == 'odt' || 
        itemPostfix == 'pdf'){
         var category='Documents';
-      var newItem={
+      var oNewItem = {};
+      uniqueID.getFileUid(function(uri){
+      oNewItem={
+        id:"",
+        URI:uri,//uri + "#" + category;
+        category:category,
+        commit_id: null,
+        version:null,
+        is_delete:0,
+        others:null,
         filename:itemFilename,
         postfix:itemPostfix,
         size:size,
@@ -96,45 +129,67 @@ function addData(itemPath,itemDesPath,callback){
         createTime:ctime,
         lastModifyTime:mtime,
         lastAccessTime:ctime,
-        tags:null
+        tags:null,
       };
-      dataDes.createItem(category,newItem,itemDesPath);
+      dataDes.createItem(category,oNewItem,itemDesPath);
+      callback(isLoadEnd,oNewItem);
+      });
+
     }
     else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+      /*
       var category='Pictures';
-      var newItem={
+      var oNewItem={
+        category:category,
+        commit_id: "",
+        version:"",
+        is_delete:0,
         filename:itemFilename,
         postfix:itemPostfix,
+        //id:"",
         size:size,
         path:itemPath,
+        location:"Mars",
         createTime:ctime,
         lastModifyTime:mtime,
         lastAccessTime:ctime,
+        others:null,
         tags:null
       };
-      dataDes.createItem(category,newItem,itemDesPath);
+      dataDes.createItem(category,oNewItem,itemDesPath);
+      callback(isLoadEnd,oNewItem);
+      */
     }
     else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+      /*
       var category='Music'; 
-      var newItem={
+      var oNewItem={
+        category:category,
+        commit_id: "",
+        version:"",
+        is_delete:0,
+        others:null,
         filename:itemFilename,
         postfix:itemPostfix,
         size:size,
         path:itemPath,
         album:'流行',
+        composerName:"Xiquan",
+        actorName:"Xiquan",
         createTime:ctime,
         lastModifyTime:mtime,
         lastAccessTime:ctime,
         tags:null
       };
-      dataDes.createItem(category,newItem,itemDesPath);
+      dataDes.createItem(category,oNewItem,itemDesPath);
+      callback(isLoadEnd,oNewItem);
+      */
     } 
     else{
       writeDbNum --;
     }     
   }
   fs.stat(itemPath,getFileStatCb);
-  callback;
 }
 }
 
@@ -388,15 +443,15 @@ function monitorFilesCb(path,event){
   else{
     switch(event){
       case 'add' : {
-          addFile(path,resourcePath);
+        addFile(path,resourcePath);
       }
       break;
       case 'unlink' : {
-          rmFile(path,resourcePath);
+        rmFile(path,resourcePath);
       }
       break;
       case 'change' : {
-          chFile(path,resourcePath);
+        chFile(path,resourcePath);
       }
       break;
     }
@@ -474,11 +529,17 @@ function initData(loadResourcesCb,resourcePath)
       }
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        addData(fileList[k],fileDesDir[k]);
-        if(isLoadEnd){
-          resourceRepo.repoInit(resourcePath,loadResourcesCb);
-          //CommonDAO.createItems
-        }
+        var oNewItems = new Array();
+        addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
+          oNewItems.push(oNewItem);
+          if(isLoadEnd){
+            //console.log(oNewItems);
+            resourceRepo.repoInit(resourcePath,loadResourcesCb);
+            CommonDAO.createItems(oNewItems,function(result){
+             console.log(result);
+           });
+          }
+        });
       }
     }
   });
@@ -502,8 +563,8 @@ function monitorNetlink(path){
 exports.monitorNetlink = monitorNetlink;
 
 function openFileByPath(path,callback){
-    var  exec = require('child_process').exec;
-    var comstr = "bash ./backend/vnc/open.sh -doc \"" + path + "\"";
+  var  exec = require('child_process').exec;
+  var comstr = "bash ./backend/vnc/open.sh -doc \"" + path + "\"";
     //var comstr = "xdg-open " + path;
     console.log("run vncserver and websockify server ......");
     console.log("path server: " , comstr);
@@ -515,10 +576,10 @@ function openFileByPath(path,callback){
         console.log('exec error: '+error);
       }
     });
-}
-exports.openFileByPath = openFileByPath;
+  }
+  exports.openFileByPath = openFileByPath;
 
-function closeVNCandWebsockifyServer(port,callback){
+  function closeVNCandWebsockifyServer(port,callback){
     var  exec = require('child_process').exec;
     var comstr = "bash ./backend/vnc/close.sh \"" + port + "\"";
     //var comstr = "xdg-open " + path;
@@ -531,20 +592,20 @@ function closeVNCandWebsockifyServer(port,callback){
         console.log('exec error: '+error);
       }
     });
-}
-exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
+  }
+  exports.closeVNCandWebsockifyServer = closeVNCandWebsockifyServer;
 
-function mkdirSync(dirpath, mode, callback) {
-  path.exists(dirpath, function(exists) {
-    if(exists) {
-      callback(dirpath);
-    } 
-    else {
+  function mkdirSync(dirpath, mode, callback) {
+    path.exists(dirpath, function(exists) {
+      if(exists) {
+        callback(dirpath);
+      } 
+      else {
       //尝试创建父目录，然后再创建当前目录
       mkdirSync(path.dirname(dirpath), mode, function(){
         fs.mkdir(dirpath, mode, callback);
       });
     }
   });
-};
-exports.mkdirSync = mkdirSync;
+  };
+  exports.mkdirSync = mkdirSync;

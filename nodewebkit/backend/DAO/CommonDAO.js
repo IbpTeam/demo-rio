@@ -19,9 +19,10 @@ var musicDAO = require("./MusicDAO");
 var recentDAO = require("./RecentDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
+var sqlite3 = require('sqlite3');
 
 // @const
-var BEGIN_TRANS = "begin tansaction;";
+var BEGIN_TRANS = "begin transaction;";
 var ROLLBACK_TRANS = "rollback;";
 var COMMIT_TRANS = "commit;";
 
@@ -345,6 +346,7 @@ exports.createItems = function(items,callback){
   //var aSqlArray = new Array();
   var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
+    console.log(item);////////////////
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;
     //Delete attribute category and id from this obj.
@@ -358,6 +360,7 @@ exports.createItems = function(items,callback){
     }
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
   });
+  //console.log("==============="+sSqlStr);
 
   // Exec sql
   execSQL(sSqlStr,callback);
