@@ -7,6 +7,7 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
+var CommonDAO = require("./DAO/CommonDAO")
 var resourceRepo = require("./FilesHandle/repo");
 var util = require('util');
 var events = require('events'); 
@@ -31,7 +32,7 @@ exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
+function addData(itemPath,itemDesPath,callback){
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
@@ -42,8 +43,6 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
     var nameindex=itemPath.lastIndexOf('/');
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
-
-  //util.log("read file "+itemPath);
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
@@ -51,15 +50,13 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
       var oJson = JSON.parse(json);
       var category = 'Contacts';
       for(var k=0;k<oJson.length;k++){
-        //console.log(oJson[k])
         var sCode = "\u59D3";//"姓"
         if(oJson[k].hasOwnProperty(sCode)){
-          //console.log(oJson[k][sCode]);
           oJson[k].path = itemPath;
           oJson[k].name = oJson[k][sCode];
           oJson[k].currentTime = currentTime;
           var oNewItem = oJson[k];
-          dataDes.createItem(category,oNewItem,itemDesPath,isLoadEnd,loadResourcesCb);
+          dataDes.createItem(category,oNewItem,itemDesPath);
         }
       }
     });
@@ -71,73 +68,74 @@ function addData(itemPath,itemDesPath,isLoadEnd,loadResourcesCb){
       var ctime=stat.ctime;
       var size=stat.size;
       if(itemPostfix == 'none' || 
-         itemPostfix == 'ppt' || 
-         itemPostfix == 'pptx'|| 
-         itemPostfix == 'doc'|| 
-         itemPostfix == 'docx'|| 
-         itemPostfix == 'wps'|| 
-         itemPostfix == 'odt'|| 
-         itemPostfix == 'et'|| 
-         itemPostfix == 'txt'|| 
-         itemPostfix == 'xls'|| 
-         itemPostfix == 'xlsx' || 
-         itemPostfix == 'ods' || 
-         itemPostfix == 'zip' || 
-         itemPostfix == 'sh' || 
-         itemPostfix == 'gz' || 
-         itemPostfix == 'html' || 
-         itemPostfix == 'et' || 
-         itemPostfix == 'odt' || 
-         itemPostfix == 'pdf'){
+       itemPostfix == 'ppt' || 
+       itemPostfix == 'pptx'|| 
+       itemPostfix == 'doc'|| 
+       itemPostfix == 'docx'|| 
+       itemPostfix == 'wps'|| 
+       itemPostfix == 'odt'|| 
+       itemPostfix == 'et'|| 
+       itemPostfix == 'txt'|| 
+       itemPostfix == 'xls'|| 
+       itemPostfix == 'xlsx' || 
+       itemPostfix == 'ods' || 
+       itemPostfix == 'zip' || 
+       itemPostfix == 'sh' || 
+       itemPostfix == 'gz' || 
+       itemPostfix == 'html' || 
+       itemPostfix == 'et' || 
+       itemPostfix == 'odt' || 
+       itemPostfix == 'pdf'){
         var category='Documents';
-        var newItem={
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:size,
-          path:itemPath,
-          project:'上海专项',
-          createTime:ctime,
-          lastModifyTime:mtime,
-          lastAccessTime:ctime,
-          tags:null
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      }
-      else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-        var category='Pictures';
-        var newItem={
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:size,
-          path:itemPath,
-          createTime:ctime,
-          lastModifyTime:mtime,
-          lastAccessTime:ctime,
-          tags:null
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      }
-      else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-        var category='Music'; 
-        var newItem={
-          filename:itemFilename,
-          postfix:itemPostfix,
-          size:size,
-          path:itemPath,
-          album:'流行',
-          createTime:ctime,
-          lastModifyTime:mtime,
-          lastAccessTime:ctime,
-          tags:null
-        };
-        dataDes.createItem(category,newItem,itemDesPath,isLoadEnd,loadResourcesCb);
-      } 
-      else{
-        writeDbNum --;
-      }     
+      var newItem={
+        filename:itemFilename,
+        postfix:itemPostfix,
+        size:size,
+        path:itemPath,
+        project:'上海专项',
+        createTime:ctime,
+        lastModifyTime:mtime,
+        lastAccessTime:ctime,
+        tags:null
+      };
+      dataDes.createItem(category,newItem,itemDesPath);
     }
-    fs.stat(itemPath,getFileStatCb);
+    else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+      var category='Pictures';
+      var newItem={
+        filename:itemFilename,
+        postfix:itemPostfix,
+        size:size,
+        path:itemPath,
+        createTime:ctime,
+        lastModifyTime:mtime,
+        lastAccessTime:ctime,
+        tags:null
+      };
+      dataDes.createItem(category,newItem,itemDesPath);
+    }
+    else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
+      var category='Music'; 
+      var newItem={
+        filename:itemFilename,
+        postfix:itemPostfix,
+        size:size,
+        path:itemPath,
+        album:'流行',
+        createTime:ctime,
+        lastModifyTime:mtime,
+        lastAccessTime:ctime,
+        tags:null
+      };
+      dataDes.createItem(category,newItem,itemDesPath);
+    } 
+    else{
+      writeDbNum --;
+    }     
   }
+  fs.stat(itemPath,getFileStatCb);
+  callback;
+}
 }
 
 function rmData(itemPath,itemDesPath,rmDataCb){
@@ -476,7 +474,11 @@ function initData(loadResourcesCb,resourcePath)
       }
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        addData(fileList[k],fileDesDir[k],isLoadEnd,isEndCallback);
+        addData(fileList[k],fileDesDir[k]);
+        if(isLoadEnd){
+          resourceRepo.repoInit(resourcePath,loadResourcesCb);
+          //CommonDAO.createItems
+        }
       }
     }
   });
