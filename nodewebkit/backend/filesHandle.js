@@ -547,3 +547,10 @@ function mkdirSync(dirpath, mode, callback) {
   });
 };
 exports.mkdirSync = mkdirSync;
+
+function firstSync(){
+  resourceRepo.repoMergeForFirstTime("other","HP","192.168.160.72","/home/v1/resources",function(){
+    console.log("merge success!");
+  });
+}
+exports.firstSync = firstSync;
