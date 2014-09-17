@@ -28,13 +28,16 @@ var FILE_CONFIG = "config.js";
  * @Method: createDesFile
  *    create description file for specific file in its target dir.
  * @param: newItem
- *    a new item object with informations for description.
+ *    object : with informations for description.
  * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not.
- * @param: isEndCallback
+ *    boolean : tell the resource loading is end or not.
+ *    @param: "successful"
+ * @param: callback
  *    callback when loading resouce ends.
+ *    @param: isLoadEnd
+ *    boolean
  **/
-function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
+function createDesFile(newItem,itemDesPath,callback){
   //console.log(newItem.path)
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
@@ -42,19 +45,14 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
   var pos = (posIndex == -1) ? "" : (newItem.path).substring(posIndex,(newItem.path).length);
   var sPath = itemDesPath+'/'+sFileName+pos+'.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
-    if (err) {
+    if(err){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      if(isLoadEnd){
-        isEndCallback("successful");
-      }
-      return;
+      //return;
     }else{
-      //console.log("write description file success");
-      if(isLoadEnd){
-        isEndCallback("successful");
-      }
+      //console.log(itemDesPath+" success !");
+      callback;
     }
   });
 }
@@ -65,16 +63,10 @@ function createDesFile(newItem,itemDesPath,isLoadEnd,isEndCallback){
  *    sort the object element by tags.
  * @param: Item
  *    an item object with informations for description.
- * @param: itemDesPath
- *    the path that a description file shoud be writen at.
- * @param: isLoadEnd
- *    a boolean var to tell the resource loading is end or not.
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
- * @param: isEndCallback
- *    callback when loading resouce ends.
  **/
-function sortObj(Item,itemDesPath,callback,isLoadEnd,isEndCallback){
+function sortObj(Item,callback){
   var sTags = [];
   var oNewItem = {}
   for(var k in Item){
@@ -84,7 +76,7 @@ function sortObj(Item,itemDesPath,callback,isLoadEnd,isEndCallback){
   for(var k in sTags){
     oNewItem[sTags[k]] = Item[sTags[k]];
   }
-  callback(oNewItem,itemDesPath,isLoadEnd,isEndCallback);
+  callback(oNewItem);
 }
 
 
@@ -102,15 +94,19 @@ function sortObj(Item,itemDesPath,callback,isLoadEnd,isEndCallback){
  * @param: isEndCallback
  *    callback when loading resouce ends.
  **/
-exports.createItem = function(category,item,itemDesPath,isLoadEnd,isEndCallback){
-
+exports.createItem = function(category,item,itemDesPath,callback){
   //Get uniform resource identifier
   var uri = "specificURI";
   uniqueID.getFileUid(function(uri){
     item.category = category;
     if (uri != null) {
-      item.URI = uri + "#" + category;
-      sortObj(item,itemDesPath,createDesFile,isLoadEnd,isEndCallback);
+      //item.URI = uri + "#" + category;
+      sortObj(item,function(oNewItem){
+        createDesFile(oNewItem,itemDesPath,function(){
+          //console.log("createItem success!")
+          callback;
+        });
+      });
     }
     else{
       console.log("Exception: URI is null.");
