@@ -351,7 +351,7 @@ function commitTrans(db,callback){
 
 /**
  * @method createItems
- *   
+ *    Insert data into database, support batch execute.
  * @param items
  *    An obj Array, each obj must has attribute category&&URI match table&&URI,
  *    other attributes match field in table.
@@ -363,7 +363,6 @@ exports.createItems = function(items,callback){
   //var aSqlArray = new Array();
   var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
-    console.log(item);////////////////
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;
     //Delete attribute category and id from this obj.
@@ -380,7 +379,7 @@ exports.createItems = function(items,callback){
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
     sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
   });
-  console.log("==============="+sSqlStr);
+  console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   // Exec sql
   execSQL(sSqlStr,callback);
@@ -435,86 +434,38 @@ exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
   })
 }
 
-exports.updateItemValue = function(uri, version, item, callback){
-  var updateDAO=null;
-  function update(){  
-      
-      uniqueID.getRandomBytes(12,function(newVersion){
-      if (newVersion != null) {  
-        //console.log(updateDAO+uri+" "+key+" "+value); 
-        updateDAO.updateItemValueByUri(uri,newVersion,item,function(err){
-          if(err){
-            console.log("updateItemValueByUri error");
-            callback(uri,version,item,err);
-          }
-          else{
-            console.log("############update is_delete complete");
-            actionHistoryDAO.createUpdateHistoryItem(uri, version, newVersion, item, function(err){
-              if(err){
-                callback(uri,version,item,err);
-              }
-              else{
-                config.dblog("update " + uri + " successfull");
-                callback(uri,version,item,'successfull');
-              }
-            });
-          }
-        });
-      }
-      else{
-        console.log("Action History DAO Exception: randomId is null.");
-      }
-    });
-  }
-  contactsDAO.findByUri(uri,function(err,item){
-    if(item==null){
-      picturesDAO.findByUri(uri,function(err,item){
-        if(item==null){
-          videosDAO.findByUri(uri,function(err,item){
-            if(item==null){
-              documentsDAO.findByUri(uri,function(err,item){
-                if(item==null){
-                  musicDAO.findByUri(uri,function(err,item){
-                    if(item==null){
-                      callback(err);
-                      return;
-                    }
-                    else{
-                      updateDAO=musicDAO;
-                      console.log("updateDAO = musicDAO");   
-                      update();
-                    }
-                  });
-                }
-                else{
-                  updateDAO=documentsDAO;
-                  console.log("updateDAO = documentsDAO");  
-                  update();
-                }
-              });
-            }
-            else{
-              updateDAO=videosDAO;
-              console.log("updateDAO = videosDAO");  
-              update();
-            }
-          });
-        }
-        else{
-          updateDAO=picturesDAO;
-          console.log("updateDAO = picturesDAO");  
-          update();
-        }
-      });
+/**
+ * @method updateItems
+ *   Update data by URI, support batch execute.
+ * @param items
+ *    An obj Array, each obj must has attribute category&&URI match table&&URI,
+ *    other attributes match field in table.
+ * @param callback
+ *    Retrive "commit" when successfully
+ *    Retrive "rollback" when error
+ */
+exports.updateItems = function(items,callback){
+  var sSqlStr = BEGIN_TRANS;
+  items.forEach(function(item){
+    var oTempItem = item;
+    var sItemUri = oTempItem.URI;
+    sSqlStr = sSqlStr + "Update " + oTempItem.category + " set URI='" + sItemUri + "'";
+    //Delete attribute category and id from this obj.
+    delete oTempItem.category;
+    delete oTempItem.id;
+    delete oTempItem.URI;
+    for(var key in oTempItem){
+      if(typeof oTempItem[key] == 'string')
+        oTempItem[key] = oTempItem[key].replace("'","''");
+      sSqlStr = sSqlStr + "," + key + "='" + oTempItem[key] + "'";
     }
-    else{
-      var json=JSON.stringify(item);
-      updateDAO=contactsDAO;
-      console.log("updateDAO = contactsDAO");  
-      console.log("item = "+json);
-      update();
-    }
+    sSqlStr = sSqlStr + " where URI='" + sItemUri + "';";
+    sSqlStr = sSqlStr + "Update recent set lastAccessTime='" + oTempItem.lastAccessTime + "' where file_uri='" + sItemUri + "';";
   });
+  console.log("UPDATE Prepare SQL is : "+sSqlStr);
+
+  // Exec sql
+  execSQL(sSqlStr,callback);
 }
 
 exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryItems, createOperationItems){
