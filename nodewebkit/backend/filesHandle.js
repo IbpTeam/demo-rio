@@ -45,7 +45,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
-/*
+
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
     csvtojson.csvTojson(itemPath,function(json){
@@ -83,7 +83,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         }
       }
     });
-*/
+
   }
   else{
     function getFileStatCb(error,stat)
@@ -129,7 +129,6 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         createTime:ctime,
         lastModifyTime:mtime,
         lastAccessTime:ctime,
-        tags:null,
       };
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
@@ -137,16 +136,19 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
 
     }
     else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-      /*
+      
       var category='Pictures';
+      var oNewItem = {};
+      uniqueID.getFileUid(function(uri){
       var oNewItem={
+        URI:uri,//uri + "#" + category;
         category:category,
-        commit_id: "",
-        version:"",
+        commit_id: null,
+        version:null,
         is_delete:0,
         filename:itemFilename,
         postfix:itemPostfix,
-        //id:"",
+        id:null,
         size:size,
         path:itemPath,
         location:"Mars",
@@ -154,19 +156,21 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         lastModifyTime:mtime,
         lastAccessTime:ctime,
         others:null,
-        tags:null
       };
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
-      */
+    })
     }
     else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-      /*
       var category='Music'; 
+      var oNewItem = {};
+      uniqueID.getFileUid(function(uri){
       var oNewItem={
+        id:null,
+        URI:uri,//uri + "#" + category;
         category:category,
-        commit_id: "",
-        version:"",
+        commit_id: null,
+        version:null,
         is_delete:0,
         others:null,
         filename:itemFilename,
@@ -179,11 +183,11 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         createTime:ctime,
         lastModifyTime:mtime,
         lastAccessTime:ctime,
-        tags:null
       };
       dataDes.createItem(category,oNewItem,itemDesPath);
       callback(isLoadEnd,oNewItem);
-      */
+    })
+    
     } 
     else{
       writeDbNum --;

@@ -378,7 +378,7 @@ exports.createItems = function(items,callback){
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
     sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + item.URI + "','" + item.lastAccessTime + "');";
   });
-  //console.log("==============="+sSqlStr);
+  console.log("==============="+sSqlStr);
 
   // Exec sql
   execSQL(sSqlStr,callback);
