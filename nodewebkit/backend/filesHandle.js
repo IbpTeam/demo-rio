@@ -551,88 +551,25 @@ function initData(loadResourcesCb,resourcePath)
 }
 exports.initData = initData;
 
-/**
- * @method getAllCate
- *   查询所有基本分类
- *
- * @param1 getAllCateCb
- *   回调函数
- *   @result
- *     array[cate]: 分类数组
- *        cate{
- *           id;
- *           type;
- *           path;
- *        }
- */
-function getAllCategories(getAllCateCb) {
-  function getCategoriesCb(data)
-  {
-    var cates = new Array();
-    data.forEach(function (each){
-      cates.push({
-        URI:each.id,
-        version:each.version,
-        type:each.type,
-        path:each.logoPath,
-        desc:each.desc
-      });
-    });
-    getAllCateCb(cates);
-  }
-  commonDAO.getCategories(getCategoriesCb);
-}
-exports.getAllCategories = getAllCategories;
-
-/**
- * @method getAllDataByCate
- *   查询某基本分类下的所有数据
- *
- * @param1 getAllDataByCateCb
- *   回调函数
- *   @result
- *     array[cate]: 数据数组
- *        如果是联系人，则返回数据如下：
- *        cate{
- *           URI;
- *           version;
- *           name;
- *           photPath;
- *        }
- *        如果是其他类型，则返回数据如下：
- *        cate{
- *           URI;
- *           version;
- *           filename;
- *           postfix;
- *           path;
- *        }
- */
-function getAllDataByCategories(getAllDataByCateCb,cate) {
-  console.log("Request handler 'getAllDataByCate' was called.");
-  if(cate == 'Contacts'){
-    getAllContacts(getAllDataByCateCb);
-    return;
-  }else {
-    function getAllByCaterotyCb(data)
-    {
-      var cates = new Array();
-      data.forEach(function (each){
-        cates.push({
-          URI:each.URI,
-          version:each.version,
-          filename:each.filename,
-          postfix:each.postfix,
-          path:each.path
-        });
-      });
-      getAllDataByCateCb(cates);
+//API updateItemValue:修改数据某一个属性
+//返回类型：
+//成功返回success;
+//失败返回失败原因
+function updateDataValue(updateDataValueCb,uri,version,item){
+  console.log("Request handler 'updateDataValue' was called.");
+  function updateItemValueCb(uri,version,item,result){
+    config.riolog("update DB: "+ result);
+    if(result!='successfull'){
+      filesHandle.sleep(1000);
+      commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
     }
-    commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
+    else{
+      updateDataValueCb('success');
+    }
   }
+  commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
 }
-exports.getAllDataByCategories = getAllDataByCategories;
-
+exports.updateDataValue = updateDataValue;
 
 
 function monitorNetlink(path){
