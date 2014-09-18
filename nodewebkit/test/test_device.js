@@ -1,18 +1,24 @@
 var mdns = require('../lib/api/device.js');
-function deviceStateCb(signal, args){
-  var interface = args[0];
-  var protocol = args[1];
-  var name = args[2];
-  var type = args[3];
-  var domain = args[4];
-  var flags = args[5];
+function deviceStateCb(signal, obj){
+  interface = obj.interface;
+  protocol = obj.protocol;
+  name = obj.name;
+  stype = obj.stype;
+  domain = obj.domain;
+  host = obj.host;
+  aprotocol = obj.aprotocol;
+  address = obj.address;
+  port = obj.port;
+  txt = obj.txt;
+  flags  = obj.flags;
+  //console.log(obj);
   switch(signal){
-	  	case 'ItemNew':
-	  		console.log('A new device is add, name: "'+  name + '"');
-	  	break;
-	  	case 'ItemRemove':
-	  		console.log('A device is removed, name: "'+  name + '"');
-	  	break;
+    case 'ItemNew':
+      console.log('A new device is add, obj: ', obj);
+      break;
+    case 'ItemRemove':
+      console.log('A device is removed, obj: ', obj);
+      break;
   }
 }
 
