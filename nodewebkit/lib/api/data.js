@@ -67,26 +67,7 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if(cate == 'Contacts'){
-    getAllContacts(getAllDataByCateCb);
-    return;
-  }else {
-    function getAllByCaterotyCb(data)
-    {
-      var cates = new Array();
-      data.forEach(function (each){
-        cates.push({
-          URI:each.URI,
-          version:each.version,
-          filename:each.filename,
-          postfix:each.postfix,
-          path:each.path
-        });
-      });
-      getAllDataByCateCb(cates);
-    }
-    commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
-  }
+  filesHandle.getAllDataByCategories(getAllDataByCateCb,cate)
 }
 exports.getAllDataByCate = getAllDataByCate;
 
