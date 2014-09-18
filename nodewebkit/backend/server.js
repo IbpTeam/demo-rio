@@ -7,7 +7,7 @@ var config = require("./config");
 var filesHandle = require("./filesHandle");
 var mdns = require('mdns');
 var util = require('util');
-var listOfOscDevices={};
+var mdns = require('../lib/api/device.js');
 var now= new Date();  
 
 function start(route, handle) {
@@ -33,7 +33,32 @@ function start(route, handle) {
   
   var io = require('socket.io').listen(config.SOCKETIOPORT);
   io.sockets.on('connection', function (socket) {
-    var sequence = [
+    mdns.addDeviceListener(deviceStateCb(signal, args){
+      var interface = args[0];
+      var protocol = args[1];
+      var name = args[2];
+      var type = args[3];
+      var domain = args[4];
+      var flags = args[5];
+      console.log(args);
+      switch(signal){
+        case 'ItemNew':{
+          console.log('A new device is add, name: "'+  name + '"');
+        }       
+        break;
+        case 'ItemRemove':{
+          console.log('A device is removed, name: "'+  name + '"');
+        }
+        break;
+      }
+    });
+    mdns.createServer(devicePublishCb(){
+      var name = 'demo-rio';
+      var port = '80';
+      var txtarray = ['demo-rio', 'hello'];
+      mdns.entryGroupCommit(name,  port, txtarray);
+    });
+/*    var sequence = [
     mdns.rst.DNSServiceResolve()
     , mdns.rst.getaddrinfo({families: [4] })
     ];
@@ -80,7 +105,7 @@ function start(route, handle) {
       addresses:config.SERVERIP
     };
     var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
-    ad.start();
+    ad.start();*/
   });
 
   config.riolog("Server has started.");
