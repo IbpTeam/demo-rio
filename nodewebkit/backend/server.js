@@ -43,12 +43,12 @@ function start(route, handle) {
       console.log(args);
       switch(signal){
         case 'ItemNew':{
-          socket.emit('mdnsUp', service);
+          socket.emit('mdnsUp', args);
           console.log('A new device is add, name: "'+  name + '"');
         }       
         break;
         case 'ItemRemove':{
-          socket.emit('mdnsDown', service);
+          socket.emit('mdnsDown', args);
           console.log('A device is removed, name: "'+  name + '"');
         }
         break;
