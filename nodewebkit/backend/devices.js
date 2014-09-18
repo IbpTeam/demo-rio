@@ -1,3 +1,4 @@
+var commonDAO = require("./DAO/CommonDAO");
 var config = require("./config");
 
 var devicesList=new Array();
@@ -14,3 +15,16 @@ function getDeviceList(){
   devicesList.push(device);
 }
 exports.getDeviceList = getDeviceList;
+
+//API getServerAddress:获得最近访问数据的信息
+//返回类型：
+//返回具体数据类型对象数组
+function getServerAddress(getServerAddressCb){
+  console.log("Request handler 'getServerAddress' was called.");
+  var address={
+    ip:config.SERVERIP,
+    port:config.SERVERPORT
+  };
+  getServerAddressCb(address);
+}
+exports.getServerAddress = getServerAddress;

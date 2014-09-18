@@ -41,9 +41,9 @@ function createDesFile(newItem,itemDesPath,callback){
   //console.log(newItem.path)
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var posIndex = (newItem.path).lastIndexOf(".");
-  var pos = (posIndex == -1) ? "" : (newItem.path).substring(posIndex,(newItem.path).length);
-  var sPath = itemDesPath+'/'+sFileName+pos+'.md';
+  var sPosIndex = (newItem.path).lastIndexOf(".");
+  var sPos = (sPosIndex == -1) ? "" : (newItem.path).substring(sPosIndex,(newItem.path).length);
+  var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
     if(err){
       console.log("================");
@@ -96,19 +96,17 @@ function sortObj(Item,callback){
  **/
 exports.createItem = function(category,item,itemDesPath,callback){
   //Get uniform resource identifier
-  var uri = "specificURI";
+  var uri = item.uri;
   uniqueID.getFileUid(function(uri){
     item.category = category;
-    if (uri != null) {
-      //item.URI = uri + "#" + category;
+    if (uri != null && uri != "undefined") {
       sortObj(item,function(oNewItem){
         createDesFile(oNewItem,itemDesPath,function(){
           //console.log("createItem success!")
           callback;
         });
       });
-    }
-    else{
+    }else{
       console.log("Exception: URI is null.");
       return;
     }
