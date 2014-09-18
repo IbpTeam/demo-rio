@@ -9,6 +9,22 @@ var IP='127.0.0.1';
 var keySizeBits = 1024;
 var TIMEOUT=2000;
 
+/*
+* @method register
+*  用户注册新账户
+* @param userName
+*  待注册的用户名
+* @param password
+*  待注册的用户密码，用MD5加密
+* @param UUID
+*  客户端操作系统的唯一标识符
+* @param pubKey
+*  待提交的本机用户公钥
+* @param serverKeyPair
+*  帐号公钥服务器的KeyPair，由操作系统预置
+* @param rigisterResultCb
+*  注册回调函数，用来检测该注册是否成功
+*/
 function register(userName,password,UUID,pubKey,keyPair,serverKeyPair,rigisterResultCb){
   var client = connectClient();
   clientPackHandler.register(userName,password,UUID,pubKey,function(msg){
@@ -19,6 +35,24 @@ function register(userName,password,UUID,pubKey,keyPair,serverKeyPair,rigisterRe
 }
 exports.register = register;
 
+/*
+* @method login
+*  用户登录函数
+* @param userName
+*  待登录的用户名
+* @param password
+*  待登录的用户密码，用MD5加密
+* @param UUID
+*  客户端操作系统的唯一标识符
+* @param pubKey
+*  本机用户公钥
+* @param keyPair
+*  本机密钥keyPair
+* @param serverKeyPair
+*  帐号公钥服务器的KeyPair，由操作系统预置
+* @param loginResultCb
+*  登录回调函数，用来检测该登录是否成功
+*/
 function login(userName,password,UUID,pubKey,keyPair,serverKeyPair,loginResultCb){
   var client = connectClient();
   clientPackHandler.login(userName,password,UUID,pubKey,function(msg){
@@ -29,6 +63,22 @@ function login(userName,password,UUID,pubKey,keyPair,serverKeyPair,loginResultCb
 }
 exports.login = login;
 
+/*
+* @method getPubKeysByName
+*  根据用户名请求某一帐号下的所有pubkey
+* @param userName
+*  待请求pubkey的用户名
+* @param UUID
+*  请求方机器的UUID
+* @param targetName
+*  待请求账户的用户名
+* @param keyPair
+*  本机密钥keyPair
+* @param serverKeyPair
+*  帐号公钥服务器的KeyPair，由操作系统预置
+* @param getPubKeysByNameResultCb
+*  请求某账户下公钥集合的回调函数，在该函数中处理请求的公钥集合结果，或者请求状态
+*/
 function getPubKeysByName(userName,UUID,targetName,keyPair,serverKeyPair,getPubKeysByNameResultCb){
   var client = connectClient();
   clientPackHandler.getPubKeysByUserName(userName,UUID,targetName,function(msg){
