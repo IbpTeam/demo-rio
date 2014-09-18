@@ -4,6 +4,7 @@ var contacts = require("../../backend/contacts");
 var byCatogory = require("../../backend/category");
 var byUri = require("../../backend/uri");
 var byPath = require("../../backend/path");
+var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
 
@@ -147,39 +148,9 @@ exports.updateDataValue = updateDataValue;
 //API getRecentAccessData:获得最近访问数据的信息
 //返回类型：
 //返回具体数据类型对象数组
-
 function getRecentAccessData(getRecentAccessDataCb,num){
   console.log("Request handler 'getRecentAccessData' was called.");
-  function getRecentByOrderCb(recentResult){
-    if(recentResult[0]==null){
-      return;
-    }
-    while(recentResult.length>num){
-      recentResult.pop();
-    }
-    var data = new Array();
-    var iCount = 0;
-    function getItemByUriCb(result){
-      //console.log(result);
-      if(result){
-        
-        data.push(result);
-        if(data.length==num){
-          getRecentAccessDataCb(data);
-        }
-        else{
-          iCount++;
-          commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
-        }
-      }
-      else{
-        console.log("No data");
-      }
-    }
-    commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
-
-  }
-  commonDAO.getRecentByOrder(getRecentByOrderCb);
+  byUri. getRecentAccessData(getRecentAccessDataCb,num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 
@@ -189,11 +160,7 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function getServerAddress(getServerAddressCb){
   console.log("Request handler 'getServerAddress' was called.");
-  var address={
-    ip:config.SERVERIP,
-    port:config.SERVERPORT
-  };
-  getServerAddressCb(address);
+  devices.getServerAddress(getServerAddressCb);
 }
 exports.getServerAddress = getServerAddress;
 
