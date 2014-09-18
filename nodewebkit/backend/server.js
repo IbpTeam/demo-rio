@@ -7,7 +7,7 @@ var config = require("./config");
 var filesHandle = require("./filesHandle");
 var mdns = require('mdns');
 var util = require('util');
-var listOfOscDevices={};
+var mdns = require('../lib/api/device.js');
 var now= new Date();  
 
 function start(route, handle) {
@@ -33,54 +33,33 @@ function start(route, handle) {
   
   var io = require('socket.io').listen(config.SOCKETIOPORT);
   io.sockets.on('connection', function (socket) {
-    var sequence = [
-    mdns.rst.DNSServiceResolve()
-    , mdns.rst.getaddrinfo({families: [4] })
-    ];
-    var browser = mdns.createBrowser(mdns.tcp('http'),{resolverSequence: sequence});
-
-    browser.on('serviceUp', function(service) {
-      if(service.port==config.MDNSPORT){
-        if(!listOfOscDevices[service.name]) {
-          listOfOscDevices[service.name] = service;
-          var cnt = Object.keys(listOfOscDevices).length;
-          console.log('There are '+cnt+' devices');
+    mdns.addDeviceListener(function deviceStateCb(signal, args){
+      var interface = args[0];
+      var protocol = args[1];
+      var name = args[2];
+      var type = args[3];
+      var domain = args[4];
+      var flags = args[5];
+      console.log(args);
+      switch(signal){
+        case 'ItemNew':{
+          socket.emit('mdnsUp', args);
+          console.log('A new device is add, name: "'+  name + '"');
+        }       
+        break;
+        case 'ItemRemove':{
+          socket.emit('mdnsDown', args);
+          console.log('A device is removed, name: "'+  name + '"');
         }
-        socket.emit('mdnsUp', service);
-        var serviceRecord = service.txtRecord;
-        if (typeof(serviceRecord) != "undefined") {
-          console.log(serviceRecord.account +"----------------");
-          var deviceId = serviceRecord.deviceID;
-          console.log(serviceRecord.deviceID + "================");
-          console.log(deviceId.localeCompare(config.uniqueID) + "-----------------");
-          if (serviceRecord.account == config.ACCOUNT && deviceId.localeCompare(config.uniqueID) > 0) {
-            //sendMessage
-            console.log("start to send sync request");
-          };
-        };
-      }
-      socket.emit('mdnsUp', service);
-    });
-    browser.on('serviceDown', function(service) {
-      if(listOfOscDevices[service.name]) {
-        delete listOfOscDevices[service.name];
-        var cnt = Object.keys(listOfOscDevices).length;
-        console.log('There are '+cnt+' devices');
-        socket.emit('mdnsDown', service);
-        var str=JSON.stringify(service);
-        util.log("service down: "+str+now.toLocaleTimeString());
+        break;
       }
     });
-    util.log("listen to services");
-    browser.start();
-    var txt_record = {
-      deviceName: config.SERVERNAME,
-      account:config.ACCOUNT,
-      deviceID:config.uniqueID,
-      addresses:config.SERVERIP
-    };
-    var ad = mdns.createAdvertisement(mdns.tcp('http'), config.MDNSPORT,{txtRecord: txt_record});
-    ad.start();
+    mdns.createServer(function devicePublishCb(){
+      var name = 'demo-rio';
+      var port = '80';
+      var txtarray = ['demo-rio', 'hello'];
+      mdns.entryGroupCommit(name,  port, txtarray);
+    });
   });
 
   config.riolog("Server has started.");

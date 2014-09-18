@@ -7,7 +7,7 @@ var byPath = require("../../backend/path");
 var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
-
+//var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
  * @method loadResources
  *   读取某个资源文件夹到数据库
@@ -164,6 +164,24 @@ function getServerAddress(getServerAddressCb){
 }
 exports.getServerAddress = getServerAddress;
 
+//API getDeviceDiscoveryService:使用设备发现服务
+//参数分别为设备发现和设备离开的回调函数
+var SOCKETIOPORT=8891;
+function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
+  console.log("Request handler 'getDeviceDiscoveryService' was called.");
+  function getServerAddressCb(result){
+    var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
+    var socket = require('socket.io-client')(add);  
+    socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
+      deviceUpCb(data);
+    });
+    socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
+      deviceDownCb(data);
+    });
+  }
+  getServerAddress(getServerAddressCb);
+}
+exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
 
 function repoMergeForFirstTime(){
   filesHandle.firstSync();
