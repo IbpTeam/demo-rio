@@ -448,53 +448,37 @@ exports.createItems = function(items,callback){
   execSQL(sSqlStr,callback);
 }
 
-exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
-  config.dblog("delete uri:" + uri);
-  
-  var aUri = uri.split('#');
-  if (aUri.length != 3) {
-    config.dblog("Error: uri is wrong in getItemByUri!");
-    callback(uri,"Error: uri is wrong in getItemByUri!",rmDataByUriCb);
-    return;
-  }
-  var sTableName = aUri[2];
-  config.dblog("GetItemByUri: TableName is:" + sTableName);
+/**
+ * @method deleteItems
+ *    Delete data from database, support batch execute.
+ * @param items
+ *    An obj Array, each obj must has attribute category&&URI match table&&URI,
+ *    other attributes match field in table.
+ * @param callback
+ *    Retrive "commit" when successfully
+ *    Retrive "rollback" when error
+ */
+exports.deleteItems = function(items,callback){
+  //var aSqlArray = new Array();
+  var sSqlStr = BEGIN_TRANS;
+  items.forEach(function(item){
+    var oTempItem = item;
+    sSqlStr = sSqlStr + "delete from " + oTempItem.category + " where 1=1";
+    //Delete attribute category from this obj.
+    delete oTempItem.category;
+    var sKeyStr = " (id";
+    var sValueStr = ") values (null";
+    for(var key in oTempItem){
+      if(typeof oTempItem[key] == 'string')
+        oTempItem[key] = oTempItem[key].replace("'","''");
+      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
+    }
+    sSqlStr = sSqlStr + ";delete from recent where file_uri='" + oTempItem.URI + "'";
+  });
+  //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
-  var oDeleteDao = null;
-
-  switch(sTableName){
-    case 'contacts' : {
-      oDeleteDao = contactsDAO;
-    }
-    break;
-    case 'pictures' : {
-      oDeleteDao = picturesDAO;
-    }
-    break;
-    case 'videos' : {
-      oDeleteDao = videosDAO;
-    }
-    break;
-    case 'documents' : {
-      oDeleteDao = documentsDAO;
-    }
-    break;
-    case 'music' : {
-      oDeleteDao = musicDAO;
-    }
-    break;
-    default:{
-      config.dblog("GetItemByUri: this is default in switch!");
-    }
-  }
-
-  oDeleteDao.deleteItemByUri(uri, function(err){
-    if(err){
-      callback(uri,err,rmDataByUriCb);
-    }else{
-      callback(uri,"successfull",rmDataByUriCb);
-    }
-  })
+  // Exec sql
+  execSQL(sSqlStr,callback);
 }
 
 /**
