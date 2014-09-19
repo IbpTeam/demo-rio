@@ -545,9 +545,8 @@ function initData(loadResourcesCb,resourcePath)
 
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        console.log("k====="+k+"/"+fileList.length+"is end: "+isLoadEnd)
+        console.log("k====="+k+"/"+oNewItems.length+"is end: "+isLoadEnd)
         addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-          console.log("is edn"+ isLoadEnd)
           if(oNewItem.length > 1){
             oNewItems = oNewItems.concat(oNewItem);
             console.log("add contacts");
