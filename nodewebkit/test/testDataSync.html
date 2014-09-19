@@ -1,10 +1,10 @@
 <html>
 <head>
 <title>test</title>
-<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
-<script type="text/javascript" src="api.js"></script>
-<script type="text/javascript" src="apiHttpHandle.js"></script>
-<script type="text/javascript" src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+  <script src="../lib/require.js"></script>
+  <script src="../lib/jquery.js"></script>
+  <script src="../lib/api.js"></script>
+
 
 </head>
 <meta charset="UTF-8">
@@ -24,30 +24,20 @@ onLine.push("<h2>OnLine:</h2>");
 htmlUp.push("<h2>Device Up:</h2>");
 htmlDown.push("<h2>Device Down:</h2>");
 function deviceUpCb(data){
-  if(data.txtRecord!=null){
-    console.log("device up : "+data.txtRecord.account+" on "+data.txtRecord.deviceName);
-    onLine.push("<li>deviceName: " + data.name);
-    htmlUp.push("<li>deviceName: " + data.txtRecord.deviceName);
-    document.getElementById('deviceUp').innerHTML = htmlUp.join("");
-    document.getElementById('onLine').innerHTML = onLine.join(""); 
-  }
-  //demoDataSync(data.txtRecord.deviceName); 
+    console.log("device up : ");
+    console.log(data);
 }
-
 
 function deviceDownCb(data){
-    console.log("device down : "+data.name);
-    htmlDown.push("<li>deviceName: " + data.name);
-    document.getElementById('deviceDown').innerHTML = htmlDown.join("");
-    for (var i = onLine.length - 1; i >= 0; i--) {
-      //console.log("++++++++++++"+onLine[i]);
-      if (onLine[i] == ("<li>deviceName: " + data.name)) {
-      	onLine.splice(i,1);
-      }
-    }
-    document.getElementById('onLine').innerHTML = onLine.join("");
+    console.log("device down : ");
+    console.log(data);
 }
-getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+
+WDC.requireAPI(['data'], function(data){
+  console.log("test getDeviceDiscoveryService");
+  data.getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+});
+
 </script>
 
 
