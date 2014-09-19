@@ -546,24 +546,7 @@ function initData(loadResourcesCb,resourcePath)
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
         console.log("k====="+k+"/"+oNewItems.length+"is end: "+isLoadEnd)
-        addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-          if(oNewItem.length > 1){
-            oNewItems = oNewItems.concat(oNewItem);
-            console.log("add contacts");
-          }else{
-            oNewItems.push(oNewItem);
-            console.log("add others")
-          }
-          if(isLoadEnd){
-            console.log("is end");
-            resourceRepo.repoInit(resourcePath,loadResourcesCb);
-            commonDAO.createItems(oNewItems,function(result){
-             console.log(result);
-           });
-          }
-          console.log("lenght======================="+oNewItems.length);
-        });
-
+        helper(fileList[k],fileDesDir[k],isLoadEnd,isLoadEnd,isLoadEnd,oNewItems,isEndCallback)
       }
               console.log(oNewItems)
     }
@@ -571,6 +554,26 @@ function initData(loadResourcesCb,resourcePath)
 }
 exports.initData = initData;
 
+
+function helper(ofileList,ofileDesDir,isLoadEnd,isLoadEnd,isLoadEnd,oNewItems,isEndCallback){
+  return addData(ofileList,ofileDesDir,isLoadEnd,function(isLoadEnd,oNewItem){
+    if(oNewItem.length > 1){
+      oNewItems = oNewItems.concat(oNewItem);
+      console.log("add contacts");
+    }else{
+      oNewItems.push(oNewItem);
+      console.log("add others")
+    }
+    if(isLoadEnd){
+      console.log("is end");
+      isEndCallback();
+      commonDAO.createItems(oNewItems,function(result){
+       console.log(result);
+     });
+    }
+    console.log("lenght======================="+oNewItems.length);
+  });
+}
 
 /*
 function addDataHelper(sfilePath,sfileDesDir,isLoadEnd,resourcePath,loadResourcesCb){
