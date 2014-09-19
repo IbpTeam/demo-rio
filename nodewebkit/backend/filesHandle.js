@@ -374,8 +374,7 @@ function chFileCb(){
   }
 }
 
-function addFile(path,resourcePath){
-  dataPath=resourcePath;
+function addFile(path){
   util.log("new file "+path);
   addCommitList.push(path);
   if(repoCommitStatus == 'idle'){
@@ -394,8 +393,7 @@ function addFile(path,resourcePath){
   }
 }
 
-function rmFile(path,resourcePath){
-  dataPath=resourcePath;
+function rmFile(path){
   util.log("remove file "+path);
   rmCommitList.push(path);
   console.log("repoCommitStatus="+repoCommitStatus);
@@ -413,8 +411,7 @@ function rmFile(path,resourcePath){
   }
 }
 
-function chFile(path,resourcePath){
-  dataPath=resourcePath;
+function chFile(path){
   util.log("change file "+path);
   chCommitList.push(path);
   if(repoCommitStatus == 'idle'){
@@ -440,7 +437,6 @@ function chFile(path,resourcePath){
 function monitorFilesCb(path,event){
   util.log(event+'  :  '+path);
   var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
-  var resourcePath=require(sConfigPath).dataDir;
   var res = path.match(/.git/);
   if(res!=null){
     //util.log(res);
@@ -448,15 +444,15 @@ function monitorFilesCb(path,event){
   else{
     switch(event){
       case 'add' : {
-        addFile(path,resourcePath);
+        addFile(path);
       }
       break;
       case 'unlink' : {
-        rmFile(path,resourcePath);
+        rmFile(path);
       }
       break;
       case 'change' : {
-        chFile(path,resourcePath);
+        chFile(path);
       }
       break;
     }
