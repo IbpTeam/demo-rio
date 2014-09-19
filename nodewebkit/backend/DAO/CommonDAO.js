@@ -365,7 +365,7 @@ exports.createItems = function(items,callback){
 
   items.forEach(function(item){
 
-  console.log(item.category);
+  //console.log(item.category);
 
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;

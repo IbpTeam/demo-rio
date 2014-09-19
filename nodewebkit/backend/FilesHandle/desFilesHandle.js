@@ -50,11 +50,11 @@ function createDesFile(newItem,itemDesPath,callback){
       console.log("writeFile error!");
       console.log(err);
       //return;
-    }else{
-      //console.log(itemDesPath+" success !");
-      callback;
     }
+    //console.log(itemDesPath+" success !");
+    callback();
   });
+
 }
 
 
@@ -94,24 +94,19 @@ function sortObj(Item,callback){
  * @param: isEndCallback
  *    callback when loading resouce ends.
  **/
-exports.createItem = function(category,item,itemDesPath,callback){
-  //Get uniform resource identifier
-  var uri = item.uri;
-  uniqueID.getFileUid(function(uri){
-    item.category = category;
-    if (uri != null && uri != "undefined") {
-      sortObj(item,function(oNewItem){
-        createDesFile(oNewItem,itemDesPath,function(){
-          //console.log("createItem success!")
-          callback;
-        });
-      });
-    }else{
-      console.log("Exception: URI is null.");
-      return;
-    }
-  });
+ exports.createItem = function(Item,itemDesPath,callback){
+  var sTags = [];
+  var oNewItem = {};
+  for(var k in Item){
+    sTags.push(k);
+  }
+  sTags.sort();
+  for(var k in sTags){
+    oNewItem[sTags[k]] = Item[sTags[k]];
+  }
+  createDesFile(oNewItem,itemDesPath,callback);
 }
+
 
 /** 
  * @Method: deleteItem

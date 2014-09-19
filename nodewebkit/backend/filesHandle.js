@@ -52,55 +52,8 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
-    config.riolog("postfix= "+itemPostfix);
-    var currentTime = (new Date()).getTime();
-    csvtojson.csvTojson(itemPath,function(json){
-      var oJson = JSON.parse(json);
-      var oContacts = new Array();
-      var category = 'Contacts';
-      for(var k=0;k<oJson.length;k++){
-        if(oJson[k].hasOwnProperty("\u59D3")){
-          var oItem = oJson[k];
-          oJson[k].path = itemPath;
-          oJson[k].name = oItem["\u59D3"];
-          oJson[k].currentTime = currentTime;
-          var oNewItem = oItem;
-          var oItem = {
-            id:null,
-            URI:"",//uri + "#" + category,
-            category:category,
-            commit_id: "",
-            version:"",
-            is_delete:0,
-            name:oNewItem["\u59D3"],
-            phone:oNewItem["\u79fb\u52a8\u7535\u8bdd"],
-            sex:"Phd",
-            age:35,
-            email:"my@email.com",
-            postfix:itemPostfix,
-            id:"",
-            photoPath:itemPath,
-            location:"Mars",
-            createTime:currentTime,
-            lastModifyTime:currentTime,
-            lastAccessTime:currentTime,
-            currentTime:currentTime,
-          }
-          oContacts.push(oItem);
-
-          uniqueIDHelper(category,oNewItem,itemDesPath,function(uri,category,oNewItem,itemDesPath){
-            oNewItem.URI = uri;
-            dataDes.createItem(category,oNewItem,itemDesPath);
-          })
-        }
-      }
-      //console.log("my Contacts==========================")
-      //console.log(oContacts)
-      callback(isLoadEnd,oContacts)
-    })
-}
+  }
   else{
-
   function getFileStatCb(error,stat)
   {
     var mtime=stat.mtime;
@@ -144,12 +97,13 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         lastModifyTime:mtime,
         lastAccessTime:ctime,
       };
-      dataDes.createItem(category,oNewItem,itemDesPath);
-      callback(isLoadEnd,oNewItem);
+      function createItemCb(){
+        callback(isLoadEnd,oNewItem);
+      }
+      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     });
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-    //console.log("============================my picture"+ itemFilename)
     var category='Pictures';
     uniqueID.getFileUid(function(uri){
       var oNewItem={
@@ -169,8 +123,10 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         lastAccessTime:ctime,
         others:null,
       };
-      dataDes.createItem(category,oNewItem,itemDesPath);
-      callback(isLoadEnd,oNewItem);
+      function createItemCb(){
+        callback(isLoadEnd,oNewItem);
+      }
+      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     })
   }
   else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
@@ -195,8 +151,10 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         lastModifyTime:mtime,
         lastAccessTime:ctime,
       };
-      dataDes.createItem(category,oNewItem,itemDesPath);
-      callback(isLoadEnd,oNewItem);
+      function createItemCb(){
+        callback(isLoadEnd,oNewItem);
+      }
+      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     })
   } 
   else{
@@ -529,8 +487,12 @@ function initData(loadResourcesCb,resourcePath)
             }
           }
           else{
+            var sPosIndex = (item).lastIndexOf(".");
+            var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
+            if(sPos != '.csv' && sPos != '.CSV'){
             fileDesDir.push(pathDes);
             fileList.push(path + '/' + item);
+          }
           }
         });
       }
@@ -542,61 +504,23 @@ function initData(loadResourcesCb,resourcePath)
         resourceRepo.repoInit(resourcePath,loadResourcesCb);
       }
       var oNewItems = new Array();
-
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        console.log("k====="+k+"/"+oNewItems.length+"is end: "+isLoadEnd)
-        helper(fileList[k],fileDesDir[k],isLoadEnd,isLoadEnd,isLoadEnd,oNewItems,isEndCallback)
+        addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
+          oNewItems.push(oNewItem);
+          if(isLoadEnd){
+            isEndCallback();
+            commonDAO.createItems(oNewItems,function(result){
+              console.log("initData is end!!!");
+              console.log(result);
+           });
+          }
+        });
       }
-              console.log(oNewItems)
     }
   });
 }
 exports.initData = initData;
-
-
-function helper(ofileList,ofileDesDir,isLoadEnd,isLoadEnd,isLoadEnd,oNewItems,isEndCallback){
-  return addData(ofileList,ofileDesDir,isLoadEnd,function(isLoadEnd,oNewItem){
-    if(oNewItem.length > 1){
-      oNewItems = oNewItems.concat(oNewItem);
-      console.log("add contacts");
-    }else{
-      oNewItems.push(oNewItem);
-      console.log("add others")
-    }
-    if(isLoadEnd){
-      console.log("is end");
-      isEndCallback();
-      commonDAO.createItems(oNewItems,function(result){
-       console.log(result);
-     });
-    }
-    console.log("lenght======================="+oNewItems.length);
-  });
-}
-
-/*
-function addDataHelper(sfilePath,sfileDesDir,isLoadEnd,resourcePath,loadResourcesCb){
-  addData(sfilePath,sfileDesDir,isLoadEnd,function(isLoadEnd,oNewItem){
-    console.log("**************************"+k)
-    if(oNewItem.length > 1){
-      console.log(oNewItem);
-      oNewItems.concat(oNewItem);
-      console.log(oNewItems);
-    }else{
-      oNewItems.push(oNewItem);
-    }
-    if(isLoadEnd){
-      console.log("========================"+k)
-      console.log(oNewItems);
-      resourceRepo.repoInit(resourcePath,loadResourcesCb);
-      commonDAO.createItems(oNewItems,function(result){
-       console.log(result);
-     });
-    }
-  });
-}
-*/
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
