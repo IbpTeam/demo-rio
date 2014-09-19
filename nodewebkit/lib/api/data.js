@@ -22,7 +22,8 @@ var config = require('../../backend/config');
  */
 function loadResources(loadResourcesCb,path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.initData(loadResourcesCb,path);
+  //filesHandle.initData(loadResourcesCb,path);
+  contacts.initContacts(loadResourcesCb,path);
 }
 exports.loadResources = loadResources;
 
