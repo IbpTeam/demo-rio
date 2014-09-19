@@ -34,6 +34,12 @@ exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
+function uniqueIDHelper(category,oNewItem,itemDesPath,callback){
+  uniqueID.getFileUid(function(uri){
+    callback(uri,category,oNewItem,itemDesPath);
+  })
+}
+
 function addData(itemPath,itemDesPath,isLoadEnd,callback){
   var pointIndex=itemPath.lastIndexOf('.');
   if(pointIndex == -1){
@@ -46,50 +52,8 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
-
-    config.riolog("postfix= "+itemPostfix);
-    var currentTime = (new Date()).getTime();
-    csvtojson.csvTojson(itemPath,function(json){
-      var oJson = JSON.parse(json);
-
-      var category = 'Contacts';
-      for(var k=0;k<oJson.length;k++){
-        var sCode = "\u59D3";//"姓"
-        if(oJson[k].hasOwnProperty(sCode)){
-          oJson[k].path = itemPath;
-          oJson[k].name = oJson[k][sCode];
-          oJson[k].currentTime = currentTime;
-          var oNewItem = oJson[k];
-          dataDes.createItem(category,oNewItem,itemDesPath);
-          uniqueID.getFileUid(function(uri){
-            var oItem = {
-              id:null,
-              URI:uri + "#" + category,
-              category:category,
-              commit_id: "",
-              version:"",
-              is_delete:0,
-              name:oNewItem["\u59D3"],
-              phone:110120119,
-              sex:"Phd",
-              age:35,
-              email:"my@email.com",
-              postfix:itemPostfix,
-              id:"",
-              photoPath:itemPath,
-              location:"Mars",
-              createTime:currentTime,
-              lastModifyTime:currentTime,
-              lastAccessTime:currentTime,
-              currentTime:currentTime,
-            }
-            callback(isLoadEnd,oItem);
-          })
-        }
-      }
-    });
-}
-else{
+  }
+  else{
   function getFileStatCb(error,stat)
   {
     var mtime=stat.mtime;
@@ -115,9 +79,8 @@ else{
      itemPostfix == 'odt' || 
      itemPostfix == 'pdf'){
       var category='Documents';
-    var oNewItem = {};
     uniqueID.getFileUid(function(uri){
-      oNewItem={
+      var oNewItem={
         id:"",
         URI:uri + "#" + category,
         category:category,
@@ -134,13 +97,14 @@ else{
         lastModifyTime:mtime,
         lastAccessTime:ctime,
       };
-      dataDes.createItem(category,oNewItem,itemDesPath);
-      callback(isLoadEnd,oNewItem);
+      function createItemCb(){
+        callback(isLoadEnd,oNewItem);
+      }
+      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     });
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
     var category='Pictures';
-    var oNewItem = {};
     uniqueID.getFileUid(function(uri){
       var oNewItem={
         URI:uri + "#" + category,
@@ -159,13 +123,14 @@ else{
         lastAccessTime:ctime,
         others:null,
       };
-      dataDes.createItem(category,oNewItem,itemDesPath);
-      callback(isLoadEnd,oNewItem);
+      function createItemCb(){
+        callback(isLoadEnd,oNewItem);
+      }
+      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     })
   }
   else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
     var category='Music'; 
-    var oNewItem = {};
     uniqueID.getFileUid(function(uri){
         var oNewItem = {
         id:null,
@@ -186,8 +151,10 @@ else{
         lastModifyTime:mtime,
         lastAccessTime:ctime,
       };
-      dataDes.createItem(category,oNewItem,itemDesPath);
-      callback(isLoadEnd,oNewItem);
+      function createItemCb(){
+        callback(isLoadEnd,oNewItem);
+      }
+      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     })
   } 
   else{
@@ -516,8 +483,12 @@ function initData(loadResourcesCb,resourcePath)
             }
           }
           else{
+            var sPosIndex = (item).lastIndexOf(".");
+            var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
+            if(sPos != '.csv' && sPos != '.CSV'){
             fileDesDir.push(pathDes);
             fileList.push(path + '/' + item);
+          }
           }
         });
       }
@@ -528,16 +499,16 @@ function initData(loadResourcesCb,resourcePath)
       function isEndCallback(){
         resourceRepo.repoInit(resourcePath,loadResourcesCb);
       }
+      var oNewItems = new Array();
       for(var k=0;k<fileList.length;k++){
         var isLoadEnd = (k == (fileList.length-1));
-        var oNewItems = new Array();
         addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
           oNewItems.push(oNewItem);
           if(isLoadEnd){
-            //console.log(oNewItems);
-            resourceRepo.repoInit(resourcePath,loadResourcesCb);
+            isEndCallback();
             commonDAO.createItems(oNewItems,function(result){
-             console.log(result);
+              console.log("initData is end!!!");
+              console.log(result);
            });
           }
         });

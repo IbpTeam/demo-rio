@@ -362,7 +362,11 @@ function commitTrans(db,callback){
 exports.createItems = function(items,callback){
   //var aSqlArray = new Array();
   var sSqlStr = BEGIN_TRANS;
+
   items.forEach(function(item){
+
+  //console.log(item.category);
+
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;
     //Delete attribute category and id from this obj.
