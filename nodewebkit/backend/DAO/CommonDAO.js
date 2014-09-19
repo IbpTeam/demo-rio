@@ -20,12 +20,13 @@ var recentDAO = require("./RecentDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
+var SQLSTR = require("./SQL/SQLStr.js");
+var createTableTimes = 0;
 
 // @const
 var BEGIN_TRANS = "BEGIN TRANSACTION;";
 var ROLLBACK_TRANS = "ROLLBACK";
 var COMMIT_TRANS = "COMMIT;";
-
 
 /**
  * @method openDB
@@ -34,9 +35,8 @@ var COMMIT_TRANS = "COMMIT;";
  *    The database object.
  */
 function openDB(){
-  return new sqlite3.Database('./backend/db/rio');
+  return new sqlite3.Database(config.DATABASEPATH);
 }
-
 
 /**
  * @method closeDB
@@ -46,6 +46,69 @@ function openDB(){
  */
 function closeDB(database){
   database.close();
+}
+
+/**
+ * @method createTables
+ *    Use SQL to create tables in database.
+ * @param sqlStr
+ *    The specific SQL string.
+ */
+function createTables(db,sqlStr){
+  if(!sqlStr){
+    console.log("Error: SQL is null when create tabale ");
+    return;
+  }
+  console.log("Start to create tables with SQL :" + sqlStr);
+  if(!db){
+    db = openDB();
+  }
+  db.exec(sqlStr,function(err){
+    createComplete(err,db,sqlStr);
+  });
+}
+
+/**
+ * @method createComplete
+ *    Callback after create tables.
+ * @param err
+ *    Null/error.
+ * @param db
+ *    The database object.
+ * @param db
+ *    The specific SQL string used to create tables.
+ */
+function createComplete(err,db,sqlStr){
+  if(err){
+    console.log(err);
+    console.log("Roll back");
+    if(createTableTimes < 5){
+      createTableTimes++;      
+      db.run("ROLLBACK",function(err){
+        if(err) throw err;
+        createTables(db,sqlStr);
+      });
+    }else{
+      createTableTimes = 0;
+      console.log("create table fail.");
+    }
+    return;
+  }
+  createTableTimes = 0;
+  db.run("COMMIT",function(err){
+    if(err) throw err;
+    console.log("Msg: create tables successfully");
+    closeDB(db);
+  });
+}
+
+/**
+ * @method initDatabase
+ *    Database initialize.
+ */
+exports.initDatabase = function(){
+  var sInitDbSQL = SQLSTR.INITDB;
+  createTables(null,sInitDbSQL);
 }
 
 exports.countTotalByCategory = function(category, callback) {
@@ -389,53 +452,37 @@ exports.createItems = function(items,callback){
   execSQL(sSqlStr,callback);
 }
 
-exports.deleteItemByUri = function(uri, callback ,rmDataByUriCb){
-  config.dblog("delete uri:" + uri);
-  
-  var aUri = uri.split('#');
-  if (aUri.length != 3) {
-    config.dblog("Error: uri is wrong in getItemByUri!");
-    callback(uri,"Error: uri is wrong in getItemByUri!",rmDataByUriCb);
-    return;
-  }
-  var sTableName = aUri[2];
-  config.dblog("GetItemByUri: TableName is:" + sTableName);
+/**
+ * @method deleteItems
+ *    Delete data from database, support batch execute.
+ * @param items
+ *    An obj Array, each obj must has attribute category&&URI match table&&URI,
+ *    other attributes match field in table.
+ * @param callback
+ *    Retrive "commit" when successfully
+ *    Retrive "rollback" when error
+ */
+exports.deleteItems = function(items,callback){
+  //var aSqlArray = new Array();
+  var sSqlStr = BEGIN_TRANS;
+  items.forEach(function(item){
+    var oTempItem = item;
+    sSqlStr = sSqlStr + "delete from " + oTempItem.category + " where 1=1";
+    //Delete attribute category from this obj.
+    delete oTempItem.category;
+    var sKeyStr = " (id";
+    var sValueStr = ") values (null";
+    for(var key in oTempItem){
+      if(typeof oTempItem[key] == 'string')
+        oTempItem[key] = oTempItem[key].replace("'","''");
+      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
+    }
+    sSqlStr = sSqlStr + ";delete from recent where file_uri='" + oTempItem.URI + "'";
+  });
+  //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
-  var oDeleteDao = null;
-
-  switch(sTableName){
-    case 'contacts' : {
-      oDeleteDao = contactsDAO;
-    }
-    break;
-    case 'pictures' : {
-      oDeleteDao = picturesDAO;
-    }
-    break;
-    case 'videos' : {
-      oDeleteDao = videosDAO;
-    }
-    break;
-    case 'documents' : {
-      oDeleteDao = documentsDAO;
-    }
-    break;
-    case 'music' : {
-      oDeleteDao = musicDAO;
-    }
-    break;
-    default:{
-      config.dblog("GetItemByUri: this is default in switch!");
-    }
-  }
-
-  oDeleteDao.deleteItemByUri(uri, function(err){
-    if(err){
-      callback(uri,err,rmDataByUriCb);
-    }else{
-      callback(uri,"successfull",rmDataByUriCb);
-    }
-  })
+  // Exec sql
+  execSQL(sSqlStr,callback);
 }
 
 /**

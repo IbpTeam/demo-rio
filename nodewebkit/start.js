@@ -13,7 +13,7 @@
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
-var fileHandle = require("./backend/filesHandle");
+var filesHandle = require("./backend/filesHandle");
 var uniqueID=require('./backend/uniqueID');
 var device = require("./backend/devices");
 var util = require('util');
@@ -28,6 +28,7 @@ var HOME_DIR = "/home";
 var DEMO_RIO = ".demo-rio";
 var CONFIG_JS = "config.js";
 var UNIQUEID_JS = "uniqueID.js";
+var DATABASENAME = "rio.sqlite3";
 
 //
 var sFullPath;
@@ -68,6 +69,7 @@ function initializeApp(){
   config.USERCONFIGPATH = sFullPath;
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
+  var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
   console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
 
@@ -78,7 +80,7 @@ function initializeApp(){
       var dataDir=require(sConfigPath).dataDir;
       config.RESOURCEPATH=dataDir;
       util.log("monitor : "+dataDir);
-      fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
+      filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
     }
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
@@ -94,6 +96,14 @@ function initializeApp(){
   });
 
   //start to init database
+  fs.exists(sDatabasePath,function(dbExists){
+    if(!dbExists){
+      config.DATABASEPATH = sDatabasePath;
+      filesHandle.initDatabase();
+      return;
+    }
+    config.DATABASEPATH = sDatabasePath;
+  });
  }
 
 /** 

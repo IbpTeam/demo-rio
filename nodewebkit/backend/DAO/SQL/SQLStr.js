@@ -25,8 +25,7 @@ INSERT INTO category VALUES('./resources/logo/contacts.png',101,'Contacts','联�
 INSERT INTO category VALUES('./resources/logo/pictures.png',102,'Pictures','图片');\
 INSERT INTO category VALUES('./resources/logo/videos.png',103,'Videos','视频');\
 INSERT INTO category VALUES('./resources/logo/documents.png',104,'Documents','文档');\
-INSERT INTO category VALUES('./resources/logo/music.png',105,'Music','音乐');\
-COMMIT;";
+INSERT INTO category VALUES('./resources/logo/music.png',105,'Music','音乐');";
 
 //SQL used in CategoryDAO
 exports.COUNTTOTALCATEGORIES = "select count(*) as total from Category";
