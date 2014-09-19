@@ -168,9 +168,11 @@ function addContactsCSV(sItemPath,sItemDesPath,callback){
     var nameindex=sItemPath.lastIndexOf('/');
     var itemFilename=sItemPath.substring(nameindex+1,pointIndex);
   }
+
   if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
     config.riolog("postfix= "+itemPostfix);
     var currentTime = (new Date()).getTime();
+
     csvtojson.csvTojson(sItemPath,function(json){
       var oJson = JSON.parse(json);
       var oContacts = new Array();
@@ -180,69 +182,67 @@ function addContactsCSV(sItemPath,sItemDesPath,callback){
           console.log(oJson[k]["\u59D3"]+"=====path====="+sItemPath);
           addContact((oJson[k],sItemDesPath,function(){
             console.log("good")
-          })
+          })  
         } 
       }
-    }else{
-      console.log("No contacts file!!!")
-    }
-  }
-}
+    })
+
+        }else{
+          console.log("No contacts file!!!")
+        }
+      }
 
 
-function initContacts(loadResourcesCb,resourcePath)
-{
-  config.riolog("initData ..............");
-  dataPath=resourcePath;
-  fs.mkdir(dataPath+'/.des',function (err){
-    if(err) {
-      console.log("mk resourcePath error!");
-      console.log(err);
-      return;
-    }
-    else{
-      var fileList = new Array();
-      var fileDesDir = new Array();
-      function walk(path,pathDes){  
-        var dirList = fs.readdirSync(path);
-        dirList.forEach(function(item){
-          if(fs.statSync(path + '/' + item).isDirectory()){
-            if(item == 'contacts'){
-              fs.mkdir(pathDes + '/' + item, function(err){
-                if(err){ 
-                  console.log("mkdir error!");
-                  console.log(err);
-                  //return;
+      function initContacts(loadResourcesCb,resourcePath)
+      {
+        config.riolog("initData ..............");
+        dataPath=resourcePath;
+        fs.mkdir(dataPath+'/.des',function (err){
+          if(err) {
+            console.log("mk resourcePath error!");
+            console.log(err);
+            return;
+          }else{
+            var fileList = new Array();
+            var fileDesDir = new Array();
+            function walk(path,pathDes){  
+              var dirList = fs.readdirSync(path);
+              dirList.forEach(function(item){
+                if(fs.statSync(path + '/' + item).isDirectory()){
+                  if(item == 'contacts'){
+                    fs.mkdir(pathDes + '/' + item, function(err){
+                      if(err){ 
+                        console.log("mkdir error!");
+                        console.log(err);
+                      }
+                    });              
+                    walk(path + '/' + item,pathDes + '/' + item);
+                  }
+                }else{
+                  var sPosIndex = (item).lastIndexOf(".");
+                  var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
+                  if(sPos == '.csv' || sPos == '.CSV'){
+                    fileDesDir.push(pathDes);
+                    fileList.push(path + '/' + item);
+                  }
                 }
-              });              
-              walk(path + '/' + item,pathDes + '/' + item);
+              });
             }
-          }
-          else{
-            var sPosIndex = (item).lastIndexOf(".");
-            var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
-            if(sPos == '.csv' || sPos == '.CSV'){
-              fileDesDir.push(pathDes);
-              fileList.push(path + '/' + item);
+            walk(resourcePath,resourcePath+'/.des');
+            config.riolog(fileList); 
+            writeDbNum=fileList.length;
+            config.riolog('writeDbNum= '+writeDbNum);
+            function isEndCallback(){
+              resourceRepo.repoInit(resourcePath,loadResourcesCb);
+            }
+            var oNewItems = new Array();
+            for(var k=0;k<fileList.length;k++){
+              var isLoadEnd = (k == (fileList.length-1));
+              addContactsCSV(fileList[k],fileDesDir[k],function(oNewItem){
+              });
             }
           }
         });
-      }
-      walk(resourcePath,resourcePath+'/.des');
-      config.riolog(fileList); 
-      writeDbNum=fileList.length;
-      config.riolog('writeDbNum= '+writeDbNum);
-      function isEndCallback(){
-        resourceRepo.repoInit(resourcePath,loadResourcesCb);
-      }
-      var oNewItems = new Array();
-      for(var k=0;k<fileList.length;k++){
-        var isLoadEnd = (k == (fileList.length-1));
-        addContactsCSV(fileList[k],fileDesDir[k],function(oNewItem){
-        });
-      }
-    }
-  });
 }
 exports.initContacts = initContacts;
 
