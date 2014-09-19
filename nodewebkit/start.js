@@ -80,7 +80,7 @@ function initializeApp(){
       var dataDir=require(sConfigPath).dataDir;
       config.RESOURCEPATH=dataDir;
       util.log("monitor : "+dataDir);
-      fileHandle.monitorFiles(dataDir,fileHandle.monitorFilesCb);
+      filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
     }
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){

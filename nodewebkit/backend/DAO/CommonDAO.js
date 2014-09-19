@@ -54,7 +54,7 @@ function closeDB(database){
  * @param sqlStr
  *    The specific SQL string.
  */
-function createTables = function(db,sqlStr){
+function createTables(db,sqlStr){
   if(!sqlStr){
     console.log("Error: SQL is null when create tabale ");
     return;
@@ -97,6 +97,7 @@ function createComplete(err,db,sqlStr){
   createTableTimes = 0;
   db.run("COMMIT",function(err){
     if(err) throw err;
+    console.log("Msg: create tables successfully");
     closeDB(db);
   });
 }
