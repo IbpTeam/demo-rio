@@ -18,8 +18,8 @@ var showDeviceListCb;
  *   回调函数
  *  @signal
  *   string, 代表信号类型，设备上线为ItemNew，设备下线为ItemRemove。
- *  @args
- *   array, 设备发送的相关信息。[interface, protocol, name, type, domain, flags]
+ *  @obj
+ *   object, 设备发送的相关信息。{interface,protocol,name,stype,domain,host,aprotocol,address,port,txt,flags}
  *
  */
 function addDeviceListener(cb){
@@ -45,7 +45,7 @@ exports.removeDeviceListener = removeDeviceListener;
 
 function callDeviceListener(type, args){
   for(index in deviceListeners){
-  deviceListeners[index](type, args);
+    deviceListeners[index](type, args);
   }
 }
 
@@ -66,11 +66,17 @@ exports.showDeviceList = showDeviceList;
 function deleteADevice(name){
   var obj;
   for(address in deviceList){
-  obj = deviceList[address]
-  if(obj.name == name){
-    delete deviceList[address];
-   }
-   }
+    obj = deviceList[address]
+    if(obj.name == name){
+      newobj = new Object();
+      for(var attr in obj){  
+        newobj[attr] = obj[attr]; 
+       }
+      delete deviceList[address];
+      return newobj;
+    }
+  }
+  return null;
 }
 
 /**
@@ -128,7 +134,7 @@ function createServer(devicePublishCb){
   iface.ServiceBrowserNew['error'] = function(err) {
     console.log("ServiceBrowserNew: " + err);
     }
-    iface.ServiceBrowserNew['timeout'] = 1000;
+    iface.ServiceBrowserNew['timeout'] = 2000;
     iface.ServiceBrowserNew['finish'] = function(path) {
       startServiceBrowser(path);
       serviceBrowserPath = path;
@@ -138,7 +144,7 @@ function createServer(devicePublishCb){
     iface.EntryGroupNew['error'] = function(err) {
       console.log("EntryGroupNew: " + err);
     }
-    iface.EntryGroupNew['timeout'] = 1000;
+    iface.EntryGroupNew['timeout'] = 2000;
     iface.EntryGroupNew['finish'] = function(path) {
       startEntryGroup(path, devicePublishCb);
       entryGroupPath = path;
@@ -148,7 +154,7 @@ function createServer(devicePublishCb){
     iface.ResolveService['error'] = function(err) {
       console.log("ResolveService: " + err);
     }
-    iface.ResolveService['timeout'] = 1000;
+    iface.ResolveService['timeout'] = 2000;
     iface.ResolveService['finish'] = function(result) {
       obj = new Object();
       obj.interface = result[0];
@@ -168,6 +174,7 @@ function createServer(devicePublishCb){
       obj.txt = txt;
       obj.flags  = result[10];
       deviceList[obj.address] = obj;
+      callDeviceListener('ItemNew', obj);
     };
   });
 }
@@ -180,7 +187,7 @@ function startEntryGroup(path, devicePublishCb){
       console.log(err);
      }
     entryGroup = iface;
-    iface.AddService['timeout'] = 1000;
+    iface.AddService['timeout'] = 2000;
     iface.AddService['error'] = function(err) {
       console.log(err);
      }
@@ -194,16 +201,15 @@ function startEntryGroup(path, devicePublishCb){
 
 function startServiceBrowser(path){
   console.log('A new ServiceBrowser started, path:' + path);
-  bus.getLocalInterface('org.freedesktop.Avahi', path, 'org.freedesktop.Avahi.ServiceBrowser', __dirname + '/' + '../org.freedesktop.Avahi.ServiceBrowser.xml', function(err, iface) {
+  bus.getLocalInterface('org.freedesktop.Avahi', path, 'org.freedesktop.Avahi.ServiceBrowser', __dirname + '/org.freedesktop.Avahi.ServiceBrowser.xml', function(err, iface) {
     if (err != null){
       console.log(err);
     }
     serviceBrowser = iface;
     iface.on('ItemNew', function(arg) {
-    if(arguments[1] != 1 && arguments[2] == 'demo-rio'){
+    if(arguments[1] != 1){// && arguments[2] == 'demo-rio'
       server.ResolveService(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], -1, 0);
       //server.ResolveService(2, 1, 'TestService', '_http._tcp', 'local', -1, 0);
-      callDeviceListener('ItemNew', arguments);
     }
     });
     iface.on('ItemRemove', function(arg) {
@@ -213,10 +219,9 @@ function startServiceBrowser(path){
       var type = arguments[3];
       var domain = arguments[4];
       var flags = arguments[5];
-    if(arguments[1] != 1 && arguments[2] == 'demo-rio'){
-      deleteADevice(name);
-      callDeviceListener('ItemRemove', arguments);
-    }
+      if(arguments[1] != 1){//&& arguments[2] == 'demo-rio'
+        callDeviceListener('ItemRemove', deleteADevice(name));
+      }
     });
   });
 }
@@ -270,7 +275,7 @@ function createServiceBrowser(){
     iface.ServiceBrowserNew['error'] = function(err) {
       console.log("ServiceBrowserNew: " + err);
     }
-    iface.ServiceBrowserNew['timeout'] = 1000;
+    iface.ServiceBrowserNew['timeout'] = 2000;
     iface.ServiceBrowserNew['finish'] = function(path) {
       startServiceBrowser(path);
       serviceBrowserPath = path;
@@ -284,7 +289,7 @@ function createEntryGroup(){
     iface.EntryGroupNew['error'] = function(err) {
       console.log("EntryGroupNew: " + err);
     }
-    iface.EntryGroupNew['timeout'] = 1000;
+    iface.EntryGroupNew['timeout'] = 2000;
     iface.EntryGroupNew['finish'] = function(path) {
       startEntryGroup(path);
       entryGroupPath = path;
