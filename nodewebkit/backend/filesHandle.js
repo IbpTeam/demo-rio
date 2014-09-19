@@ -1,3 +1,15 @@
+/**
+ * @Copyright:
+ * 
+ * @Description: API for file handle.
+ *
+ * @author: Wangfeng Xiquan Yuanzhe
+ *
+ * @Data:2014.9.11
+ *
+ * @version:0.2.1
+ **/
+
 var http = require("http");
 var url = require("url");
 var sys = require('sys');
@@ -648,3 +660,10 @@ function firstSync(){
 }
 exports.firstSync = firstSync;
 
+/**
+ * @method initDatabase
+ *    Database initialize.
+ */
+exports.initDatabase = function(){
+  commonDAO.initDatabase();
+}

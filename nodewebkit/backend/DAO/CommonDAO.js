@@ -20,12 +20,13 @@ var recentDAO = require("./RecentDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
+var SQLSTR = require("./SQL/SQLStr.js");
+var createTableTimes = 0;
 
 // @const
 var BEGIN_TRANS = "BEGIN TRANSACTION;";
 var ROLLBACK_TRANS = "ROLLBACK";
 var COMMIT_TRANS = "COMMIT;";
-
 
 /**
  * @method openDB
@@ -34,9 +35,8 @@ var COMMIT_TRANS = "COMMIT;";
  *    The database object.
  */
 function openDB(){
-  return new sqlite3.Database('./backend/db/rio');
+  return new sqlite3.Database(config.DATABASEPATH);
 }
-
 
 /**
  * @method closeDB
@@ -46,6 +46,68 @@ function openDB(){
  */
 function closeDB(database){
   database.close();
+}
+
+/**
+ * @method createTables
+ *    Use SQL to create tables in database.
+ * @param sqlStr
+ *    The specific SQL string.
+ */
+function createTables = function(db,sqlStr){
+  if(!sqlStr){
+    console.log("Error: SQL is null when create tabale ");
+    return;
+  }
+  console.log("Start to create tables with SQL :" + sqlStr);
+  if(!db){
+    db = openDB();
+  }
+  db.exec(sqlStr,function(err){
+    createComplete(err,db,sqlStr);
+  });
+}
+
+/**
+ * @method createComplete
+ *    Callback after create tables.
+ * @param err
+ *    Null/error.
+ * @param db
+ *    The database object.
+ * @param db
+ *    The specific SQL string used to create tables.
+ */
+function createComplete(err,db,sqlStr){
+  if(err){
+    console.log(err);
+    console.log("Roll back");
+    if(createTableTimes < 5){
+      createTableTimes++;      
+      db.run("ROLLBACK",function(err){
+        if(err) throw err;
+        createTables(db,sqlStr);
+      });
+    }else{
+      createTableTimes = 0;
+      console.log("create table fail.");
+    }
+    return;
+  }
+  createTableTimes = 0;
+  db.run("COMMIT",function(err){
+    if(err) throw err;
+    closeDB(db);
+  });
+}
+
+/**
+ * @method initDatabase
+ *    Database initialize.
+ */
+exports.initDatabase = function(){
+  var sInitDbSQL = SQLSTR.INITDB;
+  createTables(null,sInitDbSQL);
 }
 
 exports.countTotalByCategory = function(category, callback) {
