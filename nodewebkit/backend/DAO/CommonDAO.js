@@ -35,6 +35,7 @@ var COMMIT_TRANS = "COMMIT;";
  *    The database object.
  */
 function openDB(){
+  console.log("config database path: " + config.DATABASEPATH);
   return new sqlite3.Database(config.DATABASEPATH);
 }
 
@@ -517,6 +518,57 @@ exports.updateItems = function(items,callback){
 
   // Exec sql
   execSQL(sSqlStr,callback);
+}
+
+/**
+ * @method findItems
+ *   Find datas with conditions.
+ * @param columns
+ *    An array, if you want to specific column in results,put the column's name in this array.
+ *    If you want select all columns, set it null.
+ * @param tables
+ *    An table's name array, like ["table1","table2"].
+ * @param conditions
+ *    An conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    If you want select all rows, set it null.
+ * @param callback
+ *    All results in array.
+ */
+exports.findItems = function(columns,tables,conditions,callback){
+  var sColStr = "select ";
+  var sTablesStr = " from ";
+  var sCondStr = " where 1=1";
+  var sQueryStr;
+  if(!columns){
+    sColStr =sColStr + "*";
+  }else{
+    columns.forEach(function(col){
+      sColStr = sColStr + col + ",";
+    });
+    sColStr = sColStr.substring(0,sColStr.length-1);
+  }
+  if(!tables){
+    console.log("Error: table's name is null!");
+    callback("error");
+    return;
+  }else{
+    tables.forEach(function(table){
+      sTablesStr = sTablesStr + table + ",";
+    });
+    sTablesStr = sTablesStr.substring(0,sTablesStr.length-1);
+  }
+  if(conditions){
+    conditions.forEach(function(condition){
+      sCondStr = sCondStr + " and " + condition;
+    });
+  }
+
+  // Make query string
+  sQueryStr = sColStr + sTablesStr + sCondStr;
+  console.log("SELECT Prepare SQL is :" + sQueryStr);
+
+  // Runs the SQL query
+  allSQL(sQueryStr);
 }
 
 exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryItems, createOperationItems){
