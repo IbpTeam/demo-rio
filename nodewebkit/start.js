@@ -52,11 +52,15 @@ function startApp(){
       if(!rioExists){
         fs.mkdir(sFullPath, 0755, function(err){
           if(err) throw err;
-          initializeApp();
+          initializeApp(function(){
+            device.startDeviceDiscoveryService()
+          });
         });
         return;
       }
-      initializeApp();
+      initializeApp(function(){
+        device.startDeviceDiscoveryService()
+      });
     });
   });
 }
@@ -65,7 +69,7 @@ function startApp(){
  * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
-function initializeApp(){
+function initializeApp(callback){
   config.USERCONFIGPATH = sFullPath;
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
@@ -85,24 +89,13 @@ function initializeApp(){
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
         console.log("UniqueID.js is not exists, start to set sys uid.");
-        setSysUid(null,sUniqueIDPath);
+        setSysUid(null,sUniqueIDPath,callback);
         return;
       }
       console.log("UniqueID.js is exist.");
       var deviceID=require(sUniqueIDPath).uniqueID;
-      setSysUid(deviceID,sUniqueIDPath);
-      device.getDeviceList();
+      setSysUid(deviceID,sUniqueIDPath,callback);
     });
-  });
-
-  //start to init database
-  fs.exists(sDatabasePath,function(dbExists){
-    if(!dbExists){
-      config.DATABASEPATH = sDatabasePath;
-      filesHandle.initDatabase();
-      return;
-    }
-    config.DATABASEPATH = sDatabasePath;
   });
  }
 
@@ -110,16 +103,18 @@ function initializeApp(){
  * @Method: setSysUid
  *    set system unique id.
  **/
-function setSysUid(deviceID,uniqueIDPath){
+function setSysUid(deviceID,uniqueIDPath,callback){
   if(deviceID == undefined || deviceID == null){
     uniqueID.SetSysUid(function(){
       deviceID=require(uniqueIDPath).uniqueID;
       console.log("deviceID = "+deviceID);
       config.uniqueID=deviceID;
+      callback();
     });
   }else{
     console.log("deviceID = "+deviceID);
     config.uniqueID=deviceID;
+    callback();
   }
 }
 
