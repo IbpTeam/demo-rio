@@ -1,5 +1,6 @@
 var commonDAO = require("./DAO/CommonDAO");
 var config = require("./config");
+var mdns = require('../lib/api/device.js');
 
 var devicesList=new Array();
 exports.devicesList = devicesList;
@@ -28,3 +29,59 @@ function getServerAddress(getServerAddressCb){
   getServerAddressCb(address);
 }
 exports.getServerAddress = getServerAddress;
+
+function addDevice(deviceItem){
+  if(deviceItem in devicesList){
+
+  }
+  else{
+    deviceItem.category="devices",
+    commonDAO.createItems(deviceItem,function(result){
+      console.log("New device!!!");
+      console.log(result);
+    });
+  }
+}
+exports.getDeviceList = getDeviceList;
+
+function startDeviceDiscoveryService(){
+  console.log("start Device Discovery Service ");
+//  var io = require('socket.io').listen(config.SOCKETIOPORT);
+//  io.sockets.on('connection', function (socket) {
+    mdns.addDeviceListener(function (signal, args){
+      if(args.txt[0]=="demo-rio"){
+        var device={
+          deviceId:args.txt[1],
+          name:args.txt[2],
+          branchName:args.txt[2],
+         resourcePath:args.txt[3],
+          ip:args.txt[4]
+        };
+        deviceArray= new Array();
+        deviceArray.push(device);
+        switch(signal){
+          case 'ItemNew':{
+            //socket.emit('mdnsUp', args);
+            console.log('A new device is add: ');
+            console.log(args);
+            addDevice(deviceArray);
+          }       
+          break;
+          case 'ItemRemove':{
+            //socket.emit('mdnsDown', args);
+            console.log('A device is removed: ');
+            console.log(args);          
+          }
+          break;
+        }
+      }
+    });
+    mdns.createServer(function(){
+      var name = config.SERVERNAME;
+      var port = config.MDNSPORT;
+      var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP];
+      mdns.entryGroupCommit(name,  port, txtarray);
+    });
+ // });
+}
+exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
