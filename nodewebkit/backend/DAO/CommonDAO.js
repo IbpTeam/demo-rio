@@ -35,6 +35,7 @@ var COMMIT_TRANS = "COMMIT;";
  *    The database object.
  */
 function openDB(){
+  console.log("config database path: " + config.DATABASEPATH);
   return new sqlite3.Database(config.DATABASEPATH);
 }
 
@@ -43,9 +44,11 @@ function openDB(){
  *    Close the database.
  * @param database
  *    The database object.
+ * @param callback
+ *    Callback
  */
-function closeDB(database){
-  database.close();
+function closeDB(database,callback){
+  database.close(callback);
 }
 
 /**
@@ -53,8 +56,10 @@ function closeDB(database){
  *    Use SQL to create tables in database.
  * @param sqlStr
  *    The specific SQL string.
+ * @param callback
+ *    Callback
  */
-function createTables(db,sqlStr){
+function createTables(db,sqlStr,callback){
   if(!sqlStr){
     console.log("Error: SQL is null when create tabale ");
     return;
@@ -64,7 +69,7 @@ function createTables(db,sqlStr){
     db = openDB();
   }
   db.exec(sqlStr,function(err){
-    createComplete(err,db,sqlStr);
+    createComplete(err,db,sqlStr,callback);
   });
 }
 
@@ -77,8 +82,10 @@ function createTables(db,sqlStr){
  *    The database object.
  * @param db
  *    The specific SQL string used to create tables.
+ * @param callback
+ *    Callback
  */
-function createComplete(err,db,sqlStr){
+function createComplete(err,db,sqlStr,callback){
   if(err){
     console.log(err);
     console.log("Roll back");
@@ -91,6 +98,7 @@ function createComplete(err,db,sqlStr){
     }else{
       createTableTimes = 0;
       console.log("create table fail.");
+      callback(null);
     }
     return;
   }
@@ -98,17 +106,19 @@ function createComplete(err,db,sqlStr){
   db.run("COMMIT",function(err){
     if(err) throw err;
     console.log("Msg: create tables successfully");
-    closeDB(db);
+    closeDB(db,callback);
   });
 }
 
 /**
  * @method initDatabase
  *    Database initialize.
+ * @param callback
+ *    Callback
  */
-exports.initDatabase = function(){
+exports.initDatabase = function(callback){
   var sInitDbSQL = SQLSTR.INITDB;
-  createTables(null,sInitDbSQL);
+  createTables(null,sInitDbSQL,callback);
 }
 
 exports.countTotalByCategory = function(category, callback) {
@@ -428,7 +438,7 @@ exports.createItems = function(items,callback){
 
   items.forEach(function(item){
 
-  //console.log(item.category);
+    console.log(item.category + "------------------------");
 
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;
@@ -517,6 +527,57 @@ exports.updateItems = function(items,callback){
 
   // Exec sql
   execSQL(sSqlStr,callback);
+}
+
+/**
+ * @method findItems
+ *   Find datas with conditions.
+ * @param columns
+ *    An array, if you want to specific column in results,put the column's name in this array.
+ *    If you want select all columns, set it null.
+ * @param tables
+ *    An table's name array, like ["table1","table2"].
+ * @param conditions
+ *    An conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    If you want select all rows, set it null.
+ * @param callback
+ *    All results in array.
+ */
+exports.findItems = function(columns,tables,conditions,callback){
+  var sColStr = "select ";
+  var sTablesStr = " from ";
+  var sCondStr = " where 1=1";
+  var sQueryStr;
+  if(!columns){
+    sColStr =sColStr + "*";
+  }else{
+    columns.forEach(function(col){
+      sColStr = sColStr + col + ",";
+    });
+    sColStr = sColStr.substring(0,sColStr.length-1);
+  }
+  if(!tables){
+    console.log("Error: table's name is null!");
+    callback("error");
+    return;
+  }else{
+    tables.forEach(function(table){
+      sTablesStr = sTablesStr + table + ",";
+    });
+    sTablesStr = sTablesStr.substring(0,sTablesStr.length-1);
+  }
+  if(conditions){
+    conditions.forEach(function(condition){
+      sCondStr = sCondStr + " and " + condition;
+    });
+  }
+
+  // Make query string
+  sQueryStr = sColStr + sTablesStr + sCondStr;
+  console.log("SELECT Prepare SQL is :" + sQueryStr);
+
+  // Runs the SQL query
+  allSQL(sQueryStr);
 }
 
 exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryItems, createOperationItems){
