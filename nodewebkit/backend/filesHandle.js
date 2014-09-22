@@ -457,8 +457,7 @@ function initData(loadResourcesCb,resourcePath)
       console.log("mk resourcePath error!");
       console.log(err);
       return;
-    }
-    else{
+    }else{
       var fileList = new Array();
       var fileDesDir = new Array();
       var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
