@@ -13,11 +13,11 @@ exports.repoContactInit = function (repoPath,callback)
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
-      console.log("Git add error");
+      console.log("Contact Git init error");
     }
     else{
-      console.log("Git add success");
-      callback();
+      console.log("Contact Git init success");
+      callback("success");
     }
   }); 
 }

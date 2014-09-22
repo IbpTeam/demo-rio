@@ -83,7 +83,7 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
 
 function initContacts(loadResourcesCb,resourcePath){
   config.riolog("initContacts ..............");
-  var sItemPath=resourcePath+"/contacts/contacts.CSV";
+  var sItemPath=resourcePath;
   var dataPath = resourcePath;
   var pointIndex=sItemPath.lastIndexOf('.');
   if(pointIndex == -1){
@@ -97,74 +97,41 @@ function initContacts(loadResourcesCb,resourcePath){
     }
   }
   csvtojson.csvTojson(sItemPath,function(json){
-    //console.log(json);
     var oJson = JSON.parse(json);
     var oContacts = new Array();
     for(var k in oJson){
       if(oJson[k].hasOwnProperty("\u59D3")){
-        //console.log(oJson[k]);
         oContacts.push(oJson[k]);
       }
     }
-    fs.exists(dataPath+"/.des",function (isExist){
-      if(isExist){
-        var dataDesPath = dataPath+"/.des/contacts";
-        fs.mkdir(dataDesPath,function(err){
-          if(err) {
-            console.log("mk contacts desPath error!");
-            console.log(err);
-            return;
-          }else{
-            function isEndCallback(){
-              resourceRepo.repoContactInit(resourcePath,loadResourcesCb);
-            }
-            var oNewItems = new Array();
-            for(var k=0;k<oContacts.length;k++){
-              var isContactEnd = (k == (oContacts.length-1));
-              addContact(oContacts[k],dataDesPath,isContactEnd,function(isContactEnd,oContact){
-                oNewItems.push(oContact);
-                if(isContactEnd){
-                  isEndCallback();
-                  commonDAO.createItems(oNewItems,function(result){
-                    console.log("initContacts is end!!!");
-                    console.log(result);
-                  })
-                }
-              })
-            }
-          }
-        })
+    var dataDesPath = config.RESOURCEPATH+"/.des/contacts";
+    fs.mkdir(dataDesPath,function(err){
+      if(err) {
+        console.log("mk contacts desPath error!");
+        console.log(err);
+        return;
       }else{
-        fs.mkdir(dataPath+"/.des",function(err){
-          if(err){
-            console.log("mk desPath error!");
-            console.log(err);
-            return;
-          }
-          var dataDesPath = dataPath+"/.des/contacts";
-          fs.mkdir(dataDesPath,function(err){
-            function isEndCallback(){
-              resourceRepo.repoContactInit(resourcePath,loadResourcesCb);
-            }
-            var oNewItems = new Array();
-            for(var k=0;k<oContacts.length;k++){
-              var isContactEnd = (k == (oContacts.length-1));
-              addContact(oContacts[k],dataDesPath,isContactEnd,function(isContactEnd,oContact){
-                oNewItems.push(oContact);
-                if(isContactEnd){
-                  isEndCallback();
-                  commonDAO.createItems(oNewItems,function(result){
-                    console.log("initContacts is end!!!");
-                    console.log(result);
-                  })
-                }
+        function isEndCallback(){
+          resourceRepo.repoContactInit(resourcePath,loadResourcesCb);
+        }
+        var oNewItems = new Array();
+        for(var k=0;k<oContacts.length;k++){
+          var isContactEnd = (k == (oContacts.length-1));
+          addContact(oContacts[k],dataDesPath,isContactEnd,function(isContactEnd,oContact){
+            oNewItems.push(oContact);
+            if(isContactEnd){
+              isEndCallback();
+              commonDAO.createItems(oNewItems,function(result){
+                console.log("initContacts is end!!!");
+                console.log(result);
               })
             }
           })
-        })
-
+        }
       }
-    });
-})
+    })
+
+
+  })
 }
 exports.initContacts = initContacts;
