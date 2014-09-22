@@ -169,7 +169,7 @@ function createServer(devicePublishCb){
       txtorig = result[9];
       txt = new Array();
       for(var i=0; i<txtorig.length; i++){
-        txt.push(arrayToString(txtorig[i]));
+        txt.push(arrayToString(txtorig[txtorig.length-i-1]));
        }
       obj.txt = txt;
       obj.flags  = result[10];
