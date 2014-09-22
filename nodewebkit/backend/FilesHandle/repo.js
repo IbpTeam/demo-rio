@@ -31,10 +31,8 @@ exports.repoInit = function (repoPath,callback)
     var  exec = require('child_process').exec;
     var comstr = 'cd ' + repoPath + ' && git add . && git commit -m "On device '+config.SERVERNAME+' #Init resource#"';
     console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn"+comstr);
-    console.log(comstr);
     exec(comstr, function(error,stdout,stderr){
       if(error){
-        console.log(comstr);
         callback("Git init error");
       }
       else{
