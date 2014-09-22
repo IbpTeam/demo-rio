@@ -38,9 +38,9 @@ exports.loadResources = loadResources;
  * @param2 path
  *   string，要加载资源的路径
  */
-function loadContacts(loadResourcesCb,path) {
-  console.log("Request handler 'loadResources' was called.");
-  contacts.initContacts(loadResourcesCb,path);
+function loadContacts(loadContactCb,path) {
+  console.log("Request handler 'loadContacts' was called.");
+  contacts.initContacts(loadContactCb,path);
 }
 exports.loadContacts = loadContacts;
 
