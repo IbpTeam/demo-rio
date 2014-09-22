@@ -33,14 +33,14 @@ function start(route, handle) {
   
   var io = require('socket.io').listen(config.SOCKETIOPORT);
   io.sockets.on('connection', function (socket) {
-    mdns.addDeviceListener(function deviceStateCb(signal, args){
+    mdns.addDeviceListener(function (signal, args){
       var interface = args[0];
       var protocol = args[1];
       var name = args[2];
       var type = args[3];
       var domain = args[4];
       var flags = args[5];
-      console.log(args);
+      //console.log(args);
       switch(signal){
         case 'ItemNew':{
           socket.emit('mdnsUp', args);
@@ -54,10 +54,10 @@ function start(route, handle) {
         break;
       }
     });
-    mdns.createServer(function devicePublishCb(){
-      var name = 'demo-rio';
-      var port = '80';
-      var txtarray = ['demo-rio', 'hello'];
+    mdns.createServer(function(){
+      var name = config.SERVERNAME;
+      var port = config.MDNSPORT;
+      var txtarray = [config.SERVERNAME, 'hello'];
       mdns.entryGroupCommit(name,  port, txtarray);
     });
   });
