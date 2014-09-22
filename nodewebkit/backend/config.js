@@ -9,6 +9,13 @@ exports.USERCONFIGPATH = USERCONFIGPATH;
 var RESOURCEPATH;
 exports.RESOURCEPATH = RESOURCEPATH;
 
+/**
+ * Database Path
+ *
+ */
+var DATABASEPATH;
+exports.DATABASEPATH = DATABASEPATH;
+
 /*
  * Debug Config
  * */
