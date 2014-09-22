@@ -44,9 +44,11 @@ function openDB(){
  *    Close the database.
  * @param database
  *    The database object.
+ * @param callback
+ *    Callback
  */
-function closeDB(database){
-  database.close();
+function closeDB(database,callback){
+  database.close(callback);
 }
 
 /**
@@ -54,8 +56,10 @@ function closeDB(database){
  *    Use SQL to create tables in database.
  * @param sqlStr
  *    The specific SQL string.
+ * @param callback
+ *    Callback
  */
-function createTables(db,sqlStr){
+function createTables(db,sqlStr,callback){
   if(!sqlStr){
     console.log("Error: SQL is null when create tabale ");
     return;
@@ -65,7 +69,7 @@ function createTables(db,sqlStr){
     db = openDB();
   }
   db.exec(sqlStr,function(err){
-    createComplete(err,db,sqlStr);
+    createComplete(err,db,sqlStr,callback);
   });
 }
 
@@ -78,8 +82,10 @@ function createTables(db,sqlStr){
  *    The database object.
  * @param db
  *    The specific SQL string used to create tables.
+ * @param callback
+ *    Callback
  */
-function createComplete(err,db,sqlStr){
+function createComplete(err,db,sqlStr,callback){
   if(err){
     console.log(err);
     console.log("Roll back");
@@ -92,6 +98,7 @@ function createComplete(err,db,sqlStr){
     }else{
       createTableTimes = 0;
       console.log("create table fail.");
+      callback(null);
     }
     return;
   }
@@ -99,17 +106,19 @@ function createComplete(err,db,sqlStr){
   db.run("COMMIT",function(err){
     if(err) throw err;
     console.log("Msg: create tables successfully");
-    closeDB(db);
+    closeDB(db,callback);
   });
 }
 
 /**
  * @method initDatabase
  *    Database initialize.
+ * @param callback
+ *    Callback
  */
-exports.initDatabase = function(){
+exports.initDatabase = function(callback){
   var sInitDbSQL = SQLSTR.INITDB;
-  createTables(null,sInitDbSQL);
+  createTables(null,sInitDbSQL,callback);
 }
 
 exports.countTotalByCategory = function(category, callback) {
@@ -429,7 +438,7 @@ exports.createItems = function(items,callback){
 
   items.forEach(function(item){
 
-  //console.log(item.category);
+    console.log(item.category + "------------------------");
 
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;

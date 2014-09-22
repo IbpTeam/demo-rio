@@ -96,10 +96,12 @@ function deleteADevice(name){
  *   设备附加信息
  *
  */
-function entryGroupCommit(name , port, strarray){
+function entryGroupCommit(name , port, strArray){
   var byteArray = new Array();
-  for(var i=0; i<strarray.length; i++){
-  byteArray.push(stringToByteArray(strarray[i]));
+  for(var i=0; i<strArray.length; i++){
+    if(strArray[i] == undefined)
+      continue;
+    byteArray.push(stringToByteArray(strArray[i]));
   }
   entryGroup.AddService(-1, -1, 0, name, '_http._tcp', '', '', port,  byteArray);
   entryGroup.Commit();
