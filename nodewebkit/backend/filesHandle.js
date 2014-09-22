@@ -457,8 +457,7 @@ function initData(loadResourcesCb,resourcePath)
       console.log("mk resourcePath error!");
       console.log(err);
       return;
-    }
-    else{
+    }else{
       var fileList = new Array();
       var fileDesDir = new Array();
       var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
@@ -483,12 +482,12 @@ function initData(loadResourcesCb,resourcePath)
         var dirList = fs.readdirSync(path);
         dirList.forEach(function(item){
           if(fs.statSync(path + '/' + item).isDirectory()){
-            if(item != '.git' && item != '.des'){
+            if(item != '.git' && item != '.des' && item != 'contacts'){
               fs.mkdir(pathDes + '/' + item, function(err){
                 if(err){ 
                   console.log("mkdir error!");
                   console.log(err);
-                  return;
+                  //return;
                 }
               });              
               walk(path + '/' + item,pathDes + '/' + item);
@@ -552,6 +551,7 @@ exports.updateDataValue = updateDataValue;
 
 
 function monitorNetlink(path){
+  /*
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
     if(filename){
@@ -564,6 +564,7 @@ function monitorNetlink(path){
       config.riolog('filename not provided');
     }
   });
+*/
 }
 exports.monitorNetlink = monitorNetlink;
 

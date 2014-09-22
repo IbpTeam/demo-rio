@@ -12,6 +12,12 @@
 function loadResourcesCb(result){
   $("body").css("cursor", "default");
   console.log('end of load resource callback.');
+  //document.write(result);
+}
+
+function loadContactsCb(result){
+  $("body").css("cursor", "default");
+  console.log('end of load contact callback.');
   document.write(result);
 }
 
@@ -36,6 +42,24 @@ function loadResources(loadResourcesCb,path) {
     data.loadResources(loadResourcesCb,path);
   });
 }
+
+//API loadContact:读取某个资源文件夹到数据库
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function loadContact(loadContactsCb,path) {
+  WDC.requireAPI(['data'], function(data){
+    if(!path){
+        path = $('div#contact_add #dir_path').text();
+    }
+    $("body").css("cursor", "wait");
+    console.log("Insert contact to database...");
+    //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+    data.loadContacts(loadContactsCb,path);
+  });
+}
+
+
 //loadResources(loadResourcesCb,'/home/v1/resources');
 function chooseFile(name) {
   var chooser = document.querySelector(name);
@@ -47,10 +71,25 @@ function chooseFile(name) {
       $('div#db_add #dir_path').text(dir);
       $('div#db_add #btn_insert').css({"display":"inline"});
       $('div#db_add #btn_choose').val("重新选择路径");
+      $('div#contact_add #btn_choose').css({"display":"inline"});
     }
   }, false);
   chooser.click();
   }
+
+  function chooseCsvFile(name) {
+  var chooser = document.querySelector(name);
+  chooser.addEventListener("change", function(evt) {
+    var dir = this.value;
+    if(dir){
+      $('div#contact_add #dir_contact_path').text(dir);
+      $('div#contact_add #btn_insert').css({"display":"inline"});
+      $('div#contact_add #btn_choose').val("重新选择路径");
+    }
+  }, false);
+  chooser.click();
+  }
+
 </script>
 <div id="db_add">
     <input id="fileDialog" style="display:none;" type="file" nwdirectory/><br>
@@ -58,6 +97,12 @@ function chooseFile(name) {
     <label id="dir_path"></label><br>
     <input id="btn_insert" style="display:none;" type="button" onclick="loadResources(loadResourcesCb)" value="扫描路径下的文件，初始化数据库"></input>
     <input id="btn_insert" style="display:none;" type="button" onclick="WDC.requireAPI(['data'], function(data){data.addNewFolder(addNewFolderCb)});" value="扫描路径下的文件，添加到数据库"></input>
+</div>
+<div id="contact_add">
+    <input id="fileDialog" style="display:none;" type="file" nwdirectory/><br>
+    <input id="btn_choose" style="display:none;" type="button" onclick="chooseCsvFile('#fileDialog')" value="选择csv文件路径"></input>
+    <label id="dir_contact_path"></label><br>
+    <input id="btn_insert" style="display:none;" type="button" onclick="loadContact(loadContactsCb)" value="扫描路径下的文件，初始化数据库"></input>
 </div>
 <hr>
 </body>

@@ -1,24 +1,30 @@
 var commonDAO = require("./DAO/CommonDAO");
+var dataDes = require("./FilesHandle/desFilesHandle");
+var pathModule = require('path');
 var fs = require('fs');
 var config = require('./config');
+var csvtojson = require('./csvTojson');
+var uniqueID = require("./uniqueID");
+var util = require('util');
+var resourceRepo = require("./FilesHandle/repo");
 
 /**
- * @method getAllContacts
- *   获得所有联系人数组
- *
- * @param1 getAllContactsCb
- *   回调函数
- *   @result
- *     array[cate]: 联系人数组
- *        cate数据如下：
- *        cate{
- *           URI;
- *           version;
- *           name;
- *           photPath;
- *        }
- */
- function getAll(getAllCb) {
+* @method getAllContacts
+*   获得所有联系人数组
+*
+* @param1 getAllContactsCb
+*   回调函数
+*   @result
+*     array[cate]: 联系人数组
+*        cate数据如下：
+*        cate{
+*           URI;
+*           version;
+*           name;
+*           photPath;
+*        }
+*/
+function getAll(getAllCb) {
   function getAllByCaterotyCb(data)
   {
     var contacts = new Array();
@@ -36,146 +42,96 @@ var config = require('./config');
 }
 exports.getAll = getAll;
 
-
-
-function addContact(itemPath,itemDesPath,isLoadEnd,callback){
-  var pointIndex=itemPath.lastIndexOf('.');
-  if(pointIndex == -1){
-    var itemPostfix= "none";
-    var nameindex=itemPath.lastIndexOf('/');
-    var itemFilename=itemPath.substring(nameindex+1,itemPath.length);
-  }else{
-    var itemPostfix=itemPath.substr(pointIndex+1);
-    var nameindex=itemPath.lastIndexOf('/');
-    var itemFilename=itemPath.substring(nameindex+1,pointIndex);
-  }
-  if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
-    config.riolog("postfix= "+itemPostfix);
+/*
+commit_id, version, is_delete, URI, lastAccessTime, 
+photoPath, createTime, lastModifyTime, 
+id, name, phone, sex, age, email
+*/
+function addContact(Item,sItemDesPath,isContactEnd,callback){
+  uniqueID.getFileUid(function(uri){
+    var category = 'Contacts';
     var currentTime = (new Date()).getTime();
-    csvtojson.csvTojson(itemPath,function(json){
-      var oJson = JSON.parse(json);
-      var oContacts = new Array();
-      var category = 'Contacts';
-      for(var k=0;k<oJson.length;k++){
-        if(oJson[k].hasOwnProperty("\u59D3")){
-          var oItem = oJson[k];
-          oJson[k].path = itemPath;
-          oJson[k].name = oItem["\u59D3"];
-          oJson[k].currentTime = currentTime;
-          var oNewItem = oItem;
-          var oItem = {
-            id:null,
-            URI:"",//uri + "#" + category,
-            category:category,
-            commit_id: "",
-            version:"",
-            is_delete:0,
-            name:oNewItem["\u59D3"],
-            phone:oNewItem["\u79fb\u52a8\u7535\u8bdd"],
-            sex:"Phd",
-            age:35,
-            email:"my@email.com",
-            postfix:itemPostfix,
-            id:"",
-            photoPath:itemPath,
-            location:"Mars",
-            createTime:currentTime,
-            lastModifyTime:currentTime,
-            lastAccessTime:currentTime,
-            currentTime:currentTime,
-          }
-          oContacts.push(oItem);
+    Item.path = "/home/xiquan/resources/contacts";
+    Item.name = Item["\u59D3"];
+    Item.currentTime = currentTime;
+    Item.URI = uri + "#" + category;
+    var oItem = Item;
+    var oNewItem = {
+      id:null,
+      URI:uri + "#" + category,
+      category:category,
+      commit_id: "",
+      version:"",
+      is_delete:0,
+      name:oItem["\u59D3"],
+      phone:oItem["\u79fb\u52a8\u7535\u8bdd"],
+      sex:"Phd",
+      age:35,
+      email:"my@email.com",
+      id:"",
+      photoPath:"/home/xiquan/resources/contacts",
+      createTime:currentTime,
+      lastModifyTime:currentTime,
+      lastAccessTime:currentTime,
+    }
+    function createItemCb(){
+      callback(isContactEnd,oNewItem);
+    }
+    dataDes.createItem(Item,sItemDesPath,createItemCb);
+  })
+}
 
-          uniqueIDHelper(category,oNewItem,itemDesPath,function(uri,category,oNewItem,itemDesPath){
-            oNewItem.URI = uri;
-            dataDes.createItem(category,oNewItem,itemDesPath);
+function initContacts(loadResourcesCb,resourcePath){
+  config.riolog("initContacts ..............");
+  var sItemPath=resourcePath;
+  var dataPath = resourcePath;
+  var pointIndex=sItemPath.lastIndexOf('.');
+  if(pointIndex == -1){
+    console.log("ERROR : illeagle csc file!");
+    return;
+  }else{
+    var itemPostfix=sItemPath.substr(pointIndex+1);
+    if(itemPostfix != "CSV" && itemPostfix != "csv"){
+      console.log("ERROR : illeagle csc file!");
+      return;
+    }
+  }
+  csvtojson.csvTojson(sItemPath,function(json){
+    var oJson = JSON.parse(json);
+    var oContacts = new Array();
+    for(var k in oJson){
+      if(oJson[k].hasOwnProperty("\u59D3")){
+        oContacts.push(oJson[k]);
+      }
+    }
+    var dataDesPath = config.RESOURCEPATH+"/.des/contacts";
+    fs.mkdir(dataDesPath,function(err){
+      if(err) {
+        console.log("mk contacts desPath error!");
+        console.log(err);
+        return;
+      }else{
+        function isEndCallback(){
+          resourceRepo.repoContactInit(resourcePath,loadResourcesCb);
+        }
+        var oNewItems = new Array();
+        for(var k=0;k<oContacts.length;k++){
+          var isContactEnd = (k == (oContacts.length-1));
+          addContact(oContacts[k],dataDesPath,isContactEnd,function(isContactEnd,oContact){
+            oNewItems.push(oContact);
+            if(isContactEnd){
+              isEndCallback();
+              commonDAO.createItems(oNewItems,function(result){
+                console.log("initContacts is end!!!");
+                console.log(result);
+              })
+            }
           })
         }
       }
-      callback(isLoadEnd,oContacts)
     })
-}    
-fs.stat(itemPath,getFileStatCb);
-}
 
-function initContacts(loadResourcesCb,resourcePath)
-{
-  config.riolog("initData ..............");
-  dataPath=resourcePath;
-  fs.mkdir(dataPath+'/.des',function (err){
-    if(err) {
-      console.log("mk resourcePath error!");
-      console.log(err);
-      return;
-    }
-    else{
-      var fileList = new Array();
-      var fileDesDir = new Array();
-      var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
-      fs.exists(sConfigPath, function (exists) {
-        util.log(sConfigPath+ exists);
-        if(exists==false){
-          var oldDataDir=null;
-        }
-        else{
-          var oldDataDir=require(sConfigPath).dataDir;
-        }
-        util.log("oldDataDir = "+oldDataDir);
-        if(oldDataDir==null || oldDataDir!=resourcePath){
-          var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
-          util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
-          fs.writeFile(sConfigPath,context,function(e){
-            if(e) throw e;
-          });
-        }
-      });
-      function walk(path,pathDes){  
-        var dirList = fs.readdirSync(path);
-        dirList.forEach(function(item){
-          if(fs.statSync(path + '/' + item).isDirectory()){
-            if(item != '.git' && item != '.des'){
-              fs.mkdir(pathDes + '/' + item, function(err){
-                if(err){ 
-                  console.log("mkdir error!");
-                  console.log(err);
-                  return;
-                }
-              });              
-              walk(path + '/' + item,pathDes + '/' + item);
-            }
-          }
-          else{
-            var sPosIndex = (item).lastIndexOf(".");
-            var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
-            if(sPos != '.csv' && sPos != '.CSV'){
-            fileDesDir.push(pathDes);
-            fileList.push(path + '/' + item);
-          }
-          }
-        });
-      }
-      walk(resourcePath,resourcePath+'/.des');
-      config.riolog(fileList); 
-      writeDbNum=fileList.length;
-      config.riolog('writeDbNum= '+writeDbNum);
-      function isEndCallback(){
-        resourceRepo.repoInit(resourcePath,loadResourcesCb);
-      }
-      var oNewItems = new Array();
-      for(var k=0;k<fileList.length;k++){
-        var isLoadEnd = (k == (fileList.length-1));
-        addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-          oNewItems.push(oNewItem);
-          if(isLoadEnd){
-            isEndCallback();
-            commonDAO.createItems(oNewItems,function(result){
-              console.log("initContacts is end!!!");
-              console.log(result);
-           });
-          }
-        });
-      }
-    }
-  });
+
+  })
 }
 exports.initContacts = initContacts;
