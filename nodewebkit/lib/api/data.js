@@ -27,6 +27,24 @@ function loadResources(loadResourcesCb,path) {
 exports.loadResources = loadResources;
 
 /**
+ * @method loadContacts
+ *   读取某个contact文件夹到数据库
+ *
+ * @param1 loadResourcesCb
+ *   回调函数
+ *   @result
+ *      string，success代表成功，其他代表失败原因
+ *
+ * @param2 path
+ *   string，要加载资源的路径
+ */
+function loadContacts(loadResourcesCb,path) {
+  console.log("Request handler 'loadResources' was called.");
+  contacts.initContacts(loadResourcesCb,path);
+}
+exports.loadContacts = loadContacts;
+
+/**
  * @method getAllCate
  *   查询所有基本分类
  *

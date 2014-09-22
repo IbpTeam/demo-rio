@@ -4,6 +4,24 @@ var config = require("../config");
 var filesHandle = require("../filesHandle");
 var events = require('events'); 
 
+
+
+exports.repoContactInit = function (repoPath,callback)
+{
+  var  exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git add . && git commit -m "On device '+config.SERVERNAME+' #Init contacts#"';
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
+  exec(comstr, function(error,stdout,stderr){
+    if(error){
+      console.log("Git add error");
+    }
+    else{
+      console.log("Git add success");
+      callback();
+    }
+  }); 
+}
+
 exports.repoInit = function (repoPath,callback)
 {
   git.Repo.init(repoPath,false,function(initReporError, repo){
