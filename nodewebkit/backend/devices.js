@@ -64,7 +64,7 @@ function startDeviceDiscoveryService(){
             //socket.emit('mdnsUp', args);
             console.log('A new device is add: ');
             console.log(args);
-            addDevice(deviceArray);
+            //addDevice(deviceArray);
           }       
           break;
           case 'ItemRemove':{
@@ -82,6 +82,6 @@ function startDeviceDiscoveryService(){
       var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP];
       mdns.entryGroupCommit(name,  port, txtarray);
     });
- // });
+//  });
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;

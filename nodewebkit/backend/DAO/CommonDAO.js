@@ -322,7 +322,24 @@ exports.getItemByPath = function(path, callback){
   if(itemPostfix == 'contacts'){
     createDAO = contactsDAO;
   }
-  else if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
+  else if(itemPostfix == 'ppt' || 
+          itemPostfix == 'pptx'|| 
+          itemPostfix == 'doc'|| 
+          itemPostfix == 'docx'|| 
+          itemPostfix == 'wps'|| 
+          itemPostfix == 'odt'|| 
+          itemPostfix == 'et'|| 
+          itemPostfix == 'txt'|| 
+          itemPostfix == 'xls'|| 
+          itemPostfix == 'xlsx' || 
+          itemPostfix == 'ods' || 
+          itemPostfix == 'zip' || 
+          itemPostfix == 'sh' || 
+          itemPostfix == 'gz' || 
+          itemPostfix == 'html' || 
+          itemPostfix == 'et' || 
+          itemPostfix == 'odt' || 
+          itemPostfix == 'pdf'){
     createDAO = documentsDAO;
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
