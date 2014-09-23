@@ -30,15 +30,13 @@ function getServerAddress(getServerAddressCb){
 }
 exports.getServerAddress = getServerAddress;
 
-function addDevice(deviceItems){
-  if(deviceItems in devicesList){
+function addDevice(device){
+  if(device in devicesList){
 
   }
   else{
-    deviceItems.forEach(function(deviceItem){
-      deviceItem.category = "devices";
-    });
-    commonDAO.createItems(deviceItems,function(result){
+    device.category = "devices";
+    commonDAO.createItem(device,function(result){
       console.log("New device!!!");
       console.log(result);
     });
@@ -59,14 +57,12 @@ function startDeviceDiscoveryService(){
           resourcePath:args.txt[3],
           ip:args.txt[4]
         };
-        deviceArray= new Array();
-        deviceArray.push(device);
         switch(signal){
           case 'ItemNew':{
             //socket.emit('mdnsUp', args);
             console.log('A new device is add: ');
             console.log(args);
-            addDevice(deviceArray);
+            addDevice(device);
           }       
           break;
           case 'ItemRemove':{
