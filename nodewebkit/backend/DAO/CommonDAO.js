@@ -10,13 +10,6 @@
  * @version:0.2.1
  **/
 
-var categoryDAO = require("./CategoryDAO");
-var contactsDAO = require("./ContactsDAO");
-var picturesDAO = require("./PicturesDAO");
-var videosDAO = require("./VideosDAO");
-var documentsDAO = require("./DocumentsDAO");
-var musicDAO = require("./MusicDAO");
-var recentDAO = require("./RecentDAO");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
@@ -35,6 +28,7 @@ var COMMIT_TRANS = "COMMIT;";
  *    The database object.
  */
 function openDB(){
+  console.log("config database path: " + config.DATABASEPATH);
   return new sqlite3.Database(config.DATABASEPATH);
 }
 
@@ -43,9 +37,11 @@ function openDB(){
  *    Close the database.
  * @param database
  *    The database object.
+ * @param callback
+ *    Callback
  */
-function closeDB(database){
-  database.close();
+function closeDB(database,callback){
+  database.close(callback);
 }
 
 /**
@@ -53,8 +49,10 @@ function closeDB(database){
  *    Use SQL to create tables in database.
  * @param sqlStr
  *    The specific SQL string.
+ * @param callback
+ *    Callback
  */
-function createTables(db,sqlStr){
+function createTables(db,sqlStr,callback){
   if(!sqlStr){
     console.log("Error: SQL is null when create tabale ");
     return;
@@ -64,7 +62,7 @@ function createTables(db,sqlStr){
     db = openDB();
   }
   db.exec(sqlStr,function(err){
-    createComplete(err,db,sqlStr);
+    createComplete(err,db,sqlStr,callback);
   });
 }
 
@@ -77,8 +75,10 @@ function createTables(db,sqlStr){
  *    The database object.
  * @param db
  *    The specific SQL string used to create tables.
+ * @param callback
+ *    Callback
  */
-function createComplete(err,db,sqlStr){
+function createComplete(err,db,sqlStr,callback){
   if(err){
     console.log(err);
     console.log("Roll back");
@@ -91,6 +91,7 @@ function createComplete(err,db,sqlStr){
     }else{
       createTableTimes = 0;
       console.log("create table fail.");
+      callback(null);
     }
     return;
   }
@@ -98,265 +99,19 @@ function createComplete(err,db,sqlStr){
   db.run("COMMIT",function(err){
     if(err) throw err;
     console.log("Msg: create tables successfully");
-    closeDB(db);
+    closeDB(db,callback);
   });
 }
 
 /**
  * @method initDatabase
  *    Database initialize.
+ * @param callback
+ *    Callback
  */
-exports.initDatabase = function(){
+exports.initDatabase = function(callback){
   var sInitDbSQL = SQLSTR.INITDB;
-  createTables(null,sInitDbSQL);
-}
-
-exports.countTotalByCategory = function(category, callback) {
-
-  var countDao = null;
-
-  switch(category){
-    case 'Contacts' : {
-      countDao = contactsDAO;
-    }
-    break;
-  
-    case 'Pictures' : {
-      countDao = picturesDAO;
-    }
-    break;
-    
-    case 'Videos' : {
-      countDao = videosDAO;
-    }
-    break;
-    
-    case 'Documents' : {
-      countDao = documentsDAO;
-    }
-    break;
-    
-    case 'Music' : {
-      countDao = musicDAO;
-    }
-    break;
-  }
-
-  countDao.countTotal(function(err, countNum){
-    if(err){
-      config.dblog(err);
-      callback(null);
-    }
-    callback(countNum);
-  });
-}
-
-exports.getMaxIdByCategory = function(category, callback) {
-  switch(category){ 
-    case 'Pictures' : {
-      picturesDAO.getMaxId(function(err, picturesMaxid){
-        if(err){
-          config.dblog(err);
-          callback(null);
-        }
-        callback(picturesMaxid);
-      });
-    }
-    break;
-    
-    case 'Videos' : {
-      videosDAO.getMaxId(function(err, videosMaxid){
-        if(err){
-          config.dblog(err);
-          callback(null);
-        }
-        callback(videosMaxid);
-      });
-    }
-    break;
-    
-    case 'Documents' : {
-      documentsDAO.getMaxId(function(err, documentsMaxid){
-        if(err){
-          config.dblog(err);
-          callback(null);
-        }
-        callback(documentsMaxid);
-      });
-    }
-    break;
-    
-    case 'Music' : {
-      musicDAO.getMaxId(function(err, musicMaxid){
-        if(err){
-          config.dblog(err);
-          callback(null);
-        }
-        callback(musicMaxid);
-      });
-    }
-    break;
-  }
-}
-
-exports.getAllByCateroty = function(caterogy, callback) {
-
-  var dao = null;
-  var prefix = null;
-
-  switch(caterogy){
-    case 'Contacts' : {
-      dao = contactsDAO;
-      //prefix = "1#";
-    }
-    break;
-  
-    case 'Pictures' : {
-      dao = picturesDAO;
-      //prefix = "2#";
-    }
-    break;
-    
-    case 'Videos' : {
-      dao = videosDAO;
-      //prefix = "3#";
-    }
-    break;
-    
-    case 'Documents' : {
-      dao = documentsDAO;
-      //prefix = "4#";
-    }
-    break;
-    
-    case 'Music' : {
-      dao = musicDAO;
-      //prefix = "5#";
-    }
-    break;
-  }
-
-  dao.findAll(function(err, items){
-    if(err){
-      config.dblog(err);
-      callback(null);
-    }
-    //items.forEach(function(item){
-    //  item.id = prefix + item.id;
-    //});
-    callback(items);
-  });
-}
-
-exports.getCategories = function(callback){
-  categoryDAO.findAll(function(err, categories){
-    if(err){
-      config.dblog(err);
-      callback(null);
-    }
-    categories.forEach(function(categorie){
-      categorie.id = "0#" + categorie.id;
-    });
-    callback(categories)
-  });
-}
-
-exports.getItemByUri = function(uri, callback){
-  config.dblog("Get item by uri: " + uri);
-  
-  var aUri = uri.split('#');
-  if (aUri.length != 3) {
-    config.dblog("Error: uri is wrong in getItemByUri!");
-    callback(null);
-    return;
-  }
-  var sTableName = aUri[2];
-  config.dblog("GetItemByUri: TableName is:" + sTableName);
-
-  var oDao = null;
-
-  switch(sTableName){
-    case 'contacts' : {
-      oDao = contactsDAO;
-    }
-    break;
-    case 'pictures' : {
-      oDao = picturesDAO;
-    }
-    break;
-    case 'videos' : {
-      oDao = videosDAO;
-    }
-    break;
-    case 'documents' : {
-      oDao = documentsDAO;
-    }
-    break;
-    case 'music' : {
-      oDao = musicDAO;
-    }
-    break;
-    default:{
-      config.dblog("GetItemByUri: this is default in switch!");
-    }
-  }
-
-  //Find item by uri in specific table
-  oDao.findByUri(uri,function(err,item){
-    if(err){
-      callback(null);
-    }
-    else{
-      item.path=item.path.replace(/\s/g, "%20");
-      callback(item);
-    }
-  });
-}
-
-exports.getItemByPath = function(path, callback){
-  var createDAO = null;
-  var pointIndex=path.lastIndexOf('.');
-  var itemPostfix=path.substr(pointIndex+1);
-  var nameindex=path.lastIndexOf('/');
-  var itemFilename=path.substring(nameindex+1,pointIndex);
-  if(itemPostfix == 'contacts'){
-    createDAO = contactsDAO;
-  }
-  else if(itemPostfix == 'ppt' || itemPostfix == 'pptx'|| itemPostfix == 'doc'|| itemPostfix == 'docx'|| itemPostfix == 'wps'|| itemPostfix == 'odt'|| itemPostfix == 'et'|| itemPostfix == 'txt'|| itemPostfix == 'xls'|| itemPostfix == 'xlsx' || itemPostfix == 'ods' || itemPostfix == 'zip' || itemPostfix == 'sh' || itemPostfix == 'gz' || itemPostfix == 'html' || itemPostfix == 'et' || itemPostfix == 'odt' || itemPostfix == 'pdf'){
-    createDAO = documentsDAO;
-  }
-  else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-    createDAO = picturesDAO;
-  }
-  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-    createDAO = musicDAO;
-  } 
-  else {
-    callback(null);
-    return;
-  } 
-  if(createDAO==contactsDAO){
-    function findByNameCb(err,item){
-      if(err){
-        createDAO.findByName(path,findByNameCb);
-      }
-      else{
-        callback(item);
-      }
-    }
-    createDAO.findByName(path,findByNameCb);
-  }
-  else{
-    function findByPathCb(err,item){
-      if(err){
-        createDAO.findByPath(path,findByPathCb);
-      }
-      else{
-        callback(item);       
-      }
-    }
-    createDAO.findByPath(path,findByPathCb);
-  }
+  createTables(null,sInitDbSQL,callback);
 }
 
 /**
@@ -428,7 +183,7 @@ exports.createItems = function(items,callback){
 
   items.forEach(function(item){
 
-  //console.log(item.category);
+    console.log(item.category + "------------------------");
 
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;
@@ -519,119 +274,53 @@ exports.updateItems = function(items,callback){
   execSQL(sSqlStr,callback);
 }
 
-exports.modifyOrInsertUpdateItems = function(modifyHistoryItems, createHistoryItems, createOperationItems){
-  if(modifyHistoryItems != ""){
-    modifyHistoryItems.forEach(function(modifyItem){    
-      var sqlstr="UPDATE UpdateHistory SET parents='"+modifyItem.parents+"',children='"+modifyItem.children+"' WHERE version_id='"+modifyItem.version_id+"'";
-      function modifyUpdateCb(err,sql){
-        if (err) {
-          console.log("Error: modify update history error ! " + err);
-          actionHistoryDAO.modifyUpdateHistoryItem(sql,modifyUpdateCb);
-        }
-      }
-      actionHistoryDAO.modifyUpdateHistoryItem(sqlstr,modifyUpdateCb);
+/**
+ * @method findItems
+ *   Find datas with conditions.
+ * @param columns
+ *    An array, if you want to specific column in results,put the column's name in this array.
+ *    If you want select all columns, set it null.
+ * @param tables
+ *    An table's name array, like ["table1","table2"].
+ * @param conditions
+ *    An conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    If you want select all rows, set it null.
+ * @param callback
+ *    All results in array.
+ */
+exports.findItems = function(columns,tables,conditions,callback){
+  var sColStr = "select ";
+  var sTablesStr = " from ";
+  var sCondStr = " where 1=1";
+  var sQueryStr;
+  if(!columns){
+    sColStr =sColStr + "*";
+  }else{
+    columns.forEach(function(col){
+      sColStr = sColStr + col + ",";
+    });
+    sColStr = sColStr.substring(0,sColStr.length-1);
+  }
+  if(!tables){
+    console.log("Error: table's name is null!");
+    callback("error");
+    return;
+  }else{
+    tables.forEach(function(table){
+      sTablesStr = sTablesStr + table + ",";
+    });
+    sTablesStr = sTablesStr.substring(0,sTablesStr.length-1);
+  }
+  if(conditions){
+    conditions.forEach(function(condition){
+      sCondStr = sCondStr + " and " + condition;
     });
   }
-  if(createHistoryItems != ""){
-    createHistoryItems.forEach(function(newHistoryItem){
-      function insertUpdateHistoryCb(err,historyItem){
-        if (err) {
-          console.log("Error: insert update history error ! " + err);
-          actionHistoryDAO.insertUpdateHistoryItem(historyItem,insertUpdateHistoryCb);
-        }
-      }
-      actionHistoryDAO.insertUpdateHistoryItem(newHistoryItem,insertUpdateHistoryCb);
-    });
-  }
-  if(createOperationItems != ""){
-    createOperationItems.forEach(function(newOperationItem){
-      function insertUpdateOperationCb(err,operationItem){
-        if (err) {
-          console.log("Error: insert update operation error ! " + err);
-          actionHistoryDAO.insertUpdateOperationItem(operationItem,insertUpdateOperationCb);
-        }
-      }
-      actionHistoryDAO.insertUpdateOperationItem(newOperationItem,insertUpdateOperationCb);
-    });
-  }
-}
 
-exports.updateRecentTable = function(uri,time,callback){
-  recentDAO.updateTime(uri,time, function(err){
-    if(err){
-      callback(uri,time,err);
-    }
-    else{
-      config.dblog("update recent successfull");
-      callback(uri,time,'successfull');
-    }
-  });  
-}
+  // Make query string
+  sQueryStr = sColStr + sTablesStr + sCondStr;
+  console.log("SELECT Prepare SQL is :" + sQueryStr);
 
-exports.getRecentByOrder = function(callback){
-  recentDAO.findAllByOrder(function(err, recent){
-    if(err){
-      config.dblog(err);
-      callback(null);
-    }
-    callback(recent);
-  });
-}
-
-exports.queryItemInAllByStr = function(str, callback){
-  var itemArray = {};
-  contactsDAO.findAllByStr(str, function(contacts){
-    itemArray.push(items);
-    callback(itemArray);
-});
-}
-
-exports.findEachActionHistory = function(action, callback){
-  actionHistoryDAO.findAll(action, function(err, actions){
-    if(err){
-      config.dblog(err);
-      callback(null);
-    }
-    callback(actions);
-  });
-}
-
-exports.findAllActionHistory = function(callback){
-  var insertActions = null;
-  var deleteActions = null;
-  var updateActions = null;
-
-  actionHistoryDAO.findAll("insert", function(err, insActions){
-    if(err){
-      config.dblog(err);
-      callback(null);
-    }else{
-      insertActions = insActions;
-      actionHistoryDAO.findAll("delete", function(err, delActions){
-        if(err){
-          config.dblog(err);
-          callback(null);
-        }else{
-          deleteActions = delActions;
-          actionHistoryDAO.findAll("update", function(err, updActions){
-            if(err){
-              config.dblog(err);
-              callback(null);
-            }else{
-              updActions.forEach(function(updAction){
-                updAction.parents = JSON.parse(updAction.parents);
-                if(updAction.children != "")
-                  updAction.children = JSON.parse(updAction.children);
-                //console.log("============================================zfbfd:");
-                //console.log(updAction.parents);
-                //console.log(updAction.children);
-              });
-              updateActions = updActions;
-              callback(insertActions, deleteActions, updateActions);
-            }
-          });
-        }
-      });
-    }
-  });
+  // Runs the SQL query
+  allSQL(sQueryStr);
 }
