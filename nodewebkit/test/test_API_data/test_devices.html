@@ -1,51 +1,55 @@
 <html>
 <head>
-<title>test</title>
-<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
-<script type="text/javascript" src="../lib/require.js"></script>
-<script type="text/javascript" src="../lib/jquery.js"></script>
-<script type="text/javascript" src="../lib/api.js"></script>
-<script type="text/javascript" src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+  <title>test_devices_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
 </head>
-<meta charset="UTF-8">
-
 <body>
-<!--<p> 
-<img src="resources/videos.png" width="165" height="60" /> 
-</p> -->
 
-<script>
-/*
-function getAllCatecb(text){
-    document.write(text[4].id);
-    document.write(text[4].type);
-    document.write(text[4].path);
-        document.write(text[4].desc);
-}
+  <script language=javascript>  
+  tryit.document.designMode="On";  
+  tryit.document.open();  
+  tryit.document.innerHTML+=tryit.document.write("<b>asdf</b>");  
+  tryit.document.close();  
+  tryit.focus();  
 
-getAllCate(getAllCatecb);
-*/
+  function deviceUpCb(result){
+    tryit.document.write("test API getRecentAccessData()");
+    tryit.document.write("<br/>");
+    tryit.document.write("callback result: "+result);
+    tryit.document.write("<br/>"); 
+  }
+  function deviceDownCb(result){
+    tryit.document.write("test API getRecentAccessData()");
+    tryit.document.write("<br/>");
+    tryit.document.write("callback result: "+result);
+    tryit.document.write("<br/>"); 
+  }    
+  function test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+    });        
+  }
 
-function getAllDataByCateCb(text){
-    /*document.write(text[0].id);
-    document.write(text[0].filename);
-    document.write(text[0].postfix);
-    document.write(text[0].path);*/
-    var json=JSON.stringify(text[0]);
-    document.write(json);
-}
-
-getAllDataByCate(getAllDataByCateCb,'Documents');
 
 
-</script>
-<!--
-<audio controls>
- <source src="http://localhost:8888/home/v1/resources/musics/whoyouare.mp3?query=absolute" type="audio/mpeg"> 
-
-  
-  Your browser does not support this audio format.<img src='http://localhost:8888/home/v1/resources/pictures/cat.jpg?query=absolute'  alt="girl" />
-</audio>-->
-
+  </script>
+  <h1 id="myheader" onclick="getValue()">这是标题</h1>
+  <p>点击标题，会提示出它的值。</p>
+  <div>
+    <button onclick="test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb)">test_getDeviceDiscoveryService</button><br/> 
+  </div>
+  <div>
+    <iframe ID="tryit" MARGINHEIGHT="1" MARGINWIDTH="1" width="100%" height="300" scrolling="auto"></iframe>
+  </div>
 </body>
 </html>

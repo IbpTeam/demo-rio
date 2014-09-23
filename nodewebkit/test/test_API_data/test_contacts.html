@@ -1,51 +1,9 @@
-<html>
-<head>
-<title>test</title>
-<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
-<script type="text/javascript" src="../lib/require.js"></script>
-<script type="text/javascript" src="../lib/jquery.js"></script>
-<script type="text/javascript" src="../lib/api.js"></script>
-<script type="text/javascript" src="../node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
-</head>
-<meta charset="UTF-8">
-
-<body>
-<!--<p> 
-<img src="resources/videos.png" width="165" height="60" /> 
-</p> -->
-
-<script>
-/*
-function getAllCatecb(text){
-    document.write(text[4].id);
-    document.write(text[4].type);
-    document.write(text[4].path);
-        document.write(text[4].desc);
+<script type="text/javascript">
+function getValue2()
+{
+var x=document.getElementById("pid")
+alert(x.innerHTML)
 }
-
-getAllCate(getAllCatecb);
-*/
-
-function getAllDataByCateCb(text){
-    /*document.write(text[0].id);
-    document.write(text[0].filename);
-    document.write(text[0].postfix);
-    document.write(text[0].path);*/
-    var json=JSON.stringify(text[0]);
-    document.write(json);
-}
-
-getAllDataByCate(getAllDataByCateCb,'Documents');
-
-
 </script>
-<!--
-<audio controls>
- <source src="http://localhost:8888/home/v1/resources/musics/whoyouare.mp3?query=absolute" type="audio/mpeg"> 
 
-  
-  Your browser does not support this audio format.<img src='http://localhost:8888/home/v1/resources/pictures/cat.jpg?query=absolute'  alt="girl" />
-</audio>-->
-
-</body>
-</html>
+<p  id="pid" onclick="getValue2()">点击标题，会提示出它的值。</p>

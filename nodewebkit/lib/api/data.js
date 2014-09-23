@@ -1,9 +1,6 @@
 var commonDAO = require("../../backend/DAO/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var contacts = require("../../backend/contacts");
-var byCatogory = require("../../backend/category");
-var byUri = require("../../backend/uri");
-var byPath = require("../../backend/path");
 var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
@@ -60,7 +57,7 @@ exports.loadContacts = loadContacts;
  */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  byCatogory.getAll(getAllCateCb)
+  filesHandle.getAllCate(getAllCateCb)
 }
 exports.getAllCate = getAllCate;
 
@@ -90,7 +87,7 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  byCatogory.getAllData(getAllDataByCateCb,cate)
+  filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
 }
 exports.getAllDataByCate = getAllDataByCate;
 
@@ -121,14 +118,14 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataById' was called.");
-  byUri.rmData(rmDataByUriCb, uri);
+  filesHandle.rmDataByUri(rmDataByUriCb, uri);
 }
 exports.rmDataByUri = rmDataByUri;
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb,uri) {
-  byUri.getData(getDataByUriCb,uri);
+  filesHandle.getDataByUri(getDataByUriCb,uri);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -141,7 +138,7 @@ exports.getDataByUri = getDataByUri;
 
 function getDataSourceByUri(getDataSourceByUriCb,id){
   console.log("Request handler 'getDataSourceById' was called.");
-  byUri.getDataSource(getDataSourceByUriCb,id);
+  filesHandle.getDataSourceByUri(getDataSourceByUriCb,id);
 }
 exports.getDataSourceByUri = getDataSourceByUri;
 
@@ -149,7 +146,7 @@ exports.getDataSourceByUri = getDataSourceByUri;
 //返回类型：
 //回调函数带一个参数，内容是一个div，用于显示应用数据，如果是本地打开文件，则显示成功打开信息
 function openLocalDataSourceByPath(openDataSourceByPathCb, content){
-  byPath.openLocalDataSource(openDataSourceByPathCb, content);
+  filesHandle.openLocalDataSourceByPath(openDataSourceByPathCb, content);
 }
 exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 
