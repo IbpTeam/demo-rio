@@ -46,7 +46,7 @@ exports.repoInit = function (repoPath,callback)
 exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
+  var comstr = 'cd ' + repoPath + ' && git add '+utils.parsePath(sourceFilePath) +' && git add '+utils.parsePath(desFilePath) +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
