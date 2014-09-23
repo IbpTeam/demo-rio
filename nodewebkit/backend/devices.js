@@ -6,12 +6,14 @@ var devicesList=new Array();
 exports.devicesList = devicesList;
 
 function getDeviceList(){
-  commonDAO.findItems(null,"devices",null,function(err,items){
+  commonDAO.findItems(null,["devices"],null,function(err,items){
     if(err){
       console.log(err);  
     }
     else{
-      console.log(items);
+      items.forEach(function(item){
+        console.log("==================================="+item.device_id);
+      });
     }
   });
   var device={
