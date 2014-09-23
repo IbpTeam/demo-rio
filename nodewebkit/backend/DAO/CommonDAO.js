@@ -168,6 +168,40 @@ function commitTrans(db,callback){
 }
 
 /**
+ * @method createItem
+ *    Insert one data into database.
+ * @param item
+ *    An data object, it has attribute category&&URI match table&&URI,
+ *    other attributes match field in table.
+ * @param callback
+ *    Retrive "commit" when successfully
+ *    Retrive "rollback" when error
+ */
+exports.createItem = function(item,callback){
+  //SQL string
+  var sSqlStr = BEGIN_TRANS;
+  var oTempItem = item;
+  sSqlStr = sSqlStr + "insert into " + oTempItem.category;
+  //Delete attribute category and id from this obj.
+  delete oTempItem.category;
+  delete oTempItem.id;
+  var sKeyStr = " (id";
+  var sValueStr = ") values (null";
+  for(var key in oTempItem){
+    sKeyStr = sKeyStr + "," + key;
+    if(typeof oTempItem[key] == 'string')
+      oTempItem[key] = oTempItem[key].replace("'","''");
+    sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
+  }
+  sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
+  sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
+  console.log("INSERT Prepare SQL is : "+sSqlStr);
+
+  // Exec sql
+  execSQL(sSqlStr,callback);
+}
+
+/**
  * @method createItems
  *    Insert data into database, support batch execute.
  * @param items
@@ -178,13 +212,10 @@ function commitTrans(db,callback){
  *    Retrive "rollback" when error
  */
 exports.createItems = function(items,callback){
-  //var aSqlArray = new Array();
+  //SQL string
   var sSqlStr = BEGIN_TRANS;
 
   items.forEach(function(item){
-
-    console.log(item.category + "------------------------");
-
     var oTempItem = item;
     sSqlStr = sSqlStr + "insert into " + oTempItem.category;
     //Delete attribute category and id from this obj.
