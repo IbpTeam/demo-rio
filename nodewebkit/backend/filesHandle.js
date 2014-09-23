@@ -631,7 +631,9 @@ exports.firstSync = firstSync;
 /**
  * @method initDatabase
  *    Database initialize.
+ * @param callaback
+ *    Callback
  */
-exports.initDatabase = function(){
-  commonDAO.initDatabase();
+exports.initDatabase = function(callback){
+  commonDAO.initDatabase(callback);
 }

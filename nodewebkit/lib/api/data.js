@@ -205,3 +205,33 @@ function repoMergeForFirstTime(){
   filesHandle.firstSync();
 }
 exports.repoMergeForFirstTime = repoMergeForFirstTime;
+
+//API pasteFile:粘贴一个数据文件
+//参数：要添加的数据的json描述和目的路径
+//返回类型：成功返回success;失败返回失败原因
+function pasteFile(pasteFileCb, sourcePath, desPath){
+  console.log("Request handler 'pasteFile' was called.");
+  var sourcePathNew = utils.parsePath(sourcePath);
+  console.log("cp "+sourcePathNew+" "+desPath);
+  cp.exec("cp "+sourcePathNew+" "+desPath, function (error, stdout, stderr) {
+    if (error !== null) {
+      console.log('exec error: ' + error);
+      pasteFileCb(false);
+    }
+    pasteFileCb(true);
+  });
+}
+exports.pasteFile = pasteFile;
+
+//API getResourceDataDir:获得resource数据路径
+//返回类型：
+//返回resource数据路径
+function getResourceDataDir(getResourceDataDirCb){
+  console.log("Request handler 'getResourceDataDir' was called.");
+  cp.exec('echo $USER',function(error,stdout,stderr){
+    var usrname=stdout.replace("\n","");
+    var data = require('/home/'+usrname+'/.demo-rio/config');
+    getResourceDataDirCb(data.dataDir);
+  });
+}
+exports.getResourceDataDir = getResourceDataDir;

@@ -30,13 +30,13 @@ function getServerAddress(getServerAddressCb){
 }
 exports.getServerAddress = getServerAddress;
 
-function addDevice(deviceItem){
-  if(deviceItem in devicesList){
+function addDevice(device){
+  if(device in devicesList){
 
   }
   else{
-    deviceItem.category="devices",
-    commonDAO.createItems(deviceItem,function(result){
+    device.category = "devices";
+    commonDAO.createItem(device,function(result){
       console.log("New device!!!");
       console.log(result);
     });
@@ -51,20 +51,18 @@ function startDeviceDiscoveryService(){
     mdns.addDeviceListener(function (signal, args){
       if(args.txt[0]=="demo-rio"){
         var device={
-          deviceId:args.txt[1],
+          device_id:args.txt[1],
           name:args.txt[2],
           branchName:args.txt[2],
-         resourcePath:args.txt[3],
+          resourcePath:args.txt[3],
           ip:args.txt[4]
         };
-        deviceArray= new Array();
-        deviceArray.push(device);
         switch(signal){
           case 'ItemNew':{
             //socket.emit('mdnsUp', args);
             console.log('A new device is add: ');
             console.log(args);
-            //addDevice(deviceArray);
+            addDevice(device);
           }       
           break;
           case 'ItemRemove':{

@@ -16,6 +16,7 @@ var router = require("./backend/router");
 var filesHandle = require("./backend/filesHandle");
 var uniqueID=require('./backend/uniqueID');
 var device = require("./backend/devices");
+var msgTransfer = require("./backend/Transfer/msgTransfer");
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
@@ -41,6 +42,8 @@ function startApp(){
   config.SERVERIP=config.getAddr();
   config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
   config.ACCOUNT = os.hostname()+'('+config.SERVERIP+')';
+  // MSG transfer server initialize
+  msgTransfer.initServer();
   server.start(router.route, handle);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
@@ -52,15 +55,11 @@ function startApp(){
       if(!rioExists){
         fs.mkdir(sFullPath, 0755, function(err){
           if(err) throw err;
-          initializeApp(function(){
-            device.startDeviceDiscoveryService()
-          });
+          initializeApp();
         });
         return;
       }
-      initializeApp(function(){
-        device.startDeviceDiscoveryService()
-      });
+      initializeApp();
     });
   });
 }
@@ -69,7 +68,7 @@ function startApp(){
  * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
-function initializeApp(callback){
+function initializeApp(){
   config.USERCONFIGPATH = sFullPath;
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
@@ -79,7 +78,7 @@ function initializeApp(callback){
 
   fs.exists(sConfigPath, function (configExists) {
     if(!configExists){
-      console.log("No data");
+      console.log("No data777777777777777777777777777");
     }else{
       var dataDir=require(sConfigPath).dataDir;
       config.RESOURCEPATH=dataDir;
@@ -89,12 +88,20 @@ function initializeApp(callback){
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
         console.log("UniqueID.js is not exists, start to set sys uid.");
-        setSysUid(null,sUniqueIDPath,callback);
+        setSysUid(null,sUniqueIDPath,function(){
+          initDatabase(sDatabasePath,function(){
+            device.startDeviceDiscoveryService();
+          });
+        });
         return;
       }
       console.log("UniqueID.js is exist.");
       var deviceID=require(sUniqueIDPath).uniqueID;
-      setSysUid(deviceID,sUniqueIDPath,callback);
+      setSysUid(deviceID,sUniqueIDPath,function(){
+          initDatabase(sDatabasePath,function(){
+            device.startDeviceDiscoveryService();
+          });
+      });
     });
   });
  }
@@ -102,6 +109,12 @@ function initializeApp(callback){
 /** 
  * @Method: setSysUid
  *    set system unique id.
+ * @param deviceID
+ *    Device id.
+ * @param uniqueIDPath
+ *    Path of uniqueId.js.
+ * @param callback
+ *    Callback
  **/
 function setSysUid(deviceID,uniqueIDPath,callback){
   if(deviceID == undefined || deviceID == null){
@@ -116,6 +129,26 @@ function setSysUid(deviceID,uniqueIDPath,callback){
     config.uniqueID=deviceID;
     callback();
   }
+}
+
+/** 
+ * @Method: initDatabase
+ *    Database initialize.
+ * @param databasePath
+ *    Path of database.
+ * @param callback
+ *    Callback
+ **/
+function initDatabase(databasePath,callback){
+  fs.exists(databasePath,function(dbExists){
+    if(!dbExists){
+      config.DATABASEPATH = databasePath;
+      filesHandle.initDatabase(callback);
+      return;
+    }
+    config.DATABASEPATH = databasePath;
+    callback();
+  });
 }
 
 // Start
