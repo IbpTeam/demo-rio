@@ -138,6 +138,30 @@ function execSQL(sql,callback){
 }
 
 /**
+ * @method allSQL
+ *    Execute the specific sql string.
+ * @param sql
+ *    Specific SQL string to execute.
+ * @param callback
+ *    If provided,this function will be called when the sql was executed successfully
+ *    or when an err occurred, if successfull will return string "commit", otherwise "rollback"
+ */
+function allSQL(sql,callback){
+  //Open database
+  var oDb = openDB();
+  oDb.all(sql,function(err,rows){
+    if(err){
+      console.log("Error:execute SQL error.");
+      console.log("Info :" + err);
+      callback(err,null);
+      return;
+    }
+    callback(null,rows);
+    closeDB(oDb);
+  });
+}
+
+/**
  * @method rollbackTrans
  *    If an err occurred,this method will be executed, rollback.
  * @param db
@@ -194,7 +218,7 @@ exports.createItem = function(item,callback){
     sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
   }
   sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-  sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
+  //sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
   console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   // Exec sql
@@ -230,7 +254,7 @@ exports.createItems = function(items,callback){
       sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
     }
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-    sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
+    //sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
   });
   //console.log("INSERT Prepare SQL is : "+sSqlStr);
 
@@ -353,5 +377,5 @@ exports.findItems = function(columns,tables,conditions,callback){
   console.log("SELECT Prepare SQL is :" + sQueryStr);
 
   // Runs the SQL query
-  allSQL(sQueryStr);
+  allSQL(sQueryStr,callback);
 }
