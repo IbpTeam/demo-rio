@@ -73,6 +73,7 @@
   }
 
   function getAllDataByCateCb(text){
+    var win = window.open(''); 
     win.document.write("test API getAllDataByCate()");
     win.document.write("<br/>");
     var result=JSON.stringify(text[0]);
@@ -86,6 +87,7 @@
   }
 
   function openDataSourceCb(file_content){
+    var win = window.open(''); 
     win.document.write("test API openLocalDataSourceByPath()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -94,12 +96,13 @@
   }
   function test_openLocalDataSourceByPath(openDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      var content;
+      var content = "/home/xiquan/resources/documents/testfile.txt";
       data.openLocalDataSourceByPath(openDataSourceCb,content);
     });
   }
 
   function updateDataValueCb(result){
+    var win = window.open(''); 
     win.document.write("test API updateDataValue()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -108,14 +111,15 @@
   }
   function test_updateDataValue(updateDataValueCb){
     WDC.requireAPI(['data'], function(data){
-      var uri;
-      var version;
-      var item;
+      var uri = "ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Document";
+      var version = null;
+      var item = null;
       data.updateDataValue(updateDataValueCb,uri,version,item);
     });
   }
 
   function rmDataCb(result){
+    var win = window.open(''); 
     win.document.write("test API rmDataByUri()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -130,6 +134,7 @@
   }
 
   function getDataByUriCb(result){
+    var win = window.open(''); 
     win.document.write("test API getDataByUri()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -138,12 +143,13 @@
   }
   function test_getDataByUri(getDataByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var uri;
+      var uri = "ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Document";
       data.getDataByUri(getDataByUriCb,uri);
     });
   }
 
   function getDataSourceCb(result){
+    var win = window.open(''); 
     win.document.write("test API getDataSourceByUri()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -158,6 +164,7 @@
   }
 
   function getRecentAccessDataCb(result){
+    var win = window.open(''); 
     win.document.write("test API getRecentAccessData()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -172,6 +179,7 @@
   }
 
   function pasteFileCb(result){
+    var win = window.open(''); 
     win.document.write("test API pasteFile()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -185,6 +193,7 @@
   }  
 
   function getResourceDataDirCb(result){
+    var win = window.open(''); 
     win.document.write("test API getResourceDataDir()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -330,7 +339,7 @@
 
     function test_openLocalDataSourceByPath(openDataSourceCb){
       WDC.requireAPI(['data'], function(data){
-        var content;
+        var content = "/home/xiquan/resources/documents/testfile.txt";
         data.openLocalDataSourceByPath(openDataSourceCb,content);
       });
     }    
