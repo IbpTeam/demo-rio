@@ -31,6 +31,18 @@
     }
   }
 
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
+
   function loadResourcesCb(result){
     var win = window.open('');
     win.document.write("test API loadResources()");
@@ -187,7 +199,8 @@
 
   </script>
 
-<h2>loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
+<h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
+<div id="loadResources" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : loadResources 读取某个资源文件夹到数据库
@@ -214,8 +227,10 @@
     }        
 </pre>
 </div>
+</div>
 
-<h2>getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
+<h2 onclick="show('getAllCate')">getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
+<div id="getAllCate" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getAllCate 查询所有基本分类
@@ -244,9 +259,11 @@
     }      
 </pre>
 </div>
+</div>
 
 
-<h2>getAllDataByCate(getAllDataByCateCb,['Documents'])<span><a class="mark" href="#test_getAllDataByCate" id="test_getAllDataByCate" onclick="test_getAllDataByCate(getAllDataByCateCb)">test</a></span></h2>
+<h2 onclick="show('getAllDataByCate')">getAllDataByCate(getAllDataByCateCb,['Documents'])<span><a class="mark" href="#test_getAllDataByCate" id="test_getAllDataByCate" onclick="test_getAllDataByCate(getAllDataByCateCb)">test</a></span></h2>
+<div id="getAllDataByCate" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getAllDataByCate 查询某基本分类下的所有数据
@@ -286,9 +303,11 @@
     }     
 </pre>
 </div>
+</div>
 
 
-<h2>openLocalDataSourceByPath(openDataSourceCb,content)<span><a class="mark" href="#test_openLocalDataSourceByPath" id="test_openLocalDataSourceByPath" onclick="test_openLocalDataSourceByPath(openDataSourceCb)">test</a></span></h2>
+<h2 onclick="show('openLocalDataSourceByPath')">openLocalDataSourceByPath(openDataSourceCb,content)<span><a class="mark" href="#test_openLocalDataSourceByPath" id="test_openLocalDataSourceByPath" onclick="test_openLocalDataSourceByPath(openDataSourceCb)">test</a></span></h2>
+<div id="openLocalDataSourceByPath" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : openLocalDataSourceByPath 打开数据
@@ -317,8 +336,10 @@
     }    
   </pre>
 </div>
+</div>
 
-<h2>updateDataValue(updateDataValueCb,uri,version,item)<span><a class="mark" href="#test_updateDataValue" id="test_updateDataValue" onclick="test_updateDataValue(updateDataValueCb)">test</a></span></h2>
+<h2 onclick="show('updateDataValue')">updateDataValue(updateDataValueCb,uri,version,item)<span><a class="mark" href="#test_updateDataValue" id="test_updateDataValue" onclick="test_updateDataValue(updateDataValueCb)">test</a></span></h2>
+<div id="updateDataValue" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : updateItemValue 修改数据某一个属性
@@ -349,8 +370,10 @@
     }    
   </pre>
 </div>
+</div>
 
-<h2>rmDataByUri(rmDataCb, uri)<span><a class="mark" href="#test_rmDataByUri" id="test_rmDataByUri" onclick="test_rmDataByUri(rmDataCb)">test</a></span></h2>
+<h2 onclick="show('rmDataByUri')">rmDataByUri(rmDataCb, uri)<span><a class="mark" href="#test_rmDataByUri" id="test_rmDataByUri" onclick="test_rmDataByUri(rmDataCb)">test</a></span></h2>
+<div id="rmDataByUri" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : rmDataById 通过id删除数据
@@ -377,8 +400,10 @@
     }   
   </pre>
 </div>
+</div>
 
-<h2>getDataByUri(getDataByUriCb, uri)<span><a class="mark" href="#test_getDataByUri" id="test_getDataByUri" onclick="test_getDataByUri(getDataByUriCb)">test</a></span></h2>
+<h2 onclick="show('getDataByUri')">getDataByUri(getDataByUriCb, uri)<span><a class="mark" href="#test_getDataByUri" id="test_getDataByUri" onclick="test_getDataByUri(getDataByUriCb)">test</a></span></h2>
+<div id="getDataByUri" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getDataByUri 通过Uri查看数据所有信息
@@ -405,8 +430,10 @@
     }  
   </pre>
 </div>
+</div>
 
-<h2>getDataSourceByUri(getDataSourceCb, id)<span><a class="mark" href="#test_getDataSourceByUri" id="test_getDataSourceByUri" onclick="test_getDataSourceByUri(getDataSourceCb)">test</a></span></h2>
+<h2 onclick="show('getDataSourceByUri')">getDataSourceByUri(getDataSourceCb, id)<span><a class="mark" href="#test_getDataSourceByUri" id="test_getDataSourceByUri" onclick="test_getDataSourceByUri(getDataSourceCb)">test</a></span></h2>
+<div id="getDataSourceByUri" style="display:none;">
 <div style="color:#930000">
   <pre>
     具体实现：<br>
@@ -444,8 +471,10 @@
     } 
   </pre>
 </div>
+</div>
 
-<h2>getRecentAccessData(getRecentAccessDataCb, num)<span><a class="mark" href="#test_getRecentAccessData" id="test_getRecentAccessData" onclick="test_getRecentAccessData(test_getRecentAccessData)">test</a></span></h2>
+<h2 onclick="show('getRecentAccessData')">getRecentAccessData(getRecentAccessDataCb, num)<span><a class="mark" href="#test_getRecentAccessData" id="test_getRecentAccessData" onclick="test_getRecentAccessData(test_getRecentAccessData)">test</a></span></h2>
+<div id="getRecentAccessData" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getRecentAccessDataCb 获得最近访问数据的信息
@@ -472,8 +501,10 @@
     }
   </pre>
 </div>
+</div>
 
-<h2>getResourceDataDir(getResourceDataDirCb)<span><a class="mark" href="#test_getResourceDataDir" id="test_getResourceDataDir" onclick="test_getResourceDataDir(getResourceDataDirCb)">test</a></span></h2>
+<h2 onclick="show('getResourceDataDir')">getResourceDataDir(getResourceDataDirCb)<span><a class="mark" href="#test_getResourceDataDir" id="test_getResourceDataDir" onclick="test_getResourceDataDir(getResourceDataDirCb)">test</a></span></h2>
+<div id="getResourceDataDir" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getResourceDataDir 获得resource数据路径
@@ -497,9 +528,11 @@
   }
   </pre>
 </div>
+</div>
 
 
-<h2>pasteFile(pasteFileCb, sourcePath, desPath)<span><a class="mark" href="#test_pasteFile" id="test_pasteFile" onclick="test_pasteFile(pasteFileCb, sourcePath, desPath)">test</a></span></h2>
+<h2 onclick="show('pasteFile')">pasteFile(pasteFileCb, sourcePath, desPath)<span><a class="mark" href="#test_pasteFile" id="test_pasteFile" onclick="test_pasteFile(pasteFileCb, sourcePath, desPath)">test</a></span></h2>
+<div id="pasteFile" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : pasteFile 粘贴一个数据文件
@@ -525,18 +558,6 @@
   }
   </pre>
 </div>
-
-  function pasteFileCb(result){
-    win.document.write("test API pasteFile()");
-    win.document.write("<br/>");
-    win.document.write("callback result: "+result);
-    win.document.write("<br/>"); 
-  }
-  function test_pasteFile(pasteFileCb){
-    WDC.requireAPI(['data'], function(data){
-      data.pasteFile(pasteFileCb, sourcePath, desPath);
-    });        
-  }  
-
+</div>
 </body>
 </html>

@@ -30,6 +30,18 @@
       win.document.write("<br/>");
     }
   }
+  
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
 
   function loadContactCb(result){
     var win = window.open('');
@@ -62,7 +74,8 @@
 
   </script>
 
-<h2>loadContacts(loadContactCb,path)<span><a class="mark" href="#test_loadContacts" id="test_loadContacts" onclick="test_loadContacts(loadContactCb)">test</a></span></h2>
+<h2 onclick="show('loadContacts')" >loadContacts(loadContactCb,path)<span><a class="mark" href="#test_loadContacts" id="test_loadContacts" onclick="test_loadContacts(loadContactCb)">test</a></span></h2>
+<div id="loadContacts" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : loadContacts 读取某个contact文件夹到数据库
@@ -89,8 +102,10 @@
     }        
 </pre>
 </div>
+</div>
 
-<h2>getAllContacts(getAllContactsCb)<span><a class="mark" href="#test_getAllContacts" id="test_getAllContacts" onclick="test_getAllContacts(getAllContactsCb)">test</a></span></h2>
+<h2 onclick="show('getAllContacts')">getAllContacts(getAllContactsCb)<span><a class="mark" href="#test_getAllContacts" id="test_getAllContacts" onclick="test_getAllContacts(getAllContactsCb)">test</a></span></h2>
+<div id="getAllContacts" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getAllContacts 获得所有联系人数组
@@ -124,5 +139,7 @@
     }        
 </pre>
 </div>
+</div>
+
 </body>
 </html>

@@ -28,6 +28,17 @@
     }
   }
 
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
   function getServerAddressCb(result){
     var win = window.open('');
     win.document.write("test API getAllDataByCate()");
@@ -68,7 +79,8 @@
 
   </script>
 
-<h2>getServerAddress(getServerAddressCb)<span><a class="mark" href="#test_getServerAddress" id="test_getServerAddress" onclick="test_getServerAddress(getServerAddressCb)">test</a></span></h2>
+<h2 onclick="show('getServerAddress')">getServerAddress(getServerAddressCb)<span><a class="mark" href="#test_getServerAddress" id="test_getServerAddress" onclick="test_getServerAddress(getServerAddressCb)">test</a></span></h2>
+<div id="getServerAddress" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getServerAddress 获得最近访问数据的信息
@@ -97,8 +109,10 @@
     }       
 </pre>
 </div>
+</div>
 
-<h2>getDeviceDiscoveryService(deviceUpCb,deviceDownCb)<span><a class="mark" href="#test_getDeviceDiscoveryService" id="test_getDeviceDiscoveryService" onclick="test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb)">test</a></span></h2>
+<h2 onclick="show('getDeviceDiscoveryService')">getDeviceDiscoveryService(deviceUpCb,deviceDownCb)<span><a class="mark" href="#test_getDeviceDiscoveryService" id="test_getDeviceDiscoveryService" onclick="test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb)">test</a></span></h2>
+<div id="getDeviceDiscoveryService" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getDeviceDiscoveryService 获得最近访问数据的信息
@@ -133,6 +147,7 @@
       });
     }      
 </pre>
+</div>
 </div>
 
 </body>
