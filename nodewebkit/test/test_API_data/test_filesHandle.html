@@ -229,6 +229,7 @@
   <pre>
     具体实现：<br>
     function loadResourcesCb(result){
+      var win = window.open('');
       win.document.write("test API loadResources()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+result);
@@ -264,6 +265,7 @@
   <pre>
     具体实现：<br>
     function getAllCateCb(array){
+      var win = window.open('');
       win.document.write("test API getAllCate()");
       win.document.write(array);
     }
@@ -307,6 +309,7 @@
   <pre>
     具体实现：<br>
     function getAllDataByCateCb(text){
+      var win = window.open('');
       win.document.write("test API getAllDataByCate()");
       var json=JSON.stringify(text[0]);
       win.document.write(json);
@@ -338,6 +341,7 @@
   <pre>
     具体实现：<br>
     function openDataSourceCb(file_content){
+      var win = window.open('');
       win.document.write("test API openLocalDataSourceByPath()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+file_content);
@@ -371,6 +375,7 @@
   <pre>
     具体实现：<br>
     function updateDataValueCb(result){
+      var win = window.open('');
       win.document.write("test API updateDataValue()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+result);
@@ -402,6 +407,7 @@
   <pre>
     具体实现：<br>
     function rmDataCb(result){
+      var win = window.open('');
       win.document.write("test API rmDataByUri()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+result);
@@ -432,6 +438,7 @@
   <pre>
     具体实现：<br>
     function getDataByUriCb(result){
+      var win = window.open('');
       win.document.write("test API getDataByUri()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+result);
@@ -473,6 +480,7 @@
   <pre>
     具体实现：<br>
     function getDataSourceCb(result){
+      var win = window.open('');
       win.document.write("test API getDataSourceByUri()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+result);
@@ -503,6 +511,7 @@
   <pre>
     具体实现：<br>
     function getRecentAccessDataCb(result){
+      var win = window.open('');
       win.document.write("test API getRecentAccessData()");
       win.document.write("&lt;br/&gt;");
       win.document.write("callback result: "+result);
@@ -532,16 +541,18 @@
   <pre>
     具体实现：<br>
     function getResourceDataDirCb(result){
-    win.document.write("test API getResourceDataDir()");
-    win.document.write("&lt;br/&gt;");
-    win.document.write("callback result: "+result);
-    win.document.write("&lt;br/&gt;"); 
-  }
-  function test_getResourceDataDir(getResourceDataDirCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getResourceDataDir(getResourceDataDirCb);
-    });        
-  }
+      var win = window.open('');
+      win.document.write("test API getResourceDataDir()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;"); 
+    }
+
+    function test_getResourceDataDir(getResourceDataDirCb){
+      WDC.requireAPI(['data'], function(data){
+        data.getResourceDataDir(getResourceDataDirCb);
+      });        
+    }
   </pre>
 </div>
 </div>
@@ -561,6 +572,7 @@
 <div style="color:#004B97">
   <pre>
   function pasteFileCb(result){
+    var win = window.open('');
     win.document.write("test API pasteFile()");
     win.document.write("&lt;br/&gt;");
     win.document.write("callback result: "+result);
