@@ -6,6 +6,16 @@ var devicesList=new Array();
 exports.devicesList = devicesList;
 
 function getDeviceList(){
+  commonDAO.findItems(null,["devices"],null,function(err,items){
+    if(err){
+      console.log(err);  
+    }
+    else{
+      items.forEach(function(item){
+        console.log("==================================="+item.device_id);
+      });
+    }
+  });
   var device={
     deviceId:"11111111111111",
     name:"HP",
@@ -80,6 +90,7 @@ function startDeviceDiscoveryService(){
       var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP];
       mdns.entryGroupCommit(name,  port, txtarray);
     });
- // });
+//  });
+  getDeviceList();
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;

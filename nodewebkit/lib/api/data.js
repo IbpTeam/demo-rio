@@ -182,16 +182,16 @@ exports.getServerAddress = getServerAddress;
 //API getDeviceDiscoveryService:使用设备发现服务
 //参数分别为设备发现和设备离开的回调函数
 var SOCKETIOPORT=8891;
-function getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
+function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
   console.log("Request handler 'getDeviceDiscoveryService' was called.");
   function getServerAddressCb(result){
     var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
     var socket = require('socket.io-client')(add);  
     socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
-      deviceUpCb(data);
+      getDeviceDiscoveryServiceCb('mdnsUp',data);
     });
     socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
-      deviceDownCb(data);
+      getDeviceDiscoveryServiceCb('mdnsDown',data);
     });
   }
   getServerAddress(getServerAddressCb);

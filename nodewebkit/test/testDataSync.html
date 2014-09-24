@@ -13,19 +13,20 @@
 
 <script>
 
-function deviceUpCb(data){
-    console.log("device up : ");
+function getDeviceDiscoveryService(event,data){
+  if(event=="mdnsUp"){
+  	console.log("device up : ");
     console.log(data);
-}
-
-function deviceDownCb(data){
-    console.log("device down : ");
+  }
+  else if(event=="mdnsDown"){
+  	console.log("device down : ");
     console.log(data);
+  }
 }
 
 WDC.requireAPI(['data'], function(data){
   console.log("test getDeviceDiscoveryService");
-  data.getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+  data.getDeviceDiscoveryService(getDeviceDiscoveryService);
 });
 
 </script>
