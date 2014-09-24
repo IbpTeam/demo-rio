@@ -1,0 +1,154 @@
+<html>
+<head>
+  <title>test_filesHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+
+  function print(win,something){
+    if(typeof something == "object"){
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(": [");
+        win.document.write(something[k]);
+        win.document.write("]");
+        win.document.write("<br/>");
+      }
+    }
+  }
+
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
+  function getServerAddressCb(result){
+    var win = window.open('');
+    win.document.write("test API getAllDataByCate()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_getServerAddress(getServerAddressCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getServerAddress(getServerAddressCb);
+    });
+  }
+
+  function deviceUpCb(result){
+    var win = window.open('');
+    win.document.write("test API getDeviceDiscoveryService() deviceUp");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+    win.document.write("<br/>");
+  }
+  function deviceDownCb(result){
+    var win = window.open('');
+    win.document.write("test API getDeviceDiscoveryService() deviceDown");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+    win.document.write("<br/>");
+  }  
+  function test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+    });
+  }
+
+  </script>
+
+<h2 onclick="show('getServerAddress')">getServerAddress(getServerAddressCb)<span><a class="mark" href="#test_getServerAddress" id="test_getServerAddress" onclick="test_getServerAddress(getServerAddressCb)">test</a></span></h2>
+<div id="getServerAddress" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : getServerAddress 获得最近访问数据的信息
+      @param1 : getServerAddressCbs 回调函数
+        @result : array[server address]
+          var address={
+            ip:config.SERVERIP,
+            port:config.SERVERPORT
+          };
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getServerAddressCb(result){
+      var win = window.open('');
+      win.document.write("test API getAllDataByCate()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");
+    }
+
+    function test_getServerAddress(getServerAddressCb){
+      WDC.requireAPI(['data'], function(data){
+        data.getServerAddress(getServerAddressCb);
+      });
+    }       
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('getDeviceDiscoveryService')">getDeviceDiscoveryService(deviceUpCb,deviceDownCb)<span><a class="mark" href="#test_getDeviceDiscoveryService" id="test_getDeviceDiscoveryService" onclick="test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb)">test</a></span></h2>
+<div id="getDeviceDiscoveryService" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : getDeviceDiscoveryService 获得最近访问数据的信息
+      @param1 : deviceUpCb 回调函数
+        @result : data 接收来自服务器的 名字叫server的数据
+      @param2 : deviceDownCb 回调函数
+        @result : data 接收来自服务器的 名字叫server的数据
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    var SOCKETIOPORT=8891;
+    function deviceUpCb(result){
+      var win = window.open('');
+      win.document.write("test API getDeviceDiscoveryService() deviceUp");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");
+    }
+
+    function deviceDownCb(result){
+      var win = window.open('');
+      win.document.write("test API getDeviceDiscoveryService() deviceDown");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");
+    }
+
+    function test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
+      WDC.requireAPI(['data'], function(data){
+        data.getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
+      });
+    }      
+</pre>
+</div>
+</div>
+
+</body>
+</html>

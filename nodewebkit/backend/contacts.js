@@ -69,7 +69,7 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       age:35,
       email:"my@email.com",
       id:"",
-      photoPath:"/home/xiquan/resources/contacts",
+      photoPath:"/home/xiquan/resources/contactsphoto",
       createTime:currentTime,
       lastModifyTime:currentTime,
       lastAccessTime:currentTime,
@@ -87,12 +87,12 @@ function initContacts(loadResourcesCb,resourcePath){
   var dataPath = resourcePath;
   var pointIndex=sItemPath.lastIndexOf('.');
   if(pointIndex == -1){
-    console.log("ERROR : illeagle csc file!");
+    console.log("ERROR : illeagle csv file!");
     return;
   }else{
     var itemPostfix=sItemPath.substr(pointIndex+1);
     if(itemPostfix != "CSV" && itemPostfix != "csv"){
-      console.log("ERROR : illeagle csc file!");
+      console.log("ERROR : illeagle csv file!");
       return;
     }
   }
@@ -112,7 +112,7 @@ function initContacts(loadResourcesCb,resourcePath){
         return;
       }else{
         function isEndCallback(){
-          resourceRepo.repoContactInit(resourcePath,loadResourcesCb);
+          resourceRepo.repoContactInit(config.RESOURCEPATH,loadResourcesCb);
         }
         var oNewItems = new Array();
         for(var k=0;k<oContacts.length;k++){
@@ -122,16 +122,14 @@ function initContacts(loadResourcesCb,resourcePath){
             if(isContactEnd){
               isEndCallback();
               commonDAO.createItems(oNewItems,function(result){
-                console.log("initContacts is end!!!");
                 console.log(result);
+                console.log("initContacts is end!!!");
               })
             }
           })
         }
       }
     })
-
-
   })
 }
 exports.initContacts = initContacts;
