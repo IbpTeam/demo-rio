@@ -184,16 +184,23 @@
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>"); 
-    print(win,result);
+    if(result){
+      win.document.write("success<br/>");
+      print(win,result);
+    }else{
+      win.document.write("fail<br/>");
+    }
   }
   function test_pasteFile(pasteFileCb){
     WDC.requireAPI(['data'], function(data){
+      var sourcePath = "/home/xiquan/resources/documents/testfile.txt";
+      var desPath = "/home/xiquan/resources/.des/documents/testfile.txt.md";
       data.pasteFile(pasteFileCb, sourcePath, desPath);
     });        
   }  
 
   function getResourceDataDirCb(result){
-    var win = window.open(''); 
+    var win = window.open('');
     win.document.write("test API getResourceDataDir()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -540,7 +547,7 @@
 </div>
 
 
-<h2 onclick="show('pasteFile')">pasteFile(pasteFileCb, sourcePath, desPath)<span><a class="mark" href="#test_pasteFile" id="test_pasteFile" onclick="test_pasteFile(pasteFileCb, sourcePath, desPath)">test</a></span></h2>
+<h2 onclick="show('pasteFile')">pasteFile(pasteFileCb, sourcePath, desPath)<span><a class="mark" href="#test_pasteFile" id="test_pasteFile" onclick="test_pasteFile(pasteFileCb)">test</a></span></h2>
 <div id="pasteFile" style="display:none;">
 <div style="color:#930000">
   <pre>
