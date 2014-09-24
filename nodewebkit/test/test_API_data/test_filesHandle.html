@@ -1,168 +1,515 @@
 <html>
 <head>
-    <title>test_filesHandle_API</title>
-    <meta charset="UTF-8">
-    <style type="text/css">
-    a {
-        font-size: 25px;
-        font-family: sans-serif;
-        line-height: 2;
-    }
-    </style>
-    <script src="../../lib/require.js"></script>
-    <script src="../../lib/jquery.js"></script>
-    <script src="../../lib/api.js"></script>
+  <title>test_filesHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
 </head>
 <body>
-    <script language=javascript>  
-    tryit.document.designMode="On";  
-    tryit.document.open();  
-    tryit.document.innerHTML+=tryit.document.write("<b>asdf</b>");  
-    tryit.document.close();  
-    tryit.focus();  
+  <script language=javascript>  
 
+  function loadResourcesCb(result){
+    var win = window.open('');
+    win.document.write("test API loadResources()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>");
+  }
+  function test_loadResources(loadResourcesCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = "/home/xiquan/resources";
+      data.loadResources(loadResourcesCb,path);
+    });
+  }
+
+  function getAllCateCb(array){
+    var win = window.open('');    
+    win.document.write("test API getAllCateCb()");
+    win.document.write(array);
+  }
+  function test_getAllCate(getAllCateCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getAllCate(getAllCateCb);
+    });
+  }
+
+  function getAllDataByCateCb(text){
+    win.document.write("test API getAllDataByCate()");
+    win.document.write("<br/>");
+    var json=JSON.stringify(text[0]);
+    win.document.write(json);
+    win.document.write("<br/>");
+  }
+  function test_getAllDataByCate() {
+    WDC.requireAPI(['data'], function(data){
+      data.getAllDataByCate(getAllDataByCateCb,['Documents']);
+    });
+  }
+
+  function openDataSourceCb(file_content){
+    win.document.write("test API openLocalDataSourceByPath()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+file_content);
+    win.document.write("<br/>");
+  }
+  function test_openLocalDataSourceByPath(openDataSourceCb){
+    WDC.requireAPI(['data'], function(data){
+      var content;
+      data.openLocalDataSourceByPath(openDataSourceCb,content);
+    });
+  }
+
+  function updateDataValueCb(result){
+    win.document.write("test API updateDataValue()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>");        
+  }
+  function test_updateDataValue(updateDataValueCb){
+    WDC.requireAPI(['data'], function(data){
+      var uri;
+      var version;
+      var item;
+      data.updateDataValue(updateDataValueCb,uri,version,item);
+    });
+  }
+
+  function rmDataCb(result){
+    win.document.write("test API rmDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>");   
+  }
+  function test_rmDataByUri(rmDataCb){
+    WDC.requireAPI(['data'], function(data){
+      var uri;
+      data.rmDataByUri(rmDataCb, uri);
+    });
+  }
+
+  function getDataByUriCb(result){
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>");   
+  }
+  function test_getDataByUri(getDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var uri;
+      data.getDataByUri(getDataByUriCb,uri);
+    });
+  }
+
+  function getDataSourceCb(result){
+    win.document.write("test API getDataSourceByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>"); 
+  }
+  function test_getDataSourceByUri(getDataSourceCb){
+    WDC.requireAPI(['data'], function(data){
+      var id;
+      data.getDataSourceByUri(getDataSourceCb, id);
+    });        
+  }
+
+  function getRecentAccessDataCb(result){
+    win.document.write("test API getRecentAccessData()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>"); 
+  }
+  function test_getRecentAccessData(getRecentAccessDataCb){
+    WDC.requireAPI(['data'], function(data){
+      var num;
+      data.getDataSourceByUri(getRecentAccessDataCb, num);
+    });        
+  }
+
+  function pasteFileCb(result){
+    win.document.write("test API pasteFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>"); 
+  }
+  function test_pasteFile(pasteFileCb){
+    WDC.requireAPI(['data'], function(data){
+      data.pasteFile(pasteFileCb, sourcePath, desPath);
+    });        
+  }  
+
+  function getResourceDataDirCb(result){
+    win.document.write("test API getResourceDataDir()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>"); 
+  }
+  function test_getResourceDataDir(getResourceDataDirCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getResourceDataDir(getResourceDataDirCb);
+    });        
+  }
+
+  </script>
+
+<h2>loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : loadResources 读取某个资源文件夹到数据库
+      @param1 : loadResourcesCb 回调函数
+        @result : string，success代表成功，其他代表失败原因
+    @param2 path : string，要加载资源的路径
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function loadResourcesCb(result){
-        tryit.document.write("test API getAllDataByCate()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+result);
-        tryit.document.write("<br/>");
+      win.document.write("test API loadResources()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");
     }
+
     function test_loadResources(loadResourcesCb){
-        WDC.requireAPI(['data'], function(data){
-            var path = "/home/xiquan/resources";
-            data.loadResources(loadResourcesCb,path);
-        });
-    }
+      WDC.requireAPI(['data'], function(data){
+        var path = "/home/xiquan/resources";
+        data.loadResources(loadResourcesCb,path);
+      });
+    }        
+</pre>
+</div>
 
+<h2>getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : getAllCate 查询所有基本分类
+      @param1 : getAllCateCb 回调函数
+       @result : 
+          array[cate]: 分类数组
+            cate{
+               id;
+               type;
+               path;
+            }
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function getAllCateCb(array){
-        tryit.document.write("test API getAllCateCb()");
-        tryit.document.write(array);
+      win.document.write("test API getAllCate()");
+      win.document.write(array);
     }
+
     function test_getAllCate(getAllCateCb){
-        WDC.requireAPI(['data'], function(data){
-            data.getAllCate(getAllCateCb);
-        });
-    }
+      WDC.requireAPI(['data'], function(data){
+        data.getAllCate(getAllCateCb);
+      });
+    }      
+</pre>
+</div>
 
+
+<h2>getAllDataByCate(getAllDataByCateCb,['Documents'])<span><a class="mark" href="#test_getAllDataByCate" id="test_getAllDataByCate" onclick="test_getAllDataByCate(getAllDataByCateCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : getAllDataByCate 查询某基本分类下的所有数据
+      @param1 : getAllDataByCateCb 回调函数
+        @result : 
+          array[cate]: 数据数组
+            如果是联系人，则返回数据如下：
+              cate{
+                URI;
+                version;
+                name;
+                photPath;
+              }
+            如果是其他类型，则返回数据如下：
+              cate{
+                URI;
+                version;
+                filename;
+                postfix;
+                path;
+              }
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function getAllDataByCateCb(text){
-        tryit.document.write("test API getAllDataByCate()");
-        var json=JSON.stringify(text[0]);
-        document.write(json);
+      win.document.write("test API getAllDataByCate()");
+      var json=JSON.stringify(text[0]);
+      win.document.write(json);
     }
+
     function test_getAllDataByCate() {
-        WDC.requireAPI(['data'], function(data){
-            data.getAllDataByCate(getAllDataByCateCb,['Documents']);
-        });
-    }
+      WDC.requireAPI(['data'], function(data){
+        data.getAllDataByCate(getAllDataByCateCb,['Documents']);
+      });
+    }     
+</pre>
+</div>
 
+
+<h2>openLocalDataSourceByPath(openDataSourceCb,content)<span><a class="mark" href="#test_openLocalDataSourceByPath" id="test_openLocalDataSourceByPath" onclick="test_openLocalDataSourceByPath(openDataSourceCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : openLocalDataSourceByPath 打开数据
+      @param1 : openDataSourceCb 回调函数
+        @result : 
+          内容是一个div,用于显示应用数据
+          如果是本地打开文件，则显示成功打开信息
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function openDataSourceCb(file_content){
-        tryit.document.write("test API openLocalDataSourceByPath()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+file_content);
-        tryit.document.write("<br/>");
-    }
-    function test_openLocalDataSourceByPath(openDataSourceCb){
-        WDC.requireAPI(['data'], function(data){
-            var content;
-            data.openLocalDataSourceByPath(openDataSourceCb,content);
-        });
+      win.document.write("test API openLocalDataSourceByPath()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+file_content);
+      win.document.write("&lt;br/&gt;");
     }
 
+    function test_openLocalDataSourceByPath(openDataSourceCb){
+      WDC.requireAPI(['data'], function(data){
+        var content;
+        data.openLocalDataSourceByPath(openDataSourceCb,content);
+      });
+    }    
+  </pre>
+</div>
+
+<h2>updateDataValue(updateDataValueCb,uri,version,item)<span><a class="mark" href="#test_updateDataValue" id="test_updateDataValue" onclick="test_updateDataValue(updateDataValueCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : updateItemValue 修改数据某一个属性
+      @param1 : updateDataValueCb 回调函数
+        @result : string，success代表成功，失败返回失败原因
+      @param2 : uri, string
+      @param3 : version, string
+      @param4 : item, object
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function updateDataValueCb(result){
-        tryit.document.write("test API updateDataValue()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+result);
-        tryit.document.write("<br/>");        
+      win.document.write("test API updateDataValue()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");        
     }
     function test_updateDataValue(updateDataValueCb){
-        WDC.requireAPI(['data'], function(data){
-            var uri;
-            var version;
-            var item;
-            data.updateDataValue(updateDataValueCb,uri,version,item);
-        });
-    }
+      WDC.requireAPI(['data'], function(data){
+        var uri;
+        var version;
+        var item;
+        data.updateDataValue(updateDataValueCb,uri,version,item);
+      });
+    }    
+  </pre>
+</div>
 
+<h2>rmDataByUri(rmDataCb, uri)<span><a class="mark" href="#test_rmDataByUri" id="test_rmDataByUri" onclick="test_rmDataByUri(rmDataCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : rmDataById 通过id删除数据
+      @param1 : rmDataByUriCb 回调函数
+        @result : string，success代表成功，失败返回失败原因
+      @param2 : uri, string
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function rmDataCb(result){
-        tryit.document.write("test API rmDataByUri()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+result);
-        tryit.document.write("<br/>");   
+      win.document.write("test API rmDataByUri()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");   
     }
+
     function test_rmDataByUri(rmDataCb){
-        WDC.requireAPI(['data'], function(data){
-            var uri;
-            data.rmDataByUri(rmDataCb, uri);
-        });
+      WDC.requireAPI(['data'], function(data){
+        var uri;
+        data.rmDataByUri(rmDataCb, uri);
+      });
+    }   
+  </pre>
+</div>
+
+<h2>getDataByUri(getDataByUriCb, uri)<span><a class="mark" href="#test_getDataByUri" id="test_getDataByUri" onclick="test_getDataByUri(getDataByUriCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : getDataByUri 通过Uri查看数据所有信息
+      @param1 : getDataByUriCb 回调函数
+        @result : string，返回具体数据类型对象
+      @param2 : uri, string
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getDataByUriCb(result){
+      win.document.write("test API getDataByUri()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");   
     }
 
-    function getDataCb(result){
-        tryit.document.write("test API getDataByUri()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+result);
-        tryit.document.write("<br/>");   
-    }
-    function test_getDataByUri(getDataCb){
-        WDC.requireAPI(['data'], function(data){
-            var uri;
-            data.getDataByUri(getDataCb, uri);
-        });
-    }
+    function test_getDataByUri(getDataByUriCb){
+      WDC.requireAPI(['data'], function(data){
+        var uri;
+        data.test_getDataSourceByUri;
+      });
+    }  
+  </pre>
+</div>
 
+<h2>getDataSourceByUri(getDataSourceCb, id)<span><a class="mark" href="#test_getDataSourceByUri" id="test_getDataSourceByUri" onclick="test_getDataSourceByUri(getDataSourceCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    具体实现：<br>
+    @method : getDataSourceByUri 通过Uri获取数据资源地址
+      @param1 : getDataSourceCb 回调函数
+        @result : object,result,数据对象
+          var source={
+            openmethod:'SomeO_penmethod',
+            content:'Some_Content'
+          };
+          三个值：
+            'direct'表示直接通过http访问;
+            'remote'表示通过VNC远程访问;
+            'local'表示直接在本地打开content.
+            如果openmethod是'direct'或者'local'，则表示路径;
+            如果openmethod是'remote'，则表示端口号.
+      @param2 : id, string
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function getDataSourceCb(result){
-        tryit.document.write("test API getDataSourceByUri()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+result);
-        tryit.document.write("<br/>"); 
+      win.document.write("test API getDataSourceByUri()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;"); 
     }
+
     function test_getDataSourceByUri(getDataSourceCb){
-        WDC.requireAPI(['data'], function(data){
-            var id;
-            data.getDataSourceByUri(getDataSourceCb, id);
-        });        
-    }
+      WDC.requireAPI(['data'], function(data){
+        var id;
+        data.getDataSourceByUri(getDataSourceCb, id);
+      });        
+    } 
+  </pre>
+</div>
 
+<h2>getRecentAccessData(getRecentAccessDataCb, num)<span><a class="mark" href="#test_getRecentAccessData" id="test_getRecentAccessData" onclick="test_getRecentAccessData(test_getRecentAccessData)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : getRecentAccessDataCb 获得最近访问数据的信息
+      @param1 : getDataSourceCb 回调函数
+        @result : array,result,返回具体数据信息对象数组
+      @param2 : num, string
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
     function getRecentAccessDataCb(result){
-        tryit.document.write("test API getRecentAccessData()");
-        tryit.document.write("<br/>");
-        tryit.document.write("callback result: "+result);
-        tryit.document.write("<br/>"); 
+      win.document.write("test API getRecentAccessData()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;"); 
     }
+
     function test_getRecentAccessData(getRecentAccessDataCb){
-        WDC.requireAPI(['data'], function(data){
-            var num;
-            data.getDataSourceByUri(getRecentAccessDataCb, num);
-        });        
+      WDC.requireAPI(['data'], function(data){
+        var num;
+        data.getDataSourceByUri(getRecentAccessDataCb, num);
+      });        
     }
+  </pre>
+</div>
+
+<h2>getResourceDataDir(getResourceDataDirCb)<span><a class="mark" href="#test_getResourceDataDir" id="test_getResourceDataDir" onclick="test_getResourceDataDir(getResourceDataDirCb)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : getResourceDataDir 获得resource数据路径
+      @param1 : getDataSourceCb 回调函数
+        @result : string,返回resource数据路径
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getResourceDataDirCb(result){
+    win.document.write("test API getResourceDataDir()");
+    win.document.write("&lt;br/&gt;");
+    win.document.write("callback result: "+result);
+    win.document.write("&lt;br/&gt;"); 
+  }
+  function test_getResourceDataDir(getResourceDataDirCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getResourceDataDir(getResourceDataDirCb);
+    });        
+  }
+  </pre>
+</div>
 
 
-    </script>
-    <div>
-        <button onclick="test_loadResources(loadResourcesCb)">test_loadResources</button><br/>
+<h2>pasteFile(pasteFileCb, sourcePath, desPath)<span><a class="mark" href="#test_pasteFile" id="test_pasteFile" onclick="test_pasteFile(pasteFileCb, sourcePath, desPath)">test</a></span></h2>
+<div style="color:#930000">
+  <pre>
+    @method : pasteFile 粘贴一个数据文件
+      @param1 : pasteFileCb 回调函数
+        @result : string, success代表成功，失败返回失败原因
+      @param2 : string, sourcePath, 目标数据的路径
+      @param3 : string, desPath, 目标数据相应描述文件的路径
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  function pasteFileCb(result){
+    win.document.write("test API pasteFile()");
+    win.document.write("&lt;br/&gt;");
+    win.document.write("callback result: "+result);
+    win.document.write("&lt;br/&gt;"); 
+  }
 
-        <button onclick="test_getAllCate(getAllCateCb)">test_getAllCate</button><br/>
+  function test_pasteFile(pasteFileCb){
+    WDC.requireAPI(['data'], function(data){
+      data.pasteFile(pasteFileCb, sourcePath, desPath);
+    });        
+  }
+  </pre>
+</div>
 
-        <button onclick="test_getAllDataByCate(getAllDataByCateCb)">test_getAllDataByCate</button><br/>
+  function pasteFileCb(result){
+    win.document.write("test API pasteFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: "+result);
+    win.document.write("<br/>"); 
+  }
+  function test_pasteFile(pasteFileCb){
+    WDC.requireAPI(['data'], function(data){
+      data.pasteFile(pasteFileCb, sourcePath, desPath);
+    });        
+  }  
 
-        <button onclick="test_getAllDataByCate()">test_getAllDataByCate</button><br/>
-
-        <button onclick="test_openLocalDataSourceByPath(openDataSourceCb)">test_openLocalDataSourceByPath</button><br/>
-
-        <button onclick="test_updateDataValue(updateDataValueCb)">test_updateDataValue</button><br/>
-
-        <button onclick="test_rmDataByUri(rmDataCb)">test_rmDataByUri</button><br/>
-
-        <button onclick="test_getDataByUri(getDataCb)">test_getDataByUri</button><br/>
-
-        <button onclick="test_getDataSourceByUri(getDataSourceCb)">test_getDataSourceByUri</button><br/>       
-
-        <button onclick="test_getRecentAccessData(getRecentAccessDataCb)">test_getRecentAccessData</button><br/>   
-
-
-
-    </div>
-    <div>
-        <iframe ID="tryit" MARGINHEIGHT="1" MARGINWIDTH="1" width="100%" height="300" scrolling="auto"></iframe>
-    </div>
 </body>
 </html>

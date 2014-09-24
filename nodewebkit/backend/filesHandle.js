@@ -601,8 +601,8 @@ function initData(loadResourcesCb,resourcePath)
           if(isLoadEnd){
             isEndCallback();
             commonDAO.createItems(oNewItems,function(result){
-              console.log("initData is end!!!");
               console.log(result);
+              console.log("initData is end!!!");
            });
           }
         });

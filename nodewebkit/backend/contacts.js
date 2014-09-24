@@ -112,7 +112,9 @@ function initContacts(loadResourcesCb,resourcePath){
         return;
       }else{
         function isEndCallback(){
-          resourceRepo.repoContactInit(resourcePath,loadResourcesCb);
+          var pos = resourcePath.lastIndexOf('/');
+          var gitMonitPath = resourcePath.slice(0,pos-1);
+          resourceRepo.repoContactInit(gitMonitPath,loadResourcesCb);
         }
         var oNewItems = new Array();
         for(var k=0;k<oContacts.length;k++){
@@ -122,8 +124,8 @@ function initContacts(loadResourcesCb,resourcePath){
             if(isContactEnd){
               isEndCallback();
               commonDAO.createItems(oNewItems,function(result){
-                console.log("initContacts is end!!!");
                 console.log(result);
+                console.log("initContacts is end!!!");
               })
             }
           })
