@@ -112,9 +112,7 @@ function initContacts(loadResourcesCb,resourcePath){
         return;
       }else{
         function isEndCallback(){
-          var pos = resourcePath.lastIndexOf('/');
-          var gitMonitPath = resourcePath.slice(0,pos-1);
-          resourceRepo.repoContactInit(gitMonitPath,loadResourcesCb);
+          resourceRepo.repoContactInit(config.RESOURCEPATH,loadResourcesCb);
         }
         var oNewItems = new Array();
         for(var k=0;k<oContacts.length;k++){

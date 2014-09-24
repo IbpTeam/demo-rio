@@ -16,12 +16,28 @@
 <body>
   <script language=javascript>  
 
+  function print(win,something){
+    if(typeof something == "object"){
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(": [");
+        win.document.write(something[k]);
+        win.document.write("]");
+        win.document.write("<br/>");
+      }
+    }else{
+      win.document.write(something);
+      win.document.write("<br/>");
+    }
+  }
+
   function loadContactCb(result){
     var win = window.open('');
     win.document.write("test API loadContactCb()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>");
+    print(win,result);
   }
   function test_loadContacts(loadContactCb){
     WDC.requireAPI(['data'], function(data){
@@ -34,8 +50,9 @@
     var win = window.open('');
     win.document.write("test API getAllContacts()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>");
+    print(win,result);
   }
   function test_getAllContacts(getAllContactsCb){
     WDC.requireAPI(['data'], function(data){

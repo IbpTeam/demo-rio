@@ -16,12 +16,28 @@
 <body>
   <script language=javascript>  
 
+  function print(win,something){
+    if(typeof something == "object"){
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(": [");
+        win.document.write(something[k]);
+        win.document.write("]");
+        win.document.write("<br/>");
+      }
+    }else{
+      win.document.write(something);
+      win.document.write("<br/>");
+    }
+  }
+
   function loadResourcesCb(result){
     var win = window.open('');
     win.document.write("test API loadResources()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>");
+    print(win,result);
   }
   function test_loadResources(loadResourcesCb){
     WDC.requireAPI(['data'], function(data){
@@ -30,10 +46,13 @@
     });
   }
 
-  function getAllCateCb(array){
+  function getAllCateCb(result){
     var win = window.open('');    
     win.document.write("test API getAllCateCb()");
-    win.document.write(array);
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
   }
   function test_getAllCate(getAllCateCb){
     WDC.requireAPI(['data'], function(data){
@@ -44,8 +63,8 @@
   function getAllDataByCateCb(text){
     win.document.write("test API getAllDataByCate()");
     win.document.write("<br/>");
-    var json=JSON.stringify(text[0]);
-    win.document.write(json);
+    var result=JSON.stringify(text[0]);
+    print(win,result);
     win.document.write("<br/>");
   }
   function test_getAllDataByCate() {
@@ -57,8 +76,9 @@
   function openDataSourceCb(file_content){
     win.document.write("test API openLocalDataSourceByPath()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+file_content);
+    win.document.write("callback result: ");
     win.document.write("<br/>");
+    print(win,file_content);
   }
   function test_openLocalDataSourceByPath(openDataSourceCb){
     WDC.requireAPI(['data'], function(data){
@@ -70,8 +90,9 @@
   function updateDataValueCb(result){
     win.document.write("test API updateDataValue()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
-    win.document.write("<br/>");        
+    win.document.write("callback result: ");
+    win.document.write("<br/>");  
+    print(win,result);      
   }
   function test_updateDataValue(updateDataValueCb){
     WDC.requireAPI(['data'], function(data){
@@ -85,8 +106,9 @@
   function rmDataCb(result){
     win.document.write("test API rmDataByUri()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
-    win.document.write("<br/>");   
+    win.document.write("callback result: ");
+    win.document.write("<br/>");  
+    print(win,result); 
   }
   function test_rmDataByUri(rmDataCb){
     WDC.requireAPI(['data'], function(data){
@@ -98,8 +120,9 @@
   function getDataByUriCb(result){
     win.document.write("test API getDataByUri()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>");   
+    print(win,result);
   }
   function test_getDataByUri(getDataByUriCb){
     WDC.requireAPI(['data'], function(data){
@@ -111,8 +134,9 @@
   function getDataSourceCb(result){
     win.document.write("test API getDataSourceByUri()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>"); 
+    print(win,result);
   }
   function test_getDataSourceByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
@@ -124,8 +148,9 @@
   function getRecentAccessDataCb(result){
     win.document.write("test API getRecentAccessData()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>"); 
+    print(win,result);
   }
   function test_getRecentAccessData(getRecentAccessDataCb){
     WDC.requireAPI(['data'], function(data){
@@ -137,8 +162,9 @@
   function pasteFileCb(result){
     win.document.write("test API pasteFile()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>"); 
+    print(win,result);
   }
   function test_pasteFile(pasteFileCb){
     WDC.requireAPI(['data'], function(data){
@@ -149,8 +175,9 @@
   function getResourceDataDirCb(result){
     win.document.write("test API getResourceDataDir()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>"); 
+    print(win,result);
   }
   function test_getResourceDataDir(getResourceDataDirCb){
     WDC.requireAPI(['data'], function(data){

@@ -16,12 +16,25 @@
 <body>
   <script language=javascript>  
 
+  function print(win,something){
+    if(typeof something == "object"){
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(": [");
+        win.document.write(something[k]);
+        win.document.write("]");
+        win.document.write("<br/>");
+      }
+    }
+  }
+
   function getServerAddressCb(result){
     var win = window.open('');
     win.document.write("test API getAllDataByCate()");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
     win.document.write("<br/>");
+    print(win,result);
   }
   function test_getServerAddress(getServerAddressCb){
     WDC.requireAPI(['data'], function(data){
@@ -33,14 +46,18 @@
     var win = window.open('');
     win.document.write("test API getDeviceDiscoveryService() deviceUp");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
     win.document.write("<br/>");
   }
   function deviceDownCb(result){
     var win = window.open('');
     win.document.write("test API getDeviceDiscoveryService() deviceDown");
     win.document.write("<br/>");
-    win.document.write("callback result: "+result);
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
     win.document.write("<br/>");
   }  
   function test_getDeviceDiscoveryService(deviceUpCb,deviceDownCb){
