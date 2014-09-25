@@ -19,15 +19,15 @@
   function print(win,something){
     if(typeof something == "object"){
       for(var k in something){
+        win.document.write("{");
         win.document.write(k);
-        win.document.write(": [");
-        win.document.write(something[k]);
-        win.document.write("]");
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write("}");
         win.document.write("<br/>");
       }
     }else{
       win.document.write(something);
-      win.document.write("<br/>");
     }
   }
 

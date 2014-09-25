@@ -429,8 +429,12 @@ function chFile(path){
  *        }
  */
 function getAllCate(getAllCb) {
-  function getCategoriesCb(data)
+  function getCategoriesCb(err,data)
   {
+    if(err){
+      console.log(err);
+      return;
+    }
     var cates = new Array();
     data.forEach(function (each){
       cates.push({
@@ -443,7 +447,7 @@ function getAllCate(getAllCb) {
     });
     getAllCb(cates);
   }
-  commonDAO.getCategories(getCategoriesCb);
+  commonDAO.findItems(null,['category'],null,getCategoriesCb);
 }
 exports.getAllCate = getAllCate;
 
@@ -474,11 +478,15 @@ exports.getAllCate = getAllCate;
 function getAllDataByCate(getAllData,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if(cate == 'Contacts'){
-    getAllContacts(getAllDataByCateCb);
+    contacts.getAllContacts(getAllDataByCateCb);
     return;
   }else {
-    function getAllByCaterotyCb(data)
+    function getAllByCaterotyCb(err,data)
     {
+      if(err){
+        console.log(err);
+        return;
+      }
       var cates = new Array();
       data.forEach(function (each){
         cates.push({
@@ -491,7 +499,7 @@ function getAllDataByCate(getAllData,cate) {
       });
       getAllData(cates);
     }
-    commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
+    commonDAO.findItems(null,cate,null,getAllByCaterotyCb);
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -632,19 +640,20 @@ exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,uri,version,item){
+function updateDataValue(updateDataValueCb,item){
+  var oItems = item;
   console.log("Request handler 'updateDataValue' was called.");
-  function updateItemValueCb(uri,version,item,result){
+  function updateItemValueCb(result){
     config.riolog("update DB: "+ result);
-    if(result!='successfull'){
-      filesHandle.sleep(1000);
-      commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
+    if(result!='commit'){
+      sleep(1000);
+      commonDAO.updateItems(oItems,updateItemValueCb);
     }
     else{
       updateDataValueCb('success');
     }
   }
-  commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
+  commonDAO.updateItems(oItems,updateItemValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
@@ -682,11 +691,16 @@ exports.rmDataByUri = rmDataByUri;
 //返回具体数据类型对象
 function getDataByUri(getDataCb,uri) {
     console.log("read data : ========================="+ uri);
-  function getItemByUriCb(item){
+  function getItemByUriCb(err,item){
+    if(err){
+      console.log(err)
+      return;
+    }
     console.log("read data : ========================="+ item.URI);
     getDataCb(item);
   }
-  commonDAO.getItemByUri(uri,getItemByUriCb);
+  var oAllTables = ["Contacts","Pictures","Documents","Videos","Music"];
+  commonDAO.findItems(null,oAllTables,["URI = "+"'"+uri+"'"],getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 

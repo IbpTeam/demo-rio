@@ -109,7 +109,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *        }
  */
 function getAllContacts(getAllContactsCb) {
-  contacts.getAll(getAllContactsCb);
+  contacts.getAllContacts(getAllContactsCb);
 }
 exports.getAllContacts = getAllContacts;
 
@@ -155,9 +155,9 @@ exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,uri,version,item){
+function updateDataValue(updateDataValueCb,item){
   console.log("Request handler 'updateDataValue' was called.");
-  filesHandle.updateDataValue(updateDataValueCb,uri,version,item);
+  filesHandle.updateDataValue(updateDataValueCb,item);
 }
 exports.updateDataValue = updateDataValue;
 
@@ -166,7 +166,7 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb,num){
   console.log("Request handler 'getRecentAccessData' was called.");
-  filesHandle. getRecentAccessData(getRecentAccessDataCb,num);
+  filesHandle.getRecentAccessData(getRecentAccessDataCb,num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 

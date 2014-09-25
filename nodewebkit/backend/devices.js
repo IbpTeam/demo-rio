@@ -12,7 +12,7 @@ function getDeviceList(){
     }
     else{
       items.forEach(function(item){
-        console.log("==================================="+item.device_id);
+        //console.log("==================================="+item.device_id);
       });
     }
   });

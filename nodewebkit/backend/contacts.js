@@ -24,9 +24,13 @@ var resourceRepo = require("./FilesHandle/repo");
 *           photPath;
 *        }
 */
-function getAll(getAllCb) {
-  function getAllByCaterotyCb(data)
+function getAllContacts(getAllCb) {
+  function getAllByCaterotyCb(err,data)
   {
+    if(err){
+      console.log(err);
+      return;
+    }    
     var contacts = new Array();
     data.forEach(function (each){
       contacts.push({
@@ -38,9 +42,9 @@ function getAll(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+  commonDAO.findItems(null,['Contacts'],null,getAllByCaterotyCb);
 }
-exports.getAll = getAll;
+exports.getAllContacts = getAllContacts;
 
 /*
 commit_id, version, is_delete, URI, lastAccessTime, 
