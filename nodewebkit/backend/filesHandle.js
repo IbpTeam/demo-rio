@@ -723,7 +723,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       console.log(err)
       return;
     }    
-    items.forEach(function (item){
+    var item = items[0];
     if(item==null){
       config.riolog("read data : "+ item);
       getDataSourceCb('undefined');
@@ -777,34 +777,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
           return;
         }
         else{
-          function findUpdateRecentTableCb(err,result){
-            if(err){
-              console.log(err);
-              return;
-            }
-            config.riolog("=======================update recent table: "+ result.file_rui);
-            if(result!= []){
-              result.lastAccessTime = currentTime;
-              function updateRecentTableCb(result){
-                if(result == "commit"){
-                  console.log("success! in update recent table");
-                }else{
-                  console.log("fail! in update recent table");
-                }
-              }
-              commonDAO.updateItems(result,updateRecentTableCb);
-            }else{
-              function createItemsCb(result){
-                if(result == "commit"){
-                  console.log("success! in create new recent table");
-                }else{
-                  console.log("fail! in create new recent table");
-                }
-              }
-              commonDAO.createItems([result],createItemsCb);
-            }
-          }
-          commonDAO.findItems(null,["recent"],["file_uri = "+"'"+uri+"'"],findUpdateRecentTableCb);
+          console.log("success");
         }
       }
 
@@ -821,7 +794,6 @@ function getDataSourceByUri(getDataSourceCb,uri){
       console.log(updateItem);
       commonDAO.updateItems([updateItem],updateItemValueCb);
     }
-  })
   }
   var pos = uri.lastIndexOf("#");
   var sTableName = uri.slice(pos+1,uri.length);

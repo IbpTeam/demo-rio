@@ -355,13 +355,14 @@
   <pre>
     具体实现：<br>
     function openDataSourceCb(file_content){
-      var win = window.open('');
+      var win = window.open(''); 
       win.document.write("test API openLocalDataSourceByPath()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+file_content);
-      win.document.write("&lt;br/&gt;");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win,file_content);
     }
-
+    
     function test_openLocalDataSourceByPath(openDataSourceCb){
       WDC.requireAPI(['data'], function(data){
         var content = "/home/xiquan/WORK_DIRECTORY/app/demo-rio/README";
@@ -389,20 +390,36 @@
   <pre>
     具体实现：<br>
     function updateDataValueCb(result){
-      var win = window.open('');
+      var win = window.open(''); 
       win.document.write("test API updateDataValue()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+result);
-      win.document.write("&lt;br/&gt;");        
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");  
+      print(win,result);      
     }
+
     function test_updateDataValue(updateDataValueCb){
       WDC.requireAPI(['data'], function(data){
-        var uri;
-        var version;
-        var item;
-        data.updateDataValue(updateDataValueCb,uri,version,item);
+        var item=[{
+          id:"",
+          URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
+          category:"Documents",
+          commit_id: null,
+          version:null,
+          is_delete:0,
+          others:null,
+          filename:"testFile",
+          postfix:"txt",
+          size:1204,
+          path:"/home/xiquan/testFile",
+          project:'上海专项',
+          createTime:1111,
+          lastModifyTime:1111,
+          lastAccessTime:1111,
+        }];
+        data.updateDataValue(updateDataValueCb,item);
       });
-    }    
+    }
   </pre>
 </div>
 </div>
