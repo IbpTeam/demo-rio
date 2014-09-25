@@ -218,7 +218,6 @@ exports.createItem = function(item,callback){
     sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
   }
   sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-  //sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
   console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   // Exec sql
@@ -254,7 +253,6 @@ exports.createItems = function(items,callback){
       sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
     }
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-    //sSqlStr = sSqlStr + "insert into recent (file_uri,lastAccessTime) values ('" + oTempItem.URI + "','" + oTempItem.lastAccessTime + "');";
   });
   //console.log("INSERT Prepare SQL is : "+sSqlStr);
 
@@ -287,7 +285,7 @@ exports.deleteItems = function(items,callback){
         oTempItem[key] = oTempItem[key].replace("'","''");
       sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
     }
-    sSqlStr = sSqlStr + ";delete from recent where file_uri='" + oTempItem.URI + "'";
+    sSqlStr = sSqlStr + ";";
   });
   //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
@@ -321,7 +319,6 @@ exports.updateItems = function(items,callback){
       sSqlStr = sSqlStr + "," + key + "='" + oTempItem[key] + "'";
     }
     sSqlStr = sSqlStr + " where URI='" + sItemUri + "';";
-    sSqlStr = sSqlStr + "Update recent set lastAccessTime='" + oTempItem.lastAccessTime + "' where file_uri='" + sItemUri + "';";
   });
   console.log("UPDATE Prepare SQL is : "+sSqlStr);
 
