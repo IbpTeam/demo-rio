@@ -886,6 +886,7 @@ exports.getRecentAccessData = getRecentAccessData;
 
 
 function monitorNetlink(path){
+  /*
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
     if(filename){
@@ -898,6 +899,7 @@ function monitorNetlink(path){
       config.riolog('filename not provided');
     }
   });
+*/
 }
 exports.monitorNetlink = monitorNetlink;
 
