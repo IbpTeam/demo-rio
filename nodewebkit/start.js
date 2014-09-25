@@ -22,6 +22,8 @@ var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
+//var process = require('process');
+
 var handle = {}
 
 // @const
@@ -40,8 +42,8 @@ var sFullPath;
  **/
 function startApp(){
   config.SERVERIP=config.getAddr();
-  config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
-  config.ACCOUNT = os.hostname()+'('+config.SERVERIP+')';
+  config.SERVERNAME = os.hostname();
+  config.ACCOUNT = process.env['USER'];
   // MSG transfer server initialize
   msgTransfer.initServer();
   server.start(router.route, handle);
@@ -75,7 +77,6 @@ function initializeApp(){
   var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
   console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
-
   fs.exists(sConfigPath, function (configExists) {
     if(!configExists){
       console.log("No data777777777777777777777777777");
