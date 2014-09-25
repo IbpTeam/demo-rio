@@ -4,6 +4,7 @@ var contacts = require("../../backend/contacts");
 var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
+var cp = require('child_process');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
  * @method loadResources
@@ -165,7 +166,7 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb,num){
   console.log("Request handler 'getRecentAccessData' was called.");
-  byUri. getRecentAccessData(getRecentAccessDataCb,num);
+  filesHandle. getRecentAccessData(getRecentAccessDataCb,num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 
