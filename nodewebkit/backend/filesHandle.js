@@ -882,10 +882,10 @@ function openFileByPath(path,callback){
 exports.mkdirSync = mkdirSync;
 
 function firstSync(){
-  resourceRepo.repoMergeForFirstTime(device.devicesList[0].name,
-                                     device.devicesList[0].branchName,
-                                     device.devicesList[0].ip,
-                                     device.devicesList[0].resourcePath,
+  resourceRepo.repoMergeForFirstTime(device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].name,
+                                     device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].branchName,
+                                     device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].ip,
+                                     device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].resourcePath,
                                      function(){
     console.log("merge success!");
   });
