@@ -42,7 +42,7 @@ var sFullPath;
  **/
 function startApp(){
   config.SERVERIP=config.getAddr();
-  config.SERVERNAME = os.hostname()+'('+config.SERVERIP+')';
+  config.SERVERNAME = os.hostname();
   config.ACCOUNT = process.env['USER'];
   // MSG transfer server initialize
   msgTransfer.initServer();
