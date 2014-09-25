@@ -5,6 +5,7 @@ var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
+//var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
  * @method loadResources

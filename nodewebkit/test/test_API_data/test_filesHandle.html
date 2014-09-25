@@ -157,7 +157,7 @@
   }
   function test_getDataByUri(getDataByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var uri = "ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Document";
+      var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
       data.getDataByUri(getDataByUriCb,uri);
     });
   }
@@ -172,8 +172,8 @@
   }
   function test_getDataSourceByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      var id;
-      data.getDataSourceByUri(getDataSourceCb, id);
+      var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
+      data.getDataSourceByUri(getDataSourceCb, uri);
     });        
   }
 
@@ -461,7 +461,7 @@
 
     function test_getDataByUri(getDataByUriCb){
       WDC.requireAPI(['data'], function(data){
-        var uri = "ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Document";
+        var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
         data.test_getDataSourceByUri;
       });
     }  
