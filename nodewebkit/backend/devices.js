@@ -1,4 +1,5 @@
 var commonDAO = require("./DAO/CommonDAO");
+var msgTransfer = require("./Transfer/msgTransfer");
 var config = require("./config");
 var mdns = require('../lib/api/device.js');
 
@@ -101,6 +102,7 @@ function startDeviceDiscoveryService(){
             //socket.emit('mdnsUp', args);
             console.log(args);
             addDevice(device);
+            msgTransfer.serviceUpCb(device);
           }       
           break;
           case 'ItemRemove':{
