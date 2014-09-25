@@ -13,10 +13,8 @@ function getDeviceList(){
     else{
       items.forEach(function(item){
         item.online=false;
-        //console.log("device_id= "+item.device_id);
+        item.sync=false;
         devicesList[item.device_id]=item;
-        //console.log("devicesList add ");
-         //console.log(devicesList[item.device_id]);
       });
       console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
@@ -44,6 +42,7 @@ exports.getServerAddress = getServerAddress;
 function addDevice(device){
   if(device.device_id in devicesList){
     devicesList[device.device_id].online=true;
+    devicesList[device.device_id].sync=false;
     console.log("OLD device");
       console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
@@ -56,6 +55,7 @@ function addDevice(device){
     device.category = "devices";
     commonDAO.createItem(device,function(result){
       device.online=true;
+      device.sync=false;
       devicesList[device.device_id]=device;
             console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
@@ -72,6 +72,7 @@ function rmDevice(device){
   console.log("devicesList[device.device_id]:");
   console.log(devicesList[device.device_id]);
   devicesList[device.device_id].online=false;
+  devicesList[device.device_id].sync=false;
         console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
