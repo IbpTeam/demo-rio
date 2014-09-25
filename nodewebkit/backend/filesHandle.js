@@ -660,29 +660,31 @@ exports.updateDataValue = updateDataValue;
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
-function rmDataByUri(rmDataCb, uri) {
-  function getItemByUriCb(item){
-    if(item == null){
+function rmDataByUri(rmDataByUriCb, uri) {
+  function getItemByUriCb(err,items){
+    if(items == null){
        result='success';
-       rmDataByIdCb(result);
+       rmDataByUriCb(result);
     }
     else{
-//      console.log("delete : "+ item.path);
       function ulinkCb(result){
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemByUri(uri,server.deleteItemCb,rmDataByUriCb);
+          commonDAO.deleteItems(items,rmDataByUriCb);
         }
         else{
           result='error';
-          rmDataCb(result);
+          rmDataByUriCb(result);
         }
       }
-      fs.unlink(item.path,ulinkCb);
+      fs.unlink(items[0].path,ulinkCb);
     }
   }
-  commonDAO.getItemByUri(uri,getItemByUriCb);
+
+  var pos = uri.lastIndexOf("#");
+  var sTableName = uri.slice(pos+1,uri.length);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
