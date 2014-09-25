@@ -183,7 +183,7 @@ function createServer(devicePublishCb){
 exports.createServer = createServer;
 
 function startEntryGroup(path, devicePublishCb){
-  console.log('A new EntryGroup started, path:' + path);    
+ // console.log('A new EntryGroup started, path:' + path);    
   bus.getInterface('org.freedesktop.Avahi', path, 'org.freedesktop.Avahi.EntryGroup', function(err, iface) {
     if (err != null){
       console.log(err);
@@ -194,7 +194,7 @@ function startEntryGroup(path, devicePublishCb){
       console.log(err);
      }
     iface.AddService['finish'] = function(arg) {
-      console.log('finish add service.');
+ //     console.log('finish add service.');
      }
 
     devicePublishCb();
@@ -202,7 +202,7 @@ function startEntryGroup(path, devicePublishCb){
 }
 
 function startServiceBrowser(path){
-  console.log('A new ServiceBrowser started, path:' + path);
+ // console.log('A new ServiceBrowser started, path:' + path);
   bus.getLocalInterface('org.freedesktop.Avahi', path, 'org.freedesktop.Avahi.ServiceBrowser', __dirname + '/org.freedesktop.Avahi.ServiceBrowser.xml', function(err, iface) {
     if (err != null){
       console.log(err);
