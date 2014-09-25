@@ -12,18 +12,19 @@ function getDeviceList(){
     }
     else{
       items.forEach(function(item){
-        console.log("==================================="+item.device_id);
+        item.online=false;
+        //console.log("device_id= "+item.device_id);
+        devicesList[item.device_id]=item;
+        //console.log("devicesList add ");
+         //console.log(devicesList[item.device_id]);
       });
+      console.log("----------------------devicesList:-----------------------");
+      for (var i in devicesList) {  
+        console.log(devicesList[i]);
+      }  
+      console.log("---------------------------------------------------------");
     }
   });
-  var device={
-    deviceId:"11111111111111",
-    name:"HP",
-    branchName:"HP",
-    resourcePath:"/home/v1/resources",
-    ip:"192.168.160.72"
-  };
-  devicesList.push(device);
 }
 exports.getDeviceList = getDeviceList;
 
@@ -41,23 +42,49 @@ function getServerAddress(getServerAddressCb){
 exports.getServerAddress = getServerAddress;
 
 function addDevice(device){
-  if(device in devicesList){
-
+  if(device.device_id in devicesList){
+    devicesList[device.device_id].online=true;
+    console.log("OLD device");
+      console.log("----------------------devicesList:-----------------------");
+      for (var i in devicesList) {  
+        console.log(devicesList[i]);
+      }  
+      console.log("**********************************************************");
   }
   else{
+    console.log("NEW device");
     device.category = "devices";
     commonDAO.createItem(device,function(result){
-      console.log("New device!!!");
-      console.log(result);
+      device.online=true;
+      devicesList[device.device_id]=device;
+            console.log("----------------------devicesList:-----------------------");
+      for (var i in devicesList) {  
+        console.log(devicesList[i]);
+      }  
+      console.log("**********************************************************");
     });
   }
 }
-exports.getDeviceList = getDeviceList;
+exports.addDevice = addDevice;
+
+function rmDevice(device){
+    console.log("device.device_id:"+device.device_id);
+  console.log("devicesList[device.device_id]:");
+  console.log(devicesList[device.device_id]);
+  devicesList[device.device_id].online=false;
+        console.log("----------------------devicesList:-----------------------");
+      for (var i in devicesList) {  
+        console.log(devicesList[i]);
+      }  
+      console.log("**********************************************************");
+}
+exports.addDevice = addDevice;
 
 function startDeviceDiscoveryService(){
   console.log("start Device Discovery Service ");
 //  var io = require('socket.io').listen(config.SOCKETIOPORT);
 //  io.sockets.on('connection', function (socket) {
+    getDeviceList();
     mdns.addDeviceListener(function (signal, args){
       if(args.txt[0]=="demo-rio"){
         var device={
@@ -70,15 +97,14 @@ function startDeviceDiscoveryService(){
         switch(signal){
           case 'ItemNew':{
             //socket.emit('mdnsUp', args);
-            console.log('A new device is add: ');
             console.log(args);
             addDevice(device);
           }       
           break;
           case 'ItemRemove':{
             //socket.emit('mdnsDown', args);
-            console.log('A device is removed: ');
-            console.log(args);          
+            console.log(args);  
+            rmDevice(device);        
           }
           break;
         }
@@ -91,6 +117,5 @@ function startDeviceDiscoveryService(){
       mdns.entryGroupCommit(name,  port, txtarray);
     });
 //  });
-  getDeviceList();
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
