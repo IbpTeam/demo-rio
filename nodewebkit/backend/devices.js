@@ -92,7 +92,8 @@ function startDeviceDiscoveryService(){
           name:args.txt[2],
           branchName:args.txt[2],
           resourcePath:args.txt[3],
-          ip:args.txt[4]
+          ip:args.txt[4],
+          account:args.txt[5]
         };
         switch(signal){
           case 'ItemNew':{
@@ -113,7 +114,7 @@ function startDeviceDiscoveryService(){
     mdns.createServer(function(){
       var name = config.SERVERNAME;
       var port = config.MDNSPORT;
-      var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP];
+      var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
       mdns.entryGroupCommit(name,  port, txtarray);
     });
 //  });
