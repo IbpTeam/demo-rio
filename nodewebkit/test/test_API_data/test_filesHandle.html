@@ -19,15 +19,15 @@
   function print(win,something){
     if(typeof something == "object"){
       for(var k in something){
+        win.document.write("{");
         win.document.write(k);
-        win.document.write(": [");
-        win.document.write(something[k]);
-        win.document.write("]");
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write("}");
         win.document.write("<br/>");
       }
     }else{
       win.document.write(something);
-      win.document.write("<br/>");
     }
   }
 
@@ -76,7 +76,7 @@
     var win = window.open(''); 
     win.document.write("test API getAllDataByCate()");
     win.document.write("<br/>");
-    var result=JSON.stringify(text[0]);
+    var result=JSON.stringify(text);
     print(win,result);
     win.document.write("<br/>");
   }
@@ -96,7 +96,7 @@
   }
   function test_openLocalDataSourceByPath(openDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      var content = "/home/xiquan/resources/documents/testfile.txt";
+      var content = "/home/xiquan/WORK_DIRECTORY/app/demo-rio/README";
       data.openLocalDataSourceByPath(openDataSourceCb,content);
     });
   }
@@ -111,10 +111,24 @@
   }
   function test_updateDataValue(updateDataValueCb){
     WDC.requireAPI(['data'], function(data){
-      var uri = "ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Document";
-      var version = null;
-      var item = null;
-      data.updateDataValue(updateDataValueCb,uri,version,item);
+      var item=[{
+        id:"",
+        URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
+        category:"Documents",
+        commit_id: null,
+        version:null,
+        is_delete:0,
+        others:null,
+        filename:"testFile",
+        postfix:"txt",
+        size:1204,
+        path:"/home/xiquan/testFile",
+        project:'上海专项',
+        createTime:1111,
+        lastModifyTime:1111,
+        lastAccessTime:1111,
+      }];
+      data.updateDataValue(updateDataValueCb,item);
     });
   }
 
@@ -128,7 +142,7 @@
   }
   function test_rmDataByUri(rmDataCb){
     WDC.requireAPI(['data'], function(data){
-      var uri;
+      var uri = "ace6f9045d75a83682e76288f79dd824#5a2c569a50778aac8811#Documents";
       data.rmDataByUri(rmDataCb, uri);
     });
   }
@@ -143,7 +157,7 @@
   }
   function test_getDataByUri(getDataByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var uri = "ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Document";
+      var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
       data.getDataByUri(getDataByUriCb,uri);
     });
   }
@@ -158,8 +172,8 @@
   }
   function test_getDataSourceByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      var id;
-      data.getDataSourceByUri(getDataSourceCb, id);
+      var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
+      data.getDataSourceByUri(getDataSourceCb, uri);
     });        
   }
 
@@ -214,7 +228,7 @@
   }
 
   </script>
-<font face="Arial">
+
 <h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
 <div id="loadResources" style="display:none;">
 <div style="color:#930000">
@@ -341,16 +355,17 @@
   <pre>
     具体实现：<br>
     function openDataSourceCb(file_content){
-      var win = window.open('');
+      var win = window.open(''); 
       win.document.write("test API openLocalDataSourceByPath()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+file_content);
-      win.document.write("&lt;br/&gt;");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win,file_content);
     }
-
+    
     function test_openLocalDataSourceByPath(openDataSourceCb){
       WDC.requireAPI(['data'], function(data){
-        var content = "/home/xiquan/resources/documents/testfile.txt";
+        var content = "/home/xiquan/WORK_DIRECTORY/app/demo-rio/README";
         data.openLocalDataSourceByPath(openDataSourceCb,content);
       });
     }    
@@ -358,7 +373,7 @@
 </div>
 </div>
 
-<h2 onclick="show('updateDataValue')">updateDataValue(updateDataValueCb,uri,version,item)<span><a class="mark" href="#test_updateDataValue" id="test_updateDataValue" onclick="test_updateDataValue(updateDataValueCb)">test</a></span></h2>
+<h2 onclick="show('updateDataValue')">updateDataValue(updateDataValueCb,item)<span><a class="mark" href="#test_updateDataValue" id="test_updateDataValue" onclick="test_updateDataValue(updateDataValueCb)">test</a></span></h2>
 <div id="updateDataValue" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -375,20 +390,36 @@
   <pre>
     具体实现：<br>
     function updateDataValueCb(result){
-      var win = window.open('');
+      var win = window.open(''); 
       win.document.write("test API updateDataValue()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+result);
-      win.document.write("&lt;br/&gt;");        
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");  
+      print(win,result);      
     }
+
     function test_updateDataValue(updateDataValueCb){
       WDC.requireAPI(['data'], function(data){
-        var uri;
-        var version;
-        var item;
-        data.updateDataValue(updateDataValueCb,uri,version,item);
+        var item=[{
+          id:"",
+          URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
+          category:"Documents",
+          commit_id: null,
+          version:null,
+          is_delete:0,
+          others:null,
+          filename:"testFile",
+          postfix:"txt",
+          size:1204,
+          path:"/home/xiquan/testFile",
+          project:'上海专项',
+          createTime:1111,
+          lastModifyTime:1111,
+          lastAccessTime:1111,
+        }];
+        data.updateDataValue(updateDataValueCb,item);
       });
-    }    
+    }
   </pre>
 </div>
 </div>
@@ -447,7 +478,7 @@
 
     function test_getDataByUri(getDataByUriCb){
       WDC.requireAPI(['data'], function(data){
-        var uri;
+        var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
         data.test_getDataSourceByUri;
       });
     }  
@@ -587,6 +618,5 @@
   </pre>
 </div>
 </div>
-</font>
 </body>
 </html>

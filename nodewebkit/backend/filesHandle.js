@@ -63,9 +63,6 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var nameindex=itemPath.lastIndexOf('/');
     var itemFilename=itemPath.substring(nameindex+1,pointIndex);
   }
-  if(itemPostfix == 'csv' || itemPostfix == 'CSV'){
-  }
-  else{
   function getFileStatCb(error,stat)
   {
     var mtime=stat.mtime;
@@ -90,8 +87,8 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
      itemPostfix == 'et' || 
      itemPostfix == 'odt' || 
      itemPostfix == 'pdf'){
-      var category='Documents';
     uniqueID.getFileUid(function(uri){
+      var category='Documents';
       var oNewItem={
         id:"",
         URI:uri + "#" + category,
@@ -116,8 +113,8 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     });
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-    var category='Pictures';
     uniqueID.getFileUid(function(uri){
+      var category='Pictures';
       var oNewItem={
         URI:uri + "#" + category,
         category:category,
@@ -141,9 +138,9 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
       dataDes.createItem(oNewItem,itemDesPath,createItemCb);
     })
   }
-  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){
-    var category='Music'; 
+  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){ 
     uniqueID.getFileUid(function(uri){
+        var category='Music';
         var oNewItem = {
         id:null,
         URI:uri + "#" + category,
@@ -174,7 +171,6 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
   }     
 }
 fs.stat(itemPath,getFileStatCb);
-}
 }
 
 function rmData(itemPath,itemDesPath,rmDataCb){
@@ -429,10 +425,14 @@ function chFile(path){
  *        }
  */
 function getAllCate(getAllCb) {
-  function getCategoriesCb(data)
+  function getCategoriesCb(err,items)
   {
+    if(err){
+      console.log(err);
+      return;
+    }
     var cates = new Array();
-    data.forEach(function (each){
+    items.forEach(function (each){
       cates.push({
         URI:each.id,
         version:each.version,
@@ -443,7 +443,7 @@ function getAllCate(getAllCb) {
     });
     getAllCb(cates);
   }
-  commonDAO.getCategories(getCategoriesCb);
+  commonDAO.findItems(null,['category'],null,getCategoriesCb);
 }
 exports.getAllCate = getAllCate;
 
@@ -474,13 +474,17 @@ exports.getAllCate = getAllCate;
 function getAllDataByCate(getAllData,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if(cate == 'Contacts'){
-    getAllContacts(getAllDataByCateCb);
+    contacts.getAllContacts(getAllDataByCateCb);
     return;
   }else {
-    function getAllByCaterotyCb(data)
+    function getAllByCaterotyCb(err,items)
     {
+      if(err){
+        console.log(err);
+        return;
+      }
       var cates = new Array();
-      data.forEach(function (each){
+      items.forEach(function (each){
         cates.push({
           URI:each.URI,
           version:each.version,
@@ -491,7 +495,7 @@ function getAllDataByCate(getAllData,cate) {
       });
       getAllData(cates);
     }
-    commonDAO.getAllByCateroty(cate,getAllByCaterotyCb);
+    commonDAO.findItems(null,cate,null,getAllByCaterotyCb);
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -632,19 +636,19 @@ exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,uri,version,item){
+function updateDataValue(updateDataValueCb,item){
+  var oItems = item;
   console.log("Request handler 'updateDataValue' was called.");
-  function updateItemValueCb(uri,version,item,result){
+  function updateItemValueCb(result){
     config.riolog("update DB: "+ result);
-    if(result!='successfull'){
-      filesHandle.sleep(1000);
-      commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
+    if(result!='commit'){
+      console.log("Error : result : "+result)
     }
     else{
       updateDataValueCb('success');
     }
   }
-  commonDAO.updateItemValue(uri,version,item,updateItemValueCb);
+  commonDAO.updateItems(oItems,updateItemValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
@@ -652,41 +656,57 @@ exports.updateDataValue = updateDataValue;
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
-function rmDataByUri(rmDataCb, uri) {
-  function getItemByUriCb(item){
-    if(item == null){
-       result='success';
-       rmDataByIdCb(result);
+function rmDataByUri(rmDataByUriCb, uri) {
+  var rm_result;
+  function getItemByUriCb(err,items){
+    if(items == null){
+       rm_result='success';
+       rmDataByUriCb(rm_result);
     }
     else{
-//      console.log("delete : "+ item.path);
       function ulinkCb(result){
         config.riolog("delete result:"+result);
         if(result==null){
           result='success';
-          commonDAO.deleteItemByUri(uri,server.deleteItemCb,rmDataByUriCb);
+
+          var pos = (items[0].URI).lastIndexOf("#");
+          var sTableName = (items[0].URI).slice(pos+1,uri.length);
+          items[0].category = sTableName;
+          commonDAO.deleteItems(items,rmDataByUriCb);
         }
         else{
           result='error';
-          rmDataCb(result);
+          rmDataByUriCb(result);
         }
       }
-      fs.unlink(item.path,ulinkCb);
+      fs.unlink(items[0].path,ulinkCb);
     }
   }
-  commonDAO.getItemByUri(uri,getItemByUriCb);
+
+  var pos = uri.lastIndexOf("#");
+  var sTableName = uri.slice(pos+1,uri.length);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
+
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataCb,uri) {
-    console.log("read data : ========================="+ uri);
-  function getItemByUriCb(item){
-    console.log("read data : ========================="+ item.URI);
-    getDataCb(item);
+    console.log("read data : "+ uri);
+  function getItemByUriCb(err,items){
+    //console.log("my item=============")
+    //console.log(items);
+    if(err){
+      console.log(err)
+      return;
+    }
+    getDataCb(items);
   }
-  commonDAO.getItemByUri(uri,getItemByUriCb);
+
+  var pos = uri.lastIndexOf("#");
+  var sTableName = uri.slice(pos+1,uri.length);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -698,8 +718,13 @@ exports.getDataByUri = getDataByUri;
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
 
-function getDataSourceByUri(getDataSourceCb,id){
-  function getItemByUriCb(item){
+function getDataSourceByUri(getDataSourceCb,uri){
+  function getItemByUriCb(err,items){
+    if(err){
+      console.log(err)
+      return;
+    }    
+    var item = items[0];
     if(item==null){
       config.riolog("read data : "+ item);
       getDataSourceCb('undefined');
@@ -745,33 +770,35 @@ function getDataSourceByUri(getDataSourceCb,id){
         };
       }
       getDataSourceCb(source);
-      
-      var currentTime = (new Date()).getTime();
-      config.riolog("time: "+ currentTime);
-      function updateItemValueCb(uri,version,cbItem,result){
+
+      function updateItemValueCb(result){
         config.riolog("update DB: "+ result);
-        if(result!='successfull'){
-          filesHandle.sleep(1000);
-          commonDAO.updateItemValue(uri,version,cbItem,updateItemValueCb);
+        if(result!='commit'){
+          console.log("Error : updateItems result : "+ result);
+          return;
         }
         else{
-          function updateRecentTableCb(uri,time,result){
-            config.riolog("update recent table: "+ result);
-            if(result!='successfull'){
-              filesHandle.sleep(1000);
-              commonDAO.updateRecentTable(uri,parseInt(currentTime),updateRecentTableCb);
-            }
-          }
-          commonDAO.updateRecentTable(uri,parseInt(currentTime),updateRecentTableCb);
+          console.log("success");
         }
       }
-      var updateItem = {
-        lastAccessTime:parseInt(currentTime)
-      };
-      commonDAO.updateItemValue(item.URI,item.version,updateItem,updateItemValueCb);
+
+      var currentTime = (new Date()).getTime();
+      config.riolog("time: "+ currentTime);
+      var updateItem = item;
+      console.log(updateItem);
+      updateItem.lastAccessTime = currentTime;
+      var item_uri = item.URI;
+      var pos = (item_uri).lastIndexOf("#");
+      var sTableName = (item_uri).slice(pos+1,updateItem.length);
+      updateItem.category = sTableName;
+
+      console.log(updateItem);
+      commonDAO.updateItems([updateItem],updateItemValueCb);
     }
   }
-  commonDAO.getItemByUri(id,getItemByUriCb);
+  var pos = uri.lastIndexOf("#");
+  var sTableName = uri.slice(pos+1,uri.length);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
 }
 exports.getDataSourceByUri = getDataSourceByUri;
 
@@ -780,36 +807,55 @@ exports.getDataSourceByUri = getDataSourceByUri;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb,num){
   console.log("Request handler 'getRecentAccessData' was called.");
-  function getRecentByOrderCb(recentResult){
+  function getRecentByOrderCb(err,recentResult){
+    if(err){
+      console.log(err);
+      return;
+    }
     if(recentResult[0]==null){
       return;
     }
     while(recentResult.length>num){
       recentResult.pop();
     }
-    var data = new Array();
-    var iCount = 0;
-    function getItemByUriCb(result){
-      //console.log(result);
-      if(result){
-        
-        data.push(result);
-        if(data.length==num){
-          getRecentAccessDataCb(data);
+    function getItemByUriCb(err,items){
+      if(err){
+        console.log(err);
+        return;
+      }
+      if(items){
+        var data = [];
+        var dataConditions = {};
+        items.forEach(function(item){
+          var condition = "URI='"+item.file_uri+"'";
+          var pos = (item.file_uri).lastIndexOf("#");
+          var category = (item.file_uri).slice(pos+1,uri.length);
+          if(dataConditions.hasOwnProperty(category)){
+            dataConditions[category].push(condition);
+          }else{
+            dataConditions[category] = new Array();
+          }
+        })
+        function getItemsRepeatCb(err,items){
+          if(err){
+            console.log(err);
+            return;
+          }
+          data.push(items);
+          //where to pass the result to callback?????
         }
-        else{
-          iCount++;
-          commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
+        for(var k in dataConditions){
+          commonDAO.findItems(null,[k],dataConditions,getItemsRepeatCb)
         }
       }
       else{
-        console.log("No data");
+        console.log("No recent access data!");
       }
     }
     commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
 
   }
-  commonDAO.getRecentByOrder(getRecentByOrderCb);
+  commonDAO.findItems(null,["recent"],null,getRecentByOrderCb);
 }
 exports.getRecentAccessData = getRecentAccessData;
 
