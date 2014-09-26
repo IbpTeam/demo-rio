@@ -443,7 +443,7 @@ function getAllCate(getAllCb) {
     });
     getAllCb(cates);
   }
-  commonDAO.findItems(null,['category'],null,getCategoriesCb);
+  commonDAO.findItems(null,['category'],null,null,getCategoriesCb);
 }
 exports.getAllCate = getAllCate;
 
@@ -495,7 +495,7 @@ function getAllDataByCate(getAllData,cate) {
       });
       getAllData(cates);
     }
-    commonDAO.findItems(null,cate,null,getAllByCaterotyCb);
+    commonDAO.findItems(null,cate,null,null,getAllByCaterotyCb);
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -683,7 +683,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
 
   var pos = uri.lastIndexOf("#");
   var sTableName = uri.slice(pos+1,uri.length);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -704,7 +704,7 @@ function getDataByUri(getDataCb,uri) {
 
   var pos = uri.lastIndexOf("#");
   var sTableName = uri.slice(pos+1,uri.length);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -796,36 +796,51 @@ function getDataSourceByUri(getDataSourceCb,uri){
   }
   var pos = uri.lastIndexOf("#");
   var sTableName = uri.slice(pos+1,uri.length);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],getItemByUriCb);
+  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataSourceByUri = getDataSourceByUri;
+
 
 //API getRecentAccessData:获得最近访问数据的信息
 //返回类型：
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb,num){
-  var Datas = [];
-  function findItemsCb(err,items){
-    console.log("=========================")
-    items.forEach(function(item){
-      //console.log(item.lastAccessTime);
-      var {}
-      Datas.push(item);
-    })
-  }
-  //commonDAO.findItems(null,["Documents"],null,findItemsCb);
-  //commonDAO.findItems(null,["Pictures"],null,findItemsCb);
-  //commonDAO.findItems(null,["Music"],null,findItemsCb);
-  //commonDAO.findItems(null,["videos"],null,findItemsCb);
+  var cateNum = 0;
+  var Data = {};
+  var DataSort = [];
   function getAllCateCb(categories){
-    var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit "+"'"+num+"'";
-    categories.forEach(function(category){
-      var sType = category.type;
-      if(sType != "Devices" && sType != "Contacts"){
-        console.log(sType);
-        commonDAO.findItems(null,[sType],/*[sCondition]*/null,findItemsCb);
+    cateNum = categories.length;
+    for(var k in categories){
+      var sType = categories[k].type;
+      function findItemsCb(err,items){
+        if(err){
+          console.log(err);
+          return;
+        }
+        cateNum--;
+        items.forEach(function(item){
+          var sKey =Date.parse(item.lastAccessTime);
+          Data[sKey] = item;
+          DataSort.push(sKey);
+        })
+        if(cateNum == 2){
+          var oNewData = [];
+          DataSort.sort();
+          for(var k in DataSort){
+            oNewData.push(Data[DataSort[k]]);
+          }
+          var DataByNum = oNewData.slice(0,num);
+          getRecentAccessDataCb(DataByNum);
+          for(var k in DataByNum){
+            console.log(DataByNum[k].lastAccessTime);
+          }
+        }
       }
-    })
+      if(sType != "Devices" && sType != "Contacts"){
+        var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit "+"'"+num+"'";
+        commonDAO.findItems(null,[sType],null,[sCondition],findItemsCb);
+      }  
+    }
   }
   getAllCate(getAllCateCb);
 }

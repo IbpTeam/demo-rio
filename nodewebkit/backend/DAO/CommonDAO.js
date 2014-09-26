@@ -347,7 +347,7 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
   var sColStr = "select ";
   var sTablesStr = " from ";
   var sCondStr = " where 1=1";
-  var sExtraStr;
+  var sExtraStr = "";
   var sQueryStr;
   if(!columns){
     sColStr =sColStr + "*";

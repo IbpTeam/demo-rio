@@ -188,7 +188,7 @@
   function test_getRecentAccessData(getRecentAccessDataCb){
     WDC.requireAPI(['data'], function(data){
       var num = 10;
-      data.getRecentAccessData(getRecentAccessDataCb, num);
+      data.getRecentAccessData(getRecentAccessDataCb,num);
     });        
   }
 
@@ -528,7 +528,7 @@
 </div>
 </div>
 
-<h2 onclick="show('getRecentAccessData')">getRecentAccessData(getRecentAccessDataCb, num)<span><a class="mark" href="#test_getRecentAccessData" id="test_getRecentAccessData" onclick="test_getRecentAccessData(test_getRecentAccessData)">test</a></span></h2>
+<h2 onclick="show('getRecentAccessData')">getRecentAccessData(getRecentAccessDataCb, num)<span><a class="mark" href="#test_getRecentAccessData" id="test_getRecentAccessData" onclick="test_getRecentAccessData(getRecentAccessDataCb)">test</a></span></h2>
 <div id="getRecentAccessData" style="display:none;">
 <div style="color:#930000">
   <pre>

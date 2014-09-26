@@ -7,7 +7,7 @@ var devicesList=new Array();
 exports.devicesList = devicesList;
 
 function getDeviceList(){
-  commonDAO.findItems(null,["devices"],null,function(err,items){
+  commonDAO.findItems(null,["devices"],null,null,function(err,items){
     if(err){
       console.log(err);  
     }
