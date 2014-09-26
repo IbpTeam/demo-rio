@@ -535,8 +535,7 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
-function initData(loadResourcesCb,resourcePath)
-{
+function initData(loadResourcesCb,resourcePath){
   config.riolog("initData ..............");
   dataPath=resourcePath;
   fs.mkdir(dataPath+'/.des',function (err){
@@ -544,73 +543,72 @@ function initData(loadResourcesCb,resourcePath)
       console.log("mk resourcePath error!");
       console.log(err);
       return;
-    }else{
-      var fileList = new Array();
-      var fileDesDir = new Array();
-      var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
-      fs.exists(sConfigPath, function (exists) {
-        util.log(sConfigPath+ exists);
-        if(exists==false){
-          var oldDataDir=null;
-        }
-        else{
-          var oldDataDir=require(sConfigPath).dataDir;
-        }
-        util.log("oldDataDir = "+oldDataDir);
-        if(oldDataDir==null || oldDataDir!=resourcePath){
-          var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
-          util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
-          fs.writeFile(sConfigPath,context,function(e){
-            if(e) throw e;
-          });
-        }
-      });
-      function walk(path,pathDes){  
-        var dirList = fs.readdirSync(path);
-        dirList.forEach(function(item){
-          if(fs.statSync(path + '/' + item).isDirectory()){
-            if(item != '.git' && item != '.des' && item != 'contacts'){
-              fs.mkdir(pathDes + '/' + item, function(err){
-                if(err){ 
-                  console.log("mkdir error!");
-                  console.log(err);
+    }
+    var fileList = new Array();
+    var fileDesDir = new Array();
+    var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
+    fs.exists(sConfigPath, function (exists) {
+      util.log(sConfigPath+ exists);
+      if(exists==false){
+        var oldDataDir=null;
+      }
+      else{
+        var oldDataDir=require(sConfigPath).dataDir;
+      }
+      util.log("oldDataDir = "+oldDataDir);
+      if(oldDataDir==null || oldDataDir!=resourcePath){
+        var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
+        util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
+        fs.writeFile(sConfigPath,context,function(e){
+          if(e) throw e;
+        });
+      }
+    });
+    function walk(path,pathDes){  
+      var dirList = fs.readdirSync(path);
+      dirList.forEach(function(item){
+        if(fs.statSync(path + '/' + item).isDirectory()){
+          if(item != '.git' && item != '.des' && item != 'contacts'){
+            fs.mkdir(pathDes + '/' + item, function(err){
+              if(err){ 
+                console.log("mkdir error!");
+                console.log(err);
                   //return;
                 }
               });              
-              walk(path + '/' + item,pathDes + '/' + item);
-            }
+            walk(path + '/' + item,pathDes + '/' + item);
           }
-          else{
-            var sPosIndex = (item).lastIndexOf(".");
-            var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
-            if(sPos != '.csv' && sPos != '.CSV'){
+        }
+        else{
+          var sPosIndex = (item).lastIndexOf(".");
+          var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
+          if(sPos != '.csv' && sPos != '.CSV'){
             fileDesDir.push(pathDes);
             fileList.push(path + '/' + item);
           }
-          }
-        });
-      }
-      walk(resourcePath,resourcePath+'/.des');
-      config.riolog(fileList); 
-      writeDbNum=fileList.length;
-      config.riolog('writeDbNum= '+writeDbNum);
-      function isEndCallback(){
-        resourceRepo.repoInit(resourcePath,loadResourcesCb);
-      }
-      var oNewItems = new Array();
-      for(var k=0;k<fileList.length;k++){
-        var isLoadEnd = (k == (fileList.length-1));
-        addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-          oNewItems.push(oNewItem);
-          if(isLoadEnd){
-            isEndCallback();
-            commonDAO.createItems(oNewItems,function(result){
-              console.log(result);
-              console.log("initData is end!!!");
-           });
-          }
-        });
-      }
+        }
+      });
+    }
+    walk(resourcePath,resourcePath+'/.des');
+    config.riolog(fileList); 
+    writeDbNum=fileList.length;
+    config.riolog('writeDbNum= '+writeDbNum);
+    function isEndCallback(){
+      resourceRepo.repoInit(resourcePath,loadResourcesCb);
+    }
+    var oNewItems = new Array();
+    for(var k=0;k<fileList.length;k++){
+      var isLoadEnd = (k == (fileList.length-1));
+      addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
+        oNewItems.push(oNewItem);
+        if(isLoadEnd){
+          isEndCallback();
+          commonDAO.createItems(oNewItems,function(result){
+            console.log(result);
+            console.log("initData is end!!!");
+          });
+        }
+      });
     }
   });
 }
@@ -806,56 +804,30 @@ exports.getDataSourceByUri = getDataSourceByUri;
 //返回类型：
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb,num){
-  console.log("Request handler 'getRecentAccessData' was called.");
-  function getRecentByOrderCb(err,recentResult){
-    if(err){
-      console.log(err);
-      return;
-    }
-    if(recentResult[0]==null){
-      return;
-    }
-    while(recentResult.length>num){
-      recentResult.pop();
-    }
-    function getItemByUriCb(err,items){
-      if(err){
-        console.log(err);
-        return;
-      }
-      if(items){
-        var data = [];
-        var dataConditions = {};
-        items.forEach(function(item){
-          var condition = "URI='"+item.file_uri+"'";
-          var pos = (item.file_uri).lastIndexOf("#");
-          var category = (item.file_uri).slice(pos+1,uri.length);
-          if(dataConditions.hasOwnProperty(category)){
-            dataConditions[category].push(condition);
-          }else{
-            dataConditions[category] = new Array();
-          }
-        })
-        function getItemsRepeatCb(err,items){
-          if(err){
-            console.log(err);
-            return;
-          }
-          data.push(items);
-          //where to pass the result to callback?????
-        }
-        for(var k in dataConditions){
-          commonDAO.findItems(null,[k],dataConditions,getItemsRepeatCb)
-        }
-      }
-      else{
-        console.log("No recent access data!");
-      }
-    }
-    commonDAO.getItemByUri(recentResult[iCount].file_uri,getItemByUriCb);
-
+  var Datas = [];
+  function findItemsCb(err,items){
+    console.log("=========================")
+    items.forEach(function(item){
+      //console.log(item.lastAccessTime);
+      var {}
+      Datas.push(item);
+    })
   }
-  commonDAO.findItems(null,["recent"],null,getRecentByOrderCb);
+  //commonDAO.findItems(null,["Documents"],null,findItemsCb);
+  //commonDAO.findItems(null,["Pictures"],null,findItemsCb);
+  //commonDAO.findItems(null,["Music"],null,findItemsCb);
+  //commonDAO.findItems(null,["videos"],null,findItemsCb);
+  function getAllCateCb(categories){
+    var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit "+"'"+num+"'";
+    categories.forEach(function(category){
+      var sType = category.type;
+      if(sType != "Devices" && sType != "Contacts"){
+        console.log(sType);
+        commonDAO.findItems(null,[sType],/*[sCondition]*/null,findItemsCb);
+      }
+    })
+  }
+  getAllCate(getAllCateCb);
 }
 exports.getRecentAccessData = getRecentAccessData;
 

@@ -187,8 +187,8 @@
   }
   function test_getRecentAccessData(getRecentAccessDataCb){
     WDC.requireAPI(['data'], function(data){
-      var num;
-      data.getDataSourceByUri(getRecentAccessDataCb, num);
+      var num = 10;
+      data.getRecentAccessData(getRecentAccessDataCb, num);
     });        
   }
 
