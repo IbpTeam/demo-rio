@@ -333,17 +333,21 @@ exports.updateItems = function(items,callback){
  *    An array, if you want to specific column in results,put the column's name in this array.
  *    If you want select all columns, set it null.
  * @param tables
- *    An table's name array, like ["table1","table2"].
+ *    A table's name array, like ["table1","table2"].
  * @param conditions
- *    An conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    A conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    If you want select all rows, set it null.
+ * @param extras
+ *    An extra conditions array, for example ["group by xxx","order by xxx"].
  *    If you want select all rows, set it null.
  * @param callback
  *    All results in array.
  */
-exports.findItems = function(columns,tables,conditions,callback){
+exports.findItems = function(columns,tables,conditions,extras,callback){
   var sColStr = "select ";
   var sTablesStr = " from ";
   var sCondStr = " where 1=1";
+  var sExtraStr;
   var sQueryStr;
   if(!columns){
     sColStr =sColStr + "*";
@@ -368,9 +372,14 @@ exports.findItems = function(columns,tables,conditions,callback){
       sCondStr = sCondStr + " and " + condition;
     });
   }
+  if(extras){
+    extras.forEach(function(extra){
+      sExtraStr = sExtraStr + extra;
+    });
+  }
 
   // Make query string
-  sQueryStr = sColStr + sTablesStr + sCondStr;
+  sQueryStr = sColStr + sTablesStr + sCondStr + sExtraStr;
   console.log("SELECT Prepare SQL is :" + sQueryStr);
 
   // Runs the SQL query
