@@ -16,6 +16,8 @@
 <body>
   <script language=javascript>  
 
+  var test_uri = "ace6f9045d75a83682e76288f79dd824#16748eee9865dab49cee#Pictures";
+
   function print(win,something){
     if(typeof something == "object"){
       for(var k in something){
@@ -82,7 +84,7 @@
   }
   function test_getAllDataByCate() {
     WDC.requireAPI(['data'], function(data){
-      data.getAllDataByCate(getAllDataByCateCb,['Documents']);
+      data.getAllDataByCate(getAllDataByCateCb,['documents']);
     });
   }
 
@@ -142,8 +144,7 @@
   }
   function test_rmDataByUri(rmDataCb){
     WDC.requireAPI(['data'], function(data){
-      var uri = "ace6f9045d75a83682e76288f79dd824#5a2c569a50778aac8811#Documents";
-      data.rmDataByUri(rmDataCb, uri);
+      data.rmDataByUri(rmDataCb, test_uri);
     });
   }
 
@@ -157,8 +158,7 @@
   }
   function test_getDataByUri(getDataByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
-      data.getDataByUri(getDataByUriCb,uri);
+      data.getDataByUri(getDataByUriCb,test_uri);
     });
   }
 
@@ -172,8 +172,7 @@
   }
   function test_getDataSourceByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
-      data.getDataSourceByUri(getDataSourceCb, uri);
+      data.getDataSourceByUri(getDataSourceCb, test_uri);
     });        
   }
 
@@ -478,8 +477,8 @@
 
     function test_getDataByUri(getDataByUriCb){
       WDC.requireAPI(['data'], function(data){
-        var uri = "ace6f9045d75a83682e76288f79dd824#d3568264cac347e04e7c#Documents";
-        data.test_getDataSourceByUri;
+        var uri;
+        data.test_getDataSourceByUri(getDataByUriCb,uri);
       });
     }  
   </pre>
