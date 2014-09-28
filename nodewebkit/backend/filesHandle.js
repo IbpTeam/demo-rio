@@ -45,6 +45,7 @@ var monitorFilesStatus =  false;
 exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
+var isPulledFile=false;
 
 function getCategory(path){
   var pointIndex=path.lastIndexOf('.');
@@ -222,8 +223,14 @@ function addFileCb(){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     var isLoadEnd=true;
-    addData(path,itemDesPath,isLoadEnd,function(){
-      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    addData(path,itemDesPath,isLoadEnd,function(isLoadEnd,oNewItem){
+      if(isPulledFile==false){
+        resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+      }
+      commonDAO.createItem(oNewItem,function(result){
+        console.log(result);
+        console.log("addFile is end!!!");
+      });
     });
   }
   else if(chCommitList[0]!=null){
@@ -239,7 +246,17 @@ function addFileCb(){
         lastModifyTime:(new Date()).getTime()
       };
       chData(path,attrs,itemDesPath,function(){
-        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        if(isPulledFile==false){
+          resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        }
+        attrs.conditions=["path='"+path+"'"];
+        attrs.category=getCategory(path).category;
+        var items= new Array();
+        items.push(attrs);
+        console.log(items);
+        commonDAO.updateItems(items,function(result){
+          console.log(result);
+        });
       });
     });
   }
@@ -251,7 +268,19 @@ function addFileCb(){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     rmData(path,itemDesPath,function(){
-      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      if(isPulledFile==false){
+        resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      }
+      var attrs={
+        conditions:["path='"+path+"'"],
+        category:getCategory(path).category,
+        is_delete:1
+      };
+      var items= new Array();
+      items.push(attrs);
+      commonDAO.updateItems(items,function(result){
+        console.log(result);
+      });
     });
   }
   else{
@@ -273,7 +302,19 @@ function rmFileCb(){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     rmData(path,itemDesPath,function(){
-      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      if(isPulledFile==false){
+        resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      }
+      var attrs={
+        conditions:["path='"+path+"'"],
+        category:getCategory(path).category,
+        is_delete:1
+      };
+      var items= new Array();
+      items.push(attrs);
+      commonDAO.updateItems(items,function(result){
+        console.log(result);
+      });
     });
   }
   else if(addCommitList[0]!=null){
@@ -284,8 +325,14 @@ function rmFileCb(){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     var isLoadEnd=true;
-    addData(path,itemDesPath,isLoadEnd,function(){
-      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    addData(path,itemDesPath,isLoadEnd,function(isLoadEnd,oNewItem){
+      if(isPulledFile==false){
+        resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+      }
+      commonDAO.createItem(oNewItem,function(result){
+        console.log(result);
+        console.log("addFile is end!!!");
+      });
     });
   }
   else if(chCommitList[0]!=null){
@@ -301,7 +348,17 @@ function rmFileCb(){
         lastModifyTime:(new Date()).getTime()
       };
       chData(path,attrs,itemDesPath,function(){
-        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        if(isPulledFile==false){
+          resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        }
+        attrs.conditions=["path='"+path+"'"];
+        attrs.category=getCategory(path).category;
+        var items= new Array();
+        items.push(attrs);
+        console.log(items);
+        commonDAO.updateItems(items,function(result){
+          console.log(result);
+        });
       });
     });
   }
@@ -329,7 +386,17 @@ function chFileCb(){
         lastModifyTime:(new Date()).getTime()
       };
       chData(path,attrs,itemDesPath,function(){
-        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        if(isPulledFile==false){
+          resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        }
+        attrs.conditions=["path='"+path+"'"];
+        attrs.category=getCategory(path).category;
+        var items= new Array();
+        items.push(attrs);
+        console.log(items);
+        commonDAO.updateItems(items,function(result){
+          console.log(result);
+        });
       });
     });
   }
@@ -341,8 +408,14 @@ function chFileCb(){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     var isLoadEnd=true;
-    addData(path,itemDesPath,isLoadEnd,function(){
-      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+    addData(path,itemDesPath,isLoadEnd,function(isLoadEnd,oNewItem){
+     if(isPulledFile==false){
+        resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+      }
+      commonDAO.createItem(oNewItem,function(result){
+        console.log(result);
+        console.log("addFile is end!!!");
+      });
     });
   }
   else if(rmCommitList[0]!=null){
@@ -353,7 +426,19 @@ function chFileCb(){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     rmData(path,itemDesPath,function(){
-      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      if(isPulledFile==false){
+        resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      }
+      var attrs={
+        conditions:["path='"+path+"'"],
+        category:getCategory(path).category,
+        is_delete:1
+      };
+      var items= new Array();
+      items.push(attrs);
+      commonDAO.updateItems(items,function(result){
+        console.log(result);
+      });
     });
   }
   else{
@@ -376,13 +461,13 @@ function addFile(path){
     var isLoadEnd=true;
     console.log("itemDesPath="+itemDesPath);
     addData(path,itemDesPath,isLoadEnd,function(isLoadEnd,oNewItem){
-      resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
-      if(isLoadEnd){
-        commonDAO.createItem(oNewItem,function(result){
-          console.log(result);
-          console.log("addFile is end!!!");
-        });
+      if(isPulledFile==false){
+        resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
       }
+      commonDAO.createItem(oNewItem,function(result){
+        console.log(result);
+        console.log("addFile is end!!!");
+      });
     });
   }
 }
@@ -400,17 +485,19 @@ function rmFile(path){
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
     rmData(path,itemDesPath,function(){
-      resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
-        var attrs={
-          conditions:["path='"+path+"'"],
-          category:getCategory(path).category,
-          is_delete:1
-        };
-        var items= new Array();
-        items.push(attrs);
-        commonDAO.updateItems(items,function(result){
-          console.log(result);
-        });
+      if(isPulledFile==false){
+        resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+      }
+      var attrs={
+        conditions:["path='"+path+"'"],
+        category:getCategory(path).category,
+        is_delete:1
+      };
+      var items= new Array();
+      items.push(attrs);
+      commonDAO.updateItems(items,function(result){
+        console.log(result);
+      });
     });
   }
 }
@@ -432,7 +519,9 @@ function chFile(path){
         lastModifyTime:stat.mtime
       };
       chData(path,attrs,itemDesPath,function(){
-        resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        if(isPulledFile==false){
+          resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        }
         attrs.conditions=["path='"+path+"'"];
         attrs.category=getCategory(path).category;
         var items= new Array();
