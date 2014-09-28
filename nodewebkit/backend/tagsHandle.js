@@ -55,7 +55,5 @@ function getTagsByPath(path){
 		pickTags(oTags,reVideos,path);
 	}
 	return oTags;
-	//console.log(oTags);
-	//callback(oTags);
 }
 exports.getTagsByPath = getTagsByPath;
