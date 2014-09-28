@@ -86,7 +86,7 @@ function getCategory(path){
   }
 }
 
-function addData(itemPath,_itemDesPath,isLoadEnd,callback){
+function addData(itemPath,itemDesPath,isLoadEnd,callback){
   function getFileStatCb(error,stat){
     var mtime=stat.mtime;
     var ctime=stat.ctime;
@@ -95,7 +95,6 @@ function addData(itemPath,_itemDesPath,isLoadEnd,callback){
     var category=cate.category;
     var itemFilename=cate.filename;
     var itemPostfix=cate.postfix;
-    var itemDesPath = _itemDesPath;
 
     switch (category) {
       case "Documents":{
