@@ -473,10 +473,6 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllData,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if(cate == 'Contacts'){
-    contacts.getAllContacts(getAllDataByCateCb);
-    return;
-  }else {
     function getAllByCaterotyCb(err,items)
     {
       if(err){
@@ -496,7 +492,6 @@ function getAllDataByCate(getAllData,cate) {
       getAllData(cates);
     }
     commonDAO.findItems(null,cate,null,null,getAllByCaterotyCb);
-  }
 }
 exports.getAllDataByCate = getAllDataByCate;
 

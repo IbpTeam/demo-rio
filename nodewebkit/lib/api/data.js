@@ -87,9 +87,13 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
-function getAllDataByCate(getAllDataByCateCb,cate) {
+ function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  if(cate == 'Contacts' || cate == 'contacts'){
+    contacts.getAllContacts(getAllDataByCateCb);
+  }else{
+    filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  }
 }
 exports.getAllDataByCate = getAllDataByCate;
 

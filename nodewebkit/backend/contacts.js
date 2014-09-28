@@ -25,8 +25,10 @@ var resourceRepo = require("./FilesHandle/repo");
 *        }
 */
 function getAllContacts(getAllCb) {
+  console.log("Request handler 'getAllContacts' was called.");
   function getAllByCaterotyCb(err,data)
   {
+    console.log("=======================")
     if(err){
       console.log(err);
       return;
@@ -42,7 +44,7 @@ function getAllContacts(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.findItems(null,['Contacts'],null,getAllByCaterotyCb);
+  commonDAO.findItems(null,['Contacts'],null,null,getAllByCaterotyCb);
 }
 exports.getAllContacts = getAllContacts;
 
