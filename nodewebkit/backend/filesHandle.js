@@ -577,6 +577,7 @@ function initData(loadResourcesCb,resourcePath){
         else{
           var sPosIndex = (item).lastIndexOf(".");
           var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
+          console.log(sPos);
           if(sPos != '.csv' && sPos != '.CSV'){
             fileDesDir.push(pathDes);
             fileList.push(path + '/' + item);

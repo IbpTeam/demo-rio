@@ -28,7 +28,6 @@ function getAllContacts(getAllCb) {
   console.log("Request handler 'getAllContacts' was called.");
   function getAllByCaterotyCb(err,data)
   {
-    console.log("=======================")
     if(err){
       console.log(err);
       return;
