@@ -539,8 +539,6 @@ function initData(loadResourcesCb,resourcePath){
       console.log(err);
       return;
     }
-    var fileList = new Array();
-    var fileDesDir = new Array();
     var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
     fs.exists(sConfigPath, function (exists) {
       util.log(sConfigPath+ exists);
@@ -559,6 +557,8 @@ function initData(loadResourcesCb,resourcePath){
         });
       }
     });
+    var fileList = new Array();
+    var fileDesDir = new Array();
     function walk(path,pathDes){  
       var dirList = fs.readdirSync(path);
       dirList.forEach(function(item){
@@ -576,9 +576,8 @@ function initData(loadResourcesCb,resourcePath){
         }
         else{
           var sPosIndex = (item).lastIndexOf(".");
-          var sPos = (sPosIndex == -1) ? "" : (item).substring(sPosIndex,(item).length);
-          console.log(sPos);
-          if(sPos != '.csv' && sPos != '.CSV'){
+          var sPos = item.slice(sPosIndex+1,item.length);
+          if(sPos != 'csv' && sPos != 'CSV'){
             fileDesDir.push(pathDes);
             fileList.push(path + '/' + item);
           }
