@@ -38,7 +38,6 @@ var FILE_CONFIG = "config.js";
  *    boolean
  **/
 function createDesFile(newItem,itemDesPath,callback){
-  //console.log(newItem.path)
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var sPosIndex = (newItem.path).lastIndexOf(".");

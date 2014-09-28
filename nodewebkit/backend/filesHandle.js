@@ -57,12 +57,12 @@ function getCategory(path){
   if(pointIndex == -1){
     var itemPostfix= "none";
     var nameindex=path.lastIndexOf('/');
-    var itemFilename=path.substring(nameindex+1,path.length);
+    var itemFilename=path.slice(nameindex+1,path.length);
   }
   else{
     var itemPostfix=path.substr(pointIndex+1);
     var nameindex=path.lastIndexOf('/');
-    var itemFilename=path.substring(nameindex+1,pointIndex);
+    var itemFilename=path.slice(nameindex+1,pointIndex);
   }
   if(itemPostfix == 'none' || 
      itemPostfix == 'ppt' || 
@@ -93,7 +93,7 @@ function getCategory(path){
   }
 }
 
-function addData(itemPath,itemDesPath,isLoadEnd,callback){
+function addData(itemPath,_itemDesPath,isLoadEnd,callback){
   function getFileStatCb(error,stat){
     var mtime=stat.mtime;
     var ctime=stat.ctime;
@@ -102,6 +102,8 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var category=cate.category;
     var itemFilename=cate.filename;
     var itemPostfix=cate.postfix;
+    var itemDesPath = _itemDesPath;
+
     switch (category) {
       case "Documents":{
         uniqueID.getFileUid(function(uri){
@@ -138,6 +140,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             version:null,
             is_delete:0,
             postfix:itemPostfix,
+            filename:itemFilename,
             id:null,
             size:size,
             path:itemPath,
@@ -186,6 +189,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         writeDbNum --;    
       }
     }
+
   }
   fs.stat(itemPath,getFileStatCb);
 }
