@@ -127,7 +127,7 @@ function initSelfRSAKeys(priKeyPath,pubKeyPath){
   return keyPair;
 }
 function loadServerKey(serverKeyPath){
-  console.log('no serverPubKey now!!!'); 
+  console.log('loading server pubkey'); 
   var serverKeyPair;
   var exists = fs.existsSync(serverKeyPath);
   if (exists) {

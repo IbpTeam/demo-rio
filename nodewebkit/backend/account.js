@@ -5,7 +5,7 @@ var clientPackHandler = require('./clientPackHandler');
 
 //account server information loaded from config file
 var PORT=8892;
-var IP='127.0.0.1';
+var IP='192.168.160.66';
 var keySizeBits = 1024;
 var TIMEOUT=2000;
 
