@@ -203,10 +203,10 @@ function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
 }
 exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
 
-function repoMergeForFirstTime(){
+function pullFromOtherRepo(){
   filesHandle.firstSync();
 }
-exports.repoMergeForFirstTime = repoMergeForFirstTime;
+exports.pullFromOtherRepo = pullFromOtherRepo;
 
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
