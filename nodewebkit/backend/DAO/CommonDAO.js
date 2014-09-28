@@ -297,7 +297,7 @@ exports.deleteItems = function(items,callback){
  * @method updateItems
  *   Update data by URI, support batch execute.
  * @param items
- *    An obj Array, each obj must has attribute category&&URI match table&&URI,
+ *    An obj Array, each obj must has attribute category match table,
  *    other attributes match field in table.
  *    There is a specific attribute: "conditions".It's an contidion array, 
  *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
@@ -323,7 +323,7 @@ exports.updateItems = function(items,callback){
         sCondStr = sCondStr + " and " + condition; 
       });
     }
-    sSqlStr = sSqlStr + "Update " + oTempItem.category + " set URI='" + sItemUri + "'";
+    sSqlStr = sSqlStr + "Update " + oTempItem.category + " set ";
     //Delete attribute category and id from this obj.
     delete oTempItem.category;
     delete oTempItem.id;
@@ -331,8 +331,9 @@ exports.updateItems = function(items,callback){
     for(var key in oTempItem){
       if(typeof oTempItem[key] == 'string')
         oTempItem[key] = oTempItem[key].replace("'","''");
-      sSqlStr = sSqlStr + "," + key + "='" + oTempItem[key] + "'";
+      sSqlStr = sSqlStr + key + "='" + oTempItem[key] + "',";
     }
+    sSqlStr = sSqlStr.substring(0,sSqlStr.length-1);
     sSqlStr = sSqlStr + sCondStr + ";";
     sCondStr = " where 1=1";
   });
