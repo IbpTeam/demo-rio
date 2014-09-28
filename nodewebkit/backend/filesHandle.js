@@ -46,12 +46,6 @@ exports.monitorFilesStatus = monitorFilesStatus;
 var chokidar = require('chokidar'); 
 var watcher;
 
-function uniqueIDHelper(category,oNewItem,itemDesPath,callback){
-  uniqueID.getFileUid(function(uri){
-    callback(uri,category,oNewItem,itemDesPath);
-  })
-}
-
 function getCategory(path){
   var pointIndex=path.lastIndexOf('.');
   if(pointIndex == -1){
