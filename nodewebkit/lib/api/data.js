@@ -87,9 +87,13 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
-function getAllDataByCate(getAllDataByCateCb,cate) {
+ function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  if(cate == 'Contacts' || cate == 'contacts'){
+    contacts.getAllContacts(getAllDataByCateCb);
+  }else{
+    filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  }
 }
 exports.getAllDataByCate = getAllDataByCate;
 
@@ -137,7 +141,6 @@ exports.getDataByUri = getDataByUri;
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
-
 function getDataSourceByUri(getDataSourceByUriCb,id){
   console.log("Request handler 'getDataSourceById' was called.");
   filesHandle.getDataSourceByUri(getDataSourceByUriCb,id);

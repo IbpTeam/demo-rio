@@ -473,10 +473,6 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllData,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if(cate == 'Contacts'){
-    contacts.getAllContacts(getAllDataByCateCb);
-    return;
-  }else {
     function getAllByCaterotyCb(err,items)
     {
       if(err){
@@ -496,7 +492,6 @@ function getAllDataByCate(getAllData,cate) {
       getAllData(cates);
     }
     commonDAO.findItems(null,cate,null,null,getAllByCaterotyCb);
-  }
 }
 exports.getAllDataByCate = getAllDataByCate;
 
@@ -693,8 +688,6 @@ exports.rmDataByUri = rmDataByUri;
 function getDataByUri(getDataCb,uri) {
     console.log("read data : "+ uri);
   function getItemByUriCb(err,items){
-    //console.log("my item=============")
-    //console.log(items);
     if(err){
       console.log(err)
       return;
@@ -715,7 +708,6 @@ exports.getDataByUri = getDataByUri;
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
-
 function getDataSourceByUri(getDataSourceCb,uri){
   function getItemByUriCb(err,items){
     if(err){
