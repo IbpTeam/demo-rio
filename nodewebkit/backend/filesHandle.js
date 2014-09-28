@@ -717,23 +717,16 @@ function initData(loadResourcesCb,resourcePath){
       addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
         oNewItems.push(oNewItem);
 
-        /*
         var oTags = (oNewItem.others).split(",");
-        //console.log(oTags);
-        oTags.forEach(function(sTag){
+        for(var k in oTags){
           var item ={
             category:"tags",
-            tag:sTag,
-            //URI:oNewItem.URI,
+            tag:oTags[k],
             file_uri:oNewItem.URI
           }
-          commonDAO.createItems([item],function(result){
-            console.log(result);
+          oNewItems.push(item);
+        }
 
-          })
-        })
-        */
-        //commonDAO.createItems
         if(isLoadEnd){
           isEndCallback();
           commonDAO.createItems(oNewItems,function(result){
