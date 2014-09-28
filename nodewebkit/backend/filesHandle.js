@@ -48,15 +48,14 @@ var watcher;
 
 function getCategory(path){
   var pointIndex=path.lastIndexOf('.');
-  if(pointIndex == -1){
-    var itemPostfix= "none";
-    var nameindex=path.lastIndexOf('/');
-    var itemFilename=path.slice(nameindex+1,path.length);
-  }
-  else{
-    var itemPostfix=path.substr(pointIndex+1);
-    var nameindex=path.lastIndexOf('/');
-    var itemFilename=path.slice(nameindex+1,pointIndex);
+    if(pointIndex == -1){
+      var itemPostfix= "none";
+      var nameindex=path.lastIndexOf('/');
+      var itemFilename=path.substring(nameindex+1,path.length);
+  }else{
+      var itemPostfix=path.substr(pointIndex+1);
+      var nameindex=path.lastIndexOf('/');
+      var itemFilename=path.substring(nameindex+1,pointIndex);
   }
   if(itemPostfix == 'none' || 
      itemPostfix == 'ppt' || 
