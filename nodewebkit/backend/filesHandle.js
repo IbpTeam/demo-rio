@@ -401,6 +401,16 @@ function rmFile(path){
     var desFilePath=itemDesPath+"/"+fileName+".md";
     rmData(path,itemDesPath,function(){
       resourceRepo.repoRmCommit(config.RESOURCEPATH,path,desFilePath,rmFileCb);
+        var attrs={
+          conditions:["path='"+path+"'"],
+          category:getCategory(path).category,
+          is_delete:1
+        };
+        var items= new Array();
+        items.push(attrs);
+        commonDAO.updateItems(items,function(result){
+          console.log(result);
+        });
     });
   }
 }
@@ -423,13 +433,14 @@ function chFile(path){
       };
       chData(path,attrs,itemDesPath,function(){
         resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
-/*        attrs.conditions=["path="+path];
-        attrs.category=
+        attrs.conditions=["path='"+path+"'"];
+        attrs.category=getCategory(path).category;
         var items= new Array();
         items.push(attrs);
+        console.log(items);
         commonDAO.updateItems(items,function(result){
           console.log(result);
-        });*/
+        });
       });
     });
   }
