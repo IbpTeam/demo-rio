@@ -212,7 +212,7 @@ function addFileCb(){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
@@ -274,7 +274,7 @@ function rmFileCb(){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
@@ -331,7 +331,7 @@ function chFileCb(){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
@@ -364,10 +364,16 @@ function addFile(path){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     console.log("itemDesPath="+itemDesPath);
-    addData(path,itemDesPath,isLoadEnd,function(){
+    addData(path,itemDesPath,isLoadEnd,function(isLoadEnd,oNewItem){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+      if(isLoadEnd){
+        commonDAO.createItem(oNewItem,function(result){
+          console.log(result);
+          console.log("addFile is end!!!");
+        });
+      }
     });
   }
 }
@@ -408,6 +414,7 @@ function chFile(path){
       };
       chData(path,attrs,itemDesPath,function(){
         resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+        commonDAO.updateItems();
       });
     });
   }
