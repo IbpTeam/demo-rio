@@ -601,17 +601,10 @@ function initData(loadResourcesCb,resourcePath){
       dirList.forEach(function(item){
         if(fs.statSync(path + '/' + item).isDirectory()){
           if(item != '.git' && item != '.des' && item != 'contacts'){
-            fs.mkdir(pathDes + '/' + item, function(err){
-              if(err){ 
-                console.log("mkdir error!");
-                console.log(err);
-                  //return;
-                }
-              });              
+            fs.mkdirSync(pathDes + '/' + item);              
             walk(path + '/' + item,pathDes + '/' + item);
           }
-        }
-        else{
+        }else{
           var sPosIndex = (item).lastIndexOf(".");
           var sPos = item.slice(sPosIndex+1,item.length);
           if(sPos != 'csv' && sPos != 'CSV'){
