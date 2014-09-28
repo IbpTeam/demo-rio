@@ -1,5 +1,8 @@
 var ursa = require('./newUrsa');
 var fs = require('fs');
+var keySizeBits = 1024;
+var size=65537;
+
 function encrypt(keyPair,clearText, keySizeBytes){
   var buffer = new Buffer(clearText);
   var maxBufferSize = keySizeBytes - 42; //according to ursa documentation
@@ -49,9 +52,6 @@ function decrypt(keyPair,encryptedString, keySizeBytes){
 
   //concatenates all decrypted buffers and returns the corresponding String
   return Buffer.concat(decryptedBuffers).toString();
-}
-function test(){
-	console.log('test');
 }
 
 function loadPriKeySync(keypath)
@@ -105,14 +105,47 @@ function loadRSAKey(keyPair)
     });  
 }
 
-function getPubkey(keyPair)
-{
-  //var pubKey=keyPair.getPublicKeyPem();
-  //return pubKey;
+function getPubKeyPem(keyPair){
+  console.log('getPubkeyPem');
+  var pubKey=keyPair.getPublicKeyPem();
+  return pubKey;
 }
-
+function initSelfRSAKeys(priKeyPath,pubKeyPath){
+  console.log('no selfPubKey now!!!'); 
+  var keyPair;
+  var exists = fs.existsSync(priKeyPath);
+  if (exists) {
+    console.log('local private key exists');
+    var prikey=fs.readFileSync(priKeyPath).toString('utf-8');	
+    keyPair= ursa.createKey(prikey);
+    console.log("private key load successful!");
+  }else{
+    console.log('local private key do not exist');
+    keyPair= ursa.generatePrivateKey(keySizeBits, size);	
+    keyPair.saveKeys(priKeyPath,pubKeyPath);   
+  }
+  return keyPair;
+}
+function loadServerKey(serverKeyPath){
+  console.log('loading server pubkey'); 
+  var serverKeyPair;
+  var exists = fs.existsSync(serverKeyPath);
+  if (exists) {
+    console.log('local private key exists');
+    var serverkey=fs.readFileSync(serverKeyPath).toString('utf-8');	
+    serverKeyPair= ursa.createKey(serverkey);
+    console.log("private key load successful!");
+    return serverKeyPair;
+  }else{
+    console.log('local server public key do not exist');
+    return;
+  }
+}
 exports.encrypt = encrypt;
 exports.decrypt = decrypt;
 exports.loadPriKeySync = loadPriKeySync;
 exports.loadRSAKey = loadRSAKey;
 exports.loadPubKeySync = loadPubKeySync;
+exports.getPubKeyPem = getPubKeyPem;
+exports.initSelfRSAKeys=initSelfRSAKeys;
+exports.loadServerKey=loadServerKey;

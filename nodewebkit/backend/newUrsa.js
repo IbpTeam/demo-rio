@@ -316,23 +316,25 @@ function PrivateKey(rsa) {
     return signer.sign(self, outEncoding);
   }
 
-//	function getPrivateKeyPem(){
-//		 return rsa.getPrivateKeyPem();
-//	}
-	function saveKeys(){
-		fs.appendFile('priKey.pem', rsa.getPrivateKeyPem(), 'utf8',function(err){  
-    if(err)  
-      console.log("fail " + err);  
-    else  
-      console.log("写入文件ok");  
-		});  
-		fs.appendFile('pubKey.pem', rsa.getPublicKeyPem(), 'utf8',function(err){  
-			if(err)  
-				console.log("fail " + err);  
-			else  
-      console.log("写入文件ok");  
-		}); 
-	}
+/*
+*save the pubkey and private key with file path
+*/
+  function saveKeys(PRIFILEPATH,PUBFILEPATH){
+      fs.appendFile(PRIFILEPATH,rsa.getPrivateKeyPem(),'utf8',function(err){
+        if (err) {
+          console.log("savepriKey Error: "+err);
+        }else{
+          console.log("savepriKey successful");
+        }
+      });
+      fs.appendFile(PUBFILEPATH,rsa.getPublicKeyPem(),'utf8',function(err){
+        if (err) {
+          console.log("savepubKey Error: "+ err);
+        }else{
+          console.log("savepubKey successful");
+        }
+      });
+  }
   self = PublicKey(rsa);
   self.decrypt = decrypt;
   self.hashAndSign = hashAndSign;

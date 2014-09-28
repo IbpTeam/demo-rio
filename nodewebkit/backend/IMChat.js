@@ -48,20 +48,21 @@ function initIMServer(){
 		keyPair to be intergrated by Account Server
 		keyPair should be loaded by local account
 		*/
-		var decrypteds = ursaED.decrypt(keyPair,msgStr.toString('utf-8'), keySizeBits/8);
-    		console.log('解密：'+decrypteds);
-		var msgObj = JSON.parse(decrypteds);
-		console.log('MSG type:' + msgObj[0].type);
-		switch(msgObj[0].type){
-			case 'Chat': {
-				console.log(msgObj[0].message);
-				var msgtime = new Date();
-				msgtime.setTime(msgObj[0].time);
-				console.log(msgtime);
-				//console.log("=========================================");
-				//output message and save to database
-				//return success
-				dboper.dbrecvInsert(msgObj[0].from,msgObj[0].to,msgObj[0].message,msgObj[0].type,msgObj[0].time,function(){
+		try{
+			var decrypteds = ursaED.decrypt(keyPair,msgStr.toString('utf-8'), keySizeBits/8);
+			console.log('解密：'+decrypteds);
+			var msgObj = JSON.parse(decrypteds);
+			console.log('MSG type:' + msgObj[0].type);
+			switch(msgObj[0].type){
+				case 'Chat': {
+					console.log(msgObj[0].message);
+					var msgtime = new Date();
+					msgtime.setTime(msgObj[0].time);
+					console.log(msgtime);
+					//console.log("=========================================");
+					//output message and save to database
+					//return success
+					dboper.dbrecvInsert(msgObj[0].from,msgObj[0].to,msgObj[0].message,msgObj[0].type,msgObj[0].time,function(){
 					console.log("insert into db success!");
 				});
 				//console.log("pubkey is "+pubKey);
@@ -69,16 +70,21 @@ function initIMServer(){
 				c.write(tp);
 			}
 			break;
-			case 'Reply': {
-				//console.log("=========================================");
-				//sender received message, sesson end
-			}
+				case 'Reply': {
+					//console.log("=========================================");
+					//sender received message, sesson end
+				}
 			break;
-			default: {
+				default: {
 				console.log("this is in default switch on data");
 				//console.log(data);
+				}
 			}
+		}catch(err){
+			console.log("sender pubkey error, change pubkey and try again");
 		}
+		
+    		
 	});
 
 	c.on('close',function(){
@@ -298,10 +304,12 @@ function createAccountTable()
 *  待插入IP的帐号
 * @param IP
 *  新增的IP地址
+* @param UID
+*  新增的IP的对应机器UID
 * @return TABLE
 *  返回新插入IP的映射表
 */
-function insertAccount(TABLE,ACCOUNT,IP)
+function insertAccount(TABLE,ACCOUNT,IP,UID)
 {
 	
 	if ( !net.isIP(IP)) {
@@ -310,16 +318,19 @@ function insertAccount(TABLE,ACCOUNT,IP)
 	};
 
 	var ipset = TABLE.get(ACCOUNT);
+	var IPtmp = {};
+	IPtmp["IP"] = IP;
+	IPtmp["UID"] = UID;
 	
 	if (typeof ipset == "undefined")
 	 {
 	 	var tmp = [];
-	 	tmp.push(IP);
+	 	tmp.push(IPtmp);
 	 	TABLE.put(ACCOUNT,tmp);
 	 }
 	 else
 	 {
-	 	ipset.push(IP);
+	 	ipset.push(IPtmp);
 	 	TABLE.remove(ACCOUNT);
 	 	TABLE.put(ACCOUNT,ipset);
 	 }
@@ -364,7 +375,7 @@ function removeAccountIP(TABLE,ACCOUNT,IP)
 	var orilength = ipset.length;
 	for (var i = 0; i < ipset.length; i++)
 	{
-		if(ipset[i] == IP)
+		if(ipset[i].IP == IP)
 		{
 			ipset.splice(i,1);
 			break;
