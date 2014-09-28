@@ -24,9 +24,15 @@ var resourceRepo = require("./FilesHandle/repo");
 *           photPath;
 *        }
 */
-function getAll(getAllCb) {
-  function getAllByCaterotyCb(data)
+function getAllContacts(getAllCb) {
+  console.log("Request handler 'getAllContacts' was called.");
+  function getAllByCaterotyCb(err,data)
   {
+    console.log("=======================")
+    if(err){
+      console.log(err);
+      return;
+    }    
     var contacts = new Array();
     data.forEach(function (each){
       contacts.push({
@@ -38,9 +44,9 @@ function getAll(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.getAllByCateroty('Contacts',getAllByCaterotyCb);
+  commonDAO.findItems(null,['Contacts'],null,null,getAllByCaterotyCb);
 }
-exports.getAll = getAll;
+exports.getAllContacts = getAllContacts;
 
 /*
 commit_id, version, is_delete, URI, lastAccessTime, 
@@ -48,7 +54,7 @@ photoPath, createTime, lastModifyTime,
 id, name, phone, sex, age, email
 */
 function addContact(Item,sItemDesPath,isContactEnd,callback){
-  uniqueID.getFileUid(function(uri){
+  function getFileUidCb(uri){
     var category = 'Contacts';
     var currentTime = (new Date()).getTime();
     Item.path = "/home/xiquan/resources/contacts";
@@ -78,7 +84,8 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       callback(isContactEnd,oNewItem);
     }
     dataDes.createItem(Item,sItemDesPath,createItemCb);
-  })
+  }
+  uniqueID.getFileUid(getFileUidCb);
 }
 
 function initContacts(loadResourcesCb,resourcePath){
@@ -96,7 +103,7 @@ function initContacts(loadResourcesCb,resourcePath){
       return;
     }
   }
-  csvtojson.csvTojson(sItemPath,function(json){
+  function csvTojsonCb(json){
     var oJson = JSON.parse(json);
     var oContacts = new Array();
     for(var k in oJson){
@@ -105,7 +112,7 @@ function initContacts(loadResourcesCb,resourcePath){
       }
     }
     var dataDesPath = config.RESOURCEPATH+"/.des/contacts";
-    fs.mkdir(dataDesPath,function(err){
+    function mkdirCb(err){
       if(err) {
         console.log("mk contacts desPath error!");
         console.log(err);
@@ -115,21 +122,24 @@ function initContacts(loadResourcesCb,resourcePath){
           resourceRepo.repoContactInit(config.RESOURCEPATH,loadResourcesCb);
         }
         var oNewItems = new Array();
+        function addContactCb(isContactEnd,oContact){
+          oNewItems.push(oContact);
+          if(isContactEnd){
+            isEndCallback();
+            commonDAO.createItems(oNewItems,function(result){
+              console.log(result);
+              console.log("initContacts is end!!!");
+            })
+          }          
+        }
         for(var k=0;k<oContacts.length;k++){
           var isContactEnd = (k == (oContacts.length-1));
-          addContact(oContacts[k],dataDesPath,isContactEnd,function(isContactEnd,oContact){
-            oNewItems.push(oContact);
-            if(isContactEnd){
-              isEndCallback();
-              commonDAO.createItems(oNewItems,function(result){
-                console.log(result);
-                console.log("initContacts is end!!!");
-              })
-            }
-          })
+          addContact(oContacts[k],dataDesPath,isContactEnd,addContactCb)
         }
       }
-    })
-  })
+    }
+    fs.mkdir(dataDesPath,mkdirCb);
+  }
+  csvtojson.csvTojson(sItemPath,csvTojsonCb);
 }
 exports.initContacts = initContacts;

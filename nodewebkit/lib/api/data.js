@@ -5,6 +5,7 @@ var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
+//var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
  * @method loadResources
@@ -86,9 +87,13 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
-function getAllDataByCate(getAllDataByCateCb,cate) {
+ function getAllDataByCate(getAllDataByCateCb,cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  if(cate == 'Contacts' || cate == 'contacts'){
+    contacts.getAllContacts(getAllDataByCateCb);
+  }else{
+    filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  }
 }
 exports.getAllDataByCate = getAllDataByCate;
 
@@ -109,7 +114,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *        }
  */
 function getAllContacts(getAllContactsCb) {
-  contacts.getAll(getAllContactsCb);
+  contacts.getAllContacts(getAllContactsCb);
 }
 exports.getAllContacts = getAllContacts;
 
@@ -136,7 +141,6 @@ exports.getDataByUri = getDataByUri;
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
-
 function getDataSourceByUri(getDataSourceByUriCb,id){
   console.log("Request handler 'getDataSourceById' was called.");
   filesHandle.getDataSourceByUri(getDataSourceByUriCb,id);
@@ -155,9 +159,9 @@ exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,uri,version,item){
+function updateDataValue(updateDataValueCb,item){
   console.log("Request handler 'updateDataValue' was called.");
-  filesHandle.updateDataValue(updateDataValueCb,uri,version,item);
+  filesHandle.updateDataValue(updateDataValueCb,item);
 }
 exports.updateDataValue = updateDataValue;
 
@@ -166,7 +170,7 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb,num){
   console.log("Request handler 'getRecentAccessData' was called.");
-  filesHandle. getRecentAccessData(getRecentAccessDataCb,num);
+  filesHandle.getRecentAccessData(getRecentAccessDataCb,num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 

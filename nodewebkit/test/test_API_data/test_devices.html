@@ -19,15 +19,15 @@
   function print(win,something){
     if(typeof something == "object"){
       for(var k in something){
+        win.document.write("{");
         win.document.write(k);
-        win.document.write(": [");
-        win.document.write(something[k]);
-        win.document.write("]");
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write("}");
         win.document.write("<br/>");
       }
     }else{
       win.document.write(something);
-      win.document.write("<br/>");
     }
   }
 
@@ -121,11 +121,11 @@
     function getDeviceDiscoveryServiceCb(msdnType,data){
       var win = window.open('');
       win.document.write("test API getDeviceDiscoveryService() "+msdnType);
-      win.document.write("<br/>");
+      win.document.write("&lt;br/&gt;");
       win.document.write("device: ");
-      win.document.write("<br/>");
+      win.document.write("&lt;br/&gt;");
       print(win,data);
-      win.document.write("<br/>");
+      win.document.write("&lt;br/&gt;");
     } 
 
     function test_getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
