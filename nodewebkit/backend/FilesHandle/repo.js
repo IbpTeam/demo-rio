@@ -3,6 +3,7 @@ var git = require("nodegit");
 var config = require("../config");
 var filesHandle = require("../filesHandle");
 var events = require('events'); 
+var utils = require('../utils');
 
 
 
@@ -126,16 +127,17 @@ exports.getLatestCommit = function (repoPath,callback)
   });
 }
 
-exports.repoMergeForFirstTime = function (name,branch,address,path,callback)
+exports.pullFromOtherRepo = function (address,path,callback)
 {
   filesHandle.watcherStop();
   var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
   var cp = require('child_process');
-  var cmd = 'cd '+dataDir+'&& git remote add '+name+' '+address+':'+path;
+ // var cmd = 'cd '+dataDir+'&& git remote add '+name+' '+address+':'+path;
+  var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
   console.log(cmd);
   cp.exec(cmd,function(error,stdout,stderr){
     console.log(stdout+stderr);
-    var cmd = 'cd '+dataDir+'&& git fetch '+name;
+    /*var cmd = 'cd '+dataDir+'&& git fetch '+name;
     console.log(cmd);
     cp.exec(cmd,function(error,stdout,stderr){
       console.log(stdout+stderr);
@@ -148,7 +150,7 @@ exports.repoMergeForFirstTime = function (name,branch,address,path,callback)
           filesHandle.watcherStart(dataDir,filesHandle.monitorFilesCb);
         });
       });
-    });
+    });*/
   });
 }
 
