@@ -299,15 +299,30 @@ exports.deleteItems = function(items,callback){
  * @param items
  *    An obj Array, each obj must has attribute category&&URI match table&&URI,
  *    other attributes match field in table.
+ *    There is a specific attribute: "conditions".It's an contidion array, 
+ *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    If you want to update items by any contidions,you could put them here.
+ *    Default is update by URI if this attribute is undefined(Must have attribute URI).
  * @param callback
  *    Retrive "commit" when successfully
  *    Retrive "rollback" when error
  */
 exports.updateItems = function(items,callback){
+  var sCondStr = " where 1=1";
   var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
     var oTempItem = item;
     var sItemUri = oTempItem.URI;
+    var aConditions = new Array();
+    if(oTempItem.conditions == undefined){
+      sCondStr = sCondStr + " and URI='" + sItemUri + "'";
+    }else{
+      aConditions = oTempItem.conditions;
+      delete oTempItem.conditions;
+      aConditions.forEach(function(condition){
+        sCondStr = sCondStr + " and " + condition; 
+      });
+    }
     sSqlStr = sSqlStr + "Update " + oTempItem.category + " set URI='" + sItemUri + "'";
     //Delete attribute category and id from this obj.
     delete oTempItem.category;
@@ -318,7 +333,8 @@ exports.updateItems = function(items,callback){
         oTempItem[key] = oTempItem[key].replace("'","''");
       sSqlStr = sSqlStr + "," + key + "='" + oTempItem[key] + "'";
     }
-    sSqlStr = sSqlStr + " where URI='" + sItemUri + "';";
+    sSqlStr = sSqlStr + sCondStr + ";";
+    sCondStr = " where 1=1";
   });
   console.log("UPDATE Prepare SQL is : "+sSqlStr);
 
