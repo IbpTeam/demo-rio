@@ -52,23 +52,19 @@ function uniqueIDHelper(category,oNewItem,itemDesPath,callback){
   })
 }
 
-function addData(itemPath,itemDesPath,isLoadEnd,callback){
-  var pointIndex=itemPath.lastIndexOf('.');
+function getCategory(path){
+  var pointIndex=path.lastIndexOf('.');
   if(pointIndex == -1){
     var itemPostfix= "none";
-    var nameindex=itemPath.lastIndexOf('/');
-    var itemFilename=itemPath.substring(nameindex+1,itemPath.length);
-  }else{
-    var itemPostfix=itemPath.substr(pointIndex+1);
-    var nameindex=itemPath.lastIndexOf('/');
-    var itemFilename=itemPath.substring(nameindex+1,pointIndex);
+    var nameindex=path.lastIndexOf('/');
+    var itemFilename=path.substring(nameindex+1,path.length);
   }
-  function getFileStatCb(error,stat)
-  {
-    var mtime=stat.mtime;
-    var ctime=stat.ctime;
-    var size=stat.size;
-    if(itemPostfix == 'none' || 
+  else{
+    var itemPostfix=path.substr(pointIndex+1);
+    var nameindex=path.lastIndexOf('/');
+    var itemFilename=path.substring(nameindex+1,pointIndex);
+  }
+  if(itemPostfix == 'none' || 
      itemPostfix == 'ppt' || 
      itemPostfix == 'pptx'|| 
      itemPostfix == 'doc'|| 
@@ -87,90 +83,111 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
      itemPostfix == 'et' || 
      itemPostfix == 'odt' || 
      itemPostfix == 'pdf'){
-    uniqueID.getFileUid(function(uri){
-      var category='Documents';
-      var oNewItem={
-        id:"",
-        URI:uri + "#" + category,
-        category:category,
-        commit_id: null,
-        version:null,
-        is_delete:0,
-        others:null,
-        filename:itemFilename,
-        postfix:itemPostfix,
-        size:size,
-        path:itemPath,
-        project:'上海专项',
-        createTime:ctime,
-        lastModifyTime:mtime,
-        lastAccessTime:ctime,
-      };
-      function createItemCb(){
-        callback(isLoadEnd,oNewItem);
-      }
-      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
-    });
+    return {category:"Documents",filename:itemFilename,postfix:itemPostfix};
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
-    uniqueID.getFileUid(function(uri){
-      var category='Pictures';
-      var oNewItem={
-        URI:uri + "#" + category,
-        category:category,
-        commit_id: null,
-        version:null,
-        is_delete:0,
-        filename:itemFilename,
-        postfix:itemPostfix,
-        id:null,
-        size:size,
-        path:itemPath,
-        location:"Mars",
-        createTime:ctime,
-        lastModifyTime:mtime,
-        lastAccessTime:ctime,
-        others:null,
-      };
-      function createItemCb(){
-        callback(isLoadEnd,oNewItem);
-      }
-      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
-    })
+    return {category:"Pictures",filename:itemFilename,postfix:itemPostfix};
   }
-  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg' ){ 
-    uniqueID.getFileUid(function(uri){
-        var category='Music';
-        var oNewItem = {
-        id:null,
-        URI:uri + "#" + category,
-        category:category,
-        commit_id: null,
-        version:null,
-        is_delete:0,
-        others:null,
-        filename:itemFilename,
-        postfix:itemPostfix,
-        size:size,
-        path:itemPath,
-        album:'流行',
-        composerName:"Xiquan",
-        actorName:"Xiquan",
-        createTime:ctime,
-        lastModifyTime:mtime,
-        lastAccessTime:ctime,
-      };
-      function createItemCb(){
-        callback(isLoadEnd,oNewItem);
-      }
-      dataDes.createItem(oNewItem,itemDesPath,createItemCb);
-    })
-  } 
-  else{
-    writeDbNum --;
-  }     
+  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg'){
+    return {category:"Music",filename:itemFilename,postfix:itemPostfix};
+  }
 }
-fs.stat(itemPath,getFileStatCb);
+
+function addData(itemPath,itemDesPath,isLoadEnd,callback){
+  function getFileStatCb(error,stat){
+    var mtime=stat.mtime;
+    var ctime=stat.ctime;
+    var size=stat.size;
+    var cate=getCategory(itemPath);
+    var category=cate.category;
+    var itemFilename=cate.filename;
+    var itemPostfix=cate.postfix;
+    switch (category) {
+      case "Documents":{
+        uniqueID.getFileUid(function(uri){
+          var oNewItem={
+            id:"",
+            URI:uri + "#" + category,
+            category:category,
+            commit_id: null,
+            version:null,
+            is_delete:0,
+            others:null,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:itemPath,
+            project:'上海专项',
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+          };
+          function createItemCb(){
+            callback(isLoadEnd,oNewItem);
+          }
+          dataDes.createItem(oNewItem,itemDesPath,createItemCb);
+        });
+        break;
+      }
+      case "Pictures":{
+        uniqueID.getFileUid(function(uri){
+          var oNewItem={
+            URI:uri + "#" + category,
+            category:category,
+            commit_id: null,
+            version:null,
+            is_delete:0,
+            postfix:itemPostfix,
+            id:null,
+            size:size,
+            path:itemPath,
+            location:"Mars",
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            others:null,
+          };
+          function createItemCb(){
+            callback(isLoadEnd,oNewItem);
+          }
+          dataDes.createItem(oNewItem,itemDesPath,createItemCb);
+        });
+        break;
+      }
+      case "Music":{
+        uniqueID.getFileUid(function(uri){
+          var oNewItem = {
+            id:null,
+            URI:uri + "#" + category,
+            category:category,
+            commit_id: null,
+            version:null,
+            is_delete:0,
+            others:null,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:itemPath,
+            album:'流行',
+            composerName:"Xiquan",
+            actorName:"Xiquan",
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+          };
+          function createItemCb(){
+            callback(isLoadEnd,oNewItem);
+          }
+          dataDes.createItem(oNewItem,itemDesPath,createItemCb);
+        });
+        break;
+      }
+      default:{
+        writeDbNum --;    
+      }
+    }
+  }
+  fs.stat(itemPath,getFileStatCb);
 }
 
 function rmData(itemPath,itemDesPath,rmDataCb){
@@ -208,7 +225,7 @@ function addFileCb(){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
@@ -270,7 +287,7 @@ function rmFileCb(){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
@@ -327,7 +344,7 @@ function chFileCb(){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     addData(path,itemDesPath,isLoadEnd,function(){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
     });
@@ -360,10 +377,16 @@ function addFile(path){
     var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
     var fileName=path.substring(nameindex+1,path.length);
     var desFilePath=itemDesPath+"/"+fileName+".md";
-    var isLoadEnd=1;
+    var isLoadEnd=true;
     console.log("itemDesPath="+itemDesPath);
-    addData(path,itemDesPath,isLoadEnd,function(){
+    addData(path,itemDesPath,isLoadEnd,function(isLoadEnd,oNewItem){
       resourceRepo.repoAddCommit(config.RESOURCEPATH,path,desFilePath,addFileCb);
+      if(isLoadEnd){
+        commonDAO.createItem(oNewItem,function(result){
+          console.log(result);
+          console.log("addFile is end!!!");
+        });
+      }
     });
   }
 }
@@ -404,6 +427,13 @@ function chFile(path){
       };
       chData(path,attrs,itemDesPath,function(){
         resourceRepo.repoChCommit(config.RESOURCEPATH,path,desFilePath,chFileCb,attrs);
+/*        attrs.conditions=["path="+path];
+        attrs.category=
+        var items= new Array();
+        items.push(attrs);
+        commonDAO.updateItems(items,function(result){
+          console.log(result);
+        });*/
       });
     });
   }
@@ -907,11 +937,7 @@ function openFileByPath(path,callback){
 exports.mkdirSync = mkdirSync;
 
 function firstSync(){
-  resourceRepo.repoMergeForFirstTime(device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].name,
-                                     device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].branchName,
-                                     device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].ip,
-                                     device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].resourcePath,
-                                     function(){
+  resourceRepo.pullFromOtherRepo(device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].ip,device.devicesList['5ea3875d1d95dbc0e72b1769219106a5'].resourcePath,function(){
     console.log("merge success!");
   });
 }
