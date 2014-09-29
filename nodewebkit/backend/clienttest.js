@@ -9,7 +9,9 @@ var size = 65537;
 
  var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
 
- var pubKey=keyPair.getPublicKeyPem();
+ var  pubKey = ursaED.loadPubKeySync('./key/users/34234324erererw3r3w4.pem');
+
+ //var pubKey=keyPair.getPublicKeyPem();
 
  console.log(pubKey);
  
@@ -24,8 +26,8 @@ imchat.sendIMMsg("127.0.0.1",8892,msg,keyPair);
 
 var table = imchat.createAccountTable();
 
-table = imchat.insertAccount(table,"rtty123","192.168.1.122","34234324r34rerfe45r4");
-table = imchat.insertAccount(table,"rtty123","192.168.1.123","34234324erererw3r3w4");
+table = imchat.insertAccount(table,"rtty123","192.168.1.123","34234324r34rerfe45r4");
+table = imchat.insertAccount(table,"rtty123","127.0.0.1","34234324erererw3r3w4");
 
 var IP = imchat.getIP(table,"rtty123");
 
@@ -35,7 +37,7 @@ IP.forEach(function (row) {
 });
 
 
-imchat.sendMSGbyAccount(table,"rtty123","sd",2323);
+imchat.sendMSGbyAccount(table,"rtty123","Hello this is sending message",8892);
 //table = imchat.removeAccountIP(table,"rtty123","192.168.1.122");
 
  //IP = imchat.getIP(table,"rtty123");

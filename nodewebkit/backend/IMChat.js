@@ -125,7 +125,7 @@ function initIMServer(){
 * @param PORT
 *  消息接收方的通信端口
 *@param KEYPAIR
-*接收方的pubkey生成的keypair
+*发送方的pubkey生成的keypair
 * @return null
 *  没有返回值
 */
@@ -207,7 +207,7 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
 * @param ACCOUNT
 *  接收方帐号
 * @param MSG
-*  用encapsuMSG包装过的待发送消息
+*  待发送消息
 * @param PORT
 *  消息接收方的通信端口
 * @return null
@@ -225,6 +225,8 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 		*/
 	};
 
+	var localkeyPair =  ursaED.loadPriKeySync('./key/priKey.pem');
+
 	/*
 	MSG already be capsuled by encapsuMSG function
 	*/
@@ -232,12 +234,26 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 	{
 		//sendIMMSG(ipset[i],IP,PORT,keyPair);
 		console.log("sending "+ipset[i].UID+ " in account "+ACCOUNT);
-		fs.exists('./key/users/'+ipset[i].UID+'.pem',function(exists){
-			console.log(exists? "exist" : "doesn't exist");
-		});
+		existsPubkeyPem(ipset[i],ACCOUNT,MSG,PORT,localkeyPair);
 	};
 
 	console.log("send " + ipset.length + " IPs in "+ ACCOUNT);
+}
+
+function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
+	fs.exists('./key/users/'+IPSET.UID+'.pem',function(exists){
+		if (exists) {
+			var tmppubkey = ursaED.loadPubKeySync('./key/users/'+IPSET.UID+'.pem');
+			/********************************************************
+				A should be replaced by the local account
+				********************************************************/
+			var enmsg = encapsuMSG(MSG,"Chat","A",ACCOUNT,tmppubkey);
+			console.log(enmsg);
+			sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
+		}else{
+			console.log("Pubkey of device: "+IPSET.UID+" in "+ACCOUNT+" doesn't exist , request from server!");
+		};
+	});
 }
 
 /*
