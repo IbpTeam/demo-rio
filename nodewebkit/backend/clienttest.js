@@ -3,7 +3,7 @@ var ursaED = require('./ursaED');
 var imchat = require('./IMChat.js');
 var fs = require('fs');
 
-
+/*
 var keySizeBits = 1024;
 var size = 65537;
 
@@ -17,12 +17,11 @@ var msg = imchat.encapsuMSG("Hello!","Chat","A","B",pubKey);
 
 console.log(msg);
  
-
-
-
 imchat.sendIMMsg("127.0.0.1",8892,msg,keyPair);
 
-/*
+
+*/
+
 var table = imchat.createAccountTable();
 
 table = imchat.insertAccount(table,"rtty123","192.168.1.122","34234324r34rerfe45r4");
@@ -35,12 +34,8 @@ IP.forEach(function (row) {
   console.log(row.UID);
 });
 
-table = imchat.removeAccountIP(table,"rtty123","192.168.1.122");
 
- IP = imchat.getIP(table,"rtty123");
+imchat.sendMSGbyAccount(table,"rtty123","sd",2323);
+//table = imchat.removeAccountIP(table,"rtty123","192.168.1.122");
 
-IP.forEach(function (row) {
-  console.log(row.IP);
-  console.log(row.UID);
-});
-*/
+ //IP = imchat.getIP(table,"rtty123");

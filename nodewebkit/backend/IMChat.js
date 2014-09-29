@@ -5,7 +5,10 @@ var dboper = require('./DAO/IMChatDao.js');
 var fs = require('fs');
 var ursa = require('./newUrsa');
 var ursaED = require('./ursaED');
+var account = require('./account');
+
 var keySizeBits = 1024;
+var size = 65537;
 
 
 /*
@@ -227,10 +230,14 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 	*/
 	for (var i = 0; i < ipset.length; i++) 
 	{
-		sendIMMSG(ipset[i],IP,PORT,keyPair);
+		//sendIMMSG(ipset[i],IP,PORT,keyPair);
+		console.log("sending "+ipset[i].UID+ " in account "+ACCOUNT);
+		fs.exists('./key/users/'+ipset[i].UID+'.pem',function(exists){
+			console.log(exists? "exist" : "doesn't exist");
+		});
 	};
 
-	console.log("send " + ipset.length + "IPs in "+ ACCOUNT + "Success!");
+	console.log("send " + ipset.length + " IPs in "+ ACCOUNT);
 }
 
 /*
