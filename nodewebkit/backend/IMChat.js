@@ -234,7 +234,7 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 	};
 
 	var localkeyPair =  ursaED.loadPriKeySync('./key/priKey.pem');
-
+	//var localkeyPair =  ursaED.initSelfRSAKeys('./key/priKey.pem','./key/pubKey.pem');
 	/*
 	MSG already be capsuled by encapsuMSG function
 	*/
@@ -252,7 +252,7 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
 	fs.exists('./key/users/'+IPSET.UID+'.pem',function(exists){
 		if (exists) {
 			var tmppubkey = ursaED.loadPubKeySync('./key/users/'+IPSET.UID+'.pem');
-			/********************************************************
+			/************************************************************
 				A should be replaced by the local account
 				********************************************************/
 			var enmsg = encapsuMSG(MSG,"Chat","A",ACCOUNT,tmppubkey);
@@ -260,8 +260,29 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
 			sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
 		}else{
 			console.log("Pubkey of device: "+IPSET.UID+" in "+ACCOUNT+" doesn't exist , request from server!");
+			var serverKeyPair = ursaED.loadServerKey('./key/serverKey.pem');
+			account.getPubKeysByName('fyf','Linux Mint','fyf',LOCALPAIR,serverKeyPair,function(msg){
+    			console.log(JSON.stringify(msg.data.detail));
+  				msg.data.detail.forEach(function (row) {		
+	    			if (row.UUID == IPSET.UID) {
+	    				//console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
+	    				savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey);
+	    				//console.log(row.pubKey);
+	    			}; 	    
+	  			});	      
+			});
 		};
 	});
+}
+
+function savePubkey(SAVEPATH,PUBKEY){
+	fs.appendFile(SAVEPATH,PUBKEY,'utf8',function(err){
+          if (err) {
+          console.log("savepriKey Error: "+err);
+        }else{
+          console.log("savepriKey successful");
+        }
+      });
 }
 
 /*
