@@ -44,7 +44,7 @@ exports.repoInit = function (repoPath,callback)
   });  
 }
 
-exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback)
+exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git add '+utils.parsePath(sourceFilePath) +' && git add '+utils.parsePath(desFilePath) +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
@@ -55,12 +55,12 @@ exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback)
     }
     else{
       console.log("Git add success");
-      callback();
+      callback(lastCallback);
     }
   });
 }
 
-exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback)
+exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
@@ -71,12 +71,12 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback)
     }
     else{
       console.log("Git rm success");
-      callback();
+      callback(lastCallback);
     }
   });
 }
 
-exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback)
+exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
@@ -87,7 +87,7 @@ exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback)
     }
     else{
       console.log("Git change success");
-      callback();
+      callback(lastCallback);
     }
   });
 }
