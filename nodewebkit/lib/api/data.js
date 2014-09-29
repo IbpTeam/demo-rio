@@ -1,10 +1,12 @@
 var commonDAO = require("../../backend/DAO/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
+var utils = require("../../backend/utils");
 var contacts = require("../../backend/contacts");
 var devices =  require("../../backend/devices");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
+var path = require('path');
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
@@ -213,6 +215,12 @@ exports.pullFromOtherRepo = pullFromOtherRepo;
 //返回类型：成功返回success;失败返回失败原因
 function pasteFile(pasteFileCb, sourcePath, desPath){
   console.log("Request handler 'pasteFile' was called.");
+  if(sourcePath.indexOf(desPath) != -1){
+    var filename = path.basename(sourcePath);
+    var postfix = path.extname(filename);
+    filename = path.basename(sourcePath, postfix);
+    desPath = utils.parsePath(desPath + '/' + filename + '_copy' + postfix);
+  }
   var sourcePathNew = utils.parsePath(sourcePath);
   console.log("cp "+sourcePathNew+" "+desPath);
   cp.exec("cp "+sourcePathNew+" "+desPath, function (error, stdout, stderr) {
