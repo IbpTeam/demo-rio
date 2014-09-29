@@ -16,7 +16,7 @@ var uniqueID = require("./uniqueID");
 
 function pickTags(oTag,rePos,path){
 	if(path.length <= 2){
-		return ;
+		return;
 	}
 	var sStartPart = path.slice(rePos,path.length);
 	var startPos = sStartPart.indexOf('/');
@@ -24,7 +24,6 @@ function pickTags(oTag,rePos,path){
 		return;
 	}
 	var sTag = sStartPart.substring(0,startPos);
-	//console.log("******************my tag: "+sTag);
 	oTag.push(sTag);
 	var sNewStart = sStartPart.slice(startPos+1,sStartPart.length);
 	pickTags(oTag,0,sNewStart);
@@ -37,7 +36,7 @@ function getTagsByPath(path){
 	var reContacts = path.search(/contact/i);
 	var reMusic = path.search(/music/i);
 	var reDocuments = path.search(/document/i);
-	var rePictures = path.search(/picture|photo|\u56fe/);
+	var rePictures = path.search(/picture|photo|\u56fe/i);
 	var reVideos = path.search(/video/i);
 	if(reContacts>-1){
 		pickTags(oTags,reContacts,path);
@@ -57,3 +56,23 @@ function getTagsByPath(path){
 	return oTags;
 }
 exports.getTagsByPath = getTagsByPath;
+
+function getAllTags(callback){
+	var TagFile = {};
+	function findItemsCb(err,items){
+		if(err){
+			console.log(err);
+			return;
+		}
+		for(var k in items){
+			if(TagFile.hasOwnProperty(items[k].tag)){
+				TagFile[items[k].tag].push(items[k].file_URI);
+			}else{
+				TagFile[items[k].tag] = [items[k].file_URI];
+			}
+			callback(TagFile);
+		}
+	}
+	commonDAO.findItems(null,['tags'],null,null,findItemsCb)
+}
+exports.getAllTags = getAllTags;

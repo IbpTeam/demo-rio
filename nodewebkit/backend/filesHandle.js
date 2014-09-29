@@ -722,7 +722,7 @@ function initData(loadResourcesCb,resourcePath){
           var item ={
             category:"tags",
             tag:oTags[k],
-            file_uri:oNewItem.URI
+            file_URI:oNewItem.URI
           }
           oNewItems.push(item);
         }
