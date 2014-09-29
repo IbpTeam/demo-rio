@@ -552,7 +552,7 @@ function chFile(path){
  *        }
  */
 function getAllCate(getAllCb) {
-  tagsHandles.getAllTagsByCategory('documents',function(err,items){
+  tagsHandles.getAllTagsByCategory('documents',function(items){
     console.log(items);
   })
   function getCategoriesCb(err,items)

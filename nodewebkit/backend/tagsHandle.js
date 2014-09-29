@@ -14,6 +14,21 @@ var events = require('events');
 var csvtojson = require('./csvTojson');
 var uniqueID = require("./uniqueID");
 
+/**
+ * @method pickTags
+ *   pick possible tags from path
+ *   this will check the string between each two "/"
+ *
+ * @param1 oTag
+ *		object, to store tags we picked
+ * 	
+ * @param2 rePos 
+ *		the regExp position in the path string
+ *
+ * @param2 path
+ *		string, the target path of data
+ * 
+ */
 function pickTags(oTag,rePos,path){
 	if(path.length <= 2){
 		return;
@@ -29,6 +44,15 @@ function pickTags(oTag,rePos,path){
 	pickTags(oTag,0,sNewStart);
 }
 
+/**
+ * @method getTagsByPath
+ *   get tags from a path
+ *   return an array of tags
+ *
+ * @param path
+ *		string, the target path of data
+ * 
+ */
 function getTagsByPath(path){
 	var oTags = [];
 	var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
@@ -39,6 +63,17 @@ function getTagsByPath(path){
 }
 exports.getTagsByPath = getTagsByPath;
 
+/**
+ * @method getAllTagsByCategory
+ *   get all tags of specific category
+ *
+ * @param1 category
+ *		string, a spcific category we want
+ * 
+ * @param2 callback
+ * 		all result in array
+ *
+ */
 function getAllTagsByCategory(category,callback){
 	var TagFile = {tags:[],tagFiles:{}};
 	function findItemsCb(err,items){
@@ -47,21 +82,37 @@ function getAllTagsByCategory(category,callback){
 			return;
 		}
 		for(var k in items){
-			for(var j in items[k].others){
-				if(TagFile.tagFiles.hasOwnProperty(items[k].others[j])){
-					TagFile.tagFiles[items[k].others[j]].push([items[k].URI,items[k].filename]);
+			items[k].others = (items[k].others).split(",");
+			var oItem = items[k];
+			for(var j in oItem.others){
+				var sTag = oItem.others[j];
+				var sUri = oItem.URI;
+				var sFilename = oItem.filename;
+				if(sTag != null && sTag != ""){
+					if(TagFile.tagFiles.hasOwnProperty(sTag)){
+						TagFile.tagFiles[sTag].push([sUri,sFilename]);
+					}else{
+						TagFile.tagFiles[sTag] = [[sUri,sFilename]];
+						TagFile.tags.push(sTag);
+					}
 				}
-
 			}
-
-
 		}
-		callback(tags);
+		callback(TagFile);
 	}
 	commonDAO.findItems(['others','filename','uri'],[category],null,null,findItemsCb);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
+
+/**
+ * @method getAllTags
+ *   get all tags in db
+ * 
+ * @param callback
+ * 		all result in array
+ *
+ */
 function getAllTags(callback){
 	var TagFile = {};
 	function findItemsCb(err,items){
