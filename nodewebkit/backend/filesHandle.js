@@ -93,7 +93,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var mtime=stat.mtime;
     var ctime=stat.ctime;
     var size=stat.size;
-    var cate=getCategory(itemPath);
+    var cate=getCategory(itemPath);P
     var category=cate.category;
     var itemFilename=cate.filename;
     var itemPostfix=cate.postfix;
@@ -552,6 +552,9 @@ function chFile(path){
  *        }
  */
 function getAllCate(getAllCb) {
+  tagsHandles.getAllTagsByCategory('documents',function(err,items){
+    console.log(items);
+  })
   function getCategoriesCb(err,items)
   {
     if(err){

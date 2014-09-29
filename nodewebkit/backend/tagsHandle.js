@@ -29,33 +29,38 @@ function pickTags(oTag,rePos,path){
 	pickTags(oTag,0,sNewStart);
 }
 
-
-
 function getTagsByPath(path){
 	var oTags = [];
-	var reContacts = path.search(/contact/i);
-	var reMusic = path.search(/music/i);
-	var reDocuments = path.search(/document/i);
-	var rePictures = path.search(/picture|photo|\u56fe/i);
-	var reVideos = path.search(/video/i);
-	if(reContacts>-1){
-		pickTags(oTags,reContacts,path);
-	}
-	if(reMusic>-1){
-		pickTags(oTags,reMusic,path);
-	}
-	if(rePictures>-1){
-		pickTags(oTags,rePictures,path);
-	}
-	if(reDocuments>-1){
-		pickTags(oTags,reDocuments,path);
-	}
-	if(reVideos>-1){
-		pickTags(oTags,reVideos,path);
+	var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
+	if(regPos>-1){
+		pickTags(oTags,regPos,path);
 	}
 	return oTags;
 }
 exports.getTagsByPath = getTagsByPath;
+
+function getAllTagsByCategory(category,callback){
+	var TagFile = {tags:[],tagFiles:{}};
+	function findItemsCb(err,items){
+		if(err){
+			console.log(err);
+			return;
+		}
+		for(var k in items){
+			for(var j in items[k].others){
+				if(TagFile.tagFiles.hasOwnProperty(items[k].others[j])){
+					TagFile.tagFiles[items[k].others[j]].push([items[k].URI,items[k].filename]);
+				}
+
+			}
+
+
+		}
+		callback(tags);
+	}
+	commonDAO.findItems(['others','filename','uri'],[category],null,null,findItemsCb);
+}
+exports.getAllTagsByCategory = getAllTagsByCategory;
 
 function getAllTags(callback){
 	var TagFile = {};
