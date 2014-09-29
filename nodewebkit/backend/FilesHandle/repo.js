@@ -139,6 +139,7 @@ exports.pullFromOtherRepo = function (address,path,callback)
     console.log(stdout+stderr);
     filesHandle.isPulledFile=false;
     //filesHandle.watcherStart(dataDir,filesHandle.monitorFilesCb);
+    callback();
   });
 }
 
