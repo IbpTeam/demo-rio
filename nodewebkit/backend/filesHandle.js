@@ -617,7 +617,9 @@ function getAllDataByCate(getAllData,cate) {
       });
       getAllData(cates);
     }
-    commonDAO.findItems(null,cate,null,null,getAllByCaterotyCb);
+    var cateArray = new Array();
+    cateArray.push(cate);
+    commonDAO.findItems(null,cateArray,null,null,getAllByCaterotyCb);
 }
 exports.getAllDataByCate = getAllDataByCate;
 
