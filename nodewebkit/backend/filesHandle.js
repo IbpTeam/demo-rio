@@ -897,29 +897,43 @@ function getDataSourceByUri(getDataSourceCb,uri){
       }
       getDataSourceCb(source);
 
-      function updateItemValueCb(result){
-        config.riolog("update DB: "+ result);
-        if(result!='commit'){
-          console.log("Error : updateItems result : "+ result);
-          return;
-        }
-        else{
-          console.log("success");
-        }
-      }
+      // function updateItemValueCb(result){
+      //   config.riolog("update DB: "+ result);
+      //   if(result!='commit'){
+      //     console.log("Error : updateItems result : "+ result);
+      //     return;
+      //   }
+      //   else{
+      //     dataDes.updateItem()
+      //     console.log("success");
+      //   }
+      // }
 
       var currentTime = (new Date()).getTime();
       config.riolog("time: "+ currentTime);
       var updateItem = item;
-      console.log(updateItem);
+      //console.log(updateItem);
       updateItem.lastAccessTime = currentTime;
       var item_uri = item.URI;
       var pos = (item_uri).lastIndexOf("#");
       var sTableName = (item_uri).slice(pos+1,updateItem.length);
       updateItem.category = sTableName;
 
-      console.log(updateItem);
-      commonDAO.updateItems([updateItem],updateItemValueCb);
+      //console.log(updateItem);
+      commonDAO.updateItems([updateItem],function (result){
+        config.riolog("update DB: "+ result);
+        if(result!='commit'){
+          console.log("Error : updateItems result : "+ result);
+          return;
+        }
+        else{
+          var desFilePath;
+          dataDes.updateItem(updateItem.path,{lastAccessTime:currentTime},desFilePath,function(_result){
+            getItemByUriCb(_result);
+          })
+          console.log("success");
+        }
+      });
     }
   }
   var pos = uri.lastIndexOf("#");

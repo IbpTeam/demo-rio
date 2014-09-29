@@ -132,3 +132,29 @@ function getAllTags(callback){
 	commonDAO.findItems(null,['tags'],null,null,findItemsCb)
 }
 exports.getAllTags = getAllTags;
+
+/**
+ * @method getAllTags
+ *   get all tags in db
+ * 
+ * @param callback
+ * 		all result in array
+ *
+ */
+function setTagByUri(oTags,oUri,callback){
+  function findItemsCb(err,items){
+  	if(err){
+  		console.log(err);
+  		return;
+  	}
+  	for(var k in items){
+  		items[k].others = (items[k].others).concat(oTags.join(","));
+  	}
+  	updateItems(items,callback);
+  }
+
+	for(var k in oUri){
+		//commonDAO.findItems(null,,,null,findItemsCb)
+	}
+}
+exports.setTagByUri = setTagByUri;
