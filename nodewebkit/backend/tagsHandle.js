@@ -150,11 +150,15 @@ function setTagByUri(oTags,oUri,callback){
   	for(var k in items){
   		items[k].others = (items[k].others).concat(oTags.join(","));
   	}
-  	updateItems(items,callback);
+  	//to be continue
+  	//updateItems(items,callback);
   }
 
 	for(var k in oUri){
-		//commonDAO.findItems(null,,,null,findItemsCb)
+
+	  var pos = oUri[k].lastIndexOf("#");
+  	var sTableName = uri.slice(pos+1,oUri[k].length);
+		commonDAO.findItems(null,[sTableName],null,null,findItemsCb)
 	}
 }
 exports.setTagByUri = setTagByUri;
