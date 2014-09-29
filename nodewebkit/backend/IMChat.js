@@ -42,31 +42,33 @@ function initIMServer(){
 	var remoteAD = c.remoteAddress;
 	var remotePT = c.remotePort;
 
-	c.on('data', function(msgStr) {
-		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStr);
+	c.on('data', function(msgStri) {
+		console.log('data from :' + remoteAD+ ': ' + remotePT+ ' ' + msgStri);
 		/*
 		keyPair to be intergrated by Account Server
 		keyPair should be loaded by local account
 		*/
+		var  msgStr = JSON.parse(msgStri);
 		try{
-			var decrypteds = ursaED.decrypt(keyPair,msgStr.toString('utf-8'), keySizeBits/8);
+			var decrypteds = ursaED.decrypt(keyPair,msgStr[0].content.toString('utf-8'), keySizeBits/8);
 			console.log('解密：'+decrypteds);
 			var msgObj = JSON.parse(decrypteds);
-			console.log('MSG type:' + msgObj[0].type);
-			switch(msgObj[0].type){
+			console.log(msgObj);
+			console.log('MSG type:' + msgObj.type);
+			switch(msgObj.type){
 				case 'Chat': {
-					console.log(msgObj[0].message);
+					console.log(msgObj.message);
 					var msgtime = new Date();
-					msgtime.setTime(msgObj[0].time);
+					msgtime.setTime(msgObj.time);
 					console.log(msgtime);
 					//console.log("=========================================");
 					//output message and save to database
 					//return success
-					dboper.dbrecvInsert(msgObj[0].from,msgObj[0].to,msgObj[0].message,msgObj[0].type,msgObj[0].time,function(){
+					dboper.dbrecvInsert(msgObj.from,msgObj.to,msgObj.message,msgObj.type,msgObj.time,function(){
 					console.log("insert into db success!");
 				});
 				//console.log("pubkey is "+pubKey);
-				var tp = encapsuMSG(MD5(msgObj[0].message),"Reply","A","B",pubKey);
+				var tp = encapsuMSG(MD5(msgObj.message),"Reply","A","B",pubKey);
 				c.write(tp);
 			}
 			break;
@@ -82,6 +84,7 @@ function initIMServer(){
 			}
 		}catch(err){
 			console.log("sender pubkey error, change pubkey and try again");
+			console.log(err);
 		}
 		
     		
@@ -123,11 +126,11 @@ function initIMServer(){
 * @return null
 *  没有返回值
 */
-function sendIMMsg(IP,PORT,MSG,KEYPAIR){
+function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
 	var count = 0;
 	var id =0;
-
-	var dec = ursaED.decrypt(KEYPAIR,MSG, keySizeBits/8);
+	var MSG = JSON.parse(SENDMSG);
+	var dec = ursaED.decrypt(KEYPAIR,MSG[0].content, keySizeBits/8);
 
 	var  pat = JSON.parse(dec);
 
@@ -138,14 +141,14 @@ function sendIMMsg(IP,PORT,MSG,KEYPAIR){
 
 	var  client = new net.Socket();
 	client.connect(PORT,IP,function(){
-		client.write(MSG,function(){
+		client.write(SENDMSG,function(){
 		});
 	});
 
-	id =  setInterval(function(C,MSG){
+	id =  setInterval(function(C,SENDMSG){
 	if (count <5) 
 	{
-		C.write(MSG);
+		C.write(SENDMSG);
 		count++;
 	}else
 	{
@@ -155,25 +158,26 @@ function sendIMMsg(IP,PORT,MSG,KEYPAIR){
 	
 	},1000,client,MSG);
 
-	client.on('data',function(RPLY){
-		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+RPLY);
+	client.on('data',function(REPLY){
+		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+REPLY);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		///////////////this part should be replaced by local prikey//////////////////////////////
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		var RPLY = JSON.parse(REPLY);
 		var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
-		var decrply = ursaED.decrypt(keyPair,RPLY.toString('utf-8'), keySizeBits/8);
+		var decrply = ursaED.decrypt(keyPair,RPLY[0].content.toString('utf-8'), keySizeBits/8);
 		console.log("decry message:"+decrply);
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		var  msg = JSON.parse(decrply);
-		switch(msg[0].type)
+		switch(msg.type)
 		{
 			case 'Reply': 
 			{
-				if (msg[0].message == MD5(pat[0].message))
+				if (msg.message == MD5(pat.message))
 				{
 					var msgtp = pat;
-					console.log('msg rply received: '+ msg[0].message);
-					dboper.dbsentInsert(msgtp[0].from,msgtp[0].to,msgtp[0].message,msgtp[0].type,msgtp[0].time,function(){
+					console.log('msg rply received: '+ msg.message);
+					dboper.dbsentInsert(msgtp.from,msgtp.to,msgtp.message,msgtp.type,msgtp.time,function(){
 						console.log("sent message insert into db success!");
 					});
 					clearInterval(id);
@@ -247,8 +251,11 @@ function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
 {
 	var MESSAGE = [];
 	var tmp = {};
+	var restmp = {};
 	var now = new Date();
 	var pubkeyPair = ursa.createKey(PUBKEY);
+	restmp['type'] = TYPE;
+	restmp['content'] = '';
 
 	switch(TYPE)
 	{
@@ -258,10 +265,8 @@ function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
 			tmp["message"] = MSG;
 			tmp['type'] = TYPE;
 			tmp['time'] = now.getTime();
-			MESSAGE.push(tmp);
-			var send = JSON.stringify(MESSAGE);
-			var encryptedmsg = ursaED.encrypt(pubkeyPair ,send, keySizeBits/8);
-			return encryptedmsg;
+			var content = JSON.stringify(tmp);
+			restmp['content'] = ursaED.encrypt(pubkeyPair ,content, keySizeBits/8);
 		}
 		break;
 		case'Reply':{
@@ -270,15 +275,17 @@ function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
 			tmp["message"] = MSG;
 			tmp["type"] = TYPE;
 			tmp['time'] = now.getTime();
-			MESSAGE.push(tmp);
-			var rply = JSON.stringify(MESSAGE);
-			var encryptedmsg = ursaED.encrypt(pubkeyPair ,rply, keySizeBits/8);
-			return encryptedmsg;
+			var content = JSON.stringify(tmp);
+			restmp['content'] = ursaED.encrypt(pubkeyPair ,content, keySizeBits/8);
 		}
 		default:{
 
 		}
 	}
+
+	MESSAGE.push(restmp);
+	var send = JSON.stringify(MESSAGE);
+	return send;
 }
 
 /*
