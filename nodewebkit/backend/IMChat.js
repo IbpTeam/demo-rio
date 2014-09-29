@@ -148,18 +148,26 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
 		});
 	});
 
-	id =  setInterval(function(C,SENDMSG){
-	if (count <5) 
-	{
-		C.write(SENDMSG);
-		count++;
-	}else
-	{
-		clearInterval(id);
-		console.log("Send message error: no reply ");
-	};
-	
+	client.setTimeout(3000,function(){
+		console.log("connect time out");
+		client.close();
+	});
+
+	client.on('connect',function(){
+		id =  setInterval(function(C,SENDMSG){
+		if (count <5) 
+		{
+			C.write(SENDMSG);
+			count++;
+		}else
+		{
+			clearInterval(id);
+			console.log("Send message error: no reply ");
+		};
+
 	},1000,client,MSG);
+	});
+	
 
 	client.on('data',function(REPLY){
 		console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+REPLY);
