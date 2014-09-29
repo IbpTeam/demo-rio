@@ -19,13 +19,14 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
-var commonDAO = require("./DAO/CommonDAO")
+var commonDAO = require("./DAO/CommonDAO");
 var resourceRepo = require("./FilesHandle/repo");
 var device = require("./devices");
 var util = require('util');
 var events = require('events'); 
 var csvtojson = require('./csvTojson');
 var uniqueID = require("./uniqueID");
+var tagsHandles = require("./tagsHandle");
 
 var writeDbNum=0;
 var dataPath;
@@ -96,7 +97,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var category=cate.category;
     var itemFilename=cate.filename;
     var itemPostfix=cate.postfix;
-
+    var someTags = tagsHandles.getTagsByPath(itemPath);
     switch (category) {
       case "Documents":{
         uniqueID.getFileUid(function(uri){
@@ -107,7 +108,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             commit_id: null,
             version:null,
             is_delete:0,
-            others:null,
+            others:someTags.join(","),
             filename:itemFilename,
             postfix:itemPostfix,
             size:size,
@@ -132,6 +133,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             commit_id: null,
             version:null,
             is_delete:0,
+            others:someTags.join(","),
             postfix:itemPostfix,
             filename:itemFilename,
             id:null,
@@ -141,7 +143,6 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
-            others:null,
           };
           function createItemCb(){
             callback(isLoadEnd,oNewItem);
@@ -159,7 +160,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             commit_id: null,
             version:null,
             is_delete:0,
-            others:null,
+            others:someTags.join(","),
             filename:itemFilename,
             postfix:itemPostfix,
             size:size,
@@ -717,6 +718,17 @@ function initData(loadResourcesCb,resourcePath){
       var isLoadEnd = (k == (fileList.length-1));
       addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
         oNewItems.push(oNewItem);
+
+        var oTags = (oNewItem.others).split(",");
+        for(var k in oTags){
+          var item ={
+            category:"tags",
+            tag:oTags[k],
+            file_uri:oNewItem.URI
+          }
+          oNewItems.push(item);
+        }
+
         if(isLoadEnd){
           isEndCallback();
           commonDAO.createItems(oNewItems,function(result){
