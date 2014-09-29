@@ -57,6 +57,7 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
     var category = 'Contacts';
     var currentTime = (new Date()).getTime();
     Item.path = "/home/xiquan/resources/contacts";
+    Item.desPath = sItemDesPath;
     Item.name = Item["\u59D3"];
     Item.currentTime = currentTime;
     Item.URI = uri + "#" + category;
