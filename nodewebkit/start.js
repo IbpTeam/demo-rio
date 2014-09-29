@@ -75,12 +75,14 @@ function initializeApp(){
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
   var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
+  var bIsConfExist = false;
   console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
   fs.exists(sConfigPath, function (configExists) {
     if(!configExists){
       console.log("No data777777777777777777777777777");
     }else{
+      bIsConfExist = true;
       var dataDir=require(sConfigPath).dataDir;
       config.RESOURCEPATH=dataDir;
       util.log("monitor : "+dataDir);
@@ -91,7 +93,8 @@ function initializeApp(){
         console.log("UniqueID.js is not exists, start to set sys uid.");
         setSysUid(null,sUniqueIDPath,function(){
           initDatabase(sDatabasePath,function(){
-            device.startDeviceDiscoveryService();
+            if(bIsConfExist)
+              device.startDeviceDiscoveryService();
           });
         });
         return;
@@ -100,7 +103,8 @@ function initializeApp(){
       var deviceID=require(sUniqueIDPath).uniqueID;
       setSysUid(deviceID,sUniqueIDPath,function(){
           initDatabase(sDatabasePath,function(){
-            device.startDeviceDiscoveryService();
+            if(bIsConfExist)
+              device.startDeviceDiscoveryService();
           });
       });
     });
