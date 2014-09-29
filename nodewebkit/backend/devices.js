@@ -74,11 +74,11 @@ function rmDevice(device){
   console.log(devicesList[device.device_id]);
   devicesList[device.device_id].online=false;
   devicesList[device.device_id].sync=false;
-        console.log("----------------------devicesList:-----------------------");
+      /*  console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("**********************************************************");
+      console.log("**********************************************************");*/
 }
 exports.addDevice = addDevice;
 
@@ -118,6 +118,10 @@ function startDeviceDiscoveryService(){
       var name = config.SERVERNAME;
       var port = config.MDNSPORT;
       var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
+      console.log("************************************");
+      console.log(txtarray);
+            console.log("************************************");
+
       mdns.entryGroupCommit(name,  port, txtarray);
     });
 //  });

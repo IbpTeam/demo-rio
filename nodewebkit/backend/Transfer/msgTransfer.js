@@ -99,14 +99,15 @@ function connServer(socket){
  */
 function sendMsg(address,msgObj){
   console.log("--------------------------"+address);
-  var msgStr = JSON.stringify(msgObj);
-  var socket = new WebSocket('http://'+address+':'+config.MSGPORT);
   if (address == config.SERVERIP) {
 	console.log("Input IP is localhost!");
 	return;
   };
+  var msgStr = JSON.stringify(msgObj);
+  var socket = new WebSocket('http://'+address+':'+config.MSGPORT);
 
   socket.on('open', function() {
+  	console.log("SEND MSG +++++++++++++++++++++++++++++++++"+msgStr);
 	socket.send(msgStr);
   });
   socket.on('error',function(err){
@@ -123,8 +124,12 @@ function sendMsg(address,msgObj){
  */
 exports.serviceUpCb = function(device){
   var sDeviceId = device.device_id;
-  if(sDeviceId.localeCompare(config.uniqueID) <= 0)
-    return;
+  //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
+  //  return;
+  if(sDeviceId != "192.168.160.72"){
+  	console.log("device id :=================== " + sDeviceId);
+  	return;
+  }
   switch(iCurrentState){
   	case syncState.SYNC_IDLE:{
   	  syncList.unshift(sDeviceId);
@@ -135,8 +140,9 @@ exports.serviceUpCb = function(device){
   	  	account:config.ACCOUNT,
   	  	deviceId:config.uniqueID
   	  };
+  	  console.log("SERVER UP CB-------------------------"+device.ip);
   	  sendMsg(device.ip,requestMsg);
-  	  iCurrentState = syncState.SYNC_REQUEST;
+  	  //iCurrentState = syncState.SYNC_REQUEST;
   	  break;
   	}
   	case syncState.SYNC_REQUEST:{
@@ -183,6 +189,7 @@ function syncRequestCb(msgObj,remoteAddress){
   	  	  type:msgType.TYPE_COMPLETE,
   	  	  ip:config.SERVERIP
         };
+  	  console.log("syncRequestCb-------------------------"+device.ip);
         sendMsg(remoteAddress,completeMsg);
       });
       break;
@@ -229,6 +236,7 @@ function syncResponseCb(msgObj,remoteAddress){
   	  		type:msgType.TYPE_COMPLETE,
   	  		ip:config.SERVERIP
           };
+  	  console.log("syncResponseCb-------------------------"+device.ip);
           sendMsg(remoteAddress,completeMsg);
         });
       }
@@ -272,6 +280,7 @@ function syncCompleteCb(msgObj,remoteAddress){
   	  	type:msgType.TYPE_COMPLETE,
   	  	ip:config.SERVERIP
   	  };
+  	  console.log("syncResponseCb-------------------------"+device.ip);
   	  sendMsg(remoteAddress,completeMsg);
   	  iCurrentState = syncState.SYNC_IDLE;
   	  break;
