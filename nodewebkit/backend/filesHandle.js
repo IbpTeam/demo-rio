@@ -571,9 +571,6 @@ exports.chFile = chFile;
  *        }
  */
 function getAllCate(getAllCb) {
-  tagsHandles.getAllTagsByCategory('documents',function(items){
-    console.log(items);
-  })
   function getCategoriesCb(err,items)
   {
     if(err){
