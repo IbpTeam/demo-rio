@@ -215,11 +215,14 @@ exports.pullFromOtherRepo = pullFromOtherRepo;
 //返回类型：成功返回success;失败返回失败原因
 function pasteFile(pasteFileCb, sourcePath, desPath){
   console.log("Request handler 'pasteFile' was called.");
+  var filename = path.basename(sourcePath);
+  var postfix = path.extname(filename);
   if(sourcePath.indexOf(desPath) != -1){
-    var filename = path.basename(sourcePath);
-    var postfix = path.extname(filename);
     filename = path.basename(sourcePath, postfix);
     desPath = utils.parsePath(desPath + '/' + filename + '_copy' + postfix);
+  }
+  else{
+    desPath = utils.parsePath(desPath + '/' + filename);
   }
   var sourcePathNew = utils.parsePath(sourcePath);
   cp.exec("cp "+sourcePathNew+" "+desPath, function (error, stdout, stderr) {
@@ -227,7 +230,7 @@ function pasteFile(pasteFileCb, sourcePath, desPath){
       console.log('exec error: ' + error);
       pasteFileCb(false);
     }
-    pasteFileCb(true);
+    filesHandle.addFile(desPath, pasteFileCb(true));
   });
 }
 exports.pasteFile = pasteFile;
