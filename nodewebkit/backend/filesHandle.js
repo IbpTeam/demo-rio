@@ -642,7 +642,8 @@ function getAllDataByCate(getAllData,cate) {
     }
     var cateArray = new Array();
     cateArray.push(cate);
-    commonDAO.findItems(null,cateArray,null,null,getAllByCaterotyCb);
+    var conditions = ["is_delete = 0"];
+    commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
 }
 exports.getAllDataByCate = getAllDataByCate;
 
