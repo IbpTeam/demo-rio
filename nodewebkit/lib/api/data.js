@@ -215,23 +215,41 @@ exports.pullFromOtherRepo = pullFromOtherRepo;
 //返回类型：成功返回success;失败返回失败原因
 function pasteFile(pasteFileCb, sourcePath, desPath){
   console.log("Request handler 'pasteFile' was called.");
+  var filename = path.basename(sourcePath);
+  var postfix = path.extname(filename);
   if(sourcePath.indexOf(desPath) != -1){
-    var filename = path.basename(sourcePath);
-    var postfix = path.extname(filename);
     filename = path.basename(sourcePath, postfix);
     desPath = utils.parsePath(desPath + '/' + filename + '_copy' + postfix);
   }
+  else{
+    desPath = utils.parsePath(desPath + '/' + filename);
+  }
   var sourcePathNew = utils.parsePath(sourcePath);
-  console.log("cp "+sourcePathNew+" "+desPath);
   cp.exec("cp "+sourcePathNew+" "+desPath, function (error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       pasteFileCb(false);
     }
-    pasteFileCb(true);
+    filesHandle.addFile(desPath, pasteFileCb(true));
   });
 }
 exports.pasteFile = pasteFile;
+
+//API createFile:新建一个文档
+//参数：新建文档的类型，以及新建文档的路径
+//返回类型：成功返回success;失败返回失败原因
+function createFile(creatFileCb, filePostfix, desPath){
+  console.log("Request handler 'createFile' was called.");
+  desPath = utils.parsePath(desPath + '/NewFile.' + filePostfix);
+  cp.exec("touch "+desPath, function (error, stdout, stderr) {
+    if (error !== null) {
+      console.log('exec error: ' + error);
+      creatFileCb(false);
+    }
+    creatFileCb(true);
+  });
+}
+exports.createFile = createFile;
 
 //API getResourceDataDir:获得resource数据路径
 //返回类型：
