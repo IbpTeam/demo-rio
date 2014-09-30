@@ -93,7 +93,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
     var mtime=stat.mtime;
     var ctime=stat.ctime;
     var size=stat.size;
-    var cate=getCategory(itemPath);P
+    var cate=getCategory(itemPath);
     var category=cate.category;
     var itemFilename=cate.filename;
     var itemPostfix=cate.postfix;
