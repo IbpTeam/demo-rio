@@ -88,21 +88,15 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
   uniqueID.getFileUid(getFileUidCb);
 }
 
-function initContacts(loadResourcesCb,resourcePath){
+function initContacts(loadContactsCb,resourcePath){
   config.riolog("initContacts ..............");
-  var sItemPath=resourcePath;
-  var dataPath = resourcePath;
-  var pointIndex=sItemPath.lastIndexOf('.');
-  if(pointIndex == -1){
-    console.log("ERROR : illeagle csv file!");
+  var dirCSV = fs.readdirSync(resourcePath);
+  if(dirCSV.length != 1){
+    console.log("CSV file error!");
     return;
-  }else{
-    var itemPostfix=sItemPath.substr(pointIndex+1);
-    if(itemPostfix != "CSV" && itemPostfix != "csv"){
-      console.log("ERROR : illeagle csv file!");
-      return;
-    }
   }
+  var csvFilename = dirCSV[0];
+  var sItemPath = resourcePath + "/" + csvFilename;
   function csvTojsonCb(json){
     var oJson = JSON.parse(json);
     var oContacts = new Array();
@@ -119,7 +113,7 @@ function initContacts(loadResourcesCb,resourcePath){
         return;
       }else{
         function isEndCallback(){
-          resourceRepo.repoContactInit(config.RESOURCEPATH,loadResourcesCb);
+          resourceRepo.repoContactInit(config.RESOURCEPATH,loadContactsCb);
         }
         var oNewItems = new Array();
         function addContactCb(isContactEnd,oContact){

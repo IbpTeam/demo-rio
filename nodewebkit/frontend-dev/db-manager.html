@@ -38,6 +38,7 @@ function loadResources(loadResourcesCb,path) {
     }
     $("body").css("cursor", "wait");
     console.log("Insert data to database...");
+    $('div#contact_add #btn_choose').css({"display":"inline"});
     //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
     data.loadResources(loadResourcesCb,path);
   });
@@ -50,7 +51,7 @@ function loadResources(loadResourcesCb,path) {
 function loadContact(loadContactsCb,path) {
   WDC.requireAPI(['data'], function(data){
     if(!path){
-        path = $('div#contact_add #dir_path').text();
+        path = $('div#contact_add #dir_contact_path').text();
     }
     $("body").css("cursor", "wait");
     console.log("Insert contact to database...");
@@ -71,7 +72,7 @@ function chooseFile(name) {
       $('div#db_add #dir_path').text(dir);
       $('div#db_add #btn_insert').css({"display":"inline"});
       $('div#db_add #btn_choose').val("重新选择路径");
-      $('div#contact_add #btn_choose').css({"display":"inline"});
+
     }
   }, false);
   chooser.click();
