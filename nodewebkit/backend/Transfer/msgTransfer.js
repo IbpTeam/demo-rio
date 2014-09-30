@@ -37,9 +37,9 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  var server = new WebSocketServer({port: config.MSGPORT});
+/*  var server = new WebSocketServer({port: config.MSGPORT});
   // Add listener on event connection.
-  server.on('connection',connServer);
+  server.on('connection',connServer);*/
 }
 
 /**

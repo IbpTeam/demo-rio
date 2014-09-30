@@ -206,6 +206,7 @@ function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
 exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
 
 function pullFromOtherRepo(){
+  console.log("Request handler 'pullFromOtherRepo' was called.");
   filesHandle.firstSync();
 }
 exports.pullFromOtherRepo = pullFromOtherRepo;
