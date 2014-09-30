@@ -230,7 +230,8 @@ function pasteFile(pasteFileCb, sourcePath, desPath){
       console.log('exec error: ' + error);
       pasteFileCb(false);
     }
-    filesHandle.addFile(desPath, pasteFileCb(true));
+//    filesHandle.addFile(desPath, pasteFileCb(true));
+    pasteFileCb(true);
   });
 }
 exports.pasteFile = pasteFile;
@@ -240,13 +241,16 @@ exports.pasteFile = pasteFile;
 //返回类型：成功返回success;失败返回失败原因
 function createFile(creatFileCb, filePostfix, desPath){
   console.log("Request handler 'createFile' was called.");
-  desPath = utils.parsePath(desPath + '/NewFile.' + filePostfix);
+  var data = new Date();
+  desPath = utils.parsePath(desPath + '/NewFile_'+data.toLocaleString().replace(' ', '_')+'.' + filePostfix);
   cp.exec("touch "+desPath, function (error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     }
-    creatFileCb(true);
+    else{
+      creatFileCb(true);
+    }
   });
 }
 exports.createFile = createFile;
