@@ -258,7 +258,7 @@ exports.createFile = createFile;
 
 //API getResourceDataDir:获得resource数据路径
 //返回类型：
-//返回resource数据路径
+//返回resource数据路径3
 function getResourceDataDir(getResourceDataDirCb){
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER',function(error,stdout,stderr){
