@@ -16,6 +16,7 @@ var path = require("path");
 var bfh = require("./basicFileHandle");
 var repo = require("./repo");
 var filesHandle = require("../filesHandle");
+var commonDAO = require("../DAO/CommonDAO");
 
 
 // @const
@@ -145,7 +146,7 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
 exports.updateItem = function(chItem,attrs,itemDesPath,callback){
   var nameindex=chItem.lastIndexOf('/');
   var fileName=chItem.substring(nameindex+1,chItem.length);
-  var desFilePath=itemDesPath+"/"+fileName+".md";
+  var desFilePath = itemDesPath;
   fs.readFile(desFilePath,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
@@ -175,6 +176,53 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
     } 
   });
 }
+
+exports.updateItems = function(oItems,callback){
+  var count = 0;
+  for(var k in oItems){
+    var item = oItems[k];
+    //var table = item;
+    //var item_uri = item.URI;
+    //var pos = (item_uri).lastIndexOf("#");
+    //var sTableName = (item_uri).slice(pos+1,item_uri.length);
+    //commonDAO.findItems(['path'],[sTableName],null,null,function(err,result){})
+    var filePath = item.path;
+    if(!filePath){
+      console.log("error : can not get file path! ")
+      return;
+    }
+    var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
+    fs.readFile(desFilePath,'utf8',function(err,data){
+      if (err) {
+        console.log("read file error!");
+      }
+      else{
+        var json=JSON.parse(data);
+        for(var attr in item){
+          json[attr]=item[attr];
+        }
+        var sItem = JSON.stringify(json,null,4);
+        fs.open(desFilePath,"w",0644,function(err,fd){
+          if(err){
+            console.log("open des file error!");         
+          }
+          else{
+            fs.write(fd,sItem,0,'utf8',function(err){  
+              if (err) {
+                console.log("write des file error!");
+                console.log(err);
+              }
+              else{
+                callback();
+              }
+            });
+          }
+        });
+      }   
+    })
+  }
+}
+
 
 /** 
  * @Method: getAllTags
