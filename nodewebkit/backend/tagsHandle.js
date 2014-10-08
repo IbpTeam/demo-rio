@@ -74,7 +74,7 @@ exports.getTagsByPath = getTagsByPath;
  * 		all result in array
  *
  */
-function getAllTagsByCategory(category,callback){
+function getAllTagsByCategory(callback,category){
 	var TagFile = {tags:[],tagFiles:{}};
 	function findItemsCb(err,items){
 		if(err){
@@ -141,7 +141,7 @@ exports.getAllTags = getAllTags;
  * 		all result in array
  *
  */
-function setTagByUri(oTags,oUri,callback){
+function setTagByUri(callback,oTags,oUri){
   function findItemsCb(err,items){
   	if(err){
   		console.log(err);

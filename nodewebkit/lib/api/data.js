@@ -3,6 +3,7 @@ var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var contacts = require("../../backend/contacts");
 var devices =  require("../../backend/devices");
+var tagsHandle = require("../../backend/tagsHandle");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
@@ -267,3 +268,9 @@ function getResourceDataDir(getResourceDataDirCb){
   });
 }
 exports.getResourceDataDir = getResourceDataDir;
+
+function getAllTagsByCategory(getAllTagsByCategoryCb,category){
+  console.log("Request handler 'getAllTagsByCategory' was called.");
+  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb,category);
+}
+exports.getAllTagsByCategory = getAllTagsByCategory;
