@@ -269,6 +269,15 @@ function getResourceDataDir(getResourceDataDirCb){
 }
 exports.getResourceDataDir = getResourceDataDir;
 
+
+/**
+ * @method : getAllTagsByCategory 
+ *
+ * @param1 : getAllTagsByCategoryCb 回调函数
+ *   @result : string
+ *
+ * @param2 : category, array
+ */
 function getAllTagsByCategory(getAllTagsByCategoryCb,category){
   console.log("Request handler 'getAllTagsByCategory' was called.");
   tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb,category);
