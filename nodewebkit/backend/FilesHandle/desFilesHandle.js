@@ -16,7 +16,7 @@ var path = require("path");
 var bfh = require("./basicFileHandle");
 var repo = require("./repo");
 var filesHandle = require("../filesHandle");
-var commonDAO = require("./DAO/CommonDAO");
+var commonDAO = require("../DAO/CommonDAO");
 
 
 // @const
@@ -181,7 +181,7 @@ exports.updateItems = function(oItems,callback){
   var count = 0;
   for(var k in oItems){
     var item = oItems[k];
-    var table = itme
+    //var table = item;
     //var item_uri = item.URI;
     //var pos = (item_uri).lastIndexOf("#");
     //var sTableName = (item_uri).slice(pos+1,item_uri.length);

@@ -783,7 +783,7 @@ exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 //成功返回success;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb,item){
-  var oItems = item;//all items should include it's path
+  var oItems = item;//all items should include it's file path
   console.log("Request handler 'updateDataValue' was called.");
   function updateItemValueCb(result){
     config.riolog("update DB: "+ result);
