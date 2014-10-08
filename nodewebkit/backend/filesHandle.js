@@ -967,11 +967,12 @@ function getRecentAccessData(getRecentAccessDataCb,num){
           return;
         }
         cateNum--;
-        items.forEach(function(item){
+        for(var k=0;k<items.length;k++){
+          var item = items[k];
           var sKey =Date.parse(item.lastAccessTime);
-          Data[sKey] = item;
-          DataSort.push(sKey);
-        })
+          Data[sKey+k] = item;
+          DataSort.push(sKey+k);
+        }
         if(cateNum == 2){
           var oNewData = [];
           DataSort.sort();
