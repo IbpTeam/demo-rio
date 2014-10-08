@@ -637,7 +637,8 @@ function getAllDataByCate(getAllData,cate) {
     }
     var cateArray = new Array();
     cateArray.push(cate);
-    commonDAO.findItems(null,cateArray,null,null,getAllByCaterotyCb);
+    var conditions = ["is_delete = 0"];
+    commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
 }
 exports.getAllDataByCate = getAllDataByCate;
 
@@ -749,7 +750,7 @@ function initData(loadResourcesCb,resourcePath){
           var item ={
             category:"tags",
             tag:oTags[k],
-            file_uri:oNewItem.URI
+            file_URI:oNewItem.URI
           }
           oNewItems.push(item);
         }
@@ -926,6 +927,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
           return;
         }
         else{
+          dataDes.updateItem()
           console.log("success");
         }
       }
@@ -933,15 +935,31 @@ function getDataSourceByUri(getDataSourceCb,uri){
       var currentTime = (new Date()).getTime();
       config.riolog("time: "+ currentTime);
       var updateItem = item;
-      console.log(updateItem);
+      //console.log(updateItem);
       updateItem.lastAccessTime = currentTime;
       var item_uri = item.URI;
       var pos = (item_uri).lastIndexOf("#");
       var sTableName = (item_uri).slice(pos+1,updateItem.length);
       updateItem.category = sTableName;
 
-      console.log(updateItem);
+      //console.log(updateItem);
       commonDAO.updateItems([updateItem],updateItemValueCb);
+      //dataDes.updateItem(updateItem.path,{lastAccessTime:currentTime},desFilePath,);
+
+      // commonDAO.updateItems([updateItem],function (result){
+      //   config.riolog("update DB: "+ result);
+      //   if(result!='commit'){
+      //     console.log("Error : updateItems result : "+ result);
+      //     return;
+      //   }
+      //   else{
+      //     var desFilePath;
+      //     dataDes.updateItem(updateItem.path,{lastAccessTime:currentTime},desFilePath,function(_result){
+      //       getItemByUriCb(_result);
+      //     })
+      //     console.log("success");
+      //   }
+      // });
     }
   }
   var pos = uri.lastIndexOf("#");

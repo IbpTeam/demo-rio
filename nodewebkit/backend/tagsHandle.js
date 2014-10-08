@@ -14,9 +14,24 @@ var events = require('events');
 var csvtojson = require('./csvTojson');
 var uniqueID = require("./uniqueID");
 
+/**
+ * @method pickTags
+ *   pick possible tags from path
+ *   this will check the string between each two "/"
+ *
+ * @param1 oTag
+ *		object, to store tags we picked
+ * 	
+ * @param2 rePos 
+ *		the regExp position in the path string
+ *
+ * @param2 path
+ *		string, the target path of data
+ * 
+ */
 function pickTags(oTag,rePos,path){
 	if(path.length <= 2){
-		return ;
+		return;
 	}
 	var sStartPart = path.slice(rePos,path.length);
 	var startPos = sStartPart.indexOf('/');
@@ -24,36 +39,126 @@ function pickTags(oTag,rePos,path){
 		return;
 	}
 	var sTag = sStartPart.substring(0,startPos);
-	//console.log("******************my tag: "+sTag);
 	oTag.push(sTag);
 	var sNewStart = sStartPart.slice(startPos+1,sStartPart.length);
 	pickTags(oTag,0,sNewStart);
 }
 
-
-
+/**
+ * @method getTagsByPath
+ *   get tags from a path
+ *   return an array of tags
+ *
+ * @param path
+ *		string, the target path of data
+ * 
+ */
 function getTagsByPath(path){
 	var oTags = [];
-	var reContacts = path.search(/contact/i);
-	var reMusic = path.search(/music/i);
-	var reDocuments = path.search(/document/i);
-	var rePictures = path.search(/picture|photo|\u56fe/);
-	var reVideos = path.search(/video/i);
-	if(reContacts>-1){
-		pickTags(oTags,reContacts,path);
-	}
-	if(reMusic>-1){
-		pickTags(oTags,reMusic,path);
-	}
-	if(rePictures>-1){
-		pickTags(oTags,rePictures,path);
-	}
-	if(reDocuments>-1){
-		pickTags(oTags,reDocuments,path);
-	}
-	if(reVideos>-1){
-		pickTags(oTags,reVideos,path);
+	var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
+	if(regPos>-1){
+		pickTags(oTags,regPos,path);
 	}
 	return oTags;
 }
 exports.getTagsByPath = getTagsByPath;
+
+/**
+ * @method getAllTagsByCategory
+ *   get all tags of specific category
+ *
+ * @param1 category
+ *		string, a spcific category we want
+ * 
+ * @param2 callback
+ * 		all result in array
+ *
+ */
+function getAllTagsByCategory(callback,category){
+	var TagFile = {tags:[],tagFiles:{}};
+	function findItemsCb(err,items){
+		if(err){
+			console.log(err);
+			return;
+		}
+		for(var k in items){
+			items[k].others = (items[k].others).split(",");
+			var oItem = items[k];
+			for(var j in oItem.others){
+				var sTag = oItem.others[j];
+				var sUri = oItem.URI;
+				var sFilename = oItem.filename;
+				if(sTag != null && sTag != ""){
+					if(TagFile.tagFiles.hasOwnProperty(sTag)){
+						TagFile.tagFiles[sTag].push([sUri,sFilename]);
+					}else{
+						TagFile.tagFiles[sTag] = [[sUri,sFilename]];
+						TagFile.tags.push(sTag);
+					}
+				}
+			}
+		}
+		callback(TagFile);
+	}
+	commonDAO.findItems(['others','filename','uri'],[category],null,null,findItemsCb);
+}
+exports.getAllTagsByCategory = getAllTagsByCategory;
+
+
+/**
+ * @method getAllTags
+ *   get all tags in db
+ * 
+ * @param callback
+ * 		all result in array
+ *
+ */
+function getAllTags(callback){
+	var TagFile = {};
+	function findItemsCb(err,items){
+		if(err){
+			console.log(err);
+			return;
+		}
+		for(var k in items){
+			if(TagFile.hasOwnProperty(items[k].tag)){
+				TagFile[items[k].tag].push(items[k].file_URI);
+			}else{
+				TagFile[items[k].tag] = [items[k].file_URI];
+			}
+			callback(TagFile);
+		}
+	}
+	commonDAO.findItems(null,['tags'],null,null,findItemsCb)
+}
+exports.getAllTags = getAllTags;
+
+/**
+ * @method getAllTags
+ *   get all tags in db
+ * 
+ * @param callback
+ * 		all result in array
+ *
+ */
+function setTagByUri(callback,oTags,oUri){
+  function findItemsCb(err,items){
+  	if(err){
+  		console.log(err);
+  		return;
+  	}
+  	for(var k in items){
+  		items[k].others = (items[k].others).concat(oTags.join(","));
+  	}
+  	//to be continue
+  	//updateItems(items,callback);
+  }
+
+	for(var k in oUri){
+
+	  var pos = oUri[k].lastIndexOf("#");
+  	var sTableName = uri.slice(pos+1,oUri[k].length);
+		commonDAO.findItems(null,[sTableName],null,null,findItemsCb)
+	}
+}
+exports.setTagByUri = setTagByUri;

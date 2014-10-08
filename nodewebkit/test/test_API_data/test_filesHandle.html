@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "ace6f9045d75a83682e76288f79dd824#16748eee9865dab49cee#Pictures";
+  var test_uri = "ace6f9045d75a83682e76288f79dd824#37f5bd2052545d941dc6#Documents";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -224,6 +224,20 @@
     WDC.requireAPI(['data'], function(data){
       data.getResourceDataDir(getResourceDataDirCb);
     });        
+  }
+
+  function getAllTagsByCategoryCb(result){
+    var win = window.open('');
+    win.document.write("test API getAllTagsByCategory()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);    
+  }
+  function test_getAllTagsByCategory(getAllTagsByCategoryCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getAllTagsByCategory(getAllTagsByCategoryCb,['music']);
+    });      
   }
 
   </script>
@@ -617,5 +631,35 @@
   </pre>
 </div>
 </div>
+
+<h2 onclick="show('pasteFile')">getAllTagsByCategory(getAllTagsByCategoryCb)<span><a class="mark" href="#test_getAllTagsByCategory" id="test_getAllTagsByCategory" onclick="test_getAllTagsByCategory(getAllTagsByCategoryCb)">test</a></span></h2>
+<div id="getAllTagsByCategory" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : getAllTagsByCategory 
+      @param1 : getAllTagsByCategoryCb 回调函数
+        @result : string
+      @param2 : array,
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  function getAllTagsByCategoryCb(result){
+    var win = window.open('');
+    win.document.write("test API getAllTagsByCategory()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);    
+  }
+  function test_getAllTagsByCategory(getAllTagsByCategoryCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getAllTagsByCategory(getAllTagsByCategoryCb,'documents');
+    });      
+  }
+  </pre>
+</div>
+</div>
+
 </body>
 </html>
