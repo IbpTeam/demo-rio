@@ -3,6 +3,7 @@ var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var contacts = require("../../backend/contacts");
 var devices =  require("../../backend/devices");
+var tagsHandle = require("../../backend/tagsHandle");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
@@ -257,7 +258,7 @@ exports.createFile = createFile;
 
 //API getResourceDataDir:获得resource数据路径
 //返回类型：
-//返回resource数据路径
+//返回resource数据路径3
 function getResourceDataDir(getResourceDataDirCb){
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER',function(error,stdout,stderr){
@@ -267,3 +268,18 @@ function getResourceDataDir(getResourceDataDirCb){
   });
 }
 exports.getResourceDataDir = getResourceDataDir;
+
+
+/**
+ * @method : getAllTagsByCategory 
+ *
+ * @param1 : getAllTagsByCategoryCb 回调函数
+ *   @result : string
+ *
+ * @param2 : category, array
+ */
+function getAllTagsByCategory(getAllTagsByCategoryCb,category){
+  console.log("Request handler 'getAllTagsByCategory' was called.");
+  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb,category);
+}
+exports.getAllTagsByCategory = getAllTagsByCategory;

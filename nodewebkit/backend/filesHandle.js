@@ -571,9 +571,6 @@ exports.chFile = chFile;
  *        }
  */
 function getAllCate(getAllCb) {
-  tagsHandles.getAllTagsByCategory('documents',function(items){
-    console.log(items);
-  })
   function getCategoriesCb(err,items)
   {
     if(err){
@@ -940,7 +937,9 @@ function getDataSourceByUri(getDataSourceCb,uri){
       updateItem.category = sTableName;
 
       //console.log(updateItem);
-      commonDAO.updateItems([updateItem],updateItemValueCb)
+      commonDAO.updateItems([updateItem],updateItemValueCb);
+      //dataDes.updateItem(updateItem.path,{lastAccessTime:currentTime},desFilePath,);
+
       // commonDAO.updateItems([updateItem],function (result){
       //   config.riolog("update DB: "+ result);
       //   if(result!='commit'){
