@@ -249,15 +249,18 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 }
 
 function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
-  fs.exists('./key/users/'+IPSET.UID+'.pem',function(exists){
-    if (exists) {
-      var tmppubkey = ursaED.loadPubKeySync('./key/users/'+IPSET.UID+'.pem');
+  function insendfunc(){
+    var tmppubkey = ursaED.loadPubKeySync('./key/users/'+IPSET.UID+'.pem');
       /************************************************************
         A should be replaced by the local account
         ********************************************************/
       var enmsg = encapsuMSG(MSG,"Chat","A",ACCOUNT,tmppubkey);
       console.log(enmsg);
       sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
+  }
+  fs.exists('./key/users/'+IPSET.UID+'.pem',function(exists){
+    if (exists) {
+      insendfunc();
     }else{
       console.log("No IP found");
       console.log("Pubkey of device: "+IPSET.UID+" in "+ACCOUNT+" doesn't exist , request from server!");
@@ -272,7 +275,7 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
           msg.data.detail.forEach(function (row) {    
             if (row.UUID == IPSET.UID) {
               //console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
-              savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey);
+              savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey,insendfunc);
               //console.log(row.pubKey);
             };      
           });       
@@ -287,6 +290,7 @@ function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
           console.log("savepriKey Error: "+err);
         }else{
           console.log("savepriKey successful");
+          CALLBACK();
         }
       });
 }
