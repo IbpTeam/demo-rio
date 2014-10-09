@@ -92,7 +92,6 @@ function startDeviceDiscoveryService(){
         var device={
           device_id:args.txt[1],
           name:args.txt[2],
-          branchName:args.txt[2],
           resourcePath:args.txt[3],
           ip:args.txt[4],
           account:args.txt[5]

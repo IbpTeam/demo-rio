@@ -243,6 +243,7 @@ function addFileCb(lastCallback){
   }
   addCommitList.shift();
   if(addCommitList[0]!=null){
+    var file=addCommitList[0];
     var path=addCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -259,6 +260,7 @@ function addFileCb(lastCallback){
     });
   }
   else if(chCommitList[0]!=null){
+    var file=chCommitList[0];
     var path=chCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -285,6 +287,7 @@ function addFileCb(lastCallback){
     });
   }
   else if(rmCommitList[0]!=null){
+    var file=rmCommitList[0];
     var path=rmCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -322,6 +325,7 @@ function rmFileCb(lastCallback){
   }
   rmCommitList.shift();
   if(rmCommitList[0]!=null){
+    var file=rmCommitList[0];
     var path=rmCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -344,6 +348,7 @@ function rmFileCb(lastCallback){
     });
   }
   else if(addCommitList[0]!=null){
+    var file=addCommitList[0];
     var path=addCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -360,6 +365,7 @@ function rmFileCb(lastCallback){
     });
   }
   else if(chCommitList[0]!=null){
+    var file=chCommitList[0];
     var path=chCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -401,6 +407,7 @@ function chFileCb(lastCallback){
   }
   chCommitList.shift();
   if(chCommitList[0]!=null){
+    var file=chCommitList[0];
     var path=chCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -427,6 +434,7 @@ function chFileCb(lastCallback){
     });
   }
   else if(addCommitList[0]!=null){
+    var file=addCommitList[0];
     var path=addCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -443,6 +451,7 @@ function chFileCb(lastCallback){
     });
   }
   else if(rmCommitList[0]!=null){
+    var file=rmCommitList[0];
     var path=rmCommitList[0].filePath;
     var nameindex=path.lastIndexOf('/');
     var addPath=path.substring(config.RESOURCEPATH.length+1,nameindex);
@@ -473,7 +482,7 @@ function chFileCb(lastCallback){
 function addFile(file,callback){
   var path=file.filePath;
   util.log("new file "+path);
-  addCommitList.push(path);
+  addCommitList.push(file);
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+addCommitList[0]);
     repoCommitStatus = 'busy';  
@@ -498,7 +507,7 @@ exports.addFile = addFile;
 function rmFile(file,callback){
   var path=file.filePath;
   util.log("remove file "+path);
-  rmCommitList.push(path);
+  rmCommitList.push(file);
   console.log("repoCommitStatus="+repoCommitStatus);
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+rmCommitList[0]);
@@ -529,7 +538,7 @@ exports.rmFile = rmFile;
 function chFile(file,callback){
   var path=file.filePath;
   util.log("change file "+path);
-  chCommitList.push(path);
+  chCommitList.push(file);
   if(repoCommitStatus == 'idle'){
     util.log("emit commit "+chCommitList[0]);
     repoCommitStatus = 'busy';  
@@ -642,10 +651,22 @@ function getAllDataByCate(getAllData,cate) {
       });
       getAllData(cates);
     }
+    function getAllDevicesCb(err, items){
+      if(err){
+        console.log(err);
+        return;
+      }
+      getAllData(items);
+    }
     var cateArray = new Array();
     cateArray.push(cate);
-    var conditions = ["is_delete = 0"];
-    commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+    if(cate == "Devices"){
+      commonDAO.findItems(null,cateArray,null,null,getAllDevicesCb);
+    }
+    else{
+      var conditions = ["is_delete = 0"];
+      commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+    }
 }
 exports.getAllDataByCate = getAllDataByCate;
 
