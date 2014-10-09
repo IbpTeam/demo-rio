@@ -102,9 +102,10 @@ function connectClient(){
 }
 function clientOnData(client,keyPair,callback){
   client.on('data',function(data){    
-    console.log('client  result:'+data);    
+    //console.log('client  result:'+data);    
     var decrypteds='';
     var rstObj={};  
+    console.log(data.toString('utf-8'));
     try{     
       decrypteds = ursaED.decrypt(keyPair,data.toString('utf-8'), keySizeBits/8);
     }catch(err){     
@@ -165,7 +166,6 @@ function isInvalid(msgObj){
 function sendMsg(client,msg,serverKeyPair){
   msg = JSON.stringify(msg);
   var encrypteds = ursaED.encrypt(serverKeyPair,msg, keySizeBits/8);
-  console.log(msg+' 加密后的数据：'+encrypteds);
-  console.log(msg+'\r\n'+encrypteds);
+  console.log('sending in sendMSG in account');
   client.write(encrypteds);
 } 
