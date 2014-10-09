@@ -804,8 +804,13 @@ function updateDataValue(updateDataValueCb,item){
       console.log("Error : result : "+result)
     }
     else{
-      dataDes.updateItems(oItems,function(){
-        updateDataValueCb('success');
+      dataDes.updateItems(oItems,function(result){
+        if(result === "success"){
+          updateDataValueCb('success');
+        }else{
+          console.log("error in update des file!");
+          return;
+        }
       });
     }
   }
