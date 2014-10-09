@@ -199,36 +199,6 @@ exports.setTagByUri = setTagByUri;
  * 		array, an array of tags
  *
 */
-/*
-function getFilesByTags(callback,oTags){
-	var condition = [];
-	for(var k in oTags){
-		condition.push("tag='"+oTags[k]+"'");
-	}
-	function findItemsUriCb(err,oUri){
-		if(err){
-			console.log(err);
-			return;
-		}
-		var uri = [];
-		for(var k in oUri){
-			uri.push("URI='"+oUri[k]+"'");
-		}
-		function findItemsCb (err,result) {
-			if(err){
-				console.log(err);
-				return;
-			}
-			callback(result);			
-		}
-		console.log(oUri);
-		commonDAO.findItems(null,['documents','music'],uri,null,findItemsCb);
-	}
-	commonDAO.findItems(['file_URI'],['tags'],condition,null,findItemsUriCb);
-}
-exports.getFilesByTags = getFilesByTags;
-*/
-
 function getFilesByTags(callback,oTags){
 	var allFiles = [];
 	var condition = [];
