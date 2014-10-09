@@ -44,8 +44,14 @@ exports.repoInit = function (repoPath,callback)
   });  
 }
 
-exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
+exports.repoAddCommit = function (repoPath,file,desFilePath,callback,lastCallback)
 {
+  if(file.flag=="nogit"){
+    console.log("no need git!!!!!!!!!!!!!!!!!");
+    callback(lastCallback);
+    return;
+  }
+  var sourceFilePath=file.filePath;
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git add '+utils.parsePath(sourceFilePath) +' && git add '+utils.parsePath(desFilePath) +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -60,8 +66,14 @@ exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,l
   });
 }
 
-exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
+exports.repoRmCommit = function (repoPath,file,desFilePath,callback,lastCallback)
 {
+  if(file.flag=="nogit"){
+    console.log("no need git!!!!!!!!!!!!!!!!!");
+    callback(lastCallback);
+    return;
+  }
+  var sourceFilePath=file.filePath;
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -76,8 +88,14 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,la
   });
 }
 
-exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
+exports.repoChCommit = function (repoPath,file,desFilePath,callback,lastCallback)
 {
+  if(file.flag=="nogit"){
+    console.log("no need git!!!!!!!!!!!!!!!!!");
+    callback(lastCallback);
+    return;
+  }
+  var sourceFilePath=file.filePath;
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -129,17 +147,27 @@ exports.getLatestCommit = function (repoPath,callback)
 
 exports.pullFromOtherRepo = function (address,path,callback)
 {
-  //filesHandle.watcherStop();
-  filesHandle.isPulledFile=true;
+
   var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-  var cp = require('child_process');
-  var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
-  console.log(cmd);
-  cp.exec(cmd,function(error,stdout,stderr){
-    console.log(stdout+stderr);
-    filesHandle.isPulledFile=false;
-    //filesHandle.watcherStart(dataDir,filesHandle.monitorFilesCb);
-    callback();
+  filesHandle.watcherStop(function(){
+    console.log("watcherStop");
+    filesHandle.watcherStart(dataDir,"nogit",filesHandle.monitorFilesCb,function(){
+      var cp = require('child_process');
+      var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
+      console.log(cmd);
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        //filesHandle.isPulledFile=false;
+        filesHandle.watcherStop(function(){
+          filesHandle.watcherStart(dataDir,"auto",filesHandle.monitorFilesCb,function(){
+            callback();
+          });
+        });
+      });
+    });
   });
+  //filesHandle.isPulledFile=true;
+
+
 }
 

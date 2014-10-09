@@ -36,7 +36,6 @@ function getAllContacts(getAllCb) {
     data.forEach(function (each){
       contacts.push({
         URI:each.URI,
-        version:each.version,
         name:each.name,
         photoPath:each.path
       });
@@ -66,8 +65,6 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       id:null,
       URI:uri + "#" + category,
       category:category,
-      commit_id: "",
-      version:"",
       is_delete:0,
       name:oItem["\u59D3"],
       phone:oItem["\u79fb\u52a8\u7535\u8bdd"],
@@ -79,6 +76,9 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       createTime:currentTime,
       lastModifyTime:currentTime,
       lastAccessTime:currentTime,
+      createDev:config.uniqueID,
+      lastModifyDev:config.uniqueID,
+      lastAccessDev:config.uniqueID
     }
     function createItemCb(){
       callback(isContactEnd,oNewItem);

@@ -76,6 +76,7 @@ function initializeApp(){
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
   var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
   var bIsConfExist = false;
+  filesHandle.isPulledFile=false;
   console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
   fs.exists(sConfigPath, function (configExists) {
