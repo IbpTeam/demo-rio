@@ -281,7 +281,7 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
 	});
 }
 
-function savePubkey(SAVEPATH,PUBKEY){
+function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
 	fs.appendFile(SAVEPATH,PUBKEY,'utf8',function(err){
           if (err) {
           console.log("savepriKey Error: "+err);
