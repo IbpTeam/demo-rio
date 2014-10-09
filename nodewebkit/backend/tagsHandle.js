@@ -76,22 +76,23 @@ exports.getTagsByPath = getTagsByPath;
  * @param2 callback
  * 		all result in array
  *     example:
- *     TagFile = {
- *									tags:[tag1,tag2,tag3],
- *									tagFiles:{
- *															tag1:[
- *																			[uri1,filename1],
- *																			[uri2,filenamw2]
- *																		]
- *															tag2:[
- *																			[uri3,filename3],
- *																			[uri4,filename4]
- *																		]
- *															tag3:[
- *																			[uri4,filename5]
- *																		]
- *														}
- *      					}
+ *     TagFile = 
+ *     {
+ *			tags:[tag1,tag2,tag3],
+ *			tagFiles:{
+ *				tag1:[
+ *					[uri1,filename1],
+ *					[uri2,filenamw2]
+ *						 ]
+ *				tag2:[
+ *					[uri3,filename3],
+ *					[uri4,filename4]
+ *						 ]
+ *				tag3:[
+ *					[uri4,filename5]
+ *						 ]
+ *				}
+ *      }
  *
  */
 function getAllTagsByCategory(callback,category){
