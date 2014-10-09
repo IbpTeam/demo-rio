@@ -284,3 +284,19 @@ function getAllTagsByCategory(getAllTagsByCategoryCb,category){
   tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb,category);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
+
+/**
+ * @method : setTagByUri 
+ *
+ * @param1 : setTagByUriCb 回调函数
+ *   @result : string
+ *
+ * @param2 : oTags, array
+ *
+ * @param3 : oUri, array
+ */
+function setTagByUri(setTagByUriCb,oTags,oUri){
+  console.log("Request handler 'setTagByUri' was called.");
+  tagsHandle.setTagByUri(setTagByUriCb,oTags,oUri);
+}
+exports.setTagByUri = setTagByUri;

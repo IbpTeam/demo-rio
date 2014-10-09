@@ -796,7 +796,7 @@ exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
 //成功返回success;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb,item){
-  var oItems = item;
+  var oItems = item;//all items should include it's file path
   console.log("Request handler 'updateDataValue' was called.");
   function updateItemValueCb(result){
     config.riolog("update DB: "+ result);
@@ -804,7 +804,9 @@ function updateDataValue(updateDataValueCb,item){
       console.log("Error : result : "+result)
     }
     else{
-      updateDataValueCb('success');
+      dataDes.updateItems(oItems,function(){
+        updateDataValueCb('success');
+      });
     }
   }
   commonDAO.updateItems(oItems,updateItemValueCb);
@@ -877,7 +879,7 @@ exports.getDataByUri = getDataByUri;
 function getDataSourceByUri(getDataSourceCb,uri){
   function getItemByUriCb(err,items){
     if(err){
-      console.log(err)
+      console.log(err);
       return;
     }    
     var item = items[0];
@@ -927,19 +929,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       }
       getDataSourceCb(source);
 
-      function updateItemValueCb(result){
-        config.riolog("update DB: "+ result);
-        if(result!='commit'){
-          console.log("Error : updateItems result : "+ result);
-          return;
-        }
-        else{
-          dataDes.updateItem()
-          console.log("success");
-        }
-      }
-
-      var currentTime = (new Date()).getTime();
+      var currentTime = (new Date());
       config.riolog("time: "+ currentTime);
       var updateItem = item;
       //console.log(updateItem);
@@ -950,24 +940,21 @@ function getDataSourceByUri(getDataSourceCb,uri){
       var sTableName = (item_uri).slice(pos+1,updateItem.length);
       updateItem.category = sTableName;
 
-      //console.log(updateItem);
+      function updateItemValueCb(result){
+        config.riolog("update DB: "+ result);
+        if(result!='commit'){
+          console.log("Error : updateItems result : "+ ressult);
+          return;
+        }
+        else{
+          var desFilePath = (item.path).replace(/\/resources\//,'/resources/.des/');
+          desFilePath = desFilePath + '.md';
+          dataDes.updateItem(item.path,{lastAccessTime:currentTime},desFilePath,function(){
+            console.log("success");
+          })
+        }
+      }
       commonDAO.updateItems([updateItem],updateItemValueCb);
-      //dataDes.updateItem(updateItem.path,{lastAccessTime:currentTime},desFilePath,);
-
-      // commonDAO.updateItems([updateItem],function (result){
-      //   config.riolog("update DB: "+ result);
-      //   if(result!='commit'){
-      //     console.log("Error : updateItems result : "+ result);
-      //     return;
-      //   }
-      //   else{
-      //     var desFilePath;
-      //     dataDes.updateItem(updateItem.path,{lastAccessTime:currentTime},desFilePath,function(_result){
-      //       getItemByUriCb(_result);
-      //     })
-      //     console.log("success");
-      //   }
-      // });
     }
   }
   var pos = uri.lastIndexOf("#");
@@ -994,11 +981,12 @@ function getRecentAccessData(getRecentAccessDataCb,num){
           return;
         }
         cateNum--;
-        items.forEach(function(item){
+        for(var k=0;k<items.length;k++){
+          var item = items[k];
           var sKey =Date.parse(item.lastAccessTime);
-          Data[sKey] = item;
-          DataSort.push(sKey);
-        })
+          Data[sKey+k] = item;
+          DataSort.push(sKey+k);
+        }
         if(cateNum == 2){
           var oNewData = [];
           DataSort.sort();

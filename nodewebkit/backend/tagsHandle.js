@@ -140,25 +140,41 @@ exports.getAllTags = getAllTags;
  * @param callback
  * 		all result in array
  *
- */
-function setTagByUri(callback,oTags,oUri){
-  function findItemsCb(err,items){
-  	if(err){
-  		console.log(err);
-  		return;
-  	}
-  	for(var k in items){
-  		items[k].others = (items[k].others).concat(oTags.join(","));
-  	}
-  	//to be continue
-  	//updateItems(items,callback);
-  }
+*/
+function setTagByUri(callback,oTags,sUri){
+	var pos = sUri.lastIndexOf("#");
+	var sTableName = sUri.slice(pos+1,sUri.length);
+	function findItemsCb(err,items){
+		if(err){
+			console.log(err);
+			return;
+		}
 
-	for(var k in oUri){
-
-	  var pos = oUri[k].lastIndexOf("#");
-  	var sTableName = uri.slice(pos+1,oUri[k].length);
-		commonDAO.findItems(null,[sTableName],null,null,findItemsCb)
+		var category = sTableName;
+		var tmpDBItem = [];
+		var tmpDesItem = [];
+		for(var k in items){
+			var item = items[k];
+			
+			if(!item.others){
+				var newTags = oTags.join(",");
+			}else{
+				item.others = item.others+ ",";
+				var newTags = (item.others).concat(oTags.join(","));
+			}
+			tmpDBItem.push({URI:item.URI,others:newTags,category:category});
+			tmpDesItem.push({path:item.path,others:newTags});
+		}
+		commonDAO.updateItems(tmpDBItem,function(result){
+			if(result != "commit"){
+				console.log(err);
+				return;
+			}
+			dataDes.updateItems(tmpDesItem,function(){
+				callback("success");
+			});
+		})
 	}
+	commonDAO.findItems(null,[sTableName],["URI = "+"'"+sUri+"'"],null,findItemsCb)
 }
 exports.setTagByUri = setTagByUri;

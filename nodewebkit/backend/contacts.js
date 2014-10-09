@@ -54,7 +54,7 @@ id, name, phone, sex, age, email
 function addContact(Item,sItemDesPath,isContactEnd,callback){
   function getFileUidCb(uri){
     var category = 'Contacts';
-    var currentTime = (new Date()).getTime();
+    var currentTime = (new Date());
     Item.path = "/home/xiquan/resources/contacts";
     Item.desPath = sItemDesPath;
     Item.name = Item["\u59D3"];
