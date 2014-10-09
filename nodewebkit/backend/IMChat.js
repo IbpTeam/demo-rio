@@ -259,9 +259,15 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
 			console.log(enmsg);
 			sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
 		}else{
+			console.log("No IP found");
 			console.log("Pubkey of device: "+IPSET.UID+" in "+ACCOUNT+" doesn't exist , request from server!");
 			var serverKeyPair = ursaED.loadServerKey('./key/serverKey.pem');
+			var tmppubkey = ursaED.loadPubKeySync('./key/pubKey.pem');
+			account.login('fyf','fyf','Linux Mint',tmppubkey,LOCALPAIR,serverKeyPair,function(msg){
+  			console.log("Login successful: +++"+JSON.stringify(msg));
+			});
 			account.getPubKeysByName('fyf','Linux Mint','fyf',LOCALPAIR,serverKeyPair,function(msg){
+				console.log(ursaED.getPubKeyPem(LOCALPAIR));
     			console.log(JSON.stringify(msg.data.detail));
   				msg.data.detail.forEach(function (row) {		
 	    			if (row.UUID == IPSET.UID) {

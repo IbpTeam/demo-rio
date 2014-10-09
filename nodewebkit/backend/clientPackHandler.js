@@ -44,7 +44,7 @@ function login(userName,password,UUID,pubKey,loginCallback){
   data['desc']='';
   msg['data']=data;
   msg['msg']='login'; 
-  console.log('login:::::'+msg);
+  console.log('login in client handler');
   loginCallback(msg);
 }
 exports.login=login;
@@ -57,7 +57,7 @@ function getPubKeysByUserName(userName,UUID,targetName,getPubKeysByUserNameCallb
   data['userName']=targetName;
   msg['data']=data;
   msg['msg']='getPubKeyByUserName '+userName; 
-  console.log('getPubKeyByUserName:::::'+msg);
+  console.log(msg['msg']);
   getPubKeysByUserNameCallback(msg);
 }
 exports.getPubKeysByUserName=getPubKeysByUserName;

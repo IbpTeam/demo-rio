@@ -131,10 +131,10 @@ function loadServerKey(serverKeyPath){
   var serverKeyPair;
   var exists = fs.existsSync(serverKeyPath);
   if (exists) {
-    console.log('local private key exists');
+    console.log('Server key exists');
     var serverkey=fs.readFileSync(serverKeyPath).toString('utf-8');	
     serverKeyPair= ursa.createKey(serverkey);
-    console.log("private key load successful!");
+    console.log("Server key load successful!");
     return serverKeyPair;
   }else{
     console.log('local server public key do not exist');

@@ -26,8 +26,8 @@ imchat.sendIMMsg("127.0.0.1",8892,msg,keyPair);
 
 var table = imchat.createAccountTable();
 
-table = imchat.insertAccount(table,"rtty123","192.168.1.123","34234324r34rerfe45r4");
-table = imchat.insertAccount(table,"rtty123","127.0.0.1","34234324erererw3r3w4");
+//table = imchat.insertAccount(table,"rtty123","192.168.1.123","34234324r34rerfe45r4");
+table = imchat.insertAccount(table,"rtty123","127.0.0.1","34234324r34rerfe45r4");
 
 var IP = imchat.getIP(table,"rtty123");
 
