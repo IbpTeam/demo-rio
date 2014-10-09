@@ -299,3 +299,20 @@ function setTagByUri(setTagByUriCb,oTags,oUri){
   tagsHandle.setTagByUri(setTagByUriCb,oTags,oUri);
 }
 exports.setTagByUri = setTagByUri;
+
+/**
+ * @method getFilesByTag
+ *   get all files with specific tags
+ * 
+ * @param1 callback
+ *    all result in array
+ *
+ * @param2 oTags
+ *    array, an array of tags
+ *
+*/
+function getFilesByTags(getFilesByTagsCb,oTags){
+  console.log("Request handler 'setTagByUri' was called.");
+  tagsHandle.getFilesByTags(getFilesByTagsCb,oTags);
+}
+exports.getFilesByTags = getFilesByTags;

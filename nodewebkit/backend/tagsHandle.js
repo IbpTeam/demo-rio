@@ -56,6 +56,7 @@ function pickTags(oTag,rePos,path){
 function getTagsByPath(path){
 	var oTags = [];
 	var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
+	//var regPos = path.search(/resources/i);
 	if(regPos>-1){
 		pickTags(oTags,regPos,path);
 	}
@@ -137,8 +138,15 @@ exports.getAllTags = getAllTags;
  * @method getAllTags
  *   get all tags in db
  * 
- * @param callback
+ * @param1 callback
  * 		all result in array
+ *
+ * @param2 oTags
+ * 		array, an array of tags to be set
+ *
+ * @param3 sUri
+ * 		string, a specific uri
+ *
  *
 */
 function setTagByUri(callback,oTags,sUri){
@@ -178,3 +186,92 @@ function setTagByUri(callback,oTags,sUri){
 	commonDAO.findItems(null,[sTableName],["URI = "+"'"+sUri+"'"],null,findItemsCb)
 }
 exports.setTagByUri = setTagByUri;
+
+
+/**
+ * @method getFilesByTags
+ *   get all files with specific tags
+ * 
+ * @param1 callback
+ * 		all result in array
+ *
+ * @param2 oTags
+ * 		array, an array of tags
+ *
+*/
+/*
+function getFilesByTags(callback,oTags){
+	var condition = [];
+	for(var k in oTags){
+		condition.push("tag='"+oTags[k]+"'");
+	}
+	function findItemsUriCb(err,oUri){
+		if(err){
+			console.log(err);
+			return;
+		}
+		var uri = [];
+		for(var k in oUri){
+			uri.push("URI='"+oUri[k]+"'");
+		}
+		function findItemsCb (err,result) {
+			if(err){
+				console.log(err);
+				return;
+			}
+			callback(result);			
+		}
+		console.log(oUri);
+		commonDAO.findItems(null,['documents','music'],uri,null,findItemsCb);
+	}
+	commonDAO.findItems(['file_URI'],['tags'],condition,null,findItemsUriCb);
+}
+exports.getFilesByTags = getFilesByTags;
+*/
+
+function getFilesByTags(callback,oTags){
+	var allFiles = [];
+	var condition = [];
+	for(var k in oTags){
+		condition.push("others like '%"+oTags[k]+"%'");
+	}
+	var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
+	function findItemsUriCb(err,result){
+		if(err){
+			console.log(err);
+			return;
+		}
+	}
+	commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
+		if(err){
+			console.log(err);
+			return;
+		}
+		allFiles = allFiles.concat(resultDoc);
+		commonDAO.findItems(null,['music'],sCondition,null,function(err,resultMusic){
+			if(err){
+				console.log(err);
+				return;
+			}
+			allFiles = allFiles.concat(resultMusic);
+			commonDAO.findItems(null,['pictures'],sCondition,null,function(err,resultPic){
+				if(err){
+					console.log(err);
+					return;
+				}
+				allFiles = allFiles.concat(resultPic);
+				commonDAO.findItems(null,['videos'],sCondition,null,function(err,resultVideo){
+					if(err){
+						console.log(err);
+						return;
+					}
+					allFiles = allFiles.concat(resultVideo);
+					callback(allFiles);
+				})
+			})
+		})		
+	});
+}
+exports.getFilesByTags = getFilesByTags;
+
+

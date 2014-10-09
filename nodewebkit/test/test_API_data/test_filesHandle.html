@@ -256,6 +256,22 @@
     });    
   }
 
+  function getFilesByTagsCb(result){
+    var win = window.open('');
+    win.document.write("test API getFilesByTags()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function getFilesByTags(getFilesByTagsCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['musics','pictures','documents'];
+      var oUri = test_uri;
+      data.getFilesByTags(getFilesByTagsCb,oTags);
+    });  
+  }
+
   </script>
 
 <h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
@@ -710,6 +726,7 @@
   </pre>
 </div>
 </div>
+
 
 
 </body>
