@@ -149,25 +149,25 @@ exports.pullFromOtherRepo = function (address,path,callback)
 {
 
   var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+  filesHandle.monitorFilesStatus=false;
   filesHandle.watcherStop(function(){
     console.log("watcherStop");
     filesHandle.watcherStart(dataDir,"nogit",filesHandle.monitorFilesCb,function(){
+      filesHandle.monitorFilesStatus=true;
       var cp = require('child_process');
       var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
       console.log(cmd);
       cp.exec(cmd,function(error,stdout,stderr){
         console.log(stdout+stderr);
-        //filesHandle.isPulledFile=false;
+        filesHandle.monitorFilesStatus=false;
         filesHandle.watcherStop(function(){
           filesHandle.watcherStart(dataDir,"auto",filesHandle.monitorFilesCb,function(){
+            filesHandle.monitorFilesStatus=true;
             callback();
           });
         });
       });
     });
   });
-  //filesHandle.isPulledFile=true;
-
-
 }
 

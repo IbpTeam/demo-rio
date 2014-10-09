@@ -146,10 +146,11 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
 exports.updateItem = function(chItem,attrs,itemDesPath,callback){
   var nameindex=chItem.lastIndexOf('/');
   var fileName=chItem.substring(nameindex+1,chItem.length);
-  var desFilePath = itemDesPath;
+  var desFilePath = itemDesPath+"/"+fileName+".md";
   fs.readFile(desFilePath,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
+       console.log(err);
     }
     else{
       var json=JSON.parse(data);
