@@ -107,8 +107,6 @@ function addData(file,itemDesPath,isLoadEnd,callback){
             id:"",
             URI:uri + "#" + category,
             category:category,
-            commit_id: null,
-            version:null,
             is_delete:0,
             others:someTags.join(","),
             filename:itemFilename,
@@ -119,6 +117,9 @@ function addData(file,itemDesPath,isLoadEnd,callback){
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
+            createDev:config.uniqueID,
+            lastModifyDev:config.uniqueID,
+            lastAccessDev:config.uniqueID
           };
           function createItemCb(){
             callback(isLoadEnd,oNewItem);
@@ -134,8 +135,6 @@ function addData(file,itemDesPath,isLoadEnd,callback){
           var oNewItem={
             URI:uri + "#" + category,
             category:category,
-            commit_id: null,
-            version:null,
             is_delete:0,
             others:someTags.join(","),
             postfix:itemPostfix,
@@ -147,6 +146,9 @@ function addData(file,itemDesPath,isLoadEnd,callback){
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
+            createDev:config.uniqueID,
+            lastModifyDev:config.uniqueID,
+            lastAccessDev:config.uniqueID
           };
           function createItemCb(){
             callback(isLoadEnd,oNewItem);
@@ -163,8 +165,6 @@ function addData(file,itemDesPath,isLoadEnd,callback){
             id:null,
             URI:uri + "#" + category,
             category:category,
-            commit_id: null,
-            version:null,
             is_delete:0,
             others:someTags.join(","),
             filename:itemFilename,
@@ -177,6 +177,9 @@ function addData(file,itemDesPath,isLoadEnd,callback){
             createTime:ctime,
             lastModifyTime:mtime,
             lastAccessTime:ctime,
+            createDev:config.uniqueID,
+            lastModifyDev:config.uniqueID,
+            lastAccessDev:config.uniqueID
           };
           function createItemCb(){
             callback(isLoadEnd,oNewItem);
@@ -265,7 +268,8 @@ function addFileCb(lastCallback){
     fs.stat(path,function(error,stat){
       var attrs={
         size:stat.size,
-        lastModifyTime:(new Date()).getTime()
+        lastModifyTime:(new Date()).getTime(),
+        lastModifyDev:config.uniqueID
       };
       chData(file,attrs,itemDesPath,function(){
         attrs.conditions=["path='"+path+"'"];
@@ -365,7 +369,8 @@ function rmFileCb(lastCallback){
     fs.stat(path,function(error,stat){
       var attrs={
         size:stat.size,
-        lastModifyTime:(new Date()).getTime()
+        lastModifyTime:(new Date()).getTime(),
+        lastModifyDev:config.uniqueID
       };
       chData(file,attrs,itemDesPath,function(){
         attrs.conditions=["path='"+path+"'"];
@@ -405,7 +410,8 @@ function chFileCb(lastCallback){
     fs.stat(path,function(error,stat){
       var attrs={
         size:stat.size,
-        lastModifyTime:(new Date()).getTime()
+        lastModifyTime:(new Date()).getTime(),
+        lastModifyDev:config.uniqueID
       };
       chData(file,attrs,itemDesPath,function(){
         attrs.conditions=["path='"+path+"'"];
@@ -535,7 +541,8 @@ function chFile(file,callback){
     fs.stat(path,function(error,stat){
       var attrs={
         size:stat.size,
-        lastModifyTime:stat.mtime
+        lastModifyTime:stat.mtime,
+        lastModifyDev:config.uniqueID
       };
       chData(file,attrs,itemDesPath,function(){
         attrs.conditions=["path='"+path+"'"];
@@ -937,6 +944,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       var updateItem = item;
       //console.log(updateItem);
       updateItem.lastAccessTime = currentTime;
+      updateItem.lastAccessDev = config.uniqueID;
       var item_uri = item.URI;
       var pos = (item_uri).lastIndexOf("#");
       var sTableName = (item_uri).slice(pos+1,updateItem.length);
