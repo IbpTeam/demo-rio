@@ -34,42 +34,46 @@ var UNIQUEID_JS = "uniqueID.js";
 var DATABASENAME = "rio.sqlite3";
 var NETLINKSTATUS = ".netlinkstatus"
 
-//
-var sFullPath;
+var startonce = false;
 
 /** 
  * @Method: startApp
  *    Start this application and initialization.
  **/
 function startApp(){
-  config.SERVERIP=config.getAddr();
+  if (startonce === true){
+    return;
+  }
+  startonce = true;
+  config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();
   config.ACCOUNT = process.env['USER'];
+  var sFullPath = path.join(HOME_DIR, config.ACCOUNT, DEMO_RIO);
+  config.USERCONFIGPATH = sFullPath;
+  config.DATABASEPATH = path.join(config.USERCONFIGPATH,DATABASENAME);
+  util.log('mkdir ' + sFullPath);
+  fs.exists(sFullPath,function(rioExists){
+    if(!rioExists){
+      fs.mkdir(sFullPath, 0755, function(err){
+        if(err) throw err;
+        initializeApp(sFullPath);
+      });
+      return;
+    }
+    initializeApp(sFullPath);
+  });
   // MSG transfer server initialize
   msgTransfer.initServer();
   server.start(router.route, handle);
-  cp.exec('echo $USER',function(error,stdout,stderr){
-    var sUserName=stdout.replace("\n","");
-    sFullPath = path.join(HOME_DIR,sUserName,DEMO_RIO);
-    util.log('mkdir ' + sFullPath);
-    fs.exists(sFullPath,function(rioExists){
-      if(!rioExists){
-        fs.mkdir(sFullPath, 0755, function(err){
-          if(err) throw err;
-          initializeApp();
-        });
-        return;
-      }
-      initializeApp();
-    });
-  });
+
+  cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
 
 /** 
  * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
-function initializeApp(){
+function initializeApp(sFullPath){
   config.USERCONFIGPATH = sFullPath;
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
@@ -178,4 +182,19 @@ function initDatabase(databasePath,callback){
 }
 
 // Start
-startApp();
+exports.startServer=function(){
+  startApp();
+}
+
+exports.requireAPI=function(apilist, callback){
+  util.log("requireAPI:" + apilist);
+  if(startonce === false){
+     startApp();
+  }
+  var i;
+  var apiArr = new Array(apilist.length);
+  for(i = 0; i < apilist.length; i += 1){
+    apiArr[i] = require('./lib/api/' + apilist[i]);
+  }
+  setTimeout(function(){callback.apply(null, apiArr)}, 0);
+}
