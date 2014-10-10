@@ -32,6 +32,8 @@ var DEMO_RIO = ".demo-rio";
 var CONFIG_JS = "config.js";
 var UNIQUEID_JS = "uniqueID.js";
 var DATABASENAME = "rio.sqlite3";
+var NETLINKSTATUS = ".netlinkstatus"
+
 var startonce = false;
 
 /** 
@@ -76,6 +78,7 @@ function initializeApp(sFullPath){
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
   var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
+  var sNetLinkStatusPath = path.join(config.USERCONFIGPATH,NETLINKSTATUS);
   var bIsConfExist = false;
   filesHandle.isPulledFile=false;
   console.log("Config Path is : " + sConfigPath);
@@ -104,10 +107,30 @@ function initializeApp(sFullPath){
       console.log("UniqueID.js is exist.");
       var deviceID=require(sUniqueIDPath).uniqueID;
       setSysUid(deviceID,sUniqueIDPath,function(){
-          initDatabase(sDatabasePath,function(){
-            if(bIsConfExist)
-              device.startDeviceDiscoveryService();
+        initDatabase(sDatabasePath,function(){
+          if(bIsConfExist){
+            device.startDeviceDiscoveryService();
+          }
+          fs.exists(sNetLinkStatusPath, function (netlinkExists) {
+            if(!netlinkExists){
+              cp.exec('touch '+sNetLinkStatusPath,function(error,stdout,stderr){
+                util.log("touch .netlinkstatus");
+                config.NETLINKSTATUSPATH=sNetLinkStatusPath;
+                cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
+                  util.log(sNetLinkStatusPath);
+                  filesHandle.monitorNetlink(sNetLinkStatusPath);
+                });
+              });
+            }
+            else{
+              config.NETLINKSTATUSPATH=sNetLinkStatusPath;
+              cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
+                util.log(sNetLinkStatusPath);
+                filesHandle.monitorNetlink(sNetLinkStatusPath);
+              });
+            }
           });
+        });
       });
     });
   });

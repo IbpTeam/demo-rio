@@ -76,22 +76,23 @@ exports.getTagsByPath = getTagsByPath;
  * @param2 callback
  * 		all result in array
  *     example:
- *     TagFile = {
- *									tags:[tag1,tag2,tag3],
- *									tagFiles:{
- *															tag1:[
- *																			[uri1,filename1],
- *																			[uri2,filenamw2]
- *																		]
- *															tag2:[
- *																			[uri3,filename3],
- *																			[uri4,filename4]
- *																		]
- *															tag3:[
- *																			[uri4,filename5]
- *																		]
- *														}
- *      					}
+ *     TagFile = 
+ *     {
+ *			tags:[tag1,tag2,tag3],
+ *			tagFiles:{
+ *				tag1:[
+ *					[uri1,filename1],
+ *					[uri2,filenamw2]
+ *						 ]
+ *				tag2:[
+ *					[uri3,filename3],
+ *					[uri4,filename4]
+ *						 ]
+ *				tag3:[
+ *					[uri4,filename5]
+ *						 ]
+ *				}
+ *      }
  *
  */
 function getAllTagsByCategory(callback,category){
@@ -204,14 +205,7 @@ function getFilesByTags(callback,oTags){
 	for(var k in oTags){
 		condition.push("others like '%"+oTags[k]+"%'");
 	}
-	//(more than one tag) ? combine them with 'or' : make it a single sentence
-	var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
-	function findItemsUriCb(err,result){
-		if(err){
-			console.log(err);
-			return;
-		}
-	}
+	var sCondition = [condition.join(' or ')];
 	commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 		if(err){
 			console.log(err);
@@ -305,21 +299,98 @@ function setTagByUri(callback,oTags,sUri){
 exports.setTagByUri = setTagByUri;
 
 
-
-function rmTagsByUri(callback,oTags,sUri){
-  var sTableName = getCategoryByUris(sUri);
-  var condition = ["uri = '"+sUri+"'"];
-  var column = ["others"]
-  function findItemsCb(err,result){
-  	if(err){
-  		console.log(err);
-  		return;
-  	}
-  	var tags = result[0].others;
-  	tags = tags.split(",")
-  	callback(tags);
-  }
-  commonDAO.findItems(null,sTableName,condition,null,findItemsCb);
+/**
+ * @method rmTagsByUri
+ *   remove a tag from some files with specific uri
+ * 
+ * @param1 callback
+ * 		return commit if successed
+ *
+ * @param2 oTags
+ * 		array, an array of tags to be removed
+ *
+ *
+*/
+function rmTagsByUri(callback,oTags,oUri){
+	var allFiles = [];
+	var condition = [];
+	var deleteTags = [];
+	var conditionFind = [];
+	for(var k in oUri){
+		condition.push("uri = '"+oUri[k]+"'");
+		conditionFind.push("file_URI = '"+oUri[k]+"'");
+	}
+	var sCondition = [condition.join(' or ')];
+	var sConditionFind = [conditionFind.join(' or ')];
+	//find all entries with these uri in table 'tags'
+	commonDAO.findItems(null,['tags'],sConditionFind,null,function(err,resultFind){
+		if(err){
+			console.log(err);
+			return;
+		}
+		//remove pick up those have tags we want to delete
+		var afterDelete = [];
+		for(var k in resultFind){
+			var isExist = false;
+			for(var j in oTags){
+				if(oTags[j] == resultFind[k].tag){
+					isExist = true;
+				}
+			}
+			if(isExist){
+				(resultFind[k]).category = "tags";
+				afterDelete.push(resultFind[k]);
+			}
+		}
+		//delete those enries in table 'tags'
+		commonDAO.deleteItems(afterDelete,function(resultDelete){
+			if(resultDelete !== "commit"){
+				console.log("error in delete items!")
+				return;
+			}
+			commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
+				if(err){
+					console.log(err);
+					return;
+				}
+				buildDeleteItems(allFiles,resultDoc)
+				commonDAO.findItems(null,['music'],sCondition,null,function(err,resultMusic){
+					if(err){
+						console.log(err);
+						return;
+					}
+					buildDeleteItems(allFiles,resultMusic)
+					commonDAO.findItems(null,['pictures'],sCondition,null,function(err,resultPic){
+						if(err){
+							console.log(err);
+							return;
+						}
+						buildDeleteItems(allFiles,resultPic)
+						commonDAO.findItems(null,['videos'],sCondition,null,function(err,resultVideo){
+							if(err){
+								console.log(err);
+								return;
+							}
+							buildDeleteItems(allFiles,resultVideo)
+							var resultItems = doDeleteTags(allFiles,oTags);
+							dataDes.updateItems(resultItems,function(result){
+								if(result === "success"){
+									commonDAO.updateItems(resultItems,function(result){
+										if(result === "commit"){
+											callback(result);
+										}
+									})
+								}else{
+									console.log("error in update des files");
+									return;
+								}
+							})
+						})
+					})
+				})		
+			});
+})
+})
 }
 exports.rmTagsByUri = rmTagsByUri;
 
@@ -329,7 +400,7 @@ exports.rmTagsByUri = rmTagsByUri;
  *   remove tags from all data base and des files
  * 
  * @param1 callback
- * 		return success if successed
+ * 		return commit if successed
  *
  * @param2 oTags
  * 		array, an array of tags to be removed
@@ -342,21 +413,14 @@ function rmTagsAll(callback,oTags){
 	var deleteTags = [];
 	for(var k in oTags){
 		condition.push("others like '%"+oTags[k]+"%'");
-		deleteTags.push({category:'tags',tag:oTags[k]})
+		deleteTags.push({category:'tags',tag:oTags[k]});
 	}
 	commonDAO.deleteItems(deleteTags,function(result){
 		if(result !== "commit"){
 			console.log("error in delete items!")
 			return;
 		}
-
-		var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
-		function findItemsUriCb(err,result){
-			if(err){
-				console.log(err);
-				return;
-			}
-		}
+		var sCondition = [condition.join(' or ')];
 		commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 			if(err){
 				console.log(err);
@@ -380,7 +444,7 @@ function rmTagsAll(callback,oTags){
 							console.log(err);
 							return;
 						}
-						buildDeleteItems(allFiles,resultVideo)
+						buildDeleteItems(allFiles,resultVideo);
 						var resultItems = doDeleteTags(allFiles,oTags);
 						dataDes.updateItems(resultItems,function(result){
 							if(result === "success"){
@@ -402,6 +466,7 @@ function rmTagsAll(callback,oTags){
 }
 exports.rmTagsAll = rmTagsAll;
 
+//build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles,result){
 	if(result.length>0){
 		var sUri = result[0].URI;
@@ -413,6 +478,7 @@ function buildDeleteItems(allFiles,result){
 	}
 }
 
+//remove those tags we want to delete
 function doDeleteTags(oAllFiles,oTags){
 	var resultFiles = [];
 	for(var j in oAllFiles){
@@ -436,6 +502,7 @@ function doDeleteTags(oAllFiles,oTags){
 	return oAllFiles;
 }
 
+//get the catefory from URI
 function getCategoryByUri(sUri){
 	var pos = sUri.lastIndexOf("#");
 	var cate = sUri.slice(pos+1,sUri.length);
