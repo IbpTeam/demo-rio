@@ -11,6 +11,10 @@ var keySizeBits = 1024;
 var size = 65537;
 
 
+var LOCALACCOUNT = 'fyf';
+var LOCALACCOUNTKEY = 'fyf';
+var LOCALUUID = 'Linux Mint';
+
 /*
 * @method MD5
 *  计算某个字符串的MD5值
@@ -170,7 +174,7 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
   
 
   client.on('data',function(REPLY){
-    console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+REPLY);
+    console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort);
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////this part should be replaced by local prikey//////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,30 +262,54 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
       console.log(enmsg);
       sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
   }
-  fs.exists('./key/users/'+IPSET.UID+'.pem',function(exists){
+  function rqstpubkey(){
+    requestPubKey(IPSET.UID,ACCOUNT,LOCALPAIR,insendfunc);
+  }
+  isExist(IPSET.UID,insendfunc,rqstpubkey);
+}
+
+function isExist(UUID,existfunc,noexistfunc){
+  fs.exists('./key/users/'+UUID+'.pem',function(exists){
     if (exists) {
-      insendfunc();
+      existfunc();
     }else{
-      console.log("No IP found");
-      console.log("Pubkey of device: "+IPSET.UID+" in "+ACCOUNT+" doesn't exist , request from server!");
+      noexistfunc();
+    };
+  });
+}
+
+/*
+* @method requestPubKey
+*  去公钥服务器上获取指定的公钥
+* @param UUID
+*  待获取的pubkey所属机器的UUID编号
+* @param ACCOUNT
+*  待获取的pubkey所属UUID所属的帐号名称
+* @param LOCALPAIR
+*  本地KeyPair对
+* @param INSENTFUNC
+*  获取的pubkey成功保存到本地后的回调函数
+* @return null
+*/
+function requestPubKey(UUID,ACCOUNT,LOCALPAIR,INSENTFUNC){
+  console.log("No IP found");
+      console.log("Pubkey of device: "+UUID+" in "+ACCOUNT+" doesn't exist , request from server!");
       var serverKeyPair = ursaED.loadServerKey('./key/serverKey.pem');
       var tmppubkey = ursaED.loadPubKeySync('./key/pubKey.pem');
-      account.login('fyf','fyf','Linux Mint',tmppubkey,LOCALPAIR,serverKeyPair,function(msg){
+      account.login(LOCALACCOUNT,LOCALACCOUNTKEY,LOCALUUID,tmppubkey,LOCALPAIR,serverKeyPair,function(msg){
         console.log("Login successful: +++"+JSON.stringify(msg));
       });
-      account.getPubKeysByName('fyf','Linux Mint','fyf',LOCALPAIR,serverKeyPair,function(msg){
+      account.getPubKeysByName(LOCALACCOUNT,LOCALUUID,ACCOUNT,LOCALPAIR,serverKeyPair,function(msg){
         console.log(ursaED.getPubKeyPem(LOCALPAIR));
           console.log(JSON.stringify(msg.data.detail));
           msg.data.detail.forEach(function (row) {    
-            if (row.UUID == IPSET.UID) {
+            if (row.UUID == UUID) {
               //console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
-              savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey,insendfunc);
+              savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey,INSENTFUNC);
               //console.log(row.pubKey);
             };      
           });       
       });
-    };
-  });
 }
 
 function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
