@@ -121,6 +121,28 @@
     });  
   }
 
+  function rmTagByUriCb(result){
+    var win = window.open('');
+    win.document.write("test API rmTagsByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_rmTagByUri(rmTagsByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var sTag = "documents";
+      var oUri = ["ace6f9045d75a83682e76288f79dd824#1ae4eb48f2eb95c44096#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#47d395c44894f1903b0f#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#6a681fe480ee14768765#Music",
+                  "ace6f9045d75a83682e76288f79dd824#3b2c5620cb3621ba646f#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#0a54e76d086168ca37b2#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#8c4591adf57e241afb6f#Documents"
+                  ];
+      data.rmTagByUri(rmTagByUriCb,sTag,oUri);
+    });  
+  }
+
   </script>
 
 <h2 onclick="show('getAllTagsByCategory')">getAllTagsByCategory(getAllTagsByCategoryCb)<span><a class="mark" href="#test_getAllTagsByCategory" id="test_getAllTagsByCategory" onclick="test_getAllTagsByCategory(getAllTagsByCategoryCb)">test</a></span></h2>
@@ -279,6 +301,40 @@
       var oTags = ['musics','pictures','documents'];
       var oUri = test_uri;
       data.rmTagsAlls(rmTagsAllCb,oTags);
+    });  
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('rmTagByUri')">rmTagByUri(rmTagByUriCb,sTag,oUri)<span><a class="mark" href="#test_rmTagByUri" id="test_rmTagByUri" onclick="test_rmTagByUri(rmTagByUriCb)">test</a></span></h2>
+<div id="rmTagByUri" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @method rmTagByUri
+    remove a tag from some files with specific uri
+  @param1 callback
+     return commit if successed
+  @param2 oTags
+     array, an array of tags to be removed
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function rmTagByUriCb(result){
+    var win = window.open('');
+    win.document.write("test API rmTagByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_rmTagByUri(rmTagByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = "documents";
+      var oUri = [];
+      data.rmTagByUri(rmTagByUriCb,sTag,oUri);
     });  
   }
   </pre>

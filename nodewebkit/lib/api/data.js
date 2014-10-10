@@ -353,3 +353,21 @@ function rmTagsAll(rmTagsAllCb,oTags){
   tagsHandle.rmTagsAll(rmTagsAllCb,oTags);
 }
 exports.rmTagsAll = rmTagsAll;
+
+/**
+ * @method rmTagByUri
+ *   remove a tag from some files with specific uri
+ * 
+ * @param1 callback
+ *    return commit if successed
+ *
+ * @param2 oTags
+ *    array, an array of tags to be removed
+ *
+ *
+*/
+function rmTagByUri(rmTagByUriCb,sTag,oUri){
+  console.log("Request handler 'rmTagByUri' was called.");
+  tagsHandle.rmTagByUri(rmTagByUriCb,sTag,oUri);
+}
+exports.rmTagByUri = rmTagByUri;
