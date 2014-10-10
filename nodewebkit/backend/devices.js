@@ -17,11 +17,11 @@ function getDeviceList(){
         item.sync=false;
         devicesList[item.device_id]=item;
       });
-/*      console.log("----------------------devicesList:-----------------------");
+      console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("---------------------------------------------------------");*/
+      console.log("---------------------------------------------------------");
     }
   });
 }
@@ -44,12 +44,25 @@ function addDevice(device){
   if(device.device_id in devicesList){
     devicesList[device.device_id].online=true;
     devicesList[device.device_id].sync=false;
+    var changeAttr={};
+    var changeFlag=0;
+    for(var attr in device){
+      if(devicesList[device.device_id][attr]!=device[attr]){
+        console.log("change "+attr+" to "+device[attr]);
+        devicesList[device.device_id][attr]=device[attr];
+        changeFlag=1;
+      }
+    }
+    if(changeFlag=1){
+      //changeAttr.conditions:["device_id='"+origPath+"'"],
+     //   category:getCategory(origPath).category,
+    }
     console.log("OLD device");
-/*      console.log("----------------------devicesList:-----------------------");
-      for (var i in devicesList) {  
-        console.log(devicesList[i]);
-      }  
-      console.log("**********************************************************");*/
+    console.log("----------------------devicesList:-----------------------");
+    for (var i in devicesList) {  
+      console.log(devicesList[i]);
+    }  
+    console.log("**********************************************************");
   }
   else{
     console.log("NEW device");
@@ -58,27 +71,33 @@ function addDevice(device){
       device.online=true;
       device.sync=false;
       devicesList[device.device_id]=device;
-/*            console.log("----------------------devicesList:-----------------------");
+      console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("**********************************************************");*/
+      console.log("**********************************************************");
     });
   }
 }
 exports.addDevice = addDevice;
 
 function rmDevice(device){
-    console.log("device.device_id:"+device.device_id);
+  console.log("device.device_id:"+device.device_id);
   console.log("devicesList[device.device_id]:");
   console.log(devicesList[device.device_id]);
+  if(devicesList[device.device_id].online==undefined){
+    return;
+  }
   devicesList[device.device_id].online=false;
+  if(devicesList[device.device_id].sync==undefined){
+    return;
+  }
   devicesList[device.device_id].sync=false;
-      /*  console.log("----------------------devicesList:-----------------------");
-      for (var i in devicesList) {  
-        console.log(devicesList[i]);
-      }  
-      console.log("**********************************************************");*/
+  console.log("----------------------devicesList:-----------------------");
+  for (var i in devicesList) {  
+    console.log(devicesList[i]);
+  }  
+  console.log("**********************************************************");
 }
 exports.addDevice = addDevice;
 
@@ -88,7 +107,7 @@ function startDeviceDiscoveryService(){
 //  io.sockets.on('connection', function (socket) {
     getDeviceList();
     mdns.addDeviceListener(function (signal, args){
-      if(args.txt[0]==null){
+      if(args.txt==null){
         return;
       }
       if(args.txt[0]=="demo-rio"){
