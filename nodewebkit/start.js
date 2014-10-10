@@ -44,33 +44,32 @@ function startApp(){
   config.SERVERIP=config.getAddr();
   config.SERVERNAME = os.hostname();
   config.ACCOUNT = process.env['USER'];
+  var sFullPath = path.join(HOME_DIR, config.ACCOUNT, DEMO_RIO);
+  config.USERCONFIGPATH = sFullPath;
+  config.DATABASEPATH = path.join(config.USERCONFIGPATH,DATABASENAME);
+  util.log('mkdir ' + sFullPath);
+  fs.exists(sFullPath,function(rioExists){
+    if(!rioExists){
+      fs.mkdir(sFullPath, 0755, function(err){
+        if(err) throw err;
+        initializeApp(sFullPath);
+      });
+      return;
+    }
+    initializeApp(sFullPath);
+  });
   // MSG transfer server initialize
   msgTransfer.initServer();
   server.start(router.route, handle);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
-  cp.exec('echo $USER',function(error,stdout,stderr){
-    var sUserName=stdout.replace("\n","");
-    sFullPath = path.join(HOME_DIR,sUserName,DEMO_RIO);
-    util.log('mkdir ' + sFullPath);
-    fs.exists(sFullPath,function(rioExists){
-      if(!rioExists){
-        fs.mkdir(sFullPath, 0755, function(err){
-          if(err) throw err;
-          initializeApp();
-        });
-        return;
-      }
-      initializeApp();
-    });
-  });
 }
 
 /** 
  * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
-function initializeApp(){
+function initializeApp(sFullPath){
   config.USERCONFIGPATH = sFullPath;
   var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);

@@ -2,6 +2,7 @@
 pre_config();
 var DataAPI;
 var AppAPI;
+WDC.startServer();
 WDC.requireAPI(['data', 'app'], function(data, app){
   console.log("data:" +  data + " app:" + app);
   DataAPI=data;

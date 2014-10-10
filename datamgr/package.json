@@ -8,5 +8,8 @@
     "width": 660,
     "height": 500
   },
+  "dependencies": {
+    "demo-rio": "~0.0.1"
+  },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }
