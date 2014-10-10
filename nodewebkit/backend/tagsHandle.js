@@ -391,7 +391,7 @@ function rmTagsAll(callback,oTags){
 	var deleteTags = [];
 	for(var k in oTags){
 		condition.push("others like '%"+oTags[k]+"%'");
-		deleteTags.push({category:'tags',tag:oTags[k]})
+		deleteTags.push({category:'tags',tag:oTags[k]});
 	}
 	commonDAO.deleteItems(deleteTags,function(result){
 		if(result !== "commit"){
@@ -425,8 +425,8 @@ function rmTagsAll(callback,oTags){
 						}
 						buildDeleteItems(allFiles,resultVideo);
 						var resultItems = doDeleteTags(allFiles,oTags);
-						console.log("=====================");
-						console.log(resultItems);
+						//console.log("=====================");
+						//console.log(resultItems);
 						dataDes.updateItems(resultItems,function(result){
 							if(result === "success"){
 								commonDAO.updateItems(resultItems,function(result){
