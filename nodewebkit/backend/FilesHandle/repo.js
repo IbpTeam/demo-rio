@@ -38,20 +38,15 @@ exports.repoInit = function (repoPath,callback)
       }
       else{
         filesHandle.monitorFiles(repoPath,filesHandle.monitorFilesCb);
+        filesHandle.watcher2Start(repoPath+"/.des",filesHandle.monitorDesFilesCb);
         callback("success");
       }
     });
   });  
 }
 
-exports.repoAddCommit = function (repoPath,file,desFilePath,callback,lastCallback)
+exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
-  if(file.flag=="nogit"){
-    console.log("no need git!!!!!!!!!!!!!!!!!");
-    callback(lastCallback);
-    return;
-  }
-  var sourceFilePath=file.filePath;
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git add '+utils.parsePath(sourceFilePath) +' && git add '+utils.parsePath(desFilePath) +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -66,14 +61,8 @@ exports.repoAddCommit = function (repoPath,file,desFilePath,callback,lastCallbac
   });
 }
 
-exports.repoRmCommit = function (repoPath,file,desFilePath,callback,lastCallback)
+exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
-  if(file.flag=="nogit"){
-    console.log("no need git!!!!!!!!!!!!!!!!!");
-    callback(lastCallback);
-    return;
-  }
-  var sourceFilePath=file.filePath;
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -88,14 +77,8 @@ exports.repoRmCommit = function (repoPath,file,desFilePath,callback,lastCallback
   });
 }
 
-exports.repoChCommit = function (repoPath,file,desFilePath,callback,lastCallback)
+exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
-  if(file.flag=="nogit"){
-    console.log("no need git!!!!!!!!!!!!!!!!!");
-    callback(lastCallback);
-    return;
-  }
-  var sourceFilePath=file.filePath;
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -147,27 +130,28 @@ exports.getLatestCommit = function (repoPath,callback)
 
 exports.pullFromOtherRepo = function (address,path,callback)
 {
-
-  var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-  filesHandle.monitorFilesStatus=false;
-  filesHandle.watcherStop(function(){
-    console.log("watcherStop");
-    filesHandle.watcherStart(dataDir,"nogit",filesHandle.monitorFilesCb,function(){
-      filesHandle.monitorFilesStatus=true;
-      var cp = require('child_process');
-      var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
-      console.log(cmd);
-      cp.exec(cmd,function(error,stdout,stderr){
-        console.log(stdout+stderr);
-        filesHandle.monitorFilesStatus=false;
-        filesHandle.watcherStop(function(){
-          filesHandle.watcherStart(dataDir,"auto",filesHandle.monitorFilesCb,function(){
-            filesHandle.monitorFilesStatus=true;
-            callback();
-          });
-        });
-      });
+  filesHandle.monitorFiles1Status=false;
+  filesHandle.watcher1Stop(function(){
+    var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+    var cp = require('child_process');
+    var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      callback();
+      filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb);
     });
   });
-}
 
+}
+/*
+exports.pullFromOtherRepo = function (address,path,callback)
+{
+        var cp = require('child_process');
+  var cmd = ' sleep 20';
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log( "####################3");
+        console.log(stdout);
+  });
+}*/
