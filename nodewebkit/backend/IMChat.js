@@ -74,9 +74,18 @@ function initIMServer(){
           dboper.dbrecvInsert(msgObj.from,msgObj.to,msgObj.message,msgObj.type,msgObj.time,function(){
           console.log("insert into db success!");
         });
+
         //console.log("pubkey is "+pubKey);
-        var tp = encapsuMSG(MD5(msgObj.message),"Reply","A","B",pubKey);
-        c.write(tp);
+        
+        isExist(msgObj.uuid,function(){
+          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,pubKey);
+          c.write(tp);
+        },function(){
+          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,pubKey);
+          c.write(tp);
+        });
+        
+        
       }
       break;
         case 'Reply': {
@@ -137,6 +146,7 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
   var count = 0;
   var id =0;
   var MSG = JSON.parse(SENDMSG);
+//  var nnnss = JSON.stringify(SENDMSG);
   var dec = ursaED.decrypt(KEYPAIR,MSG[0].content, keySizeBits/8);
 
   var  pat = JSON.parse(dec);
@@ -152,16 +162,16 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
     });
   });
 
-  client.setTimeout(3000,function(){
+  client.setTimeout(6000,function(){
     console.log("connect time out");
-    client.close();
+    client.end();
   });
 
   client.on('connect',function(){
     id =  setInterval(function(C,SENDMSG){
     if (count <5) 
     {
-      C.write(SENDMSG);
+      client.write(JSON.stringify(SENDMSG));
       count++;
     }else
     {
@@ -258,7 +268,7 @@ function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
       /************************************************************
         A should be replaced by the local account
         ********************************************************/
-      var enmsg = encapsuMSG(MSG,"Chat","A",ACCOUNT,tmppubkey);
+      var enmsg = encapsuMSG(MSG,"Chat",LOCALACCOUNT,LOCALUUID,ACCOUNT,tmppubkey);
       console.log(enmsg);
       sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
   }
@@ -332,12 +342,14 @@ function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
 *  消息类型，可以是Chat，Reply等
 * @param FROM
 *  消息的发送方标识，可以是Account帐号
+* @param FROMUUID
+*  消息的发送方的UUID
 * @param TO
 *  消息的接收方标识，可以是Account帐号
 * @return rply
 *  封装好，并且已经序列化的消息字符串
 */
-function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
+function encapsuMSG(MSG,TYPE,FROM,FROMUUID,TO,PUBKEY)
 {
   var MESSAGE = [];
   var tmp = {};
@@ -351,6 +363,7 @@ function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
   {
     case'Chat':{
       tmp["from"] = FROM;
+      tmp["uuid"] =  FROMUUID;
       tmp["to"] = TO;
       tmp["message"] = MSG;
       tmp['type'] = TYPE;
