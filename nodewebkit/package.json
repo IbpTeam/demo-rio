@@ -1,6 +1,7 @@
 {
-  "name": "hello",
+  "name": "demo-rio",
   "main": "start.js",
+  "version": "0.0.1",
   "window": {
     "toolbar": true,
     "width": 800,
