@@ -286,6 +286,23 @@ function getAllTagsByCategory(getAllTagsByCategoryCb,category){
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
 /**
+ * @method getTagsByUri
+ *   get tags with specifc uri
+ * 
+ * @param1 getTagsByUriCb
+ *    all result in array
+ *
+ * @param2 sUri
+ *    string, uri
+ *
+*/
+function getTagsByUri(getTagsByUriCb,sUri){
+  console.log("Request handler 'getAllTagsByCategory' was called.");
+  tagsHandle.getTagsByUri(getTagsByUriCb,sUri);
+}
+exports.getTagsByUri = getTagsByUri;
+
+/**
  * @method : setTagByUri 
  *
  * @param1 : setTagByUriCb 回调函数
@@ -300,3 +317,39 @@ function setTagByUri(setTagByUriCb,oTags,oUri){
   tagsHandle.setTagByUri(setTagByUriCb,oTags,oUri);
 }
 exports.setTagByUri = setTagByUri;
+
+/**
+ * @method getFilesByTag
+ *   get all files with specific tags
+ * 
+ * @param1 callback
+ *    all result in array
+ *
+ * @param2 oTags
+ *    array, an array of tags
+ *
+*/
+function getFilesByTags(getFilesByTagsCb,oTags){
+  console.log("Request handler 'setTagByUri' was called.");
+  tagsHandle.getFilesByTags(getFilesByTagsCb,oTags);
+}
+exports.getFilesByTags = getFilesByTags;
+
+
+/**
+ * @method rmTagsAll
+ *   remove tags from all data base and des files
+ * 
+ * @param1 callback
+ *    return success if successed
+ *
+ * @param2 oTags
+ *    array, an array of tags to be removed
+ *
+ *
+*/
+function rmTagsAll(rmTagsAllCb,oTags){
+  console.log("Request handler 'rmTagsAll' was called.");
+  tagsHandle.rmTagsAll(rmTagsAllCb,oTags);
+}
+exports.rmTagsAll = rmTagsAll;

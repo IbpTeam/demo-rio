@@ -591,10 +591,22 @@ function getAllDataByCate(getAllData,cate) {
       });
       getAllData(cates);
     }
+    function getAllDevicesCb(err, items){
+      if(err){
+        console.log(err);
+        return;
+      }
+      getAllData(items);
+    }
     var cateArray = new Array();
     cateArray.push(cate);
-    var conditions = ["is_delete = 0"];
-    commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+    if(cate == "Devices"){
+      commonDAO.findItems(null,cateArray,null,null,getAllDevicesCb);
+    }
+    else{
+      var conditions = ["is_delete = 0"];
+      commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+    }
 }
 exports.getAllDataByCate = getAllDataByCate;
 
@@ -801,8 +813,13 @@ function updateDataValue(updateDataValueCb,item){
       console.log("Error : result : "+result)
     }
     else{
-      dataDes.updateItems(oItems,function(){
-        updateDataValueCb('success');
+      dataDes.updateItems(oItems,function(result){
+        if(result === "success"){
+          updateDataValueCb('success');
+        }else{
+          console.log("error in update des file!");
+          return;
+        }
       });
     }
   }

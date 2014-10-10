@@ -204,52 +204,69 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
   });
 }
 
-exports.updateItems = function(oItems,callback){
+/** 
+ * @Method: updateItems
+ *    update description files.
+ * @param: oItem
+ *    an item object with informations for description.
+ *    !!! all items in this object should have 'path'!!!
+ * @param: callback
+ *    No arguments other than a file name array are given to the completion callback.
+ **/
+ exports.updateItems = function(oItems,callback){
   var count = 0;
+  var length = oItems.length;
   for(var k in oItems){
     var item = oItems[k];
-    //var table = item;
-    //var item_uri = item.URI;
-    //var pos = (item_uri).lastIndexOf("#");
-    //var sTableName = (item_uri).slice(pos+1,item_uri.length);
-    //commonDAO.findItems(['path'],[sTableName],null,null,function(err,result){})
     var filePath = item.path;
     if(!filePath){
       console.log("error : can not get file path! ")
       return;
     }
+    count++;
     var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
-    fs.readFile(desFilePath,'utf8',function(err,data){
-      if (err) {
-        console.log("read file error!");
-      }
-      else{
-        var json=JSON.parse(data);
-        for(var attr in item){
-          json[attr]=item[attr];
-        }
-        var sItem = JSON.stringify(json,null,4);
-        fs.open(desFilePath,"w",0644,function(err,fd){
-          if(err){
-            console.log("open des file error!");         
-          }
-          else{
-            fs.write(fd,sItem,0,'utf8',function(err){  
-              if (err) {
-                console.log("write des file error!");
-                console.log(err);
-              }
-              else{
-                callback();
-              }
-            });
-          }
-        });
-      }   
-    })
+    updateHelper(callback,desFilePath,item,count,length);
   }
 }
 
+//combine data with callback
+function updateItemsHelper(callback,desFilePath,item,count,length){
+  fs.readFile(desFilePath,'utf8',function(err,data){
+    if (err) {
+      console.log("read file error!");
+      return;
+    }
+    else{
+      var json=JSON.parse(data);
+
+      for(var attr in item){
+        json[attr]=item[attr];
+      }
+      console.log(json);
+      var sItem = JSON.stringify(json,null,4);
+      fs.open(desFilePath,"w",0644,function(err,fd){
+        if(err){
+          console.log("open des file error!");  
+          return;       
+        }
+        else{
+          fs.write(fd,sItem,0,'utf8',function(err){  
+            if (err) {
+              console.log("write des file error!");
+              console.log(err);
+              return;
+            }
+            else{
+              if(count == length-1){
+                callback("success");
+              }
+            }
+          });
+        }
+      });
+    }   
+  })
+}
 
 /** 
  * @Method: getAllTags
