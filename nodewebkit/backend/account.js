@@ -4,7 +4,7 @@ var ursaED = require('./ursaED');
 var clientPackHandler = require('./clientPackHandler');
 
 //account server information loaded from config file
-var PORT=8892;
+var PORT=8894;
 var IP='192.168.160.66';
 var keySizeBits = 1024;
 var TIMEOUT=2000;
@@ -109,7 +109,7 @@ function clientOnData(client,keyPair,callback){
     try{     
       decrypteds = ursaED.decrypt(keyPair,data.toString('utf-8'), keySizeBits/8);
     }catch(err){     
-      console.log('getPubKeysByName error!!');
+      console.log('getPubKeysByName error!!' + err);
       console.log('server, you don\'t known my pubKey, you know?!');
       client.end();
       return;

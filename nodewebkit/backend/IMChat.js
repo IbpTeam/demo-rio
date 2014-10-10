@@ -11,6 +11,10 @@ var keySizeBits = 1024;
 var size = 65537;
 
 
+var LOCALACCOUNT = 'fyf';
+var LOCALACCOUNTKEY = 'fyf';
+var LOCALUUID = 'Linux Mint';
+
 /*
 * @method MD5
 *  计算某个字符串的MD5值
@@ -70,9 +74,18 @@ function initIMServer(){
           dboper.dbrecvInsert(msgObj.from,msgObj.to,msgObj.message,msgObj.type,msgObj.time,function(){
           console.log("insert into db success!");
         });
+
         //console.log("pubkey is "+pubKey);
-        var tp = encapsuMSG(MD5(msgObj.message),"Reply","A","B",pubKey);
-        c.write(tp);
+        
+        isExist(msgObj.uuid,function(){
+          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,pubKey);
+          c.write(tp);
+        },function(){
+          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,pubKey);
+          c.write(tp);
+        });
+        
+        
       }
       break;
         case 'Reply': {
@@ -133,6 +146,7 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
   var count = 0;
   var id =0;
   var MSG = JSON.parse(SENDMSG);
+//  var nnnss = JSON.stringify(SENDMSG);
   var dec = ursaED.decrypt(KEYPAIR,MSG[0].content, keySizeBits/8);
 
   var  pat = JSON.parse(dec);
@@ -148,16 +162,16 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
     });
   });
 
-  client.setTimeout(3000,function(){
+  client.setTimeout(6000,function(){
     console.log("connect time out");
-    client.close();
+    client.end();
   });
 
   client.on('connect',function(){
     id =  setInterval(function(C,SENDMSG){
     if (count <5) 
     {
-      C.write(SENDMSG);
+      client.write(JSON.stringify(SENDMSG));
       count++;
     }else
     {
@@ -170,7 +184,7 @@ function sendIMMsg(IP,PORT,SENDMSG,KEYPAIR){
   
 
   client.on('data',function(REPLY){
-    console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort+REPLY);
+    console.log("remote data arrived! "+client.remoteAddress+" : "+ client.remotePort);
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////this part should be replaced by local prikey//////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -249,36 +263,63 @@ function sendMSGbyAccount(TABLE,ACCOUNT,MSG,PORT)
 }
 
 function existsPubkeyPem(IPSET,ACCOUNT,MSG,PORT,LOCALPAIR){
-  fs.exists('./key/users/'+IPSET.UID+'.pem',function(exists){
-    if (exists) {
-      var tmppubkey = ursaED.loadPubKeySync('./key/users/'+IPSET.UID+'.pem');
+  function insendfunc(){
+    var tmppubkey = ursaED.loadPubKeySync('./key/users/'+IPSET.UID+'.pem');
       /************************************************************
         A should be replaced by the local account
         ********************************************************/
-      var enmsg = encapsuMSG(MSG,"Chat","A",ACCOUNT,tmppubkey);
+      var enmsg = encapsuMSG(MSG,"Chat",LOCALACCOUNT,LOCALUUID,ACCOUNT,tmppubkey);
       console.log(enmsg);
       sendIMMsg(IPSET.IP,PORT,enmsg,LOCALPAIR);
+  }
+  function rqstpubkey(){
+    requestPubKey(IPSET.UID,ACCOUNT,LOCALPAIR,insendfunc);
+  }
+  isExist(IPSET.UID,insendfunc,rqstpubkey);
+}
+
+function isExist(UUID,existfunc,noexistfunc){
+  fs.exists('./key/users/'+UUID+'.pem',function(exists){
+    if (exists) {
+      existfunc();
     }else{
-      console.log("No IP found");
-      console.log("Pubkey of device: "+IPSET.UID+" in "+ACCOUNT+" doesn't exist , request from server!");
+      noexistfunc();
+    };
+  });
+}
+
+/*
+* @method requestPubKey
+*  去公钥服务器上获取指定的公钥
+* @param UUID
+*  待获取的pubkey所属机器的UUID编号
+* @param ACCOUNT
+*  待获取的pubkey所属UUID所属的帐号名称
+* @param LOCALPAIR
+*  本地KeyPair对
+* @param INSENTFUNC
+*  获取的pubkey成功保存到本地后的回调函数
+* @return null
+*/
+function requestPubKey(UUID,ACCOUNT,LOCALPAIR,INSENTFUNC){
+  console.log("No IP found");
+      console.log("Pubkey of device: "+UUID+" in "+ACCOUNT+" doesn't exist , request from server!");
       var serverKeyPair = ursaED.loadServerKey('./key/serverKey.pem');
       var tmppubkey = ursaED.loadPubKeySync('./key/pubKey.pem');
-      account.login('fyf','fyf','Linux Mint',tmppubkey,LOCALPAIR,serverKeyPair,function(msg){
+      account.login(LOCALACCOUNT,LOCALACCOUNTKEY,LOCALUUID,tmppubkey,LOCALPAIR,serverKeyPair,function(msg){
         console.log("Login successful: +++"+JSON.stringify(msg));
       });
-      account.getPubKeysByName('fyf','Linux Mint','fyf',LOCALPAIR,serverKeyPair,function(msg){
+      account.getPubKeysByName(LOCALACCOUNT,LOCALUUID,ACCOUNT,LOCALPAIR,serverKeyPair,function(msg){
         console.log(ursaED.getPubKeyPem(LOCALPAIR));
           console.log(JSON.stringify(msg.data.detail));
           msg.data.detail.forEach(function (row) {    
-            if (row.UUID == IPSET.UID) {
+            if (row.UUID == UUID) {
               //console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
-              savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey);
+              savePubkey('./key/users/'+row.UUID+'.pem',row.pubKey,INSENTFUNC);
               //console.log(row.pubKey);
             };      
           });       
       });
-    };
-  });
 }
 
 function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
@@ -287,6 +328,7 @@ function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
           console.log("savepriKey Error: "+err);
         }else{
           console.log("savepriKey successful");
+          CALLBACK();
         }
       });
 }
@@ -300,12 +342,14 @@ function savePubkey(SAVEPATH,PUBKEY,CALLBACK){
 *  消息类型，可以是Chat，Reply等
 * @param FROM
 *  消息的发送方标识，可以是Account帐号
+* @param FROMUUID
+*  消息的发送方的UUID
 * @param TO
 *  消息的接收方标识，可以是Account帐号
 * @return rply
 *  封装好，并且已经序列化的消息字符串
 */
-function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
+function encapsuMSG(MSG,TYPE,FROM,FROMUUID,TO,PUBKEY)
 {
   var MESSAGE = [];
   var tmp = {};
@@ -319,6 +363,7 @@ function encapsuMSG(MSG,TYPE,FROM,TO,PUBKEY)
   {
     case'Chat':{
       tmp["from"] = FROM;
+      tmp["uuid"] =  FROMUUID;
       tmp["to"] = TO;
       tmp["message"] = MSG;
       tmp['type'] = TYPE;
