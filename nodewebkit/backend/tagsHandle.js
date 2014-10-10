@@ -207,12 +207,6 @@ function getFilesByTags(callback,oTags){
 	}
 	//(more than one tag) ? combine them with 'or' : make it a single sentence
 	var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
-	function findItemsUriCb(err,result){
-		if(err){
-			console.log(err);
-			return;
-		}
-	}
 	commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 		if(err){
 			console.log(err);
@@ -350,14 +344,8 @@ function rmTagsAll(callback,oTags){
 			console.log("error in delete items!")
 			return;
 		}
-
+		//(more than one tag) ? combine them with 'or' : make it a single sentence
 		var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
-		function findItemsUriCb(err,result){
-			if(err){
-				console.log(err);
-				return;
-			}
-		}
 		commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 			if(err){
 				console.log(err);
@@ -403,6 +391,7 @@ function rmTagsAll(callback,oTags){
 }
 exports.rmTagsAll = rmTagsAll;
 
+//build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles,result){
 	if(result.length>0){
 		var sUri = result[0].URI;
@@ -414,6 +403,7 @@ function buildDeleteItems(allFiles,result){
 	}
 }
 
+//remove those tags we want to delete
 function doDeleteTags(oAllFiles,oTags){
 	var resultFiles = [];
 	for(var j in oAllFiles){
@@ -437,6 +427,7 @@ function doDeleteTags(oAllFiles,oTags){
 	return oAllFiles;
 }
 
+//get the catefory from URI
 function getCategoryByUri(sUri){
 	var pos = sUri.lastIndexOf("#");
 	var cate = sUri.slice(pos+1,sUri.length);

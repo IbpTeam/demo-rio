@@ -199,7 +199,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
     }
     count++;
     var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
-    updateHelper(callback,desFilePath,item,count,length);
+    updateItemsHelper(callback,desFilePath,item,count,length);
   }
 }
 
