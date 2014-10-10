@@ -21,6 +21,11 @@ var BEGIN_TRANS = "BEGIN TRANSACTION;";
 var ROLLBACK_TRANS = "ROLLBACK";
 var COMMIT_TRANS = "COMMIT;";
 
+//Resolve multiple exec
+var prepArray = new Array();
+var isDbBusy = false;
+var prepDb;
+
 /**
  * @method openDB
  *    Open the database.
@@ -115,6 +120,29 @@ exports.initDatabase = function(callback){
 }
 
 /**
+ * @method runSQL
+ *    Execute the specific sql string.
+ * @param sql
+ *    Specific SQL string to execute.
+ * @param callback
+ *    If provided,this function will be called when the sql was executed successfully
+ *    or when an err occurred, if successfull will return string "commit", otherwise "rollback"
+ */
+function runSQL(sql,callback){
+  prepDb.run(sql,function(err){
+    if(err){
+      console.log("Error:execute SQL error.");
+      console.log("Info :" + err);
+      callback(err);
+      checkPrepArray();
+      return;
+    }
+    callback();
+    checkPrepArray();
+  });
+}
+
+/**
  * @method execSQL
  *    Execute the specific sql string.
  * @param sql
@@ -124,16 +152,14 @@ exports.initDatabase = function(callback){
  *    or when an err occurred, if successfull will return string "commit", otherwise "rollback"
  */
 function execSQL(sql,callback){
-  //Open database
-  var oDb = openDB();
-  oDb.exec(sql,function(err){
+  prepDb.exec(sql,function(err){
     if(err){
       console.log("Error:execute SQL error.");
       console.log("Info :" + err);
-      rollbackTrans(oDb,callback);
+      rollbackTrans(callback);
       return;
     }
-    commitTrans(oDb,callback);
+    commitTrans(callback);
   });
 }
 
@@ -168,11 +194,11 @@ function allSQL(sql,callback){
  *    The database obj.
  * @param callback
  */
-function rollbackTrans(db,callback){
-  db.run(ROLLBACK_TRANS,function(err){
+function rollbackTrans(callback){
+  prepDb.run(ROLLBACK_TRANS,function(err){
     if(err) throw err;
     callback("rollback");
-    closeDB(db);
+    checkPrepArray();
   });
 }
 
@@ -183,12 +209,38 @@ function rollbackTrans(db,callback){
  *    The database obj.
  * @param callback
  */
-function commitTrans(db,callback){
-  db.run(COMMIT_TRANS,function(err){
+function commitTrans(callback){
+  prepDb.run(COMMIT_TRANS,function(err){
     if(err) throw err;
     callback("commit");
-    closeDB(db);
+    checkPrepArray();
   });
+}
+
+/**
+ * @method checkPrepArray
+ *    Check prepare sql Array,run it if not null.
+ */
+function checkPrepArray(){
+  var prepItem = prepArray.shift();
+  if(prepItem != undefined){
+    var sSqlStr = prepItem.sqlStr;
+    var fCallback = prepItem.prepCallback;
+    var sMethod = prepItem.method
+
+    //Run/Exec sql
+    switch(sMethod){
+      case "run":
+        runSQL(sSqlStr,fCallback);
+        break;
+      case "exec":
+        execSQL(sSqlStr,fCallback);
+        break;
+    }
+  }else{
+    closeDB(prepDb);
+    isDbBusy = false;
+  }
 }
 
 /**
@@ -198,14 +250,14 @@ function commitTrans(db,callback){
  *    An data object, it has attribute category&&URI match table&&URI,
  *    other attributes match field in table.
  * @param callback
- *    Retrive "commit" when successfully
- *    Retrive "rollback" when error
+ *    Retrive null when successfully
+ *    Retrive err when error
  */
 exports.createItem = function(item,callback){
   //SQL string
-  var sSqlStr = BEGIN_TRANS;
   var oTempItem = item;
-  sSqlStr = sSqlStr + "insert into " + oTempItem.category;
+  var sSqlStr;
+  sSqlStr = "insert into " + oTempItem.category;
   //Delete attribute category and id from this obj.
   delete oTempItem.category;
   delete oTempItem.id;
@@ -220,8 +272,23 @@ exports.createItem = function(item,callback){
   sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
   console.log("INSERT Prepare SQL is : "+sSqlStr);
 
-  // Exec sql
-  execSQL(sSqlStr,callback);
+  //If db is busy, push sql string into array,
+  //else run it.
+  if(isDbBusy){
+    var prepItem = {
+      prepMethod:"run",
+      sqlStr:sSqlStr,
+      prepCallback:callback
+    };
+    prepArray.push(prepItem);
+  }else{
+    isDbBusy = true;
+    
+    //Open database
+    prepDb = openDB();
+    //Run SQL
+    runSQL(sSqlStr,callback);
+  }
 }
 
 /**
@@ -256,8 +323,68 @@ exports.createItems = function(items,callback){
   });
   //console.log("INSERT Prepare SQL is : "+sSqlStr);
 
-  // Exec sql
-  execSQL(sSqlStr,callback);
+  //If db is busy, push sql string into array,
+  //else run it.
+  if(isDbBusy){
+    var prepItem = {
+      prepMethod:"exec",
+      sqlStr:sSqlStr,
+      prepCallback:callback
+    };
+    prepArray.push(prepItem);
+  }else{
+    isDbBusy = true;
+    
+    //Open database
+    prepDb = openDB();
+    //Exec SQL
+    execSQL(sSqlStr,callback);
+  }
+}
+
+/**
+ * @method deleteItem
+ *    Delete data from database.
+ * @param items
+ *    An obj, must has attribute category&&URI match table&&URI,
+ *    other attributes match field in table.
+ * @param callback
+ *    Retrive null when successfully
+ *    Retrive err when error
+ */
+exports.deleteItem = function(item,callback){
+  var oTempItem = item;
+  var sSqlStr;
+  sSqlStr = "delete from " + oTempItem.category + " where 1=1";
+  //Delete attribute category from this obj.
+  delete oTempItem.category;
+  var sKeyStr = " (id";
+    var sValueStr = ") values (null";
+    for(var key in oTempItem){
+      if(typeof oTempItem[key] == 'string')
+        oTempItem[key] = oTempItem[key].replace("'","''");
+      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
+    }
+    sSqlStr = sSqlStr + ";";
+  //console.log("DELETE Prepare SQL is : "+sSqlStr);
+
+  //If db is busy, push sql string into array,
+  //else run it.
+  if(isDbBusy){
+    var prepItem = {
+      prepMethod:"run",
+      sqlStr:sSqlStr,
+      prepCallback:callback
+    };
+    prepArray.push(prepItem);
+  }else{
+    isDbBusy = true;
+    
+    //Open database
+    prepDb = openDB();
+    //Run sql
+    runSQL(sSqlStr,callback);
+  }
 }
 
 /**
@@ -289,13 +416,90 @@ exports.deleteItems = function(items,callback){
   });
   //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
-  // Exec sql
-  execSQL(sSqlStr,callback);
+  //If db is busy, push sql string into array,
+  //else run it.
+  if(isDbBusy){
+    var prepItem = {
+      prepMethod:"exec",
+      sqlStr:sSqlStr,
+      prepCallback:callback
+    };
+    prepArray.push(prepItem);
+  }else{
+    isDbBusy = true;
+    
+    //Open database
+    prepDb = openDB();
+    //Exec SQL
+    execSQL(sSqlStr,callback);
+  }
+}
+
+/**
+ * @method updateItem
+ *   Update data by specific condition, support batch execute.
+ * @param items
+ *    An obj, must has attribute category match table,
+ *    other attributes match field in table.
+ *    There is a specific attribute: "conditions".It's an contidion array, 
+ *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    If you want to update items by any contidions,you could put them here.
+ *    Default is update by URI if this attribute is undefined(Must have attribute URI).
+ * @param callback
+ *    Retrive null when successfully
+ *    Retrive err when error
+ */
+exports.updateItem = function(item,callback){
+  var sCondStr = " where 1=1";
+  var sSqlStr;
+  var oTempItem = item;
+  var sItemUri = oTempItem.URI;
+  var aConditions = new Array();
+  if(oTempItem.conditions == undefined){
+    sCondStr = sCondStr + " and URI='" + sItemUri + "'";
+  }else{
+    aConditions = oTempItem.conditions;
+    delete oTempItem.conditions;
+    aConditions.forEach(function(condition){
+      sCondStr = sCondStr + " and " + condition; 
+    });
+  }
+  sSqlStr = "Update " + oTempItem.category + " set ";
+  //Delete attribute category and id from this obj.
+  delete oTempItem.category;
+  delete oTempItem.id;
+  delete oTempItem.URI;
+  for(var key in oTempItem){
+    if(typeof oTempItem[key] == 'string')
+      oTempItem[key] = oTempItem[key].replace("'","''");
+    sSqlStr = sSqlStr + key + "='" + oTempItem[key] + "',";
+  }
+  sSqlStr = sSqlStr.substring(0,sSqlStr.length-1);
+  sSqlStr = sSqlStr + sCondStr + ";";
+  console.log("UPDATE Prepare SQL is : "+sSqlStr);
+
+  //If db is busy, push sql string into array,
+  //else run it.
+  if(isDbBusy){
+    var prepItem = {
+      prepMethod:"run",
+      sqlStr:sSqlStr,
+      prepCallback:callback
+    };
+    prepArray.push(prepItem);
+  }else{
+    isDbBusy = true;
+    
+    //Open database
+    prepDb = openDB();
+    //Run SQL
+    runSQL(sSqlStr,callback);
+  }
 }
 
 /**
  * @method updateItems
- *   Update data by URI, support batch execute.
+ *   Update data by specific condition, support batch execute.
  * @param items
  *    An obj Array, each obj must has attribute category match table,
  *    other attributes match field in table.
@@ -339,8 +543,23 @@ exports.updateItems = function(items,callback){
   });
   console.log("UPDATE Prepare SQL is : "+sSqlStr);
 
-  // Exec sql
-  execSQL(sSqlStr,callback);
+  //If db is busy, push sql string into array,
+  //else run it.
+  if(isDbBusy){
+    var prepItem = {
+      prepMethod:"exec",
+      sqlStr:sSqlStr,
+      prepCallback:callback
+    };
+    prepArray.push(prepItem);
+  }else{
+    isDbBusy = true;
+    
+    //Open database
+    prepDb = openDB();
+    //Exec SQL
+    execSQL(sSqlStr,callback);
+  }
 }
 
 /**

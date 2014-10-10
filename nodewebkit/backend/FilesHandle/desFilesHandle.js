@@ -24,6 +24,32 @@ var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
 var TAGS_DIR = "#tags"; //Directory #tags,include tag values
 var FILE_CONFIG = "config.js";
 
+/** 
+ * @Method: createDesFile
+ *    create description file for specific file in its target dir.
+ * @param: newItem
+ *    object : with informations for description.
+ * @param: isLoadEnd
+ *    boolean : tell the resource loading is end or not.
+ *    @param: "successful"
+ * @param: callback
+ *    callback when loading resouce ends.
+ *    @param: isLoadEnd
+ *    boolean
+ **/
+exports.getAttrFromFile = function (path,callback){
+  fs.readFile(path,'utf8',function(err,data){
+    if (err) {
+      console.log("read file error!");
+       console.log(err);
+    }
+    else{
+      var json=JSON.parse(data);
+             console.log(json);
+      callback(json);
+    }
+  });
+}
 
 /** 
  * @Method: createDesFile
@@ -146,10 +172,11 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
 exports.updateItem = function(chItem,attrs,itemDesPath,callback){
   var nameindex=chItem.lastIndexOf('/');
   var fileName=chItem.substring(nameindex+1,chItem.length);
-  var desFilePath = itemDesPath;
+  var desFilePath = itemDesPath+"/"+fileName+".md";
   fs.readFile(desFilePath,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
+       console.log(err);
     }
     else{
       var json=JSON.parse(data);
@@ -198,7 +225,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
     }
     count++;
     var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
-    updateHelper(callback,desFilePath,item,count,length);
+    updateItemsHelper(callback,desFilePath,item,count,length);
   }
 }
 
@@ -211,7 +238,6 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
     }
     else{
       var json=JSON.parse(data);
-
       for(var attr in item){
         json[attr]=item[attr];
       }

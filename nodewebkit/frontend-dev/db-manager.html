@@ -38,7 +38,7 @@ function loadResources(loadResourcesCb,path) {
     }
     $("body").css("cursor", "wait");
     console.log("Insert data to database...");
-    $('div#contact_add #btn_choose').css({"display":"inline"});
+    $('div#contact_add #btn_choose_csv').css({"display":"inline"});
     //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
     data.loadResources(loadResourcesCb,path);
   });
@@ -76,20 +76,20 @@ function chooseFile(name) {
     }
   }, false);
   chooser.click();
-  }
+}
 
-  function chooseCsvFile(name) {
+function chooseCsvFile(name) {
   var chooser = document.querySelector(name);
   chooser.addEventListener("change", function(evt) {
     var dir = this.value;
     if(dir){
       $('div#contact_add #dir_contact_path').text(dir);
-      $('div#contact_add #btn_insert').css({"display":"inline"});
-      $('div#contact_add #btn_choose').val("重新选择路径");
+      $('div#contact_add #btn_insert_csv').css({"display":"inline"});
+      $('div#contact_add #btn_choose_csv').val("重新选择路径");
     }
   }, false);
   chooser.click();
-  }
+}
 
 </script>
 <div id="db_add">
@@ -101,9 +101,9 @@ function chooseFile(name) {
 </div>
 <div id="contact_add">
     <input id="fileDialog" style="display:none;" type="file" nwdirectory/><br>
-    <input id="btn_choose" style="display:none;" type="button" onclick="chooseCsvFile('#fileDialog')" value="选择csv文件路径"></input>
+    <input id="btn_choose_csv" style="display:none;" type="button" onclick="chooseCsvFile('#fileDialog')" value="选择csv文件路径"></input>
     <label id="dir_contact_path"></label><br>
-    <input id="btn_insert" style="display:none;" type="button" onclick="loadContact(loadContactsCb)" value="扫描路径下的文件，初始化数据库"></input>
+    <input id="btn_insert_csv" style="display:none;" type="button" onclick="loadContact(loadContactsCb)" value="扫描路径下的文件，初始化数据库"></input>
 </div>
 <hr>
 </body>
