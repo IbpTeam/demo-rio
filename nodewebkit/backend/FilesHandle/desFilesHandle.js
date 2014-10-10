@@ -238,7 +238,6 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
     }
     else{
       var json=JSON.parse(data);
-
       for(var attr in item){
         json[attr]=item[attr];
       }
