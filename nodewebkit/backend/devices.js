@@ -17,11 +17,11 @@ function getDeviceList(){
         item.sync=false;
         devicesList[item.device_id]=item;
       });
-      console.log("----------------------devicesList:-----------------------");
+/*      console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("---------------------------------------------------------");
+      console.log("---------------------------------------------------------");*/
     }
   });
 }
@@ -45,11 +45,11 @@ function addDevice(device){
     devicesList[device.device_id].online=true;
     devicesList[device.device_id].sync=false;
     console.log("OLD device");
-      console.log("----------------------devicesList:-----------------------");
+/*      console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("**********************************************************");
+      console.log("**********************************************************");*/
   }
   else{
     console.log("NEW device");
@@ -58,11 +58,11 @@ function addDevice(device){
       device.online=true;
       device.sync=false;
       devicesList[device.device_id]=device;
-            console.log("----------------------devicesList:-----------------------");
+/*            console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("**********************************************************");
+      console.log("**********************************************************");*/
     });
   }
 }
@@ -88,6 +88,9 @@ function startDeviceDiscoveryService(){
 //  io.sockets.on('connection', function (socket) {
     getDeviceList();
     mdns.addDeviceListener(function (signal, args){
+      if(args.txt[0]==null){
+        return;
+      }
       if(args.txt[0]=="demo-rio"){
         var device={
           device_id:args.txt[1],
@@ -99,7 +102,7 @@ function startDeviceDiscoveryService(){
         switch(signal){
           case 'ItemNew':{
             //socket.emit('mdnsUp', args);
-            console.log(args);
+//            console.log(args);
             addDevice(device);
             msgTransfer.serviceUpCb(device);
           }       
@@ -117,9 +120,9 @@ function startDeviceDiscoveryService(){
       var name = config.SERVERNAME;
       var port = config.MDNSPORT;
       var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
-      console.log("************************************");
+/*      console.log("************************************");
       console.log(txtarray);
-            console.log("************************************");
+            console.log("************************************");*/
 
       mdns.entryGroupCommit(name,  port, txtarray);
     });
