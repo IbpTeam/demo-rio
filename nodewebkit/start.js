@@ -32,16 +32,18 @@ var DEMO_RIO = ".demo-rio";
 var CONFIG_JS = "config.js";
 var UNIQUEID_JS = "uniqueID.js";
 var DATABASENAME = "rio.sqlite3";
-
-//
-var sFullPath;
+var startonce = false;
 
 /** 
  * @Method: startApp
  *    Start this application and initialization.
  **/
 function startApp(){
-  config.SERVERIP=config.getAddr();
+  if (startonce === true){
+    return;
+  }
+  startonce = true;
+  config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();
   config.ACCOUNT = process.env['USER'];
   var sFullPath = path.join(HOME_DIR, config.ACCOUNT, DEMO_RIO);
@@ -163,9 +165,12 @@ exports.startServer=function(){
 
 exports.requireAPI=function(apilist, callback){
   util.log("requireAPI:" + apilist);
+  if(startonce === false){
+     startApp();
+  }
   var i;
   var apiArr = new Array(apilist.length);
-  for (i = 0; i < apilist.length; i += 1){
+  for(i = 0; i < apilist.length; i += 1){
     apiArr[i] = require('./lib/api/' + apilist[i]);
   }
   setTimeout(function(){callback.apply(null, apiArr)}, 0);

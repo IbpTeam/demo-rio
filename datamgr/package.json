@@ -1,8 +1,8 @@
 {
-  "name": "FileExplorer",
+  "name": "DataManager",
   "main": "file-explorer.html",
   "description": "Simple file explorer.",
-  "version": "0.1",
+  "version": "0.0.5",
   "window": {
     "toolbar": true,
     "width": 660,
