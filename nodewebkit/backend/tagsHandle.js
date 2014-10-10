@@ -424,7 +424,9 @@ function rmTagsAll(callback,oTags){
 							return;
 						}
 						buildDeleteItems(allFiles,resultVideo);
-						var resultItems = doDeleteTags(allFiles,[oTags]);
+						var resultItems = doDeleteTags(allFiles,oTags);
+						console.log("=====================");
+						console.log(resultItems);
 						dataDes.updateItems(resultItems,function(result){
 							if(result === "success"){
 								commonDAO.updateItems(resultItems,function(result){
