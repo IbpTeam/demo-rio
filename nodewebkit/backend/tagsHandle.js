@@ -205,8 +205,7 @@ function getFilesByTags(callback,oTags){
 	for(var k in oTags){
 		condition.push("others like '%"+oTags[k]+"%'");
 	}
-	//(more than one tag) ? combine them with 'or' : make it a single sentence
-	var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
+	var sCondition = [condition.join(' or ')];
 	commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 		if(err){
 			console.log(err);
@@ -301,7 +300,7 @@ exports.setTagByUri = setTagByUri;
 
 
 /**
- * @method rmTagByUri
+ * @method rmTagsByUri
  *   remove a tag from some files with specific uri
  * 
  * @param1 callback
@@ -312,65 +311,88 @@ exports.setTagByUri = setTagByUri;
  *
  *
 */
-function rmTagByUri(callback,sTag,oUri){
+function rmTagsByUri(callback,oTags,oUri){
 	var allFiles = [];
 	var condition = [];
 	var deleteTags = [];
+	var conditionFind = [];
 	for(var k in oUri){
 		condition.push("uri = '"+oUri[k]+"'");
+		conditionFind.push("file_URI = '"+oUri[k]+"'");
 	}
-	commonDAO.deleteItems(deleteTags,function(result){
-		if(result !== "commit"){
-			console.log("error in delete items!")
+	var sCondition = [condition.join(' or ')];
+	var sConditionFind = [conditionFind.join(' or ')];
+	//find all entries with these uri in table 'tags'
+	commonDAO.findItems(null,['tags'],sConditionFind,null,function(err,resultFind){
+		if(err){
+			console.log(err);
 			return;
 		}
-		//(more than one tag) ? combine them with 'or' : make it a single sentence
-		var sCondition = (oUri.length>1) ? [condition.join(' or ')] : ["uri = '"+oUri[0]+"'"];
-		//sCondition = [sCondition + " and others like '%"+ sTag+"%'"];
-		commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
-			if(err){
-				console.log(err);
+		//remove pick up those have tags we want to delete
+		var afterDelete = [];
+		for(var k in resultFind){
+			var isExist = false;
+			for(var j in oTags){
+				if(oTags[j] == resultFind[k].tag){
+					isExist = true;
+				}
+			}
+			if(isExist){
+				(resultFind[k]).category = "tags";
+				afterDelete.push(resultFind[k]);
+			}
+		}
+		//delete those enries in table 'tags'
+		commonDAO.deleteItems(afterDelete,function(resultDelete){
+			if(resultDelete !== "commit"){
+				console.log("error in delete items!")
 				return;
 			}
-			buildDeleteItems(allFiles,resultDoc)
-			commonDAO.findItems(null,['music'],sCondition,null,function(err,resultMusic){
+			commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 				if(err){
 					console.log(err);
 					return;
 				}
-				buildDeleteItems(allFiles,resultMusic)
-				commonDAO.findItems(null,['pictures'],sCondition,null,function(err,resultPic){
+				buildDeleteItems(allFiles,resultDoc)
+				commonDAO.findItems(null,['music'],sCondition,null,function(err,resultMusic){
 					if(err){
 						console.log(err);
 						return;
 					}
-					buildDeleteItems(allFiles,resultPic)
-					commonDAO.findItems(null,['videos'],sCondition,null,function(err,resultVideo){
+					buildDeleteItems(allFiles,resultMusic)
+					commonDAO.findItems(null,['pictures'],sCondition,null,function(err,resultPic){
 						if(err){
 							console.log(err);
 							return;
 						}
-						buildDeleteItems(allFiles,resultVideo)
-						var resultItems = doDeleteTags(allFiles,[sTag]);
-						dataDes.updateItems(resultItems,function(result){
-							if(result === "success"){
-								commonDAO.updateItems(resultItems,function(result){
-									if(result === "commit"){
-										callback(result);
-									}
-								})
-							}else{
-								console.log("error in update des files");
+						buildDeleteItems(allFiles,resultPic)
+						commonDAO.findItems(null,['videos'],sCondition,null,function(err,resultVideo){
+							if(err){
+								console.log(err);
 								return;
 							}
+							buildDeleteItems(allFiles,resultVideo)
+							var resultItems = doDeleteTags(allFiles,oTags);
+							dataDes.updateItems(resultItems,function(result){
+								if(result === "success"){
+									commonDAO.updateItems(resultItems,function(result){
+										if(result === "commit"){
+											callback(result);
+										}
+									})
+								}else{
+									console.log("error in update des files");
+									return;
+								}
+							})
 						})
 					})
-				})
-			})		
-		});
-	})
+				})		
+			});
+})
+})
 }
-exports.rmTagByUri = rmTagByUri;
+exports.rmTagsByUri = rmTagsByUri;
 
 
 /**
@@ -398,8 +420,7 @@ function rmTagsAll(callback,oTags){
 			console.log("error in delete items!")
 			return;
 		}
-		//(more than one tag) ? combine them with 'or' : make it a single sentence
-		var sCondition = (oTags.length>1) ? [condition.join(' or ')] : ["others like '%"+oTags[0]+"%'"];
+		var sCondition = [condition.join(' or ')];
 		commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 			if(err){
 				console.log(err);
@@ -425,8 +446,6 @@ function rmTagsAll(callback,oTags){
 						}
 						buildDeleteItems(allFiles,resultVideo);
 						var resultItems = doDeleteTags(allFiles,oTags);
-						//console.log("=====================");
-						//console.log(resultItems);
 						dataDes.updateItems(resultItems,function(result){
 							if(result === "success"){
 								commonDAO.updateItems(resultItems,function(result){

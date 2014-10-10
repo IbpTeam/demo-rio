@@ -121,7 +121,7 @@
     });  
   }
 
-  function rmTagByUriCb(result){
+  function rmTagsByUriCb(result){
     var win = window.open('');
     win.document.write("test API rmTagsByUri()");
     win.document.write("<br/>");
@@ -129,17 +129,16 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
-  function test_rmTagByUri(rmTagsByUriCb){
+  function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var sTag = "documents";
-      var oUri = ["ace6f9045d75a83682e76288f79dd824#1ae4eb48f2eb95c44096#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#47d395c44894f1903b0f#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#6a681fe480ee14768765#Music",
-                  "ace6f9045d75a83682e76288f79dd824#3b2c5620cb3621ba646f#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#0a54e76d086168ca37b2#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#8c4591adf57e241afb6f#Documents"
+      var oTags = ["documents","Conference","Teaching","contactsphoto"];
+      var oUri = ["ace6f9045d75a83682e76288f79dd824#b1bff3cc39043f672b68#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#e000b5893d98dd2f200e#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#e7d263532a1a08f578cb#Documents",
+                  "ace6f9045d75a83682e76288f79dd824#cb8fe0069bbcf6949293#Documents",
+
                   ];
-      data.rmTagByUri(rmTagByUriCb,sTag,oUri);
+      data.rmTagsByUri(rmTagsByUriCb,oTags,oUri);
     });  
   }
 
@@ -307,11 +306,11 @@
 </div>
 </div>
 
-<h2 onclick="show('rmTagByUri')">rmTagByUri(rmTagByUriCb,sTag,oUri)<span><a class="mark" href="#test_rmTagByUri" id="test_rmTagByUri" onclick="test_rmTagByUri(rmTagByUriCb)">test</a></span></h2>
-<div id="rmTagByUri" style="display:none;">
+<h2 onclick="show('rmTagsByUri')">rmTagsByUri(rmTagsByUriCb,sTag,oUri)<span><a class="mark" href="#test_rmTagsByUri" id="test_rmTagsByUri" onclick="test_rmTagsByUri(rmTagsByUriCb)">test</a></span></h2>
+<div id="rmTagsByUri" style="display:none;">
 <div style="color:#930000">
   <pre>
-  @method rmTagByUri
+  @method rmTagsByUri
     remove a tag from some files with specific uri
   @param1 callback
      return commit if successed
@@ -322,19 +321,19 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function rmTagByUriCb(result){
+  function rmTagsByUriCb(result){
     var win = window.open('');
-    win.document.write("test API rmTagByUri()");
+    win.document.write("test API rmTagsByUri()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>"); 
     print(win,result);  
   }
-  function test_rmTagByUri(rmTagByUriCb){
+  function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = "documents";
       var oUri = [];
-      data.rmTagByUri(rmTagByUriCb,sTag,oUri);
+      data.rmTagsByUri(rmTagsByUriCb,sTag,oUri);
     });  
   }
   </pre>
