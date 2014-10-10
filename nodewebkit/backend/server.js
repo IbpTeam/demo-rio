@@ -6,6 +6,7 @@ var fs = require('fs');
 var config = require("./config");
 var filesHandle = require("./filesHandle");
 var util = require('util');
+var cp = require('child_process');
 var now= new Date();  
 
 function start(route, handle) {
@@ -29,7 +30,6 @@ function start(route, handle) {
   }
   http.createServer(onRequest).listen(config.SERVERPORT);
   config.riolog("Server has started.");
-  filesHandle.monitorNetlink('./var/.netlinkStatus');
 }
 
 exports.start = start;
