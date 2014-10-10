@@ -256,7 +256,8 @@ function checkPrepArray(){
 exports.createItem = function(item,callback){
   //SQL string
   var oTempItem = item;
-  sSqlStr = sSqlStr + "insert into " + oTempItem.category;
+  var sSqlStr;
+  sSqlStr = "insert into " + oTempItem.category;
   //Delete attribute category and id from this obj.
   delete oTempItem.category;
   delete oTempItem.id;
@@ -353,7 +354,8 @@ exports.createItems = function(items,callback){
  */
 exports.deleteItem = function(item,callback){
   var oTempItem = item;
-  sSqlStr = sSqlStr + "delete from " + oTempItem.category + " where 1=1";
+  var sSqlStr;
+  sSqlStr = "delete from " + oTempItem.category + " where 1=1";
   //Delete attribute category from this obj.
   delete oTempItem.category;
   var sKeyStr = " (id";
@@ -449,6 +451,7 @@ exports.deleteItems = function(items,callback){
  */
 exports.updateItem = function(item,callback){
   var sCondStr = " where 1=1";
+  var sSqlStr;
   var oTempItem = item;
   var sItemUri = oTempItem.URI;
   var aConditions = new Array();
@@ -461,7 +464,7 @@ exports.updateItem = function(item,callback){
       sCondStr = sCondStr + " and " + condition; 
     });
   }
-  sSqlStr = sSqlStr + "Update " + oTempItem.category + " set ";
+  sSqlStr = "Update " + oTempItem.category + " set ";
   //Delete attribute category and id from this obj.
   delete oTempItem.category;
   delete oTempItem.id;
