@@ -112,7 +112,7 @@ function initializeApp(){
               cp.exec('touch '+sNetLinkStatusPath,function(error,stdout,stderr){
                 util.log("touch .netlinkstatus");
                 config.NETLINKSTATUSPATH=sNetLinkStatusPath;
-                cp.exec('./node_modules/netlink/netlink '+'/'+sNetLinkStatusPath,function(error,stdout,stderr){
+                cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
                   util.log(sNetLinkStatusPath);
                   filesHandle.monitorNetlink(sNetLinkStatusPath);
                 });
@@ -120,7 +120,7 @@ function initializeApp(){
             }
             else{
               config.NETLINKSTATUSPATH=sNetLinkStatusPath;
-              cp.exec('./node_modules/netlink/netlink '+'/'+sNetLinkStatusPath,function(error,stdout,stderr){
+              cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
                 util.log(sNetLinkStatusPath);
                 filesHandle.monitorNetlink(sNetLinkStatusPath);
               });
