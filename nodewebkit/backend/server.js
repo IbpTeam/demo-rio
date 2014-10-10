@@ -29,7 +29,7 @@ function start(route, handle) {
   }
   http.createServer(onRequest).listen(config.SERVERPORT);
   config.riolog("Server has started.");
-  filesHandle.monitorNetlink('./var/.netlinkStatus');
+  filesHandle.monitorNetlink('/tmp/.netlinkStatus');
 }
 
 exports.start = start;

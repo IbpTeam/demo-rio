@@ -48,7 +48,7 @@ function startApp(){
   msgTransfer.initServer();
   server.start(router.route, handle);
 
-  cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
+  cp.exec('./node_modules/netlink/netlink /tmp/.netlinkStatus');
   cp.exec('echo $USER',function(error,stdout,stderr){
     var sUserName=stdout.replace("\n","");
     sFullPath = path.join(HOME_DIR,sUserName,DEMO_RIO);
