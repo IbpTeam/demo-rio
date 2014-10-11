@@ -613,12 +613,22 @@ function getAllDataByCate(getAllData,cate) {
 exports.getAllDataByCate = getAllDataByCate;
 
 function monitorDesFilesCb(path,event){
-    util.log(event+'  :  '+path);
+  util.log(event+'  :  '+path);
   switch(event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        commonDAO.createItem(item,function(result){
+        var items = [];
+        items.push(item);
+        if(item.others != "" &&  item.others != null){
+          var tags = item.others.split(",");
+          for(var k in tags){
+            //create new entry in table 'tags'
+            var itemTemp = {category:"tags",file_uri:item.URI,tag:tags[k]};
+            items.push(itemTemp);
+          }
+        }
+        commonDAO.createItems(items,function(result){
           console.log(result);
         });
       });
@@ -634,38 +644,94 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
-      var attrs={
-        conditions:["path='"+origPath+"'"],
-        category:getCategory(origPath).category,
-        is_delete:1,
-        lastModifyTime:(new Date()),
-        lastModifyDev:config.uniqueID
-      };
-      var items=new Array();
-      items.push(attrs);
-      commonDAO.updateItems(items,function(result){
-        console.log(result);
-      });
-    }
-    break;
-    case 'change' : {
-      console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
-      dataDes.getAttrFromFile(path,function(item){
-        if(item.category=="Contacts"){
-          console.log("contacts info change");
+      var category = getCategory(origPath).category;
+      var condition = ["path='"+origPath.replace("'","''")+"'"];
+      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+        if(err){
+          console.log(err);
+          return;
         }
-        else{
-          item.conditions=["path='"+item.path+"'"];
-          var items=new Array();
-          items.push(item);
-          commonDAO.updateItems(items,function(result){
-            console.log(result);
+        if(resultFind.length == 1){
+          var tags = (resultFind[0].others).split(",");
+          var uri = resultFind[0].URI;
+          var itemToDelete = [];
+          for(var k in tags){
+            var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+            itemToDelete.push(itemTemp);
+          }
+          //delete tag-uri form table 'tags' first
+          commonDAO.deleteItems(itemToDelete,function(resultDelete){
+            if(resultDelete == "commit"){
+              var attrs={
+                conditions:condition,
+                category:category,
+                is_delete:1,
+                lastModifyTime:(new Date()),
+                lastModifyDev:config.uniqueID
+              };
+              var items=new Array();
+              items.push(attrs);
+              commonDAO.updateItems(items,function(result){
+                console.log(result);
+              });
+            }else{
+              console.log("delete items error!");
+              return;
+            }
           });
+        }else{
+          console.log("findItems result size error!");
+          return;
         }
-      });
-    }
-    break;
-  }
+      })
+}
+break;
+case 'change' : {
+  console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
+  dataDes.getAttrFromFile(path,function(item){
+    if(item.category=="Contacts"){
+      console.log("contacts info change");
+    }else{
+      var category = [item.category];
+      var path = (item.path).replace("'","''");
+      var condition = ["path='"+path+"'"];
+      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+        if(err){
+          console.log(err);
+          return;
+        }
+        if(resultFind.length == 1){
+          var tags = (resultFind[0].others).split(",");
+          var uri = resultFind[0].URI;
+          var itemToDelete = [];
+          for(var k in tags){
+            var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+            itemToDelete.push(itemTemp);
+          }
+          //delete tag-uri form table 'tags' first
+          commonDAO.deleteItems(itemToDelete,function(resultDelete){
+            if(resultDelete == "commit"){
+              var items=new Array();
+              item.conditions = condition;
+              items.push(item);
+              commonDAO.updateItems(items,function(resultUpdate){
+                console.log(resultUpdate);
+              });
+            }else{
+              console.log("delete items error!");
+              return;
+            }
+          });
+        }else{
+          console.log("findItems result size error!");
+          return;
+        }
+      })
+}
+});
+}
+break;
+}
 }
 exports.monitorDesFilesCb = monitorDesFilesCb;
 
@@ -839,6 +905,13 @@ function updateDataValue(updateDataValueCb,item){
 }
 exports.updateDataValue = updateDataValue;
 
+//get the catefory from URI
+function getCategoryByUri(sUri){
+  var pos = sUri.lastIndexOf("#");
+  var cate = sUri.slice(pos+1,sUri.length);
+  return cate;
+}
+
 //API rmDataById:通过id删除数据
 //返回字符串：
 //成功返回success;
@@ -856,8 +929,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
         if(result==null){
           result='success';
 
-          var pos = (items[0].URI).lastIndexOf("#");
-          var sTableName = (items[0].URI).slice(pos+1,uri.length);
+          var sTableName = getCategoryByUri(items[0].URI);
           items[0].category = sTableName;
           commonDAO.deleteItems(items,rmDataByUriCb);
         }
@@ -870,8 +942,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
     }
   }
 
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
+  var sTableName = getCategoryByUri(uri)
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
@@ -889,8 +960,7 @@ function getDataByUri(getDataCb,uri) {
     getDataCb(items);
   }
 
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
+  var sTableName = getCategoryByUri(uri)
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
@@ -962,8 +1032,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       var item_uri = item.URI;
-      var pos = (item_uri).lastIndexOf("#");
-      var sTableName = (item_uri).slice(pos+1,updateItem.length);
+      var sTableName = getCategoryByUri(item_uri);
       updateItem.category = sTableName;
 
       function updateItemValueCb(result){
@@ -982,8 +1051,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       }
     }
   }
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
+  var sTableName = getCategoryByUri(uri);
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataSourceByUri = getDataSourceByUri;

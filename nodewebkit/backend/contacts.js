@@ -107,7 +107,7 @@ function initContacts(loadContactsCb,resourcePath){
         oContacts.push(oJson[k]);
       }
     }
-    var dataDesPath = config.RESOURCEPATH+"/.des/contacts";
+    var dataDesPath = "/home/xiquan/resources"/*config.RESOURCEPATH*/+"/.des/contacts";
     function mkdirCb(err){
       if(err) {
         console.log("mk contacts desPath error!");
