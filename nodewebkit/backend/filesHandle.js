@@ -632,64 +632,92 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
-      var attrs={
-        conditions:["path='"+origPath+"'"],
-        category:getCategory(origPath).category,
-        is_delete:1,
-        lastModifyTime:(new Date()),
-        lastModifyDev:config.uniqueID
-      };
-      var items=new Array();
-      items.push(attrs);
-      commonDAO.updateItems(items,function(result){
-        console.log(result);
-      });
-    }
-    break;
-    case 'change' : {
-      console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
-      dataDes.getAttrFromFile(path,function(item){
-        if(item.category=="Contacts"){
-          console.log("contacts info change");
-        }else{
-          var column = ["uri"];
-          var table = [item.category];
-          var condition = ["path='"+item.path+"'"];
-          commonDAO.findItems(column,table,condition,null,function(err,resultFind){
-            if(err){
-              console.log(err);
-              return;
-            }
-            if(resultFind.length == 1){
-              var tags = (resultFind[0].others).split(",");
-              var itemToDelete = [];
-              for(var k in tags){
-                var itemTemp = {file_uri:item.uri,category:"tags",tag:tags[k]};
-                itemToDelete.push(itemTemp);
-              }
-              commonDAO.deleteItems(itemToDelete,function(resultDelete){
-                if(resultDelete == "success"){
-                  item.conditions=["path='"+item.path+"'"];
-                  var items=new Array();
-                  items.push(item);
-                  commonDAO.updateItems(items,function(resultUpdate){
-                    console.log(resultUpdate);
-                  });
-                }else{
-                  console.log("delete items error!");
-                  return;
-                }
+      var category = getCategory(origPath).category;
+      var condition = ["path='"+origPath.replace("'","''")+"'"];
+      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+        if(err){
+          console.log(err);
+          return;
+        }
+        if(resultFind.length == 1){
+          var tags = (resultFind[0].others).split(",");
+          var uri = resultFind[0].URI;
+          var itemToDelete = [];
+          for(var k in tags){
+            var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+            itemToDelete.push(itemTemp);
+          }
+          commonDAO.deleteItems(itemToDelete,function(resultDelete){
+            if(resultDelete == "commit"){
+              var attrs={
+                conditions:condition,
+                category:category,
+                is_delete:1,
+                lastModifyTime:(new Date()),
+                lastModifyDev:config.uniqueID
+              };
+              var items=new Array();
+              items.push(attrs);
+              commonDAO.updateItems(items,function(result){
+                console.log(result);
               });
             }else{
-              console.log("findItems result size error!");
+              console.log("delete items error!");
               return;
             }
-          })
+          });
+        }else{
+          console.log("findItems result size error!");
+          return;
         }
-      });
-    }
-    break;
-  }
+      })
+}
+break;
+case 'change' : {
+  console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
+  dataDes.getAttrFromFile(path,function(item){
+    if(item.category=="Contacts"){
+      console.log("contacts info change");
+    }else{
+      var category = [item.category];
+      var path = (item.path).replace("'","''");
+      var condition = ["path='"+path+"'"];
+      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+        if(err){
+          console.log(err);
+          return;
+        }
+        if(resultFind.length == 1){
+          var tags = (resultFind[0].others).split(",");
+          var uri = resultFind[0].URI;
+          var itemToDelete = [];
+          for(var k in tags){
+            var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+            itemToDelete.push(itemTemp);
+          }
+          commonDAO.deleteItems(itemToDelete,function(resultDelete){
+            if(resultDelete == "commit"){
+              var items=new Array();
+              item.conditions = condition;
+              items.push(item);
+              commonDAO.updateItems(items,function(resultUpdate){
+                console.log(resultUpdate);
+              });
+            }else{
+              console.log("delete items error!");
+              return;
+            }
+          });
+        }else{
+          console.log("findItems result size error!");
+          return;
+        }
+      })
+}
+});
+}
+break;
+}
 }
 exports.monitorDesFilesCb = monitorDesFilesCb;
 
