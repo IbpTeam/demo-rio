@@ -315,39 +315,39 @@ function rmTagsByUri(callback,oTags,oUri){
 	var allFiles = [];
 	var condition = [];
 	var deleteTags = [];
-	var conditionFind = [];
+	//var conditionFind = [];
 	for(var k in oUri){
 		condition.push("uri = '"+oUri[k]+"'");
-		conditionFind.push("file_URI = '"+oUri[k]+"'");
+		//conditionFind.push("file_URI = '"+oUri[k]+"'");
 	}
 	var sCondition = [condition.join(' or ')];
-	var sConditionFind = [conditionFind.join(' or ')];
+	//var sConditionFind = [conditionFind.join(' or ')];
 	//find all entries with these uri in table 'tags'
-	commonDAO.findItems(null,['tags'],sConditionFind,null,function(err,resultFind){
-		if(err){
-			console.log(err);
-			return;
-		}
+	// commonDAO.findItems(null,['tags'],sConditionFind,null,function(err,resultFind){
+	// 	if(err){
+	// 		console.log(err);
+	// 		return;
+	// 	}
 		//remove pick up those have tags we want to delete
-		var afterDelete = [];
-		for(var k in resultFind){
-			var isExist = false;
-			for(var j in oTags){
-				if(oTags[j] == resultFind[k].tag){
-					isExist = true;
-				}
-			}
-			if(isExist){
-				(resultFind[k]).category = "tags";
-				afterDelete.push(resultFind[k]);
-			}
-		}
+		// var afterDelete = [];
+		// for(var k in resultFind){
+		// 	var isExist = false;
+		// 	for(var j in oTags){
+		// 		if(oTags[j] == resultFind[k].tag){
+		// 			isExist = true;
+		// 		}
+		// 	}
+		// 	if(isExist){
+		// 		(resultFind[k]).category = "tags";
+		// 		afterDelete.push(resultFind[k]);
+		// 	}
+		// }
 		//delete those enries in table 'tags'
-		commonDAO.deleteItems(afterDelete,function(resultDelete){
-			if(resultDelete !== "commit"){
-				console.log("error in delete items!")
-				return;
-			}
+		// commonDAO.deleteItems(afterDelete,function(resultDelete){
+		// 	if(resultDelete !== "commit"){
+		// 		console.log("error in delete items!")
+		// 		return;
+		// 	}
 			commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 				if(err){
 					console.log(err);
@@ -390,8 +390,8 @@ function rmTagsByUri(callback,oTags,oUri){
 					})
 				})		
 			});
-})
-})
+//})
+//})
 }
 exports.rmTagsByUri = rmTagsByUri;
 
@@ -414,13 +414,13 @@ function rmTagsAll(callback,oTags){
 	var deleteTags = [];
 	for(var k in oTags){
 		condition.push("others like '%"+oTags[k]+"%'");
-		deleteTags.push({category:'tags',tag:oTags[k]});
+		//deleteTags.push({category:'tags',tag:oTags[k]});
 	}
-	commonDAO.deleteItems(deleteTags,function(result){
-		if(result !== "commit"){
-			console.log("error in delete items!")
-			return;
-		}
+	// commonDAO.deleteItems(deleteTags,function(result){
+	// 	if(result !== "commit"){
+	// 		console.log("error in delete items!")
+	// 		return;
+	// 	}
 		var sCondition = [condition.join(' or ')];
 		commonDAO.findItems(null,['documents'],sCondition,null,function(err,resultDoc){
 			if(err){
@@ -464,7 +464,7 @@ function rmTagsAll(callback,oTags){
 				})
 			})		
 		});
-	})
+	//})
 }
 exports.rmTagsAll = rmTagsAll;
 

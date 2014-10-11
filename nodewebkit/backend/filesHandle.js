@@ -611,7 +611,7 @@ function getAllDataByCate(getAllData,cate) {
 exports.getAllDataByCate = getAllDataByCate;
 
 function monitorDesFilesCb(path,event){
-    util.log(event+'  :  '+path);
+  util.log(event+'  :  '+path);
   switch(event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
@@ -651,19 +651,45 @@ function monitorDesFilesCb(path,event){
       dataDes.getAttrFromFile(path,function(item){
         if(item.category=="Contacts"){
           console.log("contacts info change");
-        }
-        else{
-          item.conditions=["path='"+item.path+"'"];
-          var items=new Array();
-          items.push(item);
-          commonDAO.updateItems(items,function(result){
-            console.log(result);
-          });
-        }
-      });
-    }
-    break;
-  }
+        }else{
+          var column = ["uri"];
+          var table = [item.category];
+          var condition = ["path='"++"'"];
+          commonDAO.findItems(column,table,condition,null,function(err,resultFind){
+            if(err){
+              console.log(err);
+              return;
+            }
+            if(resultFind.length == 1){
+              var tags = (resultFind[0].others).split(",");
+              var itemToDelete = [];
+              for(var k in tags){
+                var itemTemp = {file_uri:item.uri,category:"tags",tag:tags[k]};
+                itemToDelete.push(itemTemp);
+              }
+              commonDAO.deleteItems(itemToDelete,function(resultDelete){
+                if(resultDelete == "success"){
+                  item.conditions=["path='"+item.path+"'"];
+                  var items=new Array();
+                  items.push(item);
+                  commonDAO.updateItems(items,function(resultUpdate){
+                    console.log(resultUpdate);
+                  });
+                }else{
+                  console.log("delete items error!");
+                  return;
+                }
+              });
+            }else{
+              console.log("findItems result size error!");
+              return;
+            }
+          })
+}
+});
+}
+break;
+}
 }
 exports.monitorDesFilesCb = monitorDesFilesCb;
 
