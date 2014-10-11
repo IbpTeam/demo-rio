@@ -132,10 +132,10 @@ function configuration(server_addr){
       popover.append($('<div></div>').addClass("arrow"));
       popover.append($('<h3>扫描二维码</h3>').addClass("popover-title"));
       var popover_content = $('<div></div>').addClass("popover-content");
+      var qrcode_link = 'http://' + server_addr.ip + ':' + server_addr.port + '/file-explorer.html#';
+      console.log("qrcode_link:" + qrcode_link);
       popover_content.qrcode({
-      //http://192.168.160.176:8888/frontend-dev/file-explorer.html#
-            text: 'http://' + server_addr.ip + ':' + server_addr.port + '/frontend-dev/file-explorer.html#',
-            //window.location.href,
+            text: qrcode_link,
             width: 150,
             height: 150
           });

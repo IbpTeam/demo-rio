@@ -2,9 +2,12 @@
   <head>
     <title>db-managre</title>
     <meta charset="UTF-8">
-    <script src="../lib/require.js"></script>
-    <script src="../lib/jquery.js"></script>
-    <script src="../lib/api.js"></script>
+    <script src="./lib/require.js"></script>
+    <script src="./lib/jquery.js"></script>
+    <script src="./lib/api.js"></script>
+    <script>
+      WDC.startServer();
+    </script>
   </head>
 <body>
 
@@ -76,9 +79,9 @@ function chooseFile(name) {
     }
   }, false);
   chooser.click();
-  }
+}
 
-  function chooseCsvFile(name) {
+function chooseCsvFile(name) {
   var chooser = document.querySelector(name);
   chooser.addEventListener("change", function(evt) {
     var dir = this.value;
@@ -89,7 +92,7 @@ function chooseFile(name) {
     }
   }, false);
   chooser.click();
-  }
+}
 
 </script>
 <div id="db_add">

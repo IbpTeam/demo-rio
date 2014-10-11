@@ -20,7 +20,9 @@ function gen_popup_dialog(title, message){
   body.html(message);
   
   var footer = $('<div class="modal-footer"></div>');
-  var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>');
+  var footer_edit = $('<button type="button" class="btn btn-success" onclick="gen_edit_dialog()">Edit</button>');
+  footer.append(footer_edit);
+  var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
   footer.append(footer_btn);
   
   var content = $('<div class="modal-content"></div>');
@@ -45,6 +47,9 @@ function gen_popup_dialog(title, message){
   $('#popup_dialog').on('hidden.bs.modal', function(){
     $(this).remove();
   });
+}
+function gen_edit_dialog(message){
+  console.log("gen edit dialog!");
 }
 function cb_get_data_source_file(data_json){
   console.log('get data source file', data_json);
@@ -135,6 +140,9 @@ function cb_get_all_data_file(data_json){
   console.log('get all data file', data_json);
   var file_propery='';
   for(var key in data_json){
+    if(key == 'props'){
+      continue;
+    }
     file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
   }
   gen_popup_dialog('属性', file_propery);
@@ -330,7 +338,7 @@ function Folder(jquery_element) {
                   gen_popup_dialog('属性', file_propery);
                 break;
                 case 'file':
-                  DataAPIgetDataByUri(cb_get_all_data_file, file_json.URI);
+                  DataAPI.getDataByUri(cb_get_all_data_file, file_json.URI);
                 break;
               }
             break;
@@ -575,7 +583,7 @@ Folder.prototype.get_callback_data = function(data_json){
       //data_json[i]['img'] = data_json[i]['photoPath'];
       data_json[i]['props']['path'] = 'root/Contacts/'+data_json[i]['name']+'.contacts';
       data_json[i]['props']['name'] = data_json[i]['name'];
-      data_json[i]['props']['type'] = 'file';
+      data_json[i]['props']['type'] = 'other';
       data_json[i]['props']['icon'] = 'Contacts';
     }
     global_self.emit('set_sidebar', data_json);

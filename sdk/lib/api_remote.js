@@ -1,5 +1,6 @@
-// API lib.
-console.log("head of api.js.");
+// API lib for remote, this file should be automated from api.js, so don't
+// change this file manually;
+console.log("head of api_remote.js.");
 var WDC= {};
 WDC.isDebug = true;
 
@@ -10,12 +11,10 @@ WDC.isDebug = true;
  **/
 WDC.requireAPI = function(apilist, callback){
   var i;
-  var apiArr = new Array(apilist.length);
   for (i = 0; i < apilist.length; i += 1){
-    apiArr[i] = require('./lib/api/' + apilist[i]);
+    apilist[i] = '/lib/api/' + apilist[i] + '.js';
   }
-  console.log("apiArr:" + apiArr);
-  setTimeout(function(){callback.apply(null, apiArr)}, 0);
+  requirejs(apilist, callback);
 }
 
-console.log("end of api.js.");
+console.log("end of api_remote.js.");

@@ -37,7 +37,9 @@ function getAllContacts(getAllCb) {
       contacts.push({
         URI:each.URI,
         name:each.name,
-        photoPath:each.path
+        photoPath:each.path,
+        phone:each.phone,
+        email:each.email
       });
     });
     getAllCb(contacts);
