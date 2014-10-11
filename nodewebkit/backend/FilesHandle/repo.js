@@ -38,7 +38,7 @@ exports.repoInit = function (repoPath,callback)
       }
       else{
         filesHandle.monitorFiles(repoPath,filesHandle.monitorFilesCb);
-        filesHandle.watcher2Start(repoPath+"/.des",filesHandle.monitorDesFilesCb);
+        filesHandle.monitorDesFiles(repoPath+"/.des",filesHandle.monitorDesFilesCb);
         callback("success");
       }
     });

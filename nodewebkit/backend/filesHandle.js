@@ -44,6 +44,8 @@ var rmCommitList = new Array();
 var chCommitList = new Array();
 var monitorFiles1Status =  false;
 exports.monitorFiles1Status = monitorFiles1Status;
+var monitorFiles2Status =  false;
+exports.monitorFiles2Status = monitorFiles2Status;
 var chokidar = require('chokidar'); 
 var watcher1;
 var watcher2;
@@ -746,6 +748,15 @@ function monitorFilesCb(path,event){
 }
 exports.monitorFilesCb = monitorFilesCb;
 
+function monitorDesFiles(monitorPath,callback){
+  if(monitorFiles2Status==true){
+    return;
+  }
+  monitorFiles2Status=true;
+  watcher2Start(monitorPath,callback);
+}
+exports.monitorDesFiles = monitorDesFiles;
+
 function monitorFiles(monitorPath,callback){
   if(monitorFiles1Status==true){
     return;
@@ -777,6 +788,7 @@ function initData(loadResourcesCb,resourcePath){
       if(oldDataDir==null || oldDataDir!=resourcePath){
         var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
         util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
+        config.RESOURCEPATH=resourcePath;
         fs.writeFile(sConfigPath,context,function(e){
           if(e) throw e;
         });
@@ -827,6 +839,7 @@ function initData(loadResourcesCb,resourcePath){
 
         if(isLoadEnd){
           isEndCallback();
+          console.log("endddddddddddddddddddddddddddddddddddddddddddddddddddd");
           commonDAO.createItems(oNewItems,function(result){
             console.log(result);
             console.log("initData is end!!!");
