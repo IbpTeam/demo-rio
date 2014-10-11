@@ -618,7 +618,16 @@ function monitorDesFilesCb(path,event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        commonDAO.createItem(item,function(result){
+        var items = [];
+        items.push(item);
+        if(item.others != ""){
+          var tags = item.others.split(",");
+          for(var k in tags){
+            var itemTemp = {category:"tags",file_uri:item.URI,tag:tags[k]};
+            items.push(itemTemp);
+          }
+        }
+        commonDAO.createItems(items,function(result){
           console.log(result);
         });
       });
