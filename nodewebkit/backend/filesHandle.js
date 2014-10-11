@@ -618,9 +618,13 @@ function monitorDesFilesCb(path,event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
+        // if(item.category=="Contacts"){
+        //   console.log("contacts info change");
+        //   return;
+        // }
         var items = [];
         items.push(item);
-        if(item.others != ""){
+        if(item.others != "" &&  item.others != null){
           var tags = item.others.split(",");
           for(var k in tags){
             //create new entry in table 'tags'
