@@ -279,20 +279,20 @@ function setTagByUri(callback,oTags,sUri){
 			tmpDBItem.push({URI:item.URI,others:newTags,category:category});
 			tmpDesItem.push({path:item.path,others:newTags});
 		}
-		commonDAO.updateItems(tmpDBItem,function(result){
-			if(result != "commit"){
-				console.log(err);
+		dataDes.updateItems(tmpDesItem,function(result){
+			if(result === "success"){
+				// commonDAO.updateItems(tmpDBItem,function(result){
+				// 	if(result != "commit"){
+				// 		console.log(err);
+				// 		return;
+				// 	}
+				// })
+				callback("success");
+			}else{
+				console.log("error in update des file!");
 				return;
 			}
-			dataDes.updateItems(tmpDesItem,function(result){
-				if(result === "success"){
-					callback("success");
-				}else{
-					console.log("error in update des file!");
-					return;
-				}
-			});
-		})
+		});
 	}
 	commonDAO.findItems(null,[sTableName],["URI = "+"'"+sUri+"'"],null,findItemsCb)
 }
@@ -375,11 +375,12 @@ function rmTagsByUri(callback,oTags,oUri){
 							var resultItems = doDeleteTags(allFiles,oTags);
 							dataDes.updateItems(resultItems,function(result){
 								if(result === "success"){
-									commonDAO.updateItems(resultItems,function(result){
-										if(result === "commit"){
-											callback(result);
-										}
-									})
+									// commonDAO.updateItems(resultItems,function(result){
+									// 	if(result === "commit"){
+									// 		callback(result);
+									// 	}
+									// })
+									callback("success")
 								}else{
 									console.log("error in update des files");
 									return;
@@ -448,11 +449,12 @@ function rmTagsAll(callback,oTags){
 						var resultItems = doDeleteTags(allFiles,oTags);
 						dataDes.updateItems(resultItems,function(result){
 							if(result === "success"){
-								commonDAO.updateItems(resultItems,function(result){
-									if(result === "commit"){
-										callback(result);
-									}
-								})
+								// commonDAO.updateItems(resultItems,function(result){
+								// 	if(result === "commit"){
+								// 		callback(result);
+								// 	}
+								// })
+								callback("success");
 							}else{
 								console.log("error in update des files");
 								return;
