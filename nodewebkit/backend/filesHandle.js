@@ -618,10 +618,6 @@ function monitorDesFilesCb(path,event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        // if(item.category=="Contacts"){
-        //   console.log("contacts info change");
-        //   return;
-        // }
         var items = [];
         items.push(item);
         if(item.others != "" &&  item.others != null){
@@ -909,6 +905,13 @@ function updateDataValue(updateDataValueCb,item){
 }
 exports.updateDataValue = updateDataValue;
 
+//get the catefory from URI
+function getCategoryByUri(sUri){
+  var pos = sUri.lastIndexOf("#");
+  var cate = sUri.slice(pos+1,sUri.length);
+  return cate;
+}
+
 //API rmDataById:通过id删除数据
 //返回字符串：
 //成功返回success;
@@ -926,8 +929,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
         if(result==null){
           result='success';
 
-          var pos = (items[0].URI).lastIndexOf("#");
-          var sTableName = (items[0].URI).slice(pos+1,uri.length);
+          var sTableName = getCategoryByUri(items[0].URI);
           items[0].category = sTableName;
           commonDAO.deleteItems(items,rmDataByUriCb);
         }
@@ -940,8 +942,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
     }
   }
 
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
+  var sTableName = getCategoryByUri(uri)
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
@@ -959,8 +960,7 @@ function getDataByUri(getDataCb,uri) {
     getDataCb(items);
   }
 
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
+  var sTableName = getCategoryByUri(uri)
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
@@ -1032,8 +1032,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       var item_uri = item.URI;
-      var pos = (item_uri).lastIndexOf("#");
-      var sTableName = (item_uri).slice(pos+1,updateItem.length);
+      var sTableName = getCategoryByUri(item_uri);
       updateItem.category = sTableName;
 
       function updateItemValueCb(result){
@@ -1052,8 +1051,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
       }
     }
   }
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
+  var sTableName = getCategoryByUri(uri);
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataSourceByUri = getDataSourceByUri;

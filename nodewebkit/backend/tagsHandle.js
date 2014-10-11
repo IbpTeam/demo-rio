@@ -255,14 +255,12 @@ exports.getFilesByTags = getFilesByTags;
  *
 */
 function setTagByUri(callback,oTags,sUri){
-	var pos = sUri.lastIndexOf("#");
-	var sTableName = sUri.slice(pos+1,sUri.length);
+	var category = getCategoryByUri(sUri);
 	function findItemsCb(err,items){
 		if(err){
 			console.log(err);
 			return;
 		}
-		var category = sTableName;
 		var tmpDBItem = [];
 		var tmpDesItem = [];
 		for(var k in items){
@@ -288,7 +286,7 @@ function setTagByUri(callback,oTags,sUri){
 			}
 		});
 	}
-	commonDAO.findItems(null,[sTableName],["URI = "+"'"+sUri+"'"],null,findItemsCb)
+	commonDAO.findItems(null,[category],["URI = "+"'"+sUri+"'"],null,findItemsCb)
 }
 exports.setTagByUri = setTagByUri;
 
