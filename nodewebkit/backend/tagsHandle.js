@@ -57,7 +57,6 @@ function pickTags(oTag,rePos,path){
 function getTagsByPath(path){
 	var oTags = [];
 	var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
-	//var regPos = path.search(/resources/i);
 	if(regPos>-1){
 		pickTags(oTags,regPos,path);
 	}
