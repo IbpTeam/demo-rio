@@ -654,7 +654,7 @@ function monitorDesFilesCb(path,event){
         }else{
           var column = ["uri"];
           var table = [item.category];
-          var condition = ["path='"++"'"];
+          var condition = ["path='"+item.path+"'"];
           commonDAO.findItems(column,table,condition,null,function(err,resultFind){
             if(err){
               console.log(err);
@@ -685,11 +685,11 @@ function monitorDesFilesCb(path,event){
               return;
             }
           })
-}
-});
-}
-break;
-}
+        }
+      });
+    }
+    break;
+  }
 }
 exports.monitorDesFilesCb = monitorDesFilesCb;
 
