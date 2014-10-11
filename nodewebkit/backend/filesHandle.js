@@ -623,6 +623,7 @@ function monitorDesFilesCb(path,event){
         if(item.others != ""){
           var tags = item.others.split(",");
           for(var k in tags){
+            //create new entry in table 'tags'
             var itemTemp = {category:"tags",file_uri:item.URI,tag:tags[k]};
             items.push(itemTemp);
           }
@@ -658,6 +659,7 @@ function monitorDesFilesCb(path,event){
             var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
             itemToDelete.push(itemTemp);
           }
+          //delete tag-uri form table 'tags' first
           commonDAO.deleteItems(itemToDelete,function(resultDelete){
             if(resultDelete == "commit"){
               var attrs={
@@ -706,6 +708,7 @@ case 'change' : {
             var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
             itemToDelete.push(itemTemp);
           }
+          //delete tag-uri form table 'tags' first
           commonDAO.deleteItems(itemToDelete,function(resultDelete){
             if(resultDelete == "commit"){
               var items=new Array();
