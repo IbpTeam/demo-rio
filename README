@@ -1,9 +1,6 @@
 目录结构
-1.nodewebkit目录是后端程序目录，其中包括文件管理器后端，服务器和数据库三部分代码
-
-运行代码
-1.nw nodewebkt
-
-相关资源
-1.node-js第三方模块sqlite3完整源码资源已上传至github中，克隆地址：git@github.com:IbpTeam/sqlite3.git
-2.此版本sqlit3基于node-webkit 0.8.4进行了rebuild，rebuild方法参见sqlite3模块中README.md文件
+nodewebkit目录是后端程序目录，是一个node module，名为demo-rio
+datamgr目录是数据管理器前段程序
+testAPI目录是测试代码目录
+sdk目录是存放应用开发相关文件，其中的lib目录被每个应用依赖，需要拷贝至各个目录
+docs目录存放开发文档相关文件

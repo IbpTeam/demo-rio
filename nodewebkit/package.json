@@ -1,7 +1,7 @@
 {
-  "name": "hello",
-  "main": "index.html",
-  "node-main": "start.js",
+  "name": "demo-rio",
+  "main": "start.js",
+  "version": "0.0.1",
   "window": {
     "toolbar": true,
     "width": 800,
@@ -18,8 +18,8 @@
     "netlink": "~0.0.1",
     "getip": "^0.0.1",
     "chokidar": "~0.8.4",
-    "ws" : "~0.8.4",
-    "csvtojson" : "~0.8.4",
+    "ws" : "~0.4.32",
+    "csvtojson" : "~0.3.13",
     "dbus" : "0.2.10"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
