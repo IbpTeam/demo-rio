@@ -153,6 +153,7 @@ function runSQL(sql,callback){
  */
 function execSQL(sql,callback){
   prepDb.exec(sql,function(err){
+    console.log("execSQL^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^S");
     if(err){
       console.log("Error:execute SQL error.");
       console.log("Info :" + err);
@@ -321,16 +322,17 @@ exports.createItems = function(items,callback){
     }
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
   });
-  //console.log("INSERT Prepare SQL is : "+sSqlStr);
+ // console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
-  if(isDbBusy){
+  if(isDbBusy==true){
     var prepItem = {
       prepMethod:"exec",
       sqlStr:sSqlStr,
       prepCallback:callback
     };
+    console.log(prepItem);
     prepArray.push(prepItem);
   }else{
     isDbBusy = true;
@@ -339,6 +341,7 @@ exports.createItems = function(items,callback){
     prepDb = openDB();
     //Exec SQL
     execSQL(sSqlStr,callback);
+
   }
 }
 

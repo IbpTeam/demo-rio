@@ -92,6 +92,7 @@ function initializeApp(sFullPath){
       config.RESOURCEPATH=dataDir;
       util.log("monitor : "+dataDir);
       filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
+      filesHandle.monitorDesFiles(dataDir+"/.des",filesHandle.monitorDesFilesCb);
     }
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
