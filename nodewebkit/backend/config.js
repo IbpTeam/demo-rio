@@ -1,21 +1,58 @@
 var util = require('util');
-var PROJECTHOME="/home/h/demo-rio/nodewebkit/backend";
-var RESOURCEPATH='/home/v1/demo-rio/nodewebkit/resources';
 var os = require('os');
+
+/*
+ * Config Path
+ * */
+var USERCONFIGPATH;
+exports.USERCONFIGPATH = USERCONFIGPATH;
+var RESOURCEPATH;
+exports.RESOURCEPATH = RESOURCEPATH;
+
+var NETLINKSTATUSPATH;
+exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
+/**
+ * Database Path
+ *
+ */
+var DATABASEPATH;
+exports.DATABASEPATH = DATABASEPATH;
+
+/*
+ * Debug Config
+ * */
 var RIODEBUG=1;
 var DBDEBUG=1;
+
+/*
+ * Server network config
+ * */
 var SERVERPORT=8888;
 var MSGPORT=8889;
 exports.MSGPORT = MSGPORT;
 exports.SERVERPORT = SERVERPORT;
-var FTPORT=8080;//by Xiquan at 2014.7.28
-exports.FTPORT=FTPORT;
+var FILEPORT=8080;
+exports.FILEPORT=FILEPORT;
 var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
 var SOCKETIOPORT=8891;
 exports.SOCKETIOPORT = SOCKETIOPORT;
-var ACCOUNT="wangfeng";
+var SERVERIP;
+exports.SERVERIP = SERVERIP;
+var SERVERNAME;
+exports.SERVERNAME = SERVERNAME;
+
+/*
+ * account
+ * */
+var ACCOUNT;
 exports.ACCOUNT = ACCOUNT;
+var EMAIL="cos_ibp@iscas.ac.cn";
+exports.EMAIL = EMAIL;
+
+/*
+ * Network API
+ * */
 function getAddr(){
   var IPv4;
   //var os = require('os');
@@ -35,13 +72,10 @@ function getAddr(){
 }
 exports.getAddr = getAddr;
 
-var SERVERIP;
-exports.SERVERIP = SERVERIP;
 
-
-var SERVERNAME;
-exports.SERVERNAME = SERVERNAME;
-
+/*
+ * Log functions
+ * */
 function riolog(str){
   if(RIODEBUG==1){
     util.log(str);
@@ -56,6 +90,5 @@ function dblog(str){
 }
 exports.dblog = dblog;
 
-var uniqueID='69fbf7ae568808801c6a7165d30189e7';
-exports.uniqueID=uniqueID;
-
+var uniqueID;
+exports.uniqueID = uniqueID;

@@ -1,0 +1,25 @@
+<html>
+<head>
+<title>test</title>
+  <script src="../lib/require.js"></script>
+  <script src="../lib/jquery.js"></script>
+  <script src="../lib/api.js"></script>
+
+</head>
+<meta charset="UTF-8">
+
+<body>
+
+<script>
+
+WDC.requireAPI(['data'], function(data){
+
+    console.log("test merge");
+    //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+    data.pullFromOtherRepo();
+  });
+</script>
+
+
+</body>
+</html>

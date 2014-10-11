@@ -1,12 +1,6 @@
 目录结构
-1.node-webkit-v0.8.4目录是nw目录
-2.nodewebkit目录是后端程序目录，其中包括文件管理器后端，服务器和数据库三部分代码
-3.browser是前端代码，运行是也需要拷贝到nodewebkit目录下
-
-运行代码
-1.修改nodewebkit目录中backend/router.js，backend/api.js，DAO/CategoryDAO.js三个文件中的绝对路径
-2.执行node-webkit-v0.8.4/nw nodewebkit即可
-
-相关资源
-1.node-js第三方模块sqlite3完整源码资源已上传至github中，克隆地址：git@github.com:IbpTeam/sqlite3.git
-2.此版本sqlit3基于node-webkit 0.8.4进行了rebuild，rebuild方法参见sqlite3模块中README.md文件
+nodewebkit目录是后端程序目录，是一个node module，名为demo-rio
+datamgr目录是数据管理器前段程序
+testAPI目录是测试代码目录
+sdk目录是存放应用开发相关文件，其中的lib目录被每个应用依赖，需要拷贝至各个目录
+docs目录存放开发文档相关文件

@@ -1,0 +1,145 @@
+<html>
+<head>
+  <title>test_filesHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+
+  function print(win,something){
+    if(typeof something == "object"){
+      for(var k in something){
+        win.document.write("{");
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write("}");
+        win.document.write("<br/>");
+      }
+    }else{
+      win.document.write(something);
+    }
+  }
+  
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
+
+  function loadContactCb(result){
+    var win = window.open('');
+    win.document.write("test API loadContactCb()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_loadContacts(loadContactCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = "/home/xiquan/resources/contacts";
+      data.loadContacts(loadContactCb,path);
+    });
+  }
+
+  function getAllContactsCb(result){
+    var win = window.open('');
+    win.document.write("test API getAllContacts()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_getAllContacts(getAllContactsCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getAllContacts(getAllContactsCb);
+    });
+  }
+
+  </script>
+
+<h2 onclick="show('loadContacts')" >loadContacts(loadContactCb,path)<span><a class="mark" href="#test_loadContacts" id="test_loadContacts" onclick="test_loadContacts(loadContactCb)">test</a></span></h2>
+<div id="loadContacts" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : loadContacts 读取某个contact文件夹到数据库
+      @param1 : loadContactCb 回调函数
+        @result : string，success代表成功，其他代表失败原因
+      @param2 path : string，要加载资源的路径
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function loadContactCb(result){
+      win.document.write("test API loadResources()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");
+    }
+
+    function test_loadResources(loadContactCb){
+      WDC.requireAPI(['data'], function(data){
+        var path = "/home/xiquan/resources";
+        data.loadResources(loadContactCb,path);
+      });
+    }        
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('getAllContacts')">getAllContacts(getAllContactsCb)<span><a class="mark" href="#test_getAllContacts" id="test_getAllContacts" onclick="test_getAllContacts(getAllContactsCb)">test</a></span></h2>
+<div id="getAllContacts" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : getAllContacts 获得所有联系人数组
+      @param1 : getAllContactsCb 回调函数
+        @result : 
+          array[cate]: 联系人数组
+            cate数据如下：
+              cate{
+                URI;
+                version;
+                name;
+                photPath;
+              }
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getAllContactsCb(result){
+      var win = window.open('');
+      win.document.write("test API getAllContacts()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");
+    }
+
+    function test_getAllContacts(getAllContactsCb){
+      WDC.requireAPI(['data'], function(data){
+        data.getAllContacts(getAllContactsCb,path);
+      });
+    }        
+</pre>
+</div>
+</div>
+
+</body>
+</html>

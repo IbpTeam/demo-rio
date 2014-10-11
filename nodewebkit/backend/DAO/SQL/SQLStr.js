@@ -1,65 +1,28 @@
-//SQL used in CategoryDAO
-exports.COUNTTOTALCATEGORIES = "select count(*) as total from Category";
-exports.FINDALLCATEGORIES = "select * from Category";
-exports.FINDCATEGORYBYID = "select * from Category where id = ?";
-//exports.CREATECATEGORY = "insert into category (id,filename,postfix,size,path,location,createTime,lastModifyTime,others) values (null,?,?,?,?,?,?,?,?)";
+/**
+ * @Copyright:
+ * 
+ * @Description: const sql used in dao
+ *
+ * @author: Yuanzhe
+ *
+ * @Data:2014.9.11
+ *
+ * @version:0.2.1
+ **/
 
-//SQL used in ContactsDAO
-exports.COUNTTOTALCONTACTS = "select count(*) as total from contacts";
-exports.FINDALLCONTACTS = "select * from Contacts";
-exports.FINDCONTACTBYID = "select * from contacts where id = ?";
-exports.CREATECONTACT = "insert into contacts (id,name,phone,sex,age,email,photoPath,createTime,lastModifyTime,lastAccessTime,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
-exports.DELETECONTACT = "delete from contacts where URI = ?";
-exports.UPDATECONTACT = "update contacts set ? = ? where id = ?";
-
-//SQL used in PicturesDAO
-exports.COUNTTOTALPICTURES = "select count(*) as total from pictures";
-exports.FINDALLPICTURES = "select * from pictures";
-exports.FINDPICTUREBYID = "select * from pictures where id = ?";
-exports.CREATEPICTURE = "insert into pictures (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
-exports.DELETEPICTURE = "delete from pictures where URI = ?";
-exports.UPDATEPICTURE = "update pictures set ? = ? where id = ?";
-
-//SQL used in VideosDAO
-exports.COUNTTOTALVIDEOS = "select count(*) as total from videos";
-exports.FINDALLVIDEOS = "select * from videos";
-exports.FINDVIDEOBYID = "select * from videos where id = ?";
-exports.CREATEVIDEO = "insert into videos (id,filename,postfix,size,path,location,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
-exports.DELETEVIDEO = "delete from videos where URI = ?";
-exports.UPDATEVIDEO = "update videos set ? = ? where id = ?";
-
-//SQL used in DocumentsDAO
-exports.COUNTTOTALDOCUMENTS = "select count(*) as total from documents";
-exports.FINDALLDOCUMENTS = "select * from documents";
-exports.FINDDOCUMENTBYID = "select * from documents where id = ?";
-exports.CREATEDOCUMENT = "insert into documents (id,filename,postfix,size,path,project,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?)";
-exports.DELETEDOCUMENT = "delete from documents where URI = ?";
-exports.UPDATEDOCUMENT = "update documents set ? = ? where id = ?";
-
-//SQL used in MusicDAO
-exports.COUNTTOTALMUSIC = "select count(*) as total from music";
-exports.FINDALLMUSIC = "select * from music";
-exports.FINDMUSICBYID = "select * from music where id = ?";
-exports.CREATEMUSIC = "insert into music (id,filename,postfix,size,path,album,composerName,actorName,createTime,lastModifyTime,lastAccessTime,others,URI) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-exports.DELETEMUSIC = "delete from music where URI = ?";
-exports.UPDATEMUSIC = "update music set ? = ? where id = ?";
-
-//SQL used in RecentDAO
-exports.COUNTTOTALRECENT = "select count(*) as total from recent";
-exports.FINDALLRECENT = "select * from recent";
-exports.FINDALLRECENTBYORDER = "select * from recent order by lastAccessTime desc";
-exports.FINDRECENTBYID = "select * from recent where id = ?";
-exports.CREATERECENT = "insert into recent (id,tableName,specificId,lastAccessTime) values (null,?,?,?)";
-exports.DELETERECENT = "delete from recent where id = ?";
-exports.UPDATERECENT = "update recent set ? = ? where id = ?";
-
-
-//SQL used in ActionHistoryDAO
-exports.CREATEINSERTITEM = "insert into InsertHistory (id,dataURI) values (null,?)";
-exports.CREATEDELETEITEM = "insert into DeleteHistory (id,dataURI) values (null,?)";
-exports.CREATEUPDATEITEM = "insert into UpdateHistory (id,dataURI,key,value) values (null,?,?,?)";
-exports.REMOVEUPDATEITEM = "delete from UpdateHistory where dataURI = ?";
-exports.REMOVEINSERTITEM = "delete from InsertHistory where dataURI = ?";
-exports.FINDALLUPDATES = "select * from UpdateHistory";
-exports.FINDALLDELETES = "select * from DeleteHistory";
-exports.FINDALLINSERTS = "select * from InsertHistory";
+//SQL for init database
+exports.INITDB = "BEGIN TRANSACTION;\
+CREATE TABLE category (logoPath TEXT, id INTEGER PRIMARY KEY, type TEXT, desc TEXT);\
+CREATE TABLE contacts (is_delete INTEGER, URI TEXT, photoPath TEXT, id INTEGER PRIMARY KEY, name TEXT, phone NUMERIC, sex TEXT, age NUMERIC, email TEXT,createTime TEXT,createDev TEXT, lastAccessTime TEXT,lastAccessDev TEXT,lastModifyTime TEXT,lastModifyDev TEXT,others TEXT);\
+CREATE TABLE devices (lastSyncTime TEXT, resourcePath TEXT, ip TEXT, name TEXT, id INTEGER PRIMARY KEY, device_id TEXT, account TEXT);\
+CREATE TABLE documents (is_delete INTEGER, URI TEXT, postfix TEXT, filename TEXT, id INTEGER PRIMARY KEY, size TEXT, path TEXT, project TEXT, createTime TEXT,createDev TEXT, lastAccessTime TEXT,lastAccessDev TEXT,lastModifyTime TEXT,lastModifyDev TEXT,others TEXT);\
+CREATE TABLE music (is_delete INTEGER, URI TEXT, postfix TEXT, filename TEXT, id INTEGER PRIMARY KEY, size TEXT, path TEXT, album TEXT, composerName TEXT, actorName TEXT, createTime TEXT,createDev TEXT, lastAccessTime TEXT,lastAccessDev TEXT,lastModifyTime TEXT,lastModifyDev TEXT,others TEXT);\
+CREATE TABLE pictures (is_delete INTEGER, URI TEXT, postfix TEXT, filename TEXT, id INTEGER PRIMARY KEY, size TEXT, path TEXT, location TEXT, createTime TEXT,createDev TEXT, lastAccessTime TEXT,lastAccessDev TEXT,lastModifyTime TEXT,lastModifyDev TEXT,others TEXT);\
+CREATE TABLE tags (id INTEGER PRIMARY KEY, file_URI TEXT, tag TEXT);\
+CREATE TABLE videos (is_delete INTEGER, URI TEXT, postfix TEXT, name TEXT, path TEXT, id INTEGER PRIMARY KEY, size TEXT, type TEXT, createTime TEXT,createDev TEXT, lastAccessTime TEXT,lastAccessDev TEXT,lastModifyTime TEXT,lastModifyDev TEXT,others TEXT);\
+INSERT INTO category VALUES('./frontend-dev/images/contacts.jpg',101,'Contacts','联系人');\
+INSERT INTO category VALUES('./frontend-dev/images/pictures.png',102,'Pictures','图片');\
+INSERT INTO category VALUES('./frontend-dev/images/videos.png',103,'Videos','视频');\
+INSERT INTO category VALUES('./frontend-dev/images/documents.jpg',104,'Documents','文档');\
+INSERT INTO category VALUES('./frontend-dev/images/music.png',105,'Music','音乐');\
+INSERT INTO category VALUES('./frontend-dev/images/devices.jpg',106,'Devices','设备');";
