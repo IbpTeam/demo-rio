@@ -78,14 +78,16 @@ function initIMServer(){
         //console.log("pubkey is "+pubKey);
         
         isExist(msgObj.uuid,function(){
-          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,pubKey);
+          var tmpkey = ursaED.loadPubKeySync('./key/users/'+msgObj.uuid+'.pem');
+          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,tmpkey);
           c.write(tp);
         },function(){
-          var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,pubKey);
-          c.write(tp);
+          requestPubKey(msgObj.uuid,msgObj.from,keyPair,function(){
+            var tmpkey = ursaED.loadPubKeySync('./key/users/'+msgObj.uuid+'.pem');
+            var tp = encapsuMSG(MD5(msgObj.message),"Reply",LOCALACCOUNT,LOCALUUID,msgObj.from,tmpkey);
+            c.write(tp);
+          });   
         });
-        
-        
       }
       break;
         case 'Reply': {
