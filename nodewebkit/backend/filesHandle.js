@@ -610,8 +610,18 @@ function getAllDataByCate(getAllData,cate) {
       commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
     }
 }
-exports.getAllDataByCate = getAllDataByCate;
 
+/**
+ * @method monitorDesFilesCb
+ *   监视描述文件功能的回调函数
+ *
+ * @param1 path
+ *   监视的路径
+ *
+ * @param2 event
+ *   监视到的事件
+ *    新建add， 删除unlink， 更改change
+ */
 function monitorDesFilesCb(path,event){
   util.log(event+'  :  '+path);
   switch(event){
