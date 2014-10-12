@@ -88,21 +88,6 @@
     });
   }
 
-  function openDataSourceCb(file_content){
-    var win = window.open(''); 
-    win.document.write("test API openLocalDataSourceByPath()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,file_content);
-  }
-  function test_openLocalDataSourceByPath(openDataSourceCb){
-    WDC.requireAPI(['data'], function(data){
-      var content = "/home/xiquan/WORK_DIRECTORY/app/demo-rio/README";
-      data.openLocalDataSourceByPath(openDataSourceCb,content);
-    });
-  }
-
   function updateDataValueCb(result){
     var win = window.open(''); 
     win.document.write("test API updateDataValue()");
@@ -334,41 +319,6 @@
       });
     }     
 </pre>
-</div>
-</div>
-
-
-<h2 onclick="show('openLocalDataSourceByPath')">openLocalDataSourceByPath(openDataSourceCb,content)<span><a class="mark" href="#test_openLocalDataSourceByPath" id="test_openLocalDataSourceByPath" onclick="test_openLocalDataSourceByPath(openDataSourceCb)">test</a></span></h2>
-<div id="openLocalDataSourceByPath" style="display:none;">
-<div style="color:#930000">
-  <pre>
-    @method : openLocalDataSourceByPath 打开数据
-      @param1 : openDataSourceCb 回调函数
-        @result : 
-          内容是一个div,用于显示应用数据
-          如果是本地打开文件，则显示成功打开信息
-
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-    具体实现：<br>
-    function openDataSourceCb(file_content){
-      var win = window.open(''); 
-      win.document.write("test API openLocalDataSourceByPath()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win,file_content);
-    }
-    
-    function test_openLocalDataSourceByPath(openDataSourceCb){
-      WDC.requireAPI(['data'], function(data){
-        var content = "/home/xiquan/WORK_DIRECTORY/app/demo-rio/README";
-        data.openLocalDataSourceByPath(openDataSourceCb,content);
-      });
-    }    
-  </pre>
 </div>
 </div>
 

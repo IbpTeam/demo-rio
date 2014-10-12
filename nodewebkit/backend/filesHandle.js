@@ -863,22 +863,6 @@ function initData(loadResourcesCb,resourcePath){
 }
 exports.initData = initData;
 
-//API openDataSourceById: 打开数据
-//返回类型：
-//回调函数带一个参数，内容是一个div，用于显示应用数据，如果是本地打开文件，则显示成功打开信息
-function openLocalDataSourceByPath(openDataSourceCb, content){
-  var sys = require('sys');
-  var exec = require('child_process').exec;
-  var commend = "xdg-open \"" + content + "\"";
-  exec(commend, function(error,stdout,stderr){
-    sys.print('stdout: ' + stdout);
-    sys.print('stderr: ' + error);
-  });
-  file_content = "成功打开文件" + content;
-  openDataSourceCb(file_content);
-}
-exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
-
 //API updateItemValue:修改数据某一个属性
 //返回类型：
 //成功返回success;
@@ -948,8 +932,8 @@ function rmDataByUri(rmDataByUriCb, uri) {
 exports.rmDataByUri = rmDataByUri;
 
 
-//API getDataByUri:通过Uri查看数据所有信息
-//返回具体数据类型对象
+//API getDataByUri:打开URI对应的数据
+//返回显示数据或结果
 function getDataByUri(getDataCb,uri) {
     console.log("read data : "+ uri);
   function getItemByUriCb(err,items){
@@ -966,13 +950,13 @@ function getDataByUri(getDataCb,uri) {
 exports.getDataByUri = getDataByUri;
 
 
-//API getDataSourceByUri:通过Uri获取数据资源地址
+//API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
 //result{
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
-function getDataSourceByUri(getDataSourceCb,uri){
+function openDataByUri(openDataByUriCb,uri){
   function getItemByUriCb(err,items){
     if(err){
       console.log(err);
@@ -981,49 +965,88 @@ function getDataSourceByUri(getDataSourceCb,uri){
     var item = items[0];
     if(item==null){
       config.riolog("read data : "+ item);
-      getDataSourceCb('undefined');
+      openDataByUriCb('undefined');
     }
     else{
       config.riolog("read data : "+ item.path);
+      var source;
       if(item.postfix==null){
-        var source={
-          openmethod:'direct',
-          content:item.path
+        source={
+          openmethod: 'alert',
+          content:    item.path + ' can not be recognized.'
         };
+      } else {
+        switch(item.postfix){
+          case 'jpg':
+            source={
+              openmethod: 'html',
+              format:     'div',
+              title:      '文件浏览',
+              content:    '<img src=' + item.path + ' />'
+            }
+            break;
+          case 'png':
+            source={
+              openmethod: 'html',
+              format:     'div',
+              title:      '文件浏览',
+              content:    '<img src=' + item.path + ' />'
+            }
+            break;
+          case 'txt':
+            source={
+              openmethod: 'html',
+              format:     'txtfile',
+              title:      '文件浏览',
+              content:    item.path
+            }
+            break;
+          case 'ogg':
+            source={
+              openmethod: 'html',
+              format:     'audio',
+              title:      '文件浏览',
+              content:    item.path
+            }
+            break;
+          case 'none':
+            source={
+              openmethod: 'alert',
+              content:    item.path + ' can not be recognized.'
+            };
+            break;
+          default:
+            /*
+             * TODO: The opening DOC/PPT/XLS files way need to be supported by noVNC.
+             * var host = window.location.host.split(':')[0];       //localhost run
+             * console.log(host);
+             * var password = "demo123";
+             * function turnToVNC()
+             * {
+             *   window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
+             * }
+             * setTimeout(turnToVNC,1000);
+             **/
+            item.path = decodeURIComponent(item.path);
+            var sys = require('sys');
+            var exec = require('child_process').exec;
+            var commend = "xdg-open \"" + item.path + "\"";
+            exec(commend, function(error,stdout,stderr){
+              sys.print('stdout: ' + stdout);
+              sys.print('stderr: ' + error);
+            });
+
+            source={
+              openmethod: 'html',
+              format:     'txt',
+              title:      '文件浏览',
+              content:    "成功打开文件" + item.path
+            }
+            break;
+        }
       }
-      else if(item.postfix=='none'||
-              item.postfix=='jpg'||
-              item.postfix=='png'||
-              item.postfix=='txt'||
-              item.postfix=='ogg'){
-        var source={
-          openmethod:'direct',
-          content:item.path
-        };
-      }
-      else if(item.postfix == 'ppt' ||
-              item.postfix == 'pptx'|| 
-              item.postfix == 'doc'|| 
-              item.postfix == 'docx'|| 
-              item.postfix == 'wps'|| 
-              item.postfix == 'odt'|| 
-              item.postfix == 'et'||  
-              item.postfix == 'xls'|| 
-              item.postfix == 'xlsx'){
-        item.path = decodeURIComponent(item.path);
-        var source={
-          openmethod:'local',
-          content:item.path
-        };
-      }
-      else {
-        item.path = decodeURIComponent(item.path);
-        var source={
-          openmethod:'local',
-          content:item.path
-        };
-      }
-      getDataSourceCb(source);
+
+      openDataByUriCb(source);
 
       var currentTime = (new Date());
       config.riolog("time: "+ currentTime);
@@ -1054,7 +1077,7 @@ function getDataSourceByUri(getDataSourceCb,uri){
   var sTableName = getCategoryByUri(uri);
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
-exports.getDataSourceByUri = getDataSourceByUri;
+exports.openDataByUri = openDataByUri;
 
 
 //API getRecentAccessData:获得最近访问数据的信息
