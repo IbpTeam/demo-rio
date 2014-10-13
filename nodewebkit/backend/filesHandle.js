@@ -1061,7 +1061,7 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function monitorNetlink(path){
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet '+path);
-  fs.watch(path, function (event, filename) {
+  /*fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
     if(filename){
       config.riolog('filename provided: ' + filename);
@@ -1072,7 +1072,7 @@ function monitorNetlink(path){
     else{
       config.riolog('filename not provided');
     }
-  });
+  });*/
 }
 exports.monitorNetlink = monitorNetlink;
 
@@ -1134,13 +1134,3 @@ function firstSync(){
   });
 }
 exports.firstSync = firstSync;
-
-/**
- * @method initDatabase
- *    Database initialize.
- * @param callaback
- *    Callback
- */
-exports.initDatabase = function(callback){
-  commonDAO.initDatabase(callback);
-}
