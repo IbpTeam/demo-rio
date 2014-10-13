@@ -920,16 +920,17 @@ exports.initData = initData;
 //成功返回success;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb,item){
-  var oItems = item;//all items should include it's file path
+  //all items should include it's file path
+  var oItems = item;
   console.log("Request handler 'updateDataValue' was called.");
-      dataDes.updateItems(oItems,function(result){
-        if(result === "success"){
-          updateDataValueCb('success');
-        }else{
-          console.log("error in update des file!");
-          return;
-        }
-      });
+  dataDes.updateItems(oItems,function(result){
+    if(result === "success"){
+      updateDataValueCb('success');
+    }else{
+      console.log("error in update des file!");
+      return;
+    }
+  });
 }
 exports.updateDataValue = updateDataValue;
 
@@ -1170,7 +1171,7 @@ function getRecentAccessData(getRecentAccessDataCb,num){
 }
 exports.getRecentAccessData = getRecentAccessData;
 
-
+//would cause problem,needs to be modify.
 function monitorNetlink(path){
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet '+path);
 /*
