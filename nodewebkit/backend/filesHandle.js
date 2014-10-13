@@ -89,6 +89,9 @@ function getCategory(path){
   else if(itemPostfix == 'mp3' || itemPostfix == 'ogg'){
     return {category:"Music",filename:itemFilename,postfix:itemPostfix};
   }
+  else if(itemPostfix == 'conf' || itemPostfix == 'desktop'){
+    return {category:"Configuration",filename:itemFilename,postfix:itemPostfix};
+  }
 }
 
 function addData(itemPath,itemDesPath,isLoadEnd,callback){
@@ -184,6 +187,31 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
           dataDes.createItem(oNewItem,itemDesPath,createItemCb);
         });
         break;
+      }
+      case "Configuration":{
+        uniqueID.getFileUid(function(uri){
+          var oNewItem = {
+            id:null,
+            URI:uri + "#" + category,
+            category:category,
+            is_delete:0,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:itemPath,
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            createDev:config.uniqueID,
+            lastModifyDev:config.uniqueID,
+            lastAccessDev:config.uniqueID
+          };
+          function createItemCb(){
+            callback(isLoadEnd,oNewItem);
+          }
+          dataDes.createItem(oNewItem,itemDesPath,createItemCb);
+        });
+        break;        
       }
       default:{
         writeDbNum --;    
@@ -610,6 +638,7 @@ function getAllDataByCate(getAllData,cate) {
       commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
     }
 }
+exports.getAllDataByCate = getAllDataByCate;
 
 /**
  * @method monitorDesFilesCb
@@ -628,6 +657,10 @@ function monitorDesFilesCb(path,event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
+        if(item.category === "Configuration"){
+          console.log("desktop configuration added !");
+          return;
+        }
         var items = [];
         items.push(item);
         if(item.others != "" &&  item.others != null){
@@ -646,6 +679,12 @@ function monitorDesFilesCb(path,event){
     break;
     case 'unlink' : {
       console.log("unlink des file @@@@@@@@@@@@@@@@@@@@@");
+      var category = getCategory(origPath).category;
+      if(category == "Configuration"){
+          console.log("desktop configuration file deleted !");
+          console.log("Path: "+path);
+          return;
+      }
       var desPathIndex=path.lastIndexOf(".des");
       var filePath=path.substring(desPathIndex,path.length);
       var nextIndex=filePath.indexOf("/");
@@ -654,7 +693,6 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
-      var category = getCategory(origPath).category;
       var condition = ["path='"+origPath.replace("'","''")+"'"];
       commonDAO.findItems(null,category,condition,null,function(err,resultFind){
         if(err){
@@ -699,8 +737,12 @@ function monitorDesFilesCb(path,event){
     case 'change' : {
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        if(item.category=="Contacts"){
+        if(item.category == "Contacts"){
           console.log("contacts info change");
+        }
+        else if(item.category === "Configuration"){
+          console.log("desktop configuration added !");
+          return;
         }else{
           var category = [item.category];
           var path = (item.path).replace("'","''");
@@ -847,18 +889,18 @@ function initData(loadResourcesCb,resourcePath){
     for(var k=0;k<fileList.length;k++){
       var isLoadEnd = (k == (fileList.length-1));
       addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-        oNewItems.push(oNewItem);
-
-        var oTags = (oNewItem.others).split(",");
-        for(var k in oTags){
-          var item ={
-            category:"tags",
-            tag:oTags[k],
-            file_URI:oNewItem.URI
+        if(oNewItem.category !== "Configuration"){
+          oNewItems.push(oNewItem);
+          var oTags = (oNewItem.others).split(",");
+          for(var k in oTags){
+            var item ={
+              category:"tags",
+              tag:oTags[k],
+              file_URI:oNewItem.URI
+            }
+            oNewItems.push(item);
           }
-          oNewItems.push(item);
         }
-
         if(isLoadEnd){
           isEndCallback();
           console.log("endddddddddddddddddddddddddddddddddddddddddddddddddddd");
@@ -878,24 +920,17 @@ exports.initData = initData;
 //成功返回success;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb,item){
-  var oItems = item;//all items should include it's file path
+  //all items should include it's file path
+  var oItems = item;
   console.log("Request handler 'updateDataValue' was called.");
-  function updateItemValueCb(result){
-    config.riolog("update DB: "+ result);
-    if(result!='commit'){
-      console.log("Error : result : "+result)
+  dataDes.updateItems(oItems,function(result){
+    if(result === "success"){
+      updateDataValueCb('success');
+    }else{
+      console.log("error in update des file!");
+      return;
     }
-    else{
-      dataDes.updateItems(oItems,function(result){
-        if(result === "success"){
-          updateDataValueCb('success');
-        }else{
-          console.log("error in update des file!");
-          return;
-        }
-      });
-    }
-  }
+  });
 }
 exports.updateDataValue = updateDataValue;
 
@@ -1139,6 +1174,9 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function monitorNetlink(path){
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet '+path);
+/*
+TODO:would cause problem,needs to be modify.
+
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
     if(filename){
@@ -1151,6 +1189,7 @@ function monitorNetlink(path){
       config.riolog('filename not provided');
     }
   });
+*/
 }
 exports.monitorNetlink = monitorNetlink;
 
