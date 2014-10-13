@@ -610,6 +610,7 @@ function getAllDataByCate(getAllData,cate) {
       commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
     }
 }
+exports.getAllDataByCate = getAllDataByCate;
 
 /**
  * @method monitorDesFilesCb
