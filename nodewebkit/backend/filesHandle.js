@@ -1171,10 +1171,12 @@ function getRecentAccessData(getRecentAccessDataCb,num){
 }
 exports.getRecentAccessData = getRecentAccessData;
 
-//would cause problem,needs to be modify.
+
 function monitorNetlink(path){
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet '+path);
 /*
+TODO:would cause problem,needs to be modify.
+
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
     if(filename){
