@@ -1099,13 +1099,11 @@ function openDataByUri(openDataByUriCb,uri){
       var currentTime = (new Date());
       config.riolog("time: "+ currentTime);
       var updateItem = item;
-      //console.log(updateItem);
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       var item_uri = item.URI;
       var sTableName = getCategoryByUri(item_uri);
       updateItem.category = sTableName;
-
       var desFilePath = (item.path).replace(/\/resources\//,'/resources/.des/');
       desFilePath = desFilePath + '.md';
       dataDes.updateItem(item.path,{lastAccessTime:currentTime},desFilePath,function(){
