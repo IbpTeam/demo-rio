@@ -25,3 +25,8 @@ var events = require('events');
 var uniqueID = require("./uniqueID");
 
 
+function readThemeConf () {
+  var confPath = pathModule.join(config.RESOURCEPATH + "Theme.conf");
+  console.log("paaaaaaaaaaaaaaaaaaaath: "+confPath);
+}
+exports.readThemeConf = readThemeConf;

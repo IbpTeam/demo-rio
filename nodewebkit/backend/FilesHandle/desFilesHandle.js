@@ -214,6 +214,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
  *    No arguments other than a file name array are given to the completion callback.
  **/
  exports.updateItems = function(oItems,callback){
+  console.log(oItems);
   var count = 0;
   var length = oItems.length;
   for(var k in oItems){
@@ -223,7 +224,6 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
       console.log("error : can not get file path! ")
       return;
     }
-    count++;
     var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
     updateItemsHelper(callback,desFilePath,item,count,length);
   }
@@ -241,7 +241,7 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
       for(var attr in item){
         json[attr]=item[attr];
       }
-      console.log(json);
+      //console.log(json);
       var sItem = JSON.stringify(json,null,4);
       fs.open(desFilePath,"w",0644,function(err,fd){
         if(err){
@@ -259,6 +259,7 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
               if(count == length-1){
                 callback("success");
               }
+              count++;
             }
           });
         }

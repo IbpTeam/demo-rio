@@ -57,23 +57,23 @@ function addDevice(device){
       //changeAttr.conditions:["device_id='"+origPath+"'"],
      //   category:getCategory(origPath).category,
     }
-    console.log("OLD device");
-    console.log("----------------------devicesList:-----------------------");
+    //console.log("OLD device");
+    //console.log("----------------------devicesList:-----------------------");
     for (var i in devicesList) {  
-      console.log(devicesList[i]);
+      //console.log(devicesList[i]);
     }  
     console.log("**********************************************************");
   }
   else{
-    console.log("NEW device");
+    //console.log("NEW device");
     device.category = "devices";
     commonDAO.createItem(device,function(result){
       device.online=true;
       device.sync=false;
       devicesList[device.device_id]=device;
-      console.log("----------------------devicesList:-----------------------");
+      //console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
-        console.log(devicesList[i]);
+        //console.log(devicesList[i]);
       }  
       console.log("**********************************************************");
     });

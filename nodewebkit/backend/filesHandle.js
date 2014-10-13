@@ -736,7 +736,7 @@ function monitorDesFilesCb(path,event){
     case 'change' : {
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        if(item.category=="Contacts"){
+        if(item.category == "Contacts"){
           console.log("contacts info change");
         }
         else if(item.category === "Configuration"){
@@ -888,18 +888,18 @@ function initData(loadResourcesCb,resourcePath){
     for(var k=0;k<fileList.length;k++){
       var isLoadEnd = (k == (fileList.length-1));
       addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-        oNewItems.push(oNewItem);
-
-        var oTags = (oNewItem.others).split(",");
-        for(var k in oTags){
-          var item ={
-            category:"tags",
-            tag:oTags[k],
-            file_URI:oNewItem.URI
+        if(oNewItem.category !== "Configuration"){
+          oNewItems.push(oNewItem);
+          var oTags = (oNewItem.others).split(",");
+          for(var k in oTags){
+            var item ={
+              category:"tags",
+              tag:oTags[k],
+              file_URI:oNewItem.URI
+            }
+            oNewItems.push(item);
           }
-          oNewItems.push(item);
         }
-
         if(isLoadEnd){
           isEndCallback();
           console.log("endddddddddddddddddddddddddddddddddddddddddddddddddddd");
@@ -921,12 +921,6 @@ exports.initData = initData;
 function updateDataValue(updateDataValueCb,item){
   var oItems = item;//all items should include it's file path
   console.log("Request handler 'updateDataValue' was called.");
-  function updateItemValueCb(result){
-    config.riolog("update DB: "+ result);
-    if(result!='commit'){
-      console.log("Error : result : "+result)
-    }
-    else{
       dataDes.updateItems(oItems,function(result){
         if(result === "success"){
           updateDataValueCb('success');
@@ -935,8 +929,6 @@ function updateDataValue(updateDataValueCb,item){
           return;
         }
       });
-    }
-  }
 }
 exports.updateDataValue = updateDataValue;
 
@@ -1180,6 +1172,7 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function monitorNetlink(path){
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet '+path);
+/*
   fs.watch(path, function (event, filename) {
     config.riolog('event is: ' + event);
     if(filename){
@@ -1192,6 +1185,7 @@ function monitorNetlink(path){
       config.riolog('filename not provided');
     }
   });
+*/
 }
 exports.monitorNetlink = monitorNetlink;
 
