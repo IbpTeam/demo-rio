@@ -153,7 +153,6 @@ function runSQL(sql,callback){
  */
 function execSQL(sql,callback){
   prepDb.exec(sql,function(err){
-    console.log("execSQL^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^S");
     if(err){
       console.log("Error:execute SQL error.");
       console.log("Info :" + err);
@@ -227,7 +226,7 @@ function checkPrepArray(){
   if(prepItem != undefined){
     var sSqlStr = prepItem.sqlStr;
     var fCallback = prepItem.prepCallback;
-    var sMethod = prepItem.method
+    var sMethod = prepItem.prepMethod
 
     //Run/Exec sql
     switch(sMethod){
@@ -271,7 +270,7 @@ exports.createItem = function(item,callback){
     sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
   }
   sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-  console.log("INSERT Prepare SQL is : "+sSqlStr);
+  //console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
