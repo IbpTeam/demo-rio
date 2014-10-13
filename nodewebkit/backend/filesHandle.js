@@ -89,6 +89,9 @@ function getCategory(path){
   else if(itemPostfix == 'mp3' || itemPostfix == 'ogg'){
     return {category:"Music",filename:itemFilename,postfix:itemPostfix};
   }
+  else if(itemPostfix == 'conf' || itemPostfix == 'desktop'){
+    return {category:"Configuration",filename:itemFilename,postfix:itemPostfix};
+  }
 }
 
 function addData(itemPath,itemDesPath,isLoadEnd,callback){
@@ -184,6 +187,31 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
           dataDes.createItem(oNewItem,itemDesPath,createItemCb);
         });
         break;
+      }
+      case "Configuration":{
+        uniqueID.getFileUid(function(uri){
+          var oNewItem = {
+            id:null,
+            URI:uri + "#" + category,
+            category:category,
+            is_delete:0,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:itemPath,
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            createDev:config.uniqueID,
+            lastModifyDev:config.uniqueID,
+            lastAccessDev:config.uniqueID
+          };
+          function createItemCb(){
+            callback(isLoadEnd,oNewItem);
+          }
+          dataDes.createItem(oNewItem,itemDesPath,createItemCb);
+        });
+        break;        
       }
       default:{
         writeDbNum --;    
@@ -628,6 +656,10 @@ function monitorDesFilesCb(path,event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
+        if(item.category === "Configuration"){
+          console.log("desktop configuration added !");
+          return;
+        }
         var items = [];
         items.push(item);
         if(item.others != "" &&  item.others != null){
@@ -646,6 +678,12 @@ function monitorDesFilesCb(path,event){
     break;
     case 'unlink' : {
       console.log("unlink des file @@@@@@@@@@@@@@@@@@@@@");
+      var category = getCategory(origPath).category;
+      if(category == "Configuration"){
+          console.log("desktop configuration file deleted !");
+          console.log("Path: "+path);
+          return;
+      }
       var desPathIndex=path.lastIndexOf(".des");
       var filePath=path.substring(desPathIndex,path.length);
       var nextIndex=filePath.indexOf("/");
@@ -654,7 +692,6 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
-      var category = getCategory(origPath).category;
       var condition = ["path='"+origPath.replace("'","''")+"'"];
       commonDAO.findItems(null,category,condition,null,function(err,resultFind){
         if(err){
@@ -701,6 +738,10 @@ function monitorDesFilesCb(path,event){
       dataDes.getAttrFromFile(path,function(item){
         if(item.category=="Contacts"){
           console.log("contacts info change");
+        }
+        else if(item.category === "Configuration"){
+          console.log("desktop configuration added !");
+          return;
         }else{
           var category = [item.category];
           var path = (item.path).replace("'","''");
