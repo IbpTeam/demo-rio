@@ -81,11 +81,11 @@ function connServer(socket){
   });
 
   socket.on('close',function(){
-	console.log('Client ' + sRemoteAddress +  ' : ' + sRemotePort + ' disconnected!');
+	  console.log('Client ' + sRemoteAddress +  ' : ' + sRemotePort + ' disconnected!');
   });
 
   socket.on('error',function(err){
-	console.log('Unexpected Error!' + err);
+	  console.log('Unexpected Error!' + err);
   });
 }
 
@@ -100,19 +100,19 @@ function connServer(socket){
 function sendMsg(address,msgObj){
   console.log("--------------------------"+address);
   if (address == config.SERVERIP) {
-	console.log("Input IP is localhost!");
-	return;
+	  console.log("Input IP is localhost!");
+	  return;
   };
   var msgStr = JSON.stringify(msgObj);
   var socket = new WebSocket('http://'+address+':'+config.MSGPORT);
 
   socket.on('open', function() {
   	console.log("SEND MSG +++++++++++++++++++++++++++++++++"+msgStr);
-	socket.send(msgStr);
+	  socket.send(msgStr);
   });
   socket.on('error',function(err){
-	console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + address);
-	socket.close();
+	  console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + address);
+	  socket.close();
   });
 }
 
@@ -126,7 +126,7 @@ exports.serviceUpCb = function(device){
   var sDeviceId = device.device_id;
   //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
   //  return;
-  if(sDeviceId != "192.168.160.72"){
+  if(sDeviceId != "b5faa74f5f2e85972642943f5b07b83c"){
   	console.log("device id :=================== " + sDeviceId);
   	return;
   }
