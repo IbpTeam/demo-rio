@@ -98,39 +98,35 @@ function initializeApp(sFullPath){
       if(!uniqueExists){
         console.log("UniqueID.js is not exists, start to set sys uid.");
         setSysUid(null,sUniqueIDPath,function(){
-          initDatabase(sDatabasePath,function(){
-            if(bIsConfExist)
-              device.startDeviceDiscoveryService();
-          });
+          if(bIsConfExist)
+            device.startDeviceDiscoveryService();
         });
         return;
       }
       console.log("UniqueID.js is exist.");
       var deviceID=require(sUniqueIDPath).uniqueID;
       setSysUid(deviceID,sUniqueIDPath,function(){
-        initDatabase(sDatabasePath,function(){
-          if(bIsConfExist){
-            device.startDeviceDiscoveryService();
-          }
-          fs.exists(sNetLinkStatusPath, function (netlinkExists) {
-            if(!netlinkExists){
-              cp.exec('touch '+sNetLinkStatusPath,function(error,stdout,stderr){
-                util.log("touch .netlinkstatus");
-                config.NETLINKSTATUSPATH=sNetLinkStatusPath;
-                cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
-                  util.log(sNetLinkStatusPath);
-                  filesHandle.monitorNetlink(sNetLinkStatusPath);
-                });
-              });
-            }
-            else{
+        if(bIsConfExist){
+          device.startDeviceDiscoveryService();
+        }
+        fs.exists(sNetLinkStatusPath, function (netlinkExists) {
+          if(!netlinkExists){
+            cp.exec('touch '+sNetLinkStatusPath,function(error,stdout,stderr){
+              util.log("touch .netlinkstatus");
               config.NETLINKSTATUSPATH=sNetLinkStatusPath;
               cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
                 util.log(sNetLinkStatusPath);
                 filesHandle.monitorNetlink(sNetLinkStatusPath);
               });
-            }
-          });
+            });
+          }
+          else{
+            config.NETLINKSTATUSPATH=sNetLinkStatusPath;
+            cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
+              util.log(sNetLinkStatusPath);
+              filesHandle.monitorNetlink(sNetLinkStatusPath);
+            });
+          }
         });
       });
     });
@@ -160,26 +156,6 @@ function setSysUid(deviceID,uniqueIDPath,callback){
     config.uniqueID=deviceID;
     callback();
   }
-}
-
-/** 
- * @Method: initDatabase
- *    Database initialize.
- * @param databasePath
- *    Path of database.
- * @param callback
- *    Callback
- **/
-function initDatabase(databasePath,callback){
-  fs.exists(databasePath,function(dbExists){
-    if(!dbExists){
-      config.DATABASEPATH = databasePath;
-      filesHandle.initDatabase(callback);
-      return;
-    }
-    config.DATABASEPATH = databasePath;
-    callback();
-  });
 }
 
 // Start
