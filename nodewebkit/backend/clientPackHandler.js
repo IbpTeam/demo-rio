@@ -56,7 +56,7 @@ function getPubKeysByUserName(userName,UUID,targetName,getPubKeysByUserNameCallb
   msg['option']=0x0100;
   data['userName']=targetName;
   msg['data']=data;
-  msg['msg']='getPubKeyByUserName '+userName; 
+  msg['msg']='getPubKeyByUserName '+targetName; 
   console.log(msg['msg']);
   getPubKeysByUserNameCallback(msg);
 }
