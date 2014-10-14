@@ -166,6 +166,5 @@ function isInvalid(msgObj){
 function sendMsg(client,msg,serverKeyPair){
   msg = JSON.stringify(msg);
   var encrypteds = ursaED.encrypt(serverKeyPair,msg, keySizeBits/8);
-  console.log('sending in sendMSG in account');
   client.write(encrypteds);
 } 

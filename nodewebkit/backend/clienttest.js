@@ -3,32 +3,12 @@ var ursaED = require('./ursaED');
 var imchat = require('./IMChat.js');
 var fs = require('fs');
 
-/*
-var keySizeBits = 1024;
-var size = 65537;
- var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
- var  pubKey = ursaED.loadPubKeySync('./key/users/34234324erererw3r3w4.pem');
- //var pubKey=keyPair.getPublicKeyPem();
- console.log(pubKey);
-var msg = imchat.encapsuMSG("Hello!","Chat","A","B",pubKey);
-console.log(msg);
-imchat.sendIMMsg("127.0.0.1",8892,msg,keyPair);
-*/
-var table = imchat.createAccountTable();
-//table = imchat.insertAccount(table,"rtty123","192.168.1.123","34234324r34rerfe45r4");
-table = imchat.insertAccount(table,"rtty123","127.0.0.1","34234324r34rerfe45r4a");
-var IP = imchat.getIP(table,"rtty123");
-IP.forEach(function (row) {
-  console.log(row.IP);
-  console.log(row.UID);
-});
-imchat.sendMSGbyAccount(table,"rtty123","Hello this is sending message",8892);
-
 function callback(msg){
   console.log("CALLLLLback, "+msg);
 }
 
-imchat.sendMSGbyUID("34234324r34rerfe45r4a","rtty123","Hi this is in sendMSGbyUID function",callback);
-//table = imchat.removeAccountIP(table,"rtty123","192.168.1.122");
+var ipset = {};
+ipset["IP"] = "127.0.0.1";
+ipset["UID"] = "34234324r34rerfe45r4a";
 
- //IP = imchat.getIP(table,"rtty123");
+imchat.sendMSGbyUID(ipset,"rtty123","Hi this is in sendMSGbyUID function",8892,callback);
