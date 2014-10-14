@@ -8,7 +8,7 @@
 var ip = '127.0.0.1';
 var port = ':8888';
 // Template engine
-function gen_popup_dialog(title, message){
+function gen_popup_dialog(title, message, data_json){
   $("#popup_dialog").remove();
   var header_btn = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
   var header_title = $('<h4 class="modal-title"></h4>');
@@ -20,8 +20,8 @@ function gen_popup_dialog(title, message){
   body.html(message);
   
   var footer = $('<div class="modal-footer"></div>');
-  var footer_edit = $('<button type="button" class="btn btn-success" onclick="gen_edit_dialog()">Edit</button>');
-  footer.append(footer_edit);
+  //var footer_edit = $('<button type="button" class="btn btn-success" data-dismiss="modal" id="edit_button">Edit</button>');
+  //footer.append(footer_edit);
   var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
   footer.append(footer_btn);
   
@@ -32,7 +32,7 @@ function gen_popup_dialog(title, message){
   
   var dialog = $('<div class="modal-dialog"></div>');
   dialog.append(content);
-  var div = $('<div id="popup_dialog" class="modal fade"></div>');
+  var div = $('<div id="popup_dialog" class="modal fade" data-backdrop="false"></div>');
   div.append(dialog);
   $('body').append(div);
   $("#popup_dialog").modal('show');
@@ -47,10 +47,58 @@ function gen_popup_dialog(title, message){
   $('#popup_dialog').on('hidden.bs.modal', function(){
     $(this).remove();
   });
+  $('#edit_button').on('click', function(){
+    if(data_json != null){
+      $(this).removeData('bs.modal');
+      gen_edit_dialog(data_json);
+    }
+    else{
+      window.alert("You can not edit this file.");
+    }
+  });
 }
 
-function gen_edit_dialog(message){
-  console.log("gen edit dialog!");
+function get_all_data_file(data_json){
+  console.log('get all data file', data_json);
+  var file_propery='';
+  for(var key in data_json){
+    if(key == 'props' || key == 'URI'){
+      continue;
+    }
+    file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
+  }
+  if(data_json.hasOwnProperty('URI')){
+    file_propery += '<button type="button" class="btn btn-primary" id="edit_button" data-dismiss="modal">Edit</button>';
+  }
+  gen_popup_dialog('Property', file_propery, data_json);
+}
+
+function gen_edit_dialog(data_json){
+  console.log("gen edit dialog!", data_json);
+  var file_propery='<form>';
+  for(var key in data_json){
+    if(key == 'props' || key == 'URI'){
+      continue;
+    }
+    file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
+  }
+  file_propery += '</form></br>';
+  file_propery += '<button type="button" class="btn btn-success" id="save_button" data-dismiss="modal">Save</button>';
+  gen_popup_dialog('Edit', file_propery);
+  $('#save_button').on('click', function(){
+    for(var key in data_json){
+      if(key == 'props' || key == 'URI'){
+        continue;
+      }
+      var new_value = document.getElementById(key).value;
+      data_json[key] = new_value;
+    }
+    data_json['category'] = data_json['URI'].substring(data_json['URI'].lastIndexOf('#')+1, data_json['URI'].length);
+    window.alert("后台数据更新开发中，请见谅！");
+/*    DataAPI.updateDataValue(function(){
+      window.alert("Saved successfully!");
+    }, [data_json]);*/
+  });
 }
 
 function cb_get_data_source_file(data_json){
@@ -93,18 +141,6 @@ function cb_get_data_source_file(data_json){
       break;
   }
   return;
-}
-
-function cb_get_all_data_file(data_json){
-  console.log('get all data file', data_json);
-  var file_propery='';
-  for(var key in data_json){
-    if(key == 'props'){
-      continue;
-    }
-    file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
-  }
-  gen_popup_dialog('属性', file_propery);
 }
 
 function path_transfer(front_path, base_dir){
@@ -297,7 +333,7 @@ function Folder(jquery_element) {
                   gen_popup_dialog('属性', file_propery);
                 break;
                 case 'file':
-                  DataAPI.getDataByUri(cb_get_all_data_file, file_json.URI);
+                  DataAPI.getDataByUri(get_all_data_file, file_json.URI);
                 break;
               }
             break;
@@ -312,7 +348,7 @@ function Folder(jquery_element) {
                   item['is_delete'] = 1;
                   item['URI'] = file_json['URI'];
                   item['category'] = file_json['props']['path'].substring(file_json['props']['path'].indexOf('/')+1, file_json['props']['path'].lastIndexOf('/'));
-                  DataAPI.updateDataValue(self.after_delete_file, [item]);
+                  DataAPI.rmDataByUri(self.after_delete_file,item['URI']);
                 break;
               }
             break;         
@@ -362,7 +398,7 @@ function Folder(jquery_element) {
         }
         break;
       case 'other':
-        cb_get_all_data_file(file_json);
+        get_all_data_file(file_json);
         break;
       }
     }else{
