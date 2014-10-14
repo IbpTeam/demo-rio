@@ -95,7 +95,8 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       lastAccessTime:currentTime,
       createDev:config.uniqueID,
       lastModifyDev:config.uniqueID,
-      lastAccessDev:config.uniqueID
+      lastAccessDev:config.uniqueID,
+      others:""
     }
     function createItemCb(){
       callback(isContactEnd,oNewItem);
@@ -147,9 +148,11 @@ function initContacts(loadContactsCb,resourcePath){
         function addContactCb(isContactEnd,oContact){
           oNewItems.push(oContact);
           if(isContactEnd){
-            isEndCallback();
-            console.log("succcess");
-            console.log("initContacts is end!!!");
+            commonDAO.createItems(oNewItems,function(){
+              isEndCallback();
+              console.log("succcess");
+              console.log("initContacts is end!!!");
+            })
           }          
         }
         for(var k=0;k<oContacts.length;k++){

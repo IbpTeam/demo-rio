@@ -65,7 +65,6 @@ exports.getAttrFromFile = function (path,callback){
  *    boolean
  **/
 function createDesFile(newItem,itemDesPath,callback){
-  console.log(newItem);
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var itemPath = newItem.path;
@@ -228,7 +227,7 @@ exports.updateItems = function(oItems,callback){
     var filePath = "";
     var desFilePath = "";
     if(category === "Contacts"){
-      desFilePath = config.RESOURCEPATH + '.des/contacts/'+item.name+'.md';
+      desFilePath = config.RESOURCEPATH + '/.des/contacts/'+item.name+'.md';
     }else{
       filePath = item.path;
       desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';

@@ -812,6 +812,9 @@ function monitorDesFilesForPullCb(path,event){
           console.log("desktop configuration added !");
           return;
         }
+        if(item.category === "Contacts"){
+          delete item.path;
+        }
         var items = [];
         items.push(item);
         if(item.others != "" &&  item.others != null){
@@ -885,19 +888,28 @@ function monitorDesFilesForPullCb(path,event){
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
         var category = item.category;
-        var path = (item.path).replace("'","''");
-        var condition = ["path='"+path+"'"];
+        var path = "";
+        var condition = [];
+        if(category === "Contacts"){
+          //path = path.replace(/\/resources\//,'/resources/.des/') + '.md';
+          condition.push("name='"+item.name+"'");
+        }else{
+          path = (item.path).replace("'","''");
+          condition.push("path='"+path+"'");
+        }
+        
         commonDAO.findItems(null,category,condition,null,function(err,resultFind){
           if(err){
             console.log(err);
             return;
           }
           if(resultFind.length == 1){
+            console.log(resultFind[0]);
             var tags = (resultFind[0].others).split(",");
             var uri = resultFind[0].URI;
             var itemToDelete = [];
 
-            if(category !== "Documents" && 
+            if(category !=="Documents" && 
              category !== "Pictures" && 
              category !== "Music" &&
              category !== "Vedios" &&
