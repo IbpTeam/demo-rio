@@ -78,7 +78,7 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
   function getFileUidCb(uri){
     var category = 'Contacts';
     var currentTime = (new Date());
-    Item.path = config.RESOURCEPATH+"/contacts/contacts.CSV";
+    Item.path = config.RESOURCEPATH+"/contacts/"+"\u59D3";
     Item.desPath = sItemDesPath;
     Item.name = Item["\u59D3"];
     Item.currentTime = currentTime;
