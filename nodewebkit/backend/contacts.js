@@ -78,23 +78,18 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
   function getFileUidCb(uri){
     var category = 'Contacts';
     var currentTime = (new Date());
-    Item.desPath = sItemDesPath;
-    Item.name = Item["\u59D3"];
-    Item.currentTime = currentTime;
-    Item.URI = uri + "#" + category;
-    var oItem = Item;
     var oNewItem = {
       id:null,
       URI:uri + "#" + category,
       category:category,
       is_delete:0,
-      name:oItem["\u59D3"],
-      phone:oItem["\u79fb\u52a8\u7535\u8bdd"],
-      sex:oItem["\u6027\u522b"] || null,
-      age:35,
-      email:oItem["\u7535\u5b50\u90ae\u4ef6\u5730\u5740"],
+      name:Item["姓"]+Item["名"],
+      phone:Item["移动电话"],
+      sex:Item["性别"],
+      age:"",
+      email:Item["电子邮件地址"],
       id:"",
-      photoPath:"/home/xiquan/resources/contactsphoto",
+      photoPath:"",
       createTime:currentTime,
       lastModifyTime:currentTime,
       lastAccessTime:currentTime,
