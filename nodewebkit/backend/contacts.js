@@ -75,7 +75,7 @@ name, phone, sex, age, email, photoPath
 *
 */
 function addContact(Item,sItemDesPath,isContactEnd,callback){
-  function getFileUidCb(uri){ @param2 sItemDesPath
+  function getFileUidCb(uri){
     var category = 'Contacts';
     var currentTime = (new Date());
     Item.path = config.RESOURCEPATH+"/contacts/contacts.CSV";
