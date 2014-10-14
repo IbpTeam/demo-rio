@@ -48,7 +48,17 @@ exports.repoInit = function (repoPath,callback)
 exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+utils.parsePath(sourceFilePath) +' && git add '+utils.parsePath(desFilePath) +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
+  if(sourceFilePath==null){
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+utils.parsePath(desFilePath) 
+                +' && git commit -m "On device '+config.SERVERNAME+' #add : description file.#"';
+  }
+  else{
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+utils.parsePath(sourceFilePath) 
+                +' && git add '+utils.parsePath(desFilePath) 
+                +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
+  }
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -64,7 +74,17 @@ exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,l
 exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
+  if(sourceFilePath==null){
+    var comstr = 'cd ' + repoPath 
+                +' && git rm '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Delete : description file.#"';
+  }
+  else{
+    var comstr = 'cd ' + repoPath 
+                +' && git rm '+sourceFilePath 
+                +' && git rm '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
+  }
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -80,7 +100,17 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,la
 exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
+  if(sourceFilePath==null){
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Change : description file.#"';
+  }
+  else{
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+sourceFilePath 
+                +' && git add '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
+  }
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -132,17 +162,25 @@ exports.pullFromOtherRepo = function (address,path,callback)
 {
   filesHandle.monitorFiles1Status=false;
   filesHandle.watcher1Stop(function(){
-    var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-    var cp = require('child_process');
-    var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
-    console.log(cmd);
-    cp.exec(cmd,function(error,stdout,stderr){
-      console.log(stdout+stderr);
-      callback();
-      filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb);
+    filesHandle.watcher2Stop(function(){
+      filesHandle.watcher2Start(dataDir,filesHandle.monitorDesFilesForPullCb,function(){
+        var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+        var cp = require('child_process');
+        var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
+        console.log(cmd);
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb,function(){
+            filesHandle.watcher2Stop(function(){
+              filesHandle.watcher2Start(dataDir,filesHandle.monitorDesFilesCb,function(){
+                callback();               
+              });
+            });
+          });
+        });
+      });
     });
   });
-
 }
 /*
 exports.pullFromOtherRepo = function (address,path,callback)
