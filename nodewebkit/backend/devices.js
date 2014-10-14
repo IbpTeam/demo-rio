@@ -112,7 +112,7 @@ function startDeviceDiscoveryService(){
 //  io.sockets.on('connection', function (socket) {
     getDeviceList();
     mdns.addDeviceListener(function (signal, args){
-      if(args.txt==null){
+      if(args==null || args.txt==null){
         return;
       }
       if(args.txt[0]=="demo-rio"){
