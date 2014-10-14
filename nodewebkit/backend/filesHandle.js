@@ -761,7 +761,7 @@ function monitorDesFilesCb(path,event){
              category !== "Music" &&
              category !== "Vedios" &&
              category !== "Configuration"){
-              commonDAO.updateItems([item],function(resultUpdate){
+              commonDAO.updateItem(item,function(resultUpdate){
                 console.log(resultUpdate);
               });
             }else{
