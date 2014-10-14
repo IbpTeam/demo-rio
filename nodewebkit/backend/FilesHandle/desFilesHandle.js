@@ -68,7 +68,15 @@ function createDesFile(newItem,itemDesPath,callback){
   console.log(newItem);
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var sPath = itemDesPath+'/'+sFileName+'.md';
+  var itemPath = newItem.path;
+  var sPos = "";
+  if(itemPath){
+    var sPosIndex = itemPath.lastIndexOf('.');
+    if(sPosIndex > 0){
+      sPos = itemPath.substring(sPosIndex,itemPath.length);
+    }
+  }
+  var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
     if(err){
       console.log("================");
