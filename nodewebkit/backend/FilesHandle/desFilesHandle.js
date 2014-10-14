@@ -218,18 +218,21 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
- exports.updateItems = function(oItems,callback){
+exports.updateItems = function(oItems,callback){
   console.log(oItems);
   var count = 0;
   var length = oItems.length;
   for(var k in oItems){
     var item = oItems[k];
-    var filePath = item.path;
-    if(!filePath){
-      console.log("error : can not get file path! ");
-      return;
+    var category = item.category;
+    var filePath = "";
+    var desFilePath = "";
+    if(category === "Contacts"){
+      desFilePath = config.RESOURCEPATH + '.des/contacts/'+item.name+'.md';
+    }else{
+      filePath = item.path;
+      desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
     }
-    var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
     updateItemsHelper(callback,desFilePath,item,count,length);
   }
 }
