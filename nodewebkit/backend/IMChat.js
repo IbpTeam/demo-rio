@@ -38,7 +38,7 @@ function MD5(str, encoding) {
  * @return null
  *  没有返回值
  */
-function initIMServer() {
+function initIMServer(RECEIVEDATACALLBACK) {
   /*
   we should load the keyPair first, in order to encrypt messages with RSA
   */
@@ -79,9 +79,10 @@ function initIMServer() {
             //console.log("=========================================");
             //output message and save to database
             //return success
-            dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
-              console.log("insert into db success!");
-            });
+            //dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
+            // console.log("insert into db success!");} );
+            RECEIVEDATACALLBACK(msgObj.uuid);
+
 
             //console.log("pubkey is "+pubKey);
 
@@ -150,7 +151,7 @@ function initIMServer() {
  * @return null
  *  没有返回值
  */
-function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR) {
+function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SENTCALLBACK) {
   var count = 0;
   var id = 0;
   var tmpenmsg = encryptSentMSG(SENDMSG, KEYPAIR);
@@ -202,7 +203,6 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR) {
 
   client.on('connect', innerrply);
 
-
   client.on('data', function(REPLY) {
     console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -220,9 +220,9 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR) {
           if (msg.message == MD5(pat.message)) {
             var msgtp = pat;
             console.log('msg rply received: ' + msg.message);
-            dboper.dbsentInsert(msgtp.from, msgtp.to, msgtp.message, msgtp.type, msgtp.time, function() {
-              console.log("sent message insert into db success!");
-            });
+            //  dboper.dbsentInsert(msgtp.from, msgtp.to, msgtp.message, msgtp.type, msgtp.time, function() {
+            // console.log("sent message insert into db success!");        });
+            SENTCALLBACK(msgtp.message);
             clearInterval(id);
             client.end();
           };
@@ -270,13 +270,26 @@ function sendMSGbyAccount(TABLE, ACCOUNT, MSG, PORT) {
   */
   for (var i = 0; i < ipset.length; i++) {
     console.log("sending " + ipset[i].UID + " in account " + ACCOUNT);
-    existsPubkeyPem(ipset[i], ACCOUNT, MSG, PORT, localkeyPair);
+    existsPubkeyPem(ipset[i], ACCOUNT, MSG, PORT, localkeyPair, function(msg) {
+      console.log("msg sent successful:::" + msg);
+    });
   };
 
   console.log("send " + ipset.length + " IPs in " + ACCOUNT);
 }
 
-function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR) {
+function sendMSGbyUID(UUID, ACCOUNT, MSG, PORT, SENTCALLBACK) {
+  if (typeof UUID == "undefined") {
+    console.log("destination account not in local lan!");
+    /*
+    here are some server msg send functions!
+    */
+  };
+  var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+  existsPubkeyPem(UUID, ACCOUNT, MSG, PORT, localkeyPair, SENTCALLBACK);
+}
+
+function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR, SENTCALLBACK) {
   function insendfunc() {
     var tmppubkey = ursaED.loadPubKeySync('./key/users/' + IPSET.UID + '.pem');
     /************************************************************
@@ -284,7 +297,7 @@ function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR) {
         ********************************************************/
     var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
     console.log(tmpmsg);
-    sendIMMsg(IPSET.IP, PORT, tmpmsg, tmppubkey);
+    sendIMMsg(IPSET.IP, PORT, tmpmsg, tmppubkey, SENTCALLBACK);
   }
 
   function rqstpubkey() {
@@ -415,7 +428,7 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
       break;
     default:
       {
-
+        console.log("encapsuMSG : Please take a proper Type.");
       }
   }
 
@@ -590,3 +603,4 @@ exports.removeAccount = removeAccount;
 exports.removeAccountIP = removeAccountIP;
 exports.sendMSGbyAccount = sendMSGbyAccount;
 exports.encryptSentMSG = encryptSentMSG;
+exports.sendMSGbyUID = sendMSGbyUID;
