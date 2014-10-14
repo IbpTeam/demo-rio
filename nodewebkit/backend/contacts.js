@@ -37,6 +37,8 @@ function getAllContacts(getAllCb) {
       contacts.push({
         URI:each.URI,
         name:each.name,
+        sex:each.sex,
+        age:each.age,
         photoPath:each.path,
         phone:each.phone,
         email:each.email
@@ -49,15 +51,32 @@ function getAllContacts(getAllCb) {
 exports.getAllContacts = getAllContacts;
 
 /*
-commit_id, version, is_delete, URI, lastAccessTime, 
-photoPath, createTime, lastModifyTime, 
-id, name, phone, sex, age, email
+CONTENT in contacts info:
+is_delete, URI, lastAccessTime, id
+createTime, createDev lastModifyTime, lastModifyDev lastAccessTime, lastAccessDev,
+name, phone, sex, age, email, photoPath
+*/
+/**
+* @method addContact
+*   add contacts info in to db and des files
+*
+* @param1 getAllContactsCb
+*   回调函数
+*   @result
+*     array[cate]: 联系人数组
+*        cate数据如下：
+*        cate{
+*           URI;
+*           version;
+*           name;
+*           photPath;
+*        }
 */
 function addContact(Item,sItemDesPath,isContactEnd,callback){
   function getFileUidCb(uri){
     var category = 'Contacts';
     var currentTime = (new Date());
-    Item.path = "/home/xiquan/resources/contacts";
+    Item.path = config.RESOURCEPATH+"/contacts/contacts.CSV";
     Item.desPath = sItemDesPath;
     Item.name = Item["\u59D3"];
     Item.currentTime = currentTime;
@@ -80,7 +99,8 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       lastAccessTime:currentTime,
       createDev:config.uniqueID,
       lastModifyDev:config.uniqueID,
-      lastAccessDev:config.uniqueID
+      lastAccessDev:config.uniqueID,
+      //path:config.RESOURCEPATH+"/contacts/contacts.CSV"
     }
     function createItemCb(){
       callback(isContactEnd,oNewItem);
@@ -119,6 +139,7 @@ function initContacts(loadContactsCb,resourcePath){
         }
         var oNewItems = new Array();
         function addContactCb(isContactEnd,oContact){
+          //delete oContact.path;
           oNewItems.push(oContact);
           if(isContactEnd){
             isEndCallback();

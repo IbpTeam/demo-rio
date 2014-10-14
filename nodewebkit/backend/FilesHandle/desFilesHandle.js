@@ -65,19 +65,18 @@ exports.getAttrFromFile = function (path,callback){
  *    boolean
  **/
 function createDesFile(newItem,itemDesPath,callback){
+  console.log(newItem);
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var sPosIndex = (newItem.path).lastIndexOf(".");
-  var sPos = (sPosIndex == -1) ? "" : (newItem.path).substring(sPosIndex,(newItem.path).length);
-  var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
+  var sPath = itemDesPath+'/'+sFileName+'.csv.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      //return;
+      return;
     }
-    //console.log(itemDesPath+" success !");
+    console.log(itemDesPath+" success !");
     callback();
   });
 
@@ -221,7 +220,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
     var item = oItems[k];
     var filePath = item.path;
     if(!filePath){
-      console.log("error : can not get file path! ")
+      console.log("error : can not get file path! ");
       return;
     }
     var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
