@@ -37,6 +37,8 @@ function MD5(str, encoding) {
 *  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
 * @param ReceivedMsgCallback
 *   当成功接收到客户端发来的消息时，调用该回调函数
+*    @msg 
+*     string 回调函数参数，表示成功接收到的消息
 * @return null
 *  没有返回值
 */
@@ -152,6 +154,8 @@ function initIMServer(ReceivedMsgCallback) {
  *发送方的pubkey生成的keypair
  *@param SentCallBack
  *发送方发送数据成功后的callback函数
+*     @msg 
+*     string 回调函数参数，表示发送成功的消息
  * @return null
  *  没有返回值
  */
