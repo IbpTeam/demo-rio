@@ -40,8 +40,8 @@ exports.getAppArgv = getAppArgv;
  *   回调函数
  *   @cbparam1
  *      boolean, true 代表是成功，false代表是失败
- * @param2 pid
- *   string，要发送的程序执行的pid
+ * @param2 windowname
+ *   string，要发送的窗口的名称（部分）
  * @param3 key
  *   string，要打开发送的键盘事件
  *    参照 grep "XK_" /usr/include/X11/keysymdef.h|sed 's/ XK_/ /g'
@@ -70,8 +70,8 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
       return;
     }
 
-    var pid=stdout.substring(nHead, nTail);
-    var sendkeycommand = "xdotool windowactivate --sync " + pid + " && xdotool key --clearmodifiers --window " + pid + " " + key;
+    var windowid=stdout.substring(nHead, nTail);
+    var sendkeycommand = "xdotool windowactivate --sync " + windowid + " && xdotool key --clearmodifiers --window " + windowid + " " + key;
     exec(sendkeycommand, function (error, stdout, stderr) {
       if (error !== null) {
         console.log('exec error: ' + error);
