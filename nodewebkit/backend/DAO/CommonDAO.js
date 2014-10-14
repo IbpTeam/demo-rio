@@ -493,6 +493,7 @@ exports.updateItems = function(items,callback){
     //Open database
     prepDb = openDB();
     //Exec SQL
+    console.log("sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqql")
     execSQL(sSqlStr,callback);
   }
 }

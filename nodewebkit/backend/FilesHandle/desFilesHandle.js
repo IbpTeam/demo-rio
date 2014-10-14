@@ -65,7 +65,6 @@ exports.getAttrFromFile = function (path,callback){
  *    boolean
  **/
 function createDesFile(newItem,itemDesPath,callback){
-  console.log(newItem);
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
   var itemPath = newItem.path;
