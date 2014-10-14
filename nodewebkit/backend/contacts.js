@@ -70,9 +70,9 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       is_delete:0,
       name:oItem["\u59D3"],
       phone:oItem["\u79fb\u52a8\u7535\u8bdd"],
-      sex:"Phd",
+      sex:oItem["\u6027\u522b"],
       age:35,
-      email:"my@email.com",
+      email:oItem["\u7535\u5b50\u90ae\u4ef6\u5730\u5740"],
       id:"",
       photoPath:"/home/xiquan/resources/contactsphoto",
       createTime:currentTime,
@@ -85,7 +85,7 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
     function createItemCb(){
       callback(isContactEnd,oNewItem);
     }
-    dataDes.createItem(Item,sItemDesPath,createItemCb);
+    dataDes.createItem(oNewItem,sItemDesPath,createItemCb);
   }
   uniqueID.getFileUid(getFileUidCb);
 }
