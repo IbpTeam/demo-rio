@@ -204,8 +204,7 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             lastAccessTime:ctime,
             createDev:config.uniqueID,
             lastModifyDev:config.uniqueID,
-            lastAccessDev:config.uniqueID,
-            content:
+            lastAccessDev:config.uniqueID
           };
           function createItemCb(){
             callback(isLoadEnd,oNewItem);
