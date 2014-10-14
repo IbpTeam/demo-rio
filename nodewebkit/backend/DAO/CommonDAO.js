@@ -13,7 +13,6 @@
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
-var SQLSTR = require("./SQL/SQLStr.js");
 var createTableTimes = 0;
 
 // @const
@@ -47,76 +46,6 @@ function openDB(){
  */
 function closeDB(database,callback){
   database.close(callback);
-}
-
-/**
- * @method createTables
- *    Use SQL to create tables in database.
- * @param sqlStr
- *    The specific SQL string.
- * @param callback
- *    Callback
- */
-function createTables(db,sqlStr,callback){
-  if(!sqlStr){
-    console.log("Error: SQL is null when create tabale ");
-    return;
-  }
-  console.log("Start to create tables with SQL :" + sqlStr);
-  if(!db){
-    db = openDB();
-  }
-  db.exec(sqlStr,function(err){
-    createComplete(err,db,sqlStr,callback);
-  });
-}
-
-/**
- * @method createComplete
- *    Callback after create tables.
- * @param err
- *    Null/error.
- * @param db
- *    The database object.
- * @param db
- *    The specific SQL string used to create tables.
- * @param callback
- *    Callback
- */
-function createComplete(err,db,sqlStr,callback){
-  if(err){
-    console.log(err);
-    console.log("Roll back");
-    if(createTableTimes < 5){
-      createTableTimes++;      
-      db.run("ROLLBACK",function(err){
-        if(err) throw err;
-        createTables(db,sqlStr);
-      });
-    }else{
-      createTableTimes = 0;
-      console.log("create table fail.");
-      callback(null);
-    }
-    return;
-  }
-  createTableTimes = 0;
-  db.run("COMMIT",function(err){
-    if(err) throw err;
-    console.log("Msg: create tables successfully");
-    closeDB(db,callback);
-  });
-}
-
-/**
- * @method initDatabase
- *    Database initialize.
- * @param callback
- *    Callback
- */
-exports.initDatabase = function(callback){
-  var sInitDbSQL = SQLSTR.INITDB;
-  createTables(null,sInitDbSQL,callback);
 }
 
 /**
