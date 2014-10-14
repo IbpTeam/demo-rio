@@ -336,7 +336,7 @@ exports.deleteItems = function(items,callback){
   items.forEach(function(item){
     var oTempItem = item;
     var sCondStr = " where 1=1";
-    sSqlStr = "delete from " + oTempItem.category;
+    sSqlStr = sSqlStr + "delete from " + oTempItem.category;
     //Make conditions
     var aConditions = new Array();
     if(oTempItem.conditions != undefined){

@@ -705,7 +705,7 @@ function monitorDesFilesCb(path,event){
           var uri = resultFind[0].URI;
           var itemToDelete = [];
           for(var k in tags){
-            var con=["tags='"+tags[k].replace("'","''")+"'","file_uri='"+uri.replace("'","''")+"'"];
+            var con=["tag='"+tags[k].replace("'","''")+"'","file_uri='"+uri.replace("'","''")+"'"];
             var itemTemp = {conditions:con,category:"tags"};
             itemToDelete.push(itemTemp);
           }
