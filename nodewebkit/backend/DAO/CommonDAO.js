@@ -277,8 +277,9 @@ exports.createItems = function(items,callback){
  * @method deleteItem
  *    Delete data from database.
  * @param items
- *    An obj, must has attribute category&&URI match table&&URI,
- *    other attributes match field in table.
+ *    An obj, must has attribute category&&conditions match table&&conditions.
+ *    Conditions is a condition array,like["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  * @param callback
  *    Retrive null when successfully
  *    Retrive err when error
@@ -286,17 +287,17 @@ exports.createItems = function(items,callback){
 exports.deleteItem = function(item,callback){
   var oTempItem = item;
   var sSqlStr;
-  sSqlStr = "delete from " + oTempItem.category + " where 1=1";
-  //Delete attribute category from this obj.
-  delete oTempItem.category;
-  var sKeyStr = " (id";
-    var sValueStr = ") values (null";
-    for(var key in oTempItem){
-      if(typeof oTempItem[key] == 'string')
-        oTempItem[key] = oTempItem[key].replace("'","''");
-      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
-    }
-    sSqlStr = sSqlStr + ";";
+  var sCondStr = " where 1=1";
+  sSqlStr = "delete from " + oTempItem.category;
+  //Make conditions
+  var aConditions = new Array();
+  if(oTempItem.conditions != undefined){
+    aConditions = oTempItem.conditions;
+    aConditions.forEach(function(condition){
+      sCondStr = sCondStr + " and " + condition; 
+    });
+  }
+  sSqlStr = sSqlStr + sCondStr;
   //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
@@ -322,8 +323,9 @@ exports.deleteItem = function(item,callback){
  * @method deleteItems
  *    Delete data from database, support batch execute.
  * @param items
- *    An obj Array, each obj must has attribute category&&URI match table&&URI,
- *    other attributes match field in table.
+ *    An obj Array, each obj must has attribute category&&conditions match table&&conditions.
+ *    Conditions is a condition array,like["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  * @param callback
  *    Retrive "commit" when successfully
  *    Retrive "rollback" when error
@@ -333,17 +335,17 @@ exports.deleteItems = function(items,callback){
   var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
     var oTempItem = item;
-    sSqlStr = sSqlStr + "delete from " + oTempItem.category + " where 1=1";
-    //Delete attribute category from this obj.
-    delete oTempItem.category;
-    var sKeyStr = " (id";
-    var sValueStr = ") values (null";
-    for(var key in oTempItem){
-      if(typeof oTempItem[key] == 'string')
-        oTempItem[key] = oTempItem[key].replace("'","''");
-      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
+    var sCondStr = " where 1=1";
+    sSqlStr = "delete from " + oTempItem.category;
+    //Make conditions
+    var aConditions = new Array();
+    if(oTempItem.conditions != undefined){
+      aConditions = oTempItem.conditions;
+      aConditions.forEach(function(condition){
+        sCondStr = sCondStr + " and " + condition; 
+      });
     }
-    sSqlStr = sSqlStr + ";";
+    sSqlStr = sSqlStr + sCondStr + ";";
   });
   //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
@@ -373,7 +375,8 @@ exports.deleteItems = function(items,callback){
  *    An obj, must has attribute category match table,
  *    other attributes match field in table.
  *    There is a specific attribute: "conditions".It's an contidion array, 
- *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  *    If you want to update items by any contidions,you could put them here.
  *    Default is update by URI if this attribute is undefined(Must have attribute URI).
  * @param callback
@@ -434,8 +437,9 @@ exports.updateItem = function(item,callback){
  * @param items
  *    An obj Array, each obj must has attribute category match table,
  *    other attributes match field in table.
- *    There is a specific attribute: "conditions".It's an contidion array, 
- *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    There is a specific attribute: "conditions".It's an contidion array,
+ *    for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  *    If you want to update items by any contidions,you could put them here.
  *    Default is update by URI if this attribute is undefined(Must have attribute URI).
  * @param callback
@@ -502,7 +506,8 @@ exports.updateItems = function(items,callback){
  * @param tables
  *    A table's name array, like ["table1","table2"].
  * @param conditions
- *    A conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    A conditions array, for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  *    If you want select all rows, set it null.
  * @param extras
  *    An extra conditions array, for example ["group by xxx","order by xxx"].
