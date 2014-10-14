@@ -74,9 +74,8 @@ function createDesFile(newItem,itemDesPath,callback){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      //return;
+      return;
     }
-    console.log(itemDesPath+" success !");
     callback();
   });
 
@@ -240,7 +239,6 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
       for(var attr in item){
         json[attr]=item[attr];
       }
-      //console.log(json);
       var sItem = JSON.stringify(json,null,4);
       fs.open(desFilePath,"w",0644,function(err,fd){
         if(err){

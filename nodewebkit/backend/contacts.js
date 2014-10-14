@@ -58,22 +58,24 @@ name, phone, sex, age, email, photoPath
 */
 /**
 * @method addContact
-*   add contacts info in to db and des files
+*   add contact info in to db and des files
 *
-* @param1 getAllContactsCb
-*   回调函数
-*   @result
-*     array[cate]: 联系人数组
-*        cate数据如下：
-*        cate{
-*           URI;
-*           version;
-*           name;
-*           photPath;
-*        }
+* @param1 Item
+*   obdject, the item needs to be added into des file
+*
+* @param2 sItemDesPath
+*   string, the des file path for item
+*
+* @param3 isContactEnd
+*   bool, is true when get all contacts done otherwise false
+*
+* @param4 callback
+*   回调函数, call back when get all data
+*
+*
 */
 function addContact(Item,sItemDesPath,isContactEnd,callback){
-  function getFileUidCb(uri){
+  function getFileUidCb(uri){ @param2 sItemDesPath
     var category = 'Contacts';
     var currentTime = (new Date());
     Item.path = config.RESOURCEPATH+"/contacts/contacts.CSV";
@@ -100,7 +102,6 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       createDev:config.uniqueID,
       lastModifyDev:config.uniqueID,
       lastAccessDev:config.uniqueID,
-      //path:config.RESOURCEPATH+"/contacts/contacts.CSV"
     }
     function createItemCb(){
       callback(isContactEnd,oNewItem);
@@ -110,6 +111,17 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
   uniqueID.getFileUid(getFileUidCb);
 }
 
+/**
+* @method initContacts
+*   init contacts info in to db and des files
+*
+* @param1 loadContactsCb
+*   回调函数, call back when load ends
+*
+* @param2 resourcePath
+*   string, the resource path
+*
+*/
 function initContacts(loadContactsCb,resourcePath){
   config.riolog("initContacts ..............");
   var dirCSV = fs.readdirSync(resourcePath);
@@ -139,16 +151,11 @@ function initContacts(loadContactsCb,resourcePath){
         }
         var oNewItems = new Array();
         function addContactCb(isContactEnd,oContact){
-          //delete oContact.path;
           oNewItems.push(oContact);
           if(isContactEnd){
             isEndCallback();
             console.log("succcess");
             console.log("initContacts is end!!!");
-            // commonDAO.createItems(oNewItems,function(result){
-            //   console.log(result);
-            //   console.log("initContacts is end!!!");
-            // })
           }          
         }
         for(var k=0;k<oContacts.length;k++){
