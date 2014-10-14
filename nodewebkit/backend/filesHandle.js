@@ -573,7 +573,7 @@ function getAllCate(getAllCb) {
     });
     getAllCb(cates);
   }
-  commonDAO.findItems(null,['category'],null,null,getCategoriesCb);
+  commonDAO.findItems(null,"category",null,null,getCategoriesCb);
 }
 exports.getAllCate = getAllCate;
 
@@ -628,14 +628,12 @@ function getAllDataByCate(getAllData,cate) {
       }
       getAllData(items);
     }
-    var cateArray = new Array();
-    cateArray.push(cate);
     if(cate == "Devices"){
-      commonDAO.findItems(null,cateArray,null,null,getAllDevicesCb);
+      commonDAO.findItems(null,cate,null,null,getAllDevicesCb);
     }
     else{
       var conditions = ["is_delete = 0"];
-      commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+      commonDAO.findItems(null,cate,conditions,null,getAllByCaterotyCb);
     }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -692,10 +690,9 @@ function monitorDesFilesCb(path,event){
           console.log("desktop configuration file deleted !");
           console.log("Path: "+path);
           return;
-      }
-      var categorys=[category];
+      };
       var condition = ["path='"+origPath.replace("'","''")+"'"];
-      commonDAO.findItems(null,categorys,condition,null,function(err,resultFind){
+      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
         if(err){
           console.log(err);
           return;
@@ -734,7 +731,7 @@ function monitorDesFilesCb(path,event){
     case 'change' : {
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        var category = [item.category];
+        var category = item.category;
         var path = (item.path).replace("'","''");
         var condition = ["path='"+path+"'"];
         commonDAO.findItems(null,category,condition,null,function(err,resultFind){
@@ -967,7 +964,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
     }); 
   }
   var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -984,7 +981,7 @@ function getDataByUri(getDataCb,uri) {
     getDataCb(items);
   }
   var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -1132,7 +1129,7 @@ function openDataByUri(openDataByUriCb,uri){
     }
   }
   var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
 
@@ -1175,7 +1172,7 @@ function getRecentAccessData(getRecentAccessDataCb,num){
       }
       if(sType != "Devices" && sType != "Contacts"){
         var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit "+"'"+num+"'";
-        commonDAO.findItems(null,[sType],null,[sCondition],findItemsCb);
+        commonDAO.findItems(null,sType,null,[sCondition],findItemsCb);
       }  
     }
   }

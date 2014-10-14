@@ -504,7 +504,7 @@ exports.updateItems = function(items,callback){
  *    An array, if you want to specific column in results,put the column's name in this array.
  *    If you want select all columns, set it null.
  * @param tables
- *    A table's name array, like ["table1","table2"].
+ *    A table's name,if you want to select from multi-table,put them in array, like ["table1","table2"].
  * @param conditions
  *    A conditions array, for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
  *    Each condition in array will combine with "and".
@@ -533,6 +533,8 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
     console.log("Error: table's name is null!");
     callback("error");
     return;
+  }else if(typeof tables == 'string'){
+    sTablesStr = sTablesStr + tables;
   }else{
     tables.forEach(function(table){
       sTablesStr = sTablesStr + table + ",";
