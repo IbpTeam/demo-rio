@@ -312,7 +312,7 @@ function Folder(jquery_element) {
                   item['is_delete'] = 1;
                   item['URI'] = file_json['URI'];
                   item['category'] = file_json['props']['path'].substring(file_json['props']['path'].indexOf('/')+1, file_json['props']['path'].lastIndexOf('/'));
-                  DataAPI.updateDataValue(self.after_delete_file, [item]);
+                  DataAPI.rmDataByUri(self.after_delete_file,item['URI']);
                 break;
               }
             break;         

@@ -679,12 +679,6 @@ function monitorDesFilesCb(path,event){
     break;
     case 'unlink' : {
       console.log("unlink des file @@@@@@@@@@@@@@@@@@@@@");
-      var category = getCategory(origPath).category;
-      if(category == "Configuration"){
-          console.log("desktop configuration file deleted !");
-          console.log("Path: "+path);
-          return;
-      }
       var desPathIndex=path.lastIndexOf(".des");
       var filePath=path.substring(desPathIndex,path.length);
       var nextIndex=filePath.indexOf("/");
@@ -693,6 +687,12 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
+      var category = getCategory(origPath).category;
+      if(category == "Configuration"){
+          console.log("desktop configuration file deleted !");
+          console.log("Path: "+path);
+          return;
+      }
       var condition = ["path='"+origPath.replace("'","''")+"'"];
       commonDAO.findItems(null,category,condition,null,function(err,resultFind){
         if(err){
@@ -949,32 +949,27 @@ function getCategoryByUri(sUri){
 //成功返回success;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
-  var rm_result;
+  console.log("Rm data : "+ uri);
   function getItemByUriCb(err,items){
-    if(items == null){
-       rm_result='success';
-       rmDataByUriCb(rm_result);
+    if(err){
+      console.log(err);
+      rmDataByUriCb("NOEXIST");
+      return;
     }
-    else{
-      function ulinkCb(result){
-        config.riolog("delete result:"+result);
-        if(result==null){
-          result='success';
-
-          var sTableName = getCategoryByUri(items[0].URI);
-          items[0].category = sTableName;
-          commonDAO.deleteItems(items,rmDataByUriCb);
-        }
-        else{
-          result='error';
-          rmDataByUriCb(result);
-        }
+    console.log("Rm data : ");
+    console.log(items);
+    fs.unlink(items[0].path, function (err) { 
+      if (err) {
+        console.log(err);
+        rmDataByUriCb("error");
       }
-      fs.unlink(items[0].path,ulinkCb);
-    }
+      else{
+        console.log("Rm data success");
+        rmDataByUriCb("success");
+      }
+    }); 
   }
-
-  var sTableName = getCategoryByUri(uri)
+  var sTableName = getCategoryByUri(uri);
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
@@ -983,7 +978,7 @@ exports.rmDataByUri = rmDataByUri;
 //API getDataByUri:打开URI对应的数据
 //返回显示数据或结果
 function getDataByUri(getDataCb,uri) {
-    console.log("read data : "+ uri);
+  console.log("read data : "+ uri);
   function getItemByUriCb(err,items){
     if(err){
       console.log(err)
@@ -991,8 +986,7 @@ function getDataByUri(getDataCb,uri) {
     }
     getDataCb(items);
   }
-
-  var sTableName = getCategoryByUri(uri)
+  var sTableName = getCategoryByUri(uri);
   commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
