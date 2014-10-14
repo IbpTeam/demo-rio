@@ -95,7 +95,8 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       lastAccessTime:currentTime,
       createDev:config.uniqueID,
       lastModifyDev:config.uniqueID,
-      lastAccessDev:config.uniqueID
+      lastAccessDev:config.uniqueID,
+      others:""
     }
     function createItemCb(){
       callback(isContactEnd,oNewItem);

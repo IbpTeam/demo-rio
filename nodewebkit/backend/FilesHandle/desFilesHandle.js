@@ -227,7 +227,7 @@ exports.updateItems = function(oItems,callback){
     var filePath = "";
     var desFilePath = "";
     if(category === "Contacts"){
-      desFilePath = config.RESOURCEPATH + '.des/contacts/'+item.name+'.md';
+      desFilePath = config.RESOURCEPATH + '/.des/contacts/'+item.name+'.md';
     }else{
       filePath = item.path;
       desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
@@ -239,6 +239,7 @@ exports.updateItems = function(oItems,callback){
 //combine data with callback
 function updateItemsHelper(callback,desFilePath,item,count,length){
   fs.readFile(desFilePath,'utf8',function(err,data){
+    console.log(desFilePath)
     if (err) {
       console.log("read file error!");
       return;
