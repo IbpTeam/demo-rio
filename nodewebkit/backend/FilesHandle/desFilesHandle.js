@@ -78,7 +78,6 @@ function createDesFile(newItem,itemDesPath,callback){
     }
     callback();
   });
-
 }
 
 

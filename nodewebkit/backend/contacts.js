@@ -78,7 +78,6 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
   function getFileUidCb(uri){
     var category = 'Contacts';
     var currentTime = (new Date());
-    Item.path = config.RESOURCEPATH+"/contacts/"+"\u59D3";
     Item.desPath = sItemDesPath;
     Item.name = Item["\u59D3"];
     Item.currentTime = currentTime;
@@ -101,7 +100,7 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
       lastAccessTime:currentTime,
       createDev:config.uniqueID,
       lastModifyDev:config.uniqueID,
-      lastAccessDev:config.uniqueID,
+      lastAccessDev:config.uniqueID
     }
     function createItemCb(){
       callback(isContactEnd,oNewItem);
