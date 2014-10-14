@@ -1066,20 +1066,50 @@ function openDataByUri(openDataByUriCb,uri){
              * }
              * setTimeout(turnToVNC,1000);
              **/
-            item.path = decodeURIComponent(item.path);
-            var sys = require('sys');
-            var exec = require('child_process').exec;
-            var commend = "xdg-open \"" + item.path + "\"";
-            exec(commend, function(error,stdout,stderr){
-              sys.print('stdout: ' + stdout);
-              sys.print('stderr: ' + error);
-            });
 
             source={
               openmethod: 'html',
               format:     'txt',
               title:      '文件浏览',
               content:    "成功打开文件" + item.path
+            }
+
+            var exec = require('child_process').exec;
+            var s_command;
+            var supportedKeySent=false;
+            var s_windowname;//表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
+            switch(item.postfix){
+              case 'ppt':
+                s_command  = "wpp \"" + item.path + "\"";
+                supportedKeySent=true;
+                var h=item.path.lastIndexOf('/');
+                s_windowname=item.path.substring(h<0?0:h+1, item.path.length);
+                break;
+              case 'pptx':
+                s_command  = "wpp \"" + item.path + "\"";
+                supportedKeySent=true;
+                var h=item.path.lastIndexOf('/');
+                s_windowname=item.path.substring(h<0?0:h+1, item.path.length);
+                break;
+              case 'doc':
+                s_command  = "wps \"" + item.path + "\"";
+                break;
+              case 'docx':
+                s_command  = "wps \"" + item.path + "\"";
+                break;
+              case 'xls':
+                s_command  = "et \"" + item.path + "\"";
+                break;
+              case 'xlsx':
+                s_command  = "et \"" + item.path + "\"";
+                break;
+              default:
+                s_command  = "xdg-open \"" + item.path + "\"";
+                break;
+            }
+            var child = exec(s_command, function(error,stdout,stderr){});
+            if (supportedKeySent===true){
+              source.windowname=s_windowname;
             }
             break;
         }
@@ -1088,7 +1118,6 @@ function openDataByUri(openDataByUriCb,uri){
       openDataByUriCb(source);
 
       var currentTime = (new Date());
-      config.riolog("time: "+ currentTime);
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
