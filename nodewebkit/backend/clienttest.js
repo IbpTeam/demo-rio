@@ -23,6 +23,12 @@ IP.forEach(function (row) {
   console.log(row.UID);
 });
 imchat.sendMSGbyAccount(table,"rtty123","Hello this is sending message",8892);
+
+function callback(msg){
+  console.log("CALLLLLback, "+msg);
+}
+
+imchat.sendMSGbyUID("34234324r34rerfe45r4a","rtty123","Hi this is in sendMSGbyUID function",callback);
 //table = imchat.removeAccountIP(table,"rtty123","192.168.1.122");
 
  //IP = imchat.getIP(table,"rtty123");

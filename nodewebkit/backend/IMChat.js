@@ -33,12 +33,14 @@ function MD5(str, encoding) {
 }
 
 /*
- * @method initIMServer
- *  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
- * @return null
- *  没有返回值
- */
-function initIMServer(RECEIVEDATACALLBACK) {
+* @method initIMServer
+*  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
+* @param ReceivedMsgCallback
+*   当成功接收到客户端发来的消息时，调用该回调函数
+* @return null
+*  没有返回值
+*/
+function initIMServer(ReceivedMsgCallback) {
   /*
   we should load the keyPair first, in order to encrypt messages with RSA
   */
@@ -81,7 +83,7 @@ function initIMServer(RECEIVEDATACALLBACK) {
             //return success
             //dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
             // console.log("insert into db success!");} );
-            RECEIVEDATACALLBACK(msgObj.uuid);
+            setTimeout(ReceivedMsgCallback(msgObj.message),0);
 
 
             //console.log("pubkey is "+pubKey);
@@ -148,10 +150,12 @@ function initIMServer(RECEIVEDATACALLBACK) {
  *  消息接收方的通信端口
  *@param KEYPAIR
  *发送方的pubkey生成的keypair
+ *@param SentCallBack
+ *发送方发送数据成功后的callback函数
  * @return null
  *  没有返回值
  */
-function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SENTCALLBACK) {
+function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
   var count = 0;
   var id = 0;
   var tmpenmsg = encryptSentMSG(SENDMSG, KEYPAIR);
@@ -222,7 +226,7 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SENTCALLBACK) {
             console.log('msg rply received: ' + msg.message);
             //  dboper.dbsentInsert(msgtp.from, msgtp.to, msgtp.message, msgtp.type, msgtp.time, function() {
             // console.log("sent message insert into db success!");        });
-            SENTCALLBACK(msgtp.message);
+            setTimeout(SentCallBack(msgtp.message),0);
             clearInterval(id);
             client.end();
           };
