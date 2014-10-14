@@ -110,7 +110,7 @@ function clientOnData(client,keyPair,callback){
       decrypteds = ursaED.decrypt(keyPair,data.toString('utf-8'), keySizeBits/8);
     }catch(err){     
       console.log('getPubKeysByName error!!' + err);
-      console.log('server, you don\'t known my pubKey, you know?!');
+      console.log('server don\'t known my pubKey');
       client.end();
       return;
     }
