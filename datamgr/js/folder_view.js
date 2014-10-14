@@ -53,6 +53,11 @@ function gen_edit_dialog(message){
   console.log("gen edit dialog!");
 }
 
+function sendKeyToWindow(windowname, key){
+  console.log("sendkey " + key + " To Window " + windowname);
+  AppAPI.sendKeyToApp(function(){}, windowname, key);
+}
+
 function cb_get_data_source_file(data_json){
   console.log('get data source file', data_json);
   if(!data_json['openmethod'] || !data_json['content']){
@@ -87,7 +92,16 @@ function cb_get_data_source_file(data_json){
       }
 
       var title = data_json['title'];
-      gen_popup_dialog(title, file_content);
+      if (!data_json['windowname']){
+        gen_popup_dialog(title, file_content);
+      }else{
+        gen_popup_dialog("窗口控制", "<div>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+          </div>");
+      }
       break;
     default:
       break;
