@@ -27,7 +27,13 @@ var ThemeConfPath = config.RESOURCEPATH + ".desktop/Theme.conf";
 var WidgetConfPath = config.RESOURCEPATH + ".desktop/Widget.conf";
 
 
-
+/** 
+ * @Method: readThemeConf
+ *    read file Theme.conf
+ *
+ * @param: callback
+ *    result as a json object
+ **/
 function readThemeConf (callback) {
   fs.readFile(ThemeConfPath,'utf8',function(err,data){
     if (err) {
@@ -43,6 +49,17 @@ function readThemeConf (callback) {
 }
 exports.readThemeConf = readThemeConf;
 
+/** 
+ * @Method: writeThemeConf
+ *    modify file Theme.conf
+ *
+ * @param: callback
+ *    Retrive "success" when success
+ *
+ * @param: oTheme
+ *    json object, modified content of Theme.conf
+ *
+ **/
 function writeThemeConf (callback,oTheme) {
   var oTheme = JSON.stringify(oTheme,null,4);
   fs.open(ThemeConfPath,"w",0644,function(err,fd){
@@ -75,6 +92,13 @@ function writeThemeConf (callback,oTheme) {
 }
 exports.writeThemeConf = writeThemeConf;
 
+/** 
+ * @Method: readWidgetConf
+ *    read file Widget.conf
+ *
+ * @param: callback
+ *    result as a json object
+ **/
 function readWidgetConf (callback) {
   fs.readFile(WidgetConfPath,'utf8',function(err,data){
     if (err) {
@@ -90,7 +114,18 @@ function readWidgetConf (callback) {
 }
 exports.readWidgetConf = readWidgetConf;
 
-function writeThemeConf (callback,oTheme) {
+/** 
+ * @Method: writeThemeConf
+ *    modify file Theme.conf
+ *
+ * @param: callback
+ *    Retrive "success" when success
+ *
+ * @param: oTheme
+ *    json object, modified content of Widget.conf
+ *
+ **/
+function writeWidgetConf (callback,oTheme) {
   var oTheme = JSON.stringify(oTheme,null,4);
   fs.open(WidgetConfPath,"w",0644,function(err,fd){
     if(err){
@@ -114,3 +149,4 @@ function writeThemeConf (callback,oTheme) {
     }
   });
 }
+exports.writeWidgetConf = writeWidgetConf;

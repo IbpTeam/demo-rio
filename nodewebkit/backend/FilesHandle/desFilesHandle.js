@@ -239,7 +239,6 @@ exports.updateItems = function(oItems,callback){
 //combine data with callback
 function updateItemsHelper(callback,desFilePath,item,count,length){
   fs.readFile(desFilePath,'utf8',function(err,data){
-    console.log(desFilePath)
     if (err) {
       console.log("read file error!");
       return;
