@@ -737,25 +737,28 @@ function monitorDesFilesCb(path,event){
     case 'change' : {
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        if(item.category == "Contacts"){
-          console.log("contacts info change");
-        }
-        else if(item.category === "Configuration"){
-          console.log("desktop configuration added !");
-          return;
-        }else{
-          var category = [item.category];
-          var path = (item.path).replace("'","''");
-          var condition = ["path='"+path+"'"];
-          commonDAO.findItems(null,category,condition,null,function(err,resultFind){
-            if(err){
-              console.log(err);
-              return;
-            }
-            if(resultFind.length == 1){
-              var tags = (resultFind[0].others).split(",");
-              var uri = resultFind[0].URI;
-              var itemToDelete = [];
+        var category = [item.category];
+        var path = (item.path).replace("'","''");
+        var condition = ["path='"+path+"'"];
+        commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+          if(err){
+            console.log(err);
+            return;
+          }
+          if(resultFind.length == 1){
+            var tags = (resultFind[0].others).split(",");
+            var uri = resultFind[0].URI;
+            var itemToDelete = [];
+
+            if(category !== "Documents" && 
+             category !== "Pictures" && 
+             category !== "Music" &&
+             category !== "Vedios" &&
+             category !== "Configuration"){
+              commonDAO.updateItems(items,function(resultUpdate){
+                console.log(resultUpdate);
+              });
+            }else{
               for(var k in tags){
                 var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
                 itemToDelete.push(itemTemp);
@@ -774,12 +777,12 @@ function monitorDesFilesCb(path,event){
                   return;
                 }
               });
-            }else{
-              console.log("findItems result size error!");
-              return;
             }
-          })
-        }
+          }else{
+            console.log("findItems result size error!");
+            return;
+          }
+        })
       });
     }
     break;
@@ -1096,27 +1099,16 @@ function openDataByUri(openDataByUriCb,uri){
       var currentTime = (new Date());
       config.riolog("time: "+ currentTime);
       var updateItem = item;
-      //console.log(updateItem);
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       var item_uri = item.URI;
       var sTableName = getCategoryByUri(item_uri);
       updateItem.category = sTableName;
-
-      function updateItemValueCb(result){
-        config.riolog("update DB: "+ result);
-        if(result!='commit'){
-          console.log("Error : updateItems result : "+ ressult);
-          return;
-        }
-        else{
-          var desFilePath = (item.path).replace(/\/resources\//,'/resources/.des/');
-          desFilePath = desFilePath + '.md';
-          dataDes.updateItem(item.path,{lastAccessTime:currentTime},desFilePath,function(){
-            console.log("success");
-          })
-        }
-      }
+      var desFilePath = (item.path).replace(/\/resources\//,'/resources/.des/');
+      desFilePath = desFilePath + '.md';
+      dataDes.updateItem(item.path,{lastAccessTime:currentTime},desFilePath,function(){
+        console.log("success");
+      })
     }
   }
   var sTableName = getCategoryByUri(uri);
