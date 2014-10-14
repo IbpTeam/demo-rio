@@ -204,7 +204,8 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
             lastAccessTime:ctime,
             createDev:config.uniqueID,
             lastModifyDev:config.uniqueID,
-            lastAccessDev:config.uniqueID
+            lastAccessDev:config.uniqueID,
+            content:
           };
           function createItemCb(){
             callback(isLoadEnd,oNewItem);
@@ -661,6 +662,9 @@ function monitorDesFilesCb(path,event){
           console.log("desktop configuration added !");
           return;
         }
+        if(item.category === "Contacts"){
+          delete item.path;
+        }
         var items = [];
         items.push(item);
         if(item.others != "" &&  item.others != null){
@@ -750,7 +754,7 @@ function monitorDesFilesCb(path,event){
             var uri = resultFind[0].URI;
             var itemToDelete = [];
 
-            if(category !== "Documents" && 
+            if(category !=="Documents" && 
              category !== "Pictures" && 
              category !== "Music" &&
              category !== "Vedios" &&
