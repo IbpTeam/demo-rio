@@ -74,7 +74,7 @@ function createDesFile(newItem,itemDesPath,callback){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      return;
+      //return;
     }
     console.log(itemDesPath+" success !");
     callback();

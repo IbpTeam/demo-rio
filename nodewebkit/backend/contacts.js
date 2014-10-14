@@ -143,10 +143,12 @@ function initContacts(loadContactsCb,resourcePath){
           oNewItems.push(oContact);
           if(isContactEnd){
             isEndCallback();
-            commonDAO.createItems(oNewItems,function(result){
-              console.log(result);
-              console.log("initContacts is end!!!");
-            })
+            console.log("succcess");
+            console.log("initContacts is end!!!");
+            // commonDAO.createItems(oNewItems,function(result){
+            //   console.log(result);
+            //   console.log("initContacts is end!!!");
+            // })
           }          
         }
         for(var k=0;k<oContacts.length;k++){
