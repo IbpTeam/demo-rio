@@ -693,8 +693,9 @@ function monitorDesFilesCb(path,event){
           console.log("Path: "+path);
           return;
       }
+      var categorys=[category];
       var condition = ["path='"+origPath.replace("'","''")+"'"];
-      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+      commonDAO.findItems(null,categorys,condition,null,function(err,resultFind){
         if(err){
           console.log(err);
           return;
@@ -704,24 +705,20 @@ function monitorDesFilesCb(path,event){
           var uri = resultFind[0].URI;
           var itemToDelete = [];
           for(var k in tags){
-            var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+            var con=["tags='"+tags[k].replace("'","''")+"'","file_uri='"+uri.replace("'","''")+"'"];
+            var itemTemp = {conditions:con,category:"tags"};
             itemToDelete.push(itemTemp);
           }
+          var attrs={
+            conditions:condition,
+            category:category,
+          };
+          itemToDelete.push(attrs);
+          console.log(itemToDelete);
           //delete tag-uri form table 'tags' first
           commonDAO.deleteItems(itemToDelete,function(resultDelete){
             if(resultDelete == "commit"){
-              var attrs={
-                conditions:condition,
-                category:category,
-                is_delete:1,
-                lastModifyTime:(new Date()),
-                lastModifyDev:config.uniqueID
-              };
-              var items=new Array();
-              items.push(attrs);
-              commonDAO.updateItems(items,function(result){
-                console.log(result);
-              });
+              console.log("delete sucess");
             }else{
               console.log("delete items error!");
               return;
