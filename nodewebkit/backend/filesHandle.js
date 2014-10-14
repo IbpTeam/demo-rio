@@ -573,7 +573,7 @@ function getAllCate(getAllCb) {
     });
     getAllCb(cates);
   }
-  commonDAO.findItems(null,['category'],null,null,getCategoriesCb);
+  commonDAO.findItems(null,"category",null,null,getCategoriesCb);
 }
 exports.getAllCate = getAllCate;
 
@@ -628,14 +628,12 @@ function getAllDataByCate(getAllData,cate) {
       }
       getAllData(items);
     }
-    var cateArray = new Array();
-    cateArray.push(cate);
     if(cate == "Devices"){
-      commonDAO.findItems(null,cateArray,null,null,getAllDevicesCb);
+      commonDAO.findItems(null,cate,null,null,getAllDevicesCb);
     }
     else{
       var conditions = ["is_delete = 0"];
-      commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+      commonDAO.findItems(null,cate,conditions,null,getAllByCaterotyCb);
     }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -682,12 +680,6 @@ function monitorDesFilesCb(path,event){
     break;
     case 'unlink' : {
       console.log("unlink des file @@@@@@@@@@@@@@@@@@@@@");
-      var category = getCategory(origPath).category;
-      if(category == "Configuration"){
-          console.log("desktop configuration file deleted !");
-          console.log("Path: "+path);
-          return;
-      }
       var desPathIndex=path.lastIndexOf(".des");
       var filePath=path.substring(desPathIndex,path.length);
       var nextIndex=filePath.indexOf("/");
@@ -696,6 +688,12 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
+      var category = getCategory(origPath).category;
+      if(category == "Configuration"){
+          console.log("desktop configuration file deleted !");
+          console.log("Path: "+path);
+          return;
+      };
       var condition = ["path='"+origPath.replace("'","''")+"'"];
       commonDAO.findItems(null,category,condition,null,function(err,resultFind){
         if(err){
@@ -707,24 +705,20 @@ function monitorDesFilesCb(path,event){
           var uri = resultFind[0].URI;
           var itemToDelete = [];
           for(var k in tags){
-            var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+            var con=["tag='"+tags[k].replace("'","''")+"'","file_uri='"+uri.replace("'","''")+"'"];
+            var itemTemp = {conditions:con,category:"tags"};
             itemToDelete.push(itemTemp);
           }
+          var attrs={
+            conditions:condition,
+            category:category,
+          };
+          itemToDelete.push(attrs);
+          console.log(itemToDelete);
           //delete tag-uri form table 'tags' first
           commonDAO.deleteItems(itemToDelete,function(resultDelete){
             if(resultDelete == "commit"){
-              var attrs={
-                conditions:condition,
-                category:category,
-                is_delete:1,
-                lastModifyTime:(new Date()),
-                lastModifyDev:config.uniqueID
-              };
-              var items=new Array();
-              items.push(attrs);
-              commonDAO.updateItems(items,function(result){
-                console.log(result);
-              });
+              console.log("delete sucess");
             }else{
               console.log("delete items error!");
               return;
@@ -740,7 +734,7 @@ function monitorDesFilesCb(path,event){
     case 'change' : {
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        var category = [item.category];
+        var category = item.category;
         var path = (item.path).replace("'","''");
         var condition = ["path='"+path+"'"];
         commonDAO.findItems(null,category,condition,null,function(err,resultFind){
@@ -952,33 +946,28 @@ function getCategoryByUri(sUri){
 //成功返回success;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
-  var rm_result;
+  console.log("Rm data : "+ uri);
   function getItemByUriCb(err,items){
-    if(items == null){
-       rm_result='success';
-       rmDataByUriCb(rm_result);
+    if(err){
+      console.log(err);
+      rmDataByUriCb("NOEXIST");
+      return;
     }
-    else{
-      function ulinkCb(result){
-        config.riolog("delete result:"+result);
-        if(result==null){
-          result='success';
-
-          var sTableName = getCategoryByUri(items[0].URI);
-          items[0].category = sTableName;
-          commonDAO.deleteItems(items,rmDataByUriCb);
-        }
-        else{
-          result='error';
-          rmDataByUriCb(result);
-        }
+    console.log("Rm data : ");
+    console.log(items);
+    fs.unlink(items[0].path, function (err) { 
+      if (err) {
+        console.log(err);
+        rmDataByUriCb("error");
       }
-      fs.unlink(items[0].path,ulinkCb);
-    }
+      else{
+        console.log("Rm data success");
+        rmDataByUriCb("success");
+      }
+    }); 
   }
-
-  var sTableName = getCategoryByUri(uri)
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -986,7 +975,7 @@ exports.rmDataByUri = rmDataByUri;
 //API getDataByUri:打开URI对应的数据
 //返回显示数据或结果
 function getDataByUri(getDataCb,uri) {
-    console.log("read data : "+ uri);
+  console.log("read data : "+ uri);
   function getItemByUriCb(err,items){
     if(err){
       console.log(err)
@@ -994,9 +983,8 @@ function getDataByUri(getDataCb,uri) {
     }
     getDataCb(items);
   }
-
-  var sTableName = getCategoryByUri(uri)
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -1078,20 +1066,50 @@ function openDataByUri(openDataByUriCb,uri){
              * }
              * setTimeout(turnToVNC,1000);
              **/
-            item.path = decodeURIComponent(item.path);
-            var sys = require('sys');
-            var exec = require('child_process').exec;
-            var commend = "xdg-open \"" + item.path + "\"";
-            exec(commend, function(error,stdout,stderr){
-              sys.print('stdout: ' + stdout);
-              sys.print('stderr: ' + error);
-            });
 
             source={
               openmethod: 'html',
               format:     'txt',
               title:      '文件浏览',
               content:    "成功打开文件" + item.path
+            }
+
+            var exec = require('child_process').exec;
+            var s_command;
+            var supportedKeySent=false;
+            var s_windowname;//表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
+            switch(item.postfix){
+              case 'ppt':
+                s_command  = "wpp \"" + item.path + "\"";
+                supportedKeySent=true;
+                var h=item.path.lastIndexOf('/');
+                s_windowname=item.path.substring(h<0?0:h+1, item.path.length);
+                break;
+              case 'pptx':
+                s_command  = "wpp \"" + item.path + "\"";
+                supportedKeySent=true;
+                var h=item.path.lastIndexOf('/');
+                s_windowname=item.path.substring(h<0?0:h+1, item.path.length);
+                break;
+              case 'doc':
+                s_command  = "wps \"" + item.path + "\"";
+                break;
+              case 'docx':
+                s_command  = "wps \"" + item.path + "\"";
+                break;
+              case 'xls':
+                s_command  = "et \"" + item.path + "\"";
+                break;
+              case 'xlsx':
+                s_command  = "et \"" + item.path + "\"";
+                break;
+              default:
+                s_command  = "xdg-open \"" + item.path + "\"";
+                break;
+            }
+            var child = exec(s_command, function(error,stdout,stderr){});
+            if (supportedKeySent===true){
+              source.windowname=s_windowname;
             }
             break;
         }
@@ -1100,7 +1118,6 @@ function openDataByUri(openDataByUriCb,uri){
       openDataByUriCb(source);
 
       var currentTime = (new Date());
-      config.riolog("time: "+ currentTime);
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
@@ -1115,7 +1132,7 @@ function openDataByUri(openDataByUriCb,uri){
     }
   }
   var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
 
@@ -1158,7 +1175,7 @@ function getRecentAccessData(getRecentAccessDataCb,num){
       }
       if(sType != "Devices" && sType != "Contacts"){
         var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit "+"'"+num+"'";
-        commonDAO.findItems(null,[sType],null,[sCondition],findItemsCb);
+        commonDAO.findItems(null,sType,null,[sCondition],findItemsCb);
       }  
     }
   }
