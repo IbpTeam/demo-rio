@@ -177,7 +177,6 @@ function parseDesktopFile(sPath, callback) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
 
-  var fs = require('fs');
   fs.readFile(sPath, 'utf-8', function(err, data) {
     if (err) {
       console.log("read desktop file error");
