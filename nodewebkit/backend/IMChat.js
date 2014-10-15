@@ -62,6 +62,13 @@ function initIMServer(ReceivedMsgCallback) {
     keyPair should be loaded by local account
     */
       var msgStr = JSON.parse(msgStri);
+      if (msgStr[0].type == 'SenderChangePubkey') {
+        var badkey = JSON.parse(msgStr[0].content);
+        console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
+        var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+        requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
+        return;
+      };
       try {
         var decrypteds = ursaED.decrypt(keyPair, msgStr[0].content.toString('utf-8'), keySizeBits / 8);
         console.log('解密：' + decrypteds);
@@ -220,7 +227,18 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
       case 'Reply':
         {
           var keyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-          var decrply = ursaED.decrypt(keyPair, RPLY[0].content.toString('utf-8'), keySizeBits / 8);
+          try{
+            var decrply = ursaED.decrypt(keyPair, RPLY[0].content.toString('utf-8'), keySizeBits / 8);
+          }
+          catch(err){
+            console.log(err);
+            console.log("Destination system got the wrong PubKey, notify him to change ...");
+            var badpubkey = encapsuMSG('', 'SenderChangePubkey', LOCALACCOUNT, LOCALUUID, '');
+            client.write(badpubkey);
+            clearInterval(id);
+            client.end();
+            return;
+          }
           console.log("decry message:" + decrply);
           var msg = JSON.parse(decrply);
           switch (msg.type) {
