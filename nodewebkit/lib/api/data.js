@@ -395,7 +395,7 @@ exports.rmTagsByUri = rmTagsByUri;
  * @param: callback
  *    result as a json object
  **/
-function readThemeConf(callback) {
+function readThemeConf(readThemeConfCb) {
   console.log("Request handler 'readThemeConf' was called.");
   desktopConf.readThemeConf(readThemeConfCb);
 }
@@ -412,7 +412,7 @@ exports.readThemeConf = readThemeConf;
  *    json object, modified content of Theme.conf
  *
  **/
-function writeThemeConf(callback, oTheme) {
+function writeThemeConf(writeThemeConfCb, oTheme) {
   console.log("Request handler 'writeThemeConf' was called.");
   desktopConf.writeThemeConf(writeThemeConfCb,oTheme);
 }
@@ -425,7 +425,7 @@ exports.writeThemeConf = writeThemeConf;
  * @param: callback
  *    result as a json object
  **/
-function readWidgetConf(callback) {
+function readWidgetConf(readWidgetConfCb) {
   console.log("Request handler 'readWidgetConf' was called.");
   desktopConf.readWidgetConf(readWidgetConfCb);
 }
@@ -442,7 +442,7 @@ exports.readWidgetConf = readWidgetConf;
  *    json object, modified content of Widget.conf
  *
  **/
-function writeWidgetConf(callback, oWidget) {
+function writeWidgetConf(writeWidgetConfCb, oWidget) {
   console.log("Request handler 'writeWidgetConf' was called.");
   desktopConf.writeWidgetConf(writeWidgetConfCb,oWidget);
 }
@@ -459,7 +459,7 @@ exports.writeWidgetConf = writeWidgetConf;
  *    name of target file
  *
  **/
-function readDesktopEntries(callback,sFileName){
+function readDesktopEntries(readDesktopEntriesCb,sFileName){
   console.log("Request handler 'readDesktopEntries' was called.");
   desktopConf.readDesktopEntries(readDesktopEntriesCb,sFileName);
 

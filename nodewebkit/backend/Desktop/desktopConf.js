@@ -10,12 +10,16 @@
  * @version:0.1.1
  **/
 var pathModule = require('path');
+var fs = require('fs');
+var os = require('os');
 var config = require("../config");
 var dataDes = require("../FilesHandle/desFilesHandle");
+var resourceRepo = require("../FilesHandle/repo");
+var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
-var ThemeConfPath = config.RESOURCEPATH + ".desktop/Theme.conf";
-var WidgetConfPath = config.RESOURCEPATH + ".desktop/Widget.conf";
+var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
+var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
 
 
 /** 
@@ -52,14 +56,14 @@ exports.readThemeConf = readThemeConf;
  *
  **/
 function writeThemeConf(callback, oTheme) {
-  var oTheme = JSON.stringify(oTheme, null, 4);
+  var sTheme = JSON.stringify(oTheme, null, 4);
   fs.open(ThemeConfPath, "w", 0644, function(err, fd) {
     if (err) {
       console.log("open Theme config file error!");
       console.log(err);
       return;
     } else {
-      fs.write(fd, sItem, 0, 'utf8', function(err) {
+      fs.write(fd, sTheme, 0, 'utf8', function(err) {
         if (err) {
           console.log("write Theme config file error!");
           console.log(err);
@@ -72,7 +76,7 @@ function writeThemeConf(callback, oTheme) {
             lastAccessDev: config.uniqueID
           }
           var chItem = ThemeConfPath;
-          var itemDesPath = ThemeConfPath.replace(/\/resources\//, '/resources/.des/') + ".md";
+          var itemDesPath = config.RESOURCEPATH+"/.des/.desktop/";
           dataDes.updateItem(chItem, attrs, itemDesPath, function() {
             callback("success");
           });

@@ -686,7 +686,7 @@ function monitorDesFilesCb(path,event){
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
       var category = getCategory(origPath).category;
-      if(category == "Configuration"){
+      if(category === "Configuration"){
         console.log("desktop configuration file deleted !");
         console.log("Path: "+path);
         return;
@@ -735,7 +735,11 @@ function monitorDesFilesCb(path,event){
         var category = item.category;
         var path = "";
         var condition = [];
-        if(category === "Contacts"){
+        if(category === "Configuration"){
+          console.log("desktop configuration chenges!")
+          return;
+        }
+        else if(category === "Contacts"){
           condition.push("name='"+item.name+"'");
         }else{
           path = (item.path).replace("'","''");
@@ -753,8 +757,7 @@ function monitorDesFilesCb(path,event){
              if(category !== "Documents" && 
              category !== "Pictures" && 
              category !== "Music" &&
-             category !== "Vedios" &&
-             category !== "Configuration"){
+             category !== "Vedios" ){
               commonDAO.updateItem(item,function(resultUpdate){
                 console.log(resultUpdate);
               });
