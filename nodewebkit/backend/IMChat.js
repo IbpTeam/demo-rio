@@ -29,7 +29,7 @@ var LOCALPUBKEY = './key/pubKey.pem';
  *  返回md5校验值
  */
 function MD5(str, encoding) {
-	return crypto.createHash('md5').update(str).digest(encoding || 'hex');
+  return crypto.createHash('md5').update(str).digest(encoding || 'hex');
 }
 
 /*
@@ -43,106 +43,106 @@ function MD5(str, encoding) {
  *  没有返回值
  */
 function initIMServer(ReceivedMsgCallback) {
-	/*
-	we should load the keyPair first, in order to encrypt messages with RSA
-	*/
-	var keyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-	var pubKey = ursaED.loadPubKeySync(LOCALPRIKEY);
-	var keySizeBits = 1024;
+  /*
+  we should load the keyPair first, in order to encrypt messages with RSA
+  */
+  var keyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+  var pubKey = ursaED.loadPubKeySync(LOCALPRIKEY);
+  var keySizeBits = 1024;
 
-	var server = net.createServer(function(c) {
-		console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
-		var remoteAD = c.remoteAddress;
-		var remotePT = c.remotePort;
+  var server = net.createServer(function(c) {
+    console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+    var remoteAD = c.remoteAddress;
+    var remotePT = c.remotePort;
 
-		c.on('data', function(msgStri) {
-			console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
-			/*
-		keyPair to be intergrated by Account Server
-		keyPair should be loaded by local account
-		*/
-			var msgStr = JSON.parse(msgStri);
-			if (msgStr[0].type == 'SenderChangePubkey') {
-				var badkey = JSON.parse(msgStr[0].content);
-				console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
-				var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-				requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
-				return;
-			};
-			try {
-				var decrypteds = ursaED.decrypt(keyPair, msgStr[0].content.toString('utf-8'), keySizeBits / 8);
-				console.log('解密：' + decrypteds);
-				var msgObj = JSON.parse(decrypteds);
-				console.log(msgObj);
-				console.log('MSG type:' + msgObj.type);
-			} catch (err) {
-				console.log(err);
-				console.log("sender pubkey error, change pubkey and try again");
-				var badpubkey = encapsuMSG('', 'SenderChangePubkey', LOCALACCOUNT, LOCALUUID, '');
-				c.write(badpubkey);
-				return;
-			}
-			switch (msgObj.type) {
-				case 'SentEnFirst':
-					{
-						console.log(msgObj.message);
-						var msgtime = new Date();
-						msgtime.setTime(msgObj.time);
-						console.log(msgtime);
-						//console.log("=========================================");
-						//output message and save to database
-						//return success
-						//dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
-						// console.log("insert into db success!");} );
-						setTimeout(ReceivedMsgCallback(msgObj.message), 0);
-						//console.log("pubkey is "+pubKey);
-						isExist(msgObj.uuid, function() {
-							var tmpkey = ursaED.loadPubKeySync('./key/users/' + msgObj.uuid + '.pem');
-							var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
-							var tmpsmsg = encryptSentMSG(tp, tmpkey)
-							c.write(tmpsmsg);
-						}, function() {
-							requestPubKey(msgObj.uuid, msgObj.from, keyPair, function() {
-								var tmpkey = ursaED.loadPubKeySync('./key/users/' + msgObj.uuid + '.pem');
-								var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
-								var tmpsmsg = encryptSentMSG(tp, tmpkey)
-								c.write(tmpsmsg);
-							});
-						});
-					}
-					break;
-				case 'Reply':
-					{
-						//console.log("=========================================");
-						//sender received message, sesson end
-					}
-					break;
-				default:
-					{
-						console.log("this is in default switch on data");
-						//console.log(data);
-					}
-			}
-		});
+    c.on('data', function(msgStri) {
+      console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
+      /*
+    keyPair to be intergrated by Account Server
+    keyPair should be loaded by local account
+    */
+      var msgStr = JSON.parse(msgStri);
+      if (msgStr[0].type == 'SenderChangePubkey') {
+        var badkey = JSON.parse(msgStr[0].content);
+        console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
+        var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+        requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
+        return;
+      };
+      try {
+        var decrypteds = ursaED.decrypt(keyPair, msgStr[0].content.toString('utf-8'), keySizeBits / 8);
+        console.log('解密：' + decrypteds);
+        var msgObj = JSON.parse(decrypteds);
+        console.log(msgObj);
+        console.log('MSG type:' + msgObj.type);
+      } catch (err) {
+        console.log(err);
+        console.log("sender pubkey error, change pubkey and try again");
+        var badpubkey = encapsuMSG('', 'SenderChangePubkey', LOCALACCOUNT, LOCALUUID, '');
+        c.write(badpubkey);
+        return;
+      }
+      switch (msgObj.type) {
+        case 'SentEnFirst':
+          {
+            console.log(msgObj.message);
+            var msgtime = new Date();
+            msgtime.setTime(msgObj.time);
+            console.log(msgtime);
+            //console.log("=========================================");
+            //output message and save to database
+            //return success
+            //dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
+            // console.log("insert into db success!");} );
+            setTimeout(ReceivedMsgCallback(msgObj.message), 0);
+            //console.log("pubkey is "+pubKey);
+            isExist(msgObj.uuid, function() {
+              var tmpkey = ursaED.loadPubKeySync('./key/users/' + msgObj.uuid + '.pem');
+              var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
+              var tmpsmsg = encryptSentMSG(tp, tmpkey)
+              c.write(tmpsmsg);
+            }, function() {
+              requestPubKey(msgObj.uuid, msgObj.from, keyPair, function() {
+                var tmpkey = ursaED.loadPubKeySync('./key/users/' + msgObj.uuid + '.pem');
+                var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
+                var tmpsmsg = encryptSentMSG(tp, tmpkey)
+                c.write(tmpsmsg);
+              });
+            });
+          }
+          break;
+        case 'Reply':
+          {
+            //console.log("=========================================");
+            //sender received message, sesson end
+          }
+          break;
+        default:
+          {
+            console.log("this is in default switch on data");
+            //console.log(data);
+          }
+      }
+    });
 
-		c.on('close', function() {
-			console.log('Remote ' + remoteAD + ' : ' + remotePT + ' disconnected!');
-		});
+    c.on('close', function() {
+      console.log('Remote ' + remoteAD + ' : ' + remotePT + ' disconnected!');
+    });
 
 
-		c.on('error', function() {
-			console.log('Unexpected Error!');
-		});
+    c.on('error', function() {
+      console.log('Unexpected Error!');
+    });
 
-	});
+  });
 
-	server.on('error', function(err) {
-		console.log("Error: " + err.code + " on " + err.syscall);
-	});
+  server.on('error', function(err) {
+    console.log("Error: " + err.code + " on " + err.syscall);
+  });
 
-	server.listen(8892, function() {
-		console.log('IMServer Binded! ' + 8892);
-	});
+  server.listen(8892, function() {
+    console.log('IMServer Binded! ' + 8892);
+  });
 }
 
 /*
@@ -166,118 +166,118 @@ function initIMServer(ReceivedMsgCallback) {
  *  没有返回值
  */
 function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
-	var count = 0;
-	var id = 0;
-	var tmpenmsg = encryptSentMSG(SENDMSG, KEYPAIR);
-	var MSG = JSON.parse(SENDMSG);
-	//  var nnnss = JSON.stringify(SENDMSG);
-	var dec = MSG[0].content;
-	var pat = JSON.parse(dec);
+  var count = 0;
+  var id = 0;
+  var tmpenmsg = encryptSentMSG(SENDMSG, KEYPAIR);
+  var MSG = JSON.parse(SENDMSG);
+  //  var nnnss = JSON.stringify(SENDMSG);
+  var dec = MSG[0].content;
+  var pat = JSON.parse(dec);
 
-	if (!net.isIP(IP)) {
-		console.log('Input IP Format Error!');
-		return;
-	};
-	var client = new net.Socket();
-	client.setTimeout(6000, function() {
-		console.log("connect time out");
-		client.end();
-	});
+  if (!net.isIP(IP)) {
+    console.log('Input IP Format Error!');
+    return;
+  };
+  var client = new net.Socket();
+  client.setTimeout(6000, function() {
+    console.log("connect time out");
+    client.end();
+  });
 
-	function innerrply() {
-		id = setInterval(function(C, tmpenmsg) {
-			var innermsg = encryptSentMSG(SENDMSG, KEYPAIR);
-			if (count < 5) {
-				console.log("this is in resent " + innermsg);
-				client.write(innermsg);
-				count++;
-			} else {
-				clearInterval(id);
-				console.log("Send message error: no reply ");
-			};
+  function innerrply() {
+    id = setInterval(function(C, tmpenmsg) {
+      var innermsg = encryptSentMSG(SENDMSG, KEYPAIR);
+      if (count < 5) {
+        console.log("this is in resent " + innermsg);
+        client.write(innermsg);
+        count++;
+      } else {
+        clearInterval(id);
+        console.log("Send message error: no reply ");
+      };
 
-		}, 1000, client, MSG);
-	}
-	switch (MSG[0].type) {
-		case 'SentEnFirst':
-			{
-				console.log("sending message ::: " + tmpenmsg);
-				client.connect(PORT, IP, function() {
-					client.write(tmpenmsg, function() {});
-				});
-			}
-			break;
-		default:
-			{
-				client.connect(PORT, IP, function() {
-					client.write(tmpenmsg, function() {});
-				});
-			}
-	}
+    }, 1000, client, MSG);
+  }
+  switch (MSG[0].type) {
+    case 'SentEnFirst':
+      {
+        console.log("sending message ::: " + tmpenmsg);
+        client.connect(PORT, IP, function() {
+          client.write(tmpenmsg, function() {});
+        });
+      }
+      break;
+    default:
+      {
+        client.connect(PORT, IP, function() {
+          client.write(tmpenmsg, function() {});
+        });
+      }
+  }
 
-	client.on('connect', innerrply);
+  client.on('connect', innerrply);
 
-	client.on('data', function(REPLY) {
-		console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		///////////////this part should be replaced by local prikey//////////////////////////////
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		var RPLY = JSON.parse(REPLY);
-		switch (RPLY[0].type) {
-			case 'Reply':
-				{
-					var keyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-					try{
-						var decrply = ursaED.decrypt(keyPair, RPLY[0].content.toString('utf-8'), keySizeBits / 8);
-					}
-					catch(err){
-						console.log(err);
-						console.log("Destination system got the wrong PubKey, notify him to change ...");
-						var badpubkey = encapsuMSG('', 'SenderChangePubkey', LOCALACCOUNT, LOCALUUID, '');
-						client.write(badpubkey);
-						clearInterval(id);
-						client.end();
-						return;
-					}
-					console.log("decry message:" + decrply);
-					var msg = JSON.parse(decrply);
-					switch (msg.type) {
-						case 'Reply':
-							{
-								if (msg.message == MD5(pat.message)) {
-									var msgtp = pat;
-									console.log('msg rply received: ' + msg.message);
-									//  dboper.dbsentInsert(msgtp.from, msgtp.to, msgtp.message, msgtp.type, msgtp.time, function() {
-									// console.log("sent message insert into db success!");        });
-									setTimeout(SentCallBack(msgtp.message), 0);
-									clearInterval(id);
-									client.end();
-								};
-							}
-							break;
-					}
-				}
-				break;
-			case 'SenderChangePubkey':
-				{
-					var badkey = JSON.parse(RPLY[0].content);
-					console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
-					var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-					requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
-					clearInterval(id);
-					client.end();
-				}
-		}
+  client.on('data', function(REPLY) {
+    console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////this part should be replaced by local prikey//////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    var RPLY = JSON.parse(REPLY);
+    switch (RPLY[0].type) {
+      case 'Reply':
+        {
+          var keyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+          try{
+            var decrply = ursaED.decrypt(keyPair, RPLY[0].content.toString('utf-8'), keySizeBits / 8);
+          }
+          catch(err){
+            console.log(err);
+            console.log("Destination system got the wrong PubKey, notify him to change ...");
+            var badpubkey = encapsuMSG('', 'SenderChangePubkey', LOCALACCOUNT, LOCALUUID, '');
+            client.write(badpubkey);
+            clearInterval(id);
+            client.end();
+            return;
+          }
+          console.log("decry message:" + decrply);
+          var msg = JSON.parse(decrply);
+          switch (msg.type) {
+            case 'Reply':
+              {
+                if (msg.message == MD5(pat.message)) {
+                  var msgtp = pat;
+                  console.log('msg rply received: ' + msg.message);
+                  //  dboper.dbsentInsert(msgtp.from, msgtp.to, msgtp.message, msgtp.type, msgtp.time, function() {
+                  // console.log("sent message insert into db success!");        });
+                  setTimeout(SentCallBack(msgtp.message), 0);
+                  clearInterval(id);
+                  client.end();
+                };
+              }
+              break;
+          }
+        }
+        break;
+      case 'SenderChangePubkey':
+        {
+          var badkey = JSON.parse(RPLY[0].content);
+          console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
+          var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+          requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
+          clearInterval(id);
+          client.end();
+        }
+    }
 
 
-	});
-	//client.end();
+  });
+  //client.end();
 
-	client.on('error', function(err) {
-		console.log("Error: " + err.code + " on " + err.syscall + " !  IP : " + IP);
-		clearInterval(id);
-		client.end();
-	});
+  client.on('error', function(err) {
+    console.log("Error: " + err.code + " on " + err.syscall + " !  IP : " + IP);
+    clearInterval(id);
+    client.end();
+  });
 }
 
 /*
@@ -295,67 +295,67 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
  *  没有返回值
  */
 function sendMSGbyAccount(TABLE, ACCOUNT, MSG, PORT) {
-	var ipset = TABLE.get(ACCOUNT);
+  var ipset = TABLE.get(ACCOUNT);
 
-	if (typeof ipset == "undefined") {
-		console.log("destination account not in local lan!");
-		/*
-		here are some server msg send functions!
-		*/
-	};
+  if (typeof ipset == "undefined") {
+    console.log("destination account not in local lan!");
+    /*
+    here are some server msg send functions!
+    */
+  };
 
-	var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-	//var localkeyPair =  ursaED.initSelfRSAKeys('./key/priKey.pem','./key/pubKey.pem');
-	/*
-	MSG already be capsuled by encapsuMSG function
-	*/
-	for (var i = 0; i < ipset.length; i++) {
-		console.log("sending " + ipset[i].UID + " in account " + ACCOUNT);
-		existsPubkeyPem(ipset[i], ACCOUNT, MSG, PORT, localkeyPair, function(msg) {
-			console.log("msg sent successful:::" + msg);
-		});
-	};
+  var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+  //var localkeyPair =  ursaED.initSelfRSAKeys('./key/priKey.pem','./key/pubKey.pem');
+  /*
+  MSG already be capsuled by encapsuMSG function
+  */
+  for (var i = 0; i < ipset.length; i++) {
+    console.log("sending " + ipset[i].UID + " in account " + ACCOUNT);
+    existsPubkeyPem(ipset[i], ACCOUNT, MSG, PORT, localkeyPair, function(msg) {
+      console.log("msg sent successful:::" + msg);
+    });
+  };
 
-	console.log("send " + ipset.length + " IPs in " + ACCOUNT);
+  console.log("send " + ipset.length + " IPs in " + ACCOUNT);
 }
 
 function sendMSGbyUID(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
-	if (typeof IPSET.UID == "undefined") {
-		console.log("receiver uuid null");
-		/*
-		here are some server msg send functions!
-		*/
-	};
-	var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
-	existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, localkeyPair, SENTCALLBACK);
+  if (typeof IPSET.UID == "undefined") {
+    console.log("receiver uuid null");
+    /*
+    here are some server msg send functions!
+    */
+  };
+  var localkeyPair = ursaED.loadPriKeySync(LOCALPRIKEY);
+  existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, localkeyPair, SENTCALLBACK);
 }
 
 function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR, SENTCALLBACK) {
-	function insendfunc() {
-		var tmppubkey = ursaED.loadPubKeySync('./key/users/' + IPSET.UID + '.pem');
-		/************************************************************
-				A should be replaced by the local account
-				********************************************************/
-		var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
-		console.log(tmpmsg);
-		sendIMMsg(IPSET.IP, PORT, tmpmsg, tmppubkey, SENTCALLBACK);
-	}
+  function insendfunc() {
+    var tmppubkey = ursaED.loadPubKeySync('./key/users/' + IPSET.UID + '.pem');
+    /************************************************************
+        A should be replaced by the local account
+        ********************************************************/
+    var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
+    console.log(tmpmsg);
+    sendIMMsg(IPSET.IP, PORT, tmpmsg, tmppubkey, SENTCALLBACK);
+  }
 
-	function rqstpubkey() {
-		console.log("nonexist");
-		requestPubKey(IPSET.UID, ACCOUNT, LOCALPAIR, insendfunc);
-	}
-	isExist(IPSET.UID, insendfunc, rqstpubkey);
+  function rqstpubkey() {
+    console.log("nonexist");
+    requestPubKey(IPSET.UID, ACCOUNT, LOCALPAIR, insendfunc);
+  }
+  isExist(IPSET.UID, insendfunc, rqstpubkey);
 }
 
 function isExist(UUID, existfunc, noexistfunc) {
-	fs.exists('./key/users/' + UUID + '.pem', function(exists) {
-		if (exists) {
-			existfunc();
-		} else {
-			noexistfunc();
-		};
-	});
+  fs.exists('./key/users/' + UUID + '.pem', function(exists) {
+    if (exists) {
+      existfunc();
+    } else {
+      noexistfunc();
+    };
+  });
 }
 
 /*
@@ -372,48 +372,48 @@ function isExist(UUID, existfunc, noexistfunc) {
  * @return null
  */
 function requestPubKey(UUID, ACCOUNT, LOCALPAIR, INSENTFUNC) {
-	console.log("Pubkey of device: " + UUID + " in " + ACCOUNT + " doesn't exist , request from server!");
-	var serverKeyPair = ursaED.loadServerKey(KEYSERVERPUB);
-	var tmppubkey = ursaED.loadPubKeySync(LOCALPUBKEY);
-	account.login(LOCALACCOUNT, LOCALACCOUNTKEY, LOCALUUID, tmppubkey, LOCALPAIR, serverKeyPair, function(msg) {
-		console.log("Login successful: +++" + JSON.stringify(msg));
-	});
-	account.getPubKeysByName(LOCALACCOUNT, LOCALUUID, ACCOUNT, LOCALPAIR, serverKeyPair, function(msg) {
-		console.log(JSON.stringify(msg.data.detail));
-		msg.data.detail.forEach(function(row) {
-			if (row.UUID == UUID) {
-				//console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
-				savePubkey('./key/users/' + row.UUID + '.pem', row.pubKey, INSENTFUNC);
-				//console.log("DDDDDDDDDDD"+row.pubKey);
-			};
-		});
-	});
+  console.log("Pubkey of device: " + UUID + " in " + ACCOUNT + " doesn't exist , request from server!");
+  var serverKeyPair = ursaED.loadServerKey(KEYSERVERPUB);
+  var tmppubkey = ursaED.loadPubKeySync(LOCALPUBKEY);
+  account.login(LOCALACCOUNT, LOCALACCOUNTKEY, LOCALUUID, tmppubkey, LOCALPAIR, serverKeyPair, function(msg) {
+    console.log("Login successful: +++" + JSON.stringify(msg));
+  });
+  account.getPubKeysByName(LOCALACCOUNT, LOCALUUID, ACCOUNT, LOCALPAIR, serverKeyPair, function(msg) {
+    console.log(JSON.stringify(msg.data.detail));
+    msg.data.detail.forEach(function(row) {
+      if (row.UUID == UUID) {
+        //console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
+        savePubkey('./key/users/' + row.UUID + '.pem', row.pubKey, INSENTFUNC);
+        //console.log("DDDDDDDDDDD"+row.pubKey);
+      };
+    });
+  });
 }
 
 function savePubkey(SAVEPATH, PUBKEY, CALLBACK) {
-	fs.exists(SAVEPATH, function(exists) {
-		if (exists) {
-			fs.unlinkSync(SAVEPATH);
-			console.log("Wrong pubkey " + SAVEPATH + " deleted!")
-			fs.appendFile(SAVEPATH, PUBKEY, 'utf8', function(err) {
-				if (err) {
-					console.log("savepubKey Error: " + err);
-				} else {
-					console.log("savepubKey successful");
-					CALLBACK();
-				}
-			});
-		} else {
-			fs.appendFile(SAVEPATH, PUBKEY, 'utf8', function(err) {
-				if (err) {
-					console.log("savepubKey Error: " + err);
-				} else {
-					console.log("savepubKey successful");
-					CALLBACK();
-				}
-			});
-		}
-	})
+  fs.exists(SAVEPATH, function(exists) {
+    if (exists) {
+      fs.unlinkSync(SAVEPATH);
+      console.log("Wrong pubkey " + SAVEPATH + " deleted!")
+      fs.appendFile(SAVEPATH, PUBKEY, 'utf8', function(err) {
+        if (err) {
+          console.log("savepubKey Error: " + err);
+        } else {
+          console.log("savepubKey successful");
+          CALLBACK();
+        }
+      });
+    } else {
+      fs.appendFile(SAVEPATH, PUBKEY, 'utf8', function(err) {
+        if (err) {
+          console.log("savepubKey Error: " + err);
+        } else {
+          console.log("savepubKey successful");
+          CALLBACK();
+        }
+      });
+    }
+  })
 
 }
 
@@ -434,81 +434,81 @@ function savePubkey(SAVEPATH, PUBKEY, CALLBACK) {
  *  封装好，并且已经序列化的消息字符串
  */
 function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
-	var MESSAGE = [];
-	var tmp = {};
-	var restmp = {};
-	var now = new Date();
-	restmp['type'] = TYPE;
-	restmp['content'] = '';
+  var MESSAGE = [];
+  var tmp = {};
+  var restmp = {};
+  var now = new Date();
+  restmp['type'] = TYPE;
+  restmp['content'] = '';
 
-	switch (TYPE) {
-		case 'Chat':
-			{
-				tmp["from"] = FROM;
-				tmp["uuid"] = FROMUUID;
-				tmp["to"] = TO;
-				tmp["message"] = MSG;
-				tmp['type'] = TYPE;
-				tmp['time'] = now.getTime();
-				var content = JSON.stringify(tmp);
-				restmp['content'] = content;
-			}
-			break;
-		case 'Reply':
-			{
-				tmp["from"] = FROM;
-				tmp["to"] = TO;
-				tmp["message"] = MSG;
-				tmp["type"] = TYPE;
-				tmp['time'] = now.getTime();
-				var content = JSON.stringify(tmp);
-				restmp['content'] = content;
-			}
-			break;
-		case 'RegetPubkey':
-			{
-				//sender got wrong pubkey, notify sender to update pubkey.
-			}
-			break;
-		case 'SentEnFirst':
-			{
-				tmp["from"] = FROM;
-				tmp["uuid"] = FROMUUID;
-				tmp["to"] = TO;
-				tmp["message"] = MSG;
-				tmp['type'] = TYPE;
-				tmp['time'] = now.getTime();
-				var content = JSON.stringify(tmp);
-				restmp['content'] = content;
-			}
-			break;
-		case 'SenderChangePubkey':
-			{
-				tmp["from"] = FROM;
-				tmp["uuid"] = FROMUUID;
-				var content = JSON.stringify(tmp);
-				restmp['content'] = content;
-			}
-			break;
-		default:
-			{
-				console.log("encapsuMSG : Please take a proper Type.");
-			}
-	}
+  switch (TYPE) {
+    case 'Chat':
+      {
+        tmp["from"] = FROM;
+        tmp["uuid"] = FROMUUID;
+        tmp["to"] = TO;
+        tmp["message"] = MSG;
+        tmp['type'] = TYPE;
+        tmp['time'] = now.getTime();
+        var content = JSON.stringify(tmp);
+        restmp['content'] = content;
+      }
+      break;
+    case 'Reply':
+      {
+        tmp["from"] = FROM;
+        tmp["to"] = TO;
+        tmp["message"] = MSG;
+        tmp["type"] = TYPE;
+        tmp['time'] = now.getTime();
+        var content = JSON.stringify(tmp);
+        restmp['content'] = content;
+      }
+      break;
+    case 'RegetPubkey':
+      {
+        //sender got wrong pubkey, notify sender to update pubkey.
+      }
+      break;
+    case 'SentEnFirst':
+      {
+        tmp["from"] = FROM;
+        tmp["uuid"] = FROMUUID;
+        tmp["to"] = TO;
+        tmp["message"] = MSG;
+        tmp['type'] = TYPE;
+        tmp['time'] = now.getTime();
+        var content = JSON.stringify(tmp);
+        restmp['content'] = content;
+      }
+      break;
+    case 'SenderChangePubkey':
+      {
+        tmp["from"] = FROM;
+        tmp["uuid"] = FROMUUID;
+        var content = JSON.stringify(tmp);
+        restmp['content'] = content;
+      }
+      break;
+    default:
+      {
+        console.log("encapsuMSG : Please take a proper Type.");
+      }
+  }
 
-	MESSAGE.push(restmp);
-	var send = JSON.stringify(MESSAGE);
-	return send;
+  MESSAGE.push(restmp);
+  var send = JSON.stringify(MESSAGE);
+  return send;
 }
 
 function encryptSentMSG(SENTMSG, PUBKEY) {
-	var msg = JSON.parse(SENTMSG);
-	var dec = msg[0].content;
-	var pubkeyPair = ursa.createKey(PUBKEY);
-	var encon = ursaED.encrypt(pubkeyPair, dec, keySizeBits / 8);
-	msg[0].content = encon;
-	var sent = JSON.stringify(msg);
-	return sent;
+  var msg = JSON.parse(SENTMSG);
+  var dec = msg[0].content;
+  var pubkeyPair = ursa.createKey(PUBKEY);
+  var encon = ursaED.encrypt(pubkeyPair, dec, keySizeBits / 8);
+  msg[0].content = encon;
+  var sent = JSON.stringify(msg);
+  return sent;
 }
 
 /*
@@ -520,8 +520,8 @@ function encryptSentMSG(SENTMSG, PUBKEY) {
  *  返回新创建的映射表
  */
 function createAccountTable() {
-	var accounttable = new hashtable();
-	return accounttable;
+  var accounttable = new hashtable();
+  return accounttable;
 }
 
 /*
@@ -540,27 +540,27 @@ function createAccountTable() {
  */
 function insertAccount(TABLE, ACCOUNT, IP, UID) {
 
-	if (!net.isIP(IP)) {
-		console.log('Input IP Format Error!');
-		return;
-	};
+  if (!net.isIP(IP)) {
+    console.log('Input IP Format Error!');
+    return;
+  };
 
-	var ipset = TABLE.get(ACCOUNT);
-	var IPtmp = {};
-	IPtmp["IP"] = IP;
-	IPtmp["UID"] = UID;
+  var ipset = TABLE.get(ACCOUNT);
+  var IPtmp = {};
+  IPtmp["IP"] = IP;
+  IPtmp["UID"] = UID;
 
-	if (typeof ipset == "undefined") {
-		var tmp = [];
-		tmp.push(IPtmp);
-		TABLE.put(ACCOUNT, tmp);
-	} else {
-		ipset.push(IPtmp);
-		TABLE.remove(ACCOUNT);
-		TABLE.put(ACCOUNT, ipset);
-	}
+  if (typeof ipset == "undefined") {
+    var tmp = [];
+    tmp.push(IPtmp);
+    TABLE.put(ACCOUNT, tmp);
+  } else {
+    ipset.push(IPtmp);
+    TABLE.remove(ACCOUNT);
+    TABLE.put(ACCOUNT, ipset);
+  }
 
-	return TABLE;
+  return TABLE;
 }
 
 /*
@@ -576,39 +576,39 @@ function insertAccount(TABLE, ACCOUNT, IP, UID) {
  *  返回删除IP的映射表
  */
 function removeAccountIP(TABLE, ACCOUNT, IP) {
-	if (!net.isIP(IP)) {
-		console.log('Input IP Format Error!');
-		return;
-	};
+  if (!net.isIP(IP)) {
+    console.log('Input IP Format Error!');
+    return;
+  };
 
-	var ipset = TABLE.get(ACCOUNT);
+  var ipset = TABLE.get(ACCOUNT);
 
-	if (typeof ipset == "undefined") {
-		console.log("Input Account Error or Empty Account!");
-		return;
-	};
+  if (typeof ipset == "undefined") {
+    console.log("Input Account Error or Empty Account!");
+    return;
+  };
 
-	TABLE.remove(ACCOUNT);
+  TABLE.remove(ACCOUNT);
 
-	if (ipset.length == 1) {
-		return TABLE;
-	};
+  if (ipset.length == 1) {
+    return TABLE;
+  };
 
-	var orilength = ipset.length;
-	for (var i = 0; i < ipset.length; i++) {
-		if (ipset[i].IP == IP) {
-			ipset.splice(i, 1);
-			break;
-		}
-	};
+  var orilength = ipset.length;
+  for (var i = 0; i < ipset.length; i++) {
+    if (ipset[i].IP == IP) {
+      ipset.splice(i, 1);
+      break;
+    }
+  };
 
-	if (ipset.length == orilength) {
-		console.log("No IP" + IP + "in Account " + Account);
-	};
+  if (ipset.length == orilength) {
+    console.log("No IP" + IP + "in Account " + Account);
+  };
 
-	TABLE.put(ACCOUNT, ipset);
+  TABLE.put(ACCOUNT, ipset);
 
-	return TABLE;
+  return TABLE;
 }
 
 /*
@@ -622,12 +622,12 @@ function removeAccountIP(TABLE, ACCOUNT, IP) {
  *  返回ACCOUNT账户下所对应的全部IP地址
  */
 function getIP(TABLE, ACCOUNT) {
-	var ip = TABLE.get(ACCOUNT);
-	if (typeof ip == "undefined") {
-		console.log('Get Account IP Error')
-		return;
-	};
-	return ip;
+  var ip = TABLE.get(ACCOUNT);
+  if (typeof ip == "undefined") {
+    console.log('Get Account IP Error')
+    return;
+  };
+  return ip;
 }
 
 /*
@@ -639,7 +639,7 @@ function getIP(TABLE, ACCOUNT) {
  *  返回清空了的映射表（为空）
  */
 function clearTable(TABLE) {
-	return TABLE.clear();
+  return TABLE.clear();
 }
 
 /*
@@ -653,7 +653,7 @@ function clearTable(TABLE) {
  *  返回删除了ACCOUNT对应关系的映射表
  */
 function removeAccount(TABLE, ACCOUNT) {
-	return TABLE.remove(ACCOUNT);
+  return TABLE.remove(ACCOUNT);
 }
 
 exports.initIMServer = initIMServer;
