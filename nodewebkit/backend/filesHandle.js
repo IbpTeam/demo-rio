@@ -737,9 +737,15 @@ function monitorDesFilesCb(path,event){
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       resourceRepo.repoChCommit(config.RESOURCEPATH,null,path,function(){
         dataDes.getAttrFromFile(path,function(item){
-          var category = [item.category];
-          var path = (item.path).replace("'","''");
-          var condition = ["path='"+path+"'"];
+          var category = item.category;
+          var path = "";
+          var condition = [];
+          if(category === "Contacts"){
+            condition.push("name='"+item.name+"'");
+          }else{
+            path = (item.path).replace("'","''");
+            condition.push("path='"+path+"'");
+          }
           commonDAO.findItems(null,category,condition,null,function(err,resultFind){
             if(err){
               console.log(err);
@@ -758,7 +764,7 @@ function monitorDesFilesCb(path,event){
                 commonDAO.updateItem(item,function(resultUpdate){
                   console.log(resultUpdate);
                 });
-              }else{
+            }else{
                 for(var k in tags){
                   var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
                   itemToDelete.push(itemTemp);
