@@ -162,23 +162,14 @@ exports.pullFromOtherRepo = function (address,path,callback)
 {
   filesHandle.monitorFiles1Status=false;
   filesHandle.watcher1Stop(function(){
-    filesHandle.watcher2Stop(function(){
-      filesHandle.watcher2Start(dataDir,filesHandle.monitorDesFilesForPullCb,function(){
-        var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
-        var cp = require('child_process');
-        var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
-        console.log(cmd);
-        cp.exec(cmd,function(error,stdout,stderr){
-          console.log(stdout+stderr);
-          filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb,function(){
-            filesHandle.watcher2Stop(function(){
-              filesHandle.watcher2Start(dataDir,filesHandle.monitorDesFilesCb,function(){
-                callback();               
-              });
-            });
-          });
-        });
-      });
+    var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+    var cp = require('child_process');
+    var cmd = 'cd '+dataDir+'&& git pull '+address+':'+path;
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      callback();
+      filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb);
     });
   });
 }
