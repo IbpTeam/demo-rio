@@ -9,18 +9,9 @@
  *
  * @version:0.1.1
  **/
-var http = require("http");
-var url = require("url");
-var sys = require('sys');
 var pathModule = require('path');
-var git = require("nodegit");
-var fs = require('fs');
-var os = require('os');
 var config = require("../config");
 var dataDes = require("../FilesHandle/desFilesHandle");
-var commonDAO = require("../DAO/CommonDAO");
-var resourceRepo = require("../FilesHandle/repo");
-var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
 var ThemeConfPath = config.RESOURCEPATH + ".desktop/Theme.conf";
@@ -39,6 +30,7 @@ function readThemeConf(callback) {
     if (err) {
       console.log("read Theme config file error!");
       console.log(err);
+      return;
     } else {
       var json = JSON.parse(data);
       console.log(json);
@@ -64,6 +56,8 @@ function writeThemeConf(callback, oTheme) {
   fs.open(ThemeConfPath, "w", 0644, function(err, fd) {
     if (err) {
       console.log("open Theme config file error!");
+      console.log(err);
+      return;
     } else {
       fs.write(fd, sItem, 0, 'utf8', function(err) {
         if (err) {
@@ -101,10 +95,11 @@ function readWidgetConf(callback) {
     if (err) {
       console.log("read Theme config file error!");
       console.log(err);
+      return;
     } else {
-      var json = JSON.parse(data);
-      console.log(json);
-      callback(json);
+      var oJson = JSON.parse(data);
+      console.log(oJson);
+      callback(oJson);
     }
   });
 }
@@ -121,15 +116,17 @@ exports.readWidgetConf = readWidgetConf;
  *    json object, modified content of Widget.conf
  *
  **/
-function writeWidgetConf(callback, oTheme) {
+function writeWidgetConf(callback, oWidget) {
   var oTheme = JSON.stringify(oTheme, null, 4);
   fs.open(WidgetConfPath, "w", 0644, function(err, fd) {
     if (err) {
-      console.log("open Theme config file error!");
+      console.log("open oWidget config file error!");
+      console.log(err);
+      return;
     } else {
       fs.write(fd, sItem, 0, 'utf8', function(err) {
         if (err) {
-          console.log("write Theme config file error!");
+          console.log("write oWidget config file error!");
           console.log(err);
         } else {
           var currentTime = (new Date());
@@ -150,3 +147,50 @@ function writeWidgetConf(callback, oTheme) {
   });
 }
 exports.writeWidgetConf = writeWidgetConf;
+
+/** 
+ * @Method: readDesktopEntries
+ *    read file Widget.conf
+ *
+ * @param1: callback
+ *    result as a json object
+ *
+ * @param2: fileName
+ *    name of target file
+ *
+ **/
+function readDesktopEntries(callback, sFileName) {
+  var sPath = config.RESOURCEPATH + "/.des/.desktop/application/" + sFileName;
+
+  function parseDesktopFileCb(attr) {
+    callback(attr);
+  }
+  parseDesktopFile(sPath, parseDesktopFileCb);
+}
+exports.readDesktopEntries = readDesktopEntries;
+
+function parseDesktopFile(sPath, callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type of callback!!';
+
+  var fs = require('fs');
+  fs.readFile(sPath, 'utf-8', function(err, data) {
+    if (err) {
+      console.log("read desktop file error");
+      console.log(err);
+      return;
+    } else {
+      data = data.replace(/[\[]{1}[a-z, ,A-Z]*\]{1}\n/g, '$').split('$');
+      var lines = data[1].split('\n');
+      var attr = [];
+      for (var i = 0; i < lines.length - 1; ++i) {
+        var tmp = lines[i].split('=');
+        attr[tmp[0]] = tmp[1];
+        for (var j = 2; j < tmp.length; j++)
+          attr[tmp[0]] += '=' + tmp[j];
+      }
+      console.log("Get desktop file successfully");
+      callback(attr);
+    }
+  });
+}
