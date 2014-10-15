@@ -462,6 +462,5 @@ exports.writeWidgetConf = writeWidgetConf;
 function readDesktopEntries(readDesktopEntriesCb,sFileName){
   console.log("Request handler 'readDesktopEntries' was called.");
   desktopConf.readDesktopEntries(readDesktopEntriesCb,sFileName);
-
 }
 exports.readDesktopEntries = readDesktopEntries;

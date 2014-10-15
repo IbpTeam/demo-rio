@@ -19,6 +19,7 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
+var desktopConf = require("./Desktop/desktopConf");
 var commonDAO = require("./DAO/CommonDAO");
 var resourceRepo = require("./FilesHandle/repo");
 var device = require("./devices");
@@ -838,7 +839,7 @@ exports.monitorFiles = monitorFiles;
 
 function initData(loadResourcesCb,resourcePath){
   config.riolog("initData ..............");
-  dataPath=resourcePath;
+  desktopConf.initConf();
   fs.mkdir(dataPath+'/.des',function (err){
     if(err) {
       console.log("mk resourcePath error!");

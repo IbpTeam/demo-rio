@@ -20,7 +20,51 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
 var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+// var ThemeConfPath = pathModule.join(config.RESOURCEPATH, ".desktop/Theme.conf");
+// var WidgetConfPath = pathModule.join(config.RESOURCEPATH, ".desktop/Widget.conf");
 
+
+/** 
+ * @Method: initConf
+ *    init desktop config dir
+ *
+ * @param: callback
+ *    result as a json object
+ **/
+function initConf(callback) {
+  var path = config.RESOURCEPATH + "/.desktop";
+  fs.mkdir(path, function(err) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var pathApp = path + "/apllication";
+    var pathDesk = path + "/desktop";
+    var pathDock = path + "/dock";
+    fs.mkdir(pathApp, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      callback("success_app");
+    });
+    fs.mkdir(pathDesk, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      callback("success_desk");
+    });
+    fs.mkdir(pathDock, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      callback("success_dock");
+    });
+  })
+}
+exports.initConf = initConf;
 
 /** 
  * @Method: readThemeConf
@@ -57,30 +101,22 @@ exports.readThemeConf = readThemeConf;
  **/
 function writeThemeConf(callback, oTheme) {
   var sTheme = JSON.stringify(oTheme, null, 4);
-  fs.open(ThemeConfPath, "w", 0644, function(err, fd) {
+  fs.writeFile(ThemeConfPath, sTheme, function(err) {
     if (err) {
-      console.log("open Theme config file error!");
+      console.log("write Theme config file error!");
       console.log(err);
-      return;
     } else {
-      fs.write(fd, sTheme, 0, 'utf8', function(err) {
-        if (err) {
-          console.log("write Theme config file error!");
-          console.log(err);
-        } else {
-          var currentTime = (new Date());
-          config.riolog("time: " + currentTime);
-          var attrs = {
-            lastAccessTime: currentTime,
-            lastModifyTime: currentTime,
-            lastAccessDev: config.uniqueID
-          }
-          var chItem = ThemeConfPath;
-          var itemDesPath = config.RESOURCEPATH+"/.des/.desktop/";
-          dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-            callback("success");
-          });
-        }
+      var currentTime = (new Date());
+      config.riolog("time: " + currentTime);
+      var attrs = {
+        lastAccessTime: currentTime,
+        lastModifyTime: currentTime,
+        lastAccessDev: config.uniqueID
+      }
+      var chItem = ThemeConfPath;
+      var itemDesPath = config.RESOURCEPATH + "/.des/.desktop/";
+      dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+        callback("success");
       });
     }
   });
