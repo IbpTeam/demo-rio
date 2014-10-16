@@ -922,14 +922,27 @@ exports.initData = initData;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,item){
+function updateDataValue(updateDataValueCb,items){
   //all items should include it's file path
-  var oItems = item;
   console.log("Request handler 'updateDataValue' was called.");
-  dataDes.updateItems(oItems,function(result){
+  dataDes.updateItems(items,function(result){
     if(result === "success"){
-      updateDataValueCb('success');
-    }else{
+      var files=[];
+      for(var k in items) {
+        var desFilePath;
+        if(items[k].category === "Contacts"){
+          desFilePath = config.RESOURCEPATH + '/.des/contacts/'+items[k].name+'.md';
+        }
+        else{
+          desFilePath = (items[k].path.replace(/\/resources\//,'/resources/.des/')) + '.md';
+        }
+        files.push(desFilePath);
+      }
+      resourceRepo.repoChsCommit(config.RESOURCEPATH,files,function(){
+        updateDataValueCb('success');
+      });
+    }
+    else{
       console.log("error in update des file!");
       return;
     }
