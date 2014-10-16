@@ -18,8 +18,8 @@ var resourceRepo = require("../FilesHandle/repo");
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
-var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
-var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+var ThemeConfPath = /*config.RESOURCEPATH*/ "/home/xiquan/resources" + "/.desktop/Theme.conf";
+var WidgetConfPath = /*config.RESOURCEPATH*/ "/home/xiquan/resources" + "/.desktop/Widget.conf";
 // var ThemeConfPath = pathModule.join(config.RESOURCEPATH, ".desktop/Theme.conf");
 // var WidgetConfPath = pathModule.join(config.RESOURCEPATH, ".desktop/Widget.conf");
 
@@ -41,26 +41,45 @@ function initConf(callback) {
     var pathApp = path + "/apllication";
     var pathDesk = path + "/desktop";
     var pathDock = path + "/dock";
+    var pathTheme = path + "/Theme.conf";
+    var pathWidget = path + "/Widget.conf"
+    var tmp = {};
+    fs.writeFile(pathTheme, tmp, function(err) {
+      if (err) {
+        console.log("init Theme config file error!");
+        console.log(err);
+        return;
+      }
+      //callback("success_init_theme");
+    });
+    fs.writeFile(path, tmp, function(err) {
+      if (err) {
+        console.log("init Widget config file error!");
+        console.log(err);
+        return;
+      }
+      //callback("success_init_Widget");
+    });
     fs.mkdir(pathApp, function(err) {
       if (err) {
         console.log(err);
         return;
       }
-      callback("success_app");
+      //callback("success_app");
     });
     fs.mkdir(pathDesk, function(err) {
       if (err) {
         console.log(err);
         return;
       }
-      callback("success_desk");
+      //callback("success_desk");
     });
     fs.mkdir(pathDock, function(err) {
       if (err) {
         console.log(err);
         return;
       }
-      callback("success_dock");
+      //callback("success_dock");
     });
   })
 }
@@ -114,7 +133,7 @@ function writeThemeConf(callback, oTheme) {
         lastAccessDev: config.uniqueID
       }
       var chItem = ThemeConfPath;
-      var itemDesPath = config.RESOURCEPATH + "/.des/.desktop/";
+      var itemDesPath = config.RESOURCEPATH + ".des/.desktop/";
       dataDes.updateItem(chItem, attrs, itemDesPath, function() {
         callback("success");
       });
