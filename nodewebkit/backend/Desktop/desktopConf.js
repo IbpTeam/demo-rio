@@ -18,8 +18,8 @@ var resourceRepo = require("../FilesHandle/repo");
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
-var ThemeConfPath = /*config.RESOURCEPATH*/ "/home/xiquan/resources" + "/.desktop/Theme.conf";
-var WidgetConfPath = /*config.RESOURCEPATH*/ "/home/xiquan/resources" + "/.desktop/Widget.conf";
+
+
 
 /** 
  * @Method: initConf
@@ -41,42 +41,38 @@ function initConf(callback) {
     var pathTheme = path + "/Theme.conf";
     var pathWidget = path + "/Widget.conf"
     var tmp = {};
-    fs.writeFile(pathTheme, tmp, function(err) {
+    var sItem = JSON.stringify(tmp, null, 4);
+    fs.writeFile(pathTheme, sItem, function(err) {
       if (err) {
         console.log("init Theme config file error!");
         console.log(err);
-        return;
       }
-      //callback("success_init_theme");
+      callback("success_init_theme");
     });
-    fs.writeFile(path, tmp, function(err) {
+    fs.writeFile(pathWidget, sItem, function(err) {
       if (err) {
         console.log("init Widget config file error!");
         console.log(err);
-        return;
       }
-      //callback("success_init_Widget");
+      callback("success_init_Widget");
     });
     fs.mkdir(pathApp, function(err) {
       if (err) {
         console.log(err);
-        return;
       }
-      //callback("success_app");
+      callback("success_app");
     });
     fs.mkdir(pathDesk, function(err) {
       if (err) {
         console.log(err);
-        return;
       }
-      //callback("success_desk");
+      callback("success_desk");
     });
     fs.mkdir(pathDock, function(err) {
       if (err) {
         console.log(err);
-        return;
       }
-      //callback("success_dock");
+      callback("success_dock");
     });
   })
 }
@@ -90,6 +86,7 @@ exports.initConf = initConf;
  *    result as a json object
  **/
 function readThemeConf(callback) {
+  var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
   fs.readFile(ThemeConfPath, 'utf8', function(err, data) {
     if (err) {
       console.log("read Theme config file error!");
@@ -117,6 +114,8 @@ exports.readThemeConf = readThemeConf;
  **/
 function writeThemeConf(callback, oTheme) {
   var sTheme = JSON.stringify(oTheme, null, 4);
+  var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
+  var path = config.RESOURCEPATH + "/.desktop";
   fs.writeFile(ThemeConfPath, sTheme, function(err) {
     if (err) {
       console.log("write Theme config file error!");
@@ -130,7 +129,7 @@ function writeThemeConf(callback, oTheme) {
         lastAccessDev: config.uniqueID
       }
       var chItem = ThemeConfPath;
-      var itemDesPath = config.RESOURCEPATH + ".des/.desktop/";
+      var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
       dataDes.updateItem(chItem, attrs, itemDesPath, function() {
         callback("success");
       });
@@ -147,6 +146,7 @@ exports.writeThemeConf = writeThemeConf;
  *    result as a json object
  **/
 function readWidgetConf(callback) {
+  var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
   fs.readFile(WidgetConfPath, 'utf8', function(err, data) {
     if (err) {
       console.log("read Theme config file error!");
@@ -173,31 +173,25 @@ exports.readWidgetConf = readWidgetConf;
  *
  **/
 function writeWidgetConf(callback, oWidget) {
-  var oTheme = JSON.stringify(oTheme, null, 4);
-  fs.open(WidgetConfPath, "w", 0644, function(err, fd) {
+  var sWidget = JSON.stringify(oWidget, null, 4);
+  var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+  var path = config.RESOURCEPATH + "/.desktop";
+  fs.writeFile(WidgetConfPath, sWidget, function(err) {
     if (err) {
-      console.log("open oWidget config file error!");
+      console.log("write Widget config file error!");
       console.log(err);
-      return;
     } else {
-      fs.write(fd, sItem, 0, 'utf8', function(err) {
-        if (err) {
-          console.log("write oWidget config file error!");
-          console.log(err);
-        } else {
-          var currentTime = (new Date());
-          config.riolog("time: " + currentTime);
-          var attrs = {
-            lastAccessTime: currentTime,
-            lastModifyTime: currentTime,
-            lastAccessDev: config.uniqueID
-          }
-          var chItem = ThemeConfPath;
-          var itemDesPath = WidgetConfPath.replace(/\/resources\//, '/resources/.des/') + ".md";
-          dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-            callback("success");
-          });
-        }
+      var currentTime = (new Date());
+      config.riolog("time: " + currentTime);
+      var attrs = {
+        lastAccessTime: currentTime,
+        lastModifyTime: currentTime,
+        lastAccessDev: config.uniqueID
+      }
+      var chItem = WidgetConfPath;
+      var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+      dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+        callback("success");
       });
     }
   });
@@ -225,6 +219,17 @@ function readDesktopEntries(callback, sFileName) {
 }
 exports.readDesktopEntries = readDesktopEntries;
 
+/** 
+ * @Method: parseDesktopFile
+ *    parse Desktop File into json object
+ *
+ * @param1: sPath
+ *    taget .desktop file path
+ *
+ * @param2: callback
+ *    result in json object
+ *
+ **/
 function parseDesktopFile(sPath, callback) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
