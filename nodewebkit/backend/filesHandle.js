@@ -654,166 +654,10 @@ function monitorDesFilesCb(path,event){
   switch(event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
-      resourceRepo.repoAddCommit(config.RESOURCEPATH,null,path,function(){
-        dataDes.getAttrFromFile(path,function(item){
-          if(item.category === "Configuration"){
-            console.log("desktop configuration added !");
-            return;
-          }
-          var items = [];
-          items.push(item);
-          if(item.others != "" &&  item.others != null){
-            var tags = item.others.split(",");
-            for(var k in tags){
-              //create new entry in table 'tags'
-              var itemTemp = {category:"tags",file_uri:item.URI,tag:tags[k]};
-              items.push(itemTemp);
-            }
-          }
-          commonDAO.createItems(items,function(result){
-            console.log(result);
-          });
-        });
-      });
-    }
-    break;
-    case 'unlink' : {
-      console.log("unlink des file @@@@@@@@@@@@@@@@@@@@@");
-      resourceRepo.repoRmCommit(config.RESOURCEPATH,null,path,function(){
-        var desPathIndex=path.lastIndexOf(".des");
-        var filePath=path.substring(desPathIndex,path.length);
-        var nextIndex=filePath.indexOf("/");
-        filePath=filePath.substring(nextIndex+1,filePath.length);
-        console.log("filePath = "+filePath);
-        var mdIndex=filePath.lastIndexOf(".md");
-        var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
-        console.log("origPath = "+origPath);
-        var category = getCategory(origPath).category;
-        if(category == "Configuration"){
-            console.log("desktop configuration file deleted !");
-            console.log("Path: "+path);
-            return;
-        }
-        var categorys=[category];
-        var condition = ["path='"+origPath.replace("'","''")+"'"];
-        commonDAO.findItems(null,categorys,condition,null,function(err,resultFind){
-          if(err){
-            console.log(err);
-            return;
-          }
-          if(resultFind.length == 1){
-            var tags = (resultFind[0].others).split(",");
-            var uri = resultFind[0].URI;
-            var itemToDelete = [];
-            for(var k in tags){
-              var con=["tag='"+tags[k].replace("'","''")+"'","file_uri='"+uri.replace("'","''")+"'"];
-              var itemTemp = {conditions:con,category:"tags"};
-              itemToDelete.push(itemTemp);
-            }
-            var attrs={
-              conditions:condition,
-              category:category,
-            };
-            itemToDelete.push(attrs);
-            console.log(itemToDelete);
-            //delete tag-uri form table 'tags' first
-            commonDAO.deleteItems(itemToDelete,function(resultDelete){
-              if(resultDelete == "commit"){
-                console.log("delete sucess");
-              }else{
-                console.log("delete items error!");
-                return;
-              }
-            });
-          }else{
-            console.log("findItems result size error!");
-            return;
-          }
-        });
-      });
-    }
-    break;
-    case 'change' : {
-      console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
-      resourceRepo.repoChCommit(config.RESOURCEPATH,null,path,function(){
-        dataDes.getAttrFromFile(path,function(item){
-          var category = [item.category];
-          var path = (item.path).replace("'","''");
-          var condition = ["path='"+path+"'"];
-          commonDAO.findItems(null,category,condition,null,function(err,resultFind){
-            if(err){
-              console.log(err);
-              return;
-            }
-            if(resultFind.length == 1){
-              var tags = (resultFind[0].others).split(",");
-              var uri = resultFind[0].URI;
-              var itemToDelete = [];
-
-              if(category !== "Documents" && 
-               category !== "Pictures" && 
-               category !== "Music" &&
-               category !== "Vedios" &&
-               category !== "Configuration"){
-                commonDAO.updateItem(item,function(resultUpdate){
-                  console.log(resultUpdate);
-                });
-              }else{
-                for(var k in tags){
-                  var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
-                  itemToDelete.push(itemTemp);
-                }
-                //delete tag-uri form table 'tags' first
-                commonDAO.deleteItems(itemToDelete,function(resultDelete){
-                  if(resultDelete == "commit"){
-                    var items=new Array();
-                    item.conditions = condition;
-                    items.push(item);
-                    commonDAO.updateItems(items,function(resultUpdate){
-                      console.log(resultUpdate);
-                    });
-                  }else{
-                    console.log("delete items error!");
-                    return;
-                  }
-                });
-              }
-            }else{
-              console.log("findItems result size error!");
-              return;
-            }
-          });
-        });
-      });
-    }
-    break;
-  }
-}
-exports.monitorDesFilesCb = monitorDesFilesCb;
-
-/**
- * @method monitorDesFilesCb
- *   监视描述文件功能的回调函数
- *
- * @param1 path
- *   监视的路径
- *
- * @param2 event
- *   监视到的事件
- *    新建add， 删除unlink， 更改change
- */
-function monitorDesFilesForPullCb(path,event){
-  util.log(event+'  :  '+path);
-  switch(event){
-    case 'add' : {
-      console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
         if(item.category === "Configuration"){
           console.log("desktop configuration added !");
           return;
-        }
-        if(item.category === "Contacts"){
-          delete item.path;
         }
         var items = [];
         items.push(item);
@@ -843,12 +687,13 @@ function monitorDesFilesForPullCb(path,event){
       console.log("origPath = "+origPath);
       var category = getCategory(origPath).category;
       if(category == "Configuration"){
-          console.log("desktop configuration file deleted !");
-          console.log("Path: "+path);
-          return;
-      };
+        console.log("desktop configuration file deleted !");
+        console.log("Path: "+path);
+        return;
+      }
+      var categorys=[category];
       var condition = ["path='"+origPath.replace("'","''")+"'"];
-      commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+      commonDAO.findItems(null,categorys,condition,null,function(err,resultFind){
         if(err){
           console.log(err);
           return;
@@ -881,7 +726,7 @@ function monitorDesFilesForPullCb(path,event){
           console.log("findItems result size error!");
           return;
         }
-      })
+      });
     }
     break;
     case 'change' : {
@@ -891,25 +736,21 @@ function monitorDesFilesForPullCb(path,event){
         var path = "";
         var condition = [];
         if(category === "Contacts"){
-          //path = path.replace(/\/resources\//,'/resources/.des/') + '.md';
           condition.push("name='"+item.name+"'");
         }else{
           path = (item.path).replace("'","''");
           condition.push("path='"+path+"'");
         }
-        
         commonDAO.findItems(null,category,condition,null,function(err,resultFind){
           if(err){
             console.log(err);
             return;
           }
           if(resultFind.length == 1){
-            console.log(resultFind[0]);
             var tags = (resultFind[0].others).split(",");
             var uri = resultFind[0].URI;
             var itemToDelete = [];
-
-            if(category !=="Documents" && 
+             if(category !== "Documents" && 
              category !== "Pictures" && 
              category !== "Music" &&
              category !== "Vedios" &&
@@ -917,7 +758,7 @@ function monitorDesFilesForPullCb(path,event){
               commonDAO.updateItem(item,function(resultUpdate){
                 console.log(resultUpdate);
               });
-            }else{
+          }else{
               for(var k in tags){
                 var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
                 itemToDelete.push(itemTemp);
@@ -941,13 +782,13 @@ function monitorDesFilesForPullCb(path,event){
             console.log("findItems result size error!");
             return;
           }
-        })
+        });
       });
     }
     break;
   }
 }
-exports.monitorDesFilesForPullCb = monitorDesFilesForPullCb;
+exports.monitorDesFilesCb = monitorDesFilesCb;
 
 function monitorFilesCb(path,event){
   util.log(event+'  :  '+path);
@@ -1081,14 +922,27 @@ exports.initData = initData;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,item){
+function updateDataValue(updateDataValueCb,items){
   //all items should include it's file path
-  var oItems = item;
   console.log("Request handler 'updateDataValue' was called.");
-  dataDes.updateItems(oItems,function(result){
+  dataDes.updateItems(items,function(result){
     if(result === "success"){
-      updateDataValueCb('success');
-    }else{
+      var files=[];
+      for(var k in items) {
+        var desFilePath;
+        if(items[k].category === "Contacts"){
+          desFilePath = config.RESOURCEPATH + '/.des/contacts/'+items[k].name+'.md';
+        }
+        else{
+          desFilePath = (items[k].path.replace(/\/resources\//,'/resources/.des/')) + '.md';
+        }
+        files.push(desFilePath);
+      }
+      resourceRepo.repoChsCommit(config.RESOURCEPATH,files,function(){
+        updateDataValueCb('success');
+      });
+    }
+    else{
       console.log("error in update des file!");
       return;
     }
@@ -1202,6 +1056,14 @@ function openDataByUri(openDataByUriCb,uri){
               content:    item.path
             }
             break;
+          case 'html5ppt':
+            source={
+              openmethod: 'html',
+              format:     'html5ppt',
+              title:      '文件浏览',
+              content:    item.path.substring(0, item.path.lastIndexOf('.'))+'/index.html'
+            }
+            break;
           case 'ogg':
             source={
               openmethod: 'html',
@@ -1290,7 +1152,9 @@ function openDataByUri(openDataByUriCb,uri){
       var addPath=item.path.substring(config.RESOURCEPATH.length+1,nameindex);
       var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
       dataDes.updateItem(item.path,{lastAccessTime:currentTime},itemDesPath,function(){
-        console.log("success");
+        resourceRepo.repoChCommit(config.RESOURCEPATH,null,itemDesPath,function(){
+          console.log("success");
+        });
       })
     }
   }

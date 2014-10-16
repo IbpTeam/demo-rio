@@ -145,19 +145,17 @@ function initContacts(loadContactsCb,resourcePath){
           resourceRepo.repoContactInit(config.RESOURCEPATH,loadContactsCb);
         }
         var oNewItems = new Array();
-        function addContactCb(isContactEnd,oContact){
-          oNewItems.push(oContact);
-          if(isContactEnd){
-            commonDAO.createItems(oNewItems,function(){
-              isEndCallback();
-              console.log("succcess");
-              console.log("initContacts is end!!!");
-            })
-          }          
-        }
         for(var k=0;k<oContacts.length;k++){
           var isContactEnd = (k == (oContacts.length-1));
-          addContact(oContacts[k],dataDesPath,isContactEnd,addContactCb)
+          addContact(oContacts[k],dataDesPath,isContactEnd,function(isContactEnd,oContact){
+            commonDAO.createItem(oContact,function(){
+              if(isContactEnd){
+                isEndCallback();
+                console.log("succcess");
+                console.log("initContacts is end!!!");
+              }
+            }) 
+          })
         }
       }
     }
