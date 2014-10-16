@@ -80,7 +80,8 @@ function getCategory(path){
      itemPostfix == 'html' || 
      itemPostfix == 'et' || 
      itemPostfix == 'odt' || 
-     itemPostfix == 'pdf'){
+     itemPostfix == 'pdf' ||
+     itemPostfix == 'html5ppt'){
     return {category:"Documents",filename:itemFilename,postfix:itemPostfix};
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
@@ -218,7 +219,13 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
       }
     }
   }
-  fs.stat(itemPath,getFileStatCb);
+  var itemPostfix = itemPath.substring(itemPath.lastIndexOf('.')+1, itemPath.length);
+  if(itemPostfix == 'html5ppt'){
+    fs.stat(itemPath.substring(0, itemPath.lastIndexOf('.')) + '/index.html',getFileStatCb);
+  }
+  else{
+    fs.stat(itemPath,getFileStatCb);
+  }
 }
 
 function rmData(itemPath,itemDesPath,rmDataCb){
@@ -868,8 +875,17 @@ function initData(loadResourcesCb,resourcePath){
       dirList.forEach(function(item){
         if(fs.statSync(path + '/' + item).isDirectory()){
           if(item != '.git' && item != '.des' && item != 'contacts'){
-            fs.mkdirSync(pathDes + '/' + item);              
-            walk(path + '/' + item,pathDes + '/' + item);
+            if(item == 'html5ppt'){
+              fs.mkdirSync(pathDes + '/' + item);
+              var html5pptList = fs.readdirSync(path + '/' + item);
+              for(var i=0; i<html5pptList.length; i++){
+                fileDesDir.push(pathDes + '/' + item);
+                fileList.push(path + '/' + item + '/' + html5pptList[i] + '.html5ppt');
+              }
+            }else{
+              fs.mkdirSync(pathDes + '/' + item);     
+              walk(path + '/' + item,pathDes + '/' + item);
+            }
           }
         }else{
           var sPosIndex = (item).lastIndexOf(".");
