@@ -3,6 +3,8 @@ var sqlite3 = require('sqlite3');
 
 function openDB(){
   return new sqlite3.Database('./db/IMdata');
+  // Only for testing
+  // TODO : this part should be replaced by DataAccess Layer 
 }
 
 function closeDB(database){

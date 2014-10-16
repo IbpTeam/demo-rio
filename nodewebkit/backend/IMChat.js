@@ -6,9 +6,13 @@ var fs = require('fs');
 var ursa = require('./newUrsa');
 var ursaED = require('./ursaED');
 var account = require('./account');
+var config = require('./config.js');
+var start = require('../start.js');
+
 
 var keySizeBits = 1024;
 var size = 65537;
+
 
 
 var LOCALACCOUNT = 'fyf';
@@ -43,6 +47,8 @@ function MD5(str, encoding) {
  *  没有返回值
  */
 function initIMServer(ReceivedMsgCallback) {
+  //start.startServer();
+  //console.log(config.USERCONFIGPATH);
   /*
   we should load the keyPair first, in order to encrypt messages with RSA
   */
