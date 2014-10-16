@@ -169,7 +169,16 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri){
   console.log("Request handler 'openDataByUri' was called.");
-  filesHandle.openDataByUri(openDataByUriCb,uri);
+  filesHandle.openDataByUri(function(result){
+    if (result.format === "html5ppt"){
+      console.log("open html5ppt:" + result.content);
+      window.open(result.content);
+      result.content="成功打开文件" + result.content;
+      setTimeout(openDataByUriCb(result), 0);
+    }else {
+      setTimeout(openDataByUriCb(result), 0);
+    }
+  },uri);
 }
 exports.openDataByUri = openDataByUri;
 

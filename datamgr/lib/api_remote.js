@@ -3,6 +3,7 @@
 console.log("head of api_remote.js.");
 var WDC= {};
 WDC.isDebug = true;
+WDC.isRemote = true;
 
 /* This function is for require api
  * Param apilist: a string array
