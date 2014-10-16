@@ -115,6 +115,21 @@
     });
   }
 
+  function readDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API readDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readDesktopFile(readDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      data.readDesktopFile(readDesktopFileCb,sFileName);
+    });
+  }
+
   </script>
 
 <h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
@@ -238,7 +253,36 @@
 </div>
 </div>
 
-
+<h2 onclick="show('readDesktopFile')">readDesktopFile(readDesktopFileCb)<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile(readDesktopFileCb)">test</a></span></h2>
+<div id="readDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readDesktopFile
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API readDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readDesktopFile(readDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.readDesktopFile(readDesktopFileCb,fileName);
+    });
+  }    
+</pre>
+</div>
+</div>
 
 </body>
 </html>

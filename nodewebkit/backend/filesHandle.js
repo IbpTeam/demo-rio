@@ -931,7 +931,7 @@ exports.initData = initData;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb,item){
   //all items should include it's file path
-  var oItems = item;
+  var oItems = [item];
   console.log("Request handler 'updateDataValue' was called.");
   dataDes.updateItems(oItems,function(result){
     if(result === "success"){

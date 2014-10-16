@@ -326,7 +326,15 @@ exports.getTagsByUri = getTagsByUri;
  *
  * @param2 : oTags, array
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
+ *
  * @param3 : oUri, array
+ *
+ *    oUri example:
+ *    var oUri = ['some_uri_1','some_uri_2','some_uri_2']
+ *
+ *
  */
 function setTagByUri(setTagByUriCb, oTags, oUri) {
   console.log("Request handler 'setTagByUri' was called.");
@@ -344,6 +352,9 @@ exports.setTagByUri = setTagByUri;
  * @param2 oTags
  *    array, an array of tags
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
+ *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
   console.log("Request handler 'setTagByUri' was called.");
@@ -357,11 +368,14 @@ exports.getFilesByTags = getFilesByTags;
  *   remove tags from all data base and des files
  *
  * @param1 callback
- *    return success if successed
+ *    @result
+ *    string, return 'sucess' if successed
  *
  * @param2 oTags
  *    array, an array of tags to be removed
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
  *
  */
 function rmTagsAll(rmTagsAllCb, oTags) {
@@ -375,11 +389,14 @@ exports.rmTagsAll = rmTagsAll;
  *   remove a tag from some files with specific uri
  *
  * @param1 callback
- *    return commit if successed
+ *    @result
+ *    string, return 'commit' if successed
  *
  * @param2 oTags
  *    array, an array of tags to be removed
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
  *
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
@@ -393,7 +410,28 @@ exports.rmTagsByUri = rmTagsByUri;
  *    read file Theme.conf
  *
  * @param: callback
- *    result as a json object
+ *    @result
+ *        object
+ *
+ *    result example:
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
  **/
 function readThemeConf(readThemeConfCb) {
   console.log("Request handler 'readThemeConf' was called.");
@@ -406,15 +444,37 @@ exports.readThemeConf = readThemeConf;
  *    modify file Theme.conf
  *
  * @param: callback
- *    Retrive "success" when success
+ *      @result
+ *      string, retrive "success" when success
  *
  * @param: oTheme
- *    json object, modified content of Theme.conf
+ *    object, content of Theme.conf after modified
+ *
+ *    oThem example:
+ *    var oTheme = 
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
  *
  **/
 function writeThemeConf(writeThemeConfCb, oTheme) {
   console.log("Request handler 'writeThemeConf' was called.");
-  desktopConf.writeThemeConf(writeThemeConfCb,oTheme);
+  desktopConf.writeThemeConf(writeThemeConfCb, oTheme);
 }
 exports.writeThemeConf = writeThemeConf;
 
@@ -423,7 +483,28 @@ exports.writeThemeConf = writeThemeConf;
  *    read file Widget.conf
  *
  * @param: callback
- *    result as a json object
+ *    @restult
+ *        object
+ *
+ *    result example:
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
  **/
 function readWidgetConf(readWidgetConfCb) {
   console.log("Request handler 'readWidgetConf' was called.");
@@ -436,31 +517,77 @@ exports.readWidgetConf = readWidgetConf;
  *    modify file Theme.conf
  *
  * @param: callback
- *    Retrive "success" when success
+ *      @result
+ *      Retrive "success" when success
  *
  * @param: oTheme
- *    json object, modified content of Widget.conf
+ *    object, content of Widget.conf after modified
+ *
+ *    oWidget example:
+ *    var oWidget = 
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
  *
  **/
 function writeWidgetConf(writeWidgetConfCb, oWidget) {
   console.log("Request handler 'writeWidgetConf' was called.");
-  desktopConf.writeWidgetConf(writeWidgetConfCb,oWidget);
+  desktopConf.writeWidgetConf(writeWidgetConfCb, oWidget);
 }
 exports.writeWidgetConf = writeWidgetConf;
 
 /** 
- * @Method: readDesktopEntries
- *    read file Widget.conf
+ * @Method: readDesktopFile
+ *   find a desktop file with name of sFilename
  *
  * @param1: callback
- *    result as a json object
+ *    @result
+ *        object
  *
- * @param2: fileName
- *    name of target file
+ *    result example:
+ *    {
+ *      Type: Application
+ *      Name: Cinnamon
+ *      Comment: Window management and application launching
+ *      Exec: /usr/bin / cinnamon - launcher
+ *      X - GNOME - Bugzilla - Bugzilla: GNOME
+ *      X - GNOME - Bugzilla - Product: cinnamon
+ *      X - GNOME - Bugzilla - Component: general
+ *      X - GNOME - Bugzilla - Version: 1.8.8
+ *      Categories: GNOME;
+ *      GTK;
+ *      System;
+ *      Core;
+ *      OnlyShowIn: GNOME;
+ *      NoDisplay: true
+ *      X - GNOME - Autostart - Phase: WindowManager
+ *      X - GNOME - Provides: panel;
+ *      windowmanager;
+ *      X - GNOME - Autostart - Notify: true
+ *      X - GNOME - AutoRestart: true
+ *    }
+ *
+ * @param2: sFileName
+ *    string,name of target file
+ *    example: var sFileName = 'cinnamon.desktop';
  *
  **/
-function readDesktopEntries(readDesktopEntriesCb,sFileName){
-  console.log("Request handler 'readDesktopEntries' was called.");
-  desktopConf.readDesktopEntries(readDesktopEntriesCb,sFileName);
+function readDesktopFile(readDesktopFileCb, sFileName) {
+  console.log("Request handler 'readDesktopFile' was called.");
+  desktopConf.readDesktopFile(readDesktopFileCb, sFileName);
 }
-exports.readDesktopEntries = readDesktopEntries;
+exports.readDesktopFile = readDesktopFile;
