@@ -22,13 +22,17 @@ account.login('fyf','fyf','Linux Mint',pubKey,keyPair,serverKeyPair,function(msg
   console.log(JSON.stringify(msg));
 });
 
+
+account.register('yuanzhe','yuanzhe','testtest',pubKey,keyPair,serverKeyPair,function(msg){
+  console.log(JSON.stringify(msg));
+});
 */
 
-account.login('fyf','fyf','34234324r34rerfe45r4a',pubKey,keyPair,serverKeyPair,function(msg){
+account.login('yuanzhe','yuanzhe','testtest',pubKey,keyPair,serverKeyPair,function(msg){
   console.log(JSON.stringify(msg));
 });
 
-account.getPubKeysByName('fyf','Linux Mint','fyf',keyPair,serverKeyPair,function(msg){
+account.getPubKeysByName('yuanzhe','testtest','yuanzhe',keyPair,serverKeyPair,function(msg){
     console.log(JSON.stringify(msg.data.detail));
     msg.data.detail.forEach(function (row) {		
 	      console.log(row.UUID);
