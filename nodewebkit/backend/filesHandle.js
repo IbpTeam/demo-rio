@@ -1208,6 +1208,14 @@ function openDataByUri(openDataByUriCb,uri){
               content:    item.path
             }
             break;
+          case 'html5ppt':
+            source={
+              openmethod: 'html',
+              format:     'html5ppt',
+              title:      '文件浏览',
+              content:    item.path.substring(0, item.path.lastIndexOf('.'))+'/index.html'
+            }
+            break;
           case 'ogg':
             source={
               openmethod: 'html',
