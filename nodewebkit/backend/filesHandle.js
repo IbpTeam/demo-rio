@@ -839,7 +839,7 @@ exports.monitorFiles = monitorFiles;
 
 function initData(loadResourcesCb,resourcePath){
   config.riolog("initData ..............");
-  //desktopConf.initConf();
+  desktopConf.initConf();
   fs.mkdir(dataPath+'/.des',function (err){
     if(err) {
       console.log("mk resourcePath error!");

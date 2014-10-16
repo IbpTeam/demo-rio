@@ -20,9 +20,6 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var ThemeConfPath = /*config.RESOURCEPATH*/ "/home/xiquan/resources" + "/.desktop/Theme.conf";
 var WidgetConfPath = /*config.RESOURCEPATH*/ "/home/xiquan/resources" + "/.desktop/Widget.conf";
-// var ThemeConfPath = pathModule.join(config.RESOURCEPATH, ".desktop/Theme.conf");
-// var WidgetConfPath = pathModule.join(config.RESOURCEPATH, ".desktop/Widget.conf");
-
 
 /** 
  * @Method: initConf
