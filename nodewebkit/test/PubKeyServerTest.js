@@ -1,0 +1,101 @@
+var ursaED = require('../backend/IM/ursaED');
+var ursa = require('../backend/IM/newUrsa');
+var account = require('../backend/IM/account');
+var fs = require('fs');
+
+var keySizeBits = 1024;
+var size = 65537;
+//var keyPair = ursa.generatePrivateKey(keySizeBits, size);
+var keyPair = ursaED.initSelfRSAKeys('/home/rtty/.demo-rio/key/priKey.pem','./key/pubKey.pem');
+var pubKey=ursaED.getPubKeyPem(keyPair);
+//var pubKey = ursaED.loadPubKeySync('./key/users/34234324erererw3r3w4.pem');
+var serverKeyPair= ursaED.loadServerKey('/home/rtty/.demo-rio/key/serverKey.pem');
+
+console.log(pubKey);
+/*
+account.register('rtty123','rtty123','Linux Mint17',pubKey,keyPair,serverKeyPair,function(msg){
+  console.log(JSON.stringify(msg));
+});
+34234324r34rerfe45r4
+
+account.login('fyf','fyf','Linux Mint',pubKey,keyPair,serverKeyPair,function(msg){
+  console.log(JSON.stringify(msg));
+});
+
+*/
+
+account.login('fyf','fyf','34234324r34rerfe45r4a',pubKey,keyPair,serverKeyPair,function(msg){
+  console.log(JSON.stringify(msg));
+});
+
+account.getPubKeysByName('fyf','Linux Mint','fyf',keyPair,serverKeyPair,function(msg){
+    console.log(JSON.stringify(msg.data.detail));
+    msg.data.detail.forEach(function (row) {		
+	      console.log(row.UUID);
+	      console.log(row.pubKey);      	    
+	    });	      
+});
+/*
+fs.appendFile("./key/users/34234324r34rerfe45r4a.pem","dddddddddd  ",function(err){
+	if(err) throw err;
+});
+
+var ursa = require('./newUrsa');
+var ursaED = require('./ursaED');
+var imchat = require('./IMChat.js');
+var fs = require('fs');
+
+var keySizeBits = 1024;
+var size = 65537;
+
+ var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
+
+ var pubKey=ursaED.loadPubKeySync('./key/users/34234324r34rerfe45r4a.pem');
+
+ 
+var msg = imchat.encapsuMSG("Hello!","SentEnFirst","A","uuiddddd","B",pubKey);
+
+console.log(msg);
+ 
+var tt = imchat.encryptSentMSG(msg,pubKey);
+console.log(tt);
+var m =JSON.parse(tt);
+
+
+console.log(m);
+
+/*
+
+imchat.sendIMMsg("127.0.0.1",8892,msg,keyPair);
+
+
+var keyPair= ursa.generatePrivateKey(keySizeBits, size);
+var pubkey= ursaED.getPubKeyPem(keyPair);
+var prikey = keyPair.toPrivatePem();
+
+keyPair.saveKeys("3333.pem","4444.pem");
+
+*/
+/*
+var keySizeBits = 1024;
+var size = 65537;
+ var keyPair = ursaED.loadPriKeySync('./key/priKey.pem');
+ var  pubKey = ursaED.loadPubKeySync('./key/users/34234324erererw3r3w4.pem');
+ //var pubKey=keyPair.getPublicKeyPem();
+ console.log(pubKey);
+var msg = imchat.encapsuMSG("Hello!","Chat","A","B",pubKey);
+console.log(msg);
+imchat.sendIMMsg("127.0.0.1",8892,msg,keyPair);
+*/
+//var table = imchat.createAccountTable();
+//table = imchat.insertAccount(table,"rtty123","192.168.1.123","34234324r34rerfe45r4");
+//table = imchat.insertAccount(table,"rtty123","127.0.0.1","34234324r34rerfe45r4a");
+//var IP = imchat.getIP(table,"rtty123");
+//IP.forEach(function (row) {
+ //console.log(row.IP);
+ // console.log(row.UID);
+//});
+//imchat.sendMSGbyAccount(table,"rtty123","Hello this is sending message",8892);
+//table = imchat.removeAccountIP(table,"rtty123","192.168.1.122");
+
+ //IP = imchat.getIP(table,"rtty123");
