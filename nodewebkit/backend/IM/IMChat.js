@@ -1,13 +1,14 @@
 var net = require('net');
+var path = require('path');
+var fs = require('fs');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
-var dboper = require('./DAO/IMChatDao.js');
-var fs = require('fs');
+var dboper = require('../DAO/IMChatDao.js');
 var ursa = require('./newUrsa');
 var ursaED = require('./ursaED');
 var account = require('./account');
-var config = require('./config.js');
-var path = require('path');
+var config = require('../config.js');
+
 
 
 var keySizeBits = 1024;

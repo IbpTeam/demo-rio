@@ -1,9 +1,4 @@
-var ursa = require('./newUrsa');
-var ursaED = require('./ursaED');
-var imchat = require('./IMChat.js');
-var fs = require('fs');
-
-
+var imchat = require('../backend/IM/IMChat.js');
 
 function callback(msg){
   console.log("CALLLLLback, "+msg);

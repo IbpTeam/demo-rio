@@ -1,6 +1,4 @@
-var imchat = require('./IMChat.js');
-
-
+var imchat = require('../backend/IM/IMChat.js');
 
 function recvcallback(msg){
 	console.log("this is in recvcallback "+msg);

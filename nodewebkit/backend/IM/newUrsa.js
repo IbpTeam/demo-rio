@@ -15,7 +15,7 @@ var crypto = require("crypto");
 var fs = require("fs");
 var assert = require("assert");
 
-var ursaNative = require("../node_modules/ursa/bin/ursaNative");
+var ursaNative = require("../../node_modules/ursa/bin/ursaNative");
 var RsaWrap  = ursaNative.RsaWrap;
 var textToNid  = ursaNative.textToNid;
 
