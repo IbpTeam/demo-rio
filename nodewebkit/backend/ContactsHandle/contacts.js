@@ -9,52 +9,73 @@ var util = require('util');
 var resourceRepo = require("../FilesHandle/repo");
 
 /**
-* @method getAllContacts
-*   获得所有联系人数组
-*
-* @param1 getAllContactsCb
-*   回调函数
-*   @result
-*     array[cate]: 联系人数组
-*        cate数据如下：
-*        cate{
-*           URI;
-*           version;
-*           name;
-*           photPath;
-*        }
-*/
+ * @method getAllContacts
+ *   获得所有联系人数组
+ *
+ * @param1 getAllContactsCb
+ *   回调函数
+ *   @result
+ *     array[cate]: 联系人数组
+ *        cate数据如下：
+ *        cate{
+ *           URI;
+ *           version;
+ *           name;
+ *           photPath;
+ *        }
+ */
 function getAllContacts(getAllCb) {
   console.log("Request handler 'getAllContacts' was called.");
-  function getAllByCaterotyCb(err,data)
-  {
-    if(err){
+
+  function getAllByCaterotyCb(err, data) {
+    if (err) {
       console.log(err);
       return;
-    }    
+    }
     var contacts = new Array();
-    data.forEach(function (each){
+    data.forEach(function(each) {
       contacts.push({
-        URI:each.URI,
-        name:each.name,
-        photoPath:each.path,
-        phone:each.phone,
-        email:each.email
+        URI: each.URI,
+        name: each.name,
+        sex: each.sex,
+        age: each.age,
+        photoPath: each.path,
+        phone: each.phone,
+        email: each.email
       });
     });
     getAllCb(contacts);
   }
-  commonDAO.findItems(null,['Contacts'],null,null,getAllByCaterotyCb);
+  commonDAO.findItems(null, ['Contacts'], null, null, getAllByCaterotyCb);
 }
 exports.getAllContacts = getAllContacts;
 
 /*
-commit_id, version, is_delete, URI, lastAccessTime, 
-photoPath, createTime, lastModifyTime, 
-id, name, phone, sex, age, email
+CONTENT in contacts info:
+is_delete, URI, lastAccessTime, id
+createTime, createDev lastModifyTime, lastModifyDev lastAccessTime, lastAccessDev,
+name, phone, sex, age, email, photoPath
 */
-function addContact(Item,sItemDesPath,isContactEnd,callback){
-  function getFileUidCb(uri){
+/**
+ * @method addContact
+ *   add contact info in to db and des files
+ *
+ * @param1 Item
+ *   obdject, the item needs to be added into des file
+ *
+ * @param2 sItemDesPath
+ *   string, the des file path for item
+ *
+ * @param3 isContactEnd
+ *   bool, is true when get all contacts done otherwise false
+ *
+ * @param4 callback
+ *   回调函数, call back when get all data
+ *
+ *
+ */
+function addContact(Item, sItemDesPath, isContactEnd, callback) {
+  function getFileUidCb(uri) {
     var category = 'Contacts';
     var currentTime = (new Date());
     Item.path = "/home/xiquan/resources/contacts";
@@ -64,78 +85,91 @@ function addContact(Item,sItemDesPath,isContactEnd,callback){
     Item.URI = uri + "#" + category;
     var oItem = Item;
     var oNewItem = {
-      id:null,
-      URI:uri + "#" + category,
-      category:category,
-      is_delete:0,
-      name:oItem["\u59D3"],
-      phone:oItem["\u79fb\u52a8\u7535\u8bdd"],
-      sex:"Phd",
-      age:35,
-      email:"my@email.com",
-      id:"",
-      photoPath:"/home/xiquan/resources/contactsphoto",
-      createTime:currentTime,
-      lastModifyTime:currentTime,
-      lastAccessTime:currentTime,
-      createDev:config.uniqueID,
-      lastModifyDev:config.uniqueID,
-      lastAccessDev:config.uniqueID
+      id: null,
+      URI: uri + "#" + category,
+      category: category,
+      is_delete: 0,
+      name: Item["姓"] + Item["名"],
+      phone: Item["移动电话"],
+      sex: Item["性别"],
+      age: "",
+      email: Item["电子邮件地址"],
+      id: "",
+      photoPath: "",
+      createTime: currentTime,
+      lastModifyTime: currentTime,
+      lastAccessTime: currentTime,
+      createDev: config.uniqueID,
+      lastModifyDev: config.uniqueID,
+      lastAccessDev: config.uniqueID,
+      others: ""
     }
-    function createItemCb(){
-      callback(isContactEnd,oNewItem);
+
+    function createItemCb() {
+      callback(isContactEnd, oNewItem);
     }
-    dataDes.createItem(Item,sItemDesPath,createItemCb);
+    dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
   }
   uniqueID.getFileUid(getFileUidCb);
 }
 
-function initContacts(loadContactsCb,resourcePath){
+/**
+ * @method initContacts
+ *   init contacts info in to db and des files
+ *
+ * @param1 loadContactsCb
+ *   回调函数, call back when load ends
+ *
+ * @param2 resourcePath
+ *   string, the resource path
+ *
+ */
+function initContacts(loadContactsCb, resourcePath) {
   config.riolog("initContacts ..............");
   var dirCSV = fs.readdirSync(resourcePath);
-  if(dirCSV.length != 1){
+  if (dirCSV.length != 1) {
     console.log("CSV file error!");
     return;
   }
   var csvFilename = dirCSV[0];
   var sItemPath = resourcePath + "/" + csvFilename;
-  function csvTojsonCb(json){
+
+  function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
     var oContacts = new Array();
-    for(var k in oJson){
-      if(oJson[k].hasOwnProperty("\u59D3")){
+    for (var k in oJson) {
+      if (oJson[k].hasOwnProperty("\u59D3")) {
         oContacts.push(oJson[k]);
       }
     }
-    var dataDesPath = config.RESOURCEPATH+"/.des/contacts";
-    function mkdirCb(err){
-      if(err) {
+    var dataDesPath = config.RESOURCEPATH + "/.des/contacts";
+
+    function mkdirCb(err) {
+      if (err) {
         console.log("mk contacts desPath error!");
         console.log(err);
         return;
-      }else{
-        function isEndCallback(){
-          resourceRepo.repoContactInit(config.RESOURCEPATH,loadContactsCb);
+      } else {
+        function isEndCallback() {
+          resourceRepo.repoContactInit(config.RESOURCEPATH, loadContactsCb);
         }
         var oNewItems = new Array();
-        function addContactCb(isContactEnd,oContact){
-          oNewItems.push(oContact);
-          if(isContactEnd){
-            isEndCallback();
-            commonDAO.createItems(oNewItems,function(result){
-              console.log(result);
-              console.log("initContacts is end!!!");
+        for (var k = 0; k < oContacts.length; k++) {
+          var isContactEnd = (k == (oContacts.length - 1));
+          addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
+            commonDAO.createItem(oContact, function() {
+              if (isContactEnd) {
+                isEndCallback();
+                console.log("succcess");
+                console.log("initContacts is end!!!");
+              }
             })
-          }          
-        }
-        for(var k=0;k<oContacts.length;k++){
-          var isContactEnd = (k == (oContacts.length-1));
-          addContact(oContacts[k],dataDesPath,isContactEnd,addContactCb)
+          })
         }
       }
     }
-    fs.mkdir(dataDesPath,mkdirCb);
+    fs.mkdir(dataDesPath, mkdirCb);
   }
-  csvtojson.csvTojson(sItemPath,csvTojsonCb);
+  csvtojson.csvTojson(sItemPath, csvTojsonCb);
 }
 exports.initContacts = initContacts;
