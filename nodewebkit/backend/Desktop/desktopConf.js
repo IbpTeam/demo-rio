@@ -158,8 +158,9 @@ function initConf(callback) {
 }
 exports.initConf = initConf;
 
-/*TODO:
-This part is not completed,the logic needs to be modified.
+/*
+//TODO:
+//This part is not completed,the logic needs to be modified.
 
 function buildHelper(callback, sAppPath, sOriginPath, isEnd) {
   if (isEnd) {
@@ -652,6 +653,9 @@ function findAllDesktopFiles(callback) {
  *    }
  *
  **/
+/*
+//TODO:
+//This part is not completed,the logic needs to be modified.
 function writeDesktopFile(callback, sFileName, oEntries) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
@@ -667,7 +671,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
   }
   findDesktopFile(findDesktopFileCb, sFileName)
 }
-exports.writeDesktopFile = writeDesktopFile;
+exports.writeDesktopFile = writeDesktopFile;*/
 
 
 
