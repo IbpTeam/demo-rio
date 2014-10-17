@@ -147,6 +147,23 @@
     });
   }
 
+  function findAllDesktopFilesCb(result){
+    var win = window.open('');
+    win.document.write("test API findAllDesktopFiles()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_findAllDesktopFiles(findAllDesktopFilesCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      var oEntries = {};
+      data.findAllDesktopFiles(findAllDesktopFilesCb);
+    });
+  }
+
+
   </script>
 
 <h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
@@ -326,6 +343,33 @@
     WDC.requireAPI(['data'], function(data){
       var fileName = 'cinnamon.desktop';
       data.writeDesktopFile(writeDesktopFileCb,fileName,oEntries);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(findAllDesktopFilesCb)">test</a></span></h2>
+<div id="findAllDesktopFiles" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function findAllDesktopFilesCb(result){
+    var win = window.open('');
+    win.document.write("test API findAllDesktopFiles()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_findAllDesktopFiles(findAllDesktopFilesCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.findAllDesktopFiles(findAllDesktopFilesCb);
     });
   }    
 </pre>

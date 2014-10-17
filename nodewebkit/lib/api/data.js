@@ -627,3 +627,31 @@ function writeDesktopFile(writeDesktopFileCb, sFileName, oEntries) {
   desktopConf.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
 }
 exports.writeDesktopFile = writeDesktopFile;
+
+/** 
+ *
+ * THIS IS NOT AN API FOR APPLICATIONS, ONLY HERE FOR TEST
+ *
+ * @Method: findAllDesktopFiles
+ *    find all .desktop files in system
+ *
+ * @param: callback
+ *    @result
+ *    object, an array of all desktop file's full path
+ *
+ *    example:
+ *        [
+ *         "/usr/share/xfce4/helpers/urxvt.desktop",
+ *         "/usr/share/xfce4/helpers/lynx.desktop",
+ *         "/usr/share/xfce4/helpers/rodent.desktop",
+ *         "/usr/share/xfce4/helpers/icecat.desktop",
+ *         "/usr/share/xfce4/helpers/pcmanfm.desktop",
+ *         "/usr/share/xfce4/helpers/mozilla-browser.desktop",
+ *        ]
+ *
+ **/
+function findAllDesktopFiles(findAllDesktopFilesCb) {
+  console.log("Request handler 'findAllDesktopFiles' was called.");
+  desktopConf.findAllDesktopFiles(findAllDesktopFilesCb);
+}
+exports.findAllDesktopFiles = findAllDesktopFiles;

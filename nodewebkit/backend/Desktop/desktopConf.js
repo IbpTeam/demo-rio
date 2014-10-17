@@ -625,6 +625,7 @@ function findAllDesktopFiles(callback) {
     }
   })
 }
+exports.findAllDesktopFiles = findAllDesktopFiles;
 
 
 /** 
