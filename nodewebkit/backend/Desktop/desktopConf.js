@@ -144,7 +144,7 @@ function initConf(callback) {
       if (err) {
         console.log(err);
       }
-      initDesktopWatcher();
+      //initDesktopWatcher();
       callback("success_desk");
     });
     fs.mkdir(pathDock, function(err) {
@@ -503,7 +503,7 @@ function findDesktopFile(callback, sFileName) {
             return;
           }
           if (stdout == '') {
-            tryInThisPath(callback, xdgDataDir, index + 1);
+            tryInThisPath(callback, index + 1);
           } else {
             var result = stdout.split('\n');
             console.log(result[0])
@@ -516,93 +516,18 @@ function findDesktopFile(callback, sFileName) {
   })
 }
 
+function writeDesktopFile(){
 
-//watch  dir :Default is desktop
-//dir_: dir is watched 
-// ignoreInitial_:
-var Watcher = Event.extend({
-  init: function(dir_, ignore_) {
-    if (typeof dir_ == 'undefined') {
-      dir_ = '/桌面';
-    };
-    this._prev = 0;
-    this._baseDir = undefined;
-    this._watchDir = dir_;
-    this._oldName = null;
-    this._watcher = null;
-    this._evQueue = [];
-    this._timer = null;
-    this._ignore = ignore_ || /^\./;
-
-    this._fs = require('fs');
-    this._exec = require('child_process').exec;
-
-    var _this = this;
-    this._exec('echo $HOME', function(err, stdout, stderr) {
-      if (err) throw err;
-      _this._baseDir = stdout.substr(0, stdout.length - 1);
-      _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
-        for (var i = 0; i < files.length; ++i) {
-          _this._prev++;
-        }
-        var evHandler = function() {
-          var filename = _this._evQueue.shift();
-          _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
-            var cur = 0;
-            for (var i = 0; i < files.length; ++i) {
-              cur++;
-            }
-
-            if (_this._prev < cur) {
-              _this._fs.stat(_this._baseDir + _this._watchDir + '/' + filename, function(err, stats) {
-                _this.emit('add', filename, stats);
-              });
-              _this._prev++;
-            } else if (_this._prev > cur) {
-              _this.emit('delete', filename);
-              _this._prev--;
-            } else {
-              if (_this._oldName == null) {
-                _this._oldName = filename;
-                return;
-              }
-              if (_this._oldName == filename) {
-                return;
-              }
-              _this.emit('rename', _this._oldName, filename);
-              _this._oldName = null;
-            }
-            if (_this._evQueue.length != 0) evHandler();
-          });
-        };
-        _this._timer = setInterval(function() {
-          if (_this._evQueue.length != 0) {
-            // _this._evQueue.reverse();
-            evHandler();
-          }
-        }, 200);
-
-        _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
-          if (event == 'change' || filename.match(_this._ignore) != null) return;
-          _this._evQueue.push(filename);
-        });
-      });
-    });
-  },
-
-  //get dir 
-  getBaseDir: function() {
-    return this._baseDir + this._watchDir;
-  },
-
-  //close watch()
-  close: function() {
-    this._watcher.close();
-    clearInterval(this._timer);
-  }
-});
+}
 
 
+/** 
+ * @Method: initDesktopWatcher
+ *    watch ./desktop dir, including event 'add', 'delete', 'rename'
+ *
+ * no param
+ *
+ **/
 var initDesktopWatcher = function() {
   var _desktop = this;
   this._DESKTOP_DIR = '/桌面';

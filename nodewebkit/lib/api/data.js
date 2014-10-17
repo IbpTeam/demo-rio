@@ -577,10 +577,7 @@ exports.writeWidgetConf = writeWidgetConf;
  *      X - GNOME - Bugzilla - Product: cinnamon
  *      X - GNOME - Bugzilla - Component: general
  *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;
- *      GTK;
- *      System;
- *      Core;
+ *      Categories: GNOME;GTK;System;Core;
  *      OnlyShowIn: GNOME;
  *      NoDisplay: true
  *      X - GNOME - Autostart - Phase: WindowManager
@@ -600,9 +597,3 @@ function readDesktopFile(readDesktopFileCb, sFileName) {
   desktopConf.readDesktopFile(readDesktopFileCb, sFileName);
 }
 exports.readDesktopFile = readDesktopFile;
-
-function initDesktopWatcher() {
-  console.log("Request handler 'initDesktopWatcher' was called.");
-  desktopConf.initDesktopWatcher();
-}
-exports.initDesktopWatcher = initDesktopWatcher;
