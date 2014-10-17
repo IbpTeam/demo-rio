@@ -95,8 +95,13 @@ function gen_edit_dialog(data_json){
     }
     data_json['category'] = data_json['URI'].substring(data_json['URI'].lastIndexOf('#')+1, data_json['URI'].length);
     delete data_json.props;
-    DataAPI.updateDataValue(function(){
-      window.alert("Saved successfully!");
+    DataAPI.updateDataValue(function(result){
+      if(result == 'success'){
+        window.alert("Saved successfully!");
+      }
+      else{
+        window.alert("Saved failed!");
+      }
     }, [data_json]);
   });
 }
