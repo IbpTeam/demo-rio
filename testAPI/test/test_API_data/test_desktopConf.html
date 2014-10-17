@@ -15,17 +15,19 @@
 </head>
 <body>
   <script language=javascript>  
+  WDC.startServer();//start server
 
   function print(win,something){
     if(typeof something == "object"){
+      win.document.write("{");
       for(var k in something){
-        win.document.write("{");
         win.document.write(k);
         win.document.write(" : ");
         print(win,something[k]);
-        win.document.write("}");
         win.document.write("<br/>");
       }
+      win.document.write("}");
+      win.document.write("<br/>");
     }else{
       win.document.write(something);
     }
@@ -42,97 +44,242 @@
       win.document.write("div "+id+" display wrong!");
     }
   }
-  function getServerAddressCb(result){
+
+  function readThemeConfCb(result){
     var win = window.open('');
-    win.document.write("test API getAllDataByCate()");
+    win.document.write("test API readThemeConf()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
     print(win,result);
   }
-  function test_getServerAddress(getServerAddressCb){
+  function test_readThemeConf(readThemeConfCb){
     WDC.requireAPI(['data'], function(data){
-      data.getServerAddress(getServerAddressCb);
+      data.readThemeConf(readThemeConfCb);
     });
   }
 
-
-  function getDeviceDiscoveryServiceCb(msdnType,data){
+  function writeThemeConfCb(result){
     var win = window.open('');
-    win.document.write("test API getDeviceDiscoveryService() "+msdnType);
+    win.document.write("test API writeThemeConf()");
     win.document.write("<br/>");
-    win.document.write("device: ");
+    win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,data);
-    win.document.write("<br/>");
-  }  
-  function test_getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
+    print(win,result);
+  }
+  function test_writeThemeConf(writeThemeConfCb){
     WDC.requireAPI(['data'], function(data){
-      data.getDeviceDiscoveryService(getDeviceDiscoveryServiceCb);
+      var oTheme = {
+        tast:"good",
+        this:"is",
+        only:"a",
+        test:"object",
+        modify:1
+      }
+      data.writeThemeConf(writeThemeConfCb,oTheme);
+    });
+  }
+
+  function readWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readWidgetConf(readWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readWidgetConf(readWidgetConfCb);
+    });
+  }
+
+  function writeWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeWidgetConf(writeWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTheme = {
+        tast:"good",
+        this:"is",
+        only:"a",
+        test:"object",
+        modify:1
+      }
+      data.writeWidgetConf(writeWidgetConfCb,oTheme);
+    });
+  }
+
+  function readDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API readDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readDesktopFile(readDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      data.readDesktopFile(readDesktopFileCb,sFileName);
     });
   }
 
   </script>
 
-<h2 onclick="show('getServerAddress')">getServerAddress(getServerAddressCb)<span><a class="mark" href="#test_getServerAddress" id="test_getServerAddress" onclick="test_getServerAddress(getServerAddressCb)">test</a></span></h2>
-<div id="getServerAddress" style="display:none;">
+<h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
+<div id="readThemeCon" style="display:none;">
 <div style="color:#930000">
   <pre>
-    @method : getServerAddress 获得最近访问数据的信息
-      @param1 : getServerAddressCbs 回调函数
-        @result : array[server address]
-          var address={
-            ip:config.SERVERIP,
-            port:config.SERVERPORT
-          };
+  @Method: readThemeConf
+     read file Theme.conf
+ 
+  @param: callback
+     result as a json object
 </div>
 <div style="color:#004B97">
   <pre>
-    具体实现：<br>
-    function getServerAddressCb(result){
-      var win = window.open('');
-      win.document.write("test API getAllDataByCate()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+result);
-      win.document.write("&lt;br/&gt;");
-    }
-
-    function test_getServerAddress(getServerAddressCb){
-      WDC.requireAPI(['data'], function(data){
-        data.getServerAddress(getServerAddressCb);
-      });
-    }       
+  具体实现：<br>
+  function readThemeConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readThemeConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readThemeConf(readThemeConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readThemeConf(readThemeConfCb);
+    });
+  }      
 </pre>
 </div>
 </div>
 
-<h2 onclick="show('getDeviceDiscoveryService')">getDeviceDiscoveryService(deviceUpCb,deviceDownCb)<span><a class="mark" href="#test_getDeviceDiscoveryService" id="test_getDeviceDiscoveryService" onclick="test_getDeviceDiscoveryService(getDeviceDiscoveryServiceCb)">test</a></span></h2>
-<div id="getDeviceDiscoveryService" style="display:none;">
+<h2 onclick="show('writeThemeConf')">writeThemeConf(writeThemeConfCb)<span><a class="mark" href="#test_writeThemeConf" id="test_writeThemeConf" onclick="test_writeThemeConf(writeThemeConfCb)">test</a></span></h2>
+<div id="writeThemeConf" style="display:none;">
 <div style="color:#930000">
   <pre>
-    @method : getDeviceDiscoveryService 获得最近访问数据的信息
-      @param1 : getDeviceDiscoveryServiceCb 回调函数
-        @data : data 接收来自服务器的 名字叫server的数据
+  @Method: writeThemeConf
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
 </div>
 <div style="color:#004B97">
   <pre>
-    具体实现：<br>
-    var SOCKETIOPORT=8891;
-    function getDeviceDiscoveryServiceCb(msdnType,data){
-      var win = window.open('');
-      win.document.write("test API getDeviceDiscoveryService() "+msdnType);
-      win.document.write("&lt;br/&gt;");
-      win.document.write("device: ");
-      win.document.write("&lt;br/&gt;");
-      print(win,data);
-      win.document.write("&lt;br/&gt;");
-    } 
+  具体实现：<br>
+  function writeThemeConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeThemeConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeThemeConf(writeThemeConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.writeThemeConf(writeThemeConfCb);
+    });
+  }    
+</pre>
+</div>
+</div>
 
-    function test_getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
-      WDC.requireAPI(['data'], function(data){
-        data.getDeviceDiscoveryService(deviceUpCb,deviceDownCb);
-      });
-    }      
+
+<h2 onclick="show('readWidgetConf')">readWidgetConf(readWidgetConfCb)<span><a class="mark" href="#test_readWidgetConf" id="test_readWidgetConf" onclick="test_readWidgetConf(readWidgetConfCb)">test</a></span></h2>
+<div id="readWidgetConf" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readWidgetConf
+     read file Theme.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readWidgetConf(readWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readWidgetConf(readWidgetConfCb);
+    });
+  }      
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('writeWidgetConf')">writeWidgetConf(writeWidgetConfCb)<span><a class="mark" href="#test_writeWidgetConf" id="test_writeWidgetConf" onclick="test_writeWidgetConf(writeWidgetConfCb)">test</a></span></h2>
+<div id="writeWidgetConf" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: writeWidgetConf
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function writeWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeWidgetConf(writeWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.writeWidgetConf(writeWidgetConfCb);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('readDesktopFile')">readDesktopFile(readDesktopFileCb)<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile(readDesktopFileCb)">test</a></span></h2>
+<div id="readDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readDesktopFile
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API readDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readDesktopFile(readDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.readDesktopFile(readDesktopFileCb,fileName);
+    });
+  }    
 </pre>
 </div>
 </div>

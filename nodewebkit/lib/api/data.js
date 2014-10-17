@@ -2,8 +2,9 @@ var commonDAO = require("../../backend/DAO/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var contacts = require("../../backend/contacts");
-var devices =  require("../../backend/devices");
+var devices = require("../../backend/devices");
 var tagsHandle = require("../../backend/tagsHandle");
+var desktopConf = require("../../backend/Desktop/desktopConf")
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
@@ -22,9 +23,9 @@ var path = require('path');
  * @param2 path
  *   string，要加载资源的路径
  */
-function loadResources(loadResourcesCb,path) {
+function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.initData(loadResourcesCb,path);
+  filesHandle.initData(loadResourcesCb, path);
 }
 exports.loadResources = loadResources;
 
@@ -40,9 +41,9 @@ exports.loadResources = loadResources;
  * @param2 path
  *   string，要加载资源的路径
  */
-function loadContacts(loadContactCb,path) {
+function loadContacts(loadContactCb, path) {
   console.log("Request handler 'loadContacts' was called.");
-  contacts.initContacts(loadContactCb,path);
+  contacts.initContacts(loadContactCb, path);
 }
 exports.loadContacts = loadContacts;
 
@@ -90,12 +91,12 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
- function getAllDataByCate(getAllDataByCateCb,cate) {
+function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if(cate == 'Contacts' || cate == 'contacts'){
+  if (cate == 'Contacts' || cate == 'contacts') {
     contacts.getAllContacts(getAllDataByCateCb);
-  }else{
-    filesHandle.getAllDataByCate(getAllDataByCateCb,cate)
+  } else {
+    filesHandle.getAllDataByCate(getAllDataByCateCb, cate)
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -133,8 +134,8 @@ exports.rmDataByUri = rmDataByUri;
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
-function getDataByUri(getDataByUriCb,uri) {
-  filesHandle.getDataByUri(getDataByUriCb,uri);
+function getDataByUri(getDataByUriCb, uri) {
+  filesHandle.getDataByUri(getDataByUriCb, uri);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -167,7 +168,7 @@ exports.getDataByUri = getDataByUri;
  * @param2 uri
  *   string，要打开数据的URI
  */
-function openDataByUri(openDataByUriCb, uri){
+function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
   filesHandle.openDataByUri(function(result){
     if (result.format === "html5ppt"){
@@ -186,18 +187,18 @@ exports.openDataByUri = openDataByUri;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,item){
+function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  filesHandle.updateDataValue(updateDataValueCb,item);
+  filesHandle.updateDataValue(updateDataValueCb, item);
 }
 exports.updateDataValue = updateDataValue;
 
 //API getRecentAccessData:获得最近访问数据的信息
 //返回类型：
 //返回具体数据类型对象数组
-function getRecentAccessData(getRecentAccessDataCb,num){
+function getRecentAccessData(getRecentAccessDataCb, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  filesHandle.getRecentAccessData(getRecentAccessDataCb,num);
+  filesHandle.getRecentAccessData(getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 
@@ -205,7 +206,7 @@ exports.getRecentAccessData = getRecentAccessData;
 //返回类型：
 //返回具体数据类型对象数组
 
-function getServerAddress(getServerAddressCb){
+function getServerAddress(getServerAddressCb) {
   console.log("Request handler 'getServerAddress' was called.");
   devices.getServerAddress(getServerAddressCb);
 }
@@ -213,24 +214,26 @@ exports.getServerAddress = getServerAddress;
 
 //API getDeviceDiscoveryService:使用设备发现服务
 //参数分别为设备发现和设备离开的回调函数
-var SOCKETIOPORT=8891;
-function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb){
+var SOCKETIOPORT = 8891;
+
+function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb) {
   console.log("Request handler 'getDeviceDiscoveryService' was called.");
-  function getServerAddressCb(result){
-    var add='ws://'+result.ip+':'+SOCKETIOPORT+'/';
-    var socket = require('socket.io-client')(add);  
-    socket.on('mdnsUp', function (data) { //接收来自服务器的 名字叫server的数据
-      getDeviceDiscoveryServiceCb('mdnsUp',data);
+
+  function getServerAddressCb(result) {
+    var add = 'ws://' + result.ip + ':' + SOCKETIOPORT + '/';
+    var socket = require('socket.io-client')(add);
+    socket.on('mdnsUp', function(data) { //接收来自服务器的 名字叫server的数据
+      getDeviceDiscoveryServiceCb('mdnsUp', data);
     });
-    socket.on('mdnsDown', function (data) { //接收来自服务器的 名字叫server的数据
-      getDeviceDiscoveryServiceCb('mdnsDown',data);
+    socket.on('mdnsDown', function(data) { //接收来自服务器的 名字叫server的数据
+      getDeviceDiscoveryServiceCb('mdnsDown', data);
     });
   }
   getServerAddress(getServerAddressCb);
 }
 exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
 
-function pullFromOtherRepo(){
+function pullFromOtherRepo() {
   console.log("Request handler 'pullFromOtherRepo' was called.");
   filesHandle.firstSync();
 }
@@ -239,24 +242,23 @@ exports.pullFromOtherRepo = pullFromOtherRepo;
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
 //返回类型：成功返回success;失败返回失败原因
-function pasteFile(pasteFileCb, sourcePath, desPath){
+function pasteFile(pasteFileCb, sourcePath, desPath) {
   console.log("Request handler 'pasteFile' was called.");
   var filename = path.basename(sourcePath);
   var postfix = path.extname(filename);
-  if(sourcePath.indexOf(desPath) != -1){
+  if (sourcePath.indexOf(desPath) != -1) {
     filename = path.basename(sourcePath, postfix);
     desPath = utils.parsePath(desPath + '/' + filename + '_copy' + postfix);
-  }
-  else{
+  } else {
     desPath = utils.parsePath(desPath + '/' + filename);
   }
   var sourcePathNew = utils.parsePath(sourcePath);
-  cp.exec("cp "+sourcePathNew+" "+desPath, function (error, stdout, stderr) {
+  cp.exec("cp " + sourcePathNew + " " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       pasteFileCb(false);
     }
-//    filesHandle.addFile(desPath, pasteFileCb(true));
+    //    filesHandle.addFile(desPath, pasteFileCb(true));
     pasteFileCb(true);
   });
 }
@@ -265,16 +267,15 @@ exports.pasteFile = pasteFile;
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因
-function createFile(creatFileCb, filePostfix, desPath){
+function createFile(creatFileCb, filePostfix, desPath) {
   console.log("Request handler 'createFile' was called.");
   var data = new Date();
-  desPath = utils.parsePath(desPath + '/NewFile_'+data.toLocaleString().replace(' ', '_')+'.' + filePostfix);
-  cp.exec("touch "+desPath, function (error, stdout, stderr) {
+  desPath = utils.parsePath(desPath + '/NewFile_' + data.toLocaleString().replace(' ', '_') + '.' + filePostfix);
+  cp.exec("touch " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       creatFileCb(false);
-    }
-    else{
+    } else {
       creatFileCb(true);
     }
   });
@@ -284,11 +285,11 @@ exports.createFile = createFile;
 //API getResourceDataDir:获得resource数据路径
 //返回类型：
 //返回resource数据路径3
-function getResourceDataDir(getResourceDataDirCb){
+function getResourceDataDir(getResourceDataDirCb) {
   console.log("Request handler 'getResourceDataDir' was called.");
-  cp.exec('echo $USER',function(error,stdout,stderr){
-    var usrname=stdout.replace("\n","");
-    var data = require('/home/'+usrname+'/.demo-rio/config');
+  cp.exec('echo $USER', function(error, stdout, stderr) {
+    var usrname = stdout.replace("\n", "");
+    var data = require('/home/' + usrname + '/.demo-rio/config');
     getResourceDataDirCb(data.dataDir);
   });
 }
@@ -296,66 +297,77 @@ exports.getResourceDataDir = getResourceDataDir;
 
 
 /**
- * @method : getAllTagsByCategory 
+ * @method : getAllTagsByCategory
  *
  * @param1 : getAllTagsByCategoryCb 回调函数
  *   @result : string
  *
  * @param2 : category, array
  */
-function getAllTagsByCategory(getAllTagsByCategoryCb,category){
+function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb,category);
+  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
 /**
  * @method getTagsByUri
  *   get tags with specifc uri
- * 
+ *
  * @param1 getTagsByUriCb
  *    all result in array
  *
  * @param2 sUri
  *    string, uri
  *
-*/
-function getTagsByUri(getTagsByUriCb,sUri){
+ */
+function getTagsByUri(getTagsByUriCb, sUri) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getTagsByUri(getTagsByUriCb,sUri);
+  tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
 }
 exports.getTagsByUri = getTagsByUri;
 
 /**
- * @method : setTagByUri 
+ * @method : setTagByUri
  *
  * @param1 : setTagByUriCb 回调函数
  *   @result : string
  *
  * @param2 : oTags, array
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
+ *
  * @param3 : oUri, array
+ *
+ *    oUri example:
+ *    var oUri = ['some_uri_1','some_uri_2','some_uri_2']
+ *
+ *
  */
-function setTagByUri(setTagByUriCb,oTags,oUri){
+function setTagByUri(setTagByUriCb, oTags, oUri) {
   console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.setTagByUri(setTagByUriCb,oTags,oUri);
+  tagsHandle.setTagByUri(setTagByUriCb, oTags, oUri);
 }
 exports.setTagByUri = setTagByUri;
 
 /**
  * @method getFilesByTag
  *   get all files with specific tags
- * 
+ *
  * @param1 callback
  *    all result in array
  *
  * @param2 oTags
  *    array, an array of tags
  *
-*/
-function getFilesByTags(getFilesByTagsCb,oTags){
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
+ *
+ */
+function getFilesByTags(getFilesByTagsCb, oTags) {
   console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.getFilesByTags(getFilesByTagsCb,oTags);
+  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesByTags = getFilesByTags;
 
@@ -363,35 +375,228 @@ exports.getFilesByTags = getFilesByTags;
 /**
  * @method rmTagsAll
  *   remove tags from all data base and des files
- * 
+ *
  * @param1 callback
- *    return success if successed
+ *    @result
+ *    string, return 'sucess' if successed
  *
  * @param2 oTags
  *    array, an array of tags to be removed
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
  *
-*/
-function rmTagsAll(rmTagsAllCb,oTags){
+ */
+function rmTagsAll(rmTagsAllCb, oTags) {
   console.log("Request handler 'rmTagsAll' was called.");
-  tagsHandle.rmTagsAll(rmTagsAllCb,oTags);
+  tagsHandle.rmTagsAll(rmTagsAllCb, oTags);
 }
 exports.rmTagsAll = rmTagsAll;
 
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri
- * 
+ *
  * @param1 callback
- *    return commit if successed
+ *    @result
+ *    string, return 'commit' if successed
  *
  * @param2 oTags
  *    array, an array of tags to be removed
  *
+ *    oTags example:
+ *    var oTags = ['documents','music','picture']
  *
-*/
-function rmTagsByUri(rmTagsByUriCb,sTag,oUri){
+ */
+function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
   console.log("Request handler 'rmTagsByUri' was called.");
-  tagsHandle.rmTagsByUri(rmTagsByUriCb,sTag,oUri);
+  tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
 }
 exports.rmTagsByUri = rmTagsByUri;
+
+/** 
+ * @Method: readThemeConf
+ *    read file Theme.conf
+ *
+ * @param: callback
+ *    @result
+ *        object
+ *
+ *    result example:
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
+ **/
+function readThemeConf(readThemeConfCb) {
+  console.log("Request handler 'readThemeConf' was called.");
+  desktopConf.readThemeConf(readThemeConfCb);
+}
+exports.readThemeConf = readThemeConf;
+
+/** 
+ * @Method: writeThemeConf
+ *    modify file Theme.conf
+ *
+ * @param: callback
+ *      @result
+ *      string, retrive "success" when success
+ *
+ * @param: oTheme
+ *    object, content of Theme.conf after modified
+ *
+ *    oThem example:
+ *    var oTheme = 
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
+ *
+ **/
+function writeThemeConf(writeThemeConfCb, oTheme) {
+  console.log("Request handler 'writeThemeConf' was called.");
+  desktopConf.writeThemeConf(writeThemeConfCb, oTheme);
+}
+exports.writeThemeConf = writeThemeConf;
+
+/** 
+ * @Method: readWidgetConf
+ *    read file Widget.conf
+ *
+ * @param: callback
+ *    @restult
+ *        object
+ *
+ *    result example:
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
+ **/
+function readWidgetConf(readWidgetConfCb) {
+  console.log("Request handler 'readWidgetConf' was called.");
+  desktopConf.readWidgetConf(readWidgetConfCb);
+}
+exports.readWidgetConf = readWidgetConf;
+
+/** 
+ * @Method: writeThemeConf
+ *    modify file Theme.conf
+ *
+ * @param: callback
+ *      @result
+ *      Retrive "success" when success
+ *
+ * @param: oTheme
+ *    object, content of Widget.conf after modified
+ *
+ *    oWidget example:
+ *    var oWidget = 
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
+ *
+ **/
+function writeWidgetConf(writeWidgetConfCb, oWidget) {
+  console.log("Request handler 'writeWidgetConf' was called.");
+  desktopConf.writeWidgetConf(writeWidgetConfCb, oWidget);
+}
+exports.writeWidgetConf = writeWidgetConf;
+
+/** 
+ * @Method: readDesktopFile
+ *   find a desktop file with name of sFilename
+ *
+ * @param1: callback
+ *    @result
+ *        object
+ *
+ *    result example:
+ *    {
+ *      Type: Application
+ *      Name: Cinnamon
+ *      Comment: Window management and application launching
+ *      Exec: /usr/bin / cinnamon - launcher
+ *      X - GNOME - Bugzilla - Bugzilla: GNOME
+ *      X - GNOME - Bugzilla - Product: cinnamon
+ *      X - GNOME - Bugzilla - Component: general
+ *      X - GNOME - Bugzilla - Version: 1.8.8
+ *      Categories: GNOME;
+ *      GTK;
+ *      System;
+ *      Core;
+ *      OnlyShowIn: GNOME;
+ *      NoDisplay: true
+ *      X - GNOME - Autostart - Phase: WindowManager
+ *      X - GNOME - Provides: panel;
+ *      windowmanager;
+ *      X - GNOME - Autostart - Notify: true
+ *      X - GNOME - AutoRestart: true
+ *    }
+ *
+ * @param2: sFileName
+ *    string,name of target file
+ *    example: var sFileName = 'cinnamon.desktop';
+ *
+ **/
+function readDesktopFile(readDesktopFileCb, sFileName) {
+  console.log("Request handler 'readDesktopFile' was called.");
+  desktopConf.readDesktopFile(readDesktopFileCb, sFileName);
+}
+exports.readDesktopFile = readDesktopFile;
