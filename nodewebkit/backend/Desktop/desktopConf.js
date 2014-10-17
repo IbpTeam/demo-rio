@@ -144,6 +144,7 @@ function initConf(callback) {
       if (err) {
         console.log(err);
       }
+      initDesktopWatcher();
       callback("success_desk");
     });
     fs.mkdir(pathDock, function(err) {
@@ -212,7 +213,7 @@ exports.readThemeConf = readThemeConf;
  *    object, content of Widget.conf after modified
  *
  *    oThem example:
- *    var oTheme = 
+ *    var oTheme =
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -428,7 +429,7 @@ exports.readDesktopFile = readDesktopFile;
  *      X - GNOME - Autostart - Notify: true
  *      X - GNOME - AutoRestart: true
  *    }
- *    
+ *
  *
  **/
 function parseDesktopFile(callback, sPath) {
@@ -487,7 +488,7 @@ function findDesktopFile(callback, sFileName) {
       }
       console.log(xdgDataDir);
 
-      function tryInThisPath(callback, xdgDataDir, index) {
+      function tryInThisPath(callback, index) {
         if (index == xdgDataDir.length) {
           callback('Not found');
           return;
@@ -510,9 +511,142 @@ function findDesktopFile(callback, sFileName) {
           }
         })
       };
-      tryInThisPath(callback, xdgDataDir, 0);
+      tryInThisPath(callback, 0);
     }
   })
 }
 
 
+//watch  dir :Default is desktop
+//dir_: dir is watched 
+// ignoreInitial_:
+var Watcher = Event.extend({
+  init: function(dir_, ignore_) {
+    if (typeof dir_ == 'undefined') {
+      dir_ = '/桌面';
+    };
+    this._prev = 0;
+    this._baseDir = undefined;
+    this._watchDir = dir_;
+    this._oldName = null;
+    this._watcher = null;
+    this._evQueue = [];
+    this._timer = null;
+    this._ignore = ignore_ || /^\./;
+
+    this._fs = require('fs');
+    this._exec = require('child_process').exec;
+
+    var _this = this;
+    this._exec('echo $HOME', function(err, stdout, stderr) {
+      if (err) throw err;
+      _this._baseDir = stdout.substr(0, stdout.length - 1);
+      _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+        for (var i = 0; i < files.length; ++i) {
+          _this._prev++;
+        }
+        var evHandler = function() {
+          var filename = _this._evQueue.shift();
+          _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+            var cur = 0;
+            for (var i = 0; i < files.length; ++i) {
+              cur++;
+            }
+
+            if (_this._prev < cur) {
+              _this._fs.stat(_this._baseDir + _this._watchDir + '/' + filename, function(err, stats) {
+                _this.emit('add', filename, stats);
+              });
+              _this._prev++;
+            } else if (_this._prev > cur) {
+              _this.emit('delete', filename);
+              _this._prev--;
+            } else {
+              if (_this._oldName == null) {
+                _this._oldName = filename;
+                return;
+              }
+              if (_this._oldName == filename) {
+                return;
+              }
+              _this.emit('rename', _this._oldName, filename);
+              _this._oldName = null;
+            }
+            if (_this._evQueue.length != 0) evHandler();
+          });
+        };
+        _this._timer = setInterval(function() {
+          if (_this._evQueue.length != 0) {
+            // _this._evQueue.reverse();
+            evHandler();
+          }
+        }, 200);
+
+        _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
+          if (event == 'change' || filename.match(_this._ignore) != null) return;
+          _this._evQueue.push(filename);
+        });
+      });
+    });
+  },
+
+  //get dir 
+  getBaseDir: function() {
+    return this._baseDir + this._watchDir;
+  },
+
+  //close watch()
+  close: function() {
+    this._watcher.close();
+    clearInterval(this._timer);
+  }
+});
+
+
+var initDesktopWatcher = function() {
+  var _desktop = this;
+  this._DESKTOP_DIR = '/桌面';
+  this._desktopWatch = Watcher.create(this._DESKTOP_DIR);
+  this._desktopWatch.on('add', function(filename, stats) {
+    //console.log('add:', filename, stats);
+    var _filenames = filename.split('.');
+    var _Entry;
+
+    if (_filenames[0] == '') {
+      return; //ignore hidden files
+    }
+    if (stats.isDirectory()) {
+      _Entry = DirEntry;
+    } else {
+      if (_filenames[_filenames.length - 1] == 'desktop') {
+        _Entry = AppEntry;
+      } else {
+        _Entry = FileEntry;
+      }
+    }
+
+    _desktop.addAnDEntry(_Entry.create('id-' + stats.ino.toString(), 100 + _desktop._tabIndex++, _desktop._desktopWatch.getBaseDir() + '/' + filename, _desktop._position), _desktop._position);
+  });
+  this._desktopWatch.on('delete', function(filename) {
+    console.log('delete:', filename);
+    //find entry object by path
+    var _path = _desktop._desktopWatch.getBaseDir() + '/' + filename;
+    var _entry = _desktop.getAWidgetByAttr('_path', _path);
+    if (_entry == null) {
+      console.log('Can not find this widget');
+      return;
+    }
+    _desktop.deleteADEntry(_entry);
+  });
+  this._desktopWatch.on('rename', function(oldName, newName) {
+    console.log('rename:', oldName, '->', newName);
+    var _path = _desktop._desktopWatch.getBaseDir() + '/' + oldName;
+    var _entry = _desktop.getAWidgetByAttr('_path', _path);
+    if (_entry == null) {
+      console.log('Can not find this widget');
+      return;
+    }
+    _entry.rename(newName);
+  });
+}
+exports.initDesktopWatcher = initDesktopWatcher;

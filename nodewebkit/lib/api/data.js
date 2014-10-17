@@ -420,7 +420,7 @@ exports.rmTagsByUri = rmTagsByUri;
  *
  * @param: callback
  *    @result
- *        object
+ *    object
  *
  *    result example:
  *    {
@@ -453,8 +453,8 @@ exports.readThemeConf = readThemeConf;
  *    modify file Theme.conf
  *
  * @param: callback
- *      @result
- *      string, retrive "success" when success
+ *    @result
+ *    string, retrive "success" when success
  *
  * @param: oTheme
  *    object, content of Theme.conf after modified
@@ -600,3 +600,9 @@ function readDesktopFile(readDesktopFileCb, sFileName) {
   desktopConf.readDesktopFile(readDesktopFileCb, sFileName);
 }
 exports.readDesktopFile = readDesktopFile;
+
+function initDesktopWatcher() {
+  console.log("Request handler 'initDesktopWatcher' was called.");
+  desktopConf.initDesktopWatcher();
+}
+exports.initDesktopWatcher = initDesktopWatcher;
