@@ -1,12 +1,12 @@
-var commonDAO = require("./DAO/CommonDAO");
-var dataDes = require("./FilesHandle/desFilesHandle");
+var commonDAO = require("../DAO/CommonDAO");
+var dataDes = require("../FilesHandle/desFilesHandle");
 var pathModule = require('path');
 var fs = require('fs');
-var config = require('./config');
-var csvtojson = require('./csvTojson');
-var uniqueID = require("./uniqueID");
+var config = require('../config');
+var csvtojson = require('../csvTojson');
+var uniqueID = require("../uniqueID");
 var util = require('util');
-var resourceRepo = require("./FilesHandle/repo");
+var resourceRepo = require("../FilesHandle/repo");
 
 /**
  * @method getAllContacts
@@ -78,6 +78,12 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
   function getFileUidCb(uri) {
     var category = 'Contacts';
     var currentTime = (new Date());
+    Item.path = "/home/xiquan/resources/contacts";
+    Item.desPath = sItemDesPath;
+    Item.name = Item["\u59D3"];
+    Item.currentTime = currentTime;
+    Item.URI = uri + "#" + category;
+    var oItem = Item;
     var oNewItem = {
       id: null,
       URI: uri + "#" + category,
