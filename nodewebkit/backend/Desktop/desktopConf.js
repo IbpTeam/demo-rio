@@ -119,7 +119,7 @@ function initConf(callback) {
     var tmpWidget = getnit("widget");
     var sItemTheme = JSON.stringify(tmpThemw, null, 4);
     var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-    
+
 
     fs.writeFile(pathTheme, sItemTheme, function(err) {
       if (err) {
@@ -145,7 +145,6 @@ function initConf(callback) {
       if (err) {
         console.log(err);
       }
-      //initDesktopWatcher();
       callback("success_desk");
     });
     fs.mkdir(pathDock, function(err) {
@@ -509,7 +508,7 @@ function parseDesktopFile(callback, sPath) {
         for (var j = 2; j < tmp.length; j++)
           attr[tmp[0]] += '=' + tmp[j];
       }
-      //console.log("Get desktop file successfully");
+      console.log("Get desktop file successfully");
       callback(attr);
     }
   });
@@ -672,60 +671,3 @@ function writeDesktopFile(callback, sFileName, oEntries) {
   findDesktopFile(findDesktopFileCb, sFileName)
 }
 exports.writeDesktopFile = writeDesktopFile;*/
-
-
-
-/** 
- * @Method: initDesktopWatcher
- *    watch ./desktop dir, including event 'add', 'delete', 'rename'
- *
- * no param
- *
- **/
-var initDesktopWatcher = function() {
-  var _desktop = this;
-  this._DESKTOP_DIR = '/桌面';
-  this._desktopWatch = Watcher.create(this._DESKTOP_DIR);
-  this._desktopWatch.on('add', function(filename, stats) {
-    //console.log('add:', filename, stats);
-    var _filenames = filename.split('.');
-    var _Entry;
-
-    if (_filenames[0] == '') {
-      return; //ignore hidden files
-    }
-    if (stats.isDirectory()) {
-      _Entry = DirEntry;
-    } else {
-      if (_filenames[_filenames.length - 1] == 'desktop') {
-        _Entry = AppEntry;
-      } else {
-        _Entry = FileEntry;
-      }
-    }
-
-    _desktop.addAnDEntry(_Entry.create('id-' + stats.ino.toString(), 100 + _desktop._tabIndex++, _desktop._desktopWatch.getBaseDir() + '/' + filename, _desktop._position), _desktop._position);
-  });
-  this._desktopWatch.on('delete', function(filename) {
-    console.log('delete:', filename);
-    //find entry object by path
-    var _path = _desktop._desktopWatch.getBaseDir() + '/' + filename;
-    var _entry = _desktop.getAWidgetByAttr('_path', _path);
-    if (_entry == null) {
-      console.log('Can not find this widget');
-      return;
-    }
-    _desktop.deleteADEntry(_entry);
-  });
-  this._desktopWatch.on('rename', function(oldName, newName) {
-    console.log('rename:', oldName, '->', newName);
-    var _path = _desktop._desktopWatch.getBaseDir() + '/' + oldName;
-    var _entry = _desktop.getAWidgetByAttr('_path', _path);
-    if (_entry == null) {
-      console.log('Can not find this widget');
-      return;
-    }
-    _entry.rename(newName);
-  });
-}
-exports.initDesktopWatcher = initDesktopWatcher;
