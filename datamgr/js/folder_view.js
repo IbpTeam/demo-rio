@@ -94,10 +94,15 @@ function gen_edit_dialog(data_json){
       data_json[key] = new_value;
     }
     data_json['category'] = data_json['URI'].substring(data_json['URI'].lastIndexOf('#')+1, data_json['URI'].length);
-    window.alert("后台数据更新开发中，请见谅！");
-/*    DataAPI.updateDataValue(function(){
-      window.alert("Saved successfully!");
-    }, [data_json]);*/
+    delete data_json.props;
+    DataAPI.updateDataValue(function(result){
+      if(result == 'success'){
+        window.alert("Saved successfully!");
+      }
+      else{
+        window.alert("Saved failed!");
+      }
+    }, [data_json]);
   });
 }
 
@@ -115,7 +120,6 @@ function cb_get_data_source_file(data_json){
 
   var method = data_json['openmethod'];
   var content = data_json['content'];
-
   switch(method){
     case 'alert':
       window.alert(content);
@@ -563,6 +567,8 @@ Folder.prototype.set_icon = function(postfix){
       return 'Pictures';
     case 'png':
       return 'Pictures';
+    case 'html5ppt':
+      return 'html5ppt'
     default:
       return 'Documents';
   }

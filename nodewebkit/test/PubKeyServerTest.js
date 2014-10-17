@@ -1,7 +1,8 @@
 var ursaED = require('../backend/IM/ursaED');
 var ursa = require('../backend/IM/newUrsa');
-var account = require('../backend/IM/account');
+var account = require('../backend/IM/pubkeyServer');
 var fs = require('fs');
+var userAccount = require('../backend/IM/userAccount.js');
 
 var keySizeBits = 1024;
 var size = 65537;
@@ -11,7 +12,15 @@ var pubKey=ursaED.getPubKeyPem(keyPair);
 //var pubKey = ursaED.loadPubKeySync('./key/users/34234324erererw3r3w4.pem');
 var serverKeyPair= ursaED.loadServerKey('/home/rtty/.demo-rio/key/serverKey.pem');
 
-console.log(pubKey);
+
+var table = userAccount.createAccountTable();
+
+table = userAccount.insertAccount(table,"rtty123","192.168.0.1","1234324242w4r");
+table = userAccount.insertAccount(table,"rtty123","192.168.0.2","231sdfdsrgfd");
+
+var ipset = userAccount.getIP(table,"rtty123");
+console.log(ipset);
+
 /*
 account.register('rtty123','rtty123','Linux Mint17',pubKey,keyPair,serverKeyPair,function(msg){
   console.log(JSON.stringify(msg));
@@ -22,20 +31,24 @@ account.login('fyf','fyf','Linux Mint',pubKey,keyPair,serverKeyPair,function(msg
   console.log(JSON.stringify(msg));
 });
 
-*/
 
-account.login('fyf','fyf','34234324r34rerfe45r4a',pubKey,keyPair,serverKeyPair,function(msg){
+account.register('yuanzhe','yuanzhe','testtest',pubKey,keyPair,serverKeyPair,function(msg){
+  console.log(JSON.stringify(msg));
+});
+*/
+/*
+account.login('yuanzhe','yuanzhe','testtest',pubKey,keyPair,serverKeyPair,function(msg){
   console.log(JSON.stringify(msg));
 });
 
-account.getPubKeysByName('fyf','Linux Mint','fyf',keyPair,serverKeyPair,function(msg){
+account.getPubKeysByName('yuanzhe','testtest','yuanzhe',keyPair,serverKeyPair,function(msg){
     console.log(JSON.stringify(msg.data.detail));
     msg.data.detail.forEach(function (row) {		
 	      console.log(row.UUID);
 	      console.log(row.pubKey);      	    
 	    });	      
 });
-/*
+
 fs.appendFile("./key/users/34234324r34rerfe45r4a.pem","dddddddddd  ",function(err){
 	if(err) throw err;
 });
