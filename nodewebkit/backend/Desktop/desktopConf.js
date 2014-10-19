@@ -9,7 +9,7 @@
  *
  * @version:0.1.1
  **/
-var pathModule = require('path');
+var path = require('path');
 var fs = require('fs');
 var os = require('os');
 var config = require("../config");
@@ -48,25 +48,25 @@ function newInit(initType) {
 
 function getnit(initType) {
   if (initType === "theme") {
-    var _icontheme = newInit("theme");
+    var _icontheme = newInit(initType);
     _icontheme.name = 'Mint-X';
     _icontheme.active = true;
     _icontheme.path = '$HOME';
     _icontheme.id = 'computer';
 
-    var _computer = newInit("theme");
+    var _computer = newInit(initType);
     _computer.name = 'Computer';
     _computer.active = false;
 
-    var _trash = newInit("theme");
+    var _trash = newInit(initType);
     _trash.name = 'Trash';
     _trash.active = false;
 
-    var _network = newInit("theme");
+    var _network = newInit(initType);
     _network.name = 'Network'
     _network.active = false;
 
-    var _document = newInit("theme");
+    var _document = newInit(initType);
     _document.name = 'Document';
     _document.active = false;
 
@@ -82,12 +82,12 @@ function getnit(initType) {
   } else if (initType === "widget") {
 
     var result = {
-      cat: {},
-      book: {},
-      boat: {},
-      book1: {},
-      totem_dock: {},
-      firefox_dock: {}
+      cat: newInit(initType),
+      book: newInit(initType),
+      boat: newInit(initType),
+      book1: newInit(initType),
+      totem_dock: newInit(initType),
+      firefox_dock: newInit(initType)
     }
     return result;
   }
@@ -109,16 +109,17 @@ function initConf(callback) {
       console.log(err);
       return;
     }
-    var pathApp = path + "/apllication";
+    var pathApp = path + "/application";
     var pathDesk = path + "/desktop";
     var pathDock = path + "/dock";
     var pathTheme = path + "/Theme.conf";
     var pathWidget = path + "/Widget.conf"
 
     var tmpThemw = getnit("theme");
-    var tmpWidget = getnit("Widget");
+    var tmpWidget = getnit("widget");
     var sItemTheme = JSON.stringify(tmpThemw, null, 4);
     var sItemWidget = JSON.stringify(tmpWidget, null, 4);
+
 
     fs.writeFile(pathTheme, sItemTheme, function(err) {
       if (err) {
@@ -155,6 +156,52 @@ function initConf(callback) {
   })
 }
 exports.initConf = initConf;
+
+/*
+//TODO:
+//This part is not completed,the logic needs to be modified.
+
+function buildHelper(callback, sAppPath, sOriginPath, isEnd) {
+  if (isEnd) {
+    console.log("endddddddddddddddddddddddddddddddddddddd");
+    callback("build desktop file end");
+  } else if (sOriginPath == "") {
+    return;
+  }
+
+  function parseDesktopFileCb(attr) {
+    var sAttr = JSON.stringify(attr, null, 4);
+    var nameindex = sOriginPath.lastIndexOf('/');
+    var itemFilename = sOriginPath.substring(nameindex + 1, sOriginPath.length);
+    sAppPath = sAppPath + itemFilename;
+    fs.writeFile(sAppPath, sAttr, function(err) {
+      if (err) {
+        console.log("build desktop file error!");
+        console.log(err);
+      }
+    })
+  }
+  parseDesktopFile(parseDesktopFileCb, sOriginPath);
+}
+
+function buildLocalDesktopFile(callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type of callback!!';
+  var sAppPath = config.RESOURCEPATH + '/.desktop/application/';
+  var tag = 0;
+
+  function findAllDesktopFilesCb(oAllDesktopFiles) {
+    for (var i = 0; i < oAllDesktopFiles.length; i++) {
+      var sOriginPath = oAllDesktopFiles[i];
+      var isEnd = (tag == oAllDesktopFiles.length - 1);
+      console.log(oAllDesktopFiles.length + " : " + tag + " " + isEnd);
+      buildHelper(callback, sAppPath, sOriginPath, isEnd);
+      tag++;
+    }
+  }
+  findAllDesktopFiles(findAllDesktopFilesCb);
+}*/
+
 
 /** 
  * @Method: readThemeConf
@@ -193,7 +240,6 @@ function readThemeConf(callback) {
       return;
     } else {
       var json = JSON.parse(data);
-      console.log(json);
       callback(json);
     }
   });
@@ -209,10 +255,10 @@ exports.readThemeConf = readThemeConf;
  *      string, retrive "success" when success
  *
  * @param: oTheme
- *    object, content of Widget.conf after modified
+ *    object, only content that needs to be modified
  *
  *    oThem example:
- *    var oTheme = 
+ *    var oTheme =
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -234,28 +280,38 @@ exports.readThemeConf = readThemeConf;
  *
  **/
 function writeThemeConf(callback, oTheme) {
-  var sTheme = JSON.stringify(oTheme, null, 4);
   var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
   var path = config.RESOURCEPATH + "/.desktop";
-  fs.writeFile(ThemeConfPath, sTheme, function(err) {
+  fs.readFile(ThemeConfPath, 'utf-8', function(err, data) {
     if (err) {
-      console.log("write Theme config file error!");
       console.log(err);
-    } else {
-      var currentTime = (new Date());
-      config.riolog("time: " + currentTime);
-      var attrs = {
-        lastAccessTime: currentTime,
-        lastModifyTime: currentTime,
-        lastAccessDev: config.uniqueID
-      }
-      var chItem = ThemeConfPath;
-      var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
-      dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-        callback("success");
-      });
+      return;
     }
-  });
+    var oData = JSON.parse(data);
+    for (var k in oTheme) {
+      oData[k] = oTheme[k];
+    }
+    var sTheme = JSON.stringify(oData, null, 4);
+    fs.writeFile(ThemeConfPath, sTheme, function(err) {
+      if (err) {
+        console.log("write Theme config file error!");
+        console.log(err);
+      } else {
+        var currentTime = (new Date());
+        config.riolog("time: " + currentTime);
+        var attrs = {
+          lastAccessTime: currentTime,
+          lastModifyTime: currentTime,
+          lastAccessDev: config.uniqueID
+        }
+        var chItem = ThemeConfPath;
+        var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+        dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+          callback("success");
+        });
+      }
+    });
+  })
 }
 exports.writeThemeConf = writeThemeConf;
 
@@ -319,25 +375,36 @@ function writeWidgetConf(callback, oWidget) {
   var sWidget = JSON.stringify(oWidget, null, 4);
   var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
   var path = config.RESOURCEPATH + "/.desktop";
-  fs.writeFile(WidgetConfPath, sWidget, function(err) {
+  fs.readFile(WidgetConfPath, 'utf-8', function(err, data) {
     if (err) {
-      console.log("write Widget config file error!");
       console.log(err);
-    } else {
-      var currentTime = (new Date());
-      config.riolog("time: " + currentTime);
-      var attrs = {
-        lastAccessTime: currentTime,
-        lastModifyTime: currentTime,
-        lastAccessDev: config.uniqueID
-      }
-      var chItem = WidgetConfPath;
-      var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
-      dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-        callback("success");
-      });
+      return;
     }
-  });
+    var oData = JSON.parse(data);
+    for (var k in oWidget) {
+      oData[k] = oWidget[k];
+    }
+    var sWidget = JSON.stringify(oData, null, 4);
+    fs.writeFile(WidgetConfPath, sWidget, function(err) {
+      if (err) {
+        console.log("write Widget config file error!");
+        console.log(err);
+      } else {
+        var currentTime = (new Date());
+        config.riolog("time: " + currentTime);
+        var attrs = {
+          lastAccessTime: currentTime,
+          lastModifyTime: currentTime,
+          lastAccessDev: config.uniqueID
+        }
+        var chItem = WidgetConfPath;
+        var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+        dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+          callback("success");
+        });
+      }
+    });
+  })
 }
 exports.writeWidgetConf = writeWidgetConf;
 
@@ -359,15 +426,11 @@ exports.writeWidgetConf = writeWidgetConf;
  *      X - GNOME - Bugzilla - Product: cinnamon
  *      X - GNOME - Bugzilla - Component: general
  *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;
- *      GTK;
- *      System;
- *      Core;
+ *      Categories: GNOME;GTK;System;Core;
  *      OnlyShowIn: GNOME;
  *      NoDisplay: true
  *      X - GNOME - Autostart - Phase: WindowManager
- *      X - GNOME - Provides: panel;
- *      windowmanager;
+ *      X - GNOME - Provides: panel;windowmanager;
  *      X - GNOME - Autostart - Notify: true
  *      X - GNOME - AutoRestart: true
  *    }
@@ -387,7 +450,6 @@ function readDesktopFile(callback, sFileName) {
         callback(attr);
       }
       var sPath = result;
-      console.log(sPath);
       parseDesktopFile(parseDesktopFileCb, sPath);
     }
   }
@@ -416,19 +478,15 @@ exports.readDesktopFile = readDesktopFile;
  *      X - GNOME - Bugzilla - Product: cinnamon
  *      X - GNOME - Bugzilla - Component: general
  *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;
- *      GTK;
- *      System;
- *      Core;
+ *      Categories: GNOME;GTK;System;Core;
  *      OnlyShowIn: GNOME;
  *      NoDisplay: true
  *      X - GNOME - Autostart - Phase: WindowManager
- *      X - GNOME - Provides: panel;
- *      windowmanager;
+ *      X - GNOME - Provides: panel;windowmanager;
  *      X - GNOME - Autostart - Notify: true
  *      X - GNOME - AutoRestart: true
  *    }
- *    
+ *
  *
  **/
 function parseDesktopFile(callback, sPath) {
@@ -443,7 +501,7 @@ function parseDesktopFile(callback, sPath) {
     } else {
       data = data.replace(/[\[]{1}[a-z, ,A-Z]*\]{1}\n/g, '$').split('$');
       var lines = data[1].split('\n');
-      var attr = [];
+      var attr = {};
       for (var i = 0; i < lines.length - 1; ++i) {
         var tmp = lines[i].split('=');
         attr[tmp[0]] = tmp[1];
@@ -455,7 +513,6 @@ function parseDesktopFile(callback, sPath) {
     }
   });
 }
-
 
 /** 
  * @Method: findDesktopFile
@@ -485,34 +542,133 @@ function findDesktopFile(callback, sFileName) {
       for (var i = 0; i < xdgDataDir.length; ++i) {
         xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
       }
-      console.log(xdgDataDir);
 
-      function tryInThisPath(callback, xdgDataDir, index) {
+      function tryInThisPath(callback, index) {
         if (index == xdgDataDir.length) {
           callback('Not found');
           return;
         }
-        console.log(index + " : " + xdgDataDir[index] + " : " + sFileName);
 
         exec('sudo find ' + xdgDataDir[index] + ' -name ' + sFileName, function(err, stdout, stderr) {
-          console.log('find ' + xdgDataDir[index] + ' -name ' + sFileName)
           if (err) {
             console.log(stderr);
             console.log(err);
             return;
           }
           if (stdout == '') {
-            tryInThisPath(callback, xdgDataDir, index + 1);
+            tryInThisPath(callback, index + 1);
           } else {
+            console.log('find ' + xdgDataDir[index] + ' -name ' + sFileName)
             var result = stdout.split('\n');
-            console.log(result[0])
             callback(result[0]);
           }
         })
       };
-      tryInThisPath(callback, xdgDataDir, 0);
+      tryInThisPath(callback, 0);
     }
   })
 }
 
+/** 
+ * @Method: findAllDesktopFiles
+ *    find all .desktop files in system
+ *
+ * @param: callback
+ *    @result
+ *    object, an array of all desktop file's full path
+ *
+ *    example:
+ *        [
+ *         "/usr/share/xfce4/helpers/urxvt.desktop",
+ *         "/usr/share/xfce4/helpers/lynx.desktop",
+ *         "/usr/share/xfce4/helpers/rodent.desktop",
+ *         "/usr/share/xfce4/helpers/icecat.desktop",
+ *         "/usr/share/xfce4/helpers/pcmanfm.desktop",
+ *         "/usr/share/xfce4/helpers/mozilla-browser.desktop",
+ *        ]
+ *
+ **/
+function findAllDesktopFiles(callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type for callback';
+  var xdgDataDir = [];
+  var exec = require('child_process').exec;
+  var oAllDesktop = [];
+  exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
+    if (err) {
+      console.log(stderr)
+      console.log(err);
+      return;
+    } else {
+      xdgDataDir = stdout.substr(0, stdout.length - 1).split(':');
+      for (var i = 0; i < xdgDataDir.length; ++i) {
+        xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
+      }
 
+      function tryInThisPath(callback, index) {
+        if (index == xdgDataDir.length) {
+          callback(oAllDesktop);
+        } else {
+          var sTarget = '*.desktop';
+          exec('sudo find ' + xdgDataDir[index] + ' -name ' + sTarget, function(err, stdout, stderr) {
+            if (err) {
+              console.log(stderr);
+              console.log(err);
+              return;
+            }
+            oAllDesktop = oAllDesktop.concat(stdout.split('\n'))
+            tryInThisPath(callback, index + 1);
+          })
+        }
+      };
+      tryInThisPath(callback, 0);
+    }
+  })
+}
+exports.findAllDesktopFiles = findAllDesktopFiles;
+
+
+/** 
+ * @Method: writeDesktopFile
+ *    modify a desktop file
+ *
+ * @param1: callback
+ *    @result
+ *    string, a full path string,
+ *            as: '/usr/share/applications/cinnamon.desktop'
+ *
+ * @param2: sFileName
+ *    string, a file name
+ *    exmple: var sFileName = 'cinnamon.desktop';
+ *
+ * @param3: oEntries
+ *    object, this object indludes those entries that you want
+ *            to change in this desktop file.
+ *
+ *    example:
+ *    var oEntries =
+ *    {
+ *      Comment: Window management and application launching of Mac OX X,
+ *      NoDisplay: false
+ *    }
+ *
+ **/
+/*
+//TODO:
+//This part is not completed,the logic needs to be modified.
+function writeDesktopFile(callback, sFileName, oEntries) {
+  if (typeof callback !== 'function')
+    throw 'Bad type of callback!!';
+
+  function findDesktopFileCb(result) {
+    function parseDesktopFileCb(attr) {
+      attr = JSON.stringify(attr, null, 4);
+      fs.writeFileSync('/home/xiquan/testFile/testWrite.txt', attr);
+      callback(attr);
+    }
+    var sPath = result;
+    parseDesktopFile(parseDesktopFileCb, sPath);
+  }
+  findDesktopFile(findDesktopFileCb, sFileName)
+}
+exports.writeDesktopFile = writeDesktopFile;*/

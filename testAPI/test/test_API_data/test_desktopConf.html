@@ -24,6 +24,7 @@
         win.document.write(k);
         win.document.write(" : ");
         print(win,something[k]);
+        win.document.write(", ");
         win.document.write("<br/>");
       }
       win.document.write("}");
@@ -129,6 +130,39 @@
       data.readDesktopFile(readDesktopFileCb,sFileName);
     });
   }
+
+  function writeDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API writeDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeDesktopFile(writeDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      var oEntries = {};
+      data.writeDesktopFile(writeDesktopFileCb,sFileName,oEntries);
+    });
+  }
+
+  function findAllDesktopFilesCb(result){
+    var win = window.open('');
+    win.document.write("test API findAllDesktopFiles()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_findAllDesktopFiles(findAllDesktopFilesCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      var oEntries = {};
+      data.findAllDesktopFiles(findAllDesktopFilesCb);
+    });
+  }
+
 
   </script>
 
@@ -278,6 +312,64 @@
     WDC.requireAPI(['data'], function(data){
       var fileName = 'cinnamon.desktop';
       data.readDesktopFile(readDesktopFileCb,fileName);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('writeDesktopFile')">writeDesktopFile(writeDesktopFileCb)<span><a class="mark" href="#test_writeDesktopFile" id="test_writeDesktopFile" onclick="test_writeDesktopFile(writeDesktopFileCb)">test</a></span></h2>
+<div id="writeDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: writeDesktopFile
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function writeDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API writeDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeDesktopFile(writeDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.writeDesktopFile(writeDesktopFileCb,fileName,oEntries);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(findAllDesktopFilesCb)">test</a></span></h2>
+<div id="findAllDesktopFiles" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function findAllDesktopFilesCb(result){
+    var win = window.open('');
+    win.document.write("test API findAllDesktopFiles()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_findAllDesktopFiles(findAllDesktopFilesCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.findAllDesktopFiles(findAllDesktopFilesCb);
     });
   }    
 </pre>

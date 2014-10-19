@@ -170,16 +170,16 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  filesHandle.openDataByUri(function(result){
-    if (result.format === "html5ppt"){
+  filesHandle.openDataByUri(function(result) {
+    if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
-      result.content="成功打开文件" + result.content;
+      result.content = "成功打开文件" + result.content;
       setTimeout(openDataByUriCb(result), 0);
-    }else {
+    } else {
       setTimeout(openDataByUriCb(result), 0);
     }
-  },uri);
+  }, uri);
 }
 exports.openDataByUri = openDataByUri;
 
@@ -420,7 +420,7 @@ exports.rmTagsByUri = rmTagsByUri;
  *
  * @param: callback
  *    @result
- *        object
+ *    object
  *
  *    result example:
  *    {
@@ -453,14 +453,14 @@ exports.readThemeConf = readThemeConf;
  *    modify file Theme.conf
  *
  * @param: callback
- *      @result
- *      string, retrive "success" when success
+ *    @result
+ *    string, retrive "success" when success
  *
  * @param: oTheme
  *    object, content of Theme.conf after modified
  *
  *    oThem example:
- *    var oTheme = 
+ *    var oTheme =
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -533,7 +533,7 @@ exports.readWidgetConf = readWidgetConf;
  *    object, content of Widget.conf after modified
  *
  *    oWidget example:
- *    var oWidget = 
+ *    var oWidget =
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -577,15 +577,11 @@ exports.writeWidgetConf = writeWidgetConf;
  *      X - GNOME - Bugzilla - Product: cinnamon
  *      X - GNOME - Bugzilla - Component: general
  *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;
- *      GTK;
- *      System;
- *      Core;
+ *      Categories: GNOME;GTK;System;Core;
  *      OnlyShowIn: GNOME;
  *      NoDisplay: true
  *      X - GNOME - Autostart - Phase: WindowManager
- *      X - GNOME - Provides: panel;
- *      windowmanager;
+ *      X - GNOME - Provides: panel;windowmanager;
  *      X - GNOME - Autostart - Notify: true
  *      X - GNOME - AutoRestart: true
  *    }
@@ -600,3 +596,62 @@ function readDesktopFile(readDesktopFileCb, sFileName) {
   desktopConf.readDesktopFile(readDesktopFileCb, sFileName);
 }
 exports.readDesktopFile = readDesktopFile;
+
+/** 
+ * @Method: writeDesktopFile
+ *    modify a desktop file
+ *
+ * @param1: callback
+ *    @result
+ *    string, a full path string,
+ *            as: '/usr/share/applications/cinnamon.desktop'
+ *
+ * @param2: sFileName
+ *    string, a file name
+ *    exmple: var sFileName = 'cinnamon.desktop';
+ *
+ * @param3: oEntries
+ *    object, this object indludes those entries that you want
+ *            to change in this desktop file.
+ *
+ *    example:
+ *    var oEntries =
+ *    {
+ *      Comment: Window management and application launching of Mac OX X,
+ *      NoDisplay: false
+ *    }
+ *
+ **/
+function writeDesktopFile(writeDesktopFileCb, sFileName, oEntries) {
+  console.log("Request handler 'writeDesktopFile' was called.");
+  desktopConf.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
+}
+exports.writeDesktopFile = writeDesktopFile;
+
+/** 
+ *
+ * THIS IS NOT AN API FOR APPLICATIONS, ONLY HERE FOR TEST
+ *
+ * @Method: findAllDesktopFiles
+ *    find all .desktop files in system
+ *
+ * @param: callback
+ *    @result
+ *    object, an array of all desktop file's full path
+ *
+ *    example:
+ *        [
+ *         "/usr/share/xfce4/helpers/urxvt.desktop",
+ *         "/usr/share/xfce4/helpers/lynx.desktop",
+ *         "/usr/share/xfce4/helpers/rodent.desktop",
+ *         "/usr/share/xfce4/helpers/icecat.desktop",
+ *         "/usr/share/xfce4/helpers/pcmanfm.desktop",
+ *         "/usr/share/xfce4/helpers/mozilla-browser.desktop",
+ *        ]
+ *
+ **/
+function findAllDesktopFiles(findAllDesktopFilesCb) {
+  console.log("Request handler 'findAllDesktopFiles' was called.");
+  desktopConf.findAllDesktopFiles(findAllDesktopFilesCb);
+}
+exports.findAllDesktopFiles = findAllDesktopFiles;
