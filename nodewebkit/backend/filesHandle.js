@@ -932,7 +932,7 @@ function initData(loadResourcesCb, resourcePath) {
 					}
 					if (isLoadEnd) {
 						isEndCallback();
-						console.log("endddddddddddddddddddddddddddddddddddddddddddddddddddd");
+						console.log("init des file end!!!");
 						commonDAO.createItems(oNewItems, function(result) {
 							console.log(result);
 							console.log("initData is end!!!");

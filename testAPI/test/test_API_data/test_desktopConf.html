@@ -17,146 +17,181 @@
   <script language=javascript>  
   WDC.startServer();//start server
 
-  function print(win,something){
-    if(typeof something == "object"){
+  function print(win, something) {
+    if (typeof something == "object") {
       win.document.write("{");
-      for(var k in something){
+      for (var k in something) {
         win.document.write(k);
         win.document.write(" : ");
-        print(win,something[k]);
+        print(win, something[k]);
         win.document.write(", ");
         win.document.write("<br/>");
       }
       win.document.write("}");
       win.document.write("<br/>");
-    }else{
+    } else {
       win.document.write(something);
     }
   }
 
-  function show(id){
+  function show(id) {
     var id_style = document.getElementById(id).style.cssText;
-    if(id_style == "display: inline;"){
+    if (id_style == "display: inline;") {
       document.getElementById(id).style.cssText = "display: none;";
-    }else if(id_style == "display: none;"){
+    } else if (id_style == "display: none;") {
       document.getElementById(id).style.cssText = "display: inline;";
-    }else{
+    } else {
       var win = window.open('');
-      win.document.write("div "+id+" display wrong!");
+      win.document.write("div " + id + " display wrong!");
     }
   }
 
-  function readThemeConfCb(result){
-    var win = window.open('');
-    win.document.write("test API readThemeConf()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function readThemeConfCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API readThemeConf()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_readThemeConf(readThemeConfCb){
-    WDC.requireAPI(['data'], function(data){
+
+  function test_readThemeConf(readThemeConfCb) {
+    WDC.requireAPI(['data'], function(data) {
       data.readThemeConf(readThemeConfCb);
     });
   }
 
-  function writeThemeConfCb(result){
-    var win = window.open('');
-    win.document.write("test API writeThemeConf()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function writeThemeConfCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API writeThemeConf()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_writeThemeConf(writeThemeConfCb){
-    WDC.requireAPI(['data'], function(data){
+
+  function test_writeThemeConf(writeThemeConfCb) {
+    WDC.requireAPI(['data'], function(data) {
       var oTheme = {
-        tast:"good",
-        this:"is",
-        only:"a",
-        test:"object",
-        modify:1
+        tast: "good",
+        this: "is",
+        only: "a",
+        test: "object",
+        modify: 1
       }
-      data.writeThemeConf(writeThemeConfCb,oTheme);
+      data.writeThemeConf(writeThemeConfCb, oTheme);
     });
   }
 
-  function readWidgetConfCb(result){
-    var win = window.open('');
-    win.document.write("test API readWidgetConf()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function readWidgetConfCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API readWidgetConf()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_readWidgetConf(readWidgetConfCb){
-    WDC.requireAPI(['data'], function(data){
+
+  function test_readWidgetConf(readWidgetConfCb) {
+    WDC.requireAPI(['data'], function(data) {
       data.readWidgetConf(readWidgetConfCb);
     });
   }
 
-  function writeWidgetConfCb(result){
-    var win = window.open('');
-    win.document.write("test API writeWidgetConf()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function writeWidgetConfCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API writeWidgetConf()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_writeWidgetConf(writeWidgetConfCb){
-    WDC.requireAPI(['data'], function(data){
+
+  function test_writeWidgetConf(writeWidgetConfCb) {
+    WDC.requireAPI(['data'], function(data) {
       var oTheme = {
-        tast:"good",
-        this:"is",
-        only:"a",
-        test:"object",
-        modify:1
+        tast: "good",
+        this: "is",
+        only: "a",
+        test: "object",
+        modify: 1
       }
-      data.writeWidgetConf(writeWidgetConfCb,oTheme);
+      data.writeWidgetConf(writeWidgetConfCb, oTheme);
     });
   }
 
-  function readDesktopFileCb(result){
-    var win = window.open('');
-    win.document.write("test API readDesktopFile()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function readDesktopFileCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API readDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_readDesktopFile(readDesktopFileCb){
-    WDC.requireAPI(['data'], function(data){
-      var sFileName = 'cinnamon';
-      data.readDesktopFile(readDesktopFileCb,sFileName);
+
+  function test_readDesktopFile(readDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFileName = 'thunderbird';
+      data.readDesktopFile(readDesktopFileCb, sFileName);
     });
   }
 
-  function writeDesktopFileCb(result){
-    var win = window.open('');
-    win.document.write("test API writeDesktopFile()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function writeDesktopFileCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API writeDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_writeDesktopFile(writeDesktopFileCb){
-    WDC.requireAPI(['data'], function(data){
+
+  function test_writeDesktopFile(writeDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
       var sFileName = 'cinnamon.desktop';
       var oEntries = {};
-      data.writeDesktopFile(writeDesktopFileCb,sFileName,oEntries);
+      data.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
     });
   }
 
-  function findAllDesktopFilesCb(result){
-    var win = window.open('');
-    win.document.write("test API findAllDesktopFiles()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
+  function findAllDesktopFilesCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var win = window.open('');
+      win.document.write("test API findAllDesktopFiles()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
   }
-  function test_findAllDesktopFiles(findAllDesktopFilesCb){
-    WDC.requireAPI(['data'], function(data){
+
+  function test_findAllDesktopFiles(findAllDesktopFilesCb) {
+    WDC.requireAPI(['data'], function(data) {
       var sFileName = 'cinnamon.desktop';
       var oEntries = {};
       data.findAllDesktopFiles(findAllDesktopFilesCb);
@@ -179,13 +214,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function readThemeConfCb(result){
+  function readThemeConfCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API readThemeConf()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_readThemeConf(readThemeConfCb){
     WDC.requireAPI(['data'], function(data){
@@ -209,13 +248,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function writeThemeConfCb(result){
+  function writeThemeConfCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API writeThemeConf()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_writeThemeConf(writeThemeConfCb){
     WDC.requireAPI(['data'], function(data){
@@ -240,13 +283,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function readWidgetConfCb(result){
+  function readWidgetConfCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API readWidgetConf()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_readWidgetConf(readWidgetConfCb){
     WDC.requireAPI(['data'], function(data){
@@ -270,13 +317,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function writeWidgetConfCb(result){
+  function writeWidgetConfCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API writeWidgetConf()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_writeWidgetConf(writeWidgetConfCb){
     WDC.requireAPI(['data'], function(data){
@@ -300,13 +351,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function readDesktopFileCb(result){
+  function readDesktopFileCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API readDesktopFile()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_readDesktopFile(readDesktopFileCb){
     WDC.requireAPI(['data'], function(data){
@@ -331,13 +386,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function writeDesktopFileCb(result){
+  function writeDesktopFileCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API writeDesktopFile()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_writeDesktopFile(writeDesktopFileCb){
     WDC.requireAPI(['data'], function(data){
@@ -358,13 +417,17 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function findAllDesktopFilesCb(result){
+  function findAllDesktopFilesCb(err,result){
+    if(err){
+      print(err);
+    }else{
     var win = window.open('');
     win.document.write("test API findAllDesktopFiles()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win,result)
+  };
   }
   function test_findAllDesktopFiles(findAllDesktopFilesCb){
     WDC.requireAPI(['data'], function(data){
