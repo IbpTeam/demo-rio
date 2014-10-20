@@ -239,7 +239,8 @@ function buildLocalDesktopFile(callback) {
  *    @result, (_err,result)
  *
  *    @param1: _err,
- *        string, contain error info
+ *        string, contain error info as below
+ *                read error  : "readThemeConf : read Theme config file error!"
  *
  *    @param2: result,
  *        object, the result in object
@@ -295,7 +296,9 @@ exports.readThemeConf = readThemeConf;
  *    @result, (_err,result)
  *
  *    @param1: _err,
- *        string, contain error info
+ *        string, contain error info as below
+ *                read error  : "writeThemeConf : read Theme.conf error!"
+ *                write error : "writeThemeConf : write Theme config file error!"
  *
  *    @param2: result,
  *        string, retrieve success when success
@@ -377,7 +380,8 @@ exports.writeThemeConf = writeThemeConf;
  *    @result, (_err,result)
  *
  *    @param1: _err,
- *        string, contain error info
+ *        string, contain error info as below
+ *                read error  : "readWidgetConf : read Theme config file error!"
  *
  *    @param2: result,
  *        object, the result in object
@@ -432,7 +436,9 @@ exports.readWidgetConf = readWidgetConf;
  *    @result, (_err,result)
  *
  *    @param1: _err,
- *        string, contain error info
+ *        string, contain error info as below
+ *                read error  : "writeWidgetConf : read Widget.conf error!"
+ *                write error : "writeWidgetConf : write Widget config file error!"
  *
  *    @param2: result,
  *        object, the result in object
@@ -496,9 +502,8 @@ function writeWidgetConf(callback, oWidget) {
       });
     })
   } else {
-    console.log("Not a linux system! Not supported now!")
+    console.log("Not a linux system! Not supported now!");
   }
-
 }
 exports.writeWidgetConf = writeWidgetConf;
 
@@ -506,9 +511,13 @@ exports.writeWidgetConf = writeWidgetConf;
  * @Method: readDesktopFile
  *   find a desktop file with name of sFilename
  *
- * @param1: callback
- *    @result
- *        object
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readDesktopFile : desktop file NOT FOUND!"
+ *                parse file error : "readDesktopFile : parse desktop file error!"
  *
  *    result example:
  *    {
@@ -569,9 +578,13 @@ exports.readDesktopFile = readDesktopFile;
  * @Method: parseDesktopFile
  *    parse Desktop File into json object
  *
- * @param1: sPath
- *    string, taget .desktop file path
- *            as: '/usr/share/applications/cinnamon.desktop'
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                parse file error : "parseDesktopFile : read desktop file error"
+ *                entry match error : "parseDesktopFile : desktop file entries not match!";
  *
  * @param2: callback
  *    @result
