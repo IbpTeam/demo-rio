@@ -628,7 +628,7 @@ function parseDesktopFile(callback, sPath) {
         console.log("read desktop file error");
         console.log(err);
         var _err = "parseDesktopFile : read desktop file error";
-        callback(_err,null);
+        callback(_err, null);
       } else {
         var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n/g; //match all string like [Desktop Entry]
         var desktopHeads = [];
@@ -636,11 +636,11 @@ function parseDesktopFile(callback, sPath) {
         data = data.replace(re, function() {
           var headEntry = (RegExp.lastMatch).toString();
           headEntry = headEntry.replace(/\n/g, "");
-          desktopHeads.push(headEntry);
+          desktopHeads.push(headEntry); //once get a match, strore it
           return "$";
         })
         data = data.split('$');
-        data.shift();
+        data.shift(); //the first element is a [""], remove it
         if (desktopHeads.length === data.length) {
           for (var i = 0; i < data.length; i++) {
             var lines = data[i].split('\n');
@@ -654,13 +654,13 @@ function parseDesktopFile(callback, sPath) {
             }
             oAllDesktop[desktopHeads[i]] = attr;
           }
-        }else{
+        } else {
           console.log("desktop file entries not match!");
           var _err = "parseDesktopFile : desktop file entries not match!";
-          callback(_err,null);
+          callback(_err, null);
         }
         console.log("Get desktop file success!");
-        callback(null,oAllDesktop);
+        callback(null, oAllDesktop);
       }
     });
   } else {
