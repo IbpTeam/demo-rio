@@ -99,10 +99,13 @@ function getnit(initType) {
 
 /** 
  * @Method: initConf
- *    init desktop config dir
+ *    init desktop config dir & files. Those files are all maintained in /.desktop 
+ *    including Theme.comf, Widget.conf, and all .desktop files. 
  *
  * @param: callback
- *    result as a json object
+ *        @result
+ *            string, retrieve 'success' when success
+ *
  **/
 function initConf(callback) {
   var systemType = os.type();
@@ -113,49 +116,59 @@ function initConf(callback) {
         console.log(err);
         return;
       }
-      var pathApp = path + "/application";
-      var pathDesk = path + "/desktop";
-      var pathDock = path + "/dock";
-      var pathTheme = path + "/Theme.conf";
-      var pathWidget = path + "/Widget.conf"
-
       var tmpThemw = getnit("theme");
-      var tmpWidget = getnit("widget");
+      var pathTheme = path + "/Theme.conf";
       var sItemTheme = JSON.stringify(tmpThemw, null, 4);
-      var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-
-
       fs.writeFile(pathTheme, sItemTheme, function(err) {
         if (err) {
           console.log("init Theme config file error!");
           console.log(err);
+          return;
         }
-        callback("success_init_theme");
-      });
-      fs.writeFile(pathWidget, sItemWidget, function(err) {
-        if (err) {
-          console.log("init Widget config file error!");
-          console.log(err);
-        }
-        callback("success_init_Widget");
-      });
-      fs.mkdir(pathApp, function(err) {
-        if (err) {
-          console.log(err);
-        }
-        callback("success_app");
-      });
-      fs.mkdir(pathDesk, function(err) {
-        if (err) {
-          console.log(err);
-        }
-        callback("success_desk");
-      });
-      fs.mkdir(pathDock, function(err) {
-        if (err) {
-          console.log(err);
-        }
-        callback("success_dock");
+        var tmpWidget = getnit("widget");
+        var pathWidget = path + "/Widget.conf";
+        var sItemWidget = JSON.stringify(tmpWidget, null, 4);
+        fs.writeFile(pathWidget, sItemWidget, function(err) {
+          if (err) {
+            console.log("init Widget config file error!");
+            console.log(err);
+            return;
+          }
+          var pathDesk = path + "/desktop";
+          fs.mkdir(pathDesk, function(err) {
+            if (err) {
+              console.log("init desktop config file error!");
+              console.log(err);
+              return;
+            }
+            var pathDock = path + "/dock";
+            fs.mkdir(pathDock, function(err) {
+              if (err) {
+                console.log("init dock config file error!");
+                console.log(err);
+                return;
+              }
+              var pathApp = path + "/application";
+              fs.mkdir(pathApp, function(err) {
+                if (err) {
+                  console.log("init application config file error!");
+                  console.log(err);
+                  return;
+                }
+
+                function buildLocalDesktopFileCb(result) {
+                  if (result === "success") {
+                    callback("success");
+                  } else {
+                    console.log("build desktop error");
+                    return;
+                  }
+                }
+                buildLocalDesktopFile(buildLocalDesktopFileCb);
+              });
+            });
+          });
+        });
       });
     })
   } else {
@@ -164,50 +177,59 @@ function initConf(callback) {
 }
 exports.initConf = initConf;
 
-/*
-//TODO:
-//This part is not completed,the logic needs to be modified.
 
+/** 
+ * @Method: buildHelper
+ *    only help buildLocalDesktopFile() to combine specif param, in order to 
+ *    make it have correct param
+ *
+ **/
 function buildHelper(callback, sAppPath, sOriginPath, isEnd) {
-  if (isEnd) {
-    console.log("endddddddddddddddddddddddddddddddddddddd");
-    callback("build desktop file end");
-  } else if (sOriginPath == "") {
+  if (sOriginPath === "") {
+    console.log("error : path is empty!");
     return;
-  }
-
-  function parseDesktopFileCb(attr) {
-    var sAttr = JSON.stringify(attr, null, 4);
-    var nameindex = sOriginPath.lastIndexOf('/');
-    var itemFilename = sOriginPath.substring(nameindex + 1, sOriginPath.length);
-    sAppPath = sAppPath + itemFilename;
-    fs.writeFile(sAppPath, sAttr, function(err) {
+  } else {
+    function fsCopyCb(err) {
       if (err) {
-        console.log("build desktop file error!");
         console.log(err);
+        console.log(sOriginPath)
+        return;
       }
-    })
+      if (isEnd) {
+        console.log('build local desktop file ends');
+        callback("success");
+      }
+    }
+    fs_extra.copy(sOriginPath, sAppPath + sOriginPath, fsCopyCb);
   }
-  parseDesktopFile(parseDesktopFileCb, sOriginPath);
 }
 
+/** 
+ * @Method: buildLocalDesktopFile
+ *    copy all .desktop file into local /.desktop for maintainace
+ *
+ * @param: callback
+ *    @result
+ *        string, retrive 'success' when success
+ *
+ **/
 function buildLocalDesktopFile(callback) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
-  var sAppPath = config.RESOURCEPATH + '/.desktop/application/';
+  console.log("==== start building local desktop files! ====");
+  var sAppPath = config.RESOURCEPATH + '/.desktop/application';
   var tag = 0;
 
   function findAllDesktopFilesCb(oAllDesktopFiles) {
     for (var i = 0; i < oAllDesktopFiles.length; i++) {
       var sOriginPath = oAllDesktopFiles[i];
       var isEnd = (tag == oAllDesktopFiles.length - 1);
-      console.log(oAllDesktopFiles.length + " : " + tag + " " + isEnd);
       buildHelper(callback, sAppPath, sOriginPath, isEnd);
       tag++;
     }
   }
   findAllDesktopFiles(findAllDesktopFilesCb);
-}*/
+}
 
 
 /** 
@@ -500,7 +522,8 @@ exports.readDesktopFile = readDesktopFile;
  *    parse Desktop File into json object
  *
  * @param1: sPath
- *    string, taget .desktop file path as: '/usr/share/applications/cinnamon.desktop'
+ *    string, taget .desktop file path 
+ *            as: '/usr/share/applications/cinnamon.desktop'
  *
  * @param2: callback
  *    @result
@@ -563,7 +586,8 @@ function parseDesktopFile(callback, sPath) {
  *
  * @param1: callback
  *    @result
- *    string, a full path string, as: '/usr/share/applications/cinnamon.desktop'
+ *    string, a full path string, 
+ *            as: '/usr/share/applications/cinnamon.desktop'
  *
  * @param2: sFileName
  *    string, a file name
@@ -644,7 +668,7 @@ function findAllDesktopFiles(callback) {
   if (systemType === "Linux") {
     var xdgDataDir = [];
     var exec = require('child_process').exec;
-    var oAllDesktop = [];
+    var sAllDesktop = "";
     exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
       if (err) {
         console.log(stderr)
@@ -658,6 +682,8 @@ function findAllDesktopFiles(callback) {
 
         function tryInThisPath(callback, index) {
           if (index == xdgDataDir.length) {
+            var oAllDesktop = sAllDesktop.split('\n');
+            oAllDesktop.pop();
             callback(oAllDesktop);
           } else {
             var sTarget = '*.desktop';
@@ -667,7 +693,7 @@ function findAllDesktopFiles(callback) {
                 console.log(err);
                 return;
               }
-              oAllDesktop = oAllDesktop.concat(stdout.split('\n'))
+              sAllDesktop = sAllDesktop + stdout;
               tryInThisPath(callback, index + 1);
             })
           }
