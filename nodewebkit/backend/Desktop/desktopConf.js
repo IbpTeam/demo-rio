@@ -467,7 +467,7 @@ exports.writeWidgetConf = writeWidgetConf;
  *    }
  *
  * @param2: sFileName
- *    string,name of target file ,suffix is required
+ *    string,name of target file ,suffix is not required
  *    example: var sFileName = 'cinnamon';
  *
  **/
