@@ -175,6 +175,7 @@ function initConf(callback) {
     console.log("Not a linux system! Not supported now!")
   }
 }
+exports.initConf = initConf;
 
 /** 
  * @Method: buildHelper
