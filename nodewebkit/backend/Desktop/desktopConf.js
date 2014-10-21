@@ -837,7 +837,8 @@ function findAllDesktopFiles(callback) {
             callback(oAllDesktop);
           } else {
             var sTarget = '*.desktop';
-            var sCommand = 'sudo find ' + xdgDataDir[index] + ' -name ' + sTarget;
+            var sBoundary = 'sudo find ' + xdgDataDir[index] + ' -name ';
+            var sCommand = sBoundary + sTarget;
             exec(sCommand, function(err, stdout, stderr) {
               if (err) {
                 console.log(stderr);
@@ -872,7 +873,7 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
  *                write error  : "writeDesktopFile : write desktop file error!"
  *                parse error  : "writeDesktopFile : parse desktop file error!"
  *                parse error  : "writeDesktopFile : deparse desktop file error!"
- *                input  error : "writeDesktopFile : entry content empty!" 
+ *                input  error : "writeDesktopFile : entry content empty!"
  *
  *    @param2: result
  *        string, retrieve 'success' when success
@@ -940,16 +941,16 @@ function writeDesktopFile(callback, sFileName, oEntries) {
             function deParseDesktopFileCb(err, result_deparse) {
               if (err) {
                 console.log(err);
-                var _err_deparse = "writeDesktopFile : deparse desktop file error!";
-                callback(_err_deparse, null);
+                var _err = "writeDesktopFile : deparse desktop file error!";
+                callback(_err, null);
               } else {
                 var sWritePath = result_find;
                 console.log(sWritePath);
                 fs.writeFile(sWritePath, result_deparse, function(err) {
                   if (err) {
                     console.log(err);
-                    var _err_write = "writeDesktopFile : write desktop file error!";
-                    callback(_err_write, null);
+                    var _err = "writeDesktopFile : write desktop file error!";
+                    callback(_err, null);
                   } else {
                     console.log("write file success!");
                     callback(null, "success");
@@ -972,4 +973,3 @@ function writeDesktopFile(callback, sFileName, oEntries) {
   }
 }
 exports.writeDesktopFile = writeDesktopFile;
-
