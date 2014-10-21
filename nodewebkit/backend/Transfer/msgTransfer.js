@@ -10,7 +10,7 @@
  * @version:0.2.1
  **/
 
-//var imchat = require("../IM/IMChat.js");
+var imchat = require("../IM/IMChatNoRSA.js");
 var config = require("../config");
 var repo = require("../FilesHandle/repo");
 //var fs = require("fs");
@@ -38,7 +38,7 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  //imchat.initIMServer(recieveMsgCb);
+  imchat.initIMServerNoRSA(recieveMsgCb);
 }
 
 function recieveMsgCb(msg){
@@ -46,7 +46,7 @@ function recieveMsgCb(msg){
   var oMessage = JSON.parse(msg);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
-      syncRequestCb(oMessage);
+      //syncRequestCb(oMessage);
     }
     break;
     case msgType.TYPE_RESPONSE: {
@@ -80,7 +80,7 @@ function sendMsg(device,msgObj){
   };
   var sMsgStr = JSON.stringify(msgObj);
   console.log("sendMsg-------------------------"+sMsgStr);
-  //imchat.sendMSGbyUID(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
+  imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
 }
 
 /**
