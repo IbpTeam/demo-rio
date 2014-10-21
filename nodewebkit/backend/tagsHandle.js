@@ -99,6 +99,7 @@ function getAllTagsByCategory(callback,category){
   function findItemsCb(err,items){
     if(err){
       console.log(err);
+      callback(null);
       return;
     }
     for(var k in items){
