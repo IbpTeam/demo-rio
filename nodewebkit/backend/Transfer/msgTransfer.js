@@ -10,10 +10,11 @@
  * @version:0.2.1
  **/
 
-var WebSocketServer = require('ws').Server;
-var WebSocket = require('ws');
-var config = require('../config');
+//var imchat = require("../IM/IMChat.js");
+var config = require("../config");
 var repo = require("../FilesHandle/repo");
+//var fs = require("fs");
+//var cp = require('child_process');
 
 // @Enum sync state
 var syncState = {
@@ -37,83 +38,61 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-/*  var server = new WebSocketServer({port: config.MSGPORT});
-  // Add listener on event connection.
-  server.on('connection',connServer);*/
+  //imchat.initIMServer(recieveMsgCb);
 }
 
-/**
- * @method connServer
- *    Callback on server connect.
- * @param socket
- *    Socket object.
- */
-function connServer(socket){
-  var sRemoteAddress = socket._socket.remoteAddress;
-  var sRemotePort = socket._socket.remotePort;
-  console.log('messages ' + sRemoteAddress + ' : ' + sRemotePort + ' connected!');
-
-  socket.on('message', function(sMessage) {
-    //console.log(sMessage)
-    console.log('data from :' + sRemoteAddress+ ': ' + sRemotePort+ ' ' + sMessage);
-    var oMessage = JSON.parse(sMessage);
-    console.log('data from :' + sRemoteAddress+ ': ' + sRemotePort+ ' ' + oMessage.type);
-
-    switch(oMessage.type){
+function recieveMsgCb(msg){
+  console.log("Receive message : " + msg);
+  var oMessage = JSON.parse(msg);
+  switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
-      syncRequestCb(oMessage, sRemoteAddress);
+      syncRequestCb(oMessage);
     }
     break;
     case msgType.TYPE_RESPONSE: {
       console.log("=========================================syncStart");
-      syncResponseCb(oMessage, sRemoteAddress);
+      //syncResponseCb(oMessage);
     }
     break;
     case msgType.TYPE_COMPLETE: {
-      syncCompleteCb(false, oMessage.isComplete,oMessage.deviceId,sRemoteAddress);
+      //syncCompleteCb(false, oMessage.isComplete,oMessage.deviceId,sRemoteAddress);
     }
     break;
     default: {
       console.log("this is in default switch on data");
-        //do version control stuff
-      }
     }
-  });
-
-  socket.on('close',function(){
-    console.log('Client ' + sRemoteAddress +  ' : ' + sRemotePort + ' disconnected!');
-  });
-
-  socket.on('error',function(err){
-    console.log('Unexpected Error!' + err);
-  });
+  }
 }
 
 /**
  * @method sendMsg
  *    Send msg to specific address.
- * @param address
- *    Specific ip address.
+ * @param device
+ *    Remote device info.
  * @param msgObj
  *    Message object.
  */
-function sendMsg(address,msgObj){
-  console.log("--------------------------"+address);
-  if (address == config.SERVERIP) {
-    console.log("Input IP is localhost!");
-    return;
+function sendMsg(device,msgObj){
+  var account = device.account;
+  var ipset = {
+    IP:device.ip,
+    UID:device.device_id
   };
-  var msgStr = JSON.stringify(msgObj);
-  var socket = new WebSocket('http://'+address+':'+config.MSGPORT);
+  var sMsgStr = JSON.stringify(msgObj);
+  console.log("sendMsg-------------------------"+sMsgStr);
+  //imchat.sendMSGbyUID(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
+}
 
-  socket.on('open', function() {
-    console.log("SEND MSG +++++++++++++++++++++++++++++++++"+msgStr);
-    socket.send(msgStr);
-  });
-  socket.on('error',function(err){
-    console.log("Error: "+err.code+" on "+err.syscall+" !  IP : " + address);
-    socket.close();
-  });
+/**
+ * @method sendMsgCb
+ *    Received from remote when message arrived.
+ * @param msg
+ *    Message string.
+ */
+function sendMsgCb(msg){
+  // TO-DO
+  // Right now, this callback do nothing, may be set it null.
+  console.log("[Send message successfull] + Msg : " + msg);
 }
 
 /**
@@ -124,15 +103,16 @@ function sendMsg(address,msgObj){
  */
 exports.serviceUpCb = function(device){
   var sDeviceId = device.device_id;
+  var sDeviceIp = device.ip;
   //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
   //  return;
-  if(sDeviceId != "b5faa74f5f2e85972642943f5b07b83c"){
+  if(sDeviceId != "Linux Mint"){
     console.log("device id :=================== " + sDeviceId);
     return;
   }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
-      syncList.unshift(sDeviceId);
+      syncList.unshift(device);
       requestMsg = {
         type:msgType.TYPE_REQUEST,
         ip:config.SERVERIP,
@@ -140,21 +120,20 @@ exports.serviceUpCb = function(device){
         account:config.ACCOUNT,
         deviceId:config.uniqueID
       };
-      console.log("SERVER UP CB-------------------------"+device.ip);
-      sendMsg(device.ip,requestMsg);
-      //iCurrentState = syncState.SYNC_REQUEST;
+      sendMsg(device,requestMsg);
+      iCurrentState = syncState.SYNC_REQUEST;
       break;
     }
     case syncState.SYNC_REQUEST:{
-      syncList.push(sDeviceId);
+      syncList.push(device);
       break;
     }
     case syncState.SYNC_START:{
-      syncList.push(sDeviceId);
+      syncList.push(device);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      syncList.push(sDeviceId);
+      syncList.push(device);
       break;
     }
   }
@@ -168,7 +147,7 @@ exports.serviceUpCb = function(device){
  * @param remoteAddress
  *    Remote device ip.
  */
-function syncRequestCb(msgObj,remoteAddress){
+function syncRequestCb(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       var responseMsg = {
@@ -217,7 +196,7 @@ function syncRequestCb(msgObj,remoteAddress){
  * @param remoteAddress
  *    Remote device ip.
  */
-function syncResponseCb(msgObj,remoteAddress){
+function syncResponseCb(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       console.log("SYNC ERROR: current state is not request!");
