@@ -779,7 +779,7 @@ function findDesktopFile(callback, sFileName) {
       }
       if (stdout == '') {
         console.log('Not Found!');
-        //callback("Not found");
+        callback("Not found");
       } else {
         var result = stdout.split('\n');
         callback(result[0]);
