@@ -13,8 +13,9 @@
 var imchat = require("../IM/IMChatNoRSA.js");
 var config = require("../config");
 var repo = require("../FilesHandle/repo");
-//var fs = require("fs");
-//var cp = require('child_process');
+var fs = require("fs");
+var cp = require("child_process");
+var path = require("path");
 
 // @Enum sync state
 var syncState = {
@@ -29,6 +30,11 @@ var msgType = {
   TYPE_RESPONSE:"syncResponse",
   TYPE_COMPLETE:"syncComplete"
 };
+
+// @const
+var SSH_DIR = ".ssh";
+var PRI_KEY = "rio_rsa";
+var PUB_KEY = "rio_rsa.pub";
 
 var iCurrentState = syncState.SYNC_IDLE;
 var syncList = new Array();
@@ -96,6 +102,85 @@ function sendMsgCb(msg){
 }
 
 /**
+ * @method checkPubKey
+ *    Check if the specific key file exists.
+ * @param callback
+ *    The callback is passed one argument true/false, where pub key is/isn't exists.
+ */
+function checkPubKey(callback){
+  //Get env HOME path
+  var sHomePath = process.env['HOME'];
+  var sSshDir = path.join(sHomePath,SSH_DIR);
+  var sPriKeyPath = path.join(sSshDir,PRI_KEY);
+  var sPubKeyPath = path.join(sSshDir,PUB_KEY);
+
+  fs.exists(sSshDir,function(isDirExists){
+    if(!isDirExists){
+      callback(false);
+      return;
+    }
+    //ssh以私钥为准，当私钥存在公钥不存在时，再次创建会提示重写信息；当私钥不存在时，不提示重写信息。
+    fs.exists(sPriKeyPath,function(isPriExists){
+      if(!isPriExists){
+        callback(false);
+        return;
+      }
+      fs.exists(sPubKeyPath,function(isPubExists){
+        if(!isPubExists){
+          //remove private key file
+          fs.unlink(sPriKeyPath,function(err){
+            if(err)
+              console.log(err);
+            callback(false);
+          });
+          return;
+        }
+        callback(true);
+      });
+    });
+  });
+}
+
+/**
+ * @method readPubKeyFile
+ *    Read pub key file, get pub key string.
+ * @param callback
+ *    This callback is passed one argument: ssh pubkey string.
+ */
+function readPubKeyFile(callback){
+  var sPubKeyPath = path.join(process.env['HOME'],SSH_DIR,PUB_KEY);
+  fs.readFile(sPubKeyPath,function(err,data){
+    if(err)
+      console.log(err);
+    callback(data.toString());
+  });
+}
+
+/**
+ * @method getPubKey
+ *    Check pub key and get pub key string.
+ *    If the ssh key is not exists, generate it.
+ * @param callback
+ *    This callback is passed one argument: ssh pubkey string.
+ */
+function getPubKey(callback){
+  //If ssh pub key is not exist, run ssh-keygen to generate first.
+  checkPubKey(function(isPubKeyExist){
+    if(!isPubKeyExist){
+      var sPriKeyPath = path.join(process.env['HOME'],SSH_DIR,PRI_KEY);
+      var sCommandStr = "ssh-keygen -t rsa -P '' -f '" + sPriKeyPath + "'";
+      cp.exec(sCommandStr,function(err,stdout,stderr){
+        if(err)
+          console.log(err);
+        readPubKeyFile(callback);
+      });
+      return;
+    }
+    readPubKeyFile(callback);
+  });
+}
+
+/**
  * @method serviceUpCb
  *    Service up callback.
  * @param device
@@ -112,16 +197,18 @@ exports.serviceUpCb = function(device){
   }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
-      syncList.unshift(device);
-      requestMsg = {
-        type:msgType.TYPE_REQUEST,
-        ip:config.SERVERIP,
-        path:config.RESOURCEPATH,
-        account:config.ACCOUNT,
-        deviceId:config.uniqueID
-      };
-      sendMsg(device,requestMsg);
-      iCurrentState = syncState.SYNC_REQUEST;
+      getPubKey(function(pubKeyStr){
+        syncList.unshift(device);
+        requestMsg = {
+          type:msgType.TYPE_REQUEST,
+          ip:config.SERVERIP,
+          path:config.RESOURCEPATH,
+          account:config.ACCOUNT,
+          deviceId:config.uniqueID
+        };
+        //sendMsg(device,requestMsg);
+        iCurrentState = syncState.SYNC_REQUEST;
+      });
       break;
     }
     case syncState.SYNC_REQUEST:{
