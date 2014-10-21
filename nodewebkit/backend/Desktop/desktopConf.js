@@ -18,6 +18,8 @@ var resourceRepo = require("../FilesHandle/repo");
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
+var fs_extra = require('fs-extra');
+
 
 function newInit(initType) {
   var initTheme = {
@@ -97,110 +99,136 @@ function getnit(initType) {
 
 /** 
  * @Method: initConf
- *    init desktop config dir
+ *    init desktop config dir & files. Those files are all maintained in /.desktop
+ *    including Theme.comf, Widget.conf, and all .desktop files.
  *
  * @param: callback
- *    result as a json object
+ *        @result
+ *            string, retrieve 'success' when success
+ *
  **/
 function initConf(callback) {
-  var path = config.RESOURCEPATH + "/.desktop";
-  fs.mkdir(path, function(err) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var pathApp = path + "/application";
-    var pathDesk = path + "/desktop";
-    var pathDock = path + "/dock";
-    var pathTheme = path + "/Theme.conf";
-    var pathWidget = path + "/Widget.conf"
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var path = config.RESOURCEPATH + "/.desktop";
+    fs.mkdir(path, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      var tmpThemw = getnit("theme");
+      var pathTheme = path + "/Theme.conf";
+      var sItemTheme = JSON.stringify(tmpThemw, null, 4);
+      fs.writeFile(pathTheme, sItemTheme, function(err) {
+        if (err) {
+          console.log("init Theme config file error!");
+          console.log(err);
+          return;
+        }
+        var tmpWidget = getnit("widget");
+        var pathWidget = path + "/Widget.conf";
+        var sItemWidget = JSON.stringify(tmpWidget, null, 4);
+        fs.writeFile(pathWidget, sItemWidget, function(err) {
+          if (err) {
+            console.log("init Widget config file error!");
+            console.log(err);
+            return;
+          }
+          var pathDesk = path + "/desktop";
+          fs.mkdir(pathDesk, function(err) {
+            if (err) {
+              console.log("init desktop config file error!");
+              console.log(err);
+              return;
+            }
+            var pathDock = path + "/dock";
+            fs.mkdir(pathDock, function(err) {
+              if (err) {
+                console.log("init dock config file error!");
+                console.log(err);
+                return;
+              }
+              var pathApp = path + "/applications";
+              fs.mkdir(pathApp, function(err) {
+                if (err) {
+                  console.log("init application config file error!");
+                  console.log(err);
+                  return;
+                }
 
-    var tmpThemw = getnit("theme");
-    var tmpWidget = getnit("widget");
-    var sItemTheme = JSON.stringify(tmpThemw, null, 4);
-    var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-
-
-    fs.writeFile(pathTheme, sItemTheme, function(err) {
-      if (err) {
-        console.log("init Theme config file error!");
-        console.log(err);
-      }
-      callback("success_init_theme");
-    });
-    fs.writeFile(pathWidget, sItemWidget, function(err) {
-      if (err) {
-        console.log("init Widget config file error!");
-        console.log(err);
-      }
-      callback("success_init_Widget");
-    });
-    fs.mkdir(pathApp, function(err) {
-      if (err) {
-        console.log(err);
-      }
-      callback("success_app");
-    });
-    fs.mkdir(pathDesk, function(err) {
-      if (err) {
-        console.log(err);
-      }
-      callback("success_desk");
-    });
-    fs.mkdir(pathDock, function(err) {
-      if (err) {
-        console.log(err);
-      }
-      callback("success_dock");
-    });
-  })
+                function buildLocalDesktopFileCb(result) {
+                  if (result === "success") {
+                    callback("success");
+                  } else {
+                    console.log("build desktop error");
+                    return;
+                  }
+                }
+                buildLocalDesktopFile(buildLocalDesktopFileCb);
+              });
+            });
+          });
+        });
+      });
+    })
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
 }
 exports.initConf = initConf;
 
-/*
-//TODO:
-//This part is not completed,the logic needs to be modified.
-
+/** 
+ * @Method: buildHelper
+ *    only help buildLocalDesktopFile() to combine specif param, in order to
+ *    make it have correct param in a loop
+ *
+ **/
 function buildHelper(callback, sAppPath, sOriginPath, isEnd) {
-  if (isEnd) {
-    console.log("endddddddddddddddddddddddddddddddddddddd");
-    callback("build desktop file end");
-  } else if (sOriginPath == "") {
+  if (sOriginPath === "") {
+    console.log("error : path is empty!");
     return;
-  }
-
-  function parseDesktopFileCb(attr) {
-    var sAttr = JSON.stringify(attr, null, 4);
-    var nameindex = sOriginPath.lastIndexOf('/');
-    var itemFilename = sOriginPath.substring(nameindex + 1, sOriginPath.length);
-    sAppPath = sAppPath + itemFilename;
-    fs.writeFile(sAppPath, sAttr, function(err) {
+  } else {
+    function fsCopyCb(err) {
       if (err) {
-        console.log("build desktop file error!");
         console.log(err);
+        console.log(sOriginPath)
+        return;
       }
-    })
+      if (isEnd) {
+        console.log('build local desktop file ends');
+        callback("success");
+      }
+    }
+    fs_extra.copy(sOriginPath, sAppPath + sOriginPath, fsCopyCb);
   }
-  parseDesktopFile(parseDesktopFileCb, sOriginPath);
 }
 
+/** 
+ * @Method: buildLocalDesktopFile
+ *    copy all .desktop file into local /.desktop for maintainace
+ *
+ * @param: callback
+ *    @result
+ *        string, retrive 'success' when success
+ *
+ **/
 function buildLocalDesktopFile(callback) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
-  var sAppPath = config.RESOURCEPATH + '/.desktop/application/';
+  console.log("==== start building local desktop files! ====");
+  var sAppPath = config.RESOURCEPATH + '/.desktop/applications';
   var tag = 0;
 
   function findAllDesktopFilesCb(oAllDesktopFiles) {
     for (var i = 0; i < oAllDesktopFiles.length; i++) {
       var sOriginPath = oAllDesktopFiles[i];
       var isEnd = (tag == oAllDesktopFiles.length - 1);
-      console.log(oAllDesktopFiles.length + " : " + tag + " " + isEnd);
       buildHelper(callback, sAppPath, sOriginPath, isEnd);
       tag++;
     }
   }
   findAllDesktopFiles(findAllDesktopFilesCb);
-}*/
+}
 
 
 /** 
@@ -208,10 +236,16 @@ function buildLocalDesktopFile(callback) {
  *    read file Theme.conf
  *
  * @param: callback
- *    @result
- *        object
+ *    @result, (_err,result)
  *
- *    result example:
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readThemeConf : read Theme config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
+ *
+ *    object example:
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -232,27 +266,42 @@ function buildLocalDesktopFile(callback) {
  *
  **/
 function readThemeConf(callback) {
-  var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
-  fs.readFile(ThemeConfPath, 'utf8', function(err, data) {
-    if (err) {
-      console.log("read Theme config file error!");
-      console.log(err);
-      return;
-    } else {
-      var json = JSON.parse(data);
-      callback(json);
-    }
-  });
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
+    fs.readFile(ThemeConfPath, 'utf8', function(err, data) {
+      if (err) {
+        console.log("read Theme config file error!");
+        console.log(err);
+        var _err = "readThemeConf : read Theme config file error!";
+        callback(_err, null);
+      } else {
+        var json = JSON.parse(data);
+        callback(null, json);
+      }
+    });
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
 }
 exports.readThemeConf = readThemeConf;
+
+
 
 /** 
  * @Method: writeThemeConf
  *    modify file Theme.conf
  *
  * @param: callback
- *      @result
- *      string, retrive "success" when success
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "writeThemeConf : read Theme.conf error!"
+ *                write error : "writeThemeConf : write Theme config file error!"
+ *
+ *    @param2: result,
+ *        string, retrieve success when success
  *
  * @param: oTheme
  *    object, only content that needs to be modified
@@ -280,38 +329,46 @@ exports.readThemeConf = readThemeConf;
  *
  **/
 function writeThemeConf(callback, oTheme) {
-  var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
-  var path = config.RESOURCEPATH + "/.desktop";
-  fs.readFile(ThemeConfPath, 'utf-8', function(err, data) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var oData = JSON.parse(data);
-    for (var k in oTheme) {
-      oData[k] = oTheme[k];
-    }
-    var sTheme = JSON.stringify(oData, null, 4);
-    fs.writeFile(ThemeConfPath, sTheme, function(err) {
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
+    var path = config.RESOURCEPATH + "/.desktop";
+    fs.readFile(ThemeConfPath, 'utf-8', function(err, data) {
       if (err) {
-        console.log("write Theme config file error!");
         console.log(err);
-      } else {
-        var currentTime = (new Date());
-        config.riolog("time: " + currentTime);
-        var attrs = {
-          lastAccessTime: currentTime,
-          lastModifyTime: currentTime,
-          lastAccessDev: config.uniqueID
-        }
-        var chItem = ThemeConfPath;
-        var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
-        dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-          callback("success");
-        });
+        var _err = "writeThemeConf : read Theme.conf error!";
+        callback(_err, null);
       }
-    });
-  })
+      var oData = JSON.parse(data);
+      for (var k in oTheme) {
+        oData[k] = oTheme[k];
+      }
+      var sThemeModified = JSON.stringify(oData, null, 4);
+      fs.writeFile(ThemeConfPath, sThemeModified, function(err) {
+        if (err) {
+          console.log("write Theme config file error!");
+          console.log(err);
+          var _err = "writeThemeConf : write Theme config file error!";
+          callback(_err, null);
+        } else {
+          var currentTime = (new Date());
+          config.riolog("time: " + currentTime);
+          var attrs = {
+            lastAccessTime: currentTime,
+            lastModifyTime: currentTime,
+            lastAccessDev: config.uniqueID
+          }
+          var chItem = ThemeConfPath;
+          var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+          dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+            callback(null, "success");
+          });
+        }
+      });
+    })
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
 }
 exports.writeThemeConf = writeThemeConf;
 
@@ -320,8 +377,14 @@ exports.writeThemeConf = writeThemeConf;
  *    read file Widget.conf
  *
  * @param: callback
- *    @restult
- *        object
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readWidgetConf : read Theme config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
  *
  *    result example:
  *    {
@@ -344,18 +407,24 @@ exports.writeThemeConf = writeThemeConf;
  *
  **/
 function readWidgetConf(callback) {
-  var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
-  fs.readFile(WidgetConfPath, 'utf8', function(err, data) {
-    if (err) {
-      console.log("read Theme config file error!");
-      console.log(err);
-      return;
-    } else {
-      var oJson = JSON.parse(data);
-      console.log(oJson);
-      callback(oJson);
-    }
-  });
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+    fs.readFile(WidgetConfPath, 'utf8', function(err, data) {
+      if (err) {
+        console.log("read Theme config file error!");
+        console.log(err);
+        var _err = "readWidgetConf : read Theme config file error!";
+        callback(_err, null);
+      } else {
+        var oJson = JSON.parse(data);
+        callback(null, oJson);
+      }
+    });
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
+
 }
 exports.readWidgetConf = readWidgetConf;
 
@@ -364,47 +433,77 @@ exports.readWidgetConf = readWidgetConf;
  *    modify file Theme.conf
  *
  * @param: callback
- *    @result
- *        string, Retrive "success" when success
+ *    @result, (_err,result)
  *
- * @param: oTheme
- *    object, content of Widget.conf after modified
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "writeWidgetConf : read Widget.conf error!"
+ *                write error : "writeWidgetConf : write Widget config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
+ *
+ *    result example:
+ *    {
+ *       "icontheme": {
+ *           "name": "Mint-X",
+ *           "active": true,
+ *           "icon": null,
+ *           "path": "$HOME",
+ *           "id": "computer",
+ *           "pos": {
+ *               "x": null,
+ *               "y": null
+ *           }
+ *       },
+ *     "computer": {
+ *           ...
+ *           }
+ *          ...
+ *    }
  *
  **/
 function writeWidgetConf(callback, oWidget) {
-  var sWidget = JSON.stringify(oWidget, null, 4);
-  var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
-  var path = config.RESOURCEPATH + "/.desktop";
-  fs.readFile(WidgetConfPath, 'utf-8', function(err, data) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var oData = JSON.parse(data);
-    for (var k in oWidget) {
-      oData[k] = oWidget[k];
-    }
-    var sWidget = JSON.stringify(oData, null, 4);
-    fs.writeFile(WidgetConfPath, sWidget, function(err) {
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+    var path = config.RESOURCEPATH + "/.desktop";
+    fs.readFile(WidgetConfPath, 'utf-8', function(err, data) {
       if (err) {
-        console.log("write Widget config file error!");
         console.log(err);
-      } else {
-        var currentTime = (new Date());
-        config.riolog("time: " + currentTime);
-        var attrs = {
-          lastAccessTime: currentTime,
-          lastModifyTime: currentTime,
-          lastAccessDev: config.uniqueID
-        }
-        var chItem = WidgetConfPath;
-        var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
-        dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-          callback("success");
-        });
+        var _err = "writeWidgetConf : read Widget.conf error!";
+        callback(_err, null);
       }
-    });
-  })
+      var oData = JSON.parse(data);
+      for (var k in oWidget) {
+        oData[k] = oWidget[k];
+      }
+      var sWidgetModfied = JSON.stringify(oData, null, 4);
+      fs.writeFile(WidgetConfPath, sWidgetModfied, function(err) {
+        if (err) {
+          console.log("write Widget config file error!");
+          console.log(err);
+          var _err = "writeWidgetConf : write Widget config file error!";
+          callback(_err, null);
+        } else {
+          var currentTime = (new Date());
+          config.riolog("time: " + currentTime);
+          var attrs = {
+            lastAccessTime: currentTime,
+            lastModifyTime: currentTime,
+            lastAccessDev: config.uniqueID
+          }
+          var chItem = WidgetConfPath;
+          var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+          dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+            callback(null, "success");
+          });
+        }
+      });
+    })
+  } else {
+    console.log("Not a linux system! Not supported now!");
+  }
 }
 exports.writeWidgetConf = writeWidgetConf;
 
@@ -412,9 +511,13 @@ exports.writeWidgetConf = writeWidgetConf;
  * @Method: readDesktopFile
  *   find a desktop file with name of sFilename
  *
- * @param1: callback
- *    @result
- *        object
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readDesktopFile : desktop file NOT FOUND!"
+ *                parse file error : "readDesktopFile : parse desktop file error!"
  *
  *    result example:
  *    {
@@ -436,24 +539,38 @@ exports.writeWidgetConf = writeWidgetConf;
  *    }
  *
  * @param2: sFileName
- *    string,name of target file
- *    example: var sFileName = 'cinnamon.desktop';
+ *    string,name of target file ,suffix is not required
+ *    example: var sFileName = 'cinnamon';
  *
  **/
 function readDesktopFile(callback, sFileName) {
-  function findDesktopFileCb(result) {
-    if (result === "Not found" || result == "") {
-      console.log("desktop file NOT FOUND!");
-      return;
-    } else {
-      function parseDesktopFileCb(attr) {
-        callback(attr);
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    function findDesktopFileCb(result) {
+      if (result === "Not found" || result == "") {
+        console.log("desktop file NOT FOUND!");
+        var _err = "readDesktopFile : desktop file NOT FOUND!"
+        callback(_err, null);
+      } else {
+        function parseDesktopFileCb(err, attr) {
+          if (err) {
+            console.log(err);
+            var _err = "readDesktopFile : parse desktop file error!"
+            callback(_err, null);
+          } else {
+            callback(null, attr);
+          }
+        }
+        var sPath = result;
+        parseDesktopFile(parseDesktopFileCb, sPath);
       }
-      var sPath = result;
-      parseDesktopFile(parseDesktopFileCb, sPath);
     }
+    var sFullName = sFileName + ".desktop";
+    findDesktopFile(findDesktopFileCb, sFullName)
+  } else {
+    console.log("Not a linux system! Not supported now!")
   }
-  findDesktopFile(findDesktopFileCb, sFileName)
+
 }
 exports.readDesktopFile = readDesktopFile;
 
@@ -461,66 +578,106 @@ exports.readDesktopFile = readDesktopFile;
  * @Method: parseDesktopFile
  *    parse Desktop File into json object
  *
- * @param1: sPath
- *    string, taget .desktop file path as: '/usr/share/applications/cinnamon.desktop'
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                parse file error : "parseDesktopFile : read desktop file error"
+ *                entry match error : "parseDesktopFile : desktop file entries not match!";
  *
  * @param2: callback
  *    @result
  *        object
  *
  *    result example:
- *    {
- *      Type: Application
- *      Name: Cinnamon
- *      Comment: Window management and application launching
- *      Exec: /usr/bin / cinnamon - launcher
- *      X - GNOME - Bugzilla - Bugzilla: GNOME
- *      X - GNOME - Bugzilla - Product: cinnamon
- *      X - GNOME - Bugzilla - Component: general
- *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;GTK;System;Core;
- *      OnlyShowIn: GNOME;
- *      NoDisplay: true
- *      X - GNOME - Autostart - Phase: WindowManager
- *      X - GNOME - Provides: panel;windowmanager;
- *      X - GNOME - Autostart - Notify: true
- *      X - GNOME - AutoRestart: true
+ *  {
+ *
+ *    [Desktop Entry]:{
+ *        Type: Application
+ *        Name: Cinnamon
+ *        Comment: Window management and application launching
+ *        Exec: /usr/bin / cinnamon - launcher
+ *        X - GNOME - Bugzilla - Bugzilla: GNOME
+ *        X - GNOME - Bugzilla - Product: cinnamon
+ *        X - GNOME - Bugzilla - Component: general
+ *        X - GNOME - Bugzilla - Version: 1.8.8
+ *        Categories: GNOME;GTK;System;Core;
+ *        OnlyShowIn: GNOME;
+ *        NoDisplay: true
+ *        X - GNOME - Autostart - Phase: WindowManager
+ *        X - GNOME - Provides: panel;windowmanager;
+ *        X - GNOME - Autostart - Notify: true
+ *        X - GNOME - AutoRestart: true
+ *    },
+ *    [Desktop Action Compose]:{
+ *              ...
  *    }
+ *          ...
+ *  }
  *
  *
  **/
 function parseDesktopFile(callback, sPath) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
-
-  fs.readFile(sPath, 'utf-8', function(err, data) {
-    if (err) {
-      console.log("read desktop file error");
-      console.log(err);
-      return;
-    } else {
-      data = data.replace(/[\[]{1}[a-z, ,A-Z]*\]{1}\n/g, '$').split('$');
-      var lines = data[1].split('\n');
-      var attr = {};
-      for (var i = 0; i < lines.length - 1; ++i) {
-        var tmp = lines[i].split('=');
-        attr[tmp[0]] = tmp[1];
-        for (var j = 2; j < tmp.length; j++)
-          attr[tmp[0]] += '=' + tmp[j];
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    fs.readFile(sPath, 'utf-8', function(err, data) {
+      if (err) {
+        console.log("read desktop file error");
+        console.log(err);
+        var _err = "parseDesktopFile : read desktop file error";
+        callback(_err, null);
+      } else {
+        var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n/g; //match all string like [Desktop Entry]
+        var desktopHeads = [];
+        var oAllDesktop = {};
+        data = data.replace(re, function() {
+          var headEntry = (RegExp.lastMatch).toString();
+          headEntry = headEntry.replace(/\n/g, "");
+          desktopHeads.push(headEntry); //once get a match, strore it
+          return "$";
+        })
+        data = data.split('$');
+        data.shift(); //the first element is a [""], remove it
+        if (desktopHeads.length === data.length) {
+          for (var i = 0; i < data.length; i++) {
+            var lines = data[i].split('\n');
+            var attr = {};
+            for (var j = 0; j < lines.length - 1; ++j) {
+              var tmp = lines[j].split('=');
+              attr[tmp[0]] = tmp[1];
+              for (var k = 2; k < tmp.length; k++) {
+                attr[tmp[0]] += '=' + tmp[k];
+              }
+            }
+            oAllDesktop[desktopHeads[i]] = attr;
+          }
+        } else {
+          console.log("desktop file entries not match!");
+          var _err = "parseDesktopFile : desktop file entries not match!";
+          callback(_err, null);
+        }
+        console.log("Get desktop file success!");
+        callback(null, oAllDesktop);
       }
-      console.log("Get desktop file successfully");
-      callback(attr);
-    }
-  });
+    });
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
 }
+
 
 /** 
  * @Method: findDesktopFile
- *    find a desktop file with name of sFilename
+ *    To find a desktop file with name of sFilename. Since we maintain all .desktopfile
+ *    here, the searching path would be /.desktop/applications.
  *
  * @param1: callback
  *    @result
- *    string, a full path string, as: '/usr/share/applications/cinnamon.desktop'
+ *    string, a full path string,
+ *            as: '/usr/share/applications/cinnamon.desktop'
  *
  * @param2: sFileName
  *    string, a file name
@@ -530,48 +687,33 @@ function parseDesktopFile(callback, sPath) {
 function findDesktopFile(callback, sFileName) {
   if (typeof callback !== 'function')
     throw 'Bad type for callback';
-  var xdgDataDir = [];
-  var exec = require('child_process').exec;
-  exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
-    if (err) {
-      console.log(stderr)
-      console.log(err);
-      return;
-    } else {
-      xdgDataDir = stdout.substr(0, stdout.length - 1).split(':');
-      for (var i = 0; i < xdgDataDir.length; ++i) {
-        xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var xdgDataDir = [];
+    var exec = require('child_process').exec;
+    var sCommand = 'find ' + config.RESOURCEPATH + '/.desktop/applications -name ' + sFileName;
+    exec(sCommand, function(err, stdout, stderr) {
+      if (err) {
+        console.log(stderr);
+        console.log(err);
+        return;
       }
-
-      function tryInThisPath(callback, index) {
-        if (index == xdgDataDir.length) {
-          callback('Not found');
-          return;
-        }
-
-        exec('sudo find ' + xdgDataDir[index] + ' -name ' + sFileName, function(err, stdout, stderr) {
-          if (err) {
-            console.log(stderr);
-            console.log(err);
-            return;
-          }
-          if (stdout == '') {
-            tryInThisPath(callback, index + 1);
-          } else {
-            console.log('find ' + xdgDataDir[index] + ' -name ' + sFileName)
-            var result = stdout.split('\n');
-            callback(result[0]);
-          }
-        })
-      };
-      tryInThisPath(callback, 0);
-    }
-  })
+      if (stdout == '') {
+        console.log('Not Found!');
+      } else {
+        var result = stdout.split('\n');
+        callback(result[0]);
+      }
+    })
+  } else {
+    console.log("Not a linux system! Not supported now!");
+  }
 }
 
 /** 
  * @Method: findAllDesktopFiles
- *    find all .desktop files in system
+ *    To find all .desktop files from system. First, it would echo $XDG_DATA_DIRS
+ *    to get all related dirs. Then sreacing in those dirs.
  *
  * @param: callback
  *    @result
@@ -591,39 +733,47 @@ function findDesktopFile(callback, sFileName) {
 function findAllDesktopFiles(callback) {
   if (typeof callback !== 'function')
     throw 'Bad type for callback';
-  var xdgDataDir = [];
-  var exec = require('child_process').exec;
-  var oAllDesktop = [];
-  exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
-    if (err) {
-      console.log(stderr)
-      console.log(err);
-      return;
-    } else {
-      xdgDataDir = stdout.substr(0, stdout.length - 1).split(':');
-      for (var i = 0; i < xdgDataDir.length; ++i) {
-        xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
-      }
-
-      function tryInThisPath(callback, index) {
-        if (index == xdgDataDir.length) {
-          callback(oAllDesktop);
-        } else {
-          var sTarget = '*.desktop';
-          exec('sudo find ' + xdgDataDir[index] + ' -name ' + sTarget, function(err, stdout, stderr) {
-            if (err) {
-              console.log(stderr);
-              console.log(err);
-              return;
-            }
-            oAllDesktop = oAllDesktop.concat(stdout.split('\n'))
-            tryInThisPath(callback, index + 1);
-          })
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var xdgDataDir = [];
+    var exec = require('child_process').exec;
+    var sAllDesktop = "";
+    exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
+      if (err) {
+        console.log(stderr)
+        console.log(err);
+        return;
+      } else {
+        xdgDataDir = stdout.substr(0, stdout.length - 1).split(':');
+        for (var i = 0; i < xdgDataDir.length; ++i) {
+          xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
         }
-      };
-      tryInThisPath(callback, 0);
-    }
-  })
+
+        function tryInThisPath(callback, index) {
+          if (index == xdgDataDir.length) {
+            var oAllDesktop = sAllDesktop.split('\n');
+            oAllDesktop.pop();
+            callback(oAllDesktop);
+          } else {
+            var sTarget = '*.desktop';
+            var sCommand = 'sudo find ' + xdgDataDir[index] + ' -name ' + sTarget;
+            exec(sCommand, function(err, stdout, stderr) {
+              if (err) {
+                console.log(stderr);
+                console.log(err);
+                return;
+              }
+              sAllDesktop = sAllDesktop + stdout;
+              tryInThisPath(callback, index + 1);
+            })
+          }
+        };
+        tryInThisPath(callback, 0);
+      }
+    })
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
 }
 exports.findAllDesktopFiles = findAllDesktopFiles;
 

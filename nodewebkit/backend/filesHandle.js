@@ -844,100 +844,104 @@ function monitorFiles(monitorPath,callback){
 }
 exports.monitorFiles = monitorFiles;
 
-function initData(loadResourcesCb,resourcePath){
-  config.riolog("initData ..............");
-  dataPath=resourcePath;
-  desktopConf.initConf(function(result){
-    console.log(result);
-  });
-  fs.mkdir(dataPath+'/.des',function (err){
-    if(err) {
-      console.log("mk resourcePath error!");
-      console.log(err);
-      return;
-    }
-    var sConfigPath = pathModule.join(config.USERCONFIGPATH,"config.js");
-    fs.exists(sConfigPath, function (exists) {
-      util.log(sConfigPath+ exists);
-      if(exists==false){
-        var oldDataDir=null;
-      }
-      else{
-        var oldDataDir=require(sConfigPath).dataDir;
-      }
-      util.log("oldDataDir = "+oldDataDir);
-      if(oldDataDir==null || oldDataDir!=resourcePath){
-        var context="var dataDir = '"+resourcePath+"';\nexports.dataDir = dataDir;";
-        util.log("write "+config.USERCONFIGPATH+"config.js : " +context);
-        config.RESOURCEPATH=resourcePath;
-        fs.writeFile(sConfigPath,context,function(e){
-          if(e) throw e;
-        });
-      }
-    });
-    var fileList = new Array();
-    var fileDesDir = new Array();
-    function walk(path,pathDes){  
-      var dirList = fs.readdirSync(path);
-      dirList.forEach(function(item){
-        if(fs.statSync(path + '/' + item).isDirectory()){
-          if(item != '.git' && item != '.des' && item != 'contacts'){
-            if(item == 'html5ppt'){
-              fs.mkdirSync(pathDes + '/' + item);
-              var html5pptList = fs.readdirSync(path + '/' + item);
-              for(var i=0; i<html5pptList.length; i++){
-                fileDesDir.push(pathDes + '/' + item);
-                fileList.push(path + '/' + item + '/' + html5pptList[i] + '.html5ppt');
-              }
-            }else{
-              fs.mkdirSync(pathDes + '/' + item);     
-              walk(path + '/' + item,pathDes + '/' + item);
-            }
-          }
-        }else{
-          var sPosIndex = (item).lastIndexOf(".");
-          var sPos = item.slice(sPosIndex+1,item.length);
-          if(sPos != 'csv' && sPos != 'CSV'){
-            fileDesDir.push(pathDes);
-            fileList.push(path + '/' + item);
-          }
-        }
-      });
-    }
-    walk(resourcePath,resourcePath+'/.des');
-    config.riolog(fileList); 
-    writeDbNum=fileList.length;
-    config.riolog('writeDbNum= '+writeDbNum);
-    function isEndCallback(){
-      resourceRepo.repoInit(resourcePath,loadResourcesCb);
-    }
-    var oNewItems = new Array();
-    for(var k=0;k<fileList.length;k++){
-      var isLoadEnd = (k == (fileList.length-1));
-      addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-        if(oNewItem.category !== "Configuration"){
-          oNewItems.push(oNewItem);
-          var oTags = (oNewItem.others).split(",");
-          for(var k in oTags){
-            var item ={
-              category:"tags",
-              tag:oTags[k],
-              file_URI:oNewItem.URI
-            }
-            oNewItems.push(item);
-          }
-        }
-        if(isLoadEnd){
-          isEndCallback();
-          console.log("endddddddddddddddddddddddddddddddddddddddddddddddddddd");
-          commonDAO.createItems(oNewItems,function(result){
-            console.log(result);
-            console.log("initData is end!!!");
-          });
-        }
-      });
-    }
-  });
+function initData(loadResourcesCb, resourcePath) {
+	config.riolog("initData ..............");
+	dataPath = resourcePath;
+	desktopConf.initConf(function(result) {
+		if (result !== "success") {
+			console.log("init config error");
+			return;
+		}
+		fs.mkdir(dataPath + '/.des', function(err) {
+			if (err) {
+				console.log("mk resourcePath error!");
+				console.log(err);
+				return;
+			}
+			var sConfigPath = pathModule.join(config.USERCONFIGPATH, "config.js");
+			fs.exists(sConfigPath, function(exists) {
+				util.log(sConfigPath + exists);
+				if (exists == false) {
+					var oldDataDir = null;
+				} else {
+					var oldDataDir = require(sConfigPath).dataDir;
+				}
+				util.log("oldDataDir = " + oldDataDir);
+				if (oldDataDir == null || oldDataDir != resourcePath) {
+					var context = "var dataDir = '" + resourcePath + "';\nexports.dataDir = dataDir;";
+					util.log("write " + config.USERCONFIGPATH + "config.js : " + context);
+					config.RESOURCEPATH = resourcePath;
+					fs.writeFile(sConfigPath, context, function(e) {
+						if (e) throw e;
+					});
+				}
+			});
+			var fileList = new Array();
+			var fileDesDir = new Array();
+
+			function walk(path, pathDes) {
+				var dirList = fs.readdirSync(path);
+				dirList.forEach(function(item) {
+					if (fs.statSync(path + '/' + item).isDirectory()) {
+						if (item != '.git' && item != '.des' && item != 'contacts') {
+							if (item == 'html5ppt') {
+								fs.mkdirSync(pathDes + '/' + item);
+								var html5pptList = fs.readdirSync(path + '/' + item);
+								for (var i = 0; i < html5pptList.length; i++) {
+									fileDesDir.push(pathDes + '/' + item);
+									fileList.push(path + '/' + item + '/' + html5pptList[i] + '.html5ppt');
+								}
+							} else {
+								fs.mkdirSync(pathDes + '/' + item);
+								walk(path + '/' + item, pathDes + '/' + item);
+							}
+						}
+					} else {
+						var sPosIndex = (item).lastIndexOf(".");
+						var sPos = item.slice(sPosIndex + 1, item.length);
+						if (sPos != 'csv' && sPos != 'CSV') {
+							fileDesDir.push(pathDes);
+							fileList.push(path + '/' + item);
+						}
+					}
+				});
+			}
+			walk(resourcePath, resourcePath + '/.des');
+			config.riolog(fileList);
+			writeDbNum = fileList.length;
+			config.riolog('writeDbNum= ' + writeDbNum);
+
+			function isEndCallback() {
+				resourceRepo.repoInit(resourcePath, loadResourcesCb);
+			}
+			var oNewItems = new Array();
+			for (var k = 0; k < fileList.length; k++) {
+				var isLoadEnd = (k == (fileList.length - 1));
+				addData(fileList[k], fileDesDir[k], isLoadEnd, function(isLoadEnd, oNewItem) {
+					if (oNewItem.category !== "Configuration") {
+						oNewItems.push(oNewItem);
+						var oTags = (oNewItem.others).split(",");
+						for (var k in oTags) {
+							var item = {
+								category: "tags",
+								tag: oTags[k],
+								file_URI: oNewItem.URI
+							}
+							oNewItems.push(item);
+						}
+					}
+					if (isLoadEnd) {
+						isEndCallback();
+						console.log("init des file end!!!");
+						commonDAO.createItems(oNewItems, function(result) {
+							console.log(result);
+							console.log("initData is end!!!");
+						});
+					}
+				});
+			}
+		});
+	});
 }
 exports.initData = initData;
 
