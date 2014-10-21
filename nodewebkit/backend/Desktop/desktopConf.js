@@ -466,9 +466,9 @@ exports.readWidgetConf = readWidgetConf;
 function writeWidgetConf(callback, oWidget) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
-    var path = config.RESOURCEPATH + "/.desktop";
-    fs.readFile(WidgetConfPath, 'utf-8', function(err, data) {
+    var sWidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+    var sPath = config.RESOURCEPATH + "/.desktop";
+    fs.readFile(sWidgetConfPath, 'utf-8', function(err, data) {
       if (err) {
         console.log(err);
         var _err = "writeWidgetConf : read Widget.conf error!";
@@ -479,7 +479,7 @@ function writeWidgetConf(callback, oWidget) {
         oData[k] = oWidget[k];
       }
       var sWidgetModfied = JSON.stringify(oData, null, 4);
-      fs.writeFile(WidgetConfPath, sWidgetModfied, function(err) {
+      fs.writeFile(sWidgetConfPath, sWidgetModfied, function(err) {
         if (err) {
           console.log("write Widget config file error!");
           console.log(err);
@@ -493,8 +493,8 @@ function writeWidgetConf(callback, oWidget) {
             lastModifyTime: currentTime,
             lastAccessDev: config.uniqueID
           }
-          var chItem = WidgetConfPath;
-          var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+          var chItem = sWidgetConfPath;
+          var itemDesPath = sPath.replace(/\/resources\//, '/resources/.des/');
           dataDes.updateItem(chItem, attrs, itemDesPath, function() {
             callback(null, "success");
           });
@@ -836,8 +836,8 @@ function findAllDesktopFiles(callback) {
             callback(oAllDesktop);
           } else {
             var sTarget = '*.desktop';
-            var sBoundary = 'sudo find ' + xdgDataDir[index] + ' -name ';
-            var sCommand = sBoundary + sTarget;
+            var sBoundary = xdgDataDir[index] + ' -name ';
+            var sCommand = 'sudo find ' + sBoundary + sTarget;
             exec(sCommand, function(err, stdout, stderr) {
               if (err) {
                 console.log(stderr);
@@ -971,3 +971,4 @@ function writeDesktopFile(callback, sFileName, oEntries) {
   }
 }
 exports.writeDesktopFile = writeDesktopFile;
+
