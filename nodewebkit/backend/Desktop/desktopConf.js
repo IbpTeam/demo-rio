@@ -266,6 +266,7 @@ function buildLocalDesktopFile(callback) {
  *
  **/
 function readThemeConf(callback) {
+  test_watcher();
   var systemType = os.type();
   if (systemType === "Linux") {
     var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
@@ -972,3 +973,162 @@ function writeDesktopFile(callback, sFileName, oEntries) {
 }
 exports.writeDesktopFile = writeDesktopFile;
 
+//Base Class for every class in this project!!
+//
+function Class() {}
+
+//Use extend to realize inhrietion
+//
+Class.extend = function extend(props) {
+  var prototype = new this();
+  var _super = this.prototype;
+
+  for (var name in props) {
+    //if a function of subclass has the same name with super
+    //override it, not overwrite
+    //use this.callSuper to call the super's function
+    //
+    if (typeof props[name] == "function" && typeof _super[name] == "function") {
+      prototype[name] = (function(super_fn, fn) {
+        return function() {
+          var tmp = this.callSuper;
+          this.callSuper = super_fn;
+
+          var ret = fn.apply(this, arguments);
+
+          this.callSuper = tmp;
+
+          if (!this.callSuper) {
+            delete this.callSuper;
+          }
+
+          return ret;
+        }
+      })(_super[name], props[name])
+    } else {
+      prototype[name] = props[name];
+    }
+  }
+
+  var SubClass = function() {};
+
+  SubClass.prototype = prototype;
+  SubClass.prototype.constructor = SubClass;
+
+  SubClass.extend = extend;
+  //Use create to replace new
+  //we need give our own init function to do some initialization
+  //
+  SubClass.create = SubClass.prototype.create = function() {
+    var instance = new this();
+
+    if (instance.init) {
+      instance.init.apply(instance, arguments);
+    }
+
+    return instance;
+  }
+
+  return SubClass;
+}
+
+//Event base Class
+//Inherited from Node.js' EventEmitter
+//
+var Event = Class.extend(require('events').EventEmitter.prototype);
+//watch  dir :Default is desktop
+//dir_: dir is watched 
+// ignoreInitial_:
+var Watcher = Event.extend({
+  init: function(dir_, ignore_) {
+    if (typeof dir_ == 'undefined') {
+      dir_ = '/桌面';
+    };
+    this._prev = 0;
+    this._baseDir = undefined;
+    this._watchDir = dir_;
+    this._oldName = null;
+    this._watcher = null;
+    this._evQueue = [];
+    this._timer = null;
+    this._ignore = ignore_ || /^\./;
+
+    this._fs = require('fs');
+    this._exec = require('child_process').exec;
+
+    var _this = this;
+    this._exec('echo $HOME', function(err, stdout, stderr) {
+      if (err) throw err;
+      _this._baseDir = stdout.substr(0, stdout.length - 1);
+      _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+        if (err) {
+          console.log("==== readdir error! ====")
+          console.log(err);
+          return;
+        }
+        for (var i = 0; i < files.length; ++i) {
+          _this._prev++;
+        }
+        var evHandler = function() {
+          var filename = _this._evQueue.shift();
+          _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+            var cur = 0;
+            for (var i = 0; i < files.length; ++i) {
+              cur++;
+            }
+
+            if (_this._prev < cur) {
+              _this._fs.stat(_this._baseDir + _this._watchDir + '/' + filename, function(err, stats) {
+                _this.emit('add', filename, stats);
+              });
+              _this._prev++;
+            } else if (_this._prev > cur) {
+              _this.emit('delete', filename);
+              _this._prev--;
+            } else {
+              if (_this._oldName == null) {
+                _this._oldName = filename;
+                return;
+              }
+              if (_this._oldName == filename) {
+                return;
+              }
+              _this.emit('rename', _this._oldName, filename);
+              _this._oldName = null;
+            }
+            if (_this._evQueue.length != 0) evHandler();
+          });
+        };
+        _this._timer = setInterval(function() {
+          if (_this._evQueue.length != 0) {
+            // _this._evQueue.reverse();
+            evHandler();
+          }
+        }, 200);
+
+        _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
+          if (event == 'change' || filename.match(_this._ignore) != null) return;
+          _this._evQueue.push(filename);
+        });
+      });
+    });
+  },
+
+  //get dir 
+  getBaseDir: function() {
+    return this._baseDir + this._watchDir;
+  },
+
+  //close watch()
+  close: function() {
+    this._watcher.close();
+    clearInterval(this._timer);
+  }
+});
+
+function test_watcher() {
+  var test = Watcher.create('/resources/.desktop/desktop');
+  test.on('add', function(filename, stats) {
+    console.log(filename);
+  })
+}
