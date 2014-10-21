@@ -17,11 +17,11 @@ function getDeviceList(){
         item.sync=false;
         devicesList[item.device_id]=item;
       });
-      console.log("----------------------devicesList:-----------------------");
+      /*console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("---------------------------------------------------------");
+      console.log("---------------------------------------------------------");*/
     }
   });
 }
@@ -62,12 +62,12 @@ function addDevice(device){
         console.log(result);
       });
     }
-    console.log("OLD device");
+    /*console.log("OLD device");
     console.log("----------------------devicesList:-----------------------");
     for (var i in devicesList) {  
       console.log(devicesList[i]);
     }  
-    console.log("**********************************************************");
+    console.log("**********************************************************");*/
   }
   else{
     console.log("NEW device");
@@ -76,11 +76,11 @@ function addDevice(device){
       device.online=true;
       device.sync=false;
       devicesList[device.device_id]=device;
-      console.log("----------------------devicesList:-----------------------");
+      /*console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("**********************************************************");
+      console.log("**********************************************************");*/
     });
   }
 }
@@ -98,11 +98,11 @@ function rmDevice(device){
     return;
   }
   devicesList[device.device_id].sync=false;
-  console.log("----------------------devicesList:-----------------------");
+  /*console.log("----------------------devicesList:-----------------------");
   for (var i in devicesList) {  
     console.log(devicesList[i]);
   }  
-  console.log("**********************************************************");
+  console.log("**********************************************************");*/
 }
 exports.addDevice = addDevice;
 
