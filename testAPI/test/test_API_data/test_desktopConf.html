@@ -1,0 +1,380 @@
+<html>
+<head>
+  <title>test_desktopConf_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+  WDC.startServer();//start server
+
+  function print(win,something){
+    if(typeof something == "object"){
+      win.document.write("{");
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write(", ");
+        win.document.write("<br/>");
+      }
+      win.document.write("}");
+      win.document.write("<br/>");
+    }else{
+      win.document.write(something);
+    }
+  }
+
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
+
+  function readThemeConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readThemeConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readThemeConf(readThemeConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readThemeConf(readThemeConfCb);
+    });
+  }
+
+  function writeThemeConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeThemeConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeThemeConf(writeThemeConfCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTheme = {
+        tast:"good",
+        this:"is",
+        only:"a",
+        test:"object",
+        modify:1
+      }
+      data.writeThemeConf(writeThemeConfCb,oTheme);
+    });
+  }
+
+  function readWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readWidgetConf(readWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readWidgetConf(readWidgetConfCb);
+    });
+  }
+
+  function writeWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeWidgetConf(writeWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTheme = {
+        tast:"good",
+        this:"is",
+        only:"a",
+        test:"object",
+        modify:1
+      }
+      data.writeWidgetConf(writeWidgetConfCb,oTheme);
+    });
+  }
+
+  function readDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API readDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readDesktopFile(readDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      data.readDesktopFile(readDesktopFileCb,sFileName);
+    });
+  }
+
+  function writeDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API writeDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeDesktopFile(writeDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      var oEntries = {};
+      data.writeDesktopFile(writeDesktopFileCb,sFileName,oEntries);
+    });
+  }
+
+  function findAllDesktopFilesCb(result){
+    var win = window.open('');
+    win.document.write("test API findAllDesktopFiles()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_findAllDesktopFiles(findAllDesktopFilesCb){
+    WDC.requireAPI(['data'], function(data){
+      var sFileName = 'cinnamon.desktop';
+      var oEntries = {};
+      data.findAllDesktopFiles(findAllDesktopFilesCb);
+    });
+  }
+
+
+  </script>
+
+<h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
+<div id="readThemeCon" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readThemeConf
+     read file Theme.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readThemeConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readThemeConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readThemeConf(readThemeConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readThemeConf(readThemeConfCb);
+    });
+  }      
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('writeThemeConf')">writeThemeConf(writeThemeConfCb)<span><a class="mark" href="#test_writeThemeConf" id="test_writeThemeConf" onclick="test_writeThemeConf(writeThemeConfCb)">test</a></span></h2>
+<div id="writeThemeConf" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: writeThemeConf
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function writeThemeConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeThemeConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeThemeConf(writeThemeConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.writeThemeConf(writeThemeConfCb);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+
+<h2 onclick="show('readWidgetConf')">readWidgetConf(readWidgetConfCb)<span><a class="mark" href="#test_readWidgetConf" id="test_readWidgetConf" onclick="test_readWidgetConf(readWidgetConfCb)">test</a></span></h2>
+<div id="readWidgetConf" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readWidgetConf
+     read file Theme.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API readWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readWidgetConf(readWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.readWidgetConf(readWidgetConfCb);
+    });
+  }      
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('writeWidgetConf')">writeWidgetConf(writeWidgetConfCb)<span><a class="mark" href="#test_writeWidgetConf" id="test_writeWidgetConf" onclick="test_writeWidgetConf(writeWidgetConfCb)">test</a></span></h2>
+<div id="writeWidgetConf" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: writeWidgetConf
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function writeWidgetConfCb(result){
+    var win = window.open('');
+    win.document.write("test API writeWidgetConf()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeWidgetConf(writeWidgetConfCb){
+    WDC.requireAPI(['data'], function(data){
+      data.writeWidgetConf(writeWidgetConfCb);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('readDesktopFile')">readDesktopFile(readDesktopFileCb)<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile(readDesktopFileCb)">test</a></span></h2>
+<div id="readDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readDesktopFile
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API readDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_readDesktopFile(readDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.readDesktopFile(readDesktopFileCb,fileName);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('writeDesktopFile')">writeDesktopFile(writeDesktopFileCb)<span><a class="mark" href="#test_writeDesktopFile" id="test_writeDesktopFile" onclick="test_writeDesktopFile(writeDesktopFileCb)">test</a></span></h2>
+<div id="writeDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: writeDesktopFile
+     read file Widget.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function writeDesktopFileCb(result){
+    var win = window.open('');
+    win.document.write("test API writeDesktopFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_writeDesktopFile(writeDesktopFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.writeDesktopFile(writeDesktopFileCb,fileName,oEntries);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(findAllDesktopFilesCb)">test</a></span></h2>
+<div id="findAllDesktopFiles" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function findAllDesktopFilesCb(result){
+    var win = window.open('');
+    win.document.write("test API findAllDesktopFiles()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_findAllDesktopFiles(findAllDesktopFilesCb){
+    WDC.requireAPI(['data'], function(data){
+      var fileName = 'cinnamon.desktop';
+      data.findAllDesktopFiles(findAllDesktopFilesCb);
+    });
+  }    
+</pre>
+</div>
+</div>
+
+</body>
+</html>

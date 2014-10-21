@@ -48,7 +48,37 @@ exports.repoInit = function (repoPath,callback)
 exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+utils.parsePath(sourceFilePath) +' && git add '+utils.parsePath(desFilePath) +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
+  if(sourceFilePath==null){
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+utils.parsePath(desFilePath) 
+                +' && git commit -m "On device '+config.SERVERNAME+' #add : description file.#"';
+  }
+  else{
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+utils.parsePath(sourceFilePath) 
+                +' && git add '+utils.parsePath(desFilePath) 
+                +' && git commit -m "On device '+config.SERVERNAME+' #add : '+sourceFilePath+' and description file.#"';
+  }
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
+  exec(comstr, function(error,stdout,stderr){
+    if(error){
+      console.log("Git add error");
+    }
+    else{
+      console.log("Git add success");
+      callback(lastCallback);
+    }
+  });
+}
+
+exports.repoAddsCommit = function (repoPath,files,callback,lastCallback)
+{
+  var  exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath;
+  for(var k in files) {
+    comstr = comstr+' && git add '+files[k];
+  }
+  comstr = comstr+' && git commit -m "On device '+config.SERVERNAME+' #add : multi files.#"'
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -64,7 +94,37 @@ exports.repoAddCommit = function (repoPath,sourceFilePath,desFilePath,callback,l
 exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git rm '+sourceFilePath +' && git rm '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
+  if(sourceFilePath==null){
+    var comstr = 'cd ' + repoPath 
+                +' && git rm '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Delete : description file.#"';
+  }
+  else{
+    var comstr = 'cd ' + repoPath 
+                +' && git rm '+sourceFilePath 
+                +' && git rm '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Delete : '+sourceFilePath+' and description file.#"';
+  }
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
+  exec(comstr, function(error,stdout,stderr){
+    if(error){
+      console.log("Git rm error");
+    }
+    else{
+      console.log("Git rm success");
+      callback(lastCallback);
+    }
+  });
+}
+
+exports.repoRmsCommit = function (repoPath,files,callback,lastCallback)
+{
+  var  exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath;
+  for(var k in files) {
+    comstr = comstr+' && git add '+files[k];
+  }
+  comstr = comstr+' && git commit -m "On device '+config.SERVERNAME+' #Delete : multi files.#"'
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -80,7 +140,38 @@ exports.repoRmCommit = function (repoPath,sourceFilePath,desFilePath,callback,la
 exports.repoChCommit = function (repoPath,sourceFilePath,desFilePath,callback,lastCallback)
 {
   var  exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git add '+sourceFilePath +' && git add '+desFilePath +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
+  if(sourceFilePath==null){
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Change : description file.#"';
+  }
+  else{
+    var comstr = 'cd ' + repoPath 
+                +' && git add '+sourceFilePath 
+                +' && git add '+desFilePath 
+                +' && git commit -m "On device '+config.SERVERNAME+' #Change : '+sourceFilePath+' and description file.#"';
+  }
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
+  exec(comstr, function(error,stdout,stderr){
+    if(error){
+      console.log("Git change error");
+    }
+    else{
+      console.log("Git change success");
+      callback(lastCallback);
+    }
+  });
+}
+
+exports.repoChsCommit = function (repoPath,files,callback,lastCallback)
+{
+  var  exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath;
+  for(var k in files) {
+    comstr = comstr+' && git add '+files[k];
+  }
+  comstr = comstr+' && git commit -m "On device '+config.SERVERNAME+' #Change : multi files.#"'
+    console.log(files);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -142,7 +233,6 @@ exports.pullFromOtherRepo = function (address,path,callback)
       filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb);
     });
   });
-
 }
 /*
 exports.pullFromOtherRepo = function (address,path,callback)

@@ -67,20 +67,24 @@ exports.getAttrFromFile = function (path,callback){
 function createDesFile(newItem,itemDesPath,callback){
   var sItem = JSON.stringify(newItem,null,4);
   var sFileName = newItem.filename || newItem.name;
-  var sPosIndex = (newItem.path).lastIndexOf(".");
-  var sPos = (sPosIndex == -1) ? "" : (newItem.path).substring(sPosIndex,(newItem.path).length);
+  var itemPath = newItem.path;
+  var sPos = "";
+  if(itemPath){
+    var sPosIndex = itemPath.lastIndexOf('.');
+    if(sPosIndex > 0){
+      sPos = itemPath.substring(sPosIndex,itemPath.length);
+    }
+  }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
   fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
       console.log(err);
-      //return;
+      return;
     }
-    //console.log(itemDesPath+" success !");
     callback();
   });
-
 }
 
 
@@ -213,18 +217,21 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
- exports.updateItems = function(oItems,callback){
+exports.updateItems = function(oItems,callback){
+  console.log(oItems);
   var count = 0;
   var length = oItems.length;
   for(var k in oItems){
     var item = oItems[k];
-    var filePath = item.path;
-    if(!filePath){
-      console.log("error : can not get file path! ")
-      return;
+    var category = item.category;
+    var filePath = "";
+    var desFilePath = "";
+    if(category === "Contacts"){
+      desFilePath = config.RESOURCEPATH + '/.des/contacts/'+item.name+'.md';
+    }else{
+      filePath = item.path;
+      desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
     }
-    count++;
-    var desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
     updateItemsHelper(callback,desFilePath,item,count,length);
   }
 }
@@ -241,7 +248,6 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
       for(var attr in item){
         json[attr]=item[attr];
       }
-      console.log(json);
       var sItem = JSON.stringify(json,null,4);
       fs.open(desFilePath,"w",0644,function(err,fd){
         if(err){
@@ -259,6 +265,7 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
               if(count == length-1){
                 callback("success");
               }
+              count++;
             }
           });
         }

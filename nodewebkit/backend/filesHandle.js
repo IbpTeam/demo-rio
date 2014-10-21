@@ -19,6 +19,7 @@ var fs = require('fs');
 var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
+var desktopConf = require("./Desktop/desktopConf");
 var commonDAO = require("./DAO/CommonDAO");
 var resourceRepo = require("./FilesHandle/repo");
 var device = require("./devices");
@@ -80,7 +81,8 @@ function getCategory(path){
      itemPostfix == 'html' || 
      itemPostfix == 'et' || 
      itemPostfix == 'odt' || 
-     itemPostfix == 'pdf'){
+     itemPostfix == 'pdf' ||
+     itemPostfix == 'html5ppt'){
     return {category:"Documents",filename:itemFilename,postfix:itemPostfix};
   }
   else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
@@ -88,6 +90,9 @@ function getCategory(path){
   }
   else if(itemPostfix == 'mp3' || itemPostfix == 'ogg'){
     return {category:"Music",filename:itemFilename,postfix:itemPostfix};
+  }
+  else if(itemPostfix == 'conf' || itemPostfix == 'desktop'){
+    return {category:"Configuration",filename:itemFilename,postfix:itemPostfix};
   }
 }
 
@@ -185,12 +190,43 @@ function addData(itemPath,itemDesPath,isLoadEnd,callback){
         });
         break;
       }
+      case "Configuration":{
+        uniqueID.getFileUid(function(uri){
+          var oNewItem = {
+            id:null,
+            URI:uri + "#" + category,
+            category:category,
+            is_delete:0,
+            filename:itemFilename,
+            postfix:itemPostfix,
+            size:size,
+            path:itemPath,
+            createTime:ctime,
+            lastModifyTime:mtime,
+            lastAccessTime:ctime,
+            createDev:config.uniqueID,
+            lastModifyDev:config.uniqueID,
+            lastAccessDev:config.uniqueID
+          };
+          function createItemCb(){
+            callback(isLoadEnd,oNewItem);
+          }
+          dataDes.createItem(oNewItem,itemDesPath,createItemCb);
+        });
+        break;        
+      }
       default:{
         writeDbNum --;    
       }
     }
   }
-  fs.stat(itemPath,getFileStatCb);
+  var itemPostfix = itemPath.substring(itemPath.lastIndexOf('.')+1, itemPath.length);
+  if(itemPostfix == 'html5ppt'){
+    fs.stat(itemPath.substring(0, itemPath.lastIndexOf('.')) + '/index.html',getFileStatCb);
+  }
+  else{
+    fs.stat(itemPath,getFileStatCb);
+  }
 }
 
 function rmData(itemPath,itemDesPath,rmDataCb){
@@ -545,7 +581,7 @@ function getAllCate(getAllCb) {
     });
     getAllCb(cates);
   }
-  commonDAO.findItems(null,['category'],null,null,getCategoriesCb);
+  commonDAO.findItems(null,"category",null,null,getCategoriesCb);
 }
 exports.getAllCate = getAllCate;
 
@@ -600,25 +636,48 @@ function getAllDataByCate(getAllData,cate) {
       }
       getAllData(items);
     }
-    var cateArray = new Array();
-    cateArray.push(cate);
     if(cate == "Devices"){
-      commonDAO.findItems(null,cateArray,null,null,getAllDevicesCb);
+      commonDAO.findItems(null,cate,null,null,getAllDevicesCb);
     }
     else{
       var conditions = ["is_delete = 0"];
-      commonDAO.findItems(null,cateArray,conditions,null,getAllByCaterotyCb);
+      commonDAO.findItems(null,cate,conditions,null,getAllByCaterotyCb);
     }
 }
 exports.getAllDataByCate = getAllDataByCate;
 
+/**
+ * @method monitorDesFilesCb
+ *   监视描述文件功能的回调函数
+ *
+ * @param1 path
+ *   监视的路径
+ *
+ * @param2 event
+ *   监视到的事件
+ *    新建add， 删除unlink， 更改change
+ */
 function monitorDesFilesCb(path,event){
-    util.log(event+'  :  '+path);
+  util.log(event+'  :  '+path);
   switch(event){
     case 'add' : {
       console.log("add des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        commonDAO.createItem(item,function(result){
+        if(item.category === "Configuration"){
+          console.log("desktop configuration added !");
+          return;
+        }
+        var items = [];
+        items.push(item);
+        if(item.others != "" &&  item.others != null){
+          var tags = item.others.split(",");
+          for(var k in tags){
+            //create new entry in table 'tags'
+            var itemTemp = {category:"tags",file_uri:item.URI,tag:tags[k]};
+            items.push(itemTemp);
+          }
+        }
+        commonDAO.createItems(items,function(result){
           console.log(result);
         });
       });
@@ -634,34 +693,107 @@ function monitorDesFilesCb(path,event){
       var mdIndex=filePath.lastIndexOf(".md");
       var origPath=config.RESOURCEPATH+"/"+filePath.substring(0,mdIndex);
       console.log("origPath = "+origPath);
-      var attrs={
-        conditions:["path='"+origPath+"'"],
-        category:getCategory(origPath).category,
-        is_delete:1,
-        lastModifyTime:(new Date()),
-        lastModifyDev:config.uniqueID
-      };
-      var items=new Array();
-      items.push(attrs);
-      commonDAO.updateItems(items,function(result){
-        console.log(result);
+      var category = getCategory(origPath).category;
+      if(category === "Configuration"){
+        console.log("desktop configuration file deleted !");
+        console.log("Path: "+path);
+        return;
+      }
+      var categorys=[category];
+      var condition = ["path='"+origPath.replace("'","''")+"'"];
+      commonDAO.findItems(null,categorys,condition,null,function(err,resultFind){
+        if(err){
+          console.log(err);
+          return;
+        }
+        if(resultFind.length == 1){
+          var tags = (resultFind[0].others).split(",");
+          var uri = resultFind[0].URI;
+          var itemToDelete = [];
+          for(var k in tags){
+            var con=["tag='"+tags[k].replace("'","''")+"'","file_uri='"+uri.replace("'","''")+"'"];
+            var itemTemp = {conditions:con,category:"tags"};
+            itemToDelete.push(itemTemp);
+          }
+          var attrs={
+            conditions:condition,
+            category:category,
+          };
+          itemToDelete.push(attrs);
+          console.log(itemToDelete);
+          //delete tag-uri form table 'tags' first
+          commonDAO.deleteItems(itemToDelete,function(resultDelete){
+            if(resultDelete == "commit"){
+              console.log("delete sucess");
+            }else{
+              console.log("delete items error!");
+              return;
+            }
+          });
+        }else{
+          console.log("findItems result size error!");
+          return;
+        }
       });
     }
     break;
     case 'change' : {
       console.log("change des file @@@@@@@@@@@@@@@@@@@@@");
       dataDes.getAttrFromFile(path,function(item){
-        if(item.category=="Contacts"){
-          console.log("contacts info change");
+        var category = item.category;
+        var path = "";
+        var condition = [];
+        if(category === "Configuration"){
+          console.log("desktop configuration chenges!")
+          return;
         }
-        else{
-          item.conditions=["path='"+item.path+"'"];
-          var items=new Array();
-          items.push(item);
-          commonDAO.updateItems(items,function(result){
-            console.log(result);
-          });
+        else if(category === "Contacts"){
+          condition.push("name='"+item.name+"'");
+        }else{
+          path = (item.path).replace("'","''");
+          condition.push("path='"+path+"'");
         }
+        commonDAO.findItems(null,category,condition,null,function(err,resultFind){
+          if(err){
+            console.log(err);
+            return;
+          }
+          if(resultFind.length == 1){
+            var tags = (resultFind[0].others).split(",");
+            var uri = resultFind[0].URI;
+            var itemToDelete = [];
+             if(category !== "Documents" && 
+             category !== "Pictures" && 
+             category !== "Music" &&
+             category !== "Vedios" ){
+              commonDAO.updateItem(item,function(resultUpdate){
+                console.log(resultUpdate);
+              });
+          }else{
+              for(var k in tags){
+                var itemTemp = {file_uri:uri,category:"tags",tag:tags[k]};
+                itemToDelete.push(itemTemp);
+              }
+              //delete tag-uri form table 'tags' first
+              commonDAO.deleteItems(itemToDelete,function(resultDelete){
+                if(resultDelete == "commit"){
+                  var items=new Array();
+                  item.conditions = condition;
+                  items.push(item);
+                  commonDAO.updateItems(items,function(resultUpdate){
+                    console.log(resultUpdate);
+                  });
+                }else{
+                  console.log("delete items error!");
+                  return;
+                }
+              });
+            }
+          }else{
+            console.log("findItems result size error!");
+            return;
+          }
+        });
       });
     }
     break;
@@ -715,6 +847,9 @@ exports.monitorFiles = monitorFiles;
 function initData(loadResourcesCb,resourcePath){
   config.riolog("initData ..............");
   dataPath=resourcePath;
+  desktopConf.initConf(function(result){
+    console.log(result);
+  });
   fs.mkdir(dataPath+'/.des',function (err){
     if(err) {
       console.log("mk resourcePath error!");
@@ -747,8 +882,17 @@ function initData(loadResourcesCb,resourcePath){
       dirList.forEach(function(item){
         if(fs.statSync(path + '/' + item).isDirectory()){
           if(item != '.git' && item != '.des' && item != 'contacts'){
-            fs.mkdirSync(pathDes + '/' + item);              
-            walk(path + '/' + item,pathDes + '/' + item);
+            if(item == 'html5ppt'){
+              fs.mkdirSync(pathDes + '/' + item);
+              var html5pptList = fs.readdirSync(path + '/' + item);
+              for(var i=0; i<html5pptList.length; i++){
+                fileDesDir.push(pathDes + '/' + item);
+                fileList.push(path + '/' + item + '/' + html5pptList[i] + '.html5ppt');
+              }
+            }else{
+              fs.mkdirSync(pathDes + '/' + item);     
+              walk(path + '/' + item,pathDes + '/' + item);
+            }
           }
         }else{
           var sPosIndex = (item).lastIndexOf(".");
@@ -771,18 +915,18 @@ function initData(loadResourcesCb,resourcePath){
     for(var k=0;k<fileList.length;k++){
       var isLoadEnd = (k == (fileList.length-1));
       addData(fileList[k],fileDesDir[k],isLoadEnd,function(isLoadEnd,oNewItem){
-        oNewItems.push(oNewItem);
-
-        var oTags = (oNewItem.others).split(",");
-        for(var k in oTags){
-          var item ={
-            category:"tags",
-            tag:oTags[k],
-            file_URI:oNewItem.URI
+        if(oNewItem.category !== "Configuration"){
+          oNewItems.push(oNewItem);
+          var oTags = (oNewItem.others).split(",");
+          for(var k in oTags){
+            var item ={
+              category:"tags",
+              tag:oTags[k],
+              file_URI:oNewItem.URI
+            }
+            oNewItems.push(item);
           }
-          oNewItems.push(item);
         }
-
         if(isLoadEnd){
           isEndCallback();
           console.log("endddddddddddddddddddddddddddddddddddddddddddddddddddd");
@@ -797,90 +941,80 @@ function initData(loadResourcesCb,resourcePath){
 }
 exports.initData = initData;
 
-//API openDataSourceById: 打开数据
-//返回类型：
-//回调函数带一个参数，内容是一个div，用于显示应用数据，如果是本地打开文件，则显示成功打开信息
-function openLocalDataSourceByPath(openDataSourceCb, content){
-  var sys = require('sys');
-  var exec = require('child_process').exec;
-  var commend = "xdg-open \"" + content + "\"";
-  exec(commend, function(error,stdout,stderr){
-    sys.print('stdout: ' + stdout);
-    sys.print('stderr: ' + error);
-  });
-  file_content = "成功打开文件" + content;
-  openDataSourceCb(file_content);
-}
-exports.openLocalDataSourceByPath = openLocalDataSourceByPath;
-
 //API updateItemValue:修改数据某一个属性
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb,item){
-  var oItems = item;//all items should include it's file path
+function updateDataValue(updateDataValueCb,items){
+  //all items should include it's file path
   console.log("Request handler 'updateDataValue' was called.");
-  function updateItemValueCb(result){
-    config.riolog("update DB: "+ result);
-    if(result!='commit'){
-      console.log("Error : result : "+result)
-    }
-    else{
-      dataDes.updateItems(oItems,function(result){
-        if(result === "success"){
-          updateDataValueCb('success');
-        }else{
-          console.log("error in update des file!");
-          return;
+  dataDes.updateItems(items,function(result){
+    if(result === "success"){
+      var files=[];
+      for(var k in items) {
+        var desFilePath;
+        if(items[k].category === "Contacts"){
+          desFilePath = config.RESOURCEPATH + '/.des/contacts/'+items[k].name+'.md';
         }
+        else{
+          desFilePath = (items[k].path.replace(/\/resources\//,'/resources/.des/')) + '.md';
+        }
+        files.push(desFilePath);
+      }
+      resourceRepo.repoChsCommit(config.RESOURCEPATH,files,function(){
+        updateDataValueCb('success');
       });
     }
-  }
+    else{
+      console.log("error in update des file!");
+      return;
+    }
+  });
 }
 exports.updateDataValue = updateDataValue;
+
+//get the catefory from URI
+function getCategoryByUri(sUri){
+  var pos = sUri.lastIndexOf("#");
+  var cate = sUri.slice(pos+1,sUri.length);
+  return cate;
+}
 
 //API rmDataById:通过id删除数据
 //返回字符串：
 //成功返回success;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
-  var rm_result;
+  console.log("Rm data : "+ uri);
   function getItemByUriCb(err,items){
-    if(items == null){
-       rm_result='success';
-       rmDataByUriCb(rm_result);
+    if(err){
+      console.log(err);
+      rmDataByUriCb("NOEXIST");
+      return;
     }
-    else{
-      function ulinkCb(result){
-        config.riolog("delete result:"+result);
-        if(result==null){
-          result='success';
-
-          var pos = (items[0].URI).lastIndexOf("#");
-          var sTableName = (items[0].URI).slice(pos+1,uri.length);
-          items[0].category = sTableName;
-          commonDAO.deleteItems(items,rmDataByUriCb);
-        }
-        else{
-          result='error';
-          rmDataByUriCb(result);
-        }
+    console.log("Rm data : ");
+    console.log(items);
+    fs.unlink(items[0].path, function (err) { 
+      if (err) {
+        console.log(err);
+        rmDataByUriCb("error");
       }
-      fs.unlink(items[0].path,ulinkCb);
-    }
+      else{
+        console.log("Rm data success");
+        rmDataByUriCb("success");
+      }
+    }); 
   }
-
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
 
-//API getDataByUri:通过Uri查看数据所有信息
-//返回具体数据类型对象
+//API getDataByUri:打开URI对应的数据
+//返回显示数据或结果
 function getDataByUri(getDataCb,uri) {
-    console.log("read data : "+ uri);
+  console.log("read data : "+ uri);
   function getItemByUriCb(err,items){
     if(err){
       console.log(err)
@@ -888,21 +1022,19 @@ function getDataByUri(getDataCb,uri) {
     }
     getDataCb(items);
   }
-
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
 
-//API getDataSourceByUri:通过Uri获取数据资源地址
+//API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
 //result{
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
-function getDataSourceByUri(getDataSourceCb,uri){
+function openDataByUri(openDataByUriCb,uri){
   function getItemByUriCb(err,items){
     if(err){
       console.log(err);
@@ -911,82 +1043,148 @@ function getDataSourceByUri(getDataSourceCb,uri){
     var item = items[0];
     if(item==null){
       config.riolog("read data : "+ item);
-      getDataSourceCb('undefined');
+      openDataByUriCb('undefined');
     }
     else{
       config.riolog("read data : "+ item.path);
+      var source;
       if(item.postfix==null){
-        var source={
-          openmethod:'direct',
-          content:item.path
+        source={
+          openmethod: 'alert',
+          content:    item.path + ' can not be recognized.'
         };
+      } else {
+        switch(item.postfix){
+          case 'jpg':
+            source={
+              openmethod: 'html',
+              format:     'div',
+              title:      '文件浏览',
+              content:    '<img src=' + item.path + ' />'
+            }
+            break;
+          case 'png':
+            source={
+              openmethod: 'html',
+              format:     'div',
+              title:      '文件浏览',
+              content:    '<img src=' + item.path + ' />'
+            }
+            break;
+          case 'txt':
+            source={
+              openmethod: 'html',
+              format:     'txtfile',
+              title:      '文件浏览',
+              content:    item.path
+            }
+            break;
+          case 'html5ppt':
+            source={
+              openmethod: 'html',
+              format:     'html5ppt',
+              title:      '文件浏览',
+              content:    item.path.substring(0, item.path.lastIndexOf('.'))+'/index.html'
+            }
+            break;
+          case 'ogg':
+            source={
+              openmethod: 'html',
+              format:     'audio',
+              title:      '文件浏览',
+              content:    item.path
+            }
+            break;
+          case 'none':
+            source={
+              openmethod: 'alert',
+              content:    item.path + ' can not be recognized.'
+            };
+            break;
+          default:
+            /*
+             * TODO: The opening DOC/PPT/XLS files way need to be supported by noVNC.
+             * var host = window.location.host.split(':')[0];       //localhost run
+             * console.log(host);
+             * var password = "demo123";
+             * function turnToVNC()
+             * {
+             *   window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
+             * }
+             * setTimeout(turnToVNC,1000);
+             **/
+
+            source={
+              openmethod: 'html',
+              format:     'txt',
+              title:      '文件浏览',
+              content:    "成功打开文件" + item.path
+            }
+
+            var exec = require('child_process').exec;
+            var s_command;
+            var supportedKeySent=false;
+            var s_windowname;//表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
+            switch(item.postfix){
+              case 'ppt':
+                s_command  = "wpp \"" + item.path + "\"";
+                supportedKeySent=true;
+                var h=item.path.lastIndexOf('/');
+                s_windowname=item.path.substring(h<0?0:h+1, item.path.length);
+                break;
+              case 'pptx':
+                s_command  = "wpp \"" + item.path + "\"";
+                supportedKeySent=true;
+                var h=item.path.lastIndexOf('/');
+                s_windowname=item.path.substring(h<0?0:h+1, item.path.length);
+                break;
+              case 'doc':
+                s_command  = "wps \"" + item.path + "\"";
+                break;
+              case 'docx':
+                s_command  = "wps \"" + item.path + "\"";
+                break;
+              case 'xls':
+                s_command  = "et \"" + item.path + "\"";
+                break;
+              case 'xlsx':
+                s_command  = "et \"" + item.path + "\"";
+                break;
+              default:
+                s_command  = "xdg-open \"" + item.path + "\"";
+                break;
+            }
+            var child = exec(s_command, function(error,stdout,stderr){});
+            if (supportedKeySent===true){
+              source.windowname=s_windowname;
+            }
+            break;
+        }
       }
-      else if(item.postfix=='none'||
-              item.postfix=='jpg'||
-              item.postfix=='png'||
-              item.postfix=='txt'||
-              item.postfix=='ogg'){
-        var source={
-          openmethod:'direct',
-          content:item.path
-        };
-      }
-      else if(item.postfix == 'ppt' ||
-              item.postfix == 'pptx'|| 
-              item.postfix == 'doc'|| 
-              item.postfix == 'docx'|| 
-              item.postfix == 'wps'|| 
-              item.postfix == 'odt'|| 
-              item.postfix == 'et'||  
-              item.postfix == 'xls'|| 
-              item.postfix == 'xlsx'){
-        item.path = decodeURIComponent(item.path);
-        var source={
-          openmethod:'local',
-          content:item.path
-        };
-      }
-      else {
-        item.path = decodeURIComponent(item.path);
-        var source={
-          openmethod:'local',
-          content:item.path
-        };
-      }
-      getDataSourceCb(source);
+
+      openDataByUriCb(source);
 
       var currentTime = (new Date());
-      config.riolog("time: "+ currentTime);
       var updateItem = item;
-      //console.log(updateItem);
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       var item_uri = item.URI;
-      var pos = (item_uri).lastIndexOf("#");
-      var sTableName = (item_uri).slice(pos+1,updateItem.length);
+      var sTableName = getCategoryByUri(item_uri);
       updateItem.category = sTableName;
-
-      function updateItemValueCb(result){
-        config.riolog("update DB: "+ result);
-        if(result!='commit'){
-          console.log("Error : updateItems result : "+ ressult);
-          return;
-        }
-        else{
-          var desFilePath = (item.path).replace(/\/resources\//,'/resources/.des/');
-          desFilePath = desFilePath + '.md';
-          dataDes.updateItem(item.path,{lastAccessTime:currentTime},desFilePath,function(){
-            console.log("success");
-          })
-        }
-      }
+      var nameindex=item.path.lastIndexOf('/');
+      var addPath=item.path.substring(config.RESOURCEPATH.length+1,nameindex);
+      var itemDesPath=config.RESOURCEPATH+"/.des/"+addPath;
+      dataDes.updateItem(item.path,{lastAccessTime:currentTime},itemDesPath,function(){
+        resourceRepo.repoChCommit(config.RESOURCEPATH,null,itemDesPath,function(){
+          console.log("success");
+        });
+      })
     }
   }
-  var pos = uri.lastIndexOf("#");
-  var sTableName = uri.slice(pos+1,uri.length);
-  commonDAO.findItems(null,[sTableName],["URI = "+"'"+uri+"'"],null,getItemByUriCb);
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null,sTableName,["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
-exports.getDataSourceByUri = getDataSourceByUri;
+exports.openDataByUri = openDataByUri;
 
 
 //API getRecentAccessData:获得最近访问数据的信息
@@ -1027,7 +1225,7 @@ function getRecentAccessData(getRecentAccessDataCb,num){
       }
       if(sType != "Devices" && sType != "Contacts"){
         var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit "+"'"+num+"'";
-        commonDAO.findItems(null,[sType],null,[sCondition],findItemsCb);
+        commonDAO.findItems(null,sType,null,[sCondition],findItemsCb);
       }  
     }
   }
@@ -1038,7 +1236,8 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function monitorNetlink(path){
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet '+path);
-  fs.watch(path, function (event, filename) {
+  /*fs.watch(path, function (event, filename) {
+    TODO:would cause problem,needs to be modify.
     config.riolog('event is: ' + event);
     if(filename){
       config.riolog('filename provided: ' + filename);
@@ -1049,7 +1248,7 @@ function monitorNetlink(path){
     else{
       config.riolog('filename not provided');
     }
-  });
+  });*/
 }
 exports.monitorNetlink = monitorNetlink;
 
@@ -1111,13 +1310,3 @@ function firstSync(){
   });
 }
 exports.firstSync = firstSync;
-
-/**
- * @method initDatabase
- *    Database initialize.
- * @param callaback
- *    Callback
- */
-exports.initDatabase = function(callback){
-  commonDAO.initDatabase(callback);
-}

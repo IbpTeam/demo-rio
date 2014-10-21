@@ -13,7 +13,6 @@
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
-var SQLSTR = require("./SQL/SQLStr.js");
 var createTableTimes = 0;
 
 // @const
@@ -50,76 +49,6 @@ function closeDB(database,callback){
 }
 
 /**
- * @method createTables
- *    Use SQL to create tables in database.
- * @param sqlStr
- *    The specific SQL string.
- * @param callback
- *    Callback
- */
-function createTables(db,sqlStr,callback){
-  if(!sqlStr){
-    console.log("Error: SQL is null when create tabale ");
-    return;
-  }
-  console.log("Start to create tables with SQL :" + sqlStr);
-  if(!db){
-    db = openDB();
-  }
-  db.exec(sqlStr,function(err){
-    createComplete(err,db,sqlStr,callback);
-  });
-}
-
-/**
- * @method createComplete
- *    Callback after create tables.
- * @param err
- *    Null/error.
- * @param db
- *    The database object.
- * @param db
- *    The specific SQL string used to create tables.
- * @param callback
- *    Callback
- */
-function createComplete(err,db,sqlStr,callback){
-  if(err){
-    console.log(err);
-    console.log("Roll back");
-    if(createTableTimes < 5){
-      createTableTimes++;      
-      db.run("ROLLBACK",function(err){
-        if(err) throw err;
-        createTables(db,sqlStr);
-      });
-    }else{
-      createTableTimes = 0;
-      console.log("create table fail.");
-      callback(null);
-    }
-    return;
-  }
-  createTableTimes = 0;
-  db.run("COMMIT",function(err){
-    if(err) throw err;
-    console.log("Msg: create tables successfully");
-    closeDB(db,callback);
-  });
-}
-
-/**
- * @method initDatabase
- *    Database initialize.
- * @param callback
- *    Callback
- */
-exports.initDatabase = function(callback){
-  var sInitDbSQL = SQLSTR.INITDB;
-  createTables(null,sInitDbSQL,callback);
-}
-
-/**
  * @method runSQL
  *    Execute the specific sql string.
  * @param sql
@@ -153,7 +82,6 @@ function runSQL(sql,callback){
  */
 function execSQL(sql,callback){
   prepDb.exec(sql,function(err){
-    console.log("execSQL^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^S");
     if(err){
       console.log("Error:execute SQL error.");
       console.log("Info :" + err);
@@ -227,7 +155,7 @@ function checkPrepArray(){
   if(prepItem != undefined){
     var sSqlStr = prepItem.sqlStr;
     var fCallback = prepItem.prepCallback;
-    var sMethod = prepItem.method
+    var sMethod = prepItem.prepMethod
 
     //Run/Exec sql
     switch(sMethod){
@@ -271,7 +199,7 @@ exports.createItem = function(item,callback){
     sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
   }
   sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-  console.log("INSERT Prepare SQL is : "+sSqlStr);
+  //console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
@@ -349,8 +277,9 @@ exports.createItems = function(items,callback){
  * @method deleteItem
  *    Delete data from database.
  * @param items
- *    An obj, must has attribute category&&URI match table&&URI,
- *    other attributes match field in table.
+ *    An obj, must has attribute category&&conditions match table&&conditions.
+ *    Conditions is a condition array,like["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  * @param callback
  *    Retrive null when successfully
  *    Retrive err when error
@@ -358,17 +287,17 @@ exports.createItems = function(items,callback){
 exports.deleteItem = function(item,callback){
   var oTempItem = item;
   var sSqlStr;
-  sSqlStr = "delete from " + oTempItem.category + " where 1=1";
-  //Delete attribute category from this obj.
-  delete oTempItem.category;
-  var sKeyStr = " (id";
-    var sValueStr = ") values (null";
-    for(var key in oTempItem){
-      if(typeof oTempItem[key] == 'string')
-        oTempItem[key] = oTempItem[key].replace("'","''");
-      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
-    }
-    sSqlStr = sSqlStr + ";";
+  var sCondStr = " where 1=1";
+  sSqlStr = "delete from " + oTempItem.category;
+  //Make conditions
+  var aConditions = new Array();
+  if(oTempItem.conditions != undefined){
+    aConditions = oTempItem.conditions;
+    aConditions.forEach(function(condition){
+      sCondStr = sCondStr + " and " + condition; 
+    });
+  }
+  sSqlStr = sSqlStr + sCondStr;
   //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
@@ -394,8 +323,9 @@ exports.deleteItem = function(item,callback){
  * @method deleteItems
  *    Delete data from database, support batch execute.
  * @param items
- *    An obj Array, each obj must has attribute category&&URI match table&&URI,
- *    other attributes match field in table.
+ *    An obj Array, each obj must has attribute category&&conditions match table&&conditions.
+ *    Conditions is a condition array,like["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  * @param callback
  *    Retrive "commit" when successfully
  *    Retrive "rollback" when error
@@ -405,17 +335,17 @@ exports.deleteItems = function(items,callback){
   var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){
     var oTempItem = item;
-    sSqlStr = sSqlStr + "delete from " + oTempItem.category + " where 1=1";
-    //Delete attribute category from this obj.
-    delete oTempItem.category;
-    var sKeyStr = " (id";
-    var sValueStr = ") values (null";
-    for(var key in oTempItem){
-      if(typeof oTempItem[key] == 'string')
-        oTempItem[key] = oTempItem[key].replace("'","''");
-      sSqlStr = sSqlStr + " and " + key + "='" + oTempItem[key] + "'";
+    var sCondStr = " where 1=1";
+    sSqlStr = sSqlStr + "delete from " + oTempItem.category;
+    //Make conditions
+    var aConditions = new Array();
+    if(oTempItem.conditions != undefined){
+      aConditions = oTempItem.conditions;
+      aConditions.forEach(function(condition){
+        sCondStr = sCondStr + " and " + condition; 
+      });
     }
-    sSqlStr = sSqlStr + ";";
+    sSqlStr = sSqlStr + sCondStr + ";";
   });
   //console.log("DELETE Prepare SQL is : "+sSqlStr);
 
@@ -445,7 +375,8 @@ exports.deleteItems = function(items,callback){
  *    An obj, must has attribute category match table,
  *    other attributes match field in table.
  *    There is a specific attribute: "conditions".It's an contidion array, 
- *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  *    If you want to update items by any contidions,you could put them here.
  *    Default is update by URI if this attribute is undefined(Must have attribute URI).
  * @param callback
@@ -506,8 +437,9 @@ exports.updateItem = function(item,callback){
  * @param items
  *    An obj Array, each obj must has attribute category match table,
  *    other attributes match field in table.
- *    There is a specific attribute: "conditions".It's an contidion array, 
- *    for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    There is a specific attribute: "conditions".It's an contidion array,
+ *    for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  *    If you want to update items by any contidions,you could put them here.
  *    Default is update by URI if this attribute is undefined(Must have attribute URI).
  * @param callback
@@ -561,6 +493,7 @@ exports.updateItems = function(items,callback){
     //Open database
     prepDb = openDB();
     //Exec SQL
+
     execSQL(sSqlStr,callback);
   }
 }
@@ -572,9 +505,10 @@ exports.updateItems = function(items,callback){
  *    An array, if you want to specific column in results,put the column's name in this array.
  *    If you want select all columns, set it null.
  * @param tables
- *    A table's name array, like ["table1","table2"].
+ *    A table's name,if you want to select from multi-table,put them in array, like ["table1","table2"].
  * @param conditions
- *    A conditions array, for example ["condition1='xxxxxx'","condition2=condition3='xxxx'"].
+ *    A conditions array, for example ["condition1='xxx'","condition2='x' or condition3='xx'"],
+ *    Each condition in array will combine with "and".
  *    If you want select all rows, set it null.
  * @param extras
  *    An extra conditions array, for example ["group by xxx","order by xxx"].
@@ -600,6 +534,8 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
     console.log("Error: table's name is null!");
     callback("error");
     return;
+  }else if(typeof tables == 'string'){
+    sTablesStr = sTablesStr + tables;
   }else{
     tables.forEach(function(table){
       sTablesStr = sTablesStr + table + ",";

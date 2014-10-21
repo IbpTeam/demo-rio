@@ -8,7 +8,7 @@
 var ip = '127.0.0.1';
 var port = ':8888';
 // Template engine
-function gen_popup_dialog(title, message){
+function gen_popup_dialog(title, message, data_json){
   $("#popup_dialog").remove();
   var header_btn = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
   var header_title = $('<h4 class="modal-title"></h4>');
@@ -20,8 +20,8 @@ function gen_popup_dialog(title, message){
   body.html(message);
   
   var footer = $('<div class="modal-footer"></div>');
-  var footer_edit = $('<button type="button" class="btn btn-success" onclick="gen_edit_dialog()">Edit</button>');
-  footer.append(footer_edit);
+  //var footer_edit = $('<button type="button" class="btn btn-success" data-dismiss="modal" id="edit_button">Edit</button>');
+  //footer.append(footer_edit);
   var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
   footer.append(footer_btn);
   
@@ -32,7 +32,7 @@ function gen_popup_dialog(title, message){
   
   var dialog = $('<div class="modal-dialog"></div>');
   dialog.append(content);
-  var div = $('<div id="popup_dialog" class="modal fade"></div>');
+  var div = $('<div id="popup_dialog" class="modal fade" data-backdrop="false"></div>');
   div.append(dialog);
   $('body').append(div);
   $("#popup_dialog").modal('show');
@@ -47,105 +47,118 @@ function gen_popup_dialog(title, message){
   $('#popup_dialog').on('hidden.bs.modal', function(){
     $(this).remove();
   });
+  $('#edit_button').on('click', function(){
+    if(data_json != null){
+      $(this).removeData('bs.modal');
+      gen_edit_dialog(data_json);
+    }
+    else{
+      window.alert("You can not edit this file.");
+    }
+  });
 }
-function gen_edit_dialog(message){
-  console.log("gen edit dialog!");
+
+function get_all_data_file(data_json){
+  console.log('get all data file', data_json);
+  var file_propery='';
+  for(var key in data_json){
+    if(key == 'props' || key == 'URI'){
+      continue;
+    }
+    file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
+  }
+  if(data_json.hasOwnProperty('URI')){
+    file_propery += '<button type="button" class="btn btn-primary" id="edit_button" data-dismiss="modal">Edit</button>';
+  }
+  gen_popup_dialog('Property', file_propery, data_json);
 }
+
+function gen_edit_dialog(data_json){
+  console.log("gen edit dialog!", data_json);
+  var file_propery='<form>';
+  for(var key in data_json){
+    if(key == 'props' || key == 'URI'){
+      continue;
+    }
+    file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
+  }
+  file_propery += '</form></br>';
+  file_propery += '<button type="button" class="btn btn-success" id="save_button" data-dismiss="modal">Save</button>';
+  gen_popup_dialog('Edit', file_propery);
+  $('#save_button').on('click', function(){
+    for(var key in data_json){
+      if(key == 'props' || key == 'URI'){
+        continue;
+      }
+      var new_value = document.getElementById(key).value;
+      data_json[key] = new_value;
+    }
+    data_json['category'] = data_json['URI'].substring(data_json['URI'].lastIndexOf('#')+1, data_json['URI'].length);
+    delete data_json.props;
+    DataAPI.updateDataValue(function(result){
+      if(result == 'success'){
+        window.alert("Saved successfully!");
+      }
+      else{
+        window.alert("Saved failed!");
+      }
+    }, [data_json]);
+  });
+}
+
+function sendKeyToWindow(windowname, key){
+  console.log("sendkey " + key + " To Window " + windowname);
+  AppAPI.sendKeyToApp(function(){}, windowname, key);
+}
+
 function cb_get_data_source_file(data_json){
   console.log('get data source file', data_json);
   if(!data_json['openmethod'] || !data_json['content']){
     window.alert('openmethod or content not found.');
     return false;
   }
+
   var method = data_json['openmethod'];
   var content = data_json['content'];
-  
-  var path, arg, pos, suffix = '', results_arr = []; 
   switch(method){
-  case 'direct':
-    //http://localhost:8888/home/v1/demo-resources/contactsphoto/jianmin.jpg?query=absolute
-    if(/http:\/\/([^\?]*)\?(.*)/.test(content)){
-      results_arr = content.replace(/http:\/\/([^\?]*)\?(.*)/, '$1\n$2').split('\n');
-      path = results_arr[0];
-      //arg =  results_arr[1];
-      pos = path.lastIndexOf(".");
-      if(pos != -1){
-        suffix = path.substr(pos+1).toLowerCase();
-      }
-    }
-    //{"openmethod":"direct","content":"/home/cos/Templates/resources/contactsphoto/wangfeng.jpg"}
-    else
-    {
-      path = content;
-      pos = path.lastIndexOf(".");
-      if(pos != -1){
-        suffix = path.substr(pos+1).toLowerCase();
-      }
-    }
-    break;
-  default:
-    break;
-  }
-  
-  var file_content ='';
-  switch(method){
-  case 'direct':
-    switch(suffix){
-    case 'jpg':
-      file_content = '<img src=' + content + '>';
+    case 'alert':
+      window.alert(content);
       break;
-    case 'txt':
-      //var data = '';
-      file_content = $("<p></p>").load(content);
-      //console.log('*****************file_content', data);
-//      if(frontend_type == frontend_local){ 
-//        results.push('<div class="icon"> <img src="' + file['props'].img + '"></div>');
-//      }else{
-//        results.push('<div class="icon"> <img src="' + file['props'].img + '?query=absolute"></div>');
-//      }
-      break;
-    case 'ogg':
-      file_content = $('<audio controls></audio>');
-      file_content.html('<source src=' + content + ' type="audio/ogg">');
-      //"http://localhost:8888/home/v1/resources/musics/whoyouare.mp3?query=absolute"
+    case 'html':
+      var file_content;
+      var format = data_json['format'];
+      switch(format){
+        case 'audio':
+          file_content = $('<audio controls></audio>');
+          file_content.html('<source src=\"' + content + '\"" type="audio/ogg">');
+          break;
+        case 'div':
+          file_content = content;
+          break;
+        case 'txtfile':
+          file_content = $("<p></p>").load(content);
+          break;
+        default:
+          file_content = content;
+          break;
+      }
+
+      var title = data_json['title'];
+      if (!data_json['windowname']){
+        gen_popup_dialog(title, file_content);
+      }else{
+        gen_popup_dialog("窗口控制", "<div>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+          </div>");
+      }
       break;
     default:
-      window.alert('suffix is not recognized.');
       break;
-    }
-    gen_popup_dialog('文件浏览', file_content);
-    break;
-  case 'local':
-    var commend = "xdg-open \"" + content + "\"";
-    DataAPI.openLocalDataSourceByPath(function (resultstr){
-      file_content = $("<p>" + resultstr + "</p>");
-      gen_popup_dialog('文件打开', file_content);
-    }, content);
-    break;
-  case 'remote':
-    //window.alert('需要使用noVNC打开' + '\nopenmethod:'+method+'\ncontent:'+content);
-    var host = window.location.host.split(':')[0];       //localhost run
-    console.log(host);
-    var password = "demo123";
-    function turnToVNC()
-    {
-      window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
-    }
-    setTimeout(turnToVNC,1000);
-    break;
   }
-  //{"openmethod":"local","content":"/home/cos/Templates/resources/documents/preseed\u5B9E\u73B0livecd\u81EA\u52A8\u5B89\u88C5.docx"}
-}
-function cb_get_all_data_file(data_json){
-  console.log('get all data file', data_json);
-  var file_propery='';
-  for(var key in data_json){
-    if(key == 'props'){
-      continue;
-    }
-    file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
-  }
-  gen_popup_dialog('属性', file_propery);
+  return;
 }
 
 function path_transfer(front_path, base_dir){
@@ -312,7 +325,7 @@ function Folder(jquery_element) {
                   self.emit('navigate', file_json);
                 break;
                 case 'file':
-                  DataAPI.getDataSourceByUri(cb_get_data_source_file, file_json.URI);
+                  DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
                 break;
               }
             break;
@@ -338,7 +351,7 @@ function Folder(jquery_element) {
                   gen_popup_dialog('属性', file_propery);
                 break;
                 case 'file':
-                  DataAPI.getDataByUri(cb_get_all_data_file, file_json.URI);
+                  DataAPI.getDataByUri(get_all_data_file, file_json.URI);
                 break;
               }
             break;
@@ -353,7 +366,7 @@ function Folder(jquery_element) {
                   item['is_delete'] = 1;
                   item['URI'] = file_json['URI'];
                   item['category'] = file_json['props']['path'].substring(file_json['props']['path'].indexOf('/')+1, file_json['props']['path'].lastIndexOf('/'));
-                  DataAPI.updateDataValue(self.after_delete_file, [item]);
+                  DataAPI.rmDataByUri(self.after_delete_file,item['URI']);
                 break;
               }
             break;         
@@ -399,11 +412,11 @@ function Folder(jquery_element) {
         break;
       case 'file':
         if(file_json.URI.indexOf('#') != -1){
-          DataAPI.getDataSourceByUri(cb_get_data_source_file, file_json.URI);
+          DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
         }
         break;
       case 'other':
-        cb_get_all_data_file(file_json);
+        get_all_data_file(file_json);
         break;
       }
     }else{
@@ -554,6 +567,8 @@ Folder.prototype.set_icon = function(postfix){
       return 'Pictures';
     case 'png':
       return 'Pictures';
+    case 'html5ppt':
+      return 'html5ppt'
     default:
       return 'Documents';
   }
@@ -872,7 +887,7 @@ Folder.prototype.gen_view_table = function(files){
         global_self.emit('navigate', file_json);
         break;
       case 'file':
-        DataAPI.getDataSourceByUri(cb_get_data_source_file, file_json.URI);
+        DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
         break;
       }
     });

@@ -50,12 +50,17 @@ function addDevice(device){
       if(devicesList[device.device_id][attr]!=device[attr]){
         console.log("change "+attr+" to "+device[attr]);
         devicesList[device.device_id][attr]=device[attr];
+        changeAttr[attr]=device[attr];
         changeFlag=1;
       }
     }
-    if(changeFlag=1){
-      //changeAttr.conditions:["device_id='"+origPath+"'"],
-     //   category:getCategory(origPath).category,
+    if(changeFlag==1){
+      changeAttr.conditions=["device_id='"+device.device_id+"'"];
+      changeAttr.category="devices";
+      console.log(changeAttr);
+      commonDAO.updateItem(changeAttr,function(result){
+        console.log(result);
+      });
     }
     console.log("OLD device");
     console.log("----------------------devicesList:-----------------------");
@@ -107,7 +112,7 @@ function startDeviceDiscoveryService(){
 //  io.sockets.on('connection', function (socket) {
     getDeviceList();
     mdns.addDeviceListener(function (signal, args){
-      if(args.txt==null){
+      if(args==null || args.txt==null){
         return;
       }
       if(args.txt[0]=="demo-rio"){
