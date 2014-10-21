@@ -510,6 +510,7 @@ exports.writeWidgetConf = writeWidgetConf;
 /** 
  * @Method: readDesktopFile
  *   find a desktop file with name of sFilename
+ *   exmple: var sFileName = 'cinnamon';
  *
  * @param: callback
  *    @result, (_err,result)
@@ -547,17 +548,18 @@ function readDesktopFile(callback, sFileName) {
   var systemType = os.type();
   if (systemType === "Linux") {
     function findDesktopFileCb(result) {
-      if (result === "Not found" || result == "") {
+      if (result === "Not found" || result === "") {
         console.log("desktop file NOT FOUND!");
-        var _err = "readDesktopFile : desktop file NOT FOUND!"
+        var _err = "readDesktopFile : desktop file NOT FOUND!";
         callback(_err, null);
       } else {
         function parseDesktopFileCb(err, attr) {
           if (err) {
             console.log(err);
-            var _err = "readDesktopFile : parse desktop file error!"
+            var _err = "readDesktopFile : parse desktop file error!";
             callback(_err, null);
           } else {
+            console.log("readDesktopFile success!");
             console.log(attr);
             callback(null, attr);
           }
@@ -569,9 +571,8 @@ function readDesktopFile(callback, sFileName) {
     var sFullName = sFileName + ".desktop";
     findDesktopFile(findDesktopFileCb, sFullName)
   } else {
-    console.log("Not a linux system! Not supported now!")
+    console.log("Not a linux system! Not supported now!");
   }
-
 }
 exports.readDesktopFile = readDesktopFile;
 
@@ -640,7 +641,6 @@ function parseDesktopFile(callback, sPath) {
           return "$";
         })
         data = data.split('$');
-        console.log(data[0]);
         if (data[0] === "") {
           data.shift(); //the first element is a "", remove it
         }
@@ -686,7 +686,7 @@ function parseDesktopFile(callback, sPath) {
 
 /** 
  * @Method: deParseDesktopFile
- *    To deparse a Desktop File json object back into a .desktop file. The input 
+ *    To deparse a Desktop File json object back into a .desktop file. The input
  *    object should contain complete information of this file
  *
  * @param1: callback
@@ -698,7 +698,7 @@ function parseDesktopFile(callback, sPath) {
  *                input error : "deParseDesktopFile : input is empty!"
  *
  *    @param2: result
- *        string, the result is in string good for fs.writeFile() to write back 
+ *        string, the result is in string good for fs.writeFile() to write back
  *                .desktop file.
  *
  * @param2: oDesktop
@@ -761,8 +761,7 @@ function deParseDesktopFile(callback, oDesktop) {
 /** 
  * @Method: findDesktopFile
  *    To find a desktop file with name of sFilename. Since we maintain all .des-
- *    -ktopfile
- *    here, the searching path would be /.desktop/applications.
+ *    -ktopfile here, the searching path would be /.desktop/applications.
  *
  * @param1: callback
  *    @result
@@ -781,7 +780,7 @@ function findDesktopFile(callback, sFileName) {
   if (systemType === "Linux") {
     var xdgDataDir = [];
     var exec = require('child_process').exec;
-    var sBoundary = config.RESOURCEPATH + '/.desktop/applications';
+    var sBoundary = config.RESOURCEPATH + '/.desktop/applications -name ';
     var sCommand = 'find ' + sBoundary + sFileName;
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
@@ -791,6 +790,7 @@ function findDesktopFile(callback, sFileName) {
       }
       if (stdout == '') {
         console.log('Not Found!');
+        //callback("Not found");
       } else {
         var result = stdout.split('\n');
         callback(result[0]);
@@ -803,8 +803,8 @@ function findDesktopFile(callback, sFileName) {
 
 /** 
  * @Method: findAllDesktopFiles
- *    To find all .desktop files from system. First, it would echo $XDG_DATA_DIRS
- *    to get all related dirs. Then sreacing in those dirs.
+ *    To find all .desktop files from system. It would echo $XDG_DATA_DIRS
+ *    to get all related dirs first, then sreach in those dirs.
  *
  * @param: callback
  *    @result
@@ -873,43 +873,113 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
  * @Method: writeDesktopFile
  *    modify a desktop file
  *
- * @param1: callback
- *    @result
- *    string, a full path string,
- *            as: '/usr/share/applications/cinnamon.desktop'
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error   : "writeDesktopFile : desktop file NOT FOUND!"
+ *                write error  : "writeDesktopFile : write desktop file error!"
+ *                parse error  : "writeDesktopFile : parse desktop file error!"
+ *                parse error  : "writeDesktopFile : deparse desktop file error!"
+ *                input  error : "writeDesktopFile : entry content empty!" 
+ *
+ *    @param2: result
+ *        string, retrieve 'success' when success
  *
  * @param2: sFileName
  *    string, a file name
- *    exmple: var sFileName = 'cinnamon.desktop';
+ *    exmple: var sFileName = 'cinnamon';
  *
  * @param3: oEntries
  *    object, this object indludes those entries that you want
  *            to change in this desktop file.
  *
  *    example:
- *    var oEntries =
- *    {
- *      Comment: Window management and application launching of Mac OX X,
- *      NoDisplay: false
+ *    var oEntries = {
+ *      "[Desktop Entry]": {
+ *        "Name": "Videos",
+ *        "Name[zh_CN]": "test",
+ *        "Comment": "test",
+ *        "Comment[zh_CN]": "test",
+ *        "Keywords": "test",
+ *        "Exec": "test",
+ *        "Icon": "test",
+ *        "Terminal": "false",
+ *        "Type": "test",
+ *        "Categories": "test",
+ *      },
+ *      "[Desktop Action Play]": {
+ *        "Name": "test/test",
+ *        "Exec": "test --play-pause",
+ *        "OnlyShowIn": "test;"
+ *      },
+ *      "[Desktop Action Next]": {
+ *        "Name": "test",
+ *        "Exec": "test --next",
+ *        "OnlyShowIn": "Unity;"
+ *      }
  *    }
  *
  **/
-/*
-//TODO:
-//This part is not completed,the logic needs to be modified.
 function writeDesktopFile(callback, sFileName, oEntries) {
-  if (typeof callback !== 'function')
-    throw 'Bad type of callback!!';
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    function findDesktopFileCb(result_find) {
+      if (result_find === "Not found" || result_find === "") {
+        console.log("desktop file NOT FOUND!");
+        var _err = "writeDesktopFile : desktop file NOT FOUND!";
+        callback(_err, null);
+      } else {
+        function parseDesktopFileCb(err, attr) {
+          if (err) {
+            console.log(err);
+            var _err = "writeDesktopFile : parse desktop file error!";
+            callback(_err, null);
+          } else {
+            for (var entry in oEntries) {
+              if (oEntries[entry]) {
+                attr[entry] = oEntries[entry];
+              } else {
+                console.log("entry content empty!");
+                var _err = "writeDesktopFile : entry content empty!";
+                callback(_err, null);
+              }
+            }
 
-  function findDesktopFileCb(result) {
-    function parseDesktopFileCb(attr) {
-      attr = JSON.stringify(attr, null, 4);
-      fs.writeFileSync('/home/xiquan/testFile/testWrite.txt', attr);
-      callback(attr);
+            function deParseDesktopFileCb(err, result_deparse) {
+              if (err) {
+                console.log(err);
+                var _err_deparse = "writeDesktopFile : deparse desktop file error!";
+                callback(_err_deparse, null);
+              } else {
+                var sWritePath = result_find;
+                console.log(sWritePath);
+                fs.writeFile(sWritePath, result_deparse, function(err) {
+                  if (err) {
+                    console.log(err);
+                    var _err_write = "writeDesktopFile : write desktop file error!";
+                    callback(_err_write, null);
+                  } else {
+                    console.log("write file success!");
+                    callback(null, "success");
+                  }
+                })
+              }
+            }
+            console.log(attr);
+            deParseDesktopFile(deParseDesktopFileCb, attr);
+          }
+        }
+        var sPath = result_find;
+        parseDesktopFile(parseDesktopFileCb, sPath);
+      }
     }
-    var sPath = result;
-    parseDesktopFile(parseDesktopFileCb, sPath);
+    var sFullName = sFileName + ".desktop";
+    findDesktopFile(findDesktopFileCb, sFullName)
+  } else {
+    console.log("Not a linux system! Not supported now!");
   }
-  findDesktopFile(findDesktopFileCb, sFileName)
 }
-exports.writeDesktopFile = writeDesktopFile;*/
+exports.writeDesktopFile = writeDesktopFile;
+

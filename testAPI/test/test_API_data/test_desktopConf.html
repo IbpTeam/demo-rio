@@ -169,10 +169,44 @@
     };
   }
 
+  var test_entry = 
+  {
+    "[Desktop Entry]": {
+      "Name": "Videos",
+      "Name[zh_CN]": "\u89C6\u9891",
+      "Comment": "Play movies",
+      "Comment[zh_CN]": "\u64AD\u653E\u7535\u5F71",
+      "Keywords": "Video;Movie;Film;Clip;Series;Player;DVD;TV;Disc;",
+      "Exec": "totem %U",
+      "Icon": "totem",
+      "Terminal": "false",
+      "Type": "Application",
+      "Categories": "GTK;GNOME;AudioVideo;Player;Video;",
+      "MimeType": "test",
+      "X-GNOME-DocPath": "totem/totem.xml",
+      "X-GNOME-Bugzilla-Bugzilla": "GNOME",
+      "X-GNOME-Bugzilla-Product": "totem",
+      "X-GNOME-Bugzilla-Component": "general",
+      "X-GNOME-Bugzilla-Version": "3.6.3",
+      "X-GNOME-Bugzilla-OtherBinaries": "totem-video-thumbnailer;totem-audio-preview;",
+      "X-GNOME-Bugzilla-ExtraInfoScript": "/usr/lib/totem/totem/totem-bugreport.py",
+      "StartupNotify": "true",
+      "Actions": "Play;Next;Previous;Mute;Fullscreen;",
+      "X-Ubuntu-Gettext-Domain": "totem",
+      "test_entry": "good"
+    },
+    "[Desktop Action Play]": {
+      "Name": "Play/Pause",
+      "Exec": "totem --play-pause",
+      "OnlyShowIn": "Unity;",
+      "test_entry": "good"
+    }
+  }
+
   function test_writeDesktopFile(writeDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'cinnamon.desktop';
-      var oEntries = {};
+      var sFileName = 'totem';
+      var oEntries = test_entry;
       data.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
     });
   }
