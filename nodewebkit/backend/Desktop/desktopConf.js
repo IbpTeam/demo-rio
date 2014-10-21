@@ -558,6 +558,7 @@ function readDesktopFile(callback, sFileName) {
             var _err = "readDesktopFile : parse desktop file error!"
             callback(_err, null);
           } else {
+            console.log(attr);
             callback(null, attr);
           }
         }
@@ -586,9 +587,8 @@ exports.readDesktopFile = readDesktopFile;
  *                parse file error : "parseDesktopFile : read desktop file error"
  *                entry match error : "parseDesktopFile : desktop file entries not match!";
  *
- * @param2: callback
- *    @result
- *        object
+ *    @param2: result
+ *        object,
  *
  *    result example:
  *  {
@@ -630,7 +630,7 @@ function parseDesktopFile(callback, sPath) {
         var _err = "parseDesktopFile : read desktop file error";
         callback(_err, null);
       } else {
-        var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n/g; //match all string like [Desktop Entry]
+        var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n/g; //match all string like [***]
         var desktopHeads = [];
         var oAllDesktop = {};
         data = data.replace(re, function() {
@@ -640,16 +640,21 @@ function parseDesktopFile(callback, sPath) {
           return "$";
         })
         data = data.split('$');
-        data.shift(); //the first element is a [""], remove it
+        console.log(data[0]);
+        if (data[0] === "") {
+          data.shift(); //the first element is a "", remove it
+        }
         if (desktopHeads.length === data.length) {
           for (var i = 0; i < data.length; i++) {
             var lines = data[i].split('\n');
             var attr = {};
             for (var j = 0; j < lines.length - 1; ++j) {
-              var tmp = lines[j].split('=');
-              attr[tmp[0]] = tmp[1];
-              for (var k = 2; k < tmp.length; k++) {
-                attr[tmp[0]] += '=' + tmp[k];
+              if (lines[j] !== "") {
+                var tmp = lines[j].split('=');
+                attr[tmp[0]] = tmp[1];
+                for (var k = 2; k < tmp.length; k++) {
+                  attr[tmp[0]] += '=' + tmp[k];
+                }
               }
             }
             oAllDesktop[desktopHeads[i]] = attr;
@@ -660,6 +665,16 @@ function parseDesktopFile(callback, sPath) {
           callback(_err, null);
         }
         console.log("Get desktop file success!");
+
+        function deParseDesktopFileCb(err, result) {
+          if (err)
+            return;
+          fs.writeFile("/home/xiquan/testFile/testDeParse.desktop", result, function(err) {
+            if (err)
+              console.log(error);
+          })
+        }
+        deParseDesktopFile(deParseDesktopFileCb, oAllDesktop);
         callback(null, oAllDesktop);
       }
     });
@@ -670,8 +685,83 @@ function parseDesktopFile(callback, sPath) {
 
 
 /** 
+ * @Method: deParseDesktopFile
+ *    To deparse a Desktop File json object back into a .desktop file. The input 
+ *    object should contain complete information of this file
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                input error : "deParseDesktopFile : input is not an object!"
+ *                input error : "deParseDesktopFile : input is empty!"
+ *
+ *    @param2: result
+ *        string, the result is in string good for fs.writeFile() to write back 
+ *                .desktop file.
+ *
+ * @param2: oDesktop
+ *    object, this object should contain complete info of it's .desktop file
+ *
+ *    object example:
+ *  {
+ *
+ *    [Desktop Entry]:{
+ *        Type: Application
+ *        Name: Cinnamon
+ *        Comment: Window management and application launching
+ *        Exec: /usr/bin / cinnamon - launcher
+ *        X - GNOME - Bugzilla - Bugzilla: GNOME
+ *        X - GNOME - Bugzilla - Product: cinnamon
+ *        X - GNOME - Bugzilla - Component: general
+ *        X - GNOME - Bugzilla - Version: 1.8.8
+ *        Categories: GNOME;GTK;System;Core;
+ *        OnlyShowIn: GNOME;
+ *        NoDisplay: true
+ *        X - GNOME - Autostart - Phase: WindowManager
+ *        X - GNOME - Provides: panel;windowmanager;
+ *        X - GNOME - Autostart - Notify: true
+ *        X - GNOME - AutoRestart: true
+ *    },
+ *    [Desktop Action Compose]:{
+ *              ...
+ *    }
+ *          ...
+ *  }
+ *
+ *
+ **/
+function deParseDesktopFile(callback, oDesktop) {
+  if (typeof callback !== 'function')
+    throw 'Bad type for callback';
+  if (typeof oDesktop !== 'object') {
+    console.log("error : oDesktop is not an object!");
+    var _err = "deParseDesktopFile : input is not an object!";
+    callback(_err, null);
+  } else if (oDesktop === {}) {
+    console.log("error : oDesktop is empty!");
+    var _err = "deParseDesktopFile : input is empty!";
+    callback(_err, null);
+  } else {
+    var sDesktop = "";
+    for (var head in oDesktop) {
+      sDesktop = sDesktop + head + '\n';
+      var oContent = oDesktop[head];
+      for (var entry in oContent) {
+        var sEntry = entry + '=' + oContent[entry] + '\n';
+        sDesktop = sDesktop + sEntry;
+      }
+      sDesktop = sDesktop + '\n';
+    }
+    callback(null, sDesktop);
+  }
+}
+
+/** 
  * @Method: findDesktopFile
- *    To find a desktop file with name of sFilename. Since we maintain all .desktopfile
+ *    To find a desktop file with name of sFilename. Since we maintain all .des-
+ *    -ktopfile
  *    here, the searching path would be /.desktop/applications.
  *
  * @param1: callback
@@ -691,7 +781,8 @@ function findDesktopFile(callback, sFileName) {
   if (systemType === "Linux") {
     var xdgDataDir = [];
     var exec = require('child_process').exec;
-    var sCommand = 'find ' + config.RESOURCEPATH + '/.desktop/applications -name ' + sFileName;
+    var sBoundary = config.RESOURCEPATH + '/.desktop/applications';
+    var sCommand = 'find ' + sBoundary + sFileName;
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
         console.log(stderr);
