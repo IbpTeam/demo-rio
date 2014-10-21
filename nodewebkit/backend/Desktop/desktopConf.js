@@ -560,7 +560,6 @@ function readDesktopFile(callback, sFileName) {
             callback(_err, null);
           } else {
             console.log("readDesktopFile success!");
-            console.log(attr);
             callback(null, attr);
           }
         }
@@ -958,7 +957,6 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                 })
               }
             }
-            console.log(attr);
             deParseDesktopFile(deParseDesktopFileCb, attr);
           }
         }
