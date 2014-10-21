@@ -665,16 +665,6 @@ function parseDesktopFile(callback, sPath) {
           callback(_err, null);
         }
         console.log("Get desktop file success!");
-
-        function deParseDesktopFileCb(err, result) {
-          if (err)
-            return;
-          fs.writeFile("/home/xiquan/testFile/testDeParse.desktop", result, function(err) {
-            if (err)
-              console.log(error);
-          })
-        }
-        deParseDesktopFile(deParseDesktopFileCb, oAllDesktop);
         callback(null, oAllDesktop);
       }
     });
