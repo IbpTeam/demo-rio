@@ -14,7 +14,6 @@ var uniqueID = require("../uniqueID");
 var fs = require('fs');
 var path = require("path");
 var bfh = require("./basicFileHandle");
-var repo = require("./repo");
 var filesHandle = require("../filesHandle");
 var commonDAO = require("../DAO/CommonDAO");
 
@@ -217,10 +216,11 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
+var length;
 exports.updateItems = function(oItems,callback){
+  console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{");
   console.log(oItems);
-  var count = 0;
-  var length = oItems.length;
+  length = oItems.length;
   for(var k in oItems){
     var item = oItems[k];
     var category = item.category;
@@ -232,12 +232,12 @@ exports.updateItems = function(oItems,callback){
       filePath = item.path;
       desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
     }
-    updateItemsHelper(callback,desFilePath,item,count,length);
+    updateItemsHelper(callback,desFilePath,item);
   }
 }
 
 //combine data with callback
-function updateItemsHelper(callback,desFilePath,item,count,length){
+function updateItemsHelper(callback,desFilePath,item){
   fs.readFile(desFilePath,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
@@ -262,10 +262,11 @@ function updateItemsHelper(callback,desFilePath,item,count,length){
               return;
             }
             else{
-              if(count == length-1){
+              length--;
+              if(length == 0){
                 callback("success");
+                console.log("write des file success!");
               }
-              count++;
             }
           });
         }
