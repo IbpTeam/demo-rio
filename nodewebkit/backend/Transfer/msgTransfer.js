@@ -354,7 +354,7 @@ function syncResponse(msgObj){
           };
           sendMsg(device,responseMsg);
           iCurrentState = syncState.SYNC_RESPONSE;
-          //syncStart();
+          syncStart();
         });
       }
       break;
