@@ -59,9 +59,12 @@ function recieveMsgCb(msg){
     }
     break;
     case msgType.TYPE_RESPONSE: {
-      //syncResponseCb(oMessage);
+      syncResponse(oMessage);
     }
     break;
+    case msgType.TYPE_START: {
+      syncStart(oMessage);
+    }
     case msgType.TYPE_COMPLETE: {
       //syncCompleteCb(false, oMessage.isComplete,oMessage.deviceId,sRemoteAddress);
     }
@@ -87,7 +90,7 @@ function sendMsg(device,msgObj){
     UID:device.device_id
   };
   var sMsgStr = JSON.stringify(msgObj);
-  console.log("sendMsg-------------------------"+sMsgStr);
+  //console.log("sendMsg-------------------------"+sMsgStr);
   imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
 }
 
@@ -271,8 +274,6 @@ exports.serviceUp = function(device){
  *    Sync request callback.
  * @param msgObj
  *    Message object.
- * @param remoteAddress
- *    Remote device ip.
  */
 function syncRequest(msgObj){
   var device = {
@@ -298,17 +299,6 @@ function syncRequest(msgObj){
           iCurrentState = syncState.SYNC_RESPONSE;
         });
       });
-/*
-      //Start to sync
-      repo.pullFromOtherRepo(remoteAddress,msgObj.path,function(){
-        iCurrentState = syncState.SYNC_COMPLETE;
-        var completeMsg = {
-          type:msgType.TYPE_COMPLETE,
-          ip:config.SERVERIP
-        };
-      console.log("syncRequestCb-------------------------"+device.ip);
-        sendMsg(remoteAddress,completeMsg);
-      });*/
       break;
     }
     case syncState.SYNC_REQUEST:{
@@ -336,32 +326,41 @@ function syncRequest(msgObj){
  *    Sync response callback.
  * @param msgObj
  *    Message object.
- * @param remoteAddress
- *    Remote device ip.
  */
 function syncResponse(msgObj){
+  var device = {
+    device_id:msgObj.deviceId,
+    ip:msgObj.ip,
+    account:msgObj.account
+  };
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
+      //Todo send error msg to reset remote state
       console.log("SYNC ERROR: current state is not request!");
       break;
     }
     case syncState.SYNC_REQUEST:{
-      if(syncList[0] != msgObj.deviceId){
+      if(syncList[0].device_id != msgObj.deviceId){
       console.log("SYNC ERROR: current sync device is wrong!")
       }
       else{
-        iCurrentState = syncState.SYNC_START;
-        //Start to sync
-        repo.pullFromOtherRepo(remoteAddress,msgObj.path,function(){
-          iCurrentState = syncState.SYNC_COMPLETE;
-            var completeMsg = {
-            type:msgType.TYPE_COMPLETE,
-            ip:config.SERVERIP
+        setPubKey(msgObj.pubKey,function(){
+          responseMsg = {
+            type:msgType.TYPE_START,
+            ip:config.SERVERIP,
+            resourcePath:config.RESOURCEPATH,
+            account:config.ACCOUNT,
+            deviceId:config.uniqueID
           };
-          console.log("syncResponseCb-------------------------"+device.ip);
-          sendMsg(remoteAddress,completeMsg);
+          sendMsg(device,responseMsg);
+          iCurrentState = syncState.SYNC_RESPONSE;
+          //syncStart();
         });
       }
+      break;
+    }
+    case syncState.SYNC_RESPONSE:{
+      console.log("SYNC ERROR: current state is not request!");
       break;
     }
     case syncState.SYNC_START:{
@@ -370,6 +369,47 @@ function syncResponse(msgObj){
     }
     case syncState.SYNC_COMPLETE:{
       console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+  }
+}
+
+function syncStart(msgObj){
+  var device = {
+    device_id:msgObj.deviceId,
+    ip:msgObj.ip,
+    account:msgObj.account
+  };
+  switch(iCurrentState){
+    case syncState.SYNC_IDLE:{
+      //Todo send error msg to reset remote state
+      console.log("SYNC ERROR: current state is not response!");
+      break;
+    }
+    case syncState.SYNC_REQUEST:{
+      console.log("SYNC ERROR: current state is not response!");
+      break;
+    }
+    case syncState.SYNC_RESPONSE:{
+    //Start to sync
+    iCurrentState = syncState.SYNC_START;
+    repo.pullFromOtherRepo(msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+      iCurrentState = syncState.SYNC_COMPLETE;
+      var completeMsg = {
+        type:msgType.TYPE_COMPLETE,
+        ip:config.SERVERIP
+      };
+      console.log("Sync complete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      //sendMsg(remoteAddress,completeMsg);
+    });
+      break;
+    }
+    case syncState.SYNC_START:{
+      console.log("SYNC ERROR: current state is not response!");
+      break;
+    }
+    case syncState.SYNC_COMPLETE:{
+      console.log("SYNC ERROR: current state is not response!");
       break;
     }
   }
