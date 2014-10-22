@@ -7,7 +7,7 @@ var os = require('os');
 var config = require("./config");
 var dataDes = require("./FilesHandle/desFilesHandle");
 var commonDAO = require("./DAO/CommonDAO");
-var resourceRepo = require("./FilesHandle/repo");
+var repo = require("./FilesHandle/repo");
 var device = require("./devices");
 var util = require('util');
 var events = require('events'); 
@@ -99,6 +99,7 @@ function getAllTagsByCategory(callback,category){
   function findItemsCb(err,items){
     if(err){
       console.log(err);
+      callback(null);
       return;
     }
     for(var k in items){
@@ -278,7 +279,20 @@ function setTagByUri(callback,oTags,sUri){
     }
     dataDes.updateItems(tmpDesItem,function(result){
       if(result === "success"){
-        callback("success");
+        var files=[];
+        for(var k in tmpDesItem) {
+          var desFilePath;
+          if(tmpDesItem[k].category === "Contacts"){
+            desFilePath = config.RESOURCEPATH + '/.des/contacts/'+tmpDesItem[k].name+'.md';
+          }
+          else{
+            desFilePath = (tmpDesItem[k].path.replace(/\/resources\//,'/resources/.des/')) + '.md';
+          }
+          files.push(desFilePath);
+        }
+        repo.repoChsCommit(config.RESOURCEPATH,files,function(){
+          callback(result);
+        });
       }else{
         console.log("error in update des file!");
         return;
@@ -315,7 +329,7 @@ function rmTagsByUri(callback,oTags,oUri){
       console.log(err);
       return;
     }
-    buildDeleteItems(allFiles,resultDoc)
+    buildDeleteItems(allFiles,resultDoc);
     commonDAO.findItems(null,['music'],sCondition,null,function(err,resultMusic){
       if(err){
         console.log(err);
@@ -336,8 +350,24 @@ function rmTagsByUri(callback,oTags,oUri){
           buildDeleteItems(allFiles,resultVideo)
           var resultItems = doDeleteTags(allFiles,oTags);
           dataDes.updateItems(resultItems,function(result){
+            console.log("{{{{{{{{{{{{{{{{{{{{{{{{{result:");
+            console.log(result);
             if(result === "success"){
-              callback("success")
+              var files=[];
+              for(var k in allFiles) {
+                var desFilePath;
+                if(allFiles[k].category === "Contacts"){
+                  desFilePath = config.RESOURCEPATH + '/.des/contacts/'+allFiles[k].name+'.md';
+                }
+                else{
+                  desFilePath = (allFiles[k].path.replace(/\/resources\//,'/resources/.des/')) + '.md';
+                }
+                files.push(desFilePath);
+              }
+              console.log(files);
+              repo.repoChsCommit(config.RESOURCEPATH,files,function(){
+                callback(result);
+              });
             }else{
               console.log("error in update des files");
               return;
@@ -398,7 +428,21 @@ function rmTagsAll(callback,oTags){
           var resultItems = doDeleteTags(allFiles,oTags);
           dataDes.updateItems(resultItems,function(result){
             if(result === "success"){
-              callback("success");
+              var files=[];
+              for(var k in allFiles) {
+                var desFilePath;
+                if(allFiles[k].category === "Contacts"){
+                  desFilePath = config.RESOURCEPATH + '/.des/contacts/'+allFiles[k].name+'.md';
+                }
+                else{
+                  desFilePath = (allFiles[k].path.replace(/\/resources\//,'/resources/.des/')) + '.md';
+                }
+                files.push(desFilePath);
+              }
+              console.log(files);
+              repo.repoChsCommit(config.RESOURCEPATH,files,function(){
+                callback(result);
+              });
             }else{
               console.log("error in update des files");
               return;

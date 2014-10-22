@@ -366,7 +366,7 @@ exports.setTagByUri = setTagByUri;
  *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
-  console.log("Request handler 'setTagByUri' was called.");
+  console.log("Request handler 'getFilesByTags' was called.");
   tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesByTags = getFilesByTags;
@@ -418,11 +418,17 @@ exports.rmTagsByUri = rmTagsByUri;
  * @Method: readThemeConf
  *    read file Theme.conf
  *
- * @param: callback
- *    @result
- *    object
+ * @param: readThemeConfCb
+ *    @result, (_err,result)
  *
- *    result example:
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readThemeConf : read Theme config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
+ *
+ *    object example:
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -452,12 +458,19 @@ exports.readThemeConf = readThemeConf;
  * @Method: writeThemeConf
  *    modify file Theme.conf
  *
- * @param: callback
- *    @result
- *    string, retrive "success" when success
+ * @param: readThemeConfCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "writeThemeConf : read Theme.conf error!"
+ *                write error : "writeThemeConf : write Theme config file error!"
+ *
+ *    @param2: result,
+ *        string, retrieve success when success
  *
  * @param: oTheme
- *    object, content of Theme.conf after modified
+ *    object, only content that needs to be modified
  *
  *    oThem example:
  *    var oTheme =
@@ -481,7 +494,7 @@ exports.readThemeConf = readThemeConf;
  *
  *
  **/
-function writeThemeConf(writeThemeConfCb, oTheme) {
+function writeThemeConf(readThemeConfCb, oTheme) {
   console.log("Request handler 'writeThemeConf' was called.");
   desktopConf.writeThemeConf(writeThemeConfCb, oTheme);
 }
@@ -491,9 +504,15 @@ exports.writeThemeConf = writeThemeConf;
  * @Method: readWidgetConf
  *    read file Widget.conf
  *
- * @param: callback
- *    @restult
- *        object
+ * @param: readWidgetConfCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readWidgetConf : read Theme config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
  *
  *    result example:
  *    {
@@ -525,15 +544,18 @@ exports.readWidgetConf = readWidgetConf;
  * @Method: writeThemeConf
  *    modify file Theme.conf
  *
- * @param: callback
- *      @result
- *      Retrive "success" when success
+ * @param: writeWidgetConfCb
+ *    @result, (_err,result)
  *
- * @param: oTheme
- *    object, content of Widget.conf after modified
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "writeWidgetConf : read Widget.conf error!"
+ *                write error : "writeWidgetConf : write Widget config file error!"
  *
- *    oWidget example:
- *    var oWidget =
+ *    @param2: result,
+ *        object, the result in object
+ *
+ *    result example:
  *    {
  *       "icontheme": {
  *           "name": "Mint-X",
@@ -562,10 +584,15 @@ exports.writeWidgetConf = writeWidgetConf;
 /** 
  * @Method: readDesktopFile
  *   find a desktop file with name of sFilename
+ *   exmple: var sFileName = 'cinnamon';
  *
- * @param1: callback
- *    @result
- *        object
+ * @param: readDesktopFileCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "readDesktopFile : desktop file NOT FOUND!"
+ *                parse file error : "readDesktopFile : parse desktop file error!"
  *
  *    result example:
  *    {
@@ -587,8 +614,8 @@ exports.writeWidgetConf = writeWidgetConf;
  *    }
  *
  * @param2: sFileName
- *    string,name of target file
- *    example: var sFileName = 'cinnamon.desktop';
+ *    string,name of target file ,suffix is not required
+ *    example: var sFileName = 'cinnamon';
  *
  **/
 function readDesktopFile(readDesktopFileCb, sFileName) {
@@ -601,24 +628,52 @@ exports.readDesktopFile = readDesktopFile;
  * @Method: writeDesktopFile
  *    modify a desktop file
  *
- * @param1: callback
- *    @result
- *    string, a full path string,
- *            as: '/usr/share/applications/cinnamon.desktop'
+ * @param: writeDesktopFileCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error   : "writeDesktopFile : desktop file NOT FOUND!"
+ *                write error  : "writeDesktopFile : write desktop file error!"
+ *                parse error  : "writeDesktopFile : parse desktop file error!"
+ *                parse error  : "writeDesktopFile : deparse desktop file error!"
+ *                input  error : "writeDesktopFile : entry content empty!" 
+ *
+ *    @param2: result
+ *        string, retrieve 'success' when success
  *
  * @param2: sFileName
  *    string, a file name
- *    exmple: var sFileName = 'cinnamon.desktop';
+ *    exmple: var sFileName = 'cinnamon';
  *
  * @param3: oEntries
  *    object, this object indludes those entries that you want
  *            to change in this desktop file.
  *
  *    example:
- *    var oEntries =
- *    {
- *      Comment: Window management and application launching of Mac OX X,
- *      NoDisplay: false
+ *    var oEntries = {
+ *      "[Desktop Entry]": {
+ *        "Name": "Videos",
+ *        "Name[zh_CN]": "test",
+ *        "Comment": "test",
+ *        "Comment[zh_CN]": "test",
+ *        "Keywords": "test",
+ *        "Exec": "test",
+ *        "Icon": "test",
+ *        "Terminal": "false",
+ *        "Type": "test",
+ *        "Categories": "test",
+ *      },
+ *      "[Desktop Action Play]": {
+ *        "Name": "test/test",
+ *        "Exec": "test --play-pause",
+ *        "OnlyShowIn": "test;"
+ *      },
+ *      "[Desktop Action Next]": {
+ *        "Name": "test",
+ *        "Exec": "test --next",
+ *        "OnlyShowIn": "Unity;"
+ *      }
  *    }
  *
  **/
