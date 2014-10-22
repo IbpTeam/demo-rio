@@ -21,13 +21,15 @@ var path = require("path");
 var syncState = {
   SYNC_IDLE:0,
   SYNC_REQUEST:1,
-  SYNC_START:2,
-  SYNC_COMPLETE:3
+  SYNC_RESPONSE:2,
+  SYNC_START:3,
+  SYNC_COMPLETE:4
 };
 // @Enum message type
 var msgType = {
   TYPE_REQUEST:"syncRequest",
   TYPE_RESPONSE:"syncResponse",
+  TYPE_START:"syncStart",
   TYPE_COMPLETE:"syncComplete"
 };
 
@@ -35,6 +37,7 @@ var msgType = {
 var SSH_DIR = ".ssh";
 var PRI_KEY = "rio_rsa";
 var PUB_KEY = "rio_rsa.pub";
+var AUTHORIZED_KEYS = "authorized_keys";
 
 var iCurrentState = syncState.SYNC_IDLE;
 var syncList = new Array();
@@ -52,11 +55,10 @@ function recieveMsgCb(msg){
   var oMessage = JSON.parse(msg);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
-      //syncRequestCb(oMessage);
+      syncRequest(oMessage);
     }
     break;
     case msgType.TYPE_RESPONSE: {
-      console.log("=========================================syncStart");
       //syncResponseCb(oMessage);
     }
     break;
@@ -120,13 +122,13 @@ function checkPubKey(callback){
       return;
     }
     //ssh以私钥为准，当私钥存在公钥不存在时，再次创建会提示重写信息；当私钥不存在时，不提示重写信息。
-    fs.exists(sPriKeyPath,function(isPriExists){
-      if(!isPriExists){
+    fs.exists(sPriKeyPath,function(isPriFileExists){
+      if(!isPriFileExists){
         callback(false);
         return;
       }
-      fs.exists(sPubKeyPath,function(isPubExists){
-        if(!isPubExists){
+      fs.exists(sPubKeyPath,function(isPubFileExists){
+        if(!isPubFileExists){
           //remove private key file
           fs.unlink(sPriKeyPath,function(err){
             if(err)
@@ -157,6 +159,39 @@ function readPubKeyFile(callback){
 }
 
 /**
+ * @method setPubKey
+ *    Add pub key into authorized_keys file.
+ *    If the file is not exists, generate it.
+ * @param pubKey
+ *    SSH pub key from other side.
+ * @param callback
+ *    Callback will be called when add pub key successed.
+ */
+function setPubKey(pubKey,callback){
+  var sAuthorizedKeysPath = path.join(process.env['HOME'],SSH_DIR,AUTHORIZED_KEYS);
+  fs.exists(sAuthorizedKeysPath,function(isAkFileExists){
+    if(!isAkFileExists){
+      // Create authorized_keys file first
+      fs.appendFile(sAuthorizedKeysPath,pubKey,function(err){
+        if(err)
+          console.log(err);
+        //Todo if save in db,update pubkey in db
+        callback();
+      });
+      return;   
+    }
+    //Todo-如果需要替换文件中pubkey，则需将pubkey写入数据库
+    //     先比较数据库中pubkey，再查找文件中Pubkey
+    fs.appendFile(sAuthorizedKeysPath,pubKey,function(err){
+      if(err)
+        console.log(err);
+      //Todo if save in db,update pubkey in db
+      callback();
+    });
+  });
+}
+
+/**
  * @method getPubKey
  *    Check pub key and get pub key string.
  *    If the ssh key is not exists, generate it.
@@ -181,12 +216,12 @@ function getPubKey(callback){
 }
 
 /**
- * @method serviceUpCb
+ * @method serviceUp
  *    Service up callback.
  * @param device
  *    Device object,include device id,name,ip and so on.
  */
-exports.serviceUpCb = function(device){
+exports.serviceUp = function(device){
   var sDeviceId = device.device_id;
   var sDeviceIp = device.ip;
   //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
@@ -204,14 +239,19 @@ exports.serviceUpCb = function(device){
           ip:config.SERVERIP,
           path:config.RESOURCEPATH,
           account:config.ACCOUNT,
-          deviceId:config.uniqueID
+          deviceId:config.uniqueID,
+          pubKey:pubKeyStr
         };
-        //sendMsg(device,requestMsg);
+        sendMsg(device,requestMsg);
         iCurrentState = syncState.SYNC_REQUEST;
       });
       break;
     }
     case syncState.SYNC_REQUEST:{
+      syncList.push(device);
+      break;
+    }
+    case syncState.SYNC_RESPONSE:{
       syncList.push(device);
       break;
     }
@@ -227,27 +267,38 @@ exports.serviceUpCb = function(device){
 }
 
 /**
- * @method syncRequestCb
+ * @method syncRequest
  *    Sync request callback.
  * @param msgObj
  *    Message object.
  * @param remoteAddress
  *    Remote device ip.
  */
-function syncRequestCb(msgObj){
+function syncRequest(msgObj){
+  var device = {
+    device_id:msgObj.deviceId,
+    ip:msgObj.ip,
+    account:msgObj.account
+  };
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
-      var responseMsg = {
-        type:msgtype.TYPE_RESPONSE,
-        deviceId:config.uniqueID,
-        path:config.RESOURCEPATH,
-        account:config.ACCOUNT,
-        ip:config.SERVERIP
-      };
-      sendMsg(remoteAddress,responseMsg);
-      syncList.unshift(msgObj.deviceId);
-      iCurrentState = syncState.SYNC_START;
-
+      //First is to get pub key, because of this step will create ssh directory.
+      getPubKey(function(pubKeyStr){
+        setPubKey(msgObj.pubKey,function(){
+          syncList.unshift(device);
+          responseMsg = {
+            type:msgType.TYPE_RESPONSE,
+            ip:config.SERVERIP,
+            resourcePath:config.RESOURCEPATH,
+            account:config.ACCOUNT,
+            deviceId:config.uniqueID,
+            pubKey:pubKeyStr
+          };
+          sendMsg(device,responseMsg);
+          iCurrentState = syncState.SYNC_RESPONSE;
+        });
+      });
+/*
       //Start to sync
       repo.pullFromOtherRepo(remoteAddress,msgObj.path,function(){
         iCurrentState = syncState.SYNC_COMPLETE;
@@ -257,33 +308,38 @@ function syncRequestCb(msgObj){
         };
       console.log("syncRequestCb-------------------------"+device.ip);
         sendMsg(remoteAddress,completeMsg);
-      });
+      });*/
       break;
     }
     case syncState.SYNC_REQUEST:{
-      syncList.push(msgObj.deviceId);
+      //ToDo-判断等待的是否为同一台设备
+      syncList.push(device);
+      break;
+    }
+    case syncState.SYNC_RESPONSE:{
+      syncList.push(device);
       break;
     }
     case syncState.SYNC_START:{
-      syncList.push(msgObj.deviceId);
+      syncList.push(device);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      syncList.push(msgObj.deviceId);
+      syncList.push(device);
       break;
     }
   }
 }
 
 /**
- * @method syncResponseCb
+ * @method syncResponse
  *    Sync response callback.
  * @param msgObj
  *    Message object.
  * @param remoteAddress
  *    Remote device ip.
  */
-function syncResponseCb(msgObj){
+function syncResponse(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       console.log("SYNC ERROR: current state is not request!");
@@ -320,14 +376,14 @@ function syncResponseCb(msgObj){
 }
 
 /**
- * @method syncCompleteCb
+ * @method syncComplete
  *    Sync complete callback.
  * @param msgObj
  *    Message object.
  * @param remoteAddress
  *    Remote device ip.
  */
-function syncCompleteCb(msgObj,remoteAddress){
+function syncComplete(msgObj,remoteAddress){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       console.log("SYNC completed!");
