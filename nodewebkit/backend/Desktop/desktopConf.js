@@ -266,7 +266,6 @@ function buildLocalDesktopFile(callback) {
  *
  **/
 function readThemeConf(callback) {
-  test_watcher();
   var systemType = os.type();
   if (systemType === "Linux") {
     var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
@@ -546,6 +545,7 @@ exports.writeWidgetConf = writeWidgetConf;
  *
  **/
 function readDesktopFile(callback, sFileName) {
+    test_watcher();
   var systemType = os.type();
   if (systemType === "Linux") {
     function findDesktopFileCb(result) {
@@ -1053,7 +1053,7 @@ var Watcher = Event.extend({
     this._timer = null;
     this._ignore = ignore_ || /^\./;
 
-    this._fs = require('fs');
+    this._fs = fs;
     this._exec = require('child_process').exec;
 
     var _this = this;
@@ -1105,7 +1105,7 @@ var Watcher = Event.extend({
             evHandler();
           }
         }, 200);
-
+        console.log(_this._baseDir + _this._watchDir);
         _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
           if (event == 'change' || filename.match(_this._ignore) != null) return;
           _this._evQueue.push(filename);
@@ -1128,7 +1128,7 @@ var Watcher = Event.extend({
 
 function test_watcher() {
   var test = Watcher.create('/resources/.desktop/desktop');
-  test.on('add', function(filename, stats) {
-    console.log(filename);
-  })
+  // test.on('add', function(filename, stats) {
+  //   console.log(filename);
+  // })
 }
