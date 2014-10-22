@@ -1075,7 +1075,7 @@ var DirWatcher = Event.extend({
         for (var i = 0; i < files.length; ++i) {
           _this._prev++;
         }
-        _this._watcher = _this._chokidar.watch(_this._baseDir + _this._watchDir,{persistent: false});
+        _this._watcher = _this._chokidar.watch(_this._baseDir + _this._watchDir,{ignoreInitial: true});
         var evHandler = function() {
           _this._watcher.on('add', function(path) {
             console.log('add', path);
