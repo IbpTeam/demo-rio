@@ -266,6 +266,7 @@ function buildLocalDesktopFile(callback) {
  *
  **/
 function readThemeConf(callback) {
+  test_watcher();
   var systemType = os.type();
   if (systemType === "Linux") {
     var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
@@ -545,7 +546,6 @@ exports.writeWidgetConf = writeWidgetConf;
  *
  **/
 function readDesktopFile(callback, sFileName) {
-    test_watcher();
   var systemType = os.type();
   if (systemType === "Linux") {
     function findDesktopFileCb(result) {
@@ -1042,7 +1042,7 @@ var Event = Class.extend(require('events').EventEmitter.prototype);
 var Watcher = Event.extend({
   init: function(dir_, ignore_) {
     if (typeof dir_ == 'undefined') {
-      dir_ = '/桌面';
+      dir_ = '/resources/.desktop/desktop';
     };
     this._prev = 0;
     this._baseDir = undefined;
@@ -1106,10 +1106,15 @@ var Watcher = Event.extend({
           }
         }, 200);
         console.log(_this._baseDir + _this._watchDir);
-        _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
-          if (event == 'change' || filename.match(_this._ignore) != null) return;
-          _this._evQueue.push(filename);
-        });
+        // try {
+        //   _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
+        //     if (event == 'change' || filename.match(_this._ignore) != null) return;
+        //     _this._evQueue.push(filename);
+        //   });
+        // } catch (err) {
+        //   console.log(err);
+        //   return;
+        // }
       });
     });
   },
@@ -1128,6 +1133,9 @@ var Watcher = Event.extend({
 
 function test_watcher() {
   var test = Watcher.create('/resources/.desktop/desktop');
+  fs.watch('/home/xiquan/resources/.desktop/desktop',function(event,filename){
+    console.log("got event: ",event,filename)
+  })
   // test.on('add', function(filename, stats) {
   //   console.log(filename);
   // })
