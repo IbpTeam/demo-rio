@@ -223,12 +223,46 @@
       print(win, result)
     };
   }
-
   function test_findAllDesktopFiles(findAllDesktopFilesCb) {
     WDC.requireAPI(['data'], function(data) {
       var sFileName = 'cinnamon.desktop';
       var oEntries = {};
       data.findAllDesktopFiles(findAllDesktopFilesCb);
+    });
+  }
+
+  function CreatWatcherCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var watcher = result;
+      var win = window.open('');
+      win.document.write("test API CreatWatcher()");
+      win.document.write("<br/>");
+      watcher.on('add',function(path){
+        win.document.write("add file: ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })
+      watcher.on('delete',function(path){
+        win.document.write("delete file: ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })
+      watcher.on('change',function(path,stats){
+        win.document.write("file change : ");
+        win.document.write(path);
+        win.document.write("file stats : ");
+        win.document.write("<br/>");
+        print(win,stats);
+        win.document.write("<br/>");
+      })            
+    };
+  }
+  function test_CreatWatcher(CreatWatcherCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var watchDir = '/resources/.desktop/desktop';
+      data.CreatWatcher(CreatWatcherCb, watchDir);
     });
   }
 
@@ -469,6 +503,47 @@
       data.findAllDesktopFiles(findAllDesktopFilesCb);
     });
   }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('CreatWatcher')">CreatWatcher(CreatWatcherCb)<span><a class="mark" href="#test_CreatWatcher" id="test_CreatWatcher" onclick="test_CreatWatcher(CreatWatcherCb)">test</a></span></h2>
+<div id="CreatWatcher" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function CreatWatcherCb(err, result) {
+    if (err) {
+      print(err);
+    } else {
+      var watcher = result;
+      var win = window.open('');
+      win.document.write("test API CreatWatcher()");
+      win.document.write("<br/>");
+      watcher.on('add',function(path){
+        win.document.write("add file: ");
+        win.document.write(path);
+      })
+      watcher.on('delete',function(path){
+        win.document.write("delete file: ");
+        win.document.write(path);
+      })
+      watcher.on('change',function(path,stats){
+        win.document.write("file change : ");
+        win.document.write(path);
+        win.document.write(stats);
+      })            
+    };
+  }
+  function test_CreatWatcher(CreatWatcherCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.CreatWatcher(CreatWatcherCb);
+    });
+  }  
 </pre>
 </div>
 </div>

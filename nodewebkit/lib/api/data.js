@@ -710,3 +710,9 @@ function findAllDesktopFiles(findAllDesktopFilesCb) {
   desktopConf.findAllDesktopFiles(findAllDesktopFilesCb);
 }
 exports.findAllDesktopFiles = findAllDesktopFiles;
+
+function CreatWatcher(CreatWatcherCb, watchDir) {
+  console.log("Request handler 'CreatWatcher' was called.");
+  return desktopConf.CreatWatcher(CreatWatcherCb, watchDir);
+}
+exports.CreatWatcher = CreatWatcher;

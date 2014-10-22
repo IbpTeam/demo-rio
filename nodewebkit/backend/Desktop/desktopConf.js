@@ -19,6 +19,7 @@ var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
 var fs_extra = require('fs-extra');
+var chokidar = require('chokidar');
 
 
 function newInit(initType) {
@@ -266,7 +267,6 @@ function buildLocalDesktopFile(callback) {
  *
  **/
 function readThemeConf(callback) {
-  test_watcher();
   var systemType = os.type();
   if (systemType === "Linux") {
     var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
@@ -1039,7 +1039,7 @@ var Event = Class.extend(require('events').EventEmitter.prototype);
 //watch  dir :Default is desktop
 //dir_: dir is watched 
 // ignoreInitial_:
-var Watcher = Event.extend({
+var DirWatcher = Event.extend({
   init: function(dir_, ignore_) {
     if (typeof dir_ == 'undefined') {
       dir_ = '/resources/.desktop/desktop';
@@ -1054,67 +1054,56 @@ var Watcher = Event.extend({
     this._ignore = ignore_ || /^\./;
 
     this._fs = fs;
+    this._chokidar = chokidar;
     this._exec = require('child_process').exec;
 
     var _this = this;
     this._exec('echo $HOME', function(err, stdout, stderr) {
-      if (err) throw err;
+      if (err) {
+        var _err = 'CreatWatcher : echo $HOME error';
+        console.log(_err);
+        return _err;
+      };
       _this._baseDir = stdout.substr(0, stdout.length - 1);
       _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
         if (err) {
-          console.log("==== readdir error! ====")
+          console.log("readdir error!")
           console.log(err);
-          return;
+          var _err = 'CreatWatcher : readdir error';
+          return _err;
         }
         for (var i = 0; i < files.length; ++i) {
           _this._prev++;
         }
+        _this._watcher = _this._chokidar.watch(_this._baseDir + _this._watchDir,{persistent: false});
         var evHandler = function() {
-          var filename = _this._evQueue.shift();
-          _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
-            var cur = 0;
-            for (var i = 0; i < files.length; ++i) {
-              cur++;
-            }
-
-            if (_this._prev < cur) {
-              _this._fs.stat(_this._baseDir + _this._watchDir + '/' + filename, function(err, stats) {
-                _this.emit('add', filename, stats);
-              });
-              _this._prev++;
-            } else if (_this._prev > cur) {
-              _this.emit('delete', filename);
-              _this._prev--;
-            } else {
-              if (_this._oldName == null) {
-                _this._oldName = filename;
-                return;
-              }
-              if (_this._oldName == filename) {
-                return;
-              }
-              _this.emit('rename', _this._oldName, filename);
-              _this._oldName = null;
-            }
-            if (_this._evQueue.length != 0) evHandler();
+          _this._watcher.on('add', function(path) {
+            console.log('add', path);
+            _this.emit('add', path);
+          });
+          _this._watcher.on('unlink', function(path) {
+            console.log('unlink', path);
+            _this.emit('delete', path);
+          });
+          _this._watcher.on('change', function(path, stats) {
+            console.log('change', path, stats);
+            _this.emit('change', path, stats);
+          });
+          _this._watcher.on('addDir', function(path) {
+            console.log('addDir', path);
+            _this.emit('addDir', path);
+          });
+          _this._watcher.on('unlinkDir', function(path) {
+            console.log('unlinkDir', path);
+            _this.emit('deleteDir', path);
+          });
+          _this._watcher.on('error', function(err) {
+            console.log('watch error', err);
+            var _err = 'CreatWatcher : watch error';
+            return _err;
           });
         };
-        _this._timer = setInterval(function() {
-          if (_this._evQueue.length != 0) {
-            // _this._evQueue.reverse();
-            evHandler();
-          }
-        }, 200);
-        console.log(_this._baseDir + _this._watchDir);
-        // try {
-        //   _this._watcher = _this._fs.watch(_this._baseDir + _this._watchDir, function(event, filename) {
-        //     if (event == 'change' || filename.match(_this._ignore) != null) return;
-        //     _this._evQueue.push(filename);
-        //   });
-        // } catch (err) {
-        //   console.log(err);
-        //   return;
-        // }
+        evHandler();
       });
     });
   },
@@ -1127,16 +1116,20 @@ var Watcher = Event.extend({
   //close watch()
   close: function() {
     this._watcher.close();
-    clearInterval(this._timer);
+    //clearInterval(this._timer);
   }
 });
 
-function test_watcher() {
-  var test = Watcher.create('/resources/.desktop/desktop');
-  fs.watch('/home/xiquan/resources/.desktop/desktop',function(event,filename){
-    console.log("got event: ",event,filename)
-  })
-  // test.on('add', function(filename, stats) {
-  //   console.log(filename);
-  // })
+function CreatWatcher(callback, watchDir) {
+  var _watcher = DirWatcher.create(watchDir);
+  if (typeof _watcher !== 'string') {
+    console.log('create Watcher success!');
+    callback(null, _watcher);
+  } else {
+    var _err = _watcher;
+    console.log('create Watcher failed!')
+    console.log(_err);
+    callback(_err, null);
+  }
 }
+exports.CreatWatcher = CreatWatcher;
