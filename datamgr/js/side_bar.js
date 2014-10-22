@@ -1,58 +1,12 @@
-//var events = require('events');
-//var util = require('util');
-
-//var fs = require('fs');
-//eval(fs.readFileSync('../backend/api.js')+'');
-
 // Our type
 function SideBar(jquery_element) {
-  //events.EventEmitter.call(this);
   this.element = jquery_element;
   this.favorites = $(jquery_element).children('#favorites');
   this.tags = $(jquery_element).children('#tags');
   this.filters = $(jquery_element).children('#filters');
   this.recent = $(jquery_element).children('#recent');
-  
-  //this.side_bar = sidebar;
   var self = this;
-  
-	/*
-	// Click on blank
-	this.element.parent().on('click', function() {
-		self.element.children('.focus').removeClass('focus');
-	});
-	// Click on file
-	this.element.delegate('.file', 'click', function(e) {
-		self.element.children('.focus').removeClass('focus');
-		$(this).addClass('focus');
-		e.stopPropagation();
-	});
-	// Double click on file
-	this.element.delegate('.file', 'dblclick', function() {
-	  var file_json = self.find_json_by_path($(this).attr('data-path'));
-	  var file_path = file_json.path;
-	  //console.log('file_json:', file_json);
-	  if(file_json){
-      var children = self.side_bar.children('li');
-      for(var i=0; i<children.length; i++){
-        child = $(children[i]);
-        //console.log('child length',child.attr('data-path'), file_path);      
-        if(child.attr('data-path') == file_path){
-          //console.log("match match");
-          self.side_bar.children('.active').removeClass('active');
-          self.side_bar.find('.icon-white').removeClass('icon-white');
-          child.addClass('active');
-          child.children('a').children('i').addClass('icon-white ');
-          break;
-        }
-      }
-		  self.emit('navigate', file_json);//mime.stat(file_path, file_type)
-		}
-	});
-	*/
 }
-
-//util.inherits(SideBar, events.EventEmitter);
 
 SideBar.prototype.set_tags = function(json){
   var self = this;
@@ -62,48 +16,48 @@ SideBar.prototype.set_tags = function(json){
   result.push('<li class="divider"></li>');
   result.push('<li class="nav-header">标签</li>');
 
-  function get_tags(tags){
-    console.log("callback was baclled")
-    var oTags = tags.tags;
-    for(var k=0;k<oTags.length;k++){
-      result.push('<a id='+oTags[k]+' href="#">'+oTags[k]+'</a>'+'<br/>');
-      self.recent.html(result.join('\n'));
+  function get_tags(mytags){
+    console.log("callback was baclled");
+    if(mytags == null){
+      self.tags.html(result.join('\n'));
     }
-    self.tags.html(result.join('\n'));
+    else{
+      var oTags = mytags.tags;
+      for(var k=0;k<oTags.length;k++){
+        result.push('<a id='+oTags[k]+' href="#">'+oTags[k]+'</a>'+'<br/>');
+      }
+      self.tags.html(result.join('\n'));
+      var children = self.tags.children('a');
+      for(var i=0; i<children.length; i++){
+        self.tags.delegate("#"+$(children[i]).attr('id'), "click", function(){
+          var tag = $(this).attr('id');
+          var tag_items = mytags.tagFiles[tag];
+          var filter_result = [];
+          for(var j=0; j<tag_items.length; j++)
+          {
+            DataAPI.getDataByUri(function(result){
+               filter_result.push(result[0]);
+              if(filter_result.length == tag_items.length){
+                self.emit('show_filter_result', filter_result);
+              }
+            }, tag_items[j][0]);
+          }
+        });
+      }
+    }
   }
 
   if(!json[count]){
     self.tags.html(result.join('\n'));
   }else{
-    var category = json[0]['props'].icon;
-    if(category == "Contacts"){
+    if(json[0].hasOwnProperty('URI') && json[0].URI != null){
+      var category = json[0].URI.substring(json[0].URI.lastIndexOf('#')+1, json[0].URI.length);
+      DataAPI.getAllTagsByCategory(get_tags,[category]);
+    }
+    else{
       self.tags.html(result.join('\n'));
     }
-    else if(category == 'none' || 
-      category == 'ppt' || 
-      category == 'pptx'|| 
-      category == 'doc'|| 
-      category == 'docx'|| 
-      category == 'wps'|| 
-      category == 'odt'|| 
-      category == 'et'|| 
-      category == 'txt'|| 
-      category == 'xls'|| 
-      category == 'xlsx' || 
-      category == 'ods' || 
-      category == 'zip' || 
-      category == 'sh' || 
-      category == 'gz' || 
-      category == 'html' || 
-      category == 'et' || 
-      category == 'odt' || 
-      category == 'pdf' || 
-      category == 'powerpoint'){
-      DataAPI.getAllTagsByCategory(get_tags,["Documents"]);
-  }else{
-    DataAPI.getAllTagsByCategory(get_tags,[category]);
   }
-}
 }
 
 /*
@@ -163,41 +117,33 @@ SideBar.prototype.set_filters = function(json){
 		switch(json[0]['props'].icon)
 		{
 		  case 'folder':
-//		    result.push('<input type="button" id="filter_contact" value="联系"/>');
-//		    result.push('<input type="button" id="filter_picture" value="图片"/>');
-//		    result.push('<input type="button" id="filter_music" value="音乐"/>');
-//		    result.push('<input type="button" id="filter_document" value="文档"/>');
 		    break;
 		  case 'Contacts':
 		    result.push('<input type="button" id="filter_135" value="345开头"/>');
-        self.filters.delegate("#filter_135", "click", function(){
-          var keyword = "345";
-//          self.emit('do_filter', keyword, json);
-          self.do_filter(json, keyword);
-        });
+            self.filters.delegate("#filter_135", "click", function(){
+              var keyword = "345";
+//              self.do_filter(json, keyword);
+            });
 		    break;
 		  case 'Pictures':
 		    result.push('<input type="button" id="filter_group" value="版本组"/>');
         self.filters.delegate("#filter_group", "click", function(){
           var keyword = "版本组";
-//          self.emit('do_filter', json, keyword);
-          self.do_filter(json, keyword);
+//          self.do_filter(json, keyword);
         });
 		    break;
 		  case 'Music':
 		    result.push('<input type="button" id="filter_jay" value="东风破"/>');
         self.filters.delegate("#filter_jay", "click", function(){
           var keyword = "东风破";
-//          self.emit('do_filter', json, keyword);
-          self.do_filter(json, keyword);
+//          self.do_filter(json, keyword);
         });
 		    break;
 		  case 'Documents':
 		    result.push('<input type="button" id="filter_hgj" value="COS Desktop"/>');
         self.filters.delegate("#filter_hgj", "click", function(){
           var keyword = "COS Desktop";
-//          self.emit('do_filter', json, keyword);
-          self.do_filter(json, keyword);
+//          self.do_filter(json, keyword);
         });
 		    break;
       default:
@@ -208,8 +154,9 @@ SideBar.prototype.set_filters = function(json){
 }
 
 
-SideBar.prototype.do_filter = function(json, keyword){
+/*SideBar.prototype.do_filter = function(json){
   var self = this;
+  self.emit('show_filter_result', json);
   var filter_result = new Array();
   switch(keyword)
   {
@@ -284,14 +231,11 @@ SideBar.prototype.do_filter = function(json, keyword){
       self.emit('show_filter_result', filter_result);
       break;
     default:
+      self.emit('show_filter_result', filter_result);
       var count = 0;
-      console.log("keyword =====: ", keyword);
       for(var i=0; i<json.length; i++){
-         function get_result(result){
-          if(result){
             var record_str = JSON.stringify(result);
             if(record_str.match(keyword) != null){
-            console.log("filter result record string======: ", record_str);
               filter_result.push({
                 uri:result.URI,
                 filename:result.filename,
@@ -304,16 +248,10 @@ SideBar.prototype.do_filter = function(json, keyword){
               console.log("filter result: ", filter_result);
               self.emit('show_filter_result', filter_result);
             }
-          }else{
-            console.log("full information is null.");
-            count ++;
-          }
         }
-        DataAPI.getDataByUri(get_result, json[i].URI);
-      }
       break;
   }
-}
+}*/
 
 SideBar.prototype.set_recent = function(json){
   var self = this;
