@@ -366,7 +366,7 @@ exports.setTagByUri = setTagByUri;
  *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
-  console.log("Request handler 'setTagByUri' was called.");
+  console.log("Request handler 'getFilesByTags' was called.");
   tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesByTags = getFilesByTags;
