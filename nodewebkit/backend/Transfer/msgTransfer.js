@@ -38,6 +38,7 @@ var SSH_DIR = ".ssh";
 var PRI_KEY = "rio_rsa";
 var PUB_KEY = "rio_rsa.pub";
 var AUTHORIZED_KEYS = "authorized_keys";
+var CONFIG_FILE = "config";
 
 var iCurrentState = syncState.SYNC_IDLE;
 var syncList = new Array();
@@ -66,7 +67,7 @@ function recieveMsgCb(msg){
       syncStart(oMessage);
     }
     case msgType.TYPE_COMPLETE: {
-      //syncCompleteCb(false, oMessage.isComplete,oMessage.deviceId,sRemoteAddress);
+      syncComplete(oMessage);
     }
     break;
     default: {
@@ -162,6 +163,33 @@ function readPubKeyFile(callback){
 }
 
 /**
+ * @method setConfig
+ *    Config SSH to ignore known_hosts checking.
+ * @param callback
+ *    Callback will be called when add set configuration successed.
+ */
+function setConfig(callback){
+  var sSSHConifgPath = path.join(process.env['HOME'],SSH_DIR,CONFIG_FILE);
+  //解决known_hosts列表问题，添加用户SSH个人config，忽略此检查
+  //配置文件不存在则直接添加，存在则需进行充分判断
+  fs.exists(sSSHConifgPath,function(isConfigExists){
+    if(!isConfigExists){
+      var sConfigStr = "StrictHostKeyChecking no\n \
+      UserKnownHostsFile /dev/null\n";
+      fs.appendFile(sSSHConifgPath,sConfigStr,function(err){
+        if(err){
+          console.log(err);
+        }
+        readPubKeyFile(callback);
+        return;        
+      });
+    }
+    //Todo 配置文件存在，需检查是否按要求进行了配置
+    readPubKeyFile(callback);
+  });
+}
+
+/**
  * @method setPubKey
  *    Add pub key into authorized_keys file.
  *    If the file is not exists, generate it.
@@ -210,11 +238,11 @@ function getPubKey(callback){
       cp.exec(sCommandStr,function(err,stdout,stderr){
         if(err)
           console.log(err);
-        readPubKeyFile(callback);
+        setConfig(callback);
       });
       return;
     }
-    readPubKeyFile(callback);
+    setConfig(callback);
   });
 }
 
@@ -225,16 +253,9 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
-  var sDeviceId = device.device_id;
-  var sDeviceIp = device.ip;
-  //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
-  //  return;
-  if(sDeviceId != "Linux Mint" || sDeviceIp == config.SERVERIP){
-    console.log("device id :=================== " + sDeviceId);
-    return;
-  }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
+      iCurrentState = syncState.SYNC_REQUEST;
       getPubKey(function(pubKeyStr){
         syncList.unshift(device);
         requestMsg = {
@@ -246,7 +267,6 @@ exports.serviceUp = function(device){
           pubKey:pubKeyStr
         };
         sendMsg(device,requestMsg);
-        iCurrentState = syncState.SYNC_REQUEST;
       });
       break;
     }
@@ -284,6 +304,7 @@ function syncRequest(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //First is to get pub key, because of this step will create ssh directory.
+      iCurrentState = syncState.SYNC_RESPONSE;
       getPubKey(function(pubKeyStr){
         setPubKey(msgObj.pubKey,function(){
           syncList.unshift(device);
@@ -296,7 +317,6 @@ function syncRequest(msgObj){
             pubKey:pubKeyStr
           };
           sendMsg(device,responseMsg);
-          iCurrentState = syncState.SYNC_RESPONSE;
         });
       });
       break;
@@ -344,6 +364,7 @@ function syncResponse(msgObj){
       console.log("SYNC ERROR: current sync device is wrong!")
       }
       else{
+        iCurrentState = syncState.SYNC_RESPONSE;
         setPubKey(msgObj.pubKey,function(){
           responseMsg = {
             type:msgType.TYPE_START,
@@ -353,7 +374,6 @@ function syncResponse(msgObj){
             deviceId:config.uniqueID
           };
           sendMsg(device,responseMsg);
-          iCurrentState = syncState.SYNC_RESPONSE;
           syncStart(msgObj);
         });
       }
@@ -393,15 +413,7 @@ function syncStart(msgObj){
     case syncState.SYNC_RESPONSE:{
     //Start to sync
     iCurrentState = syncState.SYNC_START;
-    repo.pullFromOtherRepo(msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
-      iCurrentState = syncState.SYNC_COMPLETE;
-      var completeMsg = {
-        type:msgType.TYPE_COMPLETE,
-        ip:config.SERVERIP
-      };
-      console.log("Sync complete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-      //sendMsg(remoteAddress,completeMsg);
-    });
+    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       break;
     }
     case syncState.SYNC_START:{
@@ -416,6 +428,32 @@ function syncStart(msgObj){
 }
 
 /**
+ * @method mergeCompleteCallback
+ *    Called when git merge completed.
+ * @param deviceId
+ *    Remote device id.
+ * @param deviceAccount
+ *    Remote device account.
+ * @param deviceIp
+ *    Remote device ip.
+ */
+function mergeCompleteCallback(deviceId,deviceAccount,deviceIp){
+  var device = {
+    device_id:deviceId,
+    ip:deviceIp,
+    account:deviceAccount
+  };
+  var completeMsg = {
+    type:msgType.TYPE_COMPLETE,
+    ip:config.SERVERIP,
+    account:config.ACCOUNT,
+    deviceId:config.uniqueID
+  };
+  iCurrentState = syncState.SYNC_COMPLETE;
+  sendMsg(device,completeMsg);
+}
+
+/**
  * @method syncComplete
  *    Sync complete callback.
  * @param msgObj
@@ -423,7 +461,7 @@ function syncStart(msgObj){
  * @param remoteAddress
  *    Remote device ip.
  */
-function syncComplete(msgObj,remoteAddress){
+function syncComplete(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       console.log("SYNC completed!");
@@ -438,12 +476,22 @@ function syncComplete(msgObj,remoteAddress){
       break;
     }
     case syncState.SYNC_COMPLETE:{
+      var device = {
+        device_id:msgObj.deviceId,
+        ip:msgObj.deviceIp,
+        account:msgObj.deviceAccount
+      };
       var completeMsg = {
         type:msgType.TYPE_COMPLETE,
-        ip:config.SERVERIP
+        ip:config.SERVERIP,
+        account:config.ACCOUNT,
+        deviceId:config.uniqueID
       };
-      console.log("syncResponseCb-------------------------"+device.ip);
-      sendMsg(remoteAddress,completeMsg);
+      sendMsg(device,completeMsg);
+      //Todo check the first element in array.
+      syncList.shift();
+      //Todo check sync list, if length>0, do sync.
+      //if syncList.length>0, get device info ,and call serviceup
       iCurrentState = syncState.SYNC_IDLE;
       break;
     }
