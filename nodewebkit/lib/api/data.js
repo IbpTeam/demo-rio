@@ -494,7 +494,7 @@ exports.readThemeConf = readThemeConf;
  *
  *
  **/
-function writeThemeConf(readThemeConfCb, oTheme) {
+function writeThemeConf(writeThemeConfCb, oTheme) {
   console.log("Request handler 'writeThemeConf' was called.");
   desktopConf.writeThemeConf(writeThemeConfCb, oTheme);
 }
