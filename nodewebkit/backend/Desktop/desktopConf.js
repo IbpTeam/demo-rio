@@ -19,6 +19,7 @@ var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
 var fs_extra = require('fs-extra');
+var chokidar = require('chokidar');
 
 
 function newInit(initType) {
@@ -466,9 +467,9 @@ exports.readWidgetConf = readWidgetConf;
 function writeWidgetConf(callback, oWidget) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
-    var path = config.RESOURCEPATH + "/.desktop";
-    fs.readFile(WidgetConfPath, 'utf-8', function(err, data) {
+    var sWidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+    var sPath = config.RESOURCEPATH + "/.desktop";
+    fs.readFile(sWidgetConfPath, 'utf-8', function(err, data) {
       if (err) {
         console.log(err);
         var _err = "writeWidgetConf : read Widget.conf error!";
@@ -479,7 +480,7 @@ function writeWidgetConf(callback, oWidget) {
         oData[k] = oWidget[k];
       }
       var sWidgetModfied = JSON.stringify(oData, null, 4);
-      fs.writeFile(WidgetConfPath, sWidgetModfied, function(err) {
+      fs.writeFile(sWidgetConfPath, sWidgetModfied, function(err) {
         if (err) {
           console.log("write Widget config file error!");
           console.log(err);
@@ -493,8 +494,8 @@ function writeWidgetConf(callback, oWidget) {
             lastModifyTime: currentTime,
             lastAccessDev: config.uniqueID
           }
-          var chItem = WidgetConfPath;
-          var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
+          var chItem = sWidgetConfPath;
+          var itemDesPath = sPath.replace(/\/resources\//, '/resources/.des/');
           dataDes.updateItem(chItem, attrs, itemDesPath, function() {
             callback(null, "success");
           });
@@ -836,8 +837,8 @@ function findAllDesktopFiles(callback) {
             callback(oAllDesktop);
           } else {
             var sTarget = '*.desktop';
-            var sBoundary = 'sudo find ' + xdgDataDir[index] + ' -name ';
-            var sCommand = sBoundary + sTarget;
+            var sBoundary = xdgDataDir[index] + ' -name ';
+            var sCommand = 'sudo find ' + sBoundary + sTarget;
             exec(sCommand, function(err, stdout, stderr) {
               if (err) {
                 console.log(stderr);
@@ -971,3 +972,237 @@ function writeDesktopFile(callback, sFileName, oEntries) {
   }
 }
 exports.writeDesktopFile = writeDesktopFile;
+
+//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
+//modified by xiquan
+//Base Class for every class in this project!!
+//
+function Class() {}
+
+//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
+//modified by xiquan
+//Use extend to realize inhrietion
+//
+Class.extend = function extend(props) {
+  var prototype = new this();
+  var _super = this.prototype;
+
+  for (var name in props) {
+    //if a function of subclass has the same name with super
+    //override it, not overwrite
+    //use this.callSuper to call the super's function
+    //
+    if (typeof props[name] == "function" && typeof _super[name] == "function") {
+      prototype[name] = (function(super_fn, fn) {
+        return function() {
+          var tmp = this.callSuper;
+          this.callSuper = super_fn;
+
+          var ret = fn.apply(this, arguments);
+
+          this.callSuper = tmp;
+
+          if (!this.callSuper) {
+            delete this.callSuper;
+          }
+
+          return ret;
+        }
+      })(_super[name], props[name])
+    } else {
+      prototype[name] = props[name];
+    }
+  }
+
+  var SubClass = function() {};
+
+  SubClass.prototype = prototype;
+  SubClass.prototype.constructor = SubClass;
+
+  SubClass.extend = extend;
+  //Use create to replace new
+  //we need give our own init function to do some initialization
+  //
+  SubClass.create = SubClass.prototype.create = function() {
+    var instance = new this();
+
+    if (instance.init) {
+      instance.init.apply(instance, arguments);
+    }
+
+    return instance;
+  }
+
+  return SubClass;
+}
+
+//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
+//modified by xiquan
+//Event base Class
+//Inherited from Node.js' EventEmitter
+//
+var Event = Class.extend(require('events').EventEmitter.prototype);
+
+//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
+//modified by xiquan
+//watch  dir :Default is desktop
+//dir_: dir is watched 
+// ignoreInitial_:
+var DirWatcher = Event.extend({
+  init: function(dir_, ignore_, callback) {
+    if (typeof dir_ == 'undefined') {
+      dir_ = '/resources/.desktop/desktop';
+    };
+    this._prev = 0;
+    this._baseDir = undefined;
+    this._watchDir = dir_;
+    this._oldName = null;
+    this._watcher = null;
+    this._evQueue = [];
+    this._timer = null;
+    this._ignore = ignore_ || /\.goutputstream/;
+
+    this._fs = fs;
+    this._chokidar = chokidar;
+    this._exec = require('child_process').exec;
+
+    var _this = this;
+    this._exec('echo $HOME', function(err, stdout, stderr) {
+      if (err) {
+        var _err = 'CreatWatcher : echo $HOME error!';
+        console.log(_err);
+        callback(_err);
+      } else {
+        _this._baseDir = stdout.substr(0, stdout.length - 1);
+        _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+          if (err) {
+            console.log("readdir error!")
+            console.log(err);
+            var _err = 'CreatWatcher : readdir error!';
+            callback(_err);
+          } else {
+            for (var i = 0; i < files.length; ++i) {
+              _this._prev++;
+            }
+            var optional = {
+              ignored: _this._ignore,
+              ignoreInitial: true
+            }
+            _this._watcher = _this._chokidar.watch(_this._baseDir + _this._watchDir, optional);
+            var evHandler = function() {
+              _this._watcher.on('add', function(path) {
+                console.log('add', path);
+                _this._evQueue.push(path);
+              });
+              _this._watcher.on('unlink', function(path) {
+                console.log('unlink', path);
+                _this._evQueue.push(path);
+              });
+              _this._watcher.on('change', function(path, stats) {
+                console.log('change', path, stats);
+              });
+              _this._watcher.on('addDir', function(path) {
+                console.log('addDir', path);
+                _this._evQueue.push(path);
+              });
+              _this._watcher.on('unlinkDir', function(path) {
+                console.log('unlinkDir', path);
+                _this._evQueue.push(path);
+              });
+              _this._watcher.on('error', function(err) {
+                console.log('watch error', err);
+                var _err = 'CreatWatcher : watch error!';
+                _this.emit('error', _err);
+              });
+            };
+            evHandler();
+            var evDistributor = function() {
+              var filepath = _this._evQueue.shift();
+              _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+                var cur = 0;
+                for (var i = 0; i < files.length; ++i) {
+                  cur++;
+                }
+                if (_this._prev < cur) {
+                  _this._fs.stat(filepath, function(err, stats) {
+                    _this.emit('add', filepath, stats);
+                  });
+                  _this._prev++;
+                } else if (_this._prev > cur) {
+                  _this.emit('delete', filepath);
+                  _this._prev--;
+                } else {
+                  if (_this._oldName == null) {
+                    _this._oldName = filepath;
+                    return;
+                  }
+                  if (_this._oldName == filepath) {
+                    return;
+                  }
+                  _this.emit('rename', _this._oldName, filepath);
+                  _this._oldName = null;
+                }
+                if (_this._evQueue.length != 0) evDistributor();
+              });
+            }
+            _this._timer = setInterval(function() {
+              if (_this._evQueue.length != 0) {
+                evDistributor();
+              }
+            }, 200);
+            callback();
+          }
+        });
+      }
+    });
+  },
+
+  //get dir 
+  getBaseDir: function() {
+    return this._baseDir + this._watchDir;
+  },
+
+  //close watch()
+  close: function() {
+    this._watcher.close();
+    clearInterval(this._timer);
+  }
+});
+
+
+/** 
+ * @Method: CreateWatcher
+ *    modify a desktop file
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error   : "CreateWatcher : echo $HOME error!"
+ *                read error   : "CreateWatcher : readdir error!"
+ *
+ *                A watcher on linstening would catch this type of err: 
+ *                _watcher.on('error',function(err){});
+ *                watch error  :'CreateWatcher : watch error!'
+ *
+ * @param2: watchDir
+ *    string, a dir under user path 
+ *    exmple: var watchDir = '/resources/.desktop/desktopadwd' 
+ *    (compare with a full path: '/home/xiquan/resources/.desktop/desktopadwd')
+ *
+ *
+ **/
+function CreateWatcher(callback, watchDir) {
+  var _watcher = DirWatcher.create(watchDir, null, function(err) {
+    if (err) {
+      console.log('create Watcher failed!')
+      console.log(err);
+      callback(err, null);
+    } else {
+      console.log('create Watcher success!');
+      callback(null, _watcher);
+    }
+  });
+}
+exports.CreateWatcher = CreateWatcher;
