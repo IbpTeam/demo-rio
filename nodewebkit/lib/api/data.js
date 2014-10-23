@@ -711,8 +711,34 @@ function findAllDesktopFiles(findAllDesktopFilesCb) {
 }
 exports.findAllDesktopFiles = findAllDesktopFiles;
 
-function CreatWatcher(CreatWatcherCb, watchDir) {
-  console.log("Request handler 'CreatWatcher' was called.");
-  return desktopConf.CreatWatcher(CreatWatcherCb, watchDir);
+/** 
+ * @Method: CreateWatcher
+ *    modify a desktop file
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error   : "CreateWatcher : echo $HOME error!"
+ *                read error   : "CreateWatcher : readdir error!"
+ *
+ *                A watcher on linstening would catch this type of err: 
+ *                _watcher.on('error',function(err){});
+ *                watch error  :'CreateWatcher : watch error!'
+ *
+ *    @param2: result
+ *        string, retrieve 'success' when success
+ *
+ * @param2: watchDir
+ *    string, a dir under user path 
+ *    exmple: var watchDir = '/resources/.desktop/desktopadwd' 
+ *    (compare with a full path: '/home/xiquan/resources/.desktop/desktopadwd')
+ *
+ *
+ **/
+function CreateWatcher(CreateWatcherCb, watchDir) {
+  console.log("Request handler 'CreateWatcher' was called.");
+  return desktopConf.CreateWatcher(CreateWatcherCb, watchDir);
 }
-exports.CreatWatcher = CreatWatcher;
+exports.CreateWatcher = CreateWatcher;

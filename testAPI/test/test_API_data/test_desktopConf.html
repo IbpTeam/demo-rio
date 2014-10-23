@@ -231,38 +231,40 @@
     });
   }
 
-  function CreatWatcherCb(err, result) {
+  function CreateWatcherCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
       var watcher = result;
-      var win = window.open('');
-      win.document.write("test API CreatWatcher()");
+      win.document.write("test API CreateWatcher()");
       win.document.write("<br/>");
       watcher.on('add',function(path){
-        win.document.write("add file: ");
+        win.document.write("add : ");
         win.document.write(path);
         win.document.write("<br/>");
       })
       watcher.on('delete',function(path){
-        win.document.write("delete file: ");
+        win.document.write("delete : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })          
+      watcher.on('rename',function(path){
+        win.document.write("rename : ");
         win.document.write(path);
         win.document.write("<br/>");
       })
-      watcher.on('change',function(path,stats){
-        win.document.write("file change : ");
-        win.document.write(path);
-        win.document.write("file stats : ");
+      watcher.on('error',function(err){
+        win.document.write("error : ");
+        win.document.write(err);
         win.document.write("<br/>");
-        print(win,stats);
-        win.document.write("<br/>");
-      })            
+      })
     };
   }
-  function test_CreatWatcher(CreatWatcherCb) {
+  function test_CreateWatcher(CreateWatcherCb) {
     WDC.requireAPI(['data'], function(data) {
       var watchDir = '/resources/.desktop/desktop';
-      data.CreatWatcher(CreatWatcherCb, watchDir);
+      data.CreateWatcher(CreateWatcherCb, watchDir);
     });
   }
 
@@ -507,8 +509,8 @@
 </div>
 </div>
 
-<h2 onclick="show('CreatWatcher')">CreatWatcher(CreatWatcherCb)<span><a class="mark" href="#test_CreatWatcher" id="test_CreatWatcher" onclick="test_CreatWatcher(CreatWatcherCb)">test</a></span></h2>
-<div id="CreatWatcher" style="display:none;">
+<h2 onclick="show('CreateWatcher')">CreateWatcher(CreateWatcherCb)<span><a class="mark" href="#test_CreateWatcher" id="test_CreateWatcher" onclick="test_CreateWatcher(CreateWatcherCb)">test</a></span></h2>
+<div id="CreateWatcher" style="display:none;">
 <div style="color:#930000">
   <pre>
 
@@ -516,32 +518,40 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function CreatWatcherCb(err, result) {
+  function CreateWatcherCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
       var watcher = result;
-      var win = window.open('');
-      win.document.write("test API CreatWatcher()");
+      win.document.write("test API CreateWatcher()");
       win.document.write("<br/>");
       watcher.on('add',function(path){
-        win.document.write("add file: ");
+        win.document.write("add : ");
         win.document.write(path);
+        win.document.write("<br/>");
       })
       watcher.on('delete',function(path){
-        win.document.write("delete file: ");
+        win.document.write("delete : ");
         win.document.write(path);
+        win.document.write("<br/>");
+      })          
+      watcher.on('rename',function(path){
+        win.document.write("rename : ");
+        win.document.write(path);
+        win.document.write("<br/>");
       })
-      watcher.on('change',function(path,stats){
-        win.document.write("file change : ");
-        win.document.write(path);
-        win.document.write(stats);
-      })            
+      watcher.on('error',function(err){
+        win.document.write("error : ");
+        win.document.write(err);
+        win.document.write("<br/>");
+      })
     };
   }
-  function test_CreatWatcher(CreatWatcherCb) {
+  function test_CreateWatcher(CreateWatcherCb) {
     WDC.requireAPI(['data'], function(data) {
-      data.CreatWatcher(CreatWatcherCb);
+      var watchDir = '/resources/.desktop/desktopadwd';
+      data.CreateWatcher(CreateWatcherCb, watchDir);
     });
   }  
 </pre>
