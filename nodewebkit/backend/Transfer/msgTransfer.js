@@ -175,7 +175,7 @@ function setConfig(callback){
   fs.exists(sSSHConifgPath,function(isConfigExists){
     if(!isConfigExists){
       var sConfigStr = "StrictHostKeyChecking no\n \
-                        UserKnownHostsFile /dev/null\n";
+      UserKnownHostsFile /dev/null\n";
       fs.appendFile(sSSHConifgPath,sConfigStr,function(err){
         if(err){
           console.log(err);
@@ -487,9 +487,9 @@ function syncComplete(msgObj){
       if(iCurrentState != syncState.SYNC_COMPLETE)
         return;
       var device = {
-        device_id:deviceId,
-        ip:deviceIp,
-        account:deviceAccount
+        device_id:msgObj.deviceId,
+        ip:msgObj.deviceIp,
+        account:msgObj.deviceAccount
       };
       var completeMsg = {
         type:msgType.TYPE_COMPLETE,
