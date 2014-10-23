@@ -713,7 +713,12 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
 
 /** 
  * @Method: CreateWatcher
- *    modify a desktop file
+ *    To create a wacther on a dir. This wacther would listen on 3 type of ev-
+ *    -ent:
+ *      'add'   : a new file or dir is added;
+ *      'delete': a file or dir is deleted;
+ *      'rename': a file is renamed;
+ *      'error' : something wrong with event.
  *
  * @param: callback
  *    @result, (_err,result)

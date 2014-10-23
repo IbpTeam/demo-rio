@@ -659,10 +659,6 @@ function parseDesktopFile(callback, sPath) {
                 for (var k = 2; k < tmp.length; k++) {
                   attr[tmp[0]] += '=' + tmp[k];
                 }
-                if (tmp[0] === "Exec") { //remove string like %U in entry "Exec"
-                  var re = / %[A-Z]$/i;
-                  attr[tmp[0]] = (attr[tmp[0]]).replace(re, "");
-                }
               }
             }
             oAllDesktop[desktopHeads[i]] = attr;
@@ -845,6 +841,7 @@ function findAllDesktopFiles(callback) {
             var sTarget = '*.desktop';
             var sBoundary = xdgDataDir[index] + ' -name ';
             var sCommand = 'sudo find ' + sBoundary + sTarget;
+            var optional = {maxBuffer: 1000*1024};
             exec(sCommand, function(err, stdout, stderr) {
               if (err) {
                 console.log(stderr);
