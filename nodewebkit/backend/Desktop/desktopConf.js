@@ -837,7 +837,9 @@ function findAllDesktopFiles(callback) {
             var sTarget = '*.desktop';
             var sBoundary = xdgDataDir[index] + ' -name ';
             var sCommand = 'sudo find ' + sBoundary + sTarget;
-            var optional = {maxBuffer: 1000*1024};
+            var optional = {
+              maxBuffer: 1000 * 1024
+            };
             exec(sCommand, function(err, stdout, stderr) {
               if (err) {
                 console.log(stderr);
@@ -1226,7 +1228,7 @@ exports.CreateWatcher = CreateWatcher;
  *    @param2: result,
  *        string, stdout info in string as below
  *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/share/:/usr/share/mdm/'
-
+ 
  *
  * @param2: command
  *    string, a shell command
@@ -1251,3 +1253,17 @@ function shellExec(callback, command) {
   }
 }
 exports.shellExec = shellExec;
+
+function moveFile(callback, fromPath, toPath) {
+
+}
+
+function copyFile(callback, fromPath, toPath) {
+  var readable = getReadableStreamSomehow();
+  var writable = fs.createWriteStream('file.txt');
+  readable.pipe(writable);
+}
+
+function renameDesktopFile(callback, newName) {
+
+}
