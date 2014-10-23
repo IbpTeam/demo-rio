@@ -253,14 +253,6 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
-  var sDeviceId = device.device_id;
-  var sDeviceIp = device.ip;
-  //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
-  //  return;
-  if(sDeviceId != "Linux Mint" || sDeviceIp == config.SERVERIP || sDeviceIp != "192.168.160.72"){
-    console.log("device id :=================== " + sDeviceId);
-    return;
-  }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       iCurrentState = syncState.SYNC_REQUEST;
@@ -484,8 +476,6 @@ function syncComplete(msgObj){
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      if(iCurrentState != syncState.SYNC_COMPLETE)
-        return;
       var device = {
         device_id:msgObj.deviceId,
         ip:msgObj.deviceIp,
