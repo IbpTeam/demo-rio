@@ -1118,7 +1118,6 @@ var DirWatcher = Event.extend({
             evHandler();
             var evDistributor = function() {
               var filepath = _this._evQueue.shift();
-              console.log(filepath);
               _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
                 var cur = 0;
                 for (var i = 0; i < files.length; ++i) {
@@ -1186,9 +1185,6 @@ var DirWatcher = Event.extend({
  *                A watcher on linstening would catch this type of err: 
  *                _watcher.on('error',function(err){});
  *                watch error  :'CreateWatcher : watch error!'
- *
- *    @param2: result
- *        string, retrieve 'success' when success
  *
  * @param2: watchDir
  *    string, a dir under user path 
