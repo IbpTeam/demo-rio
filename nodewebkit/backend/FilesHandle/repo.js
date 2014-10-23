@@ -224,17 +224,17 @@ exports.getLatestCommit = function (repoPath,callback)
   });
 }
 
-exports.pullFromOtherRepo = function (address,account,path,callback)
+exports.pullFromOtherRepo = function (deviceId,address,account,path,callback)
 {
   filesHandle.monitorFiles1Status=false;
   filesHandle.watcher1Stop(function(){
-    var dataDir=require(config.USERCONFIGPATH+"config.js").dataDir;
+    var dataDir=require(config.USERCONFIGPATH+"/config.js").dataDir;
     var cp = require('child_process');
     var cmd = 'cd '+dataDir+'&& git pull '+account+'@'+address+':'+path;
     console.log(cmd);
     cp.exec(cmd,function(error,stdout,stderr){
       console.log(stdout+stderr);
-      callback();
+      callback(deviceId,account,address);
       filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb);
     });
   });
