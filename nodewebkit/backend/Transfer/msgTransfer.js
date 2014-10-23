@@ -257,12 +257,13 @@ exports.serviceUp = function(device){
   var sDeviceIp = device.ip;
   //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
   //  return;
-  if(sDeviceId != "Linux Mint" || sDeviceIp == config.SERVERIP){
+  if(sDeviceId != "Linux Mint" || sDeviceIp == config.SERVERIP || sDeviceIp != 192.168.160.72){
     console.log("device id :=================== " + sDeviceId);
     return;
   }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
+      iCurrentState = syncState.SYNC_REQUEST;
       getPubKey(function(pubKeyStr){
         syncList.unshift(device);
         requestMsg = {
@@ -274,7 +275,6 @@ exports.serviceUp = function(device){
           pubKey:pubKeyStr
         };
         sendMsg(device,requestMsg);
-        iCurrentState = syncState.SYNC_REQUEST;
       });
       break;
     }
@@ -312,6 +312,7 @@ function syncRequest(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //First is to get pub key, because of this step will create ssh directory.
+      iCurrentState = syncState.SYNC_RESPONSE;
       getPubKey(function(pubKeyStr){
         setPubKey(msgObj.pubKey,function(){
           syncList.unshift(device);
@@ -324,7 +325,6 @@ function syncRequest(msgObj){
             pubKey:pubKeyStr
           };
           sendMsg(device,responseMsg);
-          iCurrentState = syncState.SYNC_RESPONSE;
         });
       });
       break;
@@ -372,6 +372,7 @@ function syncResponse(msgObj){
       console.log("SYNC ERROR: current sync device is wrong!")
       }
       else{
+        iCurrentState = syncState.SYNC_RESPONSE;
         setPubKey(msgObj.pubKey,function(){
           responseMsg = {
             type:msgType.TYPE_START,
@@ -381,7 +382,6 @@ function syncResponse(msgObj){
             deviceId:config.uniqueID
           };
           sendMsg(device,responseMsg);
-          iCurrentState = syncState.SYNC_RESPONSE;
           syncStart(msgObj);
         });
       }
