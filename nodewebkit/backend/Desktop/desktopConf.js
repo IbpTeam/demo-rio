@@ -561,10 +561,6 @@ function readDesktopFile(callback, sFileName) {
             callback(_err, null);
           } else {
             console.log("readDesktopFile success!");
-            var sC = JSON.stringify(attr, null, 4);
-            fs.writeFile('/home/xiquan/testFile/testJSON.txt', sC, function(err) {
-
-            })
             callback(null, attr);
           }
         }
