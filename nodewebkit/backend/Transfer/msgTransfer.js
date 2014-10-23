@@ -257,7 +257,7 @@ exports.serviceUp = function(device){
   var sDeviceIp = device.ip;
   //if(sDeviceId.localeCompare(config.uniqueID) <= 0)
   //  return;
-  if(sDeviceId != "Linux Mint" || sDeviceIp == config.SERVERIP || sDeviceIp != 192.168.160.72){
+  if(sDeviceId != "Linux Mint" || sDeviceIp == config.SERVERIP || sDeviceIp != "192.168.160.72"){
     console.log("device id :=================== " + sDeviceId);
     return;
   }
