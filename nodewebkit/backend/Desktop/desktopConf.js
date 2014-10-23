@@ -561,6 +561,10 @@ function readDesktopFile(callback, sFileName) {
             callback(_err, null);
           } else {
             console.log("readDesktopFile success!");
+            var sC = JSON.stringify(attr, null, 4);
+            fs.writeFile('/home/xiquan/testFile/testJSON.txt', sC, function(err) {
+
+            })
             callback(null, attr);
           }
         }
@@ -654,6 +658,10 @@ function parseDesktopFile(callback, sPath) {
                 attr[tmp[0]] = tmp[1];
                 for (var k = 2; k < tmp.length; k++) {
                   attr[tmp[0]] += '=' + tmp[k];
+                }
+                if (tmp[0] === "Exec") { //remove string like %U in entry "Exec"
+                  var re = / %[A-Z]$/i;
+                  attr[tmp[0]] = (attr[tmp[0]]).replace(re, "");
                 }
               }
             }
@@ -807,7 +815,7 @@ function findDesktopFile(callback, sFileName) {
  *         "/usr/share/xfce4/helpers/rodent.desktop",
  *         "/usr/share/xfce4/helpers/icecat.desktop",
  *         "/usr/share/xfce4/helpers/pcmanfm.desktop",
- *         "/usr/share/xfce4/helpers/mozilla-browser.desktop",
+ *         "/usr/share/xfce4/helpers/mozilla-browser.desktop"
  *        ]
  *
  **/
@@ -864,7 +872,7 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
  * @Method: writeDesktopFile
  *    modify a desktop file
  *
- * @param: callback
+ * @param1: callback
  *    @result, (_err,result)
  *
  *    @param1: _err,
@@ -1182,13 +1190,13 @@ var DirWatcher = Event.extend({
  *                read error   : "CreateWatcher : echo $HOME error!"
  *                read error   : "CreateWatcher : readdir error!"
  *
- *                A watcher on linstening would catch this type of err: 
+ *                A watcher on linstening would catch this type of err:
  *                _watcher.on('error',function(err){});
  *                watch error  :'CreateWatcher : watch error!'
  *
  * @param2: watchDir
- *    string, a dir under user path 
- *    exmple: var watchDir = '/resources/.desktop/desktopadwd' 
+ *    string, a dir under user path
+ *    exmple: var watchDir = '/resources/.desktop/desktopadwd'
  *    (compare with a full path: '/home/xiquan/resources/.desktop/desktopadwd')
  *
  *
