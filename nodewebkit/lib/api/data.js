@@ -637,7 +637,7 @@ exports.readDesktopFile = readDesktopFile;
  *                write error  : "writeDesktopFile : write desktop file error!"
  *                parse error  : "writeDesktopFile : parse desktop file error!"
  *                parse error  : "writeDesktopFile : deparse desktop file error!"
- *                input  error : "writeDesktopFile : entry content empty!" 
+ *                input  error : "writeDesktopFile : entry content empty!"
  *
  *    @param2: result
  *        string, retrieve 'success' when success
@@ -713,7 +713,12 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
 
 /** 
  * @Method: CreateWatcher
- *    modify a desktop file
+ *    To create a wacther on a dir. This wacther would listen on 3 type of ev-
+ *    -ent:
+ *      'add'   : a new file or dir is added;
+ *      'delete': a file or dir is deleted;
+ *      'rename': a file is renamed;
+ *      'error' : something wrong with event.
  *
  * @param: callback
  *    @result, (_err,result)
@@ -723,7 +728,7 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
  *                read error   : "CreateWatcher : echo $HOME error!"
  *                read error   : "CreateWatcher : readdir error!"
  *
- *                A watcher on linstening would catch this type of err: 
+ *                A watcher on linstening would catch this type of err:
  *                _watcher.on('error',function(err){});
  *                watch error  :'CreateWatcher : watch error!'
  *
@@ -731,8 +736,8 @@ exports.findAllDesktopFiles = findAllDesktopFiles;
  *        string, retrieve 'success' when success
  *
  * @param2: watchDir
- *    string, a dir under user path 
- *    exmple: var watchDir = '/resources/.desktop/desktopadwd' 
+ *    string, a dir under user path
+ *    exmple: var watchDir = '/resources/.desktop/desktopadwd'
  *    (compare with a full path: '/home/xiquan/resources/.desktop/desktopadwd')
  *
  *
@@ -742,3 +747,31 @@ function CreateWatcher(CreateWatcherCb, watchDir) {
   return desktopConf.CreateWatcher(CreateWatcherCb, watchDir);
 }
 exports.CreateWatcher = CreateWatcher;
+
+/** 
+ * @Method: shellExec
+ *    execute a shell command
+ *
+ * @param1: shellExecCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                exec error   : "shellExec : [specific err info]"
+ *
+ *    @param2: result,
+ *        string, stdout info in string as below
+ *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/share/:/usr/share/mdm/'
+ 
+ *
+ * @param2: command
+ *    string, a shell command
+ *    exmple: var command = 'echo $XDG_DATA_DIRS'
+ *
+ *
+ **/
+function shellExec(shellExecCb, command) {
+  console.log("Request handler 'shellExec' was called.");
+  desktopConf.shellExec(shellExecCb, command);
+}
+exports.shellExec = shellExec;

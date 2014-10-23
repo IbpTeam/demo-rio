@@ -212,10 +212,10 @@
   }
 
   function findAllDesktopFilesCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
       win.document.write("test API findAllDesktopFiles()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -265,6 +265,25 @@
     WDC.requireAPI(['data'], function(data) {
       var watchDir = '/resources/.desktop/desktop';
       data.CreateWatcher(CreateWatcherCb, watchDir);
+    });
+  }
+
+  function shellExecCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API shellExec()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_shellExec(shellExecCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var command = 'echo $XDG_DATA_DIRS';
+      data.shellExec(shellExecCb, command);
     });
   }
 
@@ -554,6 +573,37 @@
       data.CreateWatcher(CreateWatcherCb, watchDir);
     });
   }  
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('shellExec')">shellExec(shellExecCb)<span><a class="mark" href="#test_shellExec" id="test_shellExec" onclick="test_shellExec(shellExecCb)">test</a></span></h2>
+<div id="shellExec" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function shellExecCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API shellExec()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_shellExec(shellExecCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var command = 'echo $XDG_DATA_DIRS';
+      data.shellExec(shellExecCb, command);
+    });
+  }
 </pre>
 </div>
 </div>
