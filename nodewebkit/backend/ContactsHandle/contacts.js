@@ -78,11 +78,6 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
   function getFileUidCb(uri) {
     var category = 'Contacts';
     var currentTime = (new Date());
-    Item.desPath = sItemDesPath;
-    Item.name = Item["\u59D3"];
-    Item.currentTime = currentTime;
-    Item.URI = uri + "#" + category;
-    var oItem = Item;
     var oNewItem = {
       id: null,
       URI: uri + "#" + category,
