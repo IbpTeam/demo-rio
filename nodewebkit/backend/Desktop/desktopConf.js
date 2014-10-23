@@ -20,7 +20,7 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var fs_extra = require('fs-extra');
 var chokidar = require('chokidar');
-
+var exec = require('child_process').exec;
 
 function newInit(initType) {
   var initTheme = {
@@ -777,7 +777,6 @@ function findDesktopFile(callback, sFileName) {
   var systemType = os.type();
   if (systemType === "Linux") {
     var xdgDataDir = [];
-    var exec = require('child_process').exec;
     var sBoundary = config.RESOURCEPATH + '/.desktop/applications -name ';
     var sCommand = 'find ' + sBoundary + sFileName;
     exec(sCommand, function(err, stdout, stderr) {
@@ -825,7 +824,6 @@ function findAllDesktopFiles(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
     var xdgDataDir = [];
-    var exec = require('child_process').exec;
     var sAllDesktop = "";
     exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
       if (err) {
@@ -1180,7 +1178,12 @@ var DirWatcher = Event.extend({
 
 /** 
  * @Method: CreateWatcher
- *    modify a desktop file
+ *    To create a wacther with a dir. This wacther would listen on 3 type of ev-
+ *    -ent:
+ *      'add'   : a new file or dir is added;
+ *      'delete': a file or dir is deleted;
+ *      'rename': a file is renamed;
+ *      'error' : something wrong with event.
  *
  * @param: callback
  *    @result, (_err,result)
@@ -1214,3 +1217,44 @@ function CreateWatcher(callback, watchDir) {
   });
 }
 exports.CreateWatcher = CreateWatcher;
+
+
+/** 
+ * @Method: shellExec
+ *    execute a shell command
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                exec error   : "shellExec : [specific err info]"
+ *
+ *    @param2: result,
+ *        string, stdout info in string as below
+ *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/share/:/usr/share/mdm/'
+
+ *
+ * @param2: command
+ *    string, a shell command
+ *    exmple: var command = 'echo $XDG_DATA_DIRS'
+ *
+ *
+ **/
+function shellExec(callback, command) {
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    exec(command, function(err, stdout, stderr) {
+      if (err) {
+        console.log(stderr, err);
+        var _err = 'shellExec : ' + err;
+        callback(_err, null);
+      } else {
+        console.log("exec: " + command);
+        console.log(stdout);
+        callback(null, stdout);
+      }
+    })
+  }
+}
+exports.shellExec = shellExec;
