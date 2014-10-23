@@ -9,6 +9,7 @@
  *
  * @version:0.2.2
  **/
+var commmonDao = require("../DAO/commonDAO");
 
 // Before save chat record, make sure table exist.
 var sCreateTable = "CREATE TABLE IF NOT EXISTS #$# (\
@@ -16,3 +17,14 @@ var sCreateTable = "CREATE TABLE IF NOT EXISTS #$# (\
                      message TEXT, time TEXT, \
                      type TEXT, device_id TEXT);";
 
+function newChatRecord(record){
+  
+}
+
+exports.newSendRecord(){
+
+}
+
+exports.newReceiveRecord(){
+	
+}
