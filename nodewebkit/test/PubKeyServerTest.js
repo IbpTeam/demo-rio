@@ -6,6 +6,13 @@ var keyPair = rsaKey.initSelfRSAKeys('/home/rtty/.demo-rio/key/priKey.pem','/hom
 var pubKey= keyPair.getPublicPEM();
 var serverKeyPair= rsaKey.loadServerKey('/home/rtty/.demo-rio/key/serverKey.pem');
 
+account.register('rtty123','rtty123','34234324r34rerfe45r4a',pubKey,keyPair,serverKeyPair,function(msg){
+  console.log(JSON.stringify(msg));
+});
+
+
+
+/*
 
 account.getPubKeysByName('rtty1234','serfes4rtfe5tg455656565666','rtty1234',keyPair,serverKeyPair,function(msg){
     console.log(JSON.stringify(msg.data.detail));
@@ -13,11 +20,6 @@ account.getPubKeysByName('rtty1234','serfes4rtfe5tg455656565666','rtty1234',keyP
         console.log(row.UUID);
         console.log(row.pubKey);            
       });       
-});
-
-/*
-account.register('rtty1234','rtty1234','serfes4rtfe5tg455656565666',pubKey,keyPair,serverKeyPair,function(msg){
-  console.log(JSON.stringify(msg));
 });
 
 account.register('yuanzhe','yuanzhe','testtest',pubKey,keyPair,serverKeyPair,function(msg){
