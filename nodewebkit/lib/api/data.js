@@ -843,3 +843,8 @@ function moveFile(moveFileCb, oldPath, newPath) {
   desktopConf.moveFile(moveFileCb, oldPath, newPath);
 }
 exports.moveFile = moveFile;
+
+// function renameDesktopFile(renameDesktopFileCb,){
+
+// }
+// exports.renameDesktopFile = renameDesktopFile;

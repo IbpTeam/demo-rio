@@ -301,8 +301,8 @@
   }
   function test_copyFile(copyFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldPath = '/testFile/book.pdf';
-      var newPath = '/testFile/test_book.pdf';
+      var oldPath = '/resources/documents';
+      var newPath = '/testFile/documents';
       data.copyFile(copyFileCb, oldPath, newPath);
     });
   }

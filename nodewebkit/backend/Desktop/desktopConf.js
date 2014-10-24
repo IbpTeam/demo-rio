@@ -931,7 +931,10 @@ function writeDesktopFile(callback, sFileName, oEntries) {
           } else {
             for (var entry in oEntries) {
               if (oEntries[entry]) {
-                attr[entry] = oEntries[entry];
+                for (var element in oEntries[entry]) {
+                  attr[entry][element] = oEntries[entry][element];
+                }
+                //attr[entry] = oEntries[entry];
               } else {
                 console.log("entry content empty!");
                 var _err = "writeDesktopFile : entry content empty!";
@@ -1261,7 +1264,7 @@ exports.shellExec = shellExec;
  * @Method: moveFile
  *    To move a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content and contend would be move to new dir as well.
- *    !!!Notice that if you are moving a dir, the newPath has to be a none exist 
+ *    !!!Notice that if you are moving a dir, the newPath has to be a none exist
  *    !!!new dir, otherwise comes error.
  *
  * @param1: callback
@@ -1366,3 +1369,24 @@ function copyFile(callback, oldPath, newPath) {
   shellExec(shellExecCb, 'echo $HOME');
 }
 exports.copyFile = copyFile;
+
+function renameDesktopFile(callback, oldName, newName) {
+  var sFilename = oldName;
+  var oEntries = {
+    '[Desktop Entry]': {
+      'Name': newName
+    }
+  }
+
+  function writeDesktopFileCb(err, result) {
+    if (err) {
+      console.log(err);
+      var _err = 'renameDesktopFile: ' + err;
+      callback(_err);
+    } else {
+      console.log('rename desktop file success!');
+      callback(null, result);
+    }
+  }
+  writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
+}
