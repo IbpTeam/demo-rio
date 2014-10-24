@@ -584,13 +584,7 @@ Folder.prototype.get_callback_data = function(data_json){
       data_json[i]['props']['type'] = 'folder';
       data_json[i]['props']['icon'] = 'folder';
     }        
-	    //console.log('set favorites1.', data_json);
-//	    if(file_arch_json.hasOwnProperty('root')){
-//	        console.log('root value:', file_arch_json['root']);
-//	    }else{	    
-//	        console.log('---------------********************************-----------------');
     global_self.emit('set_favorites', data_json);	 
-//	    }
     break;
   case 'root/Contacts':
     for(var i=0; i<data_json.length; i++){
