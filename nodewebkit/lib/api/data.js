@@ -509,7 +509,7 @@ exports.writeThemeConf = writeThemeConf;
  *
  *    @param1: _err,
  *        string, contain error info as below
- *                read error  : "readWidgetConf : read Theme config file error!"
+ *                read error : "readWidgetConf : read Theme config file error!"
  *
  *    @param2: result,
  *        object, the result in object
@@ -549,8 +549,8 @@ exports.readWidgetConf = readWidgetConf;
  *
  *    @param1: _err,
  *        string, contain error info as below
- *                read error  : "writeWidgetConf : read Widget.conf error!"
- *                write error : "writeWidgetConf : write Widget config file error!"
+ *                read error : "writeWidgetConf: read Widget.conf error!"
+ *                write error: "writeWidgetConf: write Widget config file error!"
  *
  *    @param2: result,
  *        object, the result in object
@@ -633,11 +633,11 @@ exports.readDesktopFile = readDesktopFile;
  *
  *    @param1: _err,
  *        string, contain error info as below
- *                read error   : "writeDesktopFile : desktop file NOT FOUND!"
- *                write error  : "writeDesktopFile : write desktop file error!"
- *                parse error  : "writeDesktopFile : parse desktop file error!"
- *                parse error  : "writeDesktopFile : deparse desktop file error!"
- *                input  error : "writeDesktopFile : entry content empty!"
+ *                read error  : "writeDesktopFile: desktop file NOT FOUND!"
+ *                write error : "writeDesktopFile: write desktop file error!"
+ *                parse error : "writeDesktopFile: parse desktop file error!"
+ *                parse error : "writeDesktopFile: deparse desktop file error!"
+ *                input  error: "writeDesktopFile: entry content empty!"
  *
  *    @param2: result
  *        string, retrieve 'success' when success
@@ -761,8 +761,8 @@ exports.CreateWatcher = CreateWatcher;
  *
  *    @param2: result,
  *        string, stdout info in string as below
- *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/share/:/usr/share/mdm/'
- 
+ *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/-
+ *                -share/:/usr/share/mdm/'
  *
  * @param2: command
  *    string, a shell command
@@ -775,3 +775,71 @@ function shellExec(shellExecCb, command) {
   desktopConf.shellExec(shellExecCb, command);
 }
 exports.shellExec = shellExec;
+
+/** 
+ * @Method: copyFile
+ *    To copy a file or dir from oldPath to newPath. 
+ *    !!!The dir CAN have content,just like command cp -r.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                echo error : 'copyFile : echo $HOME error'
+ *                copy error : 'copyFile : copy error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldPath
+ *    string, a dir under user path
+ *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
+ *    (compare with a full path:'/home/xiquan/resources/.desktop/Theme.conf')
+ *
+ * @param3: newPath
+ *    string, a dir under user path
+ *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
+ *    (compare with a full path:'/home/xiquan/resources/.desktop/BadTheme.conf')
+ *
+ **/
+function copyFile(copyFileCb, fromPath, toPath) {
+  console.log("Request handler 'copyFile' was called.");
+  desktopConf.copyFile(copyFileCb, fromPath, toPath);
+}
+exports.copyFile = copyFile;
+
+/** 
+ * @Method: moveFile
+ *    To move a file or dir from oldPath to newPath.
+ *    !!!The dir CAN have content and contend would be move to new dir as well.
+ *    !!!Notice that if you are moving a dir, the newPath has to be a none exist 
+ *    !!!new dir, otherwise comes error.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                echo error : 'moveFile : echo $HOME error'
+ *                move error : 'moveFile : move error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldPath
+ *    string, a dir under user path
+ *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
+ *    (compare with a full path:'/home/xiquan/resources/.desktop/Theme.conf')
+ *
+ * @param3: newPath
+ *    string, a dir under user path
+ *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
+ *    (compare with a full path:'/home/xiquan/resources/.desktop/BadTheme.conf')
+ *
+ **/
+function moveFile(moveFileCb, oldPath, newPath) {
+  console.log("Request handler 'moveFile' was called.");
+  desktopConf.moveFile(moveFileCb, oldPath, newPath);
+}
+exports.moveFile = moveFile;

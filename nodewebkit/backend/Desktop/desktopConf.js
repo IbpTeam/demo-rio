@@ -837,7 +837,9 @@ function findAllDesktopFiles(callback) {
             var sTarget = '*.desktop';
             var sBoundary = xdgDataDir[index] + ' -name ';
             var sCommand = 'sudo find ' + sBoundary + sTarget;
-            var optional = {maxBuffer: 1000*1024};
+            var optional = {
+              maxBuffer: 1000 * 1024
+            };
             exec(sCommand, function(err, stdout, stderr) {
               if (err) {
                 console.log(stderr);
@@ -1072,8 +1074,9 @@ var DirWatcher = Event.extend({
         console.log(_err);
         callback(_err);
       } else {
+        var _dir = _this._baseDir + _this._watchDir;
         _this._baseDir = stdout.substr(0, stdout.length - 1);
-        _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+        _this._fs.readdir(_dir, function(err, files) {
           if (err) {
             console.log("readdir error!")
             console.log(err);
@@ -1087,7 +1090,8 @@ var DirWatcher = Event.extend({
               ignored: _this._ignore,
               ignoreInitial: true
             }
-            _this._watcher = _this._chokidar.watch(_this._baseDir + _this._watchDir, optional);
+
+            _this._watcher = _this._chokidar.watch(_dir, optional);
             var evHandler = function() {
               _this._watcher.on('add', function(path) {
                 console.log('add', path);
@@ -1117,7 +1121,7 @@ var DirWatcher = Event.extend({
             evHandler();
             var evDistributor = function() {
               var filepath = _this._evQueue.shift();
-              _this._fs.readdir(_this._baseDir + _this._watchDir, function(err, files) {
+              _this._fs.readdir(_dir, function(err, files) {
                 var cur = 0;
                 for (var i = 0; i < files.length; ++i) {
                   cur++;
@@ -1225,8 +1229,9 @@ exports.CreateWatcher = CreateWatcher;
  *
  *    @param2: result,
  *        string, stdout info in string as below
- *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/share/:/usr/share/mdm/'
-
+ *                '/usr/share/cinnamon:/usr/share/gnome:/usr/local/share/:/usr/-
+ *                -share/:/usr/share/mdm/'
+ 
  *
  * @param2: command
  *    string, a shell command
@@ -1251,3 +1256,113 @@ function shellExec(callback, command) {
   }
 }
 exports.shellExec = shellExec;
+
+/** 
+ * @Method: moveFile
+ *    To move a file or dir from oldPath to newPath.
+ *    !!!The dir CAN have content and contend would be move to new dir as well.
+ *    !!!Notice that if you are moving a dir, the newPath has to be a none exist 
+ *    !!!new dir, otherwise comes error.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                echo error : 'moveFile : echo $HOME error'
+ *                move error : 'moveFile : move error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldPath
+ *    string, a dir under user path
+ *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
+ *    (compare with a full path: '/home/xiquan/resources/.desktop/Theme.conf')
+ *
+ * @param3: newPath
+ *    string, a dir under user path
+ *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
+ *    (compare with a full path: '/home/xiquan/resources/.desktop/BadTheme.conf')
+ *
+ **/
+function moveFile(callback, oldPath, newPath) {
+  function shellExecCb(err, result) {
+    if (err) {
+      console.log(err, stderr);
+      var _err = 'moveFile : echo $HOME error';
+      callback(_err, null);
+    } else {
+      var basePath = result.substr(0, result.length - 1);
+      var oldFullpath = basePath + oldPath;
+      var newFullpath = basePath + newPath;
+      console.log(oldFullpath, newFullpath);
+      fs_extra.move(oldFullpath, newFullpath, function(err) {
+        if (err) {
+          console.log(err);
+          var _err = 'moveFile : move error';
+          callback(_err, null);
+        } else {
+          console.log('move file success!');
+          callback(null, 'success');
+        }
+      })
+    }
+  }
+  shellExec(shellExecCb, 'echo $HOME');
+}
+exports.moveFile = moveFile;
+
+/** 
+ * @Method: copyFile
+ *    To copy a file or dir from oldPath to newPath.
+ *    !!!The dir CAN have content,just like command cp -r.!!!
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                echo error : 'copyFile : echo $HOME error'
+ *                copy error : 'copyFile : copy error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldPath
+ *    string, a dir under user path
+ *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
+ *    (compare with a full path: '/home/xiquan/resources/.desktop/Theme.conf')
+ *
+ * @param3: newPath
+ *    string, a dir under user path
+ *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
+ *    (compare with a full path: '/home/xiquan/resources/.desktop/BadTheme.conf')
+ *
+ **/
+function copyFile(callback, oldPath, newPath) {
+  function shellExecCb(err, result) {
+    if (err) {
+      console.log(err, stderr);
+      var _err = 'copyFile : echo $HOME error';
+      callback(_err, null);
+    } else {
+      var basePath = result.substr(0, result.length - 1);
+      var oldFullpath = basePath + oldPath;
+      var newFullpath = basePath + newPath;
+      console.log(oldFullpath, newFullpath);
+      fs_extra.copy(oldFullpath, newFullpath, function(err) {
+        if (err) {
+          console.log(err);
+          var _err = 'copyFile : copy error';
+          callback(_err, null);
+        } else {
+          console.log('copy file success!');
+          callback(null, 'success');
+        }
+      })
+    }
+  }
+  shellExec(shellExecCb, 'echo $HOME');
+}
+exports.copyFile = copyFile;
