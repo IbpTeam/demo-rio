@@ -1,7 +1,12 @@
-var imchat = require('../backend/IM/IMChat.js');
+var imchat = require('../backend/IM/IMChatNoRSA.js');
 
-function recvcallback(msg){
-	console.log("this is in recvcallback "+msg);
+function recvcallback(msg, IP) {
+  console.log("this is in recvcallback " + msg.message);
+  var msgtime = new Date();
+  msgtime.setTime(msg.time);
+  console.log("Sent time: " + msgtime);
+  console.log("from account: " + msg.from);
+  console.log("from uuid: " + msg.uuid);
+  console.log("from IP " + IP);
 }
-imchat.initIMServer(recvcallback);
-
+imchat.initIMServerNoRSA(recvcallback);
