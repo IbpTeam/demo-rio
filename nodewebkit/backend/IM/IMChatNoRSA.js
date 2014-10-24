@@ -61,7 +61,7 @@ function initIMServerNoRSA(ReceivedMsgCallback) {
             var msgtime = new Date();
             msgtime.setTime(msgObj.time);
             console.log(msgtime);
-            setTimeout(ReceivedMsgCallback(msgObj.message), 0);
+            setTimeout(ReceivedMsgCallback(msgObj, remoteAD), 0);
             var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
             c.write(tp);
           }
@@ -242,9 +242,9 @@ function sendMSGbyAccountNoRSA(TABLE, ACCOUNT, MSG, PORT) {
   console.log("send " + ipset.length + " IPs in " + ACCOUNT);
 }
 
-function senderFunc(ACCOUNT,IPSET,PORT,MSG,SENTCALLBACK){
+function senderFunc(ACCOUNT, IPSET, PORT, MSG, SENTCALLBACK) {
   var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
-  sendIMMsg(IPSET.IP,PORT,tmpmsg,SENTCALLBACK);
+  sendIMMsg(IPSET.IP, PORT, tmpmsg, SENTCALLBACK);
 }
 
 function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
@@ -254,7 +254,7 @@ function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
     here are some server msg send functions!
     */
   };
-  senderFunc(ACCOUNT,IPSET,PORT,MSG,SENTCALLBACK);
+  senderFunc(ACCOUNT, IPSET, PORT, MSG, SENTCALLBACK);
 }
 
 
