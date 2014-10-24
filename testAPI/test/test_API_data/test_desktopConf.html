@@ -212,10 +212,10 @@
   }
 
   function findAllDesktopFilesCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
       win.document.write("test API findAllDesktopFiles()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -223,12 +223,107 @@
       print(win, result)
     };
   }
-
   function test_findAllDesktopFiles(findAllDesktopFilesCb) {
     WDC.requireAPI(['data'], function(data) {
       var sFileName = 'cinnamon.desktop';
       var oEntries = {};
       data.findAllDesktopFiles(findAllDesktopFilesCb);
+    });
+  }
+
+  function CreateWatcherCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      var watcher = result;
+      win.document.write("test API CreateWatcher()");
+      win.document.write("<br/>");
+      watcher.on('add',function(path){
+        win.document.write("add : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })
+      watcher.on('delete',function(path){
+        win.document.write("delete : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })          
+      watcher.on('rename',function(path){
+        win.document.write("rename : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })
+      watcher.on('error',function(err){
+        win.document.write("error : ");
+        win.document.write(err);
+        win.document.write("<br/>");
+      })
+    };
+  }
+  function test_CreateWatcher(CreateWatcherCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var watchDir = '/resources/.desktop/desktop';
+      data.CreateWatcher(CreateWatcherCb, watchDir);
+    });
+  }
+
+  function shellExecCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API shellExec()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_shellExec(shellExecCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var command = 'echo $XDG_DATA_DIRS';
+      data.shellExec(shellExecCb, command);
+    });
+  }
+
+  function copyFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API copyFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_copyFile(copyFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oldPath = '/testFile/book.pdf';
+      var newPath = '/testFile/test_book.pdf';
+      data.copyFile(copyFileCb, oldPath, newPath);
+    });
+  }
+
+  function moveFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API moveFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_moveFile(moveFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oldPath = '/resources/documents';
+      var newPath = '/testFile/test';
+      data.moveFile(moveFileCb, oldPath, newPath);
     });
   }
 
@@ -469,6 +564,150 @@
       data.findAllDesktopFiles(findAllDesktopFilesCb);
     });
   }    
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('CreateWatcher')">CreateWatcher(CreateWatcherCb)<span><a class="mark" href="#test_CreateWatcher" id="test_CreateWatcher" onclick="test_CreateWatcher(CreateWatcherCb)">test</a></span></h2>
+<div id="CreateWatcher" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function CreateWatcherCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      var watcher = result;
+      win.document.write("test API CreateWatcher()");
+      win.document.write("<br/>");
+      watcher.on('add',function(path){
+        win.document.write("add : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })
+      watcher.on('delete',function(path){
+        win.document.write("delete : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })          
+      watcher.on('rename',function(path){
+        win.document.write("rename : ");
+        win.document.write(path);
+        win.document.write("<br/>");
+      })
+      watcher.on('error',function(err){
+        win.document.write("error : ");
+        win.document.write(err);
+        win.document.write("<br/>");
+      })
+    };
+  }
+  function test_CreateWatcher(CreateWatcherCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var watchDir = '/resources/.desktop/desktopadwd';
+      data.CreateWatcher(CreateWatcherCb, watchDir);
+    });
+  }  
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('shellExec')">shellExec(shellExecCb)<span><a class="mark" href="#test_shellExec" id="test_shellExec" onclick="test_shellExec(shellExecCb)">test</a></span></h2>
+<div id="shellExec" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function shellExecCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API shellExec()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_shellExec(shellExecCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var command = 'echo $XDG_DATA_DIRS';
+      data.shellExec(shellExecCb, command);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('copyFile')">copyFile(copyFileCb)<span><a class="mark" href="#test_copyFile" id="test_copyFile" onclick="test_copyFile(copyFileCb)">test</a></span></h2>
+<div id="copyFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function copyFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API copyFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_copyFile(copyFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var fromPath = '/testFile/book.pdf';
+      var toPath = '/testFile/test_book.pdf';
+      data.copyFile(copyFileCb, fromPath, toPath);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('moveFile')">moveFile(moveFileCb)<span><a class="mark" href="#test_moveFile" id="test_moveFile" onclick="test_moveFile(moveFileCb)">test</a></span></h2>
+<div id="moveFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function moveFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API moveFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_moveFile(moveFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var fromPath = '/testFile/book.pdf';
+      var toPath = '/testFile/test_book.pdf';
+      data.moveFile(moveFileCb, fromPath, toPath);
+    });
+  }
 </pre>
 </div>
 </div>

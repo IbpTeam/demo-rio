@@ -1,6 +1,6 @@
 var net = require('net');
-var ursa = require('./newUrsa');
-var ursaED = require('./ursaED');
+var NodeRsa = require('node-rsa');
+var rsaKey = require('./rsaKey');
 var clientPackHandler = require('./clientPackHandler');
 
 //account server information loaded from config file
@@ -107,7 +107,7 @@ function clientOnData(client,keyPair,callback){
     var rstObj={};  
     console.log(data.toString('utf-8'));
     try{     
-      decrypteds = ursaED.decrypt(keyPair,data.toString('utf-8'), keySizeBits/8);
+      decrypteds = keyPair.decrypt(data.toString('utf-8'), 'utf8');
     }catch(err){     
       console.log('getPubKeysByName error!!' + err);
       console.log('server don\'t known my pubKey');
@@ -165,6 +165,6 @@ function isInvalid(msgObj){
 
 function sendMsg(client,msg,serverKeyPair){
   msg = JSON.stringify(msg);
-  var encrypteds = ursaED.encrypt(serverKeyPair,msg, keySizeBits/8);
+  var encrypteds = serverKeyPair.encrypt(msg,'base64');
   client.write(encrypteds);
 } 
