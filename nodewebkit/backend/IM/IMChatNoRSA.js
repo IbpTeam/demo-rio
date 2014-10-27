@@ -63,7 +63,10 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
             var msgtime = new Date();
             msgtime.setTime(msgObj.time);
             console.log(msgtime);
-            setTimeout(ReceivedMsgCallback(msgObj, remoteAD), 0);
+            var CalBakMsg = {};
+            CalBakMsg['MsgObj'] = msgObj;
+            CalBakMsg['IP'] = remoteAD; 
+            setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
             var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
             c.write(tp);
           }
