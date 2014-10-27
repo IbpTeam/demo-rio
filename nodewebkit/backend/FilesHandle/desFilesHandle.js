@@ -12,6 +12,7 @@
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var path = require("path");
 var bfh = require("./basicFileHandle");
 var filesHandle = require("../filesHandle");
@@ -75,7 +76,7 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
+  fs_extra.outputFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");

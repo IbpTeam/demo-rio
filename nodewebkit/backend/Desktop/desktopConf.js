@@ -111,6 +111,7 @@ function getnit(initType) {
 function initConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
+    //var path = '/home/xiquan/.resources/desktopConf/data';
     var path = config.RESOURCEPATH + "/.desktop";
     fs.mkdir(path, function(err) {
       if (err) {
