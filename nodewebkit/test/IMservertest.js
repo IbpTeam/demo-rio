@@ -9,4 +9,4 @@ function recvcallback(msg, IP) {
   console.log("from uuid: " + msg.uuid);
   console.log("from IP " + IP);
 }
-imchat.initIMServerNoRSA(recvcallback);
+imchat.initIMServerNoRSA(7777,recvcallback);
