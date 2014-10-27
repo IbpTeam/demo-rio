@@ -90,7 +90,7 @@ function initializeApp(sFullPath) {
     } else {
       bIsConfExist = true;
       var dataDir = require(sConfigPath).dataDir;
-      config.RESOURCEPATH = dataDir;
+      //config.RESOURCEPATH = dataDir;
       util.log("monitor : " + dataDir);
       filesHandle.monitorFiles(dataDir, filesHandle.monitorFilesCb);
       filesHandle.monitorDesFiles(dataDir + "/.des", filesHandle.monitorDesFilesCb);

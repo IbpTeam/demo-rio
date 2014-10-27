@@ -11,6 +11,7 @@
  **/
 var path = require('path');
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
 var dataDes = require("../FilesHandle/desFilesHandle");
@@ -18,9 +19,9 @@ var resourceRepo = require("../FilesHandle/repo");
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
-var fs_extra = require('fs-extra');
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
+var configPath = config.RESOURCEPATH + "/DesktopConf/data";
 
 function newInit(initType) {
   var initTheme = {
@@ -111,9 +112,8 @@ function getnit(initType) {
 function initConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    //var path = '/home/xiquan/.resources/desktopConf/data';
-    var path = config.RESOURCEPATH + "/.desktop";
-    fs.mkdir(path, function(err) {
+    var path = configPath;
+    fs_extra.ensureDir(path, function(err) {
       if (err) {
         console.log(err);
         return;
@@ -121,7 +121,7 @@ function initConf(callback) {
       var tmpThemw = getnit("theme");
       var pathTheme = path + "/Theme.conf";
       var sItemTheme = JSON.stringify(tmpThemw, null, 4);
-      fs.writeFile(pathTheme, sItemTheme, function(err) {
+      fs_extra.outputFile(pathTheme, sItemTheme, function(err) {
         if (err) {
           console.log("init Theme config file error!");
           console.log(err);
@@ -130,28 +130,28 @@ function initConf(callback) {
         var tmpWidget = getnit("widget");
         var pathWidget = path + "/Widget.conf";
         var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-        fs.writeFile(pathWidget, sItemWidget, function(err) {
+        fs_extra.outputFile(pathWidget, sItemWidget, function(err) {
           if (err) {
             console.log("init Widget config file error!");
             console.log(err);
             return;
           }
           var pathDesk = path + "/desktop";
-          fs.mkdir(pathDesk, function(err) {
+          fs_extra.mkdir(pathDesk, function(err) {
             if (err) {
               console.log("init desktop config file error!");
               console.log(err);
               return;
             }
             var pathDock = path + "/dock";
-            fs.mkdir(pathDock, function(err) {
+            fs_extra.mkdir(pathDock, function(err) {
               if (err) {
                 console.log("init dock config file error!");
                 console.log(err);
                 return;
               }
               var pathApp = path + "/applications";
-              fs.mkdir(pathApp, function(err) {
+              fs_extra.mkdir(pathApp, function(err) {
                 if (err) {
                   console.log("init application config file error!");
                   console.log(err);
@@ -218,7 +218,7 @@ function buildLocalDesktopFile(callback) {
   if (typeof callback !== 'function')
     throw 'Bad type of callback!!';
   console.log("==== start building local desktop files! ====");
-  var sAppPath = config.RESOURCEPATH + '/.desktop/applications';
+  var sAppPath = configPath + '/applications';
   var tag = 0;
 
   function findAllDesktopFilesCb(oAllDesktopFiles) {
@@ -270,7 +270,7 @@ function buildLocalDesktopFile(callback) {
 function readThemeConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
+    var ThemeConfPath = configPath + "/Theme.conf";
     fs.readFile(ThemeConfPath, 'utf8', function(err, data) {
       if (err) {
         console.log("read Theme config file error!");
@@ -333,7 +333,7 @@ exports.readThemeConf = readThemeConf;
 function writeThemeConf(callback, oTheme) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var ThemeConfPath = config.RESOURCEPATH + "/.desktop/Theme.conf";
+    var ThemeConfPath = configPath + "/Theme.conf";
     var path = config.RESOURCEPATH + "/.desktop";
     fs.readFile(ThemeConfPath, 'utf-8', function(err, data) {
       if (err) {
@@ -362,9 +362,9 @@ function writeThemeConf(callback, oTheme) {
           }
           var chItem = ThemeConfPath;
           var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
-          dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-            callback(null, "success");
-          });
+          // dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+          //   callback(null, "success");
+          // });
         }
       });
     })
@@ -411,7 +411,7 @@ exports.writeThemeConf = writeThemeConf;
 function readWidgetConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var WidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
+    var WidgetConfPath = configPath + "/Widget.conf";
     fs.readFile(WidgetConfPath, 'utf8', function(err, data) {
       if (err) {
         console.log("read Theme config file error!");
@@ -468,8 +468,8 @@ exports.readWidgetConf = readWidgetConf;
 function writeWidgetConf(callback, oWidget) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var sWidgetConfPath = config.RESOURCEPATH + "/.desktop/Widget.conf";
-    var sPath = config.RESOURCEPATH + "/.desktop";
+    var sWidgetConfPath = configPath + "/Widget.conf";
+    var sPath = configPath;
     fs.readFile(sWidgetConfPath, 'utf-8', function(err, data) {
       if (err) {
         console.log(err);
@@ -491,15 +491,15 @@ function writeWidgetConf(callback, oWidget) {
           var currentTime = (new Date());
           config.riolog("time: " + currentTime);
           var attrs = {
-            lastAccessTime: currentTime,
-            lastModifyTime: currentTime,
-            lastAccessDev: config.uniqueID
-          }
-          var chItem = sWidgetConfPath;
-          var itemDesPath = sPath.replace(/\/resources\//, '/resources/.des/');
-          dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-            callback(null, "success");
-          });
+              lastAccessTime: currentTime,
+              lastModifyTime: currentTime,
+              lastAccessDev: config.uniqueID
+            }
+            //var chItem = sWidgetConfPath;
+            //var itemDesPath = sPath.replace(/\/resources\//, '/resources/.des/');
+            // dataDes.updateItem(chItem, attrs, itemDesPath, function() {
+            //   callback(null, "success");
+            // });
         }
       });
     })
@@ -770,7 +770,7 @@ function findDesktopFile(callback, sFileName) {
   var systemType = os.type();
   if (systemType === "Linux") {
     var xdgDataDir = [];
-    var sBoundary = config.RESOURCEPATH + '/.desktop/applications -name ';
+    var sBoundary = configPath + '/applications -name ';
     var sCommand = 'find ' + sBoundary + sFileName;
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
@@ -1057,7 +1057,7 @@ var Event = Class.extend(require('events').EventEmitter.prototype);
 var DirWatcher = Event.extend({
   init: function(dir_, ignore_, callback) {
     if (typeof dir_ == 'undefined') {
-      dir_ = '/resources/.desktop/desktop';
+      dir_ = '/.resources/DesktopConf/data/desktop';
     };
     this._prev = 0;
     this._baseDir = undefined;
@@ -1282,39 +1282,29 @@ exports.shellExec = shellExec;
  *
  * @param2: oldPath
  *    string, a dir under user path
- *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
- *    (compare with a full path: '/home/xiquan/resources/.desktop/Theme.conf')
+ *    exmple: var oldPath = '/.resources/DesktopConf/Theme.conf'
+ *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/Theme.conf')
  *
  * @param3: newPath
  *    string, a dir under user path
- *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
- *    (compare with a full path: '/home/xiquan/resources/.desktop/BadTheme.conf')
+ *    exmple: var newPath = '/.resources/DesktopConf/BadTheme.conf'
+ *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/BadTheme.conf')
  *
  **/
 function moveFile(callback, oldPath, newPath) {
-  function shellExecCb(err, result) {
+  var oldFullpath = configPath + oldPath;
+  var newFullpath = configPath + newPath;
+  console.log(oldFullpath, newFullpath);
+  fs_extra.move(oldFullpath, newFullpath, function(err) {
     if (err) {
-      console.log(err, stderr);
-      var _err = 'moveFile : echo $HOME error';
+      console.log(err);
+      var _err = 'moveFile : move error';
       callback(_err, null);
     } else {
-      var basePath = result.substr(0, result.length - 1);
-      var oldFullpath = basePath + oldPath;
-      var newFullpath = basePath + newPath;
-      console.log(oldFullpath, newFullpath);
-      fs_extra.move(oldFullpath, newFullpath, function(err) {
-        if (err) {
-          console.log(err);
-          var _err = 'moveFile : move error';
-          callback(_err, null);
-        } else {
-          console.log('move file success!');
-          callback(null, 'success');
-        }
-      })
+      console.log('move file success!');
+      callback(null, 'success');
     }
-  }
-  shellExec(shellExecCb, 'echo $HOME');
+  })
 }
 exports.moveFile = moveFile;
 
@@ -1336,39 +1326,29 @@ exports.moveFile = moveFile;
  *
  * @param2: oldPath
  *    string, a dir under user path
- *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
- *    (compare with a full path: '/home/xiquan/resources/.desktop/Theme.conf')
+ *    exmple: var oldPath = '/.resources/DesktopConf/Theme.conf'
+ *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/Theme.conf')
  *
  * @param3: newPath
  *    string, a dir under user path
- *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
- *    (compare with a full path: '/home/xiquan/resources/.desktop/BadTheme.conf')
+ *    exmple: var newPath = '/.resources/DesktopConf/BadTheme.conf'
+ *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/BadTheme.conf')
  *
  **/
 function copyFile(callback, oldPath, newPath) {
-  function shellExecCb(err, result) {
+  var oldFullpath = configPath + oldPath;
+  var newFullpath = configPath + newPath;
+  console.log(oldFullpath, newFullpath);
+  fs_extra.copy(oldFullpath, newFullpath, function(err) {
     if (err) {
-      console.log(err, stderr);
-      var _err = 'copyFile : echo $HOME error';
+      console.log(err);
+      var _err = 'copyFile : copy error';
       callback(_err, null);
     } else {
-      var basePath = result.substr(0, result.length - 1);
-      var oldFullpath = basePath + oldPath;
-      var newFullpath = basePath + newPath;
-      console.log(oldFullpath, newFullpath);
-      fs_extra.copy(oldFullpath, newFullpath, function(err) {
-        if (err) {
-          console.log(err);
-          var _err = 'copyFile : copy error';
-          callback(_err, null);
-        } else {
-          console.log('copy file success!');
-          callback(null, 'success');
-        }
-      })
+      console.log('copy file success!');
+      callback(null, 'success');
     }
-  }
-  shellExec(shellExecCb, 'echo $HOME');
+  })
 }
 exports.copyFile = copyFile;
 

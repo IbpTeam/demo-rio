@@ -120,7 +120,7 @@ function addData(itemPath, isLoadEnd, callback) {
     var itemFilename = cate.filename;
     var itemPostfix = cate.postfix;
     var someTags = tagsHandles.getTagsByPath(itemPath);
-    var tmpPath = '/home/xiquan/.resources';
+    var resourcesPath = config.RESOURCEPATH + '/' + category;
     switch (category) {
       case "Documents":
         {
@@ -153,10 +153,10 @@ function addData(itemPath, isLoadEnd, callback) {
               function createItemCb() {
                 callback(isLoadEnd, oNewItem);
               }
-              var itemDesPath = tmpPath + '/'+category+'Des/data';
+              var itemDesPath = resourcesPath + 'Des/';
               dataDes.createItem(oNewItem, itemDesPath, createItemCb);
             }
-            var dest = tmpPath + '/' + category + '/data/' + itemFilename + '.' + itemPostfix;
+            var dest = resourcesPath + '/data/' + itemFilename + '.' + itemPostfix;
             copyFile(copyFileCb, itemPath, dest)
           });
           break;
@@ -192,10 +192,10 @@ function addData(itemPath, isLoadEnd, callback) {
               function createItemCb() {
                 callback(isLoadEnd, oNewItem);
               }
-              var itemDesPath = tmpPath + '/'+category+'Des/data';
+              var itemDesPath = resourcesPath + 'Des/';
               dataDes.createItem(oNewItem, itemDesPath, createItemCb);
             }
-            var dest = tmpPath + '/' + category + '/data/' + itemFilename + '.' + itemPostfix;
+            var dest = resourcesPath + '/data/' + itemFilename + '.' + itemPostfix;
             copyFile(copyFileCb, itemPath, dest)
           });
           break;
@@ -234,10 +234,10 @@ function addData(itemPath, isLoadEnd, callback) {
               function createItemCb() {
                 callback(isLoadEnd, oNewItem);
               }
-              var itemDesPath = tmpPath + '/'+category+'Des/data';
+              var itemDesPath = resourcesPath + 'Des/';
               dataDes.createItem(oNewItem, itemDesPath, createItemCb);
             }
-            var dest = tmpPath + '/' + category + '/data/' + itemFilename + '.' + itemPostfix;
+            var dest = resourcesPath + '/data/' + itemFilename + '.' + itemPostfix;
             copyFile(copyFileCb, itemPath, dest)
           });
           break;
@@ -272,10 +272,10 @@ function addData(itemPath, isLoadEnd, callback) {
             //   // function createItemCb() {
             //   //   callback(isLoadEnd, oNewItem);
             //   // }
-            //   // var itemDesPath = tmpPath + '/'+category+'Des/data';
+
             //   // dataDes.createItem(oNewItem, itemDesPath, createItemCb);
             // }
-            // var dest = tmpPath + '/' + category + '/data/'+itemPath; //+ itemFilename + '.' + itemPostfix;
+            // var dest = resourcesPath + '/data/'+itemPath; //+ itemFilename + '.' + itemPostfix;
             // copyFile(copyFileCb, itemPath, dest)
           });
           break;
@@ -921,24 +921,38 @@ exports.monitorFiles = monitorFiles;
 
 
 function copyFile(callback, oldPath, newPath) {
-  fs_extra.copy(oldPath, newPath, function(err) {
-    if (err) {
-      console.log(err);
-      callback(err);
+  var repeat = 0;
+  console.log(newPath);
+  fs.exists(newPath, function(isExists) {
+    if (isExists) {
+      console.log('exiiiiiiiiiiiists',newPath);
+      var pointIndex = newPath.lastIndexOf('.');
+      var nameindex = newPath.lastIndexOf('/');
+      if (pointIndex == -1) {
+        var itemPostfix = "none";
+        var itemFilename = newPath.substring(nameindex + 1, newPath.length);
+      } else {
+        var itemPostfix = newPath.substr(pointIndex + 1);
+        var itemFilename = newPath.substring(nameindex + 1, pointIndex);
+      }
+      repeat++;
+      newPath = newPath.substr(0, nameindex) + itemFilename + '(' + repeat + ')' + itemPostfix;
+      copyFile(callback, oldPath, newPath);
     } else {
-      callback('success');
+      fs_extra.copy(oldPath, newPath, function(err) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        callback('success');
+      })
     }
-  });
+  })
 }
 
 function initData(loadResourcesCb, resourcePath) {
   config.riolog("initData ..............");
   dataPath = resourcePath;
-  // desktopConf.initConf(function(result) {
-  // 	if (result !== "success") {
-  // 		console.log("init config error");
-  // 		return;
-  // 	}
   fs.mkdir(dataPath + '/.des', function(err) {
     if (err) {
       console.log("mk resourcePath error!");
@@ -997,7 +1011,6 @@ function initData(loadResourcesCb, resourcePath) {
     function isEndCallback() {
       resourceRepo.repoInit(resourcePath, loadResourcesCb);
     }
-    console.log("============\n",fileList);
     var oNewItems = new Array();
     for (var k = 0; k < fileList.length; k++) {
       var isLoadEnd = (k == (fileList.length - 1));
@@ -1025,7 +1038,6 @@ function initData(loadResourcesCb, resourcePath) {
       });
     }
   });
-  //	});
 }
 exports.initData = initData;
 
