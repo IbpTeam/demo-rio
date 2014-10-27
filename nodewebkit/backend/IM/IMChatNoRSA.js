@@ -27,16 +27,18 @@ function MD5(str, encoding) {
 }
 
 /*
- * @method initIMServerNoRSA
- *  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
- * @param ReceivedMsgCallback
- *   当成功接收到客户端发来的消息时，调用该回调函数
- *    @msg
- *     string 回调函数参数，表示成功接收到的消息
- * @return null
- *  没有返回值
- */
-function initIMServerNoRSA(ReceivedMsgCallback) {
+* @method initIMServer
+* @param Port
+* 消息服务器指定要绑定的端口
+*  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
+* @param ReceivedMsgCallback
+*   当成功接收到客户端发来的消息时，调用该回调函数
+*    @msg
+*     string 回调函数参数，表示成功接收到的消息
+* @return null
+*  没有返回值
+*/
+function initIMServerNoRSA(Port,ReceivedMsgCallback) {
 
   var server = net.createServer(function(c) {
     console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
@@ -93,8 +95,8 @@ function initIMServerNoRSA(ReceivedMsgCallback) {
     console.log("Error: " + err.code + " on " + err.syscall);
   });
 
-  server.listen(LISTENPORT, function() {
-    console.log('IMServer Binded! ' + LISTENPORT);
+  server.listen(Port, function() {
+    console.log('IMServer Binded! ' + Port);
   });
 }
 
