@@ -53,7 +53,7 @@ function MD5(str, encoding) {
 * @return null
 *  没有返回值
 */
-function initIMServer(Port,ReceivedMsgCallback) {
+function initIMServer(port,ReceivedMsgCallback) {
   //console.log(LOCALPRIKEY);
   //console.log(USERCONFIGPATH+'/key/priKey.pem');
   /*
@@ -106,7 +106,10 @@ function initIMServer(Port,ReceivedMsgCallback) {
             //return success
             //dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
             // console.log("insert into db success!");} );
-            setTimeout(ReceivedMsgCallback(msgObj, remoteAD), 0);
+            var CalBakMsg = {};
+            CalBakMsg['MsgObj'] = msgObj;
+            CalBakMsg['IP'] = remoteAD; 
+            setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
             //console.log("pubkey is "+pubKey);
             isExist(msgObj.uuid, function() {
               var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + msgObj.uuid + '.pem');
@@ -152,8 +155,8 @@ function initIMServer(Port,ReceivedMsgCallback) {
     console.log("Error: " + err.code + " on " + err.syscall);
   });
 
-  server.listen(Port, function() {
-    console.log('IMServer Binded! ' + Port);
+  server.listen(port, function() {
+    console.log('IMServer Binded! ' + port);
   });
 }
 
