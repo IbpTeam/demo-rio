@@ -3,8 +3,8 @@ var path = require('path');
 var fs = require('fs');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
-var ursa = require('./newUrsa');
-var ursaED = require('./ursaED');
+var NodeRsa = require('node-rsa');
+var rsaKey = require('./rsaKey');
 var account = require('./pubkeyServer.js');
 var config = require('../config.js');
 
@@ -17,10 +17,10 @@ var HOME_DIR = "/home";
 var DEMO_RIO = ".demo-rio";
 var CURUSER = process.env['USER'];
 
-var LOCALACCOUNT = 'yuanzhe';
-var LOCALACCOUNTKEY = 'yuanzhe';
-var LOCALUUID = 'testtest';
-var USERCONFIGPATH =  path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var LOCALACCOUNT = 'fyf';
+var LOCALACCOUNTKEY = 'fyf';
+var LOCALUUID = 'Linux Mint';
+var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
 var LOCALPRIKEY = '/key/priKey.pem';
 var KEYSERVERPUB = '/key/serverKey.pem';
 var LOCALPUBKEY = '/key/pubKey.pem';
@@ -55,11 +55,10 @@ function initIMServer(ReceivedMsgCallback) {
   //console.log(LOCALPRIKEY);
   //console.log(USERCONFIGPATH+'/key/priKey.pem');
   /*
-  we should load the keyPair first, in order to encrypt messages with RSA
-  */
-  var keyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
-  var pubKey = ursaED.loadPubKeySync(USERCONFIGPATH+LOCALPRIKEY);
-  var keySizeBits = 1024;
+    we should load the keyPair first, in order to encrypt messages with RSA
+    */
+  var keyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+  var pubKey = keyPair.getPublicPEM().toString('utf8');
 
   var server = net.createServer(function(c) {
     console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
@@ -69,20 +68,20 @@ function initIMServer(ReceivedMsgCallback) {
     c.on('data', function(msgStri) {
       console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
       /*
-    keyPair to be intergrated by Account Server
-    keyPair should be loaded by local account
-    */
+        keyPair to be intergrated by Account Server
+        keyPair should be loaded by local account
+        */
       var msgStr = JSON.parse(msgStri);
       if (msgStr[0].type == 'SenderChangePubkey') {
         var badkey = JSON.parse(msgStr[0].content);
         console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
-        var localkeyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
+        var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
         requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
         return;
       };
       try {
-        var decrypteds = ursaED.decrypt(keyPair, msgStr[0].content.toString('utf-8'), keySizeBits / 8);
-        console.log('解密：' + decrypteds);
+        var decrypteds = keyPair.decrypt(msgStr[0].content.toString('utf-8'), 'utf8');
+        console.log('decrypteds：' + decrypteds);
         var msgObj = JSON.parse(decrypteds);
         console.log(msgObj);
         console.log('MSG type:' + msgObj.type);
@@ -105,16 +104,16 @@ function initIMServer(ReceivedMsgCallback) {
             //return success
             //dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
             // console.log("insert into db success!");} );
-            setTimeout(ReceivedMsgCallback(msgObj.message), 0);
+            setTimeout(ReceivedMsgCallback(msgObj, remoteAD), 0);
             //console.log("pubkey is "+pubKey);
             isExist(msgObj.uuid, function() {
-              var tmpkey = ursaED.loadPubKeySync(USERCONFIGPATH+'/key/users/' + msgObj.uuid + '.pem');
+              var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + msgObj.uuid + '.pem');
               var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
               var tmpsmsg = encryptSentMSG(tp, tmpkey)
               c.write(tmpsmsg);
             }, function() {
               requestPubKey(msgObj.uuid, msgObj.from, keyPair, function() {
-                var tmpkey = ursaED.loadPubKeySync(USERCONFIGPATH+'/key/users/' + msgObj.uuid + '.pem');
+                var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + msgObj.uuid + '.pem');
                 var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
                 var tmpsmsg = encryptSentMSG(tp, tmpkey)
                 c.write(tmpsmsg);
@@ -181,7 +180,6 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
   var id = 0;
   var tmpenmsg = encryptSentMSG(SENDMSG, KEYPAIR);
   var MSG = JSON.parse(SENDMSG);
-  //  var nnnss = JSON.stringify(SENDMSG);
   var dec = MSG[0].content;
   var pat = JSON.parse(dec);
 
@@ -237,11 +235,10 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
     switch (RPLY[0].type) {
       case 'Reply':
         {
-          var keyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
-          try{
-            var decrply = ursaED.decrypt(keyPair, RPLY[0].content.toString('utf-8'), keySizeBits / 8);
-          }
-          catch(err){
+          var keyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+          try {
+            var decrply = keyPair.decrypt(RPLY[0].content.toString('utf-8'), 'utf8');
+          } catch (err) {
             console.log(err);
             console.log("Destination system got the wrong PubKey, notify him to change ...");
             var badpubkey = encapsuMSG('', 'SenderChangePubkey', LOCALACCOUNT, LOCALUUID, '');
@@ -273,7 +270,7 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
         {
           var badkey = JSON.parse(RPLY[0].content);
           console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
-          var localkeyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
+          var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
           requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
           clearInterval(id);
           client.end();
@@ -312,14 +309,15 @@ function sendMSGbyAccount(TABLE, ACCOUNT, MSG, PORT) {
   if (typeof ipset == "undefined") {
     console.log("destination account not in local lan!");
     /*
-    here are some server msg send functions!
-    */
+        here are some server msg send functions!
+        */
   };
 
-  var localkeyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
+  //var localkeyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
+  var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
   /*
-  MSG already be capsuled by encapsuMSG function
-  */
+    MSG already be capsuled by encapsuMSG function
+    */
   for (var i = 0; i < ipset.length; i++) {
     console.log("sending " + ipset[i].UID + " in account " + ACCOUNT);
     existsPubkeyPem(ipset[i], ACCOUNT, MSG, PORT, localkeyPair, function(msg) {
@@ -334,19 +332,19 @@ function sendMSGbyUID(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
   if (typeof IPSET.UID == "undefined") {
     console.log("receiver uuid null");
     /*
-    here are some server msg send functions!
-    */
+        here are some server msg send functions!
+        */
   };
-  var localkeyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
+  var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
   existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, localkeyPair, SENTCALLBACK);
 }
 
 function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR, SENTCALLBACK) {
   function insendfunc() {
-    var tmppubkey = ursaED.loadPubKeySync(USERCONFIGPATH+'/key/users/' + IPSET.UID + '.pem');
+    var tmppubkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + IPSET.UID + '.pem');
     /************************************************************
-        A should be replaced by the local account
-        ********************************************************/
+                A should be replaced by the local account
+                ********************************************************/
     var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
     console.log(tmpmsg);
     sendIMMsg(IPSET.IP, PORT, tmpmsg, tmppubkey, SENTCALLBACK);
@@ -360,7 +358,7 @@ function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR, SENTCALLBACK) {
 }
 
 function isExist(UUID, existfunc, noexistfunc) {
-  fs.exists(USERCONFIGPATH+'/key/users/' + UUID + '.pem', function(exists) {
+  fs.exists(USERCONFIGPATH + '/key/users/' + UUID + '.pem', function(exists) {
     //console.log(USERCONFIGPATH+'/key/users/' + UUID + '.pem');
     if (exists) {
       existfunc();
@@ -385,8 +383,8 @@ function isExist(UUID, existfunc, noexistfunc) {
  */
 function requestPubKey(UUID, ACCOUNT, LOCALPAIR, INSENTFUNC) {
   console.log("Pubkey of device: " + UUID + " in " + ACCOUNT + " doesn't exist , request from server!");
-  var serverKeyPair = ursaED.loadServerKey(USERCONFIGPATH+KEYSERVERPUB);
-  var tmppubkey = ursaED.loadPubKeySync(USERCONFIGPATH+LOCALPUBKEY);
+  var serverKeyPair = rsaKey.loadServerKey(USERCONFIGPATH + KEYSERVERPUB);
+  var tmppubkey = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY).getPublicPEM().toString('utf8');
   account.login(LOCALACCOUNT, LOCALACCOUNTKEY, LOCALUUID, tmppubkey, LOCALPAIR, serverKeyPair, function(msg) {
     console.log("Login successful: +++" + JSON.stringify(msg));
   });
@@ -395,7 +393,7 @@ function requestPubKey(UUID, ACCOUNT, LOCALPAIR, INSENTFUNC) {
     msg.data.detail.forEach(function(row) {
       if (row.UUID == UUID) {
         //console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
-        savePubkey(USERCONFIGPATH+'/key/users/' + row.UUID + '.pem', row.pubKey, INSENTFUNC);
+        savePubkey(USERCONFIGPATH + '/key/users/' + row.UUID + '.pem', row.pubKey, INSENTFUNC);
         //console.log("DDDDDDDDDDD"+row.pubKey);
       };
     });
@@ -513,17 +511,14 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
   return send;
 }
 
-function encryptSentMSG(SENTMSG, PUBKEY) {
+function encryptSentMSG(SENTMSG, pubkeyPair) {
   var msg = JSON.parse(SENTMSG);
   var dec = msg[0].content;
-  var pubkeyPair = ursa.createKey(PUBKEY);
-  var encon = ursaED.encrypt(pubkeyPair, dec, keySizeBits / 8);
+  var encon = pubkeyPair.encrypt(dec, 'base64');
   msg[0].content = encon;
   var sent = JSON.stringify(msg);
   return sent;
 }
-
-
 
 exports.initIMServer = initIMServer;
 exports.sendIMMsg = sendIMMsg;
