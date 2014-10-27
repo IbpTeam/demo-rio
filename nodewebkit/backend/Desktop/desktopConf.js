@@ -137,21 +137,21 @@ function initConf(callback) {
             return;
           }
           var pathDesk = path + "/desktop";
-          fs_extra.mkdir(pathDesk, function(err) {
+          fs_extra.ensureDir(pathDesk, function(err) {
             if (err) {
               console.log("init desktop config file error!");
               console.log(err);
               return;
             }
             var pathDock = path + "/dock";
-            fs_extra.mkdir(pathDock, function(err) {
+            fs_extra.ensureDir(pathDock, function(err) {
               if (err) {
                 console.log("init dock config file error!");
                 console.log(err);
                 return;
               }
               var pathApp = path + "/applications";
-              fs_extra.mkdir(pathApp, function(err) {
+              fs_extra.ensureDir(pathApp, function(err) {
                 if (err) {
                   console.log("init application config file error!");
                   console.log(err);
