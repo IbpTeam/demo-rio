@@ -151,7 +151,7 @@
 
   function test_readDesktopFile(readDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'totem';
+      var sFileName = 'cinnamon';
       data.readDesktopFile(readDesktopFileCb, sFileName);
     });
   }
@@ -324,6 +324,26 @@
       var oldPath = '/resources/documents';
       var newPath = '/testFile/test';
       data.moveFile(moveFileCb, oldPath, newPath);
+    });
+  }
+
+  function renameDesktopFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API renameDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_renameDesktopFile(renameDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oldName = 'cinnamon';
+      var newName = 'test_rename';
+      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
     });
   }
 
@@ -706,6 +726,38 @@
       var fromPath = '/testFile/book.pdf';
       var toPath = '/testFile/test_book.pdf';
       data.moveFile(moveFileCb, fromPath, toPath);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('renameDesktopFile')">renameDesktopFile(renameDesktopFileCb)<span><a class="mark" href="#test_renameDesktopFile" id="test_renameDesktopFile" onclick="test_renameDesktopFile(renameDesktopFileCb)">test</a></span></h2>
+<div id="renameDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function renameDesktopFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API renameDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_renameDesktopFile(renameDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oldPath = 'cinnamon';
+      var newPath = 'test_rename';
+      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
     });
   }
 </pre>

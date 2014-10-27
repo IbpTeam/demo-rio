@@ -1370,6 +1370,29 @@ function copyFile(callback, oldPath, newPath) {
 }
 exports.copyFile = copyFile;
 
+/** 
+ * @Method: renameDesktopFile
+ *    To rename a desktop file
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldName
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'exampleName'
+ *
+ * @param3: newName
+ *    string, a new name that you want to set
+ *    example: var newName = 'newName'
+ *
+ **/
 function renameDesktopFile(callback, oldName, newName) {
   var sFilename = oldName;
   var oEntries = {
@@ -1390,3 +1413,4 @@ function renameDesktopFile(callback, oldName, newName) {
   }
   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
 }
+exports.renameDesktopFile = renameDesktopFile;

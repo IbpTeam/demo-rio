@@ -778,7 +778,7 @@ exports.shellExec = shellExec;
 
 /** 
  * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath. 
+ *    To copy a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content,just like command cp -r.
  *
  * @param1: callback
@@ -813,7 +813,7 @@ exports.copyFile = copyFile;
  * @Method: moveFile
  *    To move a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content and contend would be move to new dir as well.
- *    !!!Notice that if you are moving a dir, the newPath has to be a none exist 
+ *    !!!Notice that if you are moving a dir, the newPath has to be a none exist
  *    !!!new dir, otherwise comes error.
  *
  * @param1: callback
@@ -844,7 +844,31 @@ function moveFile(moveFileCb, oldPath, newPath) {
 }
 exports.moveFile = moveFile;
 
-// function renameDesktopFile(renameDesktopFileCb,){
-
-// }
-// exports.renameDesktopFile = renameDesktopFile;
+/** 
+ * @Method: renameDesktopFile
+ *    To rename a desktop file
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldName
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'example.desktop'
+ *
+ * @param3: newName
+ *    string, a new name that you want to set
+ *    example: var newName = 'newName'
+ *
+ **/
+function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
+  console.log("Request handler 'renameDesktopFile' was called.");
+  desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+}
+exports.renameDesktopFile = renameDesktopFile;
