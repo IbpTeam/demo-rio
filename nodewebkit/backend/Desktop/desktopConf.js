@@ -827,6 +827,7 @@ function findAllDesktopFiles(callback) {
         for (var i = 0; i < xdgDataDir.length; ++i) {
           xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
         }
+        console.log(xdgDataDir);
 
         function tryInThisPath(callback, index) {
           if (index == xdgDataDir.length) {
