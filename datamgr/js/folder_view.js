@@ -477,6 +477,9 @@ function Folder(jquery_element) {
           DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
         }
         break;
+      case 'device':
+        im_view.showSend(file_json);
+        break;
       case 'other':
         get_all_data_file(file_json);
         break;
@@ -707,7 +710,7 @@ Folder.prototype.get_callback_data = function(data_json){
       data_json[i]['props'] = {};
       data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name']+'.device';
       data_json[i]['props']['name'] = data_json[i]['name'];           
-      data_json[i]['props']['type'] = 'other';
+      data_json[i]['props']['type'] = 'device';
       data_json[i]['props']['icon'] = 'Devices';
     }
     global_self.emit('set_sidebar', data_json);
