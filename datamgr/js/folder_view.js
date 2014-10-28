@@ -318,7 +318,7 @@ function Folder(jquery_element) {
     $(this).addClass('focus');
     switch(e.which){
     case 3:
-      var contents = ['Open', 'Copy', 'Delete', 'Add tags'];// '编辑' 'Property'
+      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags'];// '编辑' 'Property'
       var popup_menu = self.gen_popup_menu(contents);
       var dst_file = this;
       $(popup_menu).on('mouseup', function(e){
@@ -360,6 +360,39 @@ function Folder(jquery_element) {
                 case 'file':
                   copied_filepath = file_json['path'];
                   console.log(copied_filepath);
+                break;
+              }
+            break;
+            case 'Rename':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not rename the category.');
+                break;
+                case 'file':
+                  var inputer = Inputer.create('button-name');
+                  var options = {
+                    'left': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().left,
+                    'top': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().top,
+                    'width': 80,
+                    'height': 25,
+                    'oldtext': file_json['props'].name,
+                    'callback': function(newtext){
+                      var new_file_json = {
+                        URI: file_json['URI'],
+                        path: file_json['path'],
+                        filename: newtext,
+                      };
+                      DataAPI.updateDataValue(function(result){
+                        if(result == 'success'){
+                          global_self.open(global_dir);
+                        }
+                        else{
+                          window.alert("Rename failed!");
+                        }
+                      }, [new_file_json]);
+                    }
+                  }
+                  inputer.show(options);
                 break;
               }
             break;
@@ -781,7 +814,7 @@ Folder.prototype.show_folder_mode_view = function(fs_structure, data_json, datap
     }
     results.push('<div class="file" data-path="' + data_json.path + '">');
     results.push('<div class="icon"> <img src="icons/' + data_json.icon + '.png"></div>');
-    results.push('<div class="name">' + data_json.name + '</div>');
+    results.push('<div class="name" id="'+data_json.name+'">' + data_json.name + '</div>');
     results.push('</div>');
   }
   global_self.files.html(results.join('\n'));
@@ -824,7 +857,13 @@ Folder.prototype.gen_view_files_normal = function(files){
     }else{
         results.push('<div class="icon"> <img src="icons/' + file['props'].icon + '.png"></div>');
     }
-    results.push('<div class="name">' + file['props'].name + '</div>');
+    if(file['props'].name.indexOf(' ') != -1 ||
+       file['props'].name.indexOf('\'' != -1)){
+      var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+      results.push('<div class="name" id="'+ id +'">' + file['props'].name + '</div>');
+    }else{
+      results.push('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>');
+    }
     results.push('</div>');
   }
   return results.join('\n');
