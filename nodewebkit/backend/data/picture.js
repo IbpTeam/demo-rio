@@ -53,17 +53,17 @@ function createData(items, callback) {
       var category = 'Pictures';
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
-      var someTags = tagsHandles.getTagsByPath(items);
+      /*
+       * TODO: something wrong the tagsHandles, will fix it later
+       */
+      var someTags = []; //tagsHandles.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
         var itemInfo = {
           URI: uri + "#" + category,
           category: category,
           is_delete: 0,
-          /*
-           * TODO: something wrong the tagsHandles, will fix it later
-           */
-          others: []; //someTags.join(","),
+          others: someTags.join(","),
           postfix: itemPostfix,
           filename: itemFilename,
           id: null,

@@ -52,7 +52,10 @@ function createData(items, callback) {
       var category = 'Music';
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
-      var someTags = tagsHandles.getTagsByPath(items);
+      /*
+       * TODO: something wrong the tagsHandles, will fix it later
+       */
+      var someTags = []; //tagsHandles.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
         var itemInfo = {
@@ -63,7 +66,7 @@ function createData(items, callback) {
           /*
            * TODO: something wrong the tagsHandles, will fix it later
            */
-          others: []; //someTags.join(","),
+          others: someTags.join(","),
           filename: itemFilename,
           postfix: itemPostfix,
           size: size,
