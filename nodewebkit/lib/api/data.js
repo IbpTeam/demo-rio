@@ -5,10 +5,27 @@ var contacts = require("../../backend/ContactsHandle/contacts");
 var devices = require("../../backend/devices");
 var tagsHandle = require("../../backend/tagsHandle");
 var desktopConf = require("../../backend/Desktop/desktopConf")
+var imChat = require("../../backend/IM/IMChatNoRSA")
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
+
+/*
+*IMChat
+*/
+function startIMChatServer(startIMChatServerCb){
+  imChat.initIMServerNoRSA(6986, function(msgobj){
+    startIMChatServerCb(msgobj);
+  });
+}
+exports.startIMChatServer = startIMChatServer;
+
+function sendIMMsg(sendIMMsgCb,ipset, msg){
+  imChat.sendMSGbyUIDNoRSA(ipset,"rtty123", msg, 6986, sendIMMsgCb);
+}
+exports.sendIMMsg=sendIMMsg;
+
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
