@@ -11,8 +11,8 @@ var repo = require("./repo");
 var device = require("../data/devices");
 var util = require('util');
 var events = require('events'); 
-var csvtojson = require('./csvTojson');
-var uniqueID = require("./uniqueID");
+var csvtojson = require('../csvTojson');
+var uniqueID = require("../uniqueID");
 
 /**
  * @method pickTags

@@ -4,13 +4,17 @@ var fs = require('fs');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
 var config = require('../config.js');
+var HOME_DIR = "/home";
+var DEMO_RIO = ".demo-rio";
+var CURUSER = process.env['USER'];
+var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
 var keySizeBits = 1024;
 var size = 65537;
-var LISTENPORT = 8892;
 
-var LOCALACCOUNT = 'fyf';
-var LOCALUUID = 'Linux Mint';
+var LOCALACCOUNT = uniqueID.Account;
+var LOCALUUID = uniqueID.uniqueID;
 
 /*
  * @method MD5

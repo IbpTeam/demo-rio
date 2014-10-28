@@ -1,5 +1,6 @@
 var commonDAO = require("../commonHandle/CommonDAO");
-var dataDes = require("../data/desFilesHandle");
+var dataDes = require("../commonHandle/desFilesHandle");
+var commonHandle = require("../commonHandle/commonHandle");
 var pathModule = require('path');
 var fs = require('fs');
 var config = require('../config');
