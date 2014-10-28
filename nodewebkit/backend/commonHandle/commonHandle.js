@@ -155,11 +155,12 @@ function copyFile(oldPath, newPath, callback) {
  */
 function createData(item, callback) {
   var itemPath = item.path;
-  var itemPostfix = item.postfix;
-  var itemFilename = item.filename;
+  var itemFilename = item.filename + item.postfix;
   var category = item.category;
   var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-  var dest = resourcesPath + '/data/' + itemFilename + '.' + itemPostfix;
+  var dest = resourcesPath + '/data/' + itemFilename;
+  var desPath = resourcesPath + 'Des';
+  var desDest = desPath + '/' + itemFilename + '.md';
   copyFile(itemPath, dest, function(result) {
     if (result !== 'success') {
       console.log(result);
@@ -173,7 +174,9 @@ function createData(item, callback) {
           return;
         }
         resourceRepo.repoAddsCommit(resourcesPath, [dest], function() {
-          callback('success');
+          resourceRepo.repoAddsCommit(desPath, [desDest], function() {
+            callback('success');
+          })
         });
       })
     });
@@ -225,13 +228,15 @@ function createDataAll(items, callback) {
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
     var itemPath = item.path;
-    var itemPostfix = item.postfix;
-    var itemFilename = item.filename;
+    var itemFilename = item.filename + item.postfix;
     var category = item.category;
     var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-    var dest = resourcesPath + '/data/' + itemFilename + '.' + itemPostfix;
+    var dest = resourcesPath + '/data/' + itemFilename;
+    var desPath = resourcesPath + 'Des';
+    var desDest = desPath + '/' + itemFilename + '.md';
     var allItems = [];
     var allItemPath = [];
+    var allDesPath = [];
     copyFile(itemPath, dest, function(result) {
       if (result !== 'success') {
         console.log(result);
@@ -241,12 +246,15 @@ function createDataAll(items, callback) {
       dataDes.createItem(item, itemDesPath, function() {
         allItems.push(item);
         allItemPath.push(dest);
+        allDesPath.push(desPath + '/data/' + itemFilename + '.md');
         var isEnd = (count === lens);
         if (isEnd) {
           commonDAO.createItems(allItems, function() {
             resourceRepo.repoAddsCommit(resourcesPath, allItemPath, function() {
-              console.log('create data all success!');
-              callback('success');
+              resourceRepo.repoAddsCommit(resourceRepo, allDesPath, function() {
+                console.log('create data all success!');
+                callback('success');
+              })
             });
           })
         }
