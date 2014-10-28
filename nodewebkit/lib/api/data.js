@@ -1,14 +1,14 @@
-var commonDAO = require("../../backend/DAO/CommonDAO");
-var filesHandle = require("../../backend/filesHandle");
+var commonDAO = require("../../backend/commonHandle/CommonDAO");
+var commonHandle = require("../../backend/commonHandle/commonHandle");
+var Documents = require("../../backend/data/document");
 var utils = require("../../backend/utils");
-var contacts = require("../../backend/ContactsHandle/contacts");
-var devices = require("../../backend/devices");
-var tagsHandle = require("../../backend/tagsHandle");
-var desktopConf = require("../../backend/Desktop/desktopConf")
+var device = require("../../backend/data/device");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
+var category=require('../../backend/category');
+
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
@@ -170,7 +170,8 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  filesHandle.openDataByUri(function(result) {
+//  var cate=category.getCategoryByUri(uri);
+  Documents.openDataByUri(function(result) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
@@ -208,7 +209,7 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function getServerAddress(getServerAddressCb) {
   console.log("Request handler 'getServerAddress' was called.");
-  devices.getServerAddress(getServerAddressCb);
+  device.getServerAddress(getServerAddressCb);
 }
 exports.getServerAddress = getServerAddress;
 

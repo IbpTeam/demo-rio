@@ -13,9 +13,9 @@
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
-var filesHandle = require("./backend/filesHandle");
+var commonHandle = require("./backend/commonHandle/commonHandle");
 var uniqueID=require('./backend/uniqueID');
-var device = require("./backend/devices");
+var device = require("./backend/data/device");
 var msgTransfer = require("./backend/Transfer/msgTransfer");
 var util = require('util');
 var os = require('os');
@@ -80,7 +80,6 @@ function initializeApp(sFullPath){
   var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH,NETLINKSTATUS);
   var bIsConfExist = false;
-  filesHandle.isPulledFile=false;
   console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
   fs.exists(sConfigPath, function (configExists) {
@@ -91,8 +90,6 @@ function initializeApp(sFullPath){
       var dataDir=require(sConfigPath).dataDir;
       config.RESOURCEPATH=dataDir;
       util.log("monitor : "+dataDir);
-      filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
-      filesHandle.monitorDesFiles(dataDir+"/.des",filesHandle.monitorDesFilesCb);
     }
     fs.exists(sUniqueIDPath, function (uniqueExists) {
       if(!uniqueExists){
@@ -116,7 +113,6 @@ function initializeApp(sFullPath){
               config.NETLINKSTATUSPATH=sNetLinkStatusPath;
               cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
                 util.log(sNetLinkStatusPath);
-                filesHandle.monitorNetlink(sNetLinkStatusPath);
               });
             });
           }
@@ -124,7 +120,6 @@ function initializeApp(sFullPath){
             config.NETLINKSTATUSPATH=sNetLinkStatusPath;
             cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
               util.log(sNetLinkStatusPath);
-              filesHandle.monitorNetlink(sNetLinkStatusPath);
             });
           }
         });
