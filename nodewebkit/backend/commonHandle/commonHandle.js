@@ -23,7 +23,7 @@ var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
 var commonDAO = require("./CommonDAO");
 var resourceRepo = require("./repo");
-var device = require("./data/devices");
+var device = require("../data/device");
 var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
@@ -33,66 +33,8 @@ var tagsHandles = require("./tagsHandle");
 var writeDbNum = 0;
 var dataPath;
 
-function getCategory(path) {
-  var pointIndex = path.lastIndexOf('.');
-  if (pointIndex == -1) {
-    var itemPostfix = "none";
-    var nameindex = path.lastIndexOf('/');
-    var itemFilename = path.substring(nameindex + 1, path.length);
-  } else {
-    var itemPostfix = path.substr(pointIndex + 1);
-    var nameindex = path.lastIndexOf('/');
-    var itemFilename = path.substring(nameindex + 1, pointIndex);
-  }
-  if (itemPostfix == 'none' ||
-    itemPostfix == 'ppt' ||
-    itemPostfix == 'pptx' ||
-    itemPostfix == 'doc' ||
-    itemPostfix == 'docx' ||
-    itemPostfix == 'wps' ||
-    itemPostfix == 'odt' ||
-    itemPostfix == 'et' ||
-    itemPostfix == 'txt' ||
-    itemPostfix == 'xls' ||
-    itemPostfix == 'xlsx' ||
-    itemPostfix == 'ods' ||
-    itemPostfix == 'zip' ||
-    itemPostfix == 'sh' ||
-    itemPostfix == 'gz' ||
-    itemPostfix == 'html' ||
-    itemPostfix == 'et' ||
-    itemPostfix == 'odt' ||
-    itemPostfix == 'pdf' ||
-    itemPostfix == 'html5ppt') {
-    return {
-      category: "Documents",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'jpg' || itemPostfix == 'png') {
-    return {
-      category: "Pictures",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'mp3' || itemPostfix == 'ogg') {
-    return {
-      category: "Music",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
-    return {
-      category: "Configuration",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  }
-}
-
 function copyFile(oldPath, newPath, callback) {
   var repeat = 0;
-  console.log(newPath);
   fs.exists(newPath, function(isExists) {
     if (isExists) {
       console.log('exiiiiiiiiiiiists', newPath);
@@ -237,30 +179,35 @@ function createDataAll(items, callback) {
     var allItems = [];
     var allItemPath = [];
     var allDesPath = [];
-    copyFile(itemPath, dest, function(result) {
-      if (result !== 'success') {
-        console.log(result);
-        return;
-      }
-      var itemDesPath = resourcesPath + 'Des/';
-      dataDes.createItem(item, itemDesPath, function() {
-        allItems.push(item);
-        allItemPath.push(dest);
-        allDesPath.push(desPath + '/data/' + itemFilename + '.md');
-        var isEnd = (count === lens);
-        if (isEnd) {
-          commonDAO.createItems(allItems, function() {
-            resourceRepo.repoAddsCommit(resourcesPath, allItemPath, function() {
-              resourceRepo.repoAddsCommit(resourceRepo, allDesPath, function() {
+    (function(_item, _itemPath, _dest) {
+      copyFile(_itemPath, _dest, function(result) {
+        if (result !== 'success') {
+          console.log(result);
+          return;
+        }
+        var itemDesPath = resourcesPath + 'Des/data';
+        dataDes.createItem(_item, itemDesPath, function() {
+          allItems.push(_item);
+          allItemPath.push(_dest);
+          allDesPath.push(desPath + '/data/' + itemFilename + '.md');
+          var isEnd = (count === lens - 1);
+          if (isEnd) {
+            commonDAO.createItems(allItems, function() {
+              resourceRepo.repoAddsCommit(resourcesPath, allItemPath, function() {
+                /*
+                 * TODO: something wrong the des file git, will fix it later
+                 */
+                //resourceRepo.repoAddsCommit(resourceRepo, allDesPath, function() {
                 console.log('create data all success!');
                 callback('success');
-              })
-            });
-          })
-        }
-        count++;
+                //})
+              });
+            })
+          }
+          count++;
+        });
       });
-    });
+    })(item, itemPath, dest)
   }
 }
 exports.createDataAll = createDataAll;
@@ -270,42 +217,42 @@ var utils = require("../utils");
 var repo = require("./repo");
 
 
-exports.getItemByUri = function(category,uri,callback){
-  var conditions = ["URI = "+"'"+uri+"'"];
-  commonDAO.findItems(null,category,conditions,null,callback);
+exports.getItemByUri = function(category, uri, callback) {
+  var conditions = ["URI = " + "'" + uri + "'"];
+  commonDAO.findItems(null, category, conditions, null, callback);
 }
 
-exports.deleteItemByUri = function(category,uri,callback){
-  var aConditions = ["URI = "+"'"+uri+"'"];
+exports.deleteItemByUri = function(category, uri, callback) {
+  var aConditions = ["URI = " + "'" + uri + "'"];
   var oItem = {
-  	category:category,
-  	conditions:aConditions
+    category: category,
+    conditions: aConditions
   };
-  commonDAO.deleteItem(item,callback);
+  commonDAO.deleteItem(item, callback);
 }
 
-exports.removeFile = function(category,item,callback){
+exports.removeFile = function(category, item, callback) {
   //TODO delete desFile
   var sFullName = item.filename + "." + postfix;
   var sDesFullName = sFullName + ".md";
-  var sDesPath = utils.getDesPath(category,sFullName);
-  fs.unlink(sDesPath,function(err){
-  	if(err)
-  	  console.log(err);
+  var sDesPath = utils.getDesPath(category, sFullName);
+  fs.unlink(sDesPath, function(err) {
+    if (err)
+      console.log(err);
     //TODO delete data from db
-  	deleteItemByUri(category,item.URI,function(isSuccess){
-      if(isSuccess == "rollback"){
-      	callback("error");
-      	return;
+    deleteItemByUri(category, item.URI, function(isSuccess) {
+      if (isSuccess == "rollback") {
+        callback("error");
+        return;
       }
       //TODO git commit
       var aRealFiles = [sFullName];
       var sRealDir = utils.getRealDir(category);
-      repo.repoRmsCommit(sRealDir,aRealFiles,function(){
+      repo.repoRmsCommit(sRealDir, aRealFiles, function() {
         var aDesFiles = [sDesFullName];
-        var sDesDir =   utils.getDesDir(category);
-        repo.repoRmsCommit(sDesDir,sDesFullName,callback);
+        var sDesDir = utils.getDesDir(category);
+        repo.repoRmsCommit(sDesDir, sDesFullName, callback);
       });
-  	});
+    });
   });
 };

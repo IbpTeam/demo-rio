@@ -7,9 +7,10 @@ var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var commonDAO = require("./CommonDAO");
-var resourceRepo = require("./repo");
+var commonDAO = require("../commonHandle/CommonDAO");
+var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
+var utils = require('../utils');
 var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
@@ -38,7 +39,7 @@ var commonHandle = require('../commonHandle/commonHandle');
  *
  */
 function createData(items, callback) {
-  if (typeof items === 'string') {
+  if (typeof items == 'string') {
     fs.stat(items, function(err, stat) {
       if (err) {
         console.log(err);
@@ -47,11 +48,11 @@ function createData(items, callback) {
       var mtime = stat.mtime;
       var ctime = stat.ctime;
       var size = stat.size;
-      var cate = commonHandle.getCategory(itemPath);
+      var cate = utils.getCategory(items);
       var category = 'Music';
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
-      var someTags = tagsHandles.getTagsByPath(itemPath);
+      var someTags = tagsHandles.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
         var itemInfo = {
@@ -59,11 +60,14 @@ function createData(items, callback) {
           URI: uri + "#" + category,
           category: category,
           is_delete: 0,
-          others: someTags.join(","),
+          /*
+           * TODO: something wrong the tagsHandles, will fix it later
+           */
+          others: []; //someTags.join(","),
           filename: itemFilename,
           postfix: itemPostfix,
           size: size,
-          path: itemPath,
+          path: items,
           album: '流行',
           composerName: "Xiquan",
           actorName: "Xiquan",
@@ -85,70 +89,75 @@ function createData(items, callback) {
         })
       })
     })
-  } else if (typeof items === 'object') {
+  } else if (typeof items == 'object') {
     if (!items.length) {
       console.log('create data input error!');
       var _err = 'createData: items should be an array!';
       callback(_err, null);
     } else {
-      var itemInfoAll[];
+      var itemInfoAll = [];
       var count = 0;
       var lens = items.length;
       for (var i = 0; i < lens; i++) {
         var item = items[i];
-        fs.stat(items, function(err, stat) {
-          if (err) {
-            console.log(err);
-            var _err = err;
-            callback(_err, null);
-          } else {
-            var mtime = stat.mtime;
-            var ctime = stat.ctime;
-            var size = stat.size;
-            var cate = commonHandle.getCategory(itemPath);
-            var category = 'Music';
-            var itemFilename = cate.filename;
-            var itemPostfix = cate.postfix;
-            var someTags = tagsHandles.getTagsByPath(itemPath);
-            var resourcesPath = config.RESOURCEPATH + '/' + category;
-            uniqueID.getFileUid(function(uri) {
-              var itemInfo = {
-                id: null,
-                URI: uri + "#" + category,
-                category: category,
-                is_delete: 0,
-                others: someTags.join(","),
-                filename: itemFilename,
-                postfix: itemPostfix,
-                size: size,
-                path: itemPath,
-                album: '流行',
-                composerName: "Xiquan",
-                actorName: "Xiquan",
-                createTime: ctime,
-                lastModifyTime: mtime,
-                lastAccessTime: ctime,
-                createDev: config.uniqueID,
-                lastModifyDev: config.uniqueID,
-                lastAccessDev: config.uniqueID
-              };
-              itemInfoAll.push(itemInfo);
-              var isEnd = (count === lens);
-              if (isEnd) {
-                commonHandle.createDataAll(itemInfoAll, function(result) {
-                  if (result === 'success') {
-                    callback(null, result);
-                  } else {
-                    var _err = 'createData: commonHandle createData all error!';
-                    console.log('createData error!');
-                    callback(_err, null);
-                  }
-                })
-              }
-              count++;
-            })
-          }
-        })
+        (function(_item) {
+          fs.stat(_item, function(err, stat) {
+            if (err) {
+              console.log(err);
+              var _err = err;
+              callback(_err, null);
+            } else {
+              var mtime = stat.mtime;
+              var ctime = stat.ctime;
+              var size = stat.size;
+              var cate = utils.getCategory(_item);
+              var category = 'Music';
+              var itemFilename = cate.filename;
+              var itemPostfix = cate.postfix;
+              /*
+               * TODO: something wrong the tagsHandles, will fix it later
+               */
+              var someTags = []; //tagsHandles.getTagsByPath(_item);
+              var resourcesPath = config.RESOURCEPATH + '/' + category;
+              uniqueID.getFileUid(function(uri) {
+                var itemInfo = {
+                  id: null,
+                  URI: uri + "#" + category,
+                  category: category,
+                  is_delete: 0,
+                  others: someTags.join(","),
+                  filename: itemFilename,
+                  postfix: itemPostfix,
+                  size: size,
+                  path: _item,
+                  album: '流行',
+                  composerName: "Xiquan",
+                  actorName: "Xiquan",
+                  createTime: ctime,
+                  lastModifyTime: mtime,
+                  lastAccessTime: ctime,
+                  createDev: config.uniqueID,
+                  lastModifyDev: config.uniqueID,
+                  lastAccessDev: config.uniqueID
+                };
+                itemInfoAll.push(itemInfo);
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                  commonHandle.createDataAll(itemInfoAll, function(result) {
+                    if (result === 'success') {
+                      callback(null, result);
+                    } else {
+                      var _err = 'createData: commonHandle createData all error!';
+                      console.log('createData error!');
+                      callback(_err, null);
+                    }
+                  })
+                }
+                count++;
+              })
+            }
+          })
+        })(item)
       }
     }
   } else {

@@ -14,12 +14,8 @@ var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-<<<<<<< HEAD
-var dataDes = require("../data/desFilesHandle");
-=======
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
->>>>>>> 525a7786ee04885cfe2d679b23be08f436d29b60
 var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var events = require('events');

@@ -15,25 +15,25 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var docHandle = require('../../backend/data/desktop/document');
-var picHandle = require('../../backend/data/desktop/picture');
-var musHandle = require('../../backend/data/desktop/music');
-var dskhandle = require('../../backend/data/desktop/desktop');
+var docHandle = require('../../backend/data/document');
+var picHandle = require('../../backend/data/picture');
+var musHandle = require('../../backend/data/music');
+var dskhandle = require('../../backend/data/desktop');
 
 /*
-*IMChat
-*/
-function startIMChatServer(startIMChatServerCb){
-  imChat.initIMServerNoRSA(6986, function(msgobj){
+ *IMChat
+ */
+function startIMChatServer(startIMChatServerCb) {
+  imChat.initIMServerNoRSA(6986, function(msgobj) {
     startIMChatServerCb(msgobj);
   });
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb,ipset, msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,"rtty123", msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb, ipset, msg) {
+  imChat.sendMSGbyUIDNoRSA(ipset, "rtty123", msg, 6986, sendIMMsgCb);
 }
-exports.sendIMMsg=sendIMMsg;
+exports.sendIMMsg = sendIMMsg;
 
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
@@ -75,32 +75,32 @@ function loadResources(loadResourcesCb, path) {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
         if (sPos != 'csv' && sPos != 'CSV') {
-          if (itemPostfix == 'none' ||
-            itemPostfix == 'ppt' ||
-            itemPostfix == 'pptx' ||
-            itemPostfix == 'doc' ||
-            itemPostfix == 'docx' ||
-            itemPostfix == 'wps' ||
-            itemPostfix == 'odt' ||
-            itemPostfix == 'et' ||
-            itemPostfix == 'txt' ||
-            itemPostfix == 'xls' ||
-            itemPostfix == 'xlsx' ||
-            itemPostfix == 'ods' ||
-            itemPostfix == 'zip' ||
-            itemPostfix == 'sh' ||
-            itemPostfix == 'gz' ||
-            itemPostfix == 'html' ||
-            itemPostfix == 'et' ||
-            itemPostfix == 'odt' ||
-            itemPostfix == 'pdf' ||
-            itemPostfix == 'html5ppt') {
+          if (sPos == 'none' ||
+            sPos == 'ppt' ||
+            sPos == 'pptx' ||
+            sPos == 'doc' ||
+            sPos == 'docx' ||
+            sPos == 'wps' ||
+            sPos == 'odt' ||
+            sPos == 'et' ||
+            sPos == 'txt' ||
+            sPos == 'xls' ||
+            sPos == 'xlsx' ||
+            sPos == 'ods' ||
+            sPos == 'zip' ||
+            sPos == 'sh' ||
+            sPos == 'gz' ||
+            sPos == 'html' ||
+            sPos == 'et' ||
+            sPos == 'odt' ||
+            sPos == 'pdf' ||
+            sPos == 'html5ppt') {
             DocList.push(path + '/' + item);
-          } else if (itemPostfix == 'jpg' || itemPostfix == 'png') {
+          } else if (sPos == 'jpg' || sPos == 'png') {
             PicList.push(path + '/' + item);
-          } else if (itemPostfix == 'mp3' || itemPostfix == 'ogg') {
+          } else if (sPos == 'mp3' || sPos == 'ogg') {
             MusList.push(path + '/' + item);
-          } else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
+          } else if (sPos == 'conf' || sPos == 'desktop') {
             DskList.push(path + '/' + item);
           }
         }
@@ -108,21 +108,25 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
+
   docHandle.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
       callback(err, null);
     } else {
+
       picHandle.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
         } else {
+
           musHandle.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
             } else {
+              console.log("load resources success!");
               loadResourcesCb('success');
             }
           })
@@ -233,27 +237,32 @@ exports.getAllContacts = getAllContacts;
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataById' was called.");
   var cate = utils.getCategoryByUri(uri);
-  switch(cate){
-    case "contacts":{
+  switch (cate) {
+    case "contacts":
+      {
 
-    }
-    break;
-    case "pictures":{
-      
-    }
-    break;
-    case "documents":{
-      documents.removeDocumentByUri(uri,rmDataByUriCb);
-    }
-    break;
-    case "music":{
-      
-    }
-    break;
-    case "videos":{
-      
-    }
-    break;
+      }
+      break;
+    case "pictures":
+      {
+
+      }
+      break;
+    case "documents":
+      {
+        documents.removeDocumentByUri(uri, rmDataByUriCb);
+      }
+      break;
+    case "music":
+      {
+
+      }
+      break;
+    case "videos":
+      {
+
+      }
+      break;
   }
 }
 exports.rmDataByUri = rmDataByUri;

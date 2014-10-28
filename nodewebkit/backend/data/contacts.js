@@ -100,7 +100,8 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
       others: ""
     }
     var sItem = JSON.stringify(oNewItem, null, 4);
-    fs_extra.outputFile(, sItem, function(err) {
+    var contactPath = config.RESOURCEPATH + '/data/' + oNewItem.name + '.txt';
+    fs_extra.outputFile(contactPath, sItem, function(err) {
       if (err) {
         console.log(err);
         return;
