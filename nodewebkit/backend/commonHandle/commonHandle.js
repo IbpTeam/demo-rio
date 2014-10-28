@@ -165,7 +165,7 @@ function createData(item, callback) {
       console.log(result);
       return;
     }
-    var itemDesPath = resourcesPath + 'des/';
+    var itemDesPath = resourcesPath + 'Des/';
     dataDes.createItem(item, itemDesPath, function() {
       commonDAO.createItem(item, function(err) {
         if (err) {
@@ -237,7 +237,7 @@ function createDataAll(items, callback) {
         console.log(result);
         return;
       }
-      var itemDesPath = resourcesPath + 'des/';
+      var itemDesPath = resourcesPath + 'Des/';
       dataDes.createItem(item, itemDesPath, function() {
         allItems.push(item);
         allItemPath.push(dest);
@@ -256,3 +256,7 @@ function createDataAll(items, callback) {
   }
 }
 exports.createDataAll = createDataAll;
+
+function() {
+
+}
