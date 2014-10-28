@@ -12,7 +12,7 @@
 
 var imchat = require("../IM/IMChatNoRSA.js");
 var config = require("../config");
-var repo = require("../commonHandle/repo");
+var repo = require("../FilesHandle/repo");
 var fs = require("fs");
 var cp = require("child_process");
 var path = require("path");
