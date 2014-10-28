@@ -9,7 +9,7 @@
  *
  * @version:0.2.2
  **/
-var commmonDao = require("../DAO/commonDAO");
+var commmonDao = require("../commonHandle/commonDAO");
 
 // Before save chat record, make sure table exist.
 var sCreateTable = "CREATE TABLE IF NOT EXISTS #$# (\
