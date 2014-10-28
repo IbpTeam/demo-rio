@@ -569,5 +569,41 @@
 </div>
 </div>
 
+<h2 onclick="show('openDataByUri')">openDataByUri(pasteFileCb,uri)<span><a class="mark" href="#test_openDataByUri" id="test_openDataByUri" onclick="test_openDataByUri(openDataByUriCb)">test</a></span></h2>
+<div id="openDataByUri" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : openDataByUri:通过Uri获取数据资源地址
+      @param1 : openDataByUriCb 回调函数
+        @result : string, success代表成功，失败返回失败原因
+      @param2 : uri 目标数据的uri    
+    返回类型：
+    result{
+      openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
+      content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
+    }
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function openDataByUriCb(result){
+    var win = window.open(''); 
+    win.document.write("test API getDataSourceByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+
+  function test_openDataByUri(getDataSourceCb){
+    WDC.requireAPI(['data'], function(data){
+      data.openDataByUri(openDataByUriCb, test_uri);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
 </body>
 </html>
