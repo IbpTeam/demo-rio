@@ -1,12 +1,12 @@
-var commonDAO = require("../commonHandle/CommonDAO");
-var commonHandle = require("../commonHandle/commonHandle");
+var commonDAO = require("../DAO/CommonDAO");
+var dataDes = require("../FilesHandle/desFilesHandle");
 var pathModule = require('path');
 var fs = require('fs');
 var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
-var resourceRepo = require("../commonHandle/repo");
+var resourceRepo = require("../FilesHandle/repo");
 
 /**
  * @method getAllContacts

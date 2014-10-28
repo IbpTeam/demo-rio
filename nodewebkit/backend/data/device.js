@@ -1,7 +1,7 @@
-var commonDAO = require("../commonHandle/CommonDAO");
-var msgTransfer = require("../Transfer/msgTransfer");
-var config = require("../config");
-var mdns = require('../../lib/api/device.js');
+var commonDAO = require("./DAO/CommonDAO");
+var msgTransfer = require("./Transfer/msgTransfer");
+var config = require("./config");
+var mdns = require('../lib/api/device.js');
 
 var devicesList=new Array();
 exports.devicesList = devicesList;
