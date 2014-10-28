@@ -187,6 +187,26 @@ function path_transfer(front_path, base_dir){
   }
 }
 
+function gen_add_tags_dialog(data_uri){
+  console.log("gen_add_tags_dialog!", data_uri);
+  var file_propery='<form>';
+  file_propery += '<input id="newtag" type="text" size="60" aligin="right" />';
+  file_propery += '</form></br>';
+  file_propery += '<button type="button" class="btn btn-success" id="addtag_button" data-dismiss="modal">Add</button>';
+  gen_popup_dialog('Add new tag', file_propery);
+  $('#addtag_button').on('click', function(){
+    var new_tag = document.getElementById('newtag').value;
+    DataAPI.setTagByUri(function(result){
+      if(result == 'success'){
+        window.alert("Add tags successfully!");
+      }
+      else{
+        window.alert("Add tags failed!");
+      }
+    }, [new_tag], data_uri);
+  });
+}
+
 // Our type
 function Folder(jquery_element) {
   //events.EventEmitter.call(this);
@@ -298,7 +318,7 @@ function Folder(jquery_element) {
     $(this).addClass('focus');
     switch(e.which){
     case 3:
-      var contents = ['Open', 'Copy', 'Property', 'Delete'];// '编辑'
+      var contents = ['Open', 'Copy', 'Delete', 'Add tags'];// '编辑' 'Property'
       var popup_menu = self.gen_popup_menu(contents);
       var dst_file = this;
       $(popup_menu).on('mouseup', function(e){
@@ -326,6 +346,9 @@ function Folder(jquery_element) {
                 break;
                 case 'file':
                   DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+                break;
+                case 'other':
+                  get_all_data_file(file_json);
                 break;
               }
             break;
@@ -362,11 +385,17 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  item = {};
-                  item['is_delete'] = 1;
-                  item['URI'] = file_json['URI'];
-                  item['category'] = file_json['props']['path'].substring(file_json['props']['path'].indexOf('/')+1, file_json['props']['path'].lastIndexOf('/'));
-                  DataAPI.rmDataByUri(self.after_delete_file,item['URI']);
+                  DataAPI.rmDataByUri(self.after_delete_file,file_json['URI']);
+                break;
+              }
+            break;
+            case 'Add tags':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not add tags for the whole category.');
+                break;
+                case 'file':
+                  gen_add_tags_dialog(file_json['URI']);
                 break;
               }
             break;         

@@ -1,13 +1,12 @@
 var util = require('util');
 var os = require('os');
+var path = require("path");
 
 /*
  * Config Path
  * */
-var USERCONFIGPATH;
-exports.USERCONFIGPATH = USERCONFIGPATH;
 var RESOURCEPATH;
-exports.RESOURCEPATH = RESOURCEPATH;
+exports.RESOURCEPATH = path.join(process.env["HOME"],".resources");
 
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
