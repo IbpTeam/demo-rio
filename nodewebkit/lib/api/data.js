@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
@@ -7,19 +6,10 @@ var documents = require("../../backend/data/document");
 var pictures = require("../../backend/data/picture");
 var video = require("../../backend/data/video");
 var music = require("../../backend/data/music");
-var device = require("../../backend/data/device");
+var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
-=======
-var commonDAO = require("../../backend/DAO/CommonDAO");
-var filesHandle = require("../../backend/filesHandle");
-var utils = require("../../backend/utils");
-var contacts = require("../../backend/ContactsHandle/contacts");
-var devices = require("../../backend/devices");
-var tagsHandle = require("../../backend/tagsHandle");
-var desktopConf = require("../../backend/Desktop/desktopConf")
-var imChat = require("../../backend/IM/IMChatNoRSA")
->>>>>>> 3b6762c7308a16b24d378e0d1e6fe943ccf491fd
+var imChat = require("../../backend/IM/IMChatNoRSA");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');

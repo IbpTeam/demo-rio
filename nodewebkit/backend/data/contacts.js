@@ -7,7 +7,7 @@ var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
-var resourceRepo = require("../FilesHandle/repo");
+var resourceRepo = require("../commonHandle/repo");
 
 /**
  * @method getAllContacts

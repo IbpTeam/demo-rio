@@ -27,7 +27,7 @@ var util = require('util');
 var events = require('events'); 
 var csvtojson = require('./csvTojson');
 var uniqueID = require("./uniqueID");
-var tagsHandles = require("./tagsHandle");
+var tagsHandles = require("./commonHandle/tagsHandle");
 
 var writeDbNum=0;
 var dataPath;

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * @Copyright:
  * 
@@ -182,5 +181,3 @@ function openDataByUri(openDataByUriCb,uri){
   commonDAO.findItems(null,"Documents",["URI = "+"'"+uri+"'"],null,getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
-=======
->>>>>>> 3b6762c7308a16b24d378e0d1e6fe943ccf491fd
