@@ -27,7 +27,7 @@ var util = require('util');
 var events = require('events'); 
 var csvtojson = require('./csvTojson');
 var uniqueID = require("./uniqueID");
-var tagsHandles = require("./commonHandle/tagsHandle");
+var tagsHandles = require("./tagsHandle");
 
 var writeDbNum=0;
 var dataPath;
@@ -52,7 +52,49 @@ var watcher1;
 var watcher2;
 var isPulledFile;
 
-
+function getCategory(path){
+  var pointIndex=path.lastIndexOf('.');
+    if(pointIndex == -1){
+      var itemPostfix= "none";
+      var nameindex=path.lastIndexOf('/');
+      var itemFilename=path.substring(nameindex+1,path.length);
+  }else{
+      var itemPostfix=path.substr(pointIndex+1);
+      var nameindex=path.lastIndexOf('/');
+      var itemFilename=path.substring(nameindex+1,pointIndex);
+  }
+  if(itemPostfix == 'none' || 
+     itemPostfix == 'ppt' || 
+     itemPostfix == 'pptx'|| 
+     itemPostfix == 'doc'|| 
+     itemPostfix == 'docx'|| 
+     itemPostfix == 'wps'|| 
+     itemPostfix == 'odt'|| 
+     itemPostfix == 'et'|| 
+     itemPostfix == 'txt'|| 
+     itemPostfix == 'xls'|| 
+     itemPostfix == 'xlsx' || 
+     itemPostfix == 'ods' || 
+     itemPostfix == 'zip' || 
+     itemPostfix == 'sh' || 
+     itemPostfix == 'gz' || 
+     itemPostfix == 'html' || 
+     itemPostfix == 'et' || 
+     itemPostfix == 'odt' || 
+     itemPostfix == 'pdf' ||
+     itemPostfix == 'html5ppt'){
+    return {category:"Documents",filename:itemFilename,postfix:itemPostfix};
+  }
+  else if(itemPostfix == 'jpg' || itemPostfix == 'png'){
+    return {category:"Pictures",filename:itemFilename,postfix:itemPostfix};
+  }
+  else if(itemPostfix == 'mp3' || itemPostfix == 'ogg'){
+    return {category:"Music",filename:itemFilename,postfix:itemPostfix};
+  }
+  else if(itemPostfix == 'conf' || itemPostfix == 'desktop'){
+    return {category:"Configuration",filename:itemFilename,postfix:itemPostfix};
+  }
+}
 
 function addData(itemPath,itemDesPath,isLoadEnd,callback){
   function getFileStatCb(error,stat){
@@ -935,7 +977,12 @@ function updateDataValue(updateDataValueCb,items){
 }
 exports.updateDataValue = updateDataValue;
 
-
+//get the catefory from URI
+function getCategoryByUri(sUri){
+  var pos = sUri.lastIndexOf("#");
+  var cate = sUri.slice(pos+1,sUri.length);
+  return cate;
+}
 
 //API rmDataById:通过id删除数据
 //返回字符串：

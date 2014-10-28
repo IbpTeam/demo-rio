@@ -13,8 +13,9 @@ var config = require("../config");
 var uniqueID = require("../uniqueID");
 var fs = require('fs');
 var path = require("path");
+var bfh = require("./basicFileHandle");
 var filesHandle = require("../filesHandle");
-var commonDAO = require("./CommonDAO");
+var commonDAO = require("../DAO/CommonDAO");
 
 
 // @const
@@ -281,7 +282,7 @@ function updateItemsHelper(callback,desFilePath,item){
  *    No arguments other than a values array of tags are given to the completion callback.
  **/
 exports.getAllTags = function(callback){
-
+  bfh.getAllValues(TAGS_DIR,callback);
 }
 
 /** 
@@ -293,7 +294,7 @@ exports.getAllTags = function(callback){
  *    No arguments other than a values array of specific are given to the completion callback.
  **/
 exports.getAttrValues = function(attrKey, callback){
-
+  bfh.getAllValues(attrKey,callback);
 }
 
 /** 
@@ -309,7 +310,7 @@ exports.getTagFiles = function(tag,callback){
   var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
   var sFullPath = path.join(sAbsolutePath,TAG_PATH,TAGS_DIR,tag);
   console.log("Full path: " + sFullPath);
-
+  bfh.getFiles(sFullPath,callback);
 }
 
 /** 
@@ -327,5 +328,5 @@ exports.getAttrFiles = function(attrKey,attrValue,callback){
   var sAbsolutePath = require(config.USERCONFIGPATH + FILE_CONFIG).dataDir;
   var sFullPath = path.join(sAbsolutePath,TAG_PATH,attrKey,attrValue);
   console.log("Full path: " + sFullPath);
-
+  bfh.getFiles(sFullPath,callback);
 }

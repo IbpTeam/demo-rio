@@ -1,4 +1,4 @@
-var commonDAO = require("./commonHandle/CommonDAO");
+var commonDAO = require("./data/CommonDAO");
 var config = require('./config');
 
 function getCategoryByPath(path){

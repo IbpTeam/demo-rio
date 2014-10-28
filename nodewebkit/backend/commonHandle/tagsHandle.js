@@ -4,14 +4,15 @@ var pathModule = require('path');
 var git = require("nodegit");
 var fs = require('fs');
 var os = require('os');
-var config = require("../config");
-var dataDes = require("./desFilesHandle");
-var commonDAO = require("./CommonDAO");
-var repo = require("./repo");
+var config = require("./config");
+var dataDes = require("./FilesHandle/desFilesHandle");
+var commonDAO = require("./DAO/CommonDAO");
+var repo = require("./FilesHandle/repo");
+var device = require("./devices");
 var util = require('util');
 var events = require('events'); 
-var csvtojson = require('../csvTojson');
-var uniqueID = require("../uniqueID");
+var csvtojson = require('./csvTojson');
+var uniqueID = require("./uniqueID");
 
 /**
  * @method pickTags
