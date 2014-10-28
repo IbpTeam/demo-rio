@@ -238,7 +238,7 @@ function addData(itemPath, isLoadEnd, callback) {
               dataDes.createItem(oNewItem, itemDesPath, createItemCb);
             }
             var dest = resourcesPath + '/data/' + itemFilename + '.' + itemPostfix;
-            copyFile(copyFileCb, itemPath, dest)
+            copyFile(copyFileCb, itemPath, dest);
           });
           break;
         }
