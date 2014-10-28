@@ -13,9 +13,8 @@ var config = require("../config");
 var uniqueID = require("../uniqueID");
 var fs = require('fs');
 var path = require("path");
-var bfh = require("./basicFileHandle");
 var filesHandle = require("../filesHandle");
-var commonDAO = require("../DAO/CommonDAO");
+var commonDAO = require("../commonHandle/CommonDAO");
 
 
 // @const

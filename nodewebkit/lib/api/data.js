@@ -1,10 +1,14 @@
-var commonDAO = require("../../backend/DAO/CommonDAO");
+var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
-var contacts = require("../../backend/ContactsHandle/contacts");
-var devices = require("../../backend/devices");
-var tagsHandle = require("../../backend/tagsHandle");
-var desktopConf = require("../../backend/Desktop/desktopConf")
+var contacts = require("../../backend/data/contacts");
+var documents = require("../../backend/data/document");
+var pictures = require("../../backend/data/picture");
+var video = require("../../backend/data/video");
+var music = require("../../backend/data/music");
+var devices = require("../../backend/data/device");
+var tagsHandle = require("../../backend/commonHandle/tagsHandle");
+var desktopConf = require("../../backend/data/desktop")
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
@@ -128,7 +132,29 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataById' was called.");
-  filesHandle.rmDataByUri(rmDataByUriCb, uri);
+  var cate = utils.getCategoryByUri(uri);
+  switch(cate){
+    case "contacts":{
+
+    }
+    break;
+    case "pictures":{
+      
+    }
+    break;
+    case "documents":{
+      documents.removeDocumentByUri(uri,rmDataByUriCb);
+    }
+    break;
+    case "music":{
+      
+    }
+    break;
+    case "videos":{
+      
+    }
+    break;
+  }
 }
 exports.rmDataByUri = rmDataByUri;
 
