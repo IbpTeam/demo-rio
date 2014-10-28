@@ -7,20 +7,20 @@ var NodeRsa = require('node-rsa');
 var rsaKey = require('./rsaKey');
 var account = require('./pubkeyServer.js');
 var config = require('../config.js');
-
-
+var HOME_DIR = "/home";
+var DEMO_RIO = ".demo-rio";
+var CURUSER = process.env['USER'];
+var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
 var keySizeBits = 1024;
 var size = 65537;
 
-var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
-var CURUSER = process.env['USER'];
 
-var LOCALACCOUNT = 'fyf';
-var LOCALACCOUNTKEY = 'fyf';
-var LOCALUUID = 'Linux Mint';
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var LOCALACCOUNT = uniqueID.Account;
+var LOCALACCOUNTKEY = uniqueID.AccountKey;
+var LOCALUUID = uniqueID.uniqueID;
+
 var LOCALPRIKEY = '/key/priKey.pem';
 var KEYSERVERPUB = '/key/serverKey.pem';
 var LOCALPUBKEY = '/key/pubKey.pem';
