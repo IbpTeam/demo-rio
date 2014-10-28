@@ -33,8 +33,17 @@ var commonHandle = require('../commonHandle/commonHandle');
  *                 '/home/xiquan/resource/documents/test3.txt'].
  *
  * @param2: callback
- *    @result
- *    string, retrieve 'success' when success
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                error: "createData: commonHandle createData error"
+ *                error: "createData: items should be an array"
+ *                error: "createData: commonHandle createData all error"
+ *                error: "createData: input error"
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
  *
  */
 function createData(items, callback) {
@@ -55,7 +64,7 @@ function createData(items, callback) {
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
         var itemInfo = {
-          id: "",
+          id: null,
           URI: uri + "#" + category,
           category: category,
           is_delete: 0,
@@ -111,7 +120,7 @@ function createData(items, callback) {
             var resourcesPath = config.RESOURCEPATH + '/' + category;
             uniqueID.getFileUid(function(uri) {
               var itemInfo = {
-                id: "",
+                id: null,
                 URI: uri + "#" + category,
                 category: category,
                 is_delete: 0,

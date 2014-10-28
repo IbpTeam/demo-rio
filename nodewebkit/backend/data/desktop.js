@@ -14,14 +14,14 @@ var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("../FilesHandle/desFilesHandle");
-var resourceRepo = require("../FilesHandle/repo");
+var dataDes = require("../data/desFilesHandle");
+var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
-var configPath = config.RESOURCEPATH + "/DesktopConf/data";
+var configPath = config.RESOURCEPATH + "/desktop/data";
 
 function newInit(initType) {
   var initTheme = {

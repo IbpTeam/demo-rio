@@ -1,14 +1,18 @@
-var commonDAO = require("../../backend/DAO/CommonDAO");
+var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var contacts = require("../../backend/ContactsHandle/contacts");
 var devices = require("../../backend/devices");
-var tagsHandle = require("../../backend/tagsHandle");
-var desktopConf = require("../../backend/Desktop/desktopConf")
+var tagsHandle = require("../../backend/commonHandle/tagsHandle");
+var desktopConf = require("../../backend/data/desktop");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
+var docHandle = require('../../backend/data/desktop/document');
+var picHandle = require('../../backend/data/desktop/picture');
+var musHandle = require('../../backend/data/desktop/music');
+var dskhandle = require('../../backend/data/desktop/desktop');
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
@@ -25,7 +29,85 @@ var path = require('path');
  */
 function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.initData(loadResourcesCb, path);
+  var DocList = [];
+  var MusList = [];
+  var PicList = [];
+  var DskList = [];
+
+  function walk(path, pathDes) {
+    var dirList = fs.readdirSync(path);
+    dirList.forEach(function(item) {
+      if (fs.statSync(path + '/' + item).isDirectory()) {
+        if (item != '.git' && item != '.des' && item != 'contacts') {
+          if (item == 'html5ppt') {
+            var html5pptList = fs.readdirSync(path + '/' + item);
+            for (var i = 0; i < html5pptList.length; i++) {
+              var filename = item + '/' + html5pptList[i] + '.html5ppt';
+              fileList.push(path + '/' + filename);
+            }
+          } else {
+            walk(path + '/' + item);
+          }
+        }
+      } else {
+        var sPosIndex = (item).lastIndexOf(".");
+        var sPos = item.slice(sPosIndex + 1, item.length);
+        if (sPos != 'csv' && sPos != 'CSV') {
+          if (itemPostfix == 'none' ||
+            itemPostfix == 'ppt' ||
+            itemPostfix == 'pptx' ||
+            itemPostfix == 'doc' ||
+            itemPostfix == 'docx' ||
+            itemPostfix == 'wps' ||
+            itemPostfix == 'odt' ||
+            itemPostfix == 'et' ||
+            itemPostfix == 'txt' ||
+            itemPostfix == 'xls' ||
+            itemPostfix == 'xlsx' ||
+            itemPostfix == 'ods' ||
+            itemPostfix == 'zip' ||
+            itemPostfix == 'sh' ||
+            itemPostfix == 'gz' ||
+            itemPostfix == 'html' ||
+            itemPostfix == 'et' ||
+            itemPostfix == 'odt' ||
+            itemPostfix == 'pdf' ||
+            itemPostfix == 'html5ppt') {
+            DocList.push(path + '/' + item);
+          } else if (itemPostfix == 'jpg' || itemPostfix == 'png') {
+            PicList.push(path + '/' + item);
+          } else if (itemPostfix == 'mp3' || itemPostfix == 'ogg') {
+            MusList.push(path + '/' + item);
+          } else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
+            DskList.push(path + '/' + item);
+          }
+        }
+      }
+    });
+  }
+  walk(path);
+  docHandle.createData(DocList, function(err, result) {
+    if (err) {
+      console.log(err);
+      callback(err, null);
+    } else {
+      picHandle.createData(PicList, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err, null);
+        } else {
+          musHandle.createData(MusList, function(err, result) {
+            if (err) {
+              console.log(err);
+              callback(err, null);
+            } else {
+              loadResourcesCb('success');
+            }
+          })
+        }
+      })
+    }
+  })
 }
 exports.loadResources = loadResources;
 

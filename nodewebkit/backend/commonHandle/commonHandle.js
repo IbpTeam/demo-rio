@@ -256,7 +256,3 @@ function createDataAll(items, callback) {
   }
 }
 exports.createDataAll = createDataAll;
-
-function() {
-
-}
