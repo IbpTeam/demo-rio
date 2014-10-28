@@ -42,16 +42,18 @@ function MD5(str, encoding) {
 }
 
 /*
- * @method initIMServer
- *  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
- * @param ReceivedMsgCallback
- *   当成功接收到客户端发来的消息时，调用该回调函数
- *    @msg
- *     string 回调函数参数，表示成功接收到的消息
- * @return null
- *  没有返回值
- */
-function initIMServer(ReceivedMsgCallback) {
+* @method initIMServer
+* @param Port
+* 消息服务器指定要绑定的端口
+*  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
+* @param ReceivedMsgCallback
+*   当成功接收到客户端发来的消息时，调用该回调函数
+*    @msg
+*     string 回调函数参数，表示成功接收到的消息
+* @return null
+*  没有返回值
+*/
+function initIMServer(port,ReceivedMsgCallback) {
   //console.log(LOCALPRIKEY);
   //console.log(USERCONFIGPATH+'/key/priKey.pem');
   /*
@@ -104,7 +106,10 @@ function initIMServer(ReceivedMsgCallback) {
             //return success
             //dboper.dbrecvInsert(msgObj.from, msgObj.to, msgObj.message, msgObj.type, msgObj.time, function() {
             // console.log("insert into db success!");} );
-            setTimeout(ReceivedMsgCallback(msgObj, remoteAD), 0);
+            var CalBakMsg = {};
+            CalBakMsg['MsgObj'] = msgObj;
+            CalBakMsg['IP'] = remoteAD; 
+            setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
             //console.log("pubkey is "+pubKey);
             isExist(msgObj.uuid, function() {
               var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + msgObj.uuid + '.pem');
@@ -150,8 +155,8 @@ function initIMServer(ReceivedMsgCallback) {
     console.log("Error: " + err.code + " on " + err.syscall);
   });
 
-  server.listen(8892, function() {
-    console.log('IMServer Binded! ' + 8892);
+  server.listen(port, function() {
+    console.log('IMServer Binded! ' + port);
   });
 }
 
