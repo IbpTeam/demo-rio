@@ -235,32 +235,33 @@ exports.getAllContacts = getAllContacts;
 //成功返回success;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
-  console.log("Request handler 'rmDataById' was called.");
+  console.log("Request handler 'rmDataByUri' was called.");
   var cate = utils.getCategoryByUri(uri);
+  console.log("Request handler 'rmDataByUri' was called. ===="+cate);
   switch (cate) {
-    case "contacts":
+    case "Contacts":
       {
-
+        contacts.removeContactByUri(uri, rmDataByUriCb);
       }
       break;
-    case "pictures":
+    case "Pictures":
       {
-
+        pictures.removePictureByUri(uri, rmDataByUriCb);
       }
       break;
-    case "documents":
+    case "Documents":
       {
         documents.removeDocumentByUri(uri, rmDataByUriCb);
       }
       break;
-    case "music":
+    case "Music":
       {
-
+        music.removeMusicByUri(uri, rmDataByUriCb);
       }
       break;
-    case "videos":
+    case "Videos":
       {
-
+        video.removeVideoByUri(uri, rmDataByUriCb);
       }
       break;
   }

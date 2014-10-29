@@ -1,5 +1,8 @@
 var path = require("path");
 
+//@const
+var DATA_DIR = "data";
+
 function parsePath(path){
   var pathNodes = path.split('/');
   var pathNew = '';
@@ -26,16 +29,16 @@ exports.getCategoryByUri = function(sUri){
 exports.getDesPath = function(category,fullName){
   var sDirName = category + "Des";
   var sDesName = fullName+".md";
-  return path.join(process.env["HOME"],".resources",sDirName,sDesName);
+  return path.join(process.env["HOME"],".resources",sDirName,DATA_DIR,sDesName);
 }
 
 exports.getRealDir = function(category){
-  return path.join(process.env["HOME"],".resources",category);
+  return path.join(process.env["HOME"],".resources",category,DATA_DIR);
 }
 
 exports.getDesDir = function(category){
   var sDirName = category + "Des";
-  return path.join(process.env["HOME"],".resources",sDirName);
+  return path.join(process.env["HOME"],".resources",sDirName,DATA_DIR);
 }
 
 exports.getCategory = function(path) {

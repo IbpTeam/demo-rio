@@ -187,6 +187,7 @@ function createData(items, callback) {
 exports.createData = createData;
 
 exports.removeDocumentByUri = function(uri, callback) {
+  console.log("remove Document By Uri ===========");
   commonHandle.getItemByUri(CATEGORY_NAME, uri, function(err, items) {
     if (err)
       console.log(err);
@@ -195,6 +196,7 @@ exports.removeDocumentByUri = function(uri, callback) {
         console.log(err);
         callback("error");
       } else {
+        console.log("----------------------------------"+items[0].path);
         commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
       }
     });
