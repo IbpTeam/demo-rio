@@ -171,7 +171,7 @@ exports.loadContacts = loadContacts;
  */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  filesHandle.getAllCate(getAllCateCb)
+  commonHandle.getAllCate(getAllCateCb)
 }
 exports.getAllCate = getAllCate;
 
@@ -204,7 +204,7 @@ function getAllDataByCate(getAllDataByCateCb, cate) {
   if (cate == 'Contacts' || cate == 'contacts') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    filesHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
   }
 }
 exports.getAllDataByCate = getAllDataByCate;

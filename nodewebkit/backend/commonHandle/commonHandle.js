@@ -34,14 +34,16 @@ var utils = require("../utils")
 var writeDbNum = 0;
 var dataPath;
 
+
 function copyFile(oldPath, newPath, callback) {
   var repeat = 0;
   fs_extra.copy(oldPath, newPath, function(err) {
     if (err) {
       console.log(err);
-      return;
+      callback(err);
+    } else {
+      callback('success');
     }
-    callback('success');
   })
 }
 
@@ -237,3 +239,60 @@ exports.removeFile = function(category, item, callback) {
     });
   });
 };
+
+exports.getAllCate = function(getAllCateCb) {
+  function getCategoriesCb(err, items) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var cates = new Array();
+    items.forEach(function(each) {
+      cates.push({
+        URI: each.id,
+        version: each.version,
+        type: each.type,
+        path: each.logoPath,
+        desc: each.desc
+      });
+    });
+    getAllCateCb(cates);
+  }
+  commonDAO.findItems(null, "category", null, null, getCategoriesCb);
+}
+
+exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
+  console.log("Request handler 'getAllDataByCate' was called.");
+
+  function getAllByCaterotyCb(err, items) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var cates = new Array();
+    items.forEach(function(each) {
+      cates.push({
+        URI: each.URI,
+        version: each.version,
+        filename: each.filename,
+        postfix: each.postfix,
+        path: each.path
+      });
+    });
+    getAllDataByCateCb(cates);
+  }
+
+  function getAllDevicesCb(err, items) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    getAllDataByCateCb(items);
+  }
+  if (cate == "Devices") {
+    commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
+  } else {
+    var conditions = ["is_delete = 0"];
+    commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
+  }
+}
