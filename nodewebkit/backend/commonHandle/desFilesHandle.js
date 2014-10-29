@@ -224,8 +224,8 @@ exports.updateItems = function(oItems,callback){
     var category = item.category;
     var filePath = "";
     var desFilePath = "";
-    if(category === "Contacts"){
-      desFilePath = config.RESOURCEPATH + '/contactsDes/data/'+item.name+'.md';
+    if(category === "contact"){
+      desFilePath = config.RESOURCEPATH + '/contactDes/data/'+item.name+'.md';
     }else{
       filePath = item.path;
       var re = new RegExp('/'+category.toLowerCase()+'/', "i");
