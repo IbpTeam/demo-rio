@@ -187,6 +187,26 @@ function path_transfer(front_path, base_dir){
   }
 }
 
+function gen_add_tags_dialog(data_uri){
+  console.log("gen_add_tags_dialog!", data_uri);
+  var file_propery='<form>';
+  file_propery += '<input id="newtag" type="text" size="60" aligin="right" />';
+  file_propery += '</form></br>';
+  file_propery += '<button type="button" class="btn btn-success" id="addtag_button" data-dismiss="modal">Add</button>';
+  gen_popup_dialog('Add new tag', file_propery);
+  $('#addtag_button').on('click', function(){
+    var new_tag = document.getElementById('newtag').value;
+    DataAPI.setTagByUri(function(result){
+      if(result == 'success'){
+        window.alert("Add tags successfully!");
+      }
+      else{
+        window.alert("Add tags failed!");
+      }
+    }, [new_tag], data_uri);
+  });
+}
+
 // Our type
 function Folder(jquery_element) {
   //events.EventEmitter.call(this);
@@ -298,7 +318,7 @@ function Folder(jquery_element) {
     $(this).addClass('focus');
     switch(e.which){
     case 3:
-      var contents = ['Open', 'Copy', 'Property', 'Delete'];// '编辑'
+      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags'];// '编辑' 'Property'
       var popup_menu = self.gen_popup_menu(contents);
       var dst_file = this;
       $(popup_menu).on('mouseup', function(e){
@@ -327,6 +347,9 @@ function Folder(jquery_element) {
                 case 'file':
                   DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
                 break;
+                case 'other':
+                  get_all_data_file(file_json);
+                break;
               }
             break;
             case 'Copy':
@@ -337,6 +360,39 @@ function Folder(jquery_element) {
                 case 'file':
                   copied_filepath = file_json['path'];
                   console.log(copied_filepath);
+                break;
+              }
+            break;
+            case 'Rename':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not rename the category.');
+                break;
+                case 'file':
+                  var inputer = Inputer.create('button-name');
+                  var options = {
+                    'left': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().left,
+                    'top': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().top,
+                    'width': 80,
+                    'height': 25,
+                    'oldtext': file_json['props'].name,
+                    'callback': function(newtext){
+                      var new_file_json = {
+                        URI: file_json['URI'],
+                        path: file_json['path'],
+                        filename: newtext,
+                      };
+                      DataAPI.updateDataValue(function(result){
+                        if(result == 'success'){
+                          global_self.open(global_dir);
+                        }
+                        else{
+                          window.alert("Rename failed!");
+                        }
+                      }, [new_file_json]);
+                    }
+                  }
+                  inputer.show(options);
                 break;
               }
             break;
@@ -362,11 +418,17 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  item = {};
-                  item['is_delete'] = 1;
-                  item['URI'] = file_json['URI'];
-                  item['category'] = file_json['props']['path'].substring(file_json['props']['path'].indexOf('/')+1, file_json['props']['path'].lastIndexOf('/'));
-                  DataAPI.rmDataByUri(self.after_delete_file,item['URI']);
+                  DataAPI.rmDataByUri(self.after_delete_file,file_json['URI']);
+                break;
+              }
+            break;
+            case 'Add tags':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not add tags for the whole category.');
+                break;
+                case 'file':
+                  gen_add_tags_dialog(file_json['URI']);
                 break;
               }
             break;         
@@ -414,6 +476,9 @@ function Folder(jquery_element) {
         if(file_json.URI.indexOf('#') != -1){
           DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
         }
+        break;
+      case 'device':
+        im_view.showSend(file_json);
         break;
       case 'other':
         get_all_data_file(file_json);
@@ -645,7 +710,7 @@ Folder.prototype.get_callback_data = function(data_json){
       data_json[i]['props'] = {};
       data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name']+'.device';
       data_json[i]['props']['name'] = data_json[i]['name'];           
-      data_json[i]['props']['type'] = 'other';
+      data_json[i]['props']['type'] = 'device';
       data_json[i]['props']['icon'] = 'Devices';
     }
     global_self.emit('set_sidebar', data_json);
@@ -752,7 +817,7 @@ Folder.prototype.show_folder_mode_view = function(fs_structure, data_json, datap
     }
     results.push('<div class="file" data-path="' + data_json.path + '">');
     results.push('<div class="icon"> <img src="icons/' + data_json.icon + '.png"></div>');
-    results.push('<div class="name">' + data_json.name + '</div>');
+    results.push('<div class="name" id="'+data_json.name+'">' + data_json.name + '</div>');
     results.push('</div>');
   }
   global_self.files.html(results.join('\n'));
@@ -795,7 +860,13 @@ Folder.prototype.gen_view_files_normal = function(files){
     }else{
         results.push('<div class="icon"> <img src="icons/' + file['props'].icon + '.png"></div>');
     }
-    results.push('<div class="name">' + file['props'].name + '</div>');
+    if(file['props'].name.indexOf(' ') != -1 ||
+       file['props'].name.indexOf('\'' != -1)){
+      var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+      results.push('<div class="name" id="'+ id +'">' + file['props'].name + '</div>');
+    }else{
+      results.push('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>');
+    }
     results.push('</div>');
   }
   return results.join('\n');

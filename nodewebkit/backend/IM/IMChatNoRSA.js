@@ -4,13 +4,17 @@ var fs = require('fs');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
 var config = require('../config.js');
+var HOME_DIR = "/home";
+var DEMO_RIO = ".demo-rio";
+var CURUSER = process.env['USER'];
+var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
 var keySizeBits = 1024;
 var size = 65537;
-var LISTENPORT = 8892;
 
-var LOCALACCOUNT = 'fyf';
-var LOCALUUID = 'Linux Mint';
+var LOCALACCOUNT = uniqueID.Account;
+var LOCALUUID = uniqueID.uniqueID;
 
 /*
  * @method MD5
@@ -27,16 +31,18 @@ function MD5(str, encoding) {
 }
 
 /*
- * @method initIMServerNoRSA
- *  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
- * @param ReceivedMsgCallback
- *   当成功接收到客户端发来的消息时，调用该回调函数
- *    @msg
- *     string 回调函数参数，表示成功接收到的消息
- * @return null
- *  没有返回值
- */
-function initIMServerNoRSA(ReceivedMsgCallback) {
+* @method initIMServer
+* @param port
+* 消息服务器指定要绑定的端口
+*  初始化本地消息接收Server，该Server负责所有的通信接收，存储，回复ACK等操作
+* @param ReceivedMsgCallback
+*   当成功接收到客户端发来的消息时，调用该回调函数
+*    @msg
+*     string 回调函数参数，表示成功接收到的消息
+* @return null
+*  没有返回值
+*/
+function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
   var server = net.createServer(function(c) {
     console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
@@ -61,7 +67,10 @@ function initIMServerNoRSA(ReceivedMsgCallback) {
             var msgtime = new Date();
             msgtime.setTime(msgObj.time);
             console.log(msgtime);
-            setTimeout(ReceivedMsgCallback(msgObj, remoteAD), 0);
+            var CalBakMsg = {};
+            CalBakMsg['MsgObj'] = msgObj;
+            CalBakMsg['IP'] = remoteAD; 
+            setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
             var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
             c.write(tp);
           }
@@ -93,8 +102,8 @@ function initIMServerNoRSA(ReceivedMsgCallback) {
     console.log("Error: " + err.code + " on " + err.syscall);
   });
 
-  server.listen(LISTENPORT, function() {
-    console.log('IMServer Binded! ' + LISTENPORT);
+  server.listen(port, function() {
+    console.log('IMServer Binded! ' + port);
   });
 }
 

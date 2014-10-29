@@ -12,7 +12,7 @@
 
 var imchat = require("../IM/IMChatNoRSA.js");
 var config = require("../config");
-var repo = require("../FilesHandle/repo");
+var repo = require("../commonHandle/repo");
 var fs = require("fs");
 var cp = require("child_process");
 var path = require("path");
@@ -101,10 +101,11 @@ function sendMsg(device,msgObj){
  * @param msg
  *    Message string.
  */
-function sendMsgCb(msg){
+function sendMsgCb(msgObj){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
-  console.log("[Send message successfull] + Msg : " + msg);
+  var msg = msgobj['MsgObj'];
+  console.log("[Send message successfull] + Msg : " + msg.message);
 }
 
 /**

@@ -1,35 +1,35 @@
-var commonDAO = require("../../backend/DAO/CommonDAO");
+var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
-var contacts = require("../../backend/ContactsHandle/contacts");
-var devices = require("../../backend/devices");
-var tagsHandle = require("../../backend/tagsHandle");
-var desktopConf = require("../../backend/Desktop/desktopConf")
-var imChat = require("../../backend/IM/IMChatNoRSA")
+var contacts = require("../../backend/data/contacts");
+var documents = require("../../backend/data/document");
+var pictures = require("../../backend/data/picture");
+var video = require("../../backend/data/video");
+var music = require("../../backend/data/music");
+var devices = require("../../backend/data/device");
+var tagsHandle = require("../../backend/commonHandle/tagsHandle");
+var commonHandle = require("../../backend/commonHandle/commonHandle");
+var imChat = require("../../backend/IM/IMChatNoRSA");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
 
-
 /*
 *IMChat
 */
 function startIMChatServer(startIMChatServerCb){
-  imChat.initIMServerNoRSA(function(msg){
-    console.log('imChat   start');
-    startIMChatServerCb(msg);
+  imChat.initIMServerNoRSA(6986, function(msgobj){
+    startIMChatServerCb(msgobj);
   });
 }
 exports.startIMChatServer = startIMChatServer;
-/*
-*IMChat
-*/
-function sendIMMsg(sendIMMsgCb,ipset){
-  console.log('now you know?hengheng');
-  imChat.sendMSGbyUIDNoRSA(ipset,"rtty123","Hi this is in sendMSGbyUID function",8089,sendIMMsgCb);
+
+function sendIMMsg(sendIMMsgCb,ipset, msg){
+  imChat.sendMSGbyUIDNoRSA(ipset,"rtty123", msg, 6986, sendIMMsgCb);
 }
-exports.sendIMMsg = sendIMMsg;
+exports.sendIMMsg=sendIMMsg;
+
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
@@ -149,7 +149,29 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataById' was called.");
-  filesHandle.rmDataByUri(rmDataByUriCb, uri);
+  var cate = utils.getCategoryByUri(uri);
+  switch(cate){
+    case "contacts":{
+
+    }
+    break;
+    case "pictures":{
+      
+    }
+    break;
+    case "documents":{
+      documents.removeDocumentByUri(uri,rmDataByUriCb);
+    }
+    break;
+    case "music":{
+      
+    }
+    break;
+    case "videos":{
+      
+    }
+    break;
+  }
 }
 exports.rmDataByUri = rmDataByUri;
 

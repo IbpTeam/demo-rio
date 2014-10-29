@@ -282,33 +282,31 @@ SideBar.prototype.set_favorites = function(favorites_json){
   var result = [];
   result.push('<li class="nav-header">快捷菜单</li>');
   //result.push('<li data-path="root" class="active"><a href="index.html"><i class="icon-white icon-home"></i> Home</a></li>');
-  result.push('<li data-path="root" class="active"><a href="index.html"><i class="glyphicon glyphicon-home" style="color:white"></i> Home</a></li>');
+  result.push('<li data-path="root" class="active"><a href="file-explorer.html"><i class="glyphicon glyphicon-home" style="color:white"></i> Home</a></li>');
   for(var i=0; i< favorites_json.length; i++){
     var str='<li data-path="'+favorites_json[i]['props'].path+'"><a href="#"><i class="';
     switch(favorites_json[i]['props'].name)
     {
       case 'Contacts':
-        //str+='icon-user';
         str+='glyphicon glyphicon-user';
         break;
       case 'Pictures':
-        //str+='icon-picture';
         str+='glyphicon glyphicon-picture';
         break;
       case 'Videos':
-        //str+='icon-film';
         str+='glyphicon glyphicon-film';
         break;
       case 'Documents':
-        //str+='icon-book';
         str+='glyphicon glyphicon-book';
         break;
       case 'Music':
-        //str+='icon-music';
         str+='glyphicon glyphicon-music';
         break;
+      case 'Devices':
+        str+='glyphicon glyphicon-th';
+        break;
       default:
-        str+='glyphicon glyphicon-book';
+        str+='glyphicon glyphicon-folder-close';
         break;
     }
     str+='"></i> '+favorites_json[i]['props'].name+'</a></li>';
