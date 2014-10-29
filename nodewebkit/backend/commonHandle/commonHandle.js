@@ -167,20 +167,20 @@ function createDataAll(items, callback) {
   }
   var count = 0;
   var lens = items.length;
+  var allItems = [];
+  var allItemPath = [];
+  var allDesPath = [];
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
-    var itemPath = item.path;
-    var itemFilename = item.filename + item.postfix;
-    var category = item.category;
-    var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-    var dest = resourcesPath + '/data/' + itemFilename;
-    var desPath = resourcesPath + 'Des';
-    var desDest = desPath + '/' + itemFilename + '.md';
-    var allItems = [];
-    var allItemPath = [];
-    var allDesPath = [];
-    (function(_item, _itemPath, _dest) {
-      copyFile(_itemPath, _dest, function(result) {
+    (function(_item) {
+      var itemPath = _item.path;
+      var itemFilename = _item.filename + '.' + _item.postfix;
+      var category = _item.category;
+      var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
+      var dest = resourcesPath + '/data/' + itemFilename;
+      var desPath = resourcesPath + 'Des';
+      var desDest = desPath + '/' + itemFilename + '.md';
+      copyFile(itemPath, dest, function(result) {
         if (result !== 'success') {
           console.log(result);
           return;
@@ -188,26 +188,23 @@ function createDataAll(items, callback) {
         var itemDesPath = resourcesPath + 'Des/data';
         dataDes.createItem(_item, itemDesPath, function() {
           allItems.push(_item);
-          allItemPath.push(_dest);
-          allDesPath.push(desPath + '/data/' + itemFilename + '.md');
+          allItemPath.push(dest);
+          allDesPath.push(itemDesPath + '/' + itemFilename + '.md');
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
               resourceRepo.repoAddsCommit(resourcesPath, allItemPath, function() {
-                /*
-                 * TODO: something wrong the des file git, will fix it later
-                 */
-                //resourceRepo.repoAddsCommit(resourceRepo, allDesPath, function() {
-                console.log('create data all success!');
-                callback('success');
-                //})
+                resourceRepo.repoAddsCommit(desPath, allDesPath, function() {
+                  console.log('create data all success!');
+                  callback('success');
+                })
               });
             })
           }
           count++;
         });
       });
-    })(item, itemPath, dest)
+    })(item)
   }
 }
 exports.createDataAll = createDataAll;
