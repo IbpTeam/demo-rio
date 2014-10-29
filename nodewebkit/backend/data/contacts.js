@@ -1,3 +1,15 @@
+/**
+ * @Copyright:
+ *
+ * @Description: Documents Handle.
+ *
+ * @author: Wangfeng Xiquan Yuanzhe
+ *
+ * @Data:2014.10.28
+ *
+ * @version:0.3.0
+ **/
+ 
 var commonDAO = require("../commonHandle/CommonDAO");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
