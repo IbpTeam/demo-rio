@@ -14,6 +14,7 @@ var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var filesHandle = require("./backend/filesHandle");
+var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
 var device = require("./backend/data/device");
 var msgTransfer = require("./backend/Transfer/msgTransfer");
@@ -73,65 +74,70 @@ function startApp(){
  * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
-function initializeApp(sFullPath){
+function initializeApp(sFullPath) {
   config.USERCONFIGPATH = sFullPath;
-  var sConfigPath = path.join(config.USERCONFIGPATH,CONFIG_JS);
-  var sUniqueIDPath = path.join(config.USERCONFIGPATH,UNIQUEID_JS);
-  var sDatabasePath = path.join(config.USERCONFIGPATH,DATABASENAME);
-  var sNetLinkStatusPath = path.join(config.USERCONFIGPATH,NETLINKSTATUS);
+  var sConfigPath = path.join(config.USERCONFIGPATH, CONFIG_JS);
+  var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
+  var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
+  var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
   var bIsConfExist = false;
-  filesHandle.isPulledFile=false;
+  filesHandle.isPulledFile = false;
   console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
-  fs.exists(sConfigPath, function (configExists) {
-    if(!configExists){
+  fs.exists(sConfigPath, function(configExists) {
+    if (!configExists) {
       console.log("No data777777777777777777777777777");
-    }else{
+    } else {
       bIsConfExist = true;
-      var dataDir=require(sConfigPath).dataDir;
-      config.RESOURCEPATH=dataDir;
-      util.log("monitor : "+dataDir);
-      filesHandle.monitorFiles(dataDir,filesHandle.monitorFilesCb);
-      filesHandle.monitorDesFiles(dataDir+"/.des",filesHandle.monitorDesFilesCb);
+      var dataDir = require(sConfigPath).dataDir;
+      //config.RESOURCEPATH = dataDir;
+      util.log("monitor : " + dataDir);
+      filesHandle.monitorFiles(dataDir, filesHandle.monitorFilesCb);
+      filesHandle.monitorDesFiles(dataDir + "/.des", filesHandle.monitorDesFilesCb);
     }
-    fs.exists(sUniqueIDPath, function (uniqueExists) {
-      if(!uniqueExists){
-        console.log("UniqueID.js is not exists, start to set sys uid.");
-        setSysUid(null,sUniqueIDPath,function(){
-          if(bIsConfExist)
-            device.startDeviceDiscoveryService();
-        });
+    desktopConf.initConf(function(result) {
+      if (result !== "success") {
+        console.log("init config error");
         return;
       }
-      console.log("UniqueID.js is exist.");
-      var deviceID=require(sUniqueIDPath).uniqueID;
-      setSysUid(deviceID,sUniqueIDPath,function(){
-        if(bIsConfExist){
-          device.startDeviceDiscoveryService();
+      fs.exists(sUniqueIDPath, function(uniqueExists) {
+        if (!uniqueExists) {
+          console.log("UniqueID.js is not exists, start to set sys uid.");
+          setSysUid(null, sUniqueIDPath, function() {
+            if (bIsConfExist)
+              device.startDeviceDiscoveryService();
+          });
+          return;
         }
-        fs.exists(sNetLinkStatusPath, function (netlinkExists) {
-          if(!netlinkExists){
-            cp.exec('touch '+sNetLinkStatusPath,function(error,stdout,stderr){
-              util.log("touch .netlinkstatus");
-              config.NETLINKSTATUSPATH=sNetLinkStatusPath;
-              cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
+        console.log("UniqueID.js is exist.");
+        var deviceID = require(sUniqueIDPath).uniqueID;
+        setSysUid(deviceID, sUniqueIDPath, function() {
+          if (bIsConfExist) {
+            device.startDeviceDiscoveryService();
+          }
+          fs.exists(sNetLinkStatusPath, function(netlinkExists) {
+            if (!netlinkExists) {
+              cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
+                util.log("touch .netlinkstatus");
+                config.NETLINKSTATUSPATH = sNetLinkStatusPath;
+                cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
+                  util.log(sNetLinkStatusPath);
+                  filesHandle.monitorNetlink(sNetLinkStatusPath);
+                });
+              });
+            } else {
+              config.NETLINKSTATUSPATH = sNetLinkStatusPath;
+              cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
                 util.log(sNetLinkStatusPath);
                 filesHandle.monitorNetlink(sNetLinkStatusPath);
               });
-            });
-          }
-          else{
-            config.NETLINKSTATUSPATH=sNetLinkStatusPath;
-            cp.exec('./node_modules/netlink/netlink '+sNetLinkStatusPath,function(error,stdout,stderr){
-              util.log(sNetLinkStatusPath);
-              filesHandle.monitorNetlink(sNetLinkStatusPath);
-            });
-          }
+            }
+          });
         });
       });
-    });
+    })
   });
- }
+}
 
 /** 
  * @Method: setSysUid

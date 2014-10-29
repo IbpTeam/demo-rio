@@ -1,6 +1,7 @@
 var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
+var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
 var documents = require("../../backend/data/document");
 var pictures = require("../../backend/data/picture");
@@ -14,21 +15,25 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
+var docHandle = require('../../backend/data/document');
+var picHandle = require('../../backend/data/picture');
+var musHandle = require('../../backend/data/music');
+var dskhandle = require('../../backend/data/desktop');
 
 /*
-*IMChat
-*/
-function startIMChatServer(startIMChatServerCb){
-  imChat.initIMServerNoRSA(6986, function(msgobj){
+ *IMChat
+ */
+function startIMChatServer(startIMChatServerCb) {
+  imChat.initIMServerNoRSA(6986, function(msgobj) {
     startIMChatServerCb(msgobj);
   });
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb,ipset, msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,"rtty123", msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb, ipset, msg) {
+  imChat.sendMSGbyUIDNoRSA(ipset, "rtty123", msg, 6986, sendIMMsgCb);
 }
-exports.sendIMMsg=sendIMMsg;
+exports.sendIMMsg = sendIMMsg;
 
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
@@ -46,7 +51,89 @@ exports.sendIMMsg=sendIMMsg;
  */
 function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.initData(loadResourcesCb, path);
+  var DocList = [];
+  var MusList = [];
+  var PicList = [];
+  var DskList = [];
+
+  function walk(path, pathDes) {
+    var dirList = fs.readdirSync(path);
+    dirList.forEach(function(item) {
+      if (fs.statSync(path + '/' + item).isDirectory()) {
+        if (item != '.git' && item != '.des' && item != 'contacts') {
+          if (item == 'html5ppt') {
+            var html5pptList = fs.readdirSync(path + '/' + item);
+            for (var i = 0; i < html5pptList.length; i++) {
+              var filename = item + '/' + html5pptList[i] + '.html5ppt';
+              fileList.push(path + '/' + filename);
+            }
+          } else {
+            walk(path + '/' + item);
+          }
+        }
+      } else {
+        var sPosIndex = (item).lastIndexOf(".");
+        var sPos = item.slice(sPosIndex + 1, item.length);
+        if (sPos != 'csv' && sPos != 'CSV') {
+          if (sPos == 'none' ||
+            sPos == 'ppt' ||
+            sPos == 'pptx' ||
+            sPos == 'doc' ||
+            sPos == 'docx' ||
+            sPos == 'wps' ||
+            sPos == 'odt' ||
+            sPos == 'et' ||
+            sPos == 'txt' ||
+            sPos == 'xls' ||
+            sPos == 'xlsx' ||
+            sPos == 'ods' ||
+            sPos == 'zip' ||
+            sPos == 'sh' ||
+            sPos == 'gz' ||
+            sPos == 'html' ||
+            sPos == 'et' ||
+            sPos == 'odt' ||
+            sPos == 'pdf' ||
+            sPos == 'html5ppt') {
+            DocList.push(path + '/' + item);
+          } else if (sPos == 'jpg' || sPos == 'png') {
+            PicList.push(path + '/' + item);
+          } else if (sPos == 'mp3' || sPos == 'ogg') {
+            MusList.push(path + '/' + item);
+          } else if (sPos == 'conf' || sPos == 'desktop') {
+            DskList.push(path + '/' + item);
+          }
+        }
+      }
+    });
+  }
+  walk(path);
+
+  docHandle.createData(DocList, function(err, result) {
+    if (err) {
+      console.log(err);
+      callback(err, null);
+    } else {
+
+      picHandle.createData(PicList, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err, null);
+        } else {
+
+          musHandle.createData(MusList, function(err, result) {
+            if (err) {
+              console.log(err);
+              callback(err, null);
+            } else {
+              console.log("load resources success!");
+              loadResourcesCb('success');
+            }
+          })
+        }
+      })
+    }
+  })
 }
 exports.loadResources = loadResources;
 
@@ -150,27 +237,32 @@ exports.getAllContacts = getAllContacts;
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataById' was called.");
   var cate = utils.getCategoryByUri(uri);
-  switch(cate){
-    case "contacts":{
+  switch (cate) {
+    case "contacts":
+      {
 
-    }
-    break;
-    case "pictures":{
-      
-    }
-    break;
-    case "documents":{
-      documents.removeDocumentByUri(uri,rmDataByUriCb);
-    }
-    break;
-    case "music":{
-      
-    }
-    break;
-    case "videos":{
-      
-    }
-    break;
+      }
+      break;
+    case "pictures":
+      {
+
+      }
+      break;
+    case "documents":
+      {
+        documents.removeDocumentByUri(uri, rmDataByUriCb);
+      }
+      break;
+    case "music":
+      {
+
+      }
+      break;
+    case "videos":
+      {
+
+      }
+      break;
   }
 }
 exports.rmDataByUri = rmDataByUri;
@@ -821,7 +913,7 @@ exports.shellExec = shellExec;
 
 /** 
  * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath. 
+ *    To copy a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content,just like command cp -r.
  *
  * @param1: callback
@@ -856,7 +948,7 @@ exports.copyFile = copyFile;
  * @Method: moveFile
  *    To move a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content and contend would be move to new dir as well.
- *    !!!Notice that if you are moving a dir, the newPath has to be a none exist 
+ *    !!!Notice that if you are moving a dir, the newPath has to be a none exist
  *    !!!new dir, otherwise comes error.
  *
  * @param1: callback
@@ -886,3 +978,32 @@ function moveFile(moveFileCb, oldPath, newPath) {
   desktopConf.moveFile(moveFileCb, oldPath, newPath);
 }
 exports.moveFile = moveFile;
+
+/** 
+ * @Method: renameDesktopFile
+ *    To rename a desktop file
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldName
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'example.desktop'
+ *
+ * @param3: newName
+ *    string, a new name that you want to set
+ *    example: var newName = 'newName'
+ *
+ **/
+function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
+  console.log("Request handler 'renameDesktopFile' was called.");
+  desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+}
+exports.renameDesktopFile = renameDesktopFile;

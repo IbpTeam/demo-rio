@@ -99,11 +99,20 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
       lastAccessDev: config.uniqueID,
       others: ""
     }
+    var sItem = JSON.stringify(oNewItem, null, 4);
+    var contactPath = config.RESOURCEPATH + '/data/' + oNewItem.name + '.txt';
+    fs_extra.outputFile(contactPath, sItem, function(err) {
+      if (err) {
+        console.log(err);
+        return;
+      }
 
-    function createItemCb() {
-      callback(isContactEnd, oNewItem);
-    }
-    dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
+      function createItemCb() {
+        callback(isContactEnd, oNewItem);
+      }
+      dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
+    })
+
   }
   uniqueID.getFileUid(getFileUidCb);
 }
@@ -137,7 +146,7 @@ function initContacts(loadContactsCb, resourcePath) {
         oContacts.push(oJson[k]);
       }
     }
-    var dataDesPath = config.RESOURCEPATH + "/.des/contacts";
+    var dataDesPath = config.RESOURCEPATH + "/DesContacts/";
 
     function mkdirCb(err) {
       if (err) {
