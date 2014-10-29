@@ -18,6 +18,7 @@ var path = require('path');
 var docHandle = require('../../backend/data/document');
 var picHandle = require('../../backend/data/picture');
 var musHandle = require('../../backend/data/music');
+var vidHandle = require('../../backend/data/video');
 var dskhandle = require('../../backend/data/desktop');
 
 /*
@@ -171,7 +172,7 @@ exports.loadContacts = loadContacts;
  */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  filesHandle.getAllCate(getAllCateCb)
+  commonHandle.getAllCate(getAllCateCb)
 }
 exports.getAllCate = getAllCate;
 
@@ -204,7 +205,7 @@ function getAllDataByCate(getAllDataByCateCb, cate) {
   if (cate == 'Contacts' || cate == 'contacts') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    filesHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -237,7 +238,7 @@ exports.getAllContacts = getAllContacts;
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataByUri' was called.");
   var cate = utils.getCategoryObjectByUri(uri);
-  console.log("Request handler 'rmDataByUri' was called. ===="+cate);
+  console.log("Request handler 'rmDataByUri' was called. ====" + cate);
   cate.removeByUri(uri, rmDataByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
@@ -245,6 +246,7 @@ exports.rmDataByUri = rmDataByUri;
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
+
   filesHandle.getDataByUri(getDataByUriCb, uri);
 }
 exports.getDataByUri = getDataByUri;
@@ -309,7 +311,43 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  filesHandle.getRecentAccessData(getRecentAccessDataCb, num);
+  var allItems = [];
+  docHandle.getRecentAccessData(num, function(err_doc, result_doc) {
+    if (err_doc) {
+      console.log(err_doc);
+      return getRecentAccessDataCb(err_doc, null);
+    }
+    console.log(result_doc);
+    allItems = allItems.concat(result_doc);
+    picHandle.getRecentAccessData(num, function(err_pic, result_pic) {
+      if (err_pic) {
+        console.log(err_pic);
+        return getRecentAccessDataCb(err_pic, null);
+      }
+      console.log(result_pic);
+      allItems = allItems.concat(result_pic);
+      musHandle.getRecentAccessData(num, function(err_mus, result_mus) {
+        if (err_mus) {
+          console.log(err_mus);
+          return getRecentAccessDataCb(err_mus, null);
+        }
+        console.log(result_mus);
+        allItems = allItems.concat(result_mus);
+        vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
+          if (err_vid) {
+            console.log(err_vid);
+            return getRecentAccessDataCb(err_vid, null);
+          }
+          console.log(result_vid);
+          allItems = allItems.concat(result_vid);
+          console.log(allItems);
+          var resultRecentAccess = utils.getRecent(allItems, num);
+          console.log(resultRecentAccess);
+          return getRecentAccessDataCb(null, resultRecentAccess);
+        })
+      })
+    })
+  })
 }
 exports.getRecentAccessData = getRecentAccessData;
 

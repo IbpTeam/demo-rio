@@ -64,6 +64,13 @@ function getByUri(uri, callback) {
 }
 exports.getByUri = getByUri;
 
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
+}
+exports.getRecentAccessData = getRecentAccessData;
+
+
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
 //result{

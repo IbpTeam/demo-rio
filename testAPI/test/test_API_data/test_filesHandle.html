@@ -86,7 +86,7 @@
   }
   function test_getAllDataByCate() {
     WDC.requireAPI(['data'], function(data){
-      data.getAllDataByCate(getAllDataByCateCb,['documents']);
+      data.getAllDataByCate(getAllDataByCateCb,['document']);
     });
   }
 
@@ -161,8 +161,11 @@
     });        
   }
 
-  function getRecentAccessDataCb(result){
+  function getRecentAccessDataCb(err,result){
     var win = window.open(''); 
+    if(err){
+      print(win,err);
+    }
     win.document.write("test API getRecentAccessData()");
     win.document.write("<br/>");
     win.document.write("callback result: ");

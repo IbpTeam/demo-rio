@@ -1,42 +1,41 @@
-var path = require("path");
+var path = require("path"); 
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
-var devices = require("./data/device");
+var devices = require("./data/device"); 
 //@const
 var DATA_DIR = "data";
 
-function parsePath(path){
+function parsePath(path) {
   var pathNodes = path.split('/');
   var pathNew = '';
-  for(var i=0; i<pathNodes.length; i++){
-    if(pathNodes[i].indexOf(' ') != -1){
-      pathNew += '"'+pathNodes[i]+'"/';
-    }
-    else{
-      pathNew += pathNodes[i]+'/';
+  for (var i = 0; i < pathNodes.length; i++) {
+    if (pathNodes[i].indexOf(' ') != -1) {
+      pathNew += '"' + pathNodes[i] + '"/';
+    } else {
+      pathNew += pathNodes[i] + '/';
     }
   }
-  pathNew = pathNew.substring(0, pathNew.length-1);
+  pathNew = pathNew.substring(0, pathNew.length - 1);
   return pathNew;
 }
 exports.parsePath = parsePath;
 
 //get the catefory from URI
-function getCategoryByUri(sUri){
+function getCategoryByUri(sUri) {
   var pos = sUri.lastIndexOf("#");
-  var cate = sUri.slice(pos+1,sUri.length);
+  var cate = sUri.slice(pos + 1, sUri.length);
   return cate;
 }
-exports.getCategoryByUri=getCategoryByUri;
+exports.getCategoryByUri = getCategoryByUri;
 
 //get the catefory from URI
-exports.getCategoryObjectByUri = function(sUri){
+exports.getCategoryObjectByUri = function(sUri) {
   var cate = getCategoryByUri(sUri);
-    switch (cate) {
+  switch (cate) {
     case "contact":
       {
         return contacts;
@@ -67,19 +66,19 @@ exports.getCategoryObjectByUri = function(sUri){
   }
 }
 
-exports.getDesPath = function(category,fullName){
+exports.getDesPath = function(category, fullName) {
   var sDirName = category + "Des";
-  var sDesName = fullName+".md";
-  return path.join(process.env["HOME"],".resources",sDirName,DATA_DIR,sDesName);
+  var sDesName = fullName + ".md";
+  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
 }
 
-exports.getRealDir = function(category){
-  return path.join(process.env["HOME"],".resources",category,DATA_DIR);
+exports.getRealDir = function(category) {
+  return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
 }
 
-exports.getDesDir = function(category){
+exports.getDesDir = function(category) {
   var sDirName = category + "Des";
-  return path.join(process.env["HOME"],".resources",sDirName,DATA_DIR);
+  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
 }
 
 exports.getCategory = function(path) {
@@ -137,4 +136,42 @@ exports.getCategory = function(path) {
       postfix: itemPostfix
     };
   }
+}
+
+exports.renameExists = function(allFiles) {
+  var fileNameBase = {};
+  var k = 0;
+  for (var i = 0; i < allFiles.length; i++) {
+    var item = allFiles[i];
+    var fileName = item.filename;
+    if (!fileNameBase.hasOwnProperty(item.filename)) {
+      fileNameBase[item.filename] = true;
+    } else {
+      while (fileNameBase.hasOwnProperty(fileName)) {
+        k++;
+        fileName = fileName + '(' + k + ')';
+      }
+      allFiles[i].filename = fileName;
+      k = 0;
+    }
+  }
+  return allFiles;
+}
+
+exports.getRecent = function(items, num) {
+  var Data = {};
+  var DataSort = [];
+  for (var k = 0; k < items.length; k++) {
+    var item = items[k];
+    var sKey = Date.parse(item.lastAccessTime);
+    Data[sKey + k] = item;
+    DataSort.push(sKey + k);
+  }
+  var oNewData = [];
+  DataSort.sort();
+  for (var k in DataSort) {
+    oNewData.push(Data[DataSort[k]]);
+  }
+  var DataByNum = oNewData.slice(0, num);
+  return DataByNum;
 }

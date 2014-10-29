@@ -117,7 +117,6 @@ function createData(items, callback) {
         var item = items[i];
         (function(_item) {
           fs.stat(_item, function(err, stat) {
-            console.log(_item)
             if (err) {
               console.log(err);
               var _err = err;
@@ -219,6 +218,13 @@ function getByUri(uri, callback) {
   commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
 }
 exports.getByUri = getByUri;
+
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
+}
+exports.getRecentAccessData = getRecentAccessData;
+
 
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
