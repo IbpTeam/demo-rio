@@ -1,3 +1,15 @@
+/**
+ * @Copyright:
+ *
+ * @Description: Documents Handle.
+ *
+ * @author: Wangfeng Xiquan Yuanzhe
+ *
+ * @Data:2014.10.28
+ *
+ * @version:0.3.0
+ **/
+
 var commonDAO = require("../commonHandle/CommonDAO");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
@@ -9,6 +21,8 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
 var resourceRepo = require("../commonHandle/repo");
+
+var CATEGORY_NAME = "contact";
 
 /**
  * @method getAllContacts
@@ -48,7 +62,7 @@ function getAllContacts(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.findItems(null, ['Contacts'], null, null, getAllByCaterotyCb);
+  commonDAO.findItems(null, [CATEGORY_NAME], null, null, getAllByCaterotyCb);
 }
 exports.getAllContacts = getAllContacts;
 
@@ -134,7 +148,7 @@ function initContacts(loadContactsCb, resourcePath) {
     var oJson = JSON.parse(json);
     var oContacts = [];
     var oDesFiles = [];
-    var contactsPath = config.RESOURCEPATH + "/contactsDes";
+    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "/Des";
     var dataDesPath = contactsPath + "/data";
     for (var k in oJson) {
       if (oJson[k].hasOwnProperty("\u59D3")) {

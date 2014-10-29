@@ -13,7 +13,7 @@
 var http = require("http");
 var url = require("url");
 var sys = require('sys');
-var pathModule = require('path');
+var path = require('path');
 var git = require("nodegit");
 var fs = require('fs');
 var fs_extra = require('fs-extra');
@@ -205,18 +205,19 @@ exports.getItemByUri = function(category, uri, callback) {
   commonDAO.findItems(null, category, conditions, null, callback);
 }
 
-exports.deleteItemByUri = function(category, uri, callback) {
+function deleteItemByUri(category, uri, callback) {
   var aConditions = ["URI = " + "'" + uri + "'"];
   var oItem = {
     category: category,
     conditions: aConditions
   };
-  commonDAO.deleteItem(item, callback);
+  commonDAO.deleteItem(oItem, callback);
 }
+exports.deleteItemByUri = deleteItemByUri;
 
 exports.removeFile = function(category, item, callback) {
   //TODO delete desFile
-  var sFullName = item.filename + "." + postfix;
+  var sFullName = path.basename(item.path);
   var sDesFullName = sFullName + ".md";
   var sDesPath = utils.getDesPath(category, sFullName);
   fs.unlink(sDesPath, function(err) {
@@ -234,7 +235,7 @@ exports.removeFile = function(category, item, callback) {
       repo.repoRmsCommit(sRealDir, aRealFiles, function() {
         var aDesFiles = [sDesFullName];
         var sDesDir = utils.getDesDir(category);
-        repo.repoRmsCommit(sDesDir, sDesFullName, callback);
+        repo.repoRmsCommit(sDesDir, aDesFiles, callback);
       });
     });
   });
@@ -296,3 +297,5 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
   }
 }
+
+
