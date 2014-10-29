@@ -14,7 +14,7 @@ var utils = require('../utils');
 var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
-var tagsHandles = ('../commonHandle/tagsHandles');
+var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 
 
@@ -53,10 +53,7 @@ function createData(items, callback) {
       var category = 'Pictures';
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
-      /*
-       * TODO: something wrong the tagsHandles, will fix it later
-       */
-      var someTags = []; //tagsHandles.getTagsByPath(items);
+      var someTags = tagsHandle.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
         var itemInfo = {
@@ -114,10 +111,7 @@ function createData(items, callback) {
               var category = 'Pictures';
               var itemFilename = cate.filename;
               var itemPostfix = cate.postfix;
-              /*
-               * TODO: something wrong the tagsHandles, will fix it later
-               */
-              var someTags = []; //tagsHandles.getTagsByPath(_item);
+              var someTags = tagsHandle.getTagsByPath(_item);
               var resourcesPath = config.RESOURCEPATH + '/' + category;
               uniqueID.getFileUid(function(uri) {
                 var itemInfo = {
