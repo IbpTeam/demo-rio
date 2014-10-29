@@ -29,10 +29,8 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 
-
 //@const
-var CATEGORY_NAME = "documents";
-
+var CATEGORY_NAME = "document";
 
 /**
  * @method createData
@@ -77,7 +75,7 @@ function createData(items, callback) {
       var ctime = stat.ctime;
       var size = stat.size;
       var cate = utils.getCategory(items);
-      var category = 'Documents';
+      var category = CATEGORY_NAME;
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
       var someTags = tagsHandle.getTagsByPath(items);
@@ -134,7 +132,7 @@ function createData(items, callback) {
               var ctime = stat.ctime;
               var size = stat.size;
               var cate = utils.getCategory(_item);
-              var category = 'Documents';
+              var category = CATEGORY_NAME;
               var itemFilename = cate.filename;
               var itemPostfix = cate.postfix
               var someTags = tagsHandle.getTagsByPath(_item);
@@ -186,26 +184,46 @@ function createData(items, callback) {
 }
 exports.createData = createData;
 
-exports.removeDocumentByUri = function(uri, callback) {
-  console.log("remove Document By Uri ===========");
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, function(err, items) {
+/**
+ * @method removeDocumentByUri
+ *    Remove document by uri.
+ * @param uri
+ *    The document's URI.
+ * @param callback
+ *    Callback
+ */
+function removeDocumentByUri(uri, callback) {
+  getDocumentByUri(uri, function(err, items) {
     if (err)
       console.log(err);
+    //Remove real file
     fs.unlink(items[0].path, function(err) {
       if (err) {
         console.log(err);
         callback("error");
       } else {
-        console.log("----------------------------------"+items[0].path);
+        //Remove Des file
+        //Delete in db
+        //Git commit
         commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
       }
     });
   });
 }
+exports.removeDocumentByUri = removeDocumentByUri;
 
-exports.getDocumentByUri = function(uri, callback) {
+/**
+ * @method getDocumentByUri
+ *    Get document info in db.
+ * @param uri
+ *    The document's URI.
+ * @param callback
+ *    Callback
+ */
+function getDocumentByUri(uri, callback) {
   commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
 }
+exports.getDocumentByUri = getDocumentByUri;
 
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
@@ -334,7 +352,7 @@ function openDataByUri(openDataByUriCb, uri) {
           var updateItem = item;
           updateItem.lastAccessTime = currentTime;
           updateItem.lastAccessDev = config.uniqueID;
-          updateItem.category = "Documents";
+          updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
           condition.push("URI='" + item.URI + "'");

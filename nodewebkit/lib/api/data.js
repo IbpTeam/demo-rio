@@ -239,27 +239,27 @@ function rmDataByUri(rmDataByUriCb, uri) {
   var cate = utils.getCategoryByUri(uri);
   console.log("Request handler 'rmDataByUri' was called. ===="+cate);
   switch (cate) {
-    case "Contacts":
+    case "contact":
       {
         contacts.removeContactByUri(uri, rmDataByUriCb);
       }
       break;
-    case "Pictures":
+    case "picture":
       {
         pictures.removePictureByUri(uri, rmDataByUriCb);
       }
       break;
-    case "Documents":
+    case "document":
       {
         documents.removeDocumentByUri(uri, rmDataByUriCb);
       }
       break;
-    case "Music":
+    case "music":
       {
         music.removeMusicByUri(uri, rmDataByUriCb);
       }
       break;
-    case "Videos":
+    case "video":
       {
         video.removeVideoByUri(uri, rmDataByUriCb);
       }

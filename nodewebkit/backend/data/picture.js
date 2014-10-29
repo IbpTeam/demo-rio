@@ -1,3 +1,15 @@
+/**
+ * @Copyright:
+ *
+ * @Description: Pictures Handle.
+ *
+ * @author: Wangfeng Xiquan Yuanzhe
+ *
+ * @Data:2014.10.28
+ *
+ * @version:0.3.0
+ **/
+
 var http = require("http");
 var url = require("url");
 var sys = require('sys');
@@ -17,6 +29,8 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 
+//@const
+var CATEGORY_NAME = "picture";
 
 /**
  * @method createData
@@ -52,7 +66,7 @@ function createData(items, callback) {
       var ctime = stat.ctime;
       var size = stat.size;
       var cate = utils.getCategory(items);
-      var category = 'Pictures';
+      var category = CATEGORY_NAME;
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
       var someTags = tagsHandle.getTagsByPath(items);
@@ -110,7 +124,7 @@ function createData(items, callback) {
               var ctime = stat.ctime;
               var size = stat.size;
               var cate = utils.getCategory(_item);
-              var category = 'Pictures';
+              var category = CATEGORY_NAME;
               var itemFilename = cate.filename;
               var itemPostfix = cate.postfix;
               var someTags = tagsHandle.getTagsByPath(_item);
@@ -161,3 +175,44 @@ function createData(items, callback) {
   }
 }
 exports.createData = createData;
+
+/**
+ * @method removePictureByUri
+ *    Remove Picture by uri.
+ * @param uri
+ *    The Picture's URI.
+ * @param callback
+ *    Callback
+ */
+function removePictureByUri(uri, callback) {
+  getPictureByUri(uri, function(err, items) {
+    if (err)
+      console.log(err);
+    //Remove real file
+    fs.unlink(items[0].path, function(err) {
+      if (err) {
+        console.log(err);
+        callback("error");
+      } else {
+        //Remove Des file
+        //Delete in db
+        //Git commit
+        commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
+      }
+    });
+  });
+}
+exports.removePictureByUri = removePictureByUri;
+
+/**
+ * @method getPictureByUri
+ *    Get Picture info in db.
+ * @param uri
+ *    The Picture's URI.
+ * @param callback
+ *    Callback
+ */
+function getPictureByUri(uri, callback) {
+  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
+}
+exports.getPictureByUri = getPictureByUri;
