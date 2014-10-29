@@ -178,6 +178,7 @@ function createDataAll(items, callback) {
       var category = _item.category;
       var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
       var dest = resourcesPath + '/data/' + itemFilename;
+      _item.path = dest;
       var desPath = resourcesPath + 'Des';
       var desDest = desPath + '/' + itemFilename + '.md';
       copyFile(itemPath, dest, function(result) {
