@@ -33,6 +33,8 @@ var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "document";
+var DES_DIR = "documentDes";
+
 
 /**
  * @method createData
@@ -195,7 +197,7 @@ exports.createData = createData;
  *    Callback
  */
 function removeByUri(uri, callback) {
-  getDocumentByUri(uri, function(err, items) {
+  getByUri(uri, function(err, items) {
     if (err)
       console.log(err);
     //Remove real file
@@ -215,17 +217,17 @@ function removeByUri(uri, callback) {
 exports.removeByUri = removeByUri;
 
 /**
- * @method getDocumentByUri
+ * @method getByUri
  *    Get document info in db.
  * @param uri
  *    The document's URI.
  * @param callback
  *    Callback
  */
-function getDocumentByUri(uri, callback) {
+function getByUri(uri, callback) {
   commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
 }
-exports.getDocumentByUri = getDocumentByUri;
+exports.getByUri = getByUri;
 
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
@@ -347,18 +349,12 @@ function openDataByUri(openDataByUriCb, uri) {
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
-      util.log("item.path=" + item.path);
-      var desPath = item.path.replace("documents", "documentsDes") + ".md";
-      util.log("desPath=" + desPath);
-      /*     dataDes.updateItem(desPath,{lastAccessTime: currentTime}, function() {
-        resourceRepo.repoChsCommit(config.RESOURCEPATH, null, itemDesPath, function() {
-
-          var currentTime = (new Date());
-          var updateItem = item;
-          updateItem.lastAccessTime = currentTime;
-          updateItem.lastAccessDev = config.uniqueID;
-
-          updateItem.category = "Documents";
+      util.log("item.path="+item.path);
+      var desFilePath = item.path.replace(CATEGORY_NAME,DES_DIR)+".md";
+      util.log("desPath="+desFilePath);
+      dataDes.updateItem(desFilePath,updateItem, function() {
+        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], function() {
+          updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
           condition.push("URI='" + item.URI + "'");
@@ -369,10 +365,10 @@ function openDataByUri(openDataByUriCb, uri) {
             openDataByUriCb(source);
           });
         });
-      });*/
+      });
     }
   }
-  commonDAO.findItems(null, "Documents", ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
+  getByUri(uri,getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
 

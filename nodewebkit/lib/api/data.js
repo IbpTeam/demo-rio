@@ -240,33 +240,6 @@ function rmDataByUri(rmDataByUriCb, uri) {
   var cate = utils.getCategoryObjectByUri(uri);
   console.log("Request handler 'rmDataByUri' was called. ====" + cate);
   cate.removeByUri(uri, rmDataByUriCb);
-  /*switch (cate) {
-    case "contact":
-      {
-        contacts.removeContactByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "picture":
-      {
-        pictures.removePictureByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "document":
-      {
-        documents.removeDocumentByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "music":
-      {
-        music.removeMusicByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "video":
-      {
-        video.removeVideoByUri(uri, rmDataByUriCb);
-      }
-      break;
-  }*/
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -309,8 +282,8 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  var cate = utils.getCategoryByUri(uri);
-  filesHandle.openDataByUri(function(result) {
+  var cate = utils.getCategoryObjectByUri(uri);
+  cate.openDataByUri(function(result) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
@@ -320,33 +293,6 @@ function openDataByUri(openDataByUriCb, uri) {
       setTimeout(openDataByUriCb(result), 0);
     }
   }, uri);
-  switch (cate) {
-    case "contact":
-      {
-        contacts.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "picture":
-      {
-        pictures.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "document":
-      {
-        documents.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "music":
-      {
-        music.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "video":
-      {
-        video.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-  }
 }
 exports.openDataByUri = openDataByUri;
 
