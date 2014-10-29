@@ -369,3 +369,48 @@ function openDataByUri(openDataByUriCb, uri) {
   commonDAO.findItems(null, "Documents", ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
+
+function getRecentAccessData(getRecentAccessDataCb, num) {
+  var cateNum = 0;
+  var Data = {};
+  var DataSort = [];
+
+  function getAllCateCb(categories) {
+    cateNum = categories.length;
+    for (var k in categories) {
+      var sType = categories[k].type;
+
+      function findItemsCb(err, items) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        cateNum--;
+        for (var k = 0; k < items.length; k++) {
+          var item = items[k];
+          var sKey = Date.parse(item.lastAccessTime);
+          Data[sKey + k] = item;
+          DataSort.push(sKey + k);
+        }
+        if (cateNum == 2) {
+          var oNewData = [];
+          DataSort.sort();
+          for (var k in DataSort) {
+            oNewData.push(Data[DataSort[k]]);
+          }
+          var DataByNum = oNewData.slice(0, num);
+          getRecentAccessDataCb(DataByNum);
+          for (var k in DataByNum) {
+            console.log(DataByNum[k].lastAccessTime);
+          }
+        }
+      }
+      if (sType != "Device" && sType != "Contact") {
+        var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
+        commonDAO.findItems(null, sType, null, [sCondition], findItemsCb);
+      }
+    }
+  }
+  getAllCate(getAllCateCb);
+}
+exports.getRecentAccessData = getRecentAccessData;

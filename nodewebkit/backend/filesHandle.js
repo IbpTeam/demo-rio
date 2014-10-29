@@ -1328,7 +1328,7 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
           }
         }
       }
-      if (sType != "Devices" && sType != "Contacts") {
+      if (sType != "Device" && sType != "Contact") {
         var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
         commonDAO.findItems(null, sType, null, [sCondition], findItemsCb);
       }
