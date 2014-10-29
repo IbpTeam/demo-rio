@@ -28,6 +28,8 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
+var dataDes = require('../commonHandle/desFilesHandle');
+
 
 //@const
 var CATEGORY_NAME = "document";
@@ -192,7 +194,7 @@ exports.createData = createData;
  * @param callback
  *    Callback
  */
-function removeDocumentByUri(uri, callback) {
+function removeByUri(uri, callback) {
   getDocumentByUri(uri, function(err, items) {
     if (err)
       console.log(err);
@@ -210,7 +212,7 @@ function removeDocumentByUri(uri, callback) {
     });
   });
 }
-exports.removeDocumentByUri = removeDocumentByUri;
+exports.removeByUri = removeByUri;
 
 /**
  * @method getDocumentByUri
@@ -341,18 +343,22 @@ function openDataByUri(openDataByUriCb, uri) {
             break;
         }
       }
-      var nameindex = item.path.lastIndexOf('/');
-      var addPath = item.path.substring(config.RESOURCEPATH.length + 1, nameindex);
-      var itemDesPath = [config.RESOURCEPATH + "/.des/" + addPath];
-      dataDes.updateItems(item.path, {
-        lastAccessTime: currentTime
-      }, itemDesPath, function() {
+      var currentTime = (new Date());
+      var updateItem = item;
+      updateItem.lastAccessTime = currentTime;
+      updateItem.lastAccessDev = config.uniqueID;
+      util.log("item.path="+item.path);
+      var desPath = item.path.replace("documents","documentsDes")+".md";
+      util.log("desPath="+desPath);
+ /*     dataDes.updateItem(desPath,{lastAccessTime: currentTime}, function() {
         resourceRepo.repoChsCommit(config.RESOURCEPATH, null, itemDesPath, function() {
+
           var currentTime = (new Date());
           var updateItem = item;
           updateItem.lastAccessTime = currentTime;
           updateItem.lastAccessDev = config.uniqueID;
-          updateItem.category = CATEGORY_NAME;
+
+          updateItem.category = "Documents";
           var updateItems = new Array();
           var condition = [];
           condition.push("URI='" + item.URI + "'");
@@ -363,7 +369,7 @@ function openDataByUri(openDataByUriCb, uri) {
             openDataByUriCb(source);
           });
         });
-      });
+      });*/
     }
   }
   commonDAO.findItems(null, "Documents", ["URI = " + "'" + uri + "'"], null, getItemByUriCb);

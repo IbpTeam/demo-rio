@@ -172,11 +172,9 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
-exports.updateItem = function(chItem,attrs,itemDesPath,callback){
-  var nameindex=chItem.lastIndexOf('/');
-  var fileName=chItem.substring(nameindex+1,chItem.length);
-  var desFilePath = itemDesPath+"/"+fileName+".md";
-  fs.readFile(desFilePath,'utf8',function(err,data){
+exports.updateItem = function(file,attrs,callback){
+  console.log("update::::::::::"+file);
+  fs.readFile(file,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
        console.log(err);
@@ -187,7 +185,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
         json[attr]=attrs[attr];
       }
       var sItem = JSON.stringify(json,null,4);
-      fs.open(desFilePath,"w",0644,function(err,fd){
+      fs.open(file,"w",0644,function(err,fd){
         if(err){
           console.log("open des file error!");         
         }

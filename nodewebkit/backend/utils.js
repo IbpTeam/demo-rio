@@ -1,7 +1,17 @@
 var path = require("path");
+<<<<<<< HEAD
 var commonDAO = require("./commonHandle/CommonDAO");
 
 
+=======
+var desktopConf = require("./data/desktop");
+var contacts = require("./data/contacts");
+var documents = require("./data/document");
+var pictures = require("./data/picture");
+var video = require("./data/video");
+var music = require("./data/music");
+var devices = require("./data/device");
+>>>>>>> 1f17bff72ae5aa5ed8c92b947962e6ab7eaddef1
 //@const
 var DATA_DIR = "data";
 
@@ -21,10 +31,45 @@ function parsePath(path){
 exports.parsePath = parsePath;
 
 //get the catefory from URI
-exports.getCategoryByUri = function(sUri) {
+function getCategoryByUri(sUri){
   var pos = sUri.lastIndexOf("#");
   var cate = sUri.slice(pos + 1, sUri.length);
   return cate;
+}
+exports.getCategoryByUri=getCategoryByUri;
+
+//get the catefory from URI
+exports.getCategoryObjectByUri = function(sUri){
+  var cate = getCategoryByUri(sUri);
+    switch (cate) {
+    case "contact":
+      {
+        return contacts;
+      }
+      break;
+    case "picture":
+      {
+        return pictures;
+      }
+      break;
+    case "document":
+      {
+        return documents;
+      }
+      break;
+    case "music":
+      {
+        return music;
+      }
+      break;
+    case "video":
+      {
+        return video;
+      }
+      break;
+    default:
+      return null;
+  }
 }
 
 exports.getDesPath = function(category, fullName) {

@@ -183,7 +183,7 @@ exports.createData = createData;
  * @param callback
  *    Callback
  */
-function removePictureByUri(uri, callback) {
+function removeByUri(uri, callback) {
   getPictureByUri(uri, function(err, items) {
     if (err)
       console.log(err);
@@ -201,7 +201,7 @@ function removePictureByUri(uri, callback) {
     });
   });
 }
-exports.removePictureByUri = removePictureByUri;
+exports.removeByUri = removeByUri;
 
 /**
  * @method getPictureByUri

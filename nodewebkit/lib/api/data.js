@@ -62,11 +62,11 @@ function loadResources(loadResourcesCb, path) {
       if (fs.statSync(path + '/' + item).isDirectory()) {
         if (item != '.git' && item != '.des' && item != 'contacts') {
           if (item == 'html5ppt') {
-            var html5pptList = fs.readdirSync(path + '/' + item);
+            /*var html5pptList = fs.readdirSync(path + '/' + item);
             for (var i = 0; i < html5pptList.length; i++) {
               var filename = item + '/' + html5pptList[i] + '.html5ppt';
               fileList.push(path + '/' + filename);
-            }
+            }*/
           } else {
             walk(path + '/' + item);
           }
@@ -236,9 +236,10 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataByUri' was called.");
-  var cate = utils.getCategoryByUri(uri);
+  var cate = utils.getCategoryObjectByUri(uri);
   console.log("Request handler 'rmDataByUri' was called. ===="+cate);
-  switch (cate) {
+  cate.removeByUri(uri, rmDataByUriCb);
+  /*switch (cate) {
     case "contact":
       {
         contacts.removeContactByUri(uri, rmDataByUriCb);
@@ -264,7 +265,7 @@ function rmDataByUri(rmDataByUriCb, uri) {
         video.removeVideoByUri(uri, rmDataByUriCb);
       }
       break;
-  }
+  }*/
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -307,6 +308,7 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
+  var cate = utils.getCategoryByUri(uri);
   filesHandle.openDataByUri(function(result) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
@@ -317,6 +319,33 @@ function openDataByUri(openDataByUriCb, uri) {
       setTimeout(openDataByUriCb(result), 0);
     }
   }, uri);
+  switch (cate) {
+    case "contact":
+      {
+        contacts.openDataByUri(uri, rmDataByUriCb);
+      }
+      break;
+    case "picture":
+      {
+        pictures.openDataByUri(uri, rmDataByUriCb);
+      }
+      break;
+    case "document":
+      {
+        documents.openDataByUri(uri, rmDataByUriCb);
+      }
+      break;
+    case "music":
+      {
+        music.openDataByUri(uri, rmDataByUriCb);
+      }
+      break;
+    case "video":
+      {
+        video.openDataByUri(uri, rmDataByUriCb);
+      }
+      break;
+  }
 }
 exports.openDataByUri = openDataByUri;
 
