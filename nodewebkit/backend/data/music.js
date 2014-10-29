@@ -372,3 +372,8 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
 }
 exports.getRecentAccessData = getRecentAccessData;
 
+function getDataByUri(getDataCb, uri) {
+  console.log("read data : " + uri);
+  commonHandle.getDataByUri(getDataCb, uri, CATEGORY_NAME);
+}
+exports.getDataByUri = getDataByUri;

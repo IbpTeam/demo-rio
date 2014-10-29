@@ -92,7 +92,7 @@ name, phone, sex, age, email, photoPath
  */
 function addContact(Item, sItemDesPath, isContactEnd, callback) {
   function getFileUidCb(uri) {
-    var category = 'Contacts';
+    var category = CATEGORY_NAME;
     var currentTime = (new Date());
     var oNewItem = {
       id: null,
@@ -148,7 +148,7 @@ function initContacts(loadContactsCb, resourcePath) {
     var oJson = JSON.parse(json);
     var oContacts = [];
     var oDesFiles = [];
-    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "/Des";
+    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
     var dataDesPath = contactsPath + "/data";
     for (var k in oJson) {
       if (oJson[k].hasOwnProperty("\u59D3")) {
