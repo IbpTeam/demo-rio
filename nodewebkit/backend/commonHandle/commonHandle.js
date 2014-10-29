@@ -316,7 +316,6 @@ function getRecentAccessData(category, getRecentAccessDataCb, num) {
 exports.getRecentAccessData = getRecentAccessData;
 
 function getDataByUri(getDataCb, uri, category) {
-  console.log("read data : " + uri);
 
   function getItemByUriCb(err, items) {
     if (err) {

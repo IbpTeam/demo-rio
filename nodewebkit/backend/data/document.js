@@ -380,15 +380,6 @@ exports.getRecentAccessData = getRecentAccessData;
 
 function getDataByUri(getDataCb, uri) {
   console.log("read data : " + uri);
-
-  function getItemByUriCb(err, items) {
-    if (err) {
-      console.log(err)
-      return;
-    }
-    getDataCb(items);
-  }
-  var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null, CATEGORY_NAME, ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
+  commonHandle.getDataByUri(getDataCb, uri, CATEGORY_NAME);
 }
 exports.getDataByUri = getDataByUri;
