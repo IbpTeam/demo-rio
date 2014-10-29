@@ -64,6 +64,9 @@ var CATEGORY_NAME = "documents";
  *
  */
 function createData(items, callback) {
+  if (items == [] || items == "") {
+    return callback(null, 'no Pictures');
+  }
   if (typeof items == 'string') {
     fs.stat(items, function(err, stat) {
       if (err) {

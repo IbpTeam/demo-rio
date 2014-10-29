@@ -39,7 +39,9 @@ var commonHandle = require('../commonHandle/commonHandle');
  *
  */
 function createData(items, callback) {
-  console.log(items);
+  if (items == [] || items == "") {
+    return callback(null, 'no Pictures');
+  }
   if (typeof items == 'string') {
     fs.stat(items, function(err, stat) {
       if (err) {
