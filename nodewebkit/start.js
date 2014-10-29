@@ -95,11 +95,14 @@ function initializeApp(sFullPath) {
       filesHandle.monitorFiles(dataDir, filesHandle.monitorFilesCb);
       filesHandle.monitorDesFiles(dataDir + "/.des", filesHandle.monitorDesFilesCb);
     }
-    desktopConf.initConf(function(result) {
-      if (result !== "success") {
-        console.log("init config error");
-        return;
-      }
+    /*
+     * TODO: desktop config part is not working now, will fix it later
+     */
+    // desktopConf.initConf(function(result) {
+    //   if (result !== "success") {
+    //     console.log("init config error");
+    //     return;
+    //   }
       fs.exists(sUniqueIDPath, function(uniqueExists) {
         if (!uniqueExists) {
           console.log("UniqueID.js is not exists, start to set sys uid.");
@@ -135,7 +138,7 @@ function initializeApp(sFullPath) {
           });
         });
       });
-    })
+    //})
   });
 }
 
