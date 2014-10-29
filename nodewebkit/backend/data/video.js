@@ -29,7 +29,7 @@ var CATEGORY_NAME = "video";
  * @param callback
  *    Callback
  */
-function removeVideoByUri(uri, callback) {
+function removeByUri(uri, callback) {
   getVideoByUri(uri, function(err, items) {
     if (err)
       console.log(err);
@@ -47,7 +47,7 @@ function removeVideoByUri(uri, callback) {
     });
   });
 }
-exports.removeVideoByUri = removeVideoByUri;
+exports.removeByUri = removeByUri;
 
 /**
  * @method getVideoByUri
