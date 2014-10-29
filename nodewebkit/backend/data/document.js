@@ -347,10 +347,10 @@ function openDataByUri(openDataByUriCb, uri) {
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
-      util.log("item.path="+item.path);
-      var desPath = item.path.replace("documents","documentsDes")+".md";
-      util.log("desPath="+desPath);
- /*     dataDes.updateItem(desPath,{lastAccessTime: currentTime}, function() {
+      util.log("item.path=" + item.path);
+      var desPath = item.path.replace("documents", "documentsDes") + ".md";
+      util.log("desPath=" + desPath);
+      /*     dataDes.updateItem(desPath,{lastAccessTime: currentTime}, function() {
         resourceRepo.repoChsCommit(config.RESOURCEPATH, null, itemDesPath, function() {
 
           var currentTime = (new Date());
@@ -376,47 +376,8 @@ function openDataByUri(openDataByUriCb, uri) {
 }
 exports.openDataByUri = openDataByUri;
 
-function getRecentAccessData(getRecentAccessDataCb, num) {
-  var cateNum = 0;
-  var Data = {};
-  var DataSort = [];
-
-  function getAllCateCb(categories) {
-    cateNum = categories.length;
-    for (var k in categories) {
-      var sType = categories[k].type;
-
-      function findItemsCb(err, items) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        cateNum--;
-        for (var k = 0; k < items.length; k++) {
-          var item = items[k];
-          var sKey = Date.parse(item.lastAccessTime);
-          Data[sKey + k] = item;
-          DataSort.push(sKey + k);
-        }
-        if (cateNum == 2) {
-          var oNewData = [];
-          DataSort.sort();
-          for (var k in DataSort) {
-            oNewData.push(Data[DataSort[k]]);
-          }
-          var DataByNum = oNewData.slice(0, num);
-          getRecentAccessDataCb(DataByNum);
-          for (var k in DataByNum) {
-            console.log(DataByNum[k].lastAccessTime);
-          }
-        }
-      }
-      if (sType != "Device" && sType != "Contact") {
-        var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
-        commonDAO.findItems(null, sType, null, [sCondition], findItemsCb);
-      }
-    }
-  }
-  getAllCate(getAllCateCb);
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;

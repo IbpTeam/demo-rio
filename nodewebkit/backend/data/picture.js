@@ -215,3 +215,9 @@ function getPictureByUri(uri, callback) {
   commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
 }
 exports.getPictureByUri = getPictureByUri;
+
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
+}
+exports.getRecentAccessData = getRecentAccessData;

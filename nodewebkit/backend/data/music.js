@@ -342,3 +342,8 @@ function openDataByUri(openDataByUriCb, uri) {
 }
 exports.openDataByUri = openDataByUri;
 
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
+}
+exports.getRecentAccessData = getRecentAccessData;

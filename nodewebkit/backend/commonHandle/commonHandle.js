@@ -298,4 +298,19 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   }
 }
 
-
+function getRecentAccessData(category, getRecentAccessDataCb, num) {
+  function findItemsCb(err, items) {
+    if (err) {
+      console.log(err);
+      return getRecentAccessDataCb(err,null);
+    }
+    var DataByNum = utils.getRecent(items, num);
+    getRecentAccessDataCb(null,DataByNum);
+    for (var k in DataByNum) {
+      console.log(DataByNum[k].lastAccessTime);
+    }
+  }
+  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
+  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
+}
+exports.getRecentAccessData = getRecentAccessData;
