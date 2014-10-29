@@ -314,3 +314,18 @@ function getRecentAccessData(category, getRecentAccessDataCb, num) {
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
 }
 exports.getRecentAccessData = getRecentAccessData;
+
+function getDataByUri(getDataCb, uri, category) {
+  console.log("read data : " + uri);
+
+  function getItemByUriCb(err, items) {
+    if (err) {
+      console.log(err)
+      return;
+    }
+    getDataCb(items);
+  }
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null, category, ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
+}
+exports.getDataByUri = getDataByUri;

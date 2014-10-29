@@ -349,10 +349,10 @@ function openDataByUri(openDataByUriCb, uri) {
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
-      util.log("item.path="+item.path);
-      var desFilePath = item.path.replace(CATEGORY_NAME,DES_DIR)+".md";
-      util.log("desPath="+desFilePath);
-      dataDes.updateItem(desFilePath,updateItem, function() {
+      util.log("item.path=" + item.path);
+      var desFilePath = item.path.replace(CATEGORY_NAME, DES_DIR) + ".md";
+      util.log("desPath=" + desFilePath);
+      dataDes.updateItem(desFilePath, updateItem, function() {
         resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
@@ -368,7 +368,7 @@ function openDataByUri(openDataByUriCb, uri) {
       });
     }
   }
-  getByUri(uri,getItemByUriCb);
+  getByUri(uri, getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
 
@@ -377,3 +377,18 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
+
+function getDataByUri(getDataCb, uri) {
+  console.log("read data : " + uri);
+
+  function getItemByUriCb(err, items) {
+    if (err) {
+      console.log(err)
+      return;
+    }
+    getDataCb(items);
+  }
+  var sTableName = getCategoryByUri(uri);
+  commonDAO.findItems(null, CATEGORY_NAME, ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
+}
+exports.getDataByUri = getDataByUri;
