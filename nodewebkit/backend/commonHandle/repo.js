@@ -41,7 +41,7 @@ exports.repoAddsCommit = function (repoPath,files,callback)
     }
     else{
       console.log("Git add success");
-      callback();
+      callback('success');
     }
   });
 }

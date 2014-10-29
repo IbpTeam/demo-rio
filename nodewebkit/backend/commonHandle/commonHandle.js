@@ -29,37 +29,19 @@ var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
+var utils = require("../utils")
 
 var writeDbNum = 0;
 var dataPath;
 
 function copyFile(oldPath, newPath, callback) {
   var repeat = 0;
-  fs.exists(newPath, function(isExists) {
-    if (isExists) {
-      console.log('exiiiiiiiiiiiists', newPath);
-      var pointIndex = newPath.lastIndexOf('.');
-      var nameindex = newPath.lastIndexOf('/');
-      if (pointIndex == -1) {
-        var itemPostfix = "none";
-        var itemFilename = newPath.substring(nameindex + 1, newPath.length);
-      } else {
-        var itemPostfix = newPath.substr(pointIndex + 1);
-        var itemFilename = newPath.substring(nameindex + 1, pointIndex);
-      }
-      repeat++;
-      var newName = itemFilename + '(' + repeat + ')';
-      newPath = newPath.substr(0, nameindex) + newName + itemPostfix;
-      copyFile(oldPath, newPath, callback);
-    } else {
-      fs_extra.copy(oldPath, newPath, function(err) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        callback('success');
-      })
+  fs_extra.copy(oldPath, newPath, function(err) {
+    if (err) {
+      console.log(err);
+      return;
     }
+    callback('success');
   })
 }
 
@@ -170,8 +152,9 @@ function createDataAll(items, callback) {
   var allItems = [];
   var allItemPath = [];
   var allDesPath = [];
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i];
+  var itemsRename = utils.renameExists(items);
+  for (var i = 0; i < itemsRename.length; i++) {
+    var item = itemsRename[i];
     (function(_item) {
       var itemPath = _item.path;
       var itemFilename = _item.filename + '.' + _item.postfix;

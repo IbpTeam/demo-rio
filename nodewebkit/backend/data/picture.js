@@ -100,7 +100,6 @@ function createData(items, callback) {
         var item = items[i];
         (function(_item) {
           fs.stat(_item, function(err, stat) {
-            console.log(_item)
             if (err) {
               console.log(err);
               var _err = err;

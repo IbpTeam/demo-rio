@@ -75,7 +75,7 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs_extra.outputFile(sPath, sItem,function (err) {
+  fs_extra.writeFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
@@ -227,10 +227,11 @@ exports.updateItems = function(oItems,callback){
     var filePath = "";
     var desFilePath = "";
     if(category === "Contacts"){
-      desFilePath = config.RESOURCEPATH + '/.des/contacts/'+item.name+'.md';
+      desFilePath = config.RESOURCEPATH + '/contactsDes/data/'+item.name+'.md';
     }else{
       filePath = item.path;
-      desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
+      var re = new RegExp('/'+category.toLowerCase()+'/', "i");
+      desFilePath = (filePath.replace(re,'/'+category.toLowerCase()+'Des/')) + '.md';
     }
     updateItemsHelper(callback,desFilePath,item);
   }

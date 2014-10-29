@@ -1271,11 +1271,14 @@ function openDataByUri(openDataByUriCb, uri) {
       updateItem.category = sTableName;
       var nameindex = item.path.lastIndexOf('/');
       var addPath = item.path.substring(config.RESOURCEPATH.length + 1, nameindex);
-      var itemDesPath = config.RESOURCEPATH + "/.des/" + addPath;
+      var desPath = config.RESOURCEPATH + '/'+sTableName.toLowerCase()+'Des';
+      var itemDesPath = desPath+'/data';
+      var re = new RegExp('/' + sTableName.toLowerCase() + '/', "i");
+      var filePath = (item.path.replace(re, '/' + sTableName.toLowerCase() + 'Des/')) + '.md';
       dataDes.updateItem(item.path, {
         lastAccessTime: currentTime
       }, itemDesPath, function() {
-        resourceRepo.repoChCommit(config.RESOURCEPATH, null, itemDesPath, function() {
+        resourceRepo.repoChsCommit(desPath, [itemDesPath], function() {
           console.log("success");
         });
       })

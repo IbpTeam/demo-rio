@@ -134,7 +134,7 @@ function createData(items, callback) {
               var ctime = stat.ctime;
               var size = stat.size;
               var cate = utils.getCategory(_item);
-              var category = 'Documents';
+              var category = CATEGORY_NAME;
               var itemFilename = cate.filename;
               var itemPostfix = cate.postfix
               var someTags = tagsHandle.getTagsByPath(_item);
