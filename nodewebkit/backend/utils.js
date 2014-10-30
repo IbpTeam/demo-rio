@@ -1,11 +1,11 @@
-var path = require("path"); 
+var path = require("path");
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
-var devices = require("./data/device"); 
+var devices = require("./data/device");
 //@const
 var DATA_DIR = "data";
 
@@ -24,7 +24,7 @@ function parsePath(path) {
 }
 exports.parsePath = parsePath;
 
-//get the catefory from URI
+//get the category from URI
 function getCategoryByUri(sUri) {
   var pos = sUri.lastIndexOf("#");
   var cate = sUri.slice(pos + 1, sUri.length);
@@ -32,7 +32,40 @@ function getCategoryByUri(sUri) {
 }
 exports.getCategoryByUri = getCategoryByUri;
 
-//get the catefory from URI
+//get the category 
+exports.getCategoryObject = function(category) {
+  switch (category) {
+    case "contact":
+      {
+        return contacts;
+      }
+      break;
+    case "picture":
+      {
+        return pictures;
+      }
+      break;
+    case "document":
+      {
+        return documents;
+      }
+      break;
+    case "music":
+      {
+        return music;
+      }
+      break;
+    case "video":
+      {
+        return video;
+      }
+      break;
+    default:
+      return null;
+  }
+}
+
+//get the category from URI
 exports.getCategoryObjectByUri = function(sUri) {
   var cate = getCategoryByUri(sUri);
   switch (cate) {

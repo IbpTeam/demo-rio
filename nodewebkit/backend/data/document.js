@@ -413,3 +413,24 @@ function getDataByUri(getDataCb, uri) {
   commonHandle.getDataByUri(getDataCb, uri, CATEGORY_NAME);
 }
 exports.getDataByUri = getDataByUri;
+
+/** 
+ * @Method: getGitLog
+ *    To get git log in a specific git repo
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        array, result of git log
+ *
+ **/
+function getGitLog(callback) {
+  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
+  var repoPath = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
+  resourceRepo.getGitLog(repoPath, callback);
+}
+exports.getGitLog = getGitLog;
