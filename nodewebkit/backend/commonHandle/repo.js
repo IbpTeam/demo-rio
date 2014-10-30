@@ -32,7 +32,8 @@ exports.repoAddsCommit = function (repoPath,files,callback)
   for(var k in files) {
     comstr = comstr+' && git add "'+files[k]+'"';
   }
-  comstr = comstr+' && git commit -m "On device '+config.SERVERNAME+' #add : multi files.#"'
+  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"add\",'+'\"file\":['+files.join(",")+']}';
+  comstr = comstr+" && git commit -m '"+commitLog+"'";
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -54,7 +55,8 @@ exports.repoRmsCommit = function (repoPath,files,callback)
   for(var k in files) {
     comstr = comstr+' && git rm "'+files[k]+'"';
   }
-  comstr = comstr+' && git commit -m "On device '+config.SERVERNAME+' #Delete : multi files.#"'
+  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"rm\",'+'\"file\":['+files.join(",")+']}';
+  comstr = comstr+" && git commit -m '"+commitLog+"'";
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
@@ -74,7 +76,8 @@ exports.repoChsCommit = function (repoPath,files,callback)
   for(var k in files) {
     comstr = comstr+' && git add "'+files[k]+'"';
   }
-  comstr = comstr+' && git commit -m "On device '+config.SERVERNAME+' #Change : multi files.#"'
+  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"ch\",'+'\"file\":['+files.join(",")+']}';
+  comstr = comstr+" && git commit -m '"+commitLog+"'";
     console.log(files);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
