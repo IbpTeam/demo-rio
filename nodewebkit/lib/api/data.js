@@ -566,7 +566,7 @@ function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
 exports.rmTagsByUri = rmTagsByUri;
 
 
-function initDesktop(initDesktopCb){
+function initDesktop(initDesktopCb) {
   console.log("Request handler 'initDesktop' was called.");
   desktopConf.initDesktop(initDesktopCb);
 }
@@ -1031,3 +1031,41 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
   desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
 }
 exports.renameDesktopFile = renameDesktopFile;
+
+/** 
+ * @Method: getGitLog
+ *    To get git log in a specific git repo
+ *
+ * @param1: getGitLogCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        array, result of git log
+ *
+ *        example:
+ *        [{
+ *          "commitID": "fb8741699802459bfb5e6ba36c9a7ec894134943",
+ *          "Author": " \u201Cshuanzi\u201D \u003C\u201Cdaixiquan@gmail.com\u201D\u003E",
+ *          "Date": "   Thu Oct 30 16:03:52 2014 +0800",
+ *          "content": {
+ *                      "device": "ace6f9045d75a83682e76288f79dd824",
+ *                      "op": "add",
+ *                      "file": ["/home/xiquan/.resources/document/data/Release_note_0.7.txt"]
+ *                     }
+ *         }]
+ *
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ **/
+function getGitLog(getGitLogCb,category) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.getGitLog(getGitLogCb);
+}
+exports.getGitLog = getGitLog;
+
