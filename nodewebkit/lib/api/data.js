@@ -20,6 +20,7 @@ var picHandle = require('../../backend/data/picture');
 var musHandle = require('../../backend/data/music');
 var vidHandle = require('../../backend/data/video');
 var dskhandle = require('../../backend/data/desktop');
+var repo = require('../../backend/commonHandle/repo');
 
 /*
  *IMChat
@@ -1021,3 +1022,8 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
   desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
 }
 exports.renameDesktopFile = renameDesktopFile;
+
+function pullFromOtherRepoTest() {
+  repo.pullFromOtherRepoTest();
+}
+exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
