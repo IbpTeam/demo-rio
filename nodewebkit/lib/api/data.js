@@ -246,8 +246,9 @@ exports.rmDataByUri = rmDataByUri;
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
-
-  filesHandle.getDataByUri(getDataByUriCb, uri);
+  console.log("Request handler 'getDataByUri' was called.");
+  var cate = utils.getCategoryObjectByUri(uri);
+  cate.getByUri(uri, getDataByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -562,6 +563,14 @@ function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
   tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
 }
 exports.rmTagsByUri = rmTagsByUri;
+
+
+function initDesktop(initDesktopCb){
+  console.log("Request handler 'initDesktop' was called.");
+  desktopConf.initDesktop(initDesktopCb);
+}
+exports.initDesktop = initDesktop;
+
 
 /** 
  * @Method: readThemeConf
