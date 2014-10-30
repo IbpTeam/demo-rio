@@ -16,6 +16,7 @@ var repo = require("../commonHandle/repo");
 var fs = require("fs");
 var cp = require("child_process");
 var path = require("path");
+var documents = require("../data/document");
 
 // @Enum sync state
 var syncState = {
@@ -39,6 +40,7 @@ var PRI_KEY = "rio_rsa";
 var PUB_KEY = "rio_rsa.pub";
 var AUTHORIZED_KEYS = "authorized_keys";
 var CONFIG_FILE = "config";
+var RESOURCES_PATH = path.join(process.env["HOME"],".resources");
 
 var iCurrentState = syncState.SYNC_IDLE;
 var syncList = new Array();
@@ -262,7 +264,7 @@ exports.serviceUp = function(device){
         requestMsg = {
           type:msgType.TYPE_REQUEST,
           ip:config.SERVERIP,
-          path:config.RESOURCEPATH,
+          path:RESOURCES_PATH,
           account:config.ACCOUNT,
           deviceId:config.uniqueID,
           pubKey:pubKeyStr
@@ -312,7 +314,7 @@ function syncRequest(msgObj){
           responseMsg = {
             type:msgType.TYPE_RESPONSE,
             ip:config.SERVERIP,
-            resourcePath:config.RESOURCEPATH,
+            resourcePath:RESOURCES_PATH,
             account:config.ACCOUNT,
             deviceId:config.uniqueID,
             pubKey:pubKeyStr
@@ -370,7 +372,7 @@ function syncResponse(msgObj){
           responseMsg = {
             type:msgType.TYPE_START,
             ip:config.SERVERIP,
-            resourcePath:config.RESOURCEPATH,
+            resourcePath:RESOURCES_PATH,
             account:config.ACCOUNT,
             deviceId:config.uniqueID
           };
@@ -412,9 +414,10 @@ function syncStart(msgObj){
       break;
     }
     case syncState.SYNC_RESPONSE:{
-    //Start to sync
-    iCurrentState = syncState.SYNC_START;
-    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      //Start to sync
+      iCurrentState = syncState.SYNC_START;
+      documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       break;
     }
     case syncState.SYNC_START:{
@@ -438,7 +441,7 @@ function syncStart(msgObj){
  * @param deviceIp
  *    Remote device ip.
  */
-function mergeCompleteCallback(deviceId,deviceAccount,deviceIp){
+function mergeCompleteCallback(deviceId,deviceIp,deviceAccount){
   var device = {
     device_id:deviceId,
     ip:deviceIp,

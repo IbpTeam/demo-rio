@@ -377,3 +377,33 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
+
+/**
+ * @method pullRequest
+ *    Fetch from remote and merge.
+ * @param deviceId
+ *    Remote device id.
+ * @param deviceIp
+ *    Remote device ip.
+ * @param deviceAccount
+ *    Remote device account.
+ * @param repoName
+ *    Repository name.
+ * @param callback
+ *    Callback.
+ */
+function pullRequest(deviceId,address,account,resourcesPath,callback){
+  var sRepoPath = pathModule.join(repoName,CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(repoName,DES_DIR);
+  //First pull real file
+  //Second pull des file
+  resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,funciton(filses){
+    console.log(files);
+    resourceRepo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,funciton(filses){
+      console.log(files);
+      //TODO base on files, modify data in db
+      callback(deviceId,address,account);
+    }
+  });
+}
+exports.pullRequest = pullRequest;
