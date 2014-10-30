@@ -50,7 +50,7 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  imchat.initIMServerNoRSA(recieveMsgCb);
+  imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
 }
 
 function recieveMsgCb(msg){
