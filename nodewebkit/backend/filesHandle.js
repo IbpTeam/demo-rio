@@ -738,24 +738,6 @@ function rmDataByUri(rmDataByUriCb, uri) {
 exports.rmDataByUri = rmDataByUri;
 
 
-//API getDataByUri:打开URI对应的数据
-//返回显示数据或结果
-function getDataByUri(getDataCb, uri) {
-  console.log("read data : " + uri);
-
-  function getItemByUriCb(err, items) {
-    if (err) {
-      console.log(err)
-      return;
-    }
-    getDataCb(items);
-  }
-  var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null, sTableName, ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
-}
-exports.getDataByUri = getDataByUri;
-
-
 function monitorNetlink(path) {
   util.log('neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeet ' + path);
   /*fs.watch(path, function (event, filename) {
