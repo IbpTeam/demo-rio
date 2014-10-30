@@ -227,6 +227,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *        }
  */
 function getAllContacts(getAllContactsCb) {
+  console.log("Request handler 'getAllContacts' was called.");
   contacts.getAllContacts(getAllContactsCb);
 }
 exports.getAllContacts = getAllContacts;
@@ -439,7 +440,7 @@ function getResourceDataDir(getResourceDataDirCb) {
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER', function(error, stdout, stderr) {
     var usrname = stdout.replace("\n", "");
-    var data = require('/home/' + usrname + '/.demo-rio/config');
+    var data = '/home/' + usrname + '/.demo-rio/config';
     getResourceDataDirCb(data.dataDir);
   });
 }
