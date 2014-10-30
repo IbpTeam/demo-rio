@@ -122,78 +122,7 @@ function serverAndMapHandler(path) {
       });
     }
   }
-  /*
-  if(path===undefined){          
-    if(pathMap.size()===0){         
-      if(fileServer!=undefined){                
-  fileServer.close(function(){              
-    console.log('`````````````````fileServer======close====');                
-    fileServer=undefined;                   
-  });               
-      }
-      if(fileServerLst!=undefined){                     
-  fileServerLst.close(function(){                           
-    console.log('`````````````````fileServerLst======close====');                   
-    fileServerLst=undefined;                              
-  });                             
-      }           
-    }       
- //   return;      
-  }else{          
-    var file=pathMap.get(path);          
-    if(file!==undefined){           
-      pathMap.remove(path);   
-      console.log('=========serverAndMapHandler===iiiiiiiiiiiiiiiiiiiiiiiiii========'+pathMap.size());     
-      if(pathMap.size()===0){       
-  if(fileServer!=undefined){             
-    fileServer.close(function(){        
-      console.log('`````````````````fileServer======close====');          
-      fileServer=undefined;           
-    });           
-  }
-  if(fileServerLst!=undefined){               
-    fileServerLst.close(function(){                     
-      console.log('`````````````````fileServerLst======close====');              
-      fileServerLst=undefined;                        
-    });                         
-  }   
-      }                      
-    }   
-  }/*
-  if(pathMap.size()===0){ 
-    console.log('=========serverAndMapHandler=======00000000000000===='+path);
-    if(fileServer!=undefined)         
-      fileServer.close();       
-    if(fileServerLst!=undefined)          
-      fileServerLst.close();         
-  }else{       
-    console.log('=========serverAndMapHandler===iiiiiiiiiiiiiiiiiiiiiiiiii========'+path);
-    if(path===undefined){
-      return;
-    }else{   
-      var file=pathMap.get(path);       
-      if(file!==undefined){         
-  pathMap.remove(path); 
-  console.log('=========serverAndMapHandler===iiiiiiiiiiiiiiiiiiiiiiiiii========'+pathMap.size());
-  if(pathMap.size()===0){     
-    if(fileServer!=undefined){        
-      fileServer.close(function(){
-        console.log('`````````````````fileServer======close====');   
-        fileServer=undefined;
-      });     
-    }
-    if(fileServerLst!=undefined){   
-      fileServerLst.close(function(){
-        console.log('`````````````````fileServerLst======close====');
-        fileServerLst=undefined;
-      });       
-    }
-  }            
-      }
-    }        
-  }    */
-}
-
+  
 function MD5(str, encoding) {
   return crypto.createHash('md5').update(str).digest(encoding || 'hex');
 }
