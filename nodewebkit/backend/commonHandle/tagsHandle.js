@@ -95,9 +95,9 @@ function getAllTagsByCategory(callback, category) {
   };
 
   function findItemsCb(err, items) {
+    console.log(items)
     if (err) {
       console.log(err);
-      callback(null);
       return;
     }
     for (var k in items) {
@@ -121,7 +121,8 @@ function getAllTagsByCategory(callback, category) {
     }
     callback(TagFile);
   }
-  commonDAO.findItems(['others', 'filename', 'uri'], [category], null, null, findItemsCb);
+  var name = (category[0] === 'contact') ? 'name' : 'filename';
+  commonDAO.findItems(['others', name, 'uri'], category, null, null, findItemsCb);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
