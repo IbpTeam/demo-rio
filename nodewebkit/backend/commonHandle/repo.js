@@ -126,6 +126,27 @@ exports.getLatestCommit = function (repoPath,callback)
   });
 }
 
+function getPullFileList(stdout){
+  var line=stdout.split("\n");
+  for(var index in line){
+    if(line[index].indexOf('|')==-1 ){
+      line.pop(line[index]);
+    }
+  }
+  for(var index in line){
+    if(line[index].indexOf('data/')==-1){
+      line.pop(line[index]);
+    }
+  }
+  for(var index in line){
+    var endIndex=line[index].indexOf('|');
+    line[index]=line[index].substring(0,endIndex).trim();
+  }
+  for(var index in line){
+    console.log(line[index]);
+  }
+} 
+
 exports.pullFromOtherRepo = function (deviceId,address,account,repoName,callback)
 {
   var dataDir=config.USERCONFIGPATH+repoName;
@@ -134,10 +155,19 @@ exports.pullFromOtherRepo = function (deviceId,address,account,repoName,callback
   console.log(cmd);
   cp.exec(cmd,function(error,stdout,stderr){
     console.log(stdout+stderr);
-    callback(deviceId,account,address);
-      filesHandle.watcher1Start(dataDir,filesHandle.monitorFilesCb);
+    callback(getPullFileList(stdout));
   });
 }
+/*
+exports.pullFromOtherRepoTest = function (){
+var cmd = 'cd ~/test/repo1 &&git pull ~/test/repo2';
+  var cp = require('child_process');
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout);
+    getPullFileList(stdout);
+  });
+}
+*/
 
 /** 
  * @Method: getGitLog
