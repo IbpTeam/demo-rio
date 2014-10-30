@@ -55,7 +55,7 @@ exports.repoRmsCommit = function (repoPath,files,callback)
   for(var k in files) {
     comstr = comstr+' && git rm "'+files[k]+'"';
   }
-  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"add\",'+'\"file\":["'+files.join('","')+'"]}';
+  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"rm\",'+'\"file\":["'+files.join('","')+'"]}';
   comstr = comstr+" && git commit -m '"+commitLog+"'";
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
@@ -76,7 +76,7 @@ exports.repoChsCommit = function (repoPath,files,callback)
   for(var k in files) {
     comstr = comstr+' && git add "'+files[k]+'"';
   }
-  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"add\",'+'\"file\":["'+files.join('","')+'"]}';
+  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"ch\",'+'\"file\":["'+files.join('","')+'"]}';
   comstr = comstr+" && git commit -m '"+commitLog+"'";
     console.log(files);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
