@@ -1033,12 +1033,10 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
 }
 exports.renameDesktopFile = renameDesktopFile;
 
-<<<<<<< HEAD
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
 exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
-=======
 /** 
  * @Method: getGitLog
  *    To get git log in a specific git repo
@@ -1076,4 +1074,3 @@ function getGitLog(getGitLogCb,category) {
 }
 exports.getGitLog = getGitLog;
 
->>>>>>> 47fb79dfbd90f158ffaaa92304aec1bee3e71980
