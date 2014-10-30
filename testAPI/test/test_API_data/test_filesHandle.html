@@ -161,11 +161,8 @@
     });        
   }
 
-  function getRecentAccessDataCb(err,result){
+  function getRecentAccessDataCb(result){
     var win = window.open(''); 
-    if(err){
-      print(win,err);
-    }
     win.document.write("test API getRecentAccessData()");
     win.document.write("<br/>");
     win.document.write("callback result: ");

@@ -316,35 +316,35 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
   docHandle.getRecentAccessData(num, function(err_doc, result_doc) {
     if (err_doc) {
       console.log(err_doc);
-      return getRecentAccessDataCb(err_doc, null);
+      return;
     }
     console.log(result_doc);
     allItems = allItems.concat(result_doc);
     picHandle.getRecentAccessData(num, function(err_pic, result_pic) {
       if (err_pic) {
         console.log(err_pic);
-        return getRecentAccessDataCb(err_pic, null);
+        return;
       }
       console.log(result_pic);
       allItems = allItems.concat(result_pic);
       musHandle.getRecentAccessData(num, function(err_mus, result_mus) {
         if (err_mus) {
           console.log(err_mus);
-          return getRecentAccessDataCb(err_mus, null);
+          return;
         }
         console.log(result_mus);
         allItems = allItems.concat(result_mus);
         vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
           if (err_vid) {
             console.log(err_vid);
-            return getRecentAccessDataCb(err_vid, null);
+            return;
           }
           console.log(result_vid);
           allItems = allItems.concat(result_vid);
           console.log(allItems);
           var resultRecentAccess = utils.getRecent(allItems, num);
-          console.log(resultRecentAccess);
-          return getRecentAccessDataCb(null, resultRecentAccess);
+          console.log('get recent success!');
+          getRecentAccessDataCb(resultRecentAccess);
         })
       })
     })
