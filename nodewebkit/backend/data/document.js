@@ -373,7 +373,7 @@ function openDataByUri(openDataByUriCb, uri) {
 exports.openDataByUri = openDataByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
@@ -397,13 +397,13 @@ function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sDesRepoPath = pathModule.join(repoName,DES_DIR);
   //First pull real file
   //Second pull des file
-  resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,funciton(filses){
+  resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,function(filses){
     console.log(files);
-    resourceRepo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,funciton(filses){
+    resourceRepo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,function(filses){
       console.log(files);
       //TODO base on files, modify data in db
       callback(deviceId,address,account);
-    }
+    });
   });
 }
 exports.pullRequest = pullRequest;
@@ -429,7 +429,7 @@ exports.getDataByUri = getDataByUri;
  *
  **/
 function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
+  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!');
   var repoPath = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
   resourceRepo.getGitLog(repoPath, callback);
 }
