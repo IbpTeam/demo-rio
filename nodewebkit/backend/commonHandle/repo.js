@@ -167,7 +167,6 @@ var cmd = 'cd ~/test/repo1 &&git pull ~/test/repo2';
     getPullFileList(stdout);
   });
 }
-<<<<<<< HEAD
 */
 
 /** 
