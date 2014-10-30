@@ -5,7 +5,6 @@
   <script src="../lib/jquery.js"></script>
   <script src="../lib/api.js"></script>
 
-
 </head>
 <meta charset="UTF-8">
 
@@ -13,22 +12,12 @@
 
 <script>
 
-function getDeviceDiscoveryService(event,data){
-  if(event=="mdnsUp"){
-  	console.log("device up : ");
-    console.log(data);
-  }
-  else if(event=="mdnsDown"){
-  	console.log("device down : ");
-    console.log(data);
-  }
-}
-
 WDC.requireAPI(['data'], function(data){
-  console.log("test getDeviceDiscoveryService");
-  data.getDeviceDiscoveryService(getDeviceDiscoveryService);
-});
 
+    console.log("test merge");
+    //调用函数，返回一个数组,r[0]是浏览器名称，r[1]是版本号
+    data.pullFromOtherRepoTest();
+  });
 </script>
 
 
