@@ -29,36 +29,20 @@ var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
+var utils = require("../utils")
 
 var writeDbNum = 0;
 var dataPath;
 
+
 function copyFile(oldPath, newPath, callback) {
   var repeat = 0;
-  fs.exists(newPath, function(isExists) {
-    if (isExists) {
-      console.log('exiiiiiiiiiiiists', newPath);
-      var pointIndex = newPath.lastIndexOf('.');
-      var nameindex = newPath.lastIndexOf('/');
-      if (pointIndex == -1) {
-        var itemPostfix = "none";
-        var itemFilename = newPath.substring(nameindex + 1, newPath.length);
-      } else {
-        var itemPostfix = newPath.substr(pointIndex + 1);
-        var itemFilename = newPath.substring(nameindex + 1, pointIndex);
-      }
-      repeat++;
-      var newName = itemFilename + '(' + repeat + ')';
-      newPath = newPath.substr(0, nameindex) + newName + itemPostfix;
-      copyFile(oldPath, newPath, callback);
+  fs_extra.copy(oldPath, newPath, function(err) {
+    if (err) {
+      console.log(err);
+      callback(err);
     } else {
-      fs_extra.copy(oldPath, newPath, function(err) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        callback('success');
-      })
+      callback('success');
     }
   })
 }
@@ -170,8 +154,9 @@ function createDataAll(items, callback) {
   var allItems = [];
   var allItemPath = [];
   var allDesPath = [];
-  for (var i = 0; i < items.length; i++) {
-    var item = items[i];
+  var itemsRename = utils.renameExists(items);
+  for (var i = 0; i < itemsRename.length; i++) {
+    var item = itemsRename[i];
     (function(_item) {
       var itemPath = _item.path;
       var itemFilename = _item.filename + '.' + _item.postfix;
@@ -255,3 +240,77 @@ exports.removeFile = function(category, item, callback) {
     });
   });
 };
+
+exports.getAllCate = function(getAllCateCb) {
+  function getCategoriesCb(err, items) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var cates = new Array();
+    items.forEach(function(each) {
+      cates.push({
+        URI: each.id,
+        version: each.version,
+        type: each.type,
+        path: each.logoPath,
+        desc: each.desc
+      });
+    });
+    getAllCateCb(cates);
+  }
+  commonDAO.findItems(null, "category", null, null, getCategoriesCb);
+}
+
+exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
+  console.log("Request handler 'getAllDataByCate' was called.");
+
+  function getAllByCaterotyCb(err, items) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var cates = new Array();
+    items.forEach(function(each) {
+      cates.push({
+        URI: each.URI,
+        version: each.version,
+        filename: each.filename,
+        postfix: each.postfix,
+        path: each.path
+      });
+    });
+    getAllDataByCateCb(cates);
+  }
+
+  function getAllDevicesCb(err, items) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    getAllDataByCateCb(items);
+  }
+  if (cate == "Devices") {
+    commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
+  } else {
+    var conditions = ["is_delete = 0"];
+    commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
+  }
+}
+
+function getRecentAccessData(category, getRecentAccessDataCb, num) {
+  function findItemsCb(err, items) {
+    if (err) {
+      console.log(err);
+      return getRecentAccessDataCb(err,null);
+    }
+    var DataByNum = utils.getRecent(items, num);
+    getRecentAccessDataCb(null,DataByNum);
+    for (var k in DataByNum) {
+      console.log(DataByNum[k].lastAccessTime);
+    }
+  }
+  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
+  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
+}
+exports.getRecentAccessData = getRecentAccessData;

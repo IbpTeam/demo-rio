@@ -18,7 +18,9 @@ var path = require('path');
 var docHandle = require('../../backend/data/document');
 var picHandle = require('../../backend/data/picture');
 var musHandle = require('../../backend/data/music');
+var vidHandle = require('../../backend/data/video');
 var dskhandle = require('../../backend/data/desktop');
+var repo = require('../../backend/commonHandle/repo');
 
 /*
  *IMChat
@@ -171,7 +173,7 @@ exports.loadContacts = loadContacts;
  */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  filesHandle.getAllCate(getAllCateCb)
+  commonHandle.getAllCate(getAllCateCb)
 }
 exports.getAllCate = getAllCate;
 
@@ -204,7 +206,7 @@ function getAllDataByCate(getAllDataByCateCb, cate) {
   if (cate == 'Contacts' || cate == 'contacts') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    filesHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -226,6 +228,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *        }
  */
 function getAllContacts(getAllContactsCb) {
+  console.log("Request handler 'getAllContacts' was called.");
   contacts.getAllContacts(getAllContactsCb);
 }
 exports.getAllContacts = getAllContacts;
@@ -237,42 +240,17 @@ exports.getAllContacts = getAllContacts;
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataByUri' was called.");
   var cate = utils.getCategoryObjectByUri(uri);
-  console.log("Request handler 'rmDataByUri' was called. ===="+cate);
+  console.log("Request handler 'rmDataByUri' was called. ====" + cate);
   cate.removeByUri(uri, rmDataByUriCb);
-  /*switch (cate) {
-    case "contact":
-      {
-        contacts.removeContactByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "picture":
-      {
-        pictures.removePictureByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "document":
-      {
-        documents.removeDocumentByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "music":
-      {
-        music.removeMusicByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "video":
-      {
-        video.removeVideoByUri(uri, rmDataByUriCb);
-      }
-      break;
-  }*/
 }
 exports.rmDataByUri = rmDataByUri;
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
-  filesHandle.getDataByUri(getDataByUriCb, uri);
+  console.log("Request handler 'getDataByUri' was called.");
+  var cate = utils.getCategoryObjectByUri(uri);
+  cate.getByUri(uri, getDataByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -307,8 +285,8 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  var cate = utils.getCategoryByUri(uri);
-  filesHandle.openDataByUri(function(result) {
+  var cate = utils.getCategoryObjectByUri(uri);
+  cate.openDataByUri(function(result) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
@@ -318,33 +296,6 @@ function openDataByUri(openDataByUriCb, uri) {
       setTimeout(openDataByUriCb(result), 0);
     }
   }, uri);
-  switch (cate) {
-    case "contact":
-      {
-        contacts.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "picture":
-      {
-        pictures.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "document":
-      {
-        documents.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "music":
-      {
-        music.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-    case "video":
-      {
-        video.openDataByUri(uri, rmDataByUriCb);
-      }
-      break;
-  }
 }
 exports.openDataByUri = openDataByUri;
 
@@ -363,7 +314,43 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  filesHandle.getRecentAccessData(getRecentAccessDataCb, num);
+  var allItems = [];
+  docHandle.getRecentAccessData(num, function(err_doc, result_doc) {
+    if (err_doc) {
+      console.log(err_doc);
+      return;
+    }
+    console.log(result_doc);
+    allItems = allItems.concat(result_doc);
+    picHandle.getRecentAccessData(num, function(err_pic, result_pic) {
+      if (err_pic) {
+        console.log(err_pic);
+        return;
+      }
+      console.log(result_pic);
+      allItems = allItems.concat(result_pic);
+      musHandle.getRecentAccessData(num, function(err_mus, result_mus) {
+        if (err_mus) {
+          console.log(err_mus);
+          return;
+        }
+        console.log(result_mus);
+        allItems = allItems.concat(result_mus);
+        vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
+          if (err_vid) {
+            console.log(err_vid);
+            return;
+          }
+          console.log(result_vid);
+          allItems = allItems.concat(result_vid);
+          console.log(allItems);
+          var resultRecentAccess = utils.getRecent(allItems, num);
+          console.log('get recent success!');
+          getRecentAccessDataCb(resultRecentAccess);
+        })
+      })
+    })
+  })
 }
 exports.getRecentAccessData = getRecentAccessData;
 
@@ -454,7 +441,7 @@ function getResourceDataDir(getResourceDataDirCb) {
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER', function(error, stdout, stderr) {
     var usrname = stdout.replace("\n", "");
-    var data = require('/home/' + usrname + '/.demo-rio/config');
+    var data = '/home/' + usrname + '/.demo-rio/config';
     getResourceDataDirCb(data.dataDir);
   });
 }
@@ -578,6 +565,14 @@ function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
   tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
 }
 exports.rmTagsByUri = rmTagsByUri;
+
+
+function initDesktop(initDesktopCb) {
+  console.log("Request handler 'initDesktop' was called.");
+  desktopConf.initDesktop(initDesktopCb);
+}
+exports.initDesktop = initDesktop;
+
 
 /** 
  * @Method: readThemeConf
@@ -1037,3 +1032,45 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
   desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
 }
 exports.renameDesktopFile = renameDesktopFile;
+
+function pullFromOtherRepoTest() {
+  repo.pullFromOtherRepoTest();
+}
+exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
+/** 
+ * @Method: getGitLog
+ *    To get git log in a specific git repo
+ *
+ * @param1: getGitLogCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        array, result of git log
+ *
+ *        example:
+ *        [{
+ *          "commitID": "fb8741699802459bfb5e6ba36c9a7ec894134943",
+ *          "Author": " \u201Cshuanzi\u201D \u003C\u201Cdaixiquan@gmail.com\u201D\u003E",
+ *          "Date": "   Thu Oct 30 16:03:52 2014 +0800",
+ *          "content": {
+ *                      "device": "ace6f9045d75a83682e76288f79dd824",
+ *                      "op": "add",
+ *                      "file": ["/home/xiquan/.resources/document/data/Release_note_0.7.txt"]
+ *                     }
+ *         }]
+ *
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ **/
+function getGitLog(getGitLogCb,category) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.getGitLog(getGitLogCb);
+}
+exports.getGitLog = getGitLog;
+

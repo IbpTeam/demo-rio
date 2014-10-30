@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "d2dc6d7a7bcd83574d435d00016701a7#21214b1add159fb7d8f8#document";
+  var test_uri = "d2dc6d7a7bcd83574d435d00016701a7#5e1facc7f62043748816#picture";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -86,7 +86,7 @@
   }
   function test_getAllDataByCate() {
     WDC.requireAPI(['data'], function(data){
-      data.getAllDataByCate(getAllDataByCateCb,['documents']);
+      data.getAllDataByCate(getAllDataByCateCb,['document']);
     });
   }
 
@@ -208,6 +208,24 @@
   function test_getResourceDataDir(getResourceDataDirCb){
     WDC.requireAPI(['data'], function(data){
       data.getResourceDataDir(getResourceDataDirCb);
+    });        
+  }
+
+  function getGitLogCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API getGitLog()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_getGitLog(getGitLogCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getGitLog(getGitLogCb,'document');
     });        
   }
 
@@ -601,6 +619,33 @@
       data.openDataByUri(openDataByUriCb, test_uri);
     });        
   }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getGitLog')">getGitLog(getGitLogCb)<span><a class="mark" href="#test_getGitLog" id="test_getGitLog" onclick="test_getGitLog(getGitLogCb)">test</a></span></h2>
+<div id="getGitLog" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getGitLogCb(result){
+      var win = window.open('');
+      win.document.write("test API getGitLog()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;"); 
+    }
+
+    function test_getGitLog(getGitLogCb){
+      WDC.requireAPI(['data'], function(data){
+        data.getGitLog(getGitLogCb);
+      });        
+    }
   </pre>
 </div>
 </div>

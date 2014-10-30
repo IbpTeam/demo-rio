@@ -28,9 +28,11 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
+var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "music";
+var DES_DIR = "musicDes";
 
 /**
  * @method createData
@@ -189,7 +191,7 @@ exports.createData = createData;
  *    Callback
  */
 function removeByUri(uri, callback) {
-  getMusicByUri(uri, function(err, items) {
+  getByUri(uri, function(err, items) {
     if (err)
       console.log(err);
     //Remove real file
@@ -209,17 +211,17 @@ function removeByUri(uri, callback) {
 exports.removeByUri = removeByUri;
 
 /**
- * @method getMusicByUri
+ * @method getByUri
  *    Get music info in db.
  * @param uri
  *    The Music's URI.
  * @param callback
  *    Callback
  */
-function getMusicByUri(uri, callback) {
+function getByUri(uri, callback) {
   commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
 }
-exports.getMusicByUri = getMusicByUri;
+exports.getByUri = getByUri;
 
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
@@ -247,6 +249,22 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
+          case 'txt':
+            source = {
+              openmethod: 'html',
+              format: 'txtfile',
+              title: '文件浏览',
+              content: item.path
+            }
+            break;
+          case 'html5ppt':
+            source = {
+              openmethod: 'html',
+              format: 'html5ppt',
+              title: '文件浏览',
+              content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
+            }
+            break;
           case 'ogg':
             source = {
               openmethod: 'html',
@@ -254,6 +272,12 @@ function openDataByUri(openDataByUriCb, uri) {
               title: '文件浏览',
               content: item.path
             }
+            break;
+          case 'none':
+            source = {
+              openmethod: 'alert',
+              content: item.path + ' can not be recognized.'
+            };
             break;
           default:
             /*
@@ -315,30 +339,56 @@ function openDataByUri(openDataByUriCb, uri) {
             break;
         }
       }
-
-      openDataByUriCb(source);
-
       var currentTime = (new Date());
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
-      var item_uri = item.URI;
-      var sTableName = getCategoryByUri(item_uri);
-      updateItem.category = sTableName;
-      var nameindex = item.path.lastIndexOf('/');
-      var addPath = item.path.substring(config.RESOURCEPATH.length + 1, nameindex);
-      var itemDesPath = config.RESOURCEPATH + "/.des/" + addPath;
-      dataDes.updateItem(item.path, {
-        lastAccessTime: currentTime
-      }, itemDesPath, function() {
-        resourceRepo.repoChCommit(config.RESOURCEPATH, null, itemDesPath, function() {
-          console.log("success");
+      util.log("item.path="+item.path);
+      var desFilePath = item.path.replace(CATEGORY_NAME,DES_DIR)+".md";
+      util.log("desPath="+desFilePath);
+      dataDes.updateItem(desFilePath,updateItem, function() {
+        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], function() {
+          updateItem.category = CATEGORY_NAME;
+          var updateItems = new Array();
+          var condition = [];
+          condition.push("URI='" + item.URI + "'");
+          updateItems.conditions = condition;
+          updateItems.push(updateItem);
+          commonDAO.updateItems(updateItems, function(result) {
+            console.log(result);
+            openDataByUriCb(source);
+          });
         });
-      })
+      });
     }
   }
-  var sTableName = getCategoryByUri(uri);
-  commonDAO.findItems(null, sTableName, ["URI = " + "'" + uri + "'"], null, getItemByUriCb);
+  getByUri(uri,getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
 
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
+}
+exports.getRecentAccessData = getRecentAccessData;
+
+/** 
+ * @Method: getGitLog
+ *    To get git log in a specific git repo
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        array, result of git log
+ *
+ **/
+function getGitLog(callback) {
+  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
+  var repoPath = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
+  resourceRepo.getGitLog(repoPath, callback);
+}
+exports.getGitLog = getGitLog;
