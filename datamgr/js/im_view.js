@@ -1,6 +1,9 @@
-var ip = '127.0.0.1';
-var toUser = '';
+var toIP = '';
+var toAccount= '';
+var toUID='';
 var sendTime = '';
+var localAccount='';
+var localUID='';
 
 function _IM_View() {
 }
@@ -11,28 +14,31 @@ _IM_View.prototype = {
 
   showRec: function(msgobj) {
     var msg = msgobj['MsgObj'];
-    ip = msgobj['IP'];
+    toIP = msgobj['IP'];
+    toAccount = msg.from;
     var msgtime = new Date();
     msgtime.setTime(msg.time);
     var time = msgtime.getHours() + ':' + msgtime.getMinutes() + ':' + msgtime.getSeconds();
-
+    $('#header_title').text( 'Talking to '+toAccount);
     $("#popup_dialog").modal('show');
-    document.getElementById('disp_text').value += 'Receive from ' + msg.from + ' ' +  time + '\n' + msg.message + '\n\n';
+    document.getElementById('disp_text').value +=  msg.from + ' ' +  time + '  :\n' + msg.message + '\n\n';
   },
 
-  showSend: function(to){
-    toUser = to["name"];
-    ip = to["ip"];
+  showSend: function(to){ 
+    toAccount = to["account"];
+    toIP = to["ip"];
+    toUID=to['device_id']; 
+    $('#header_title').text( 'Talking to '+toAccount);
     $("#popup_dialog").modal('show');
   },
 
   init: function() {
-    var title = 'Talking';
+    var title = 'Talking to '+toAccount;
     var message = '';
     var data_json = '';
     $("#popup_dialog").remove();
     var header_btn = $('<button type="button" id="top_close_btn" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
-    var header_title = $('<h4 class="modal-title"></h4>');
+    var header_title = $('<h4 class="modal-title" id ="header_title"></h4>');
     header_title.text(title);
     var header = $('<div class="modal-header"></div>');
     header.append(header_btn).append(header_title);
@@ -64,18 +70,23 @@ _IM_View.prototype = {
 
       function sendIMMsgCb(){
         var msg = document.getElementById('send_text').value;
-        document.getElementById('disp_text').value += 'Send to ' +  toUser + ' ' + sendTime + '\n' + msg + '\n\n';
+        document.getElementById('disp_text').value += localAccount + '   ' + sendTime + '  :\n' + msg + '\n\n';
         document.getElementById('send_text').value = '';
       }
+      DataAPI.getLocalData(function(localData){
+        localAccount=localData.account;
+        localUID=localData.UID;
+        var ipset = {};
+        ipset["IP"] = toIP;
+        ipset["UID"] = toUID;// "34234324r34rerfe45r4a"; 
+        var msgtime = new Date();
+        sendTime = msgtime.getHours() + ':' + msgtime.getMinutes() + ':' + msgtime.getSeconds();
 
-      var ipset = {};
-      ipset["IP"] = ip;
-      ipset["UID"] = "34234324r34rerfe45r4a";
-      var msgtime = new Date();
-      sendTime = msgtime.getHours() + ':' + msgtime.getMinutes() + ':' + msgtime.getSeconds();
 
+        DataAPI.sendIMMsg(sendIMMsgCb,ipset, toAccount,document.getElementById('send_text').value);
+      });
 
-      DataAPI.sendIMMsg(sendIMMsgCb,ipset, document.getElementById('send_text').value);
+      
     });
 
     $('#close_button').on('click',function(){

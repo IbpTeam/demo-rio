@@ -15,7 +15,8 @@ var size = 65537;
 
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
-
+exports.LOCALACCOUNT=LOCALACCOUNT;
+exports.LOCALUUID=LOCALUUID;
 /*
  * @method MD5
  *  计算某个字符串的MD5值
@@ -252,6 +253,7 @@ function sendMSGbyAccountNoRSA(TABLE, ACCOUNT, MSG, PORT) {
 }
 
 function senderFunc(ACCOUNT, IPSET, PORT, MSG, SENTCALLBACK) {
+  console.log('LOCALACCOUNT----------------'+LOCALACCOUNT);
   var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
   sendIMMsg(IPSET.IP, PORT, tmpmsg, SENTCALLBACK);
 }
