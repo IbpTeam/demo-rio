@@ -14,9 +14,6 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var util = require('util');
-
- 
 /*
 *getLocalData
 */
@@ -24,8 +21,7 @@ function getLocalData(getLocalDataCb){
   var localJson={};
   localJson['account']=imChat.LOCALACCOUNT;
   localJson['UID']=imChat.LOCALUUID;
-
-  console.log('***********'+util.inspect(localJson));
+ 
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;

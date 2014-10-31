@@ -29,7 +29,7 @@ _IM_View.prototype = {
     toIP = to["ip"];
     toUID=to['device_id']; 
     $('#header_title').text( 'Talking to '+toAccount);
-    $("#popup_dialog").modal('show');
+    $("#popup_dialog").modal('show'); 
   },
 
   init: function() {

@@ -1,10 +1,5 @@
 var imChat = require("../../backend/IM/IMChatNoRSA");
-
-
-function test(){
-  console.log('-------------test imView-------------------');
-}
-exports.test=test;
+var util = require('util');
 
 /*
 *getLocalData
@@ -13,8 +8,7 @@ function getLocalData(getLocalDataCb){
   var localJson={};
   localJson['account']=imChat.LOCALACCOUNT;
   localJson['UID']=imChat.LOCALUUID;
-
-  console.log('***********'+util.inspect(localJson));
+ 
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
@@ -24,8 +18,7 @@ exports.getLocalData = getLocalData;
 *IMChat start Server
 */
 function startIMChatServer(startIMChatServerCb){ 
-  imChat.initIMServerNoRSA(6985, function(msgobj){
-    console.log('&&&&&&&&&&&&&&&&&&'); 
+  imChat.initIMServerNoRSA(6986, function(msgobj){ 
     startIMChatServerCb(msgobj);
   }); 
 }

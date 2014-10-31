@@ -79,10 +79,10 @@ WDC.requireAPI(['data', 'app'], function(data, app){
       folder.use_folder_view_mode();
     });
 
-   // im_view.init();
-   // DataAPI.startIMChatServer(function(msgobj){
-     // im_view.showRec(msgobj);
-  //  });
+    im_view.init();
+    DataAPI.startIMChatServer(function(msgobj){
+      im_view.showRec(msgobj);
+    });
 
   });
 });
