@@ -390,32 +390,17 @@ exports.getRecentAccessData = getRecentAccessData;
  *    Remote device ip.
  * @param deviceAccount
  *    Remote device account.
- * @param repoName
- *    Repository name.
+ * @param resourcesPath
+ *    Repository path.
  * @param callback
  *    Callback.
  */
 function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
   var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
-  //First pull real file
-  //Second pull des file
-  resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,function(files){
-    console.log(files);
-    resourceRepo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,function(files){
-      console.log(files);
-      //TODO base on files, modify data in db
-      callback(deviceId,address,account);
-    });
-  });
+  commonHandle.pullRequest(deviceId,address,account,resourcesPath,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
-
-function getDataByUri(getDataCb, uri) {
-  console.log("read data : " + uri);
-  commonHandle.getDataByUri(getDataCb, uri, CATEGORY_NAME);
-}
-exports.getDataByUri = getDataByUri;
 
 /** 
  * @Method: getGitLog
