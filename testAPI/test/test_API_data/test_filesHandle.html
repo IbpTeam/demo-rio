@@ -211,24 +211,6 @@
     });        
   }
 
-  function getGitLogCb(err,result){
-    var win = window.open('');
-    if(err){
-      print(win,err);
-      return;
-    }
-    win.document.write("test API getGitLog()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  function test_getGitLog(getGitLogCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getGitLog(getGitLogCb,'document');
-    });        
-  }
-
   </script>
 
 <h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
@@ -619,33 +601,6 @@
       data.openDataByUri(openDataByUriCb, test_uri);
     });        
   }
-  </pre>
-</div>
-</div>
-
-<h2 onclick="show('getGitLog')">getGitLog(getGitLogCb)<span><a class="mark" href="#test_getGitLog" id="test_getGitLog" onclick="test_getGitLog(getGitLogCb)">test</a></span></h2>
-<div id="getGitLog" style="display:none;">
-<div style="color:#930000">
-  <pre>
-
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-    具体实现：<br>
-    function getGitLogCb(result){
-      var win = window.open('');
-      win.document.write("test API getGitLog()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+result);
-      win.document.write("&lt;br/&gt;"); 
-    }
-
-    function test_getGitLog(getGitLogCb){
-      WDC.requireAPI(['data'], function(data){
-        data.getGitLog(getGitLogCb);
-      });        
-    }
   </pre>
 </div>
 </div>

@@ -157,7 +157,7 @@ function initContacts(loadContactsCb, resourcePath) {
     }
 
     function isEndCallback(_oDesFiles) {
-      resourceRepo.repoAddsCommit(contactsPath, _oDesFiles, loadContactsCb);
+      resourceRepo.repoAddsCommit(contactsPath, _oDesFiles, null, loadContactsCb);
     }
     for (var k = 0; k < oContacts.length; k++) {
       var isContactEnd = (k == (oContacts.length - 1));

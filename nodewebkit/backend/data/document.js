@@ -35,6 +35,10 @@ var device = require('./device');
 //@const
 var CATEGORY_NAME = "document";
 var DES_DIR = "documentDes";
+var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
+var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
+var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
+var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR, 'data');
 
 
 /**
@@ -351,10 +355,11 @@ function openDataByUri(openDataByUriCb, uri) {
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       util.log("item.path=" + item.path);
-      var desFilePath = item.path.replace(CATEGORY_NAME, DES_DIR) + ".md";
+      var re = new RegExp('/' + CATEGORY_NAME + '/')
+      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], function() {
+        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
@@ -394,10 +399,10 @@ exports.getRecentAccessData = getRecentAccessData;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
-  commonHandle.pullRequest(deviceId,address,account,sRepoPath,sDesRepoPath,callback);
+function pullRequest(deviceId, address, account, resourcesPath, callback) {
+  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath, DES_DIR);
+  commonHandle.pullRequest(deviceId, address, account, sRepoPath, sDesRepoPath, callback);
 }
 exports.pullRequest = pullRequest;
 
@@ -416,10 +421,67 @@ exports.pullRequest = pullRequest;
  *
  **/
 function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!');
-  var repoPath = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-  resourceRepo.getGitLog(repoPath, callback);
+  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
+  resourceRepo.getGitLog(REAL_REPO_DIR, callback);
 }
 exports.getGitLog = getGitLog;
 
-
+/** 
+ * @Method: repoReset
+ *    To reset git repo to a history commit version. This action would also res-
+ *    -des file repo
+ *
+ * @param1: repoResetCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: commitID
+ *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ *
+ **/
+function repoReset(commitID, callback) {
+  getGitLog(function(err, oGitLog) {
+    if (err) {
+      callback(err, null);
+    } else {
+      var desCommitID = oGitLog[commitID].content.relateCommit;
+      if (desCommitID) {
+        resourceRepo.repoReset(REAL_REPO_DIR, commitID, function(err, result) {
+          if (err) {
+            console.log(err);
+            callback({
+              'document': err
+            }, null);
+          } else {
+            resourceRepo.repoReset(DES_REPO_DIR, desCommitID, function(err, result) {
+              if (err) {
+                console.log(err);
+                callback({
+                  'document': err
+                }, null);
+              } else {
+                console.log('reset success!')
+                callback(null, result)
+              }
+            })
+          }
+        })
+      } else {
+        var _err = 'related des commit id error!';
+        console.log(_err);
+        callback({
+          'document': _err
+        }, null);
+      }
+    }
+  })
+}
+exports.repoReset = repoReset;
