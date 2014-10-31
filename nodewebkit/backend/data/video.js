@@ -21,7 +21,7 @@ var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "video";
-var DES_DIR = "videoDes";
+var DES_DIR_NAME = "videoDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
@@ -235,7 +235,7 @@ exports.openDataByUri = openDataByUri;
  */
 function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR_NAME);
   commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
