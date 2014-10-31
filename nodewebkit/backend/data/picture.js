@@ -36,7 +36,6 @@ var DES_DIR = "pictureDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR, 'data');
 
 
 /**
@@ -388,10 +387,10 @@ exports.openDataByUri = openDataByUri;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId, address, account, resourcesPath, callback) {
-  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath, DES_DIR);
-  commonHandle.pullRequest(deviceId, address, account, sRepoPath, sDesRepoPath, callback);
+function pullRequest(deviceId,address,account,resourcesPath,callback){
+  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
+  commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
 
