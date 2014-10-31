@@ -32,7 +32,7 @@ var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "music";
-var DES_DIR_NAME = "musicDes";
+var DES_DIR = "musicDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
@@ -392,7 +392,7 @@ exports.getRecentAccessData = getRecentAccessData;
  */
 function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
   commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
