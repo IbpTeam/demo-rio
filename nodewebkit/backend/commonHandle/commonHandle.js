@@ -22,7 +22,6 @@ var config = require("../config");
 var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
 var commonDAO = require("./CommonDAO");
-var resourceRepo = require("./repo");
 var device = require("../data/device");
 var util = require('util');
 var events = require('events');
@@ -30,6 +29,7 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
+var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
 
 var writeDbNum = 0;
@@ -39,7 +39,6 @@ var dataPath;
 var DATA_PATH = "data";
 
 function copyFile(oldPath, newPath, callback) {
-  var repeat = 0;
   fs_extra.copy(oldPath, newPath, function(err) {
     if (err) {
       console.log(err);
@@ -83,28 +82,32 @@ function copyFile(oldPath, newPath, callback) {
  *
  */
 function createData(item, callback) {
-  var itemPath = item.path;
-  var itemFilename = item.filename + item.postfix;
+  var sOriginPath = item.path;
+  var sFileName = item.filename + '.' + item.postfix;
   var category = item.category;
-  var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-  var dest = resourcesPath + '/data/' + itemFilename;
-  var desPath = resourcesPath + 'Des';
-  var desDest = desPath + '/' + itemFilename + '.md';
-  copyFile(itemPath, dest, function(result) {
+  var sRealRepoDir = utils.getRealRepoDir(category);
+  var sDesRepoDir = utils.getDesRepoDir(category);
+  var sRealDir = utils.getRealDir(category);
+  var sDesDir = utils.getDesDir(category);
+  var sFilePath = path.join(sRealDir, sFileName);
+  var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+  item.path = sFilePath;
+  copyFile(sOriginPath, sFilePath, function(result) {
     if (result !== 'success') {
       console.log(result);
       return;
     }
-    var itemDesPath = resourcesPath + 'Des/';
-    dataDes.createItem(item, itemDesPath, function() {
+    dataDes.createItem(item, sDesDir, function() {
       commonDAO.createItem(item, function(err) {
         if (err) {
           console.log(err);
           return;
         }
-        resourceRepo.repoAddsCommit(resourcesPath, [dest], function() {
-          resourceRepo.repoAddsCommit(desPath, [desDest], function() {
-            callback('success');
+        repo.repoAddsCommit(sDesRepoDir, [sDesFilePath], null, function() {
+          repo.getLatestCommit(sDesRepoDir, function(commitID) {
+            repo.repoAddsCommit(sRealRepoDir, [sFilePath], commitID, function() {
+              callback('success');
+            })
           })
         });
       })
@@ -161,31 +164,34 @@ function createDataAll(items, callback) {
   for (var i = 0; i < itemsRename.length; i++) {
     var item = itemsRename[i];
     (function(_item) {
-      var itemPath = _item.path;
-      var itemFilename = _item.filename + '.' + _item.postfix;
+      var sOriginPath = _item.path;
+      var sFileName = _item.filename + '.' + _item.postfix;
       var category = _item.category;
-      var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-      var dest = resourcesPath + '/data/' + itemFilename;
-      _item.path = dest;
-      var desPath = resourcesPath + 'Des';
-      var desDest = desPath + '/' + itemFilename + '.md';
-      copyFile(itemPath, dest, function(result) {
+      var sRealRepoDir = utils.getRealRepoDir(category);
+      var sDesRepoDir = utils.getDesRepoDir(category);
+      var sDesDir = utils.getDesDir(category);
+      var sRealDir = utils.getRealDir(category);
+      var sFilePath = path.join(sRealDir, sFileName);
+      var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+      _item.path = sFilePath;
+      copyFile(sOriginPath, sFilePath, function(result) {
         if (result !== 'success') {
           console.log(result);
           return;
         }
-        var itemDesPath = resourcesPath + 'Des/data';
-        dataDes.createItem(_item, itemDesPath, function() {
+        dataDes.createItem(_item, sDesDir, function() {
           allItems.push(_item);
-          allItemPath.push(dest);
-          allDesPath.push(itemDesPath + '/' + itemFilename + '.md');
+          allItemPath.push(sFilePath);
+          allDesPath.push(sDesFilePath);
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              resourceRepo.repoAddsCommit(resourcesPath, allItemPath, function() {
-                resourceRepo.repoAddsCommit(desPath, allDesPath, function() {
-                  console.log('create data all success!');
-                  callback('success');
+              repo.repoAddsCommit(sDesRepoDir, allDesPath, null, function() {
+                repo.getLatestCommit(sDesRepoDir, function(commitID) {
+                  repo.repoAddsCommit(sRealRepoDir, allItemPath, commitID, function() {
+                    console.log('create data all success!');
+                    callback('success');
+                  })
                 })
               });
             })
@@ -197,11 +203,6 @@ function createDataAll(items, callback) {
   }
 }
 exports.createDataAll = createDataAll;
-
-var commonDao = require("./CommonDAO");
-var utils = require("../utils");
-var repo = require("./repo");
-
 
 exports.getItemByUri = function(category, uri, callback) {
   var conditions = ["URI = " + "'" + uri + "'"];
@@ -233,12 +234,15 @@ exports.removeFile = function(category, item, callback) {
         return;
       }
       //TODO git commit
+      var aDesFiles = [sDesFullName];
+      var sDesDir = utils.getDesDir(category);
       var aRealFiles = [sFullName];
       var sRealDir = utils.getRealDir(category);
-      repo.repoRmsCommit(sRealDir, aRealFiles, function() {
-        var aDesFiles = [sDesFullName];
-        var sDesDir = utils.getDesDir(category);
-        repo.repoRmsCommit(sDesDir, aDesFiles, callback);
+      var sDesRepoDir = utils.getDesRepoDir(category);
+      repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
+        repo.getLatestCommit(sDesRepoDir, function(commitID) {
+          repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
+        })
       });
     });
   });
@@ -301,14 +305,35 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   }
 }
 
-function getRecentAccessData(category, getRecentAccessDataCb, num) {
+/** 
+ * @Method: repoReset
+ *    To reset git repo to a history commit version. This action would also res-
+ *    -des file repo
+ *
+ * @param1: repoResetCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: commitID
+ *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ *
+ **/
+exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
   function findItemsCb(err, items) {
     if (err) {
       console.log(err);
-      return getRecentAccessDataCb(err,null);
+      return getRecentAccessDataCb(err, null);
     }
     var DataByNum = utils.getRecent(items, num);
-    getRecentAccessDataCb(null,DataByNum);
+    getRecentAccessDataCb(null, DataByNum);
     for (var k in DataByNum) {
       console.log(DataByNum[k].lastAccessTime);
     }
@@ -316,7 +341,60 @@ function getRecentAccessData(category, getRecentAccessDataCb, num) {
   var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
 }
-exports.getRecentAccessData = getRecentAccessData;
+
+exports.updateDB = function(category, updateDBCb) {
+  var desRepoDir = utils.getDesDir(category);
+  fs.readdir(desRepoDir, function(err, files) {
+    if (err) {
+      console.log(err);
+      updateDBCb({
+        'commonHandle': err
+      }, null);
+    } else {
+      var allFileInfo = [];
+      var count = 0;
+      var lens = files.length;
+      console.log(files);
+      for (var i = 0; i < lens; i++) {
+        var fileItem = path.join(utils.getDesDir(category), files[i]);
+        var isEnd = (count === lens - 1);
+        (function(_fileItem, _isEnd) {
+          fs.readFile(_fileItem, 'utf8', function(err, data) {
+            var oFileInfo = JSON.parse(data);
+            console.log('$$$$$$$$$$$$$$', oFileInfo)
+            allFileInfo.push(oFileInfo);
+            if (_isEnd) {
+              console.log(allFileInfo)
+              var items = [{
+                category: category
+              }];
+              commonDAO.deleteItems(items, function(result) {
+                if (result == 'commit') {
+                  commonDAO.createItems(allFileInfo, function(result) {
+                    if (result == 'commit') {
+                      updateDBCb(null, 'success');
+                    } else {
+                      var _err = {
+                        'commonHandle': 'create items error!'
+                      }
+                      updateDBCb(_err, null);
+                    }
+                  })
+                } else {
+                  var _err = {
+                    'commonHandle': 'delete items error!'
+                  }
+                  updateDBCb(_err, null);
+                }
+              })
+            }
+          })
+          count++;
+        })(fileItem, isEnd)
+      }
+    }
+  })
+}
 
 /**
  * @method pullRequest
@@ -358,19 +436,19 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
 exports.pullRequest = pullRequest;
 
 function syncOnlineReq(repo) {
-  var msgObj={
-    type:"syncOnline",
-    ip:config.SERVERIP,
-    path:repo,
-    account:config.ACCOUNT,
-    deviceId:config.uniqueID
+  var msgObj = {
+    type: "syncOnline",
+    ip: config.SERVERIP,
+    path: repo,
+    account: config.ACCOUNT,
+    deviceId: config.uniqueID
   };
-  for (var index in device.devicesList) {  
-    if(device.devicesList[index].online==true){
-      if(device.devicesList[index].ip!=config.SERVERIP){
-        transfer.sendMsg(device.devicesList[index],msgObj);
+  for (var index in device.devicesList) {
+    if (device.devicesList[index].online == true) {
+      if (device.devicesList[index].ip != config.SERVERIP) {
+        transfer.sendMsg(device.devicesList[index], msgObj);
       }
     }
-  }  
+  }
 }
 exports.syncOnlineReq = syncOnlineReq;
