@@ -1,30 +1,41 @@
-var commonDAO = require("../../backend/DAO/CommonDAO");
+var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
-var contacts = require("../../backend/ContactsHandle/contacts");
-var devices = require("../../backend/devices");
-var tagsHandle = require("../../backend/tagsHandle");
-var desktopConf = require("../../backend/Desktop/desktopConf")
-var imChat = require("../../backend/IM/IMChatNoRSA")
+var desktopConf = require("../../backend/data/desktop");
+var contacts = require("../../backend/data/contacts");
+var documents = require("../../backend/data/document");
+var pictures = require("../../backend/data/picture");
+var video = require("../../backend/data/video");
+var music = require("../../backend/data/music");
+var devices = require("../../backend/data/device");
+var tagsHandle = require("../../backend/commonHandle/tagsHandle");
+var commonHandle = require("../../backend/commonHandle/commonHandle");
+var imChat = require("../../backend/IM/IMChatNoRSA");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
+var docHandle = require('../../backend/data/document');
+var picHandle = require('../../backend/data/picture');
+var musHandle = require('../../backend/data/music');
+var vidHandle = require('../../backend/data/video');
+var dskhandle = require('../../backend/data/desktop');
+var repo = require('../../backend/commonHandle/repo');
 
 /*
-*IMChat
-*/
-function startIMChatServer(startIMChatServerCb){
-  imChat.initIMServerNoRSA(6986, function(msgobj){
+ *IMChat
+ */
+function startIMChatServer(startIMChatServerCb) {
+  imChat.initIMServerNoRSA(6986, function(msgobj) {
     startIMChatServerCb(msgobj);
   });
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb,ipset, msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,"rtty123", msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb, ipset, msg) {
+  imChat.sendMSGbyUIDNoRSA(ipset, "rtty123", msg, 6986, sendIMMsgCb);
 }
-exports.sendIMMsg=sendIMMsg;
+exports.sendIMMsg = sendIMMsg;
 
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
@@ -42,7 +53,89 @@ exports.sendIMMsg=sendIMMsg;
  */
 function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
-  filesHandle.initData(loadResourcesCb, path);
+  var DocList = [];
+  var MusList = [];
+  var PicList = [];
+  var DskList = [];
+
+  function walk(path, pathDes) {
+    var dirList = fs.readdirSync(path);
+    dirList.forEach(function(item) {
+      if (fs.statSync(path + '/' + item).isDirectory()) {
+        if (item != '.git' && item != '.des' && item != 'contacts') {
+          if (item == 'html5ppt') {
+            /*var html5pptList = fs.readdirSync(path + '/' + item);
+            for (var i = 0; i < html5pptList.length; i++) {
+              var filename = item + '/' + html5pptList[i] + '.html5ppt';
+              fileList.push(path + '/' + filename);
+            }*/
+          } else {
+            walk(path + '/' + item);
+          }
+        }
+      } else {
+        var sPosIndex = (item).lastIndexOf(".");
+        var sPos = item.slice(sPosIndex + 1, item.length);
+        if (sPos != 'csv' && sPos != 'CSV') {
+          if (sPos == 'none' ||
+            sPos == 'ppt' ||
+            sPos == 'pptx' ||
+            sPos == 'doc' ||
+            sPos == 'docx' ||
+            sPos == 'wps' ||
+            sPos == 'odt' ||
+            sPos == 'et' ||
+            sPos == 'txt' ||
+            sPos == 'xls' ||
+            sPos == 'xlsx' ||
+            sPos == 'ods' ||
+            sPos == 'zip' ||
+            sPos == 'sh' ||
+            sPos == 'gz' ||
+            sPos == 'html' ||
+            sPos == 'et' ||
+            sPos == 'odt' ||
+            sPos == 'pdf' ||
+            sPos == 'html5ppt') {
+            DocList.push(path + '/' + item);
+          } else if (sPos == 'jpg' || sPos == 'png') {
+            PicList.push(path + '/' + item);
+          } else if (sPos == 'mp3' || sPos == 'ogg') {
+            MusList.push(path + '/' + item);
+          } else if (sPos == 'conf' || sPos == 'desktop') {
+            DskList.push(path + '/' + item);
+          }
+        }
+      }
+    });
+  }
+  walk(path);
+
+  docHandle.createData(DocList, function(err, result) {
+    if (err) {
+      console.log(err);
+      callback(err, null);
+    } else {
+
+      picHandle.createData(PicList, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err, null);
+        } else {
+
+          musHandle.createData(MusList, function(err, result) {
+            if (err) {
+              console.log(err);
+              callback(err, null);
+            } else {
+              console.log("load resources success!");
+              loadResourcesCb('success');
+            }
+          })
+        }
+      })
+    }
+  })
 }
 exports.loadResources = loadResources;
 
@@ -80,7 +173,7 @@ exports.loadContacts = loadContacts;
  */
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
-  filesHandle.getAllCate(getAllCateCb)
+  commonHandle.getAllCate(getAllCateCb)
 }
 exports.getAllCate = getAllCate;
 
@@ -113,7 +206,7 @@ function getAllDataByCate(getAllDataByCateCb, cate) {
   if (cate == 'Contacts' || cate == 'contacts') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    filesHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -135,6 +228,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *        }
  */
 function getAllContacts(getAllContactsCb) {
+  console.log("Request handler 'getAllContacts' was called.");
   contacts.getAllContacts(getAllContactsCb);
 }
 exports.getAllContacts = getAllContacts;
@@ -144,15 +238,19 @@ exports.getAllContacts = getAllContacts;
 //成功返回success;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
-  console.log("Request handler 'rmDataById' was called.");
-  filesHandle.rmDataByUri(rmDataByUriCb, uri);
+  console.log("Request handler 'rmDataByUri' was called.");
+  var cate = utils.getCategoryObjectByUri(uri);
+  console.log("Request handler 'rmDataByUri' was called. ====" + cate);
+  cate.removeByUri(uri, rmDataByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
-  filesHandle.getDataByUri(getDataByUriCb, uri);
+  console.log("Request handler 'getDataByUri' was called.");
+  var cate = utils.getCategoryObjectByUri(uri);
+  cate.getByUri(uri, getDataByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -187,7 +285,8 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  filesHandle.openDataByUri(function(result) {
+  var cate = utils.getCategoryObjectByUri(uri);
+  cate.openDataByUri(function(result) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
@@ -215,7 +314,43 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  filesHandle.getRecentAccessData(getRecentAccessDataCb, num);
+  var allItems = [];
+  docHandle.getRecentAccessData(num, function(err_doc, result_doc) {
+    if (err_doc) {
+      console.log(err_doc);
+      return;
+    }
+    console.log(result_doc);
+    allItems = allItems.concat(result_doc);
+    picHandle.getRecentAccessData(num, function(err_pic, result_pic) {
+      if (err_pic) {
+        console.log(err_pic);
+        return;
+      }
+      console.log(result_pic);
+      allItems = allItems.concat(result_pic);
+      musHandle.getRecentAccessData(num, function(err_mus, result_mus) {
+        if (err_mus) {
+          console.log(err_mus);
+          return;
+        }
+        console.log(result_mus);
+        allItems = allItems.concat(result_mus);
+        vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
+          if (err_vid) {
+            console.log(err_vid);
+            return;
+          }
+          console.log(result_vid);
+          allItems = allItems.concat(result_vid);
+          console.log(allItems);
+          var resultRecentAccess = utils.getRecent(allItems, num);
+          console.log('get recent success!');
+          getRecentAccessDataCb(resultRecentAccess);
+        })
+      })
+    })
+  })
 }
 exports.getRecentAccessData = getRecentAccessData;
 
@@ -306,7 +441,7 @@ function getResourceDataDir(getResourceDataDirCb) {
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER', function(error, stdout, stderr) {
     var usrname = stdout.replace("\n", "");
-    var data = require('/home/' + usrname + '/.demo-rio/config');
+    var data = '/home/' + usrname + '/.demo-rio/config';
     getResourceDataDirCb(data.dataDir);
   });
 }
@@ -430,6 +565,14 @@ function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
   tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
 }
 exports.rmTagsByUri = rmTagsByUri;
+
+
+function initDesktop(initDesktopCb) {
+  console.log("Request handler 'initDesktop' was called.");
+  desktopConf.initDesktop(initDesktopCb);
+}
+exports.initDesktop = initDesktop;
+
 
 /** 
  * @Method: readThemeConf
@@ -795,7 +938,7 @@ exports.shellExec = shellExec;
 
 /** 
  * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath. 
+ *    To copy a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content,just like command cp -r.
  *
  * @param1: callback
@@ -830,7 +973,7 @@ exports.copyFile = copyFile;
  * @Method: moveFile
  *    To move a file or dir from oldPath to newPath.
  *    !!!The dir CAN have content and contend would be move to new dir as well.
- *    !!!Notice that if you are moving a dir, the newPath has to be a none exist 
+ *    !!!Notice that if you are moving a dir, the newPath has to be a none exist
  *    !!!new dir, otherwise comes error.
  *
  * @param1: callback
@@ -860,3 +1003,74 @@ function moveFile(moveFileCb, oldPath, newPath) {
   desktopConf.moveFile(moveFileCb, oldPath, newPath);
 }
 exports.moveFile = moveFile;
+
+/** 
+ * @Method: renameDesktopFile
+ *    To rename a desktop file
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ * @param2: oldName
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'example.desktop'
+ *
+ * @param3: newName
+ *    string, a new name that you want to set
+ *    example: var newName = 'newName'
+ *
+ **/
+function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
+  console.log("Request handler 'renameDesktopFile' was called.");
+  desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+}
+exports.renameDesktopFile = renameDesktopFile;
+
+function pullFromOtherRepoTest() {
+  repo.pullFromOtherRepoTest();
+}
+exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
+/** 
+ * @Method: getGitLog
+ *    To get git log in a specific git repo
+ *
+ * @param1: getGitLogCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        array, result of git log
+ *
+ *        example:
+ *        [{
+ *          "commitID": "fb8741699802459bfb5e6ba36c9a7ec894134943",
+ *          "Author": " \u201Cshuanzi\u201D \u003C\u201Cdaixiquan@gmail.com\u201D\u003E",
+ *          "Date": "   Thu Oct 30 16:03:52 2014 +0800",
+ *          "content": {
+ *                      "device": "ace6f9045d75a83682e76288f79dd824",
+ *                      "op": "add",
+ *                      "file": ["/home/xiquan/.resources/document/data/Release_note_0.7.txt"]
+ *                     }
+ *         }]
+ *
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ **/
+function getGitLog(getGitLogCb,category) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.getGitLog(getGitLogCb);
+}
+exports.getGitLog = getGitLog;
+

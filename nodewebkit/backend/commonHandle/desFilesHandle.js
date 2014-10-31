@@ -12,10 +12,10 @@
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var path = require("path");
-var bfh = require("./basicFileHandle");
 var filesHandle = require("../filesHandle");
-var commonDAO = require("../DAO/CommonDAO");
+var commonDAO = require("./CommonDAO");
 
 
 // @const
@@ -75,7 +75,7 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
+  fs_extra.writeFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
@@ -172,11 +172,9 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
-exports.updateItem = function(chItem,attrs,itemDesPath,callback){
-  var nameindex=chItem.lastIndexOf('/');
-  var fileName=chItem.substring(nameindex+1,chItem.length);
-  var desFilePath = itemDesPath+"/"+fileName+".md";
-  fs.readFile(desFilePath,'utf8',function(err,data){
+exports.updateItem = function(file,attrs,callback){
+  console.log("update::::::::::"+file);
+  fs.readFile(file,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
        console.log(err);
@@ -187,7 +185,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
         json[attr]=attrs[attr];
       }
       var sItem = JSON.stringify(json,null,4);
-      fs.open(desFilePath,"w",0644,function(err,fd){
+      fs.open(file,"w",0644,function(err,fd){
         if(err){
           console.log("open des file error!");         
         }
@@ -226,11 +224,12 @@ exports.updateItems = function(oItems,callback){
     var category = item.category;
     var filePath = "";
     var desFilePath = "";
-    if(category === "Contacts"){
-      desFilePath = config.RESOURCEPATH + '/.des/contacts/'+item.name+'.md';
+    if(category === "contact"){
+      desFilePath = config.RESOURCEPATH + '/contactDes/data/'+item.name+'.md';
     }else{
       filePath = item.path;
-      desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
+      var re = new RegExp('/'+category.toLowerCase()+'/', "i");
+      desFilePath = (filePath.replace(re,'/'+category.toLowerCase()+'Des/')) + '.md';
     }
     updateItemsHelper(callback,desFilePath,item);
   }

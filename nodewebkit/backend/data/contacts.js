@@ -1,12 +1,28 @@
-var commonDAO = require("../DAO/CommonDAO");
-var dataDes = require("../FilesHandle/desFilesHandle");
+/**
+ * @Copyright:
+ *
+ * @Description: Documents Handle.
+ *
+ * @author: Wangfeng Xiquan Yuanzhe
+ *
+ * @Data:2014.10.28
+ *
+ * @version:0.3.0
+ **/
+
+var commonDAO = require("../commonHandle/CommonDAO");
+var dataDes = require("../commonHandle/desFilesHandle");
+var commonHandle = require("../commonHandle/commonHandle");
 var pathModule = require('path');
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
-var resourceRepo = require("../FilesHandle/repo");
+var resourceRepo = require("../commonHandle/repo");
+
+var CATEGORY_NAME = "contact";
 
 /**
  * @method getAllContacts
@@ -32,7 +48,7 @@ function getAllContacts(getAllCb) {
       console.log(err);
       return;
     }
-    var contacts = new Array();
+    var contacts = [];
     data.forEach(function(each) {
       contacts.push({
         URI: each.URI,
@@ -46,7 +62,7 @@ function getAllContacts(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.findItems(null, ['Contacts'], null, null, getAllByCaterotyCb);
+  commonDAO.findItems(null, [CATEGORY_NAME], null, null, getAllByCaterotyCb);
 }
 exports.getAllContacts = getAllContacts;
 
@@ -76,7 +92,7 @@ name, phone, sex, age, email, photoPath
  */
 function addContact(Item, sItemDesPath, isContactEnd, callback) {
   function getFileUidCb(uri) {
-    var category = 'Contacts';
+    var category = CATEGORY_NAME;
     var currentTime = (new Date());
     var oNewItem = {
       id: null,
@@ -130,39 +146,34 @@ function initContacts(loadContactsCb, resourcePath) {
 
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
-    var oContacts = new Array();
+    var oContacts = [];
+    var oDesFiles = [];
+    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
+    var dataDesPath = contactsPath + "/data";
     for (var k in oJson) {
       if (oJson[k].hasOwnProperty("\u59D3")) {
         oContacts.push(oJson[k]);
       }
     }
-    var dataDesPath = config.RESOURCEPATH + "/.des/contacts";
 
-    function mkdirCb(err) {
-      if (err) {
-        console.log("mk contacts desPath error!");
-        console.log(err);
-        return;
-      } else {
-        function isEndCallback() {
-          resourceRepo.repoContactInit(config.RESOURCEPATH, loadContactsCb);
-        }
-        var oNewItems = new Array();
-        for (var k = 0; k < oContacts.length; k++) {
-          var isContactEnd = (k == (oContacts.length - 1));
-          addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
-            commonDAO.createItem(oContact, function() {
-              if (isContactEnd) {
-                isEndCallback();
-                console.log("succcess");
-                console.log("initContacts is end!!!");
-              }
-            })
-          })
-        }
-      }
+    function isEndCallback(_oDesFiles) {
+      resourceRepo.repoAddsCommit(contactsPath, _oDesFiles, loadContactsCb);
     }
-    fs.mkdir(dataDesPath, mkdirCb);
+    for (var k = 0; k < oContacts.length; k++) {
+      var isContactEnd = (k == (oContacts.length - 1));
+      addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
+        var contactName = oContact.name;
+        var contactPath = dataDesPath + '/' + contactName + '.md';
+        oDesFiles.push(contactPath);
+        commonDAO.createItem(oContact, function() {
+          if (isContactEnd) {
+            isEndCallback(oDesFiles);
+            console.log("succcess");
+            console.log("initContacts is end!!!");
+          }
+        })
+      })
+    }
   }
   csvtojson.csvTojson(sItemPath, csvTojsonCb);
 }
