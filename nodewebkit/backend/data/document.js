@@ -29,7 +29,6 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
-var transfer = require('../Transfer/msgTransfer');
 var device = require('./device');
 
 
@@ -365,7 +364,7 @@ function openDataByUri(openDataByUriCb, uri) {
           commonDAO.updateItems(updateItems, function(result) {
             console.log(result);
             openDataByUriCb(source);
-            syncOnlineReq(utils.getDesRepoDir(CATEGORY_NAME));
+            commonHandle.syncOnlineReq(utils.getDesRepoDir(CATEGORY_NAME));
           });
         });
       });
@@ -423,19 +422,4 @@ function getGitLog(callback) {
 }
 exports.getGitLog = getGitLog;
 
-function syncOnlineReq(repo) {
-  var msgObj={
-    type:"syncOnline",
-    ip:config.SERVERIP,
-    path:repo,
-    account:config.ACCOUNT,
-    deviceId:config.uniqueID,
-    pubKey:pubKeyStr
-  };
-  for (var index in devicesList) {  
-    if(devicesList[index].online==true){
-      transfer.sendMsg(devicesList[index],sMsgStr);
-    }
-  }  
-}
-exports.syncOnlineReq = syncOnlineReq;
+

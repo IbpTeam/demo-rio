@@ -102,7 +102,7 @@ function sendMsg(device,msgObj){
   console.log("sendMsg-------------------------"+sMsgStr);
   imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
 }
-
+exports.sendMsg=sendMsg;
 /**
  * @method sendMsgCb
  *    Received from remote when message arrived.
@@ -517,7 +517,7 @@ function syncOnline(msgObj) {
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   if(iCurrentState == syncState.SYNC_IDLE){
-    pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
+    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
       console.log(result);
     });
   }
