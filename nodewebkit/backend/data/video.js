@@ -231,7 +231,7 @@ exports.openDataByUri = openDataByUri;
 function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
   var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
-  commonHandle.pullRequest(deviceId,address,account,resourcesPath,sRepoPath,sDesRepoPath,callback);
+  commonHandle.pullRequest(deviceId,address,account,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
 

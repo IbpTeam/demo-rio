@@ -12,9 +12,8 @@ var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
 var keySizeBits = 1024;
 var size = 65537;
-
-var LOCALACCOUNT = uniqueID.Account;
-var LOCALUUID = uniqueID.uniqueID;
+var LOCALACCOUNT = 'yuanzhe';
+var LOCALUUID = 'testtest';
 
 /*
  * @method MD5
