@@ -30,6 +30,7 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
+var transfer = require('../Transfer/msgTransfer');
 
 var writeDbNum = 0;
 var dataPath;
@@ -342,3 +343,21 @@ function pullRequest(deviceId,address,account,repoPath,desRepoPath,callback){
   });
 }
 exports.pullRequest = pullRequest;
+
+function syncOnlineReq(repo) {
+  var msgObj={
+    type:"syncOnline",
+    ip:config.SERVERIP,
+    path:repo,
+    account:config.ACCOUNT,
+    deviceId:config.uniqueID
+  };
+  for (var index in device.devicesList) {  
+    if(device.devicesList[index].online==true){
+      if(device.devicesList[index].ip!=config.SERVERIP){
+        transfer.sendMsg(device.devicesList[index],msgObj);
+      }
+    }
+  }  
+}
+exports.syncOnlineReq = syncOnlineReq;

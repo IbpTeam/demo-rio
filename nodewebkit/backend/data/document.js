@@ -29,6 +29,7 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
+var device = require('./device');
 
 
 //@const
@@ -363,6 +364,7 @@ function openDataByUri(openDataByUriCb, uri) {
           commonDAO.updateItems(updateItems, function(result) {
             console.log(result);
             openDataByUriCb(source);
+            commonHandle.syncOnlineReq(utils.getDesRepoDir(CATEGORY_NAME));
           });
         });
       });
@@ -419,3 +421,5 @@ function getGitLog(callback) {
   resourceRepo.getGitLog(repoPath, callback);
 }
 exports.getGitLog = getGitLog;
+
+
