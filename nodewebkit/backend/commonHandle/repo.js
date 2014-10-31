@@ -25,20 +25,25 @@ exports.repoInit = function (repoPath,callback)
   });  
 }
 
-exports.repoAddsCommit = function (repoPath,files,callback)
+exports.repoAddsCommit = function (repoPath,files,commitID,callback)
 {
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath;
   for(var k in files) {
     comstr = comstr+' && git add "'+files[k]+'"';
   }
-  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"add\",'+'\"file\":["'+files.join('","')+'"]}';
+
+  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID+'",') : ("");
+  var deviceInfo = '"device":"' + config.uniqueID + '"';
+  var opInfo = '"op":"add"';
+  var fileInfo = '"file":["' + files.join('","') + '"]';
+  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr+" && git commit -m '"+commitLog+"'";
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
     if(error){
       console.log("Git add error");
-      console.log(error)
+      console.log(error,stderr)
     }
     else{
       console.log("Git add success");
@@ -48,14 +53,18 @@ exports.repoAddsCommit = function (repoPath,files,callback)
 }
 
 
-exports.repoRmsCommit = function (repoPath,files,callback)
+exports.repoRmsCommit = function (repoPath,files,commitID,callback)
 {
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath;
   for(var k in files) {
     comstr = comstr+' && git rm "'+files[k]+'"';
   }
-  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"rm\",'+'\"file\":["'+files.join('","')+'"]}';
+  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID+'",') : ("");
+  var deviceInfo = '"device":"' + config.uniqueID + '"';
+  var opInfo = '"op":"rm"';
+  var fileInfo = '"file":["' + files.join('","') + '"]';
+  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr+" && git commit -m '"+commitLog+"'";
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
   exec(comstr, function(error,stdout,stderr){
@@ -69,14 +78,18 @@ exports.repoRmsCommit = function (repoPath,files,callback)
   });
 }
 
-exports.repoChsCommit = function (repoPath,files,callback)
+exports.repoChsCommit = function (repoPath,files,commitID,callback)
 {
   var  exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath;
   for(var k in files) {
     comstr = comstr+' && git add "'+files[k]+'"';
   }
-  var commitLog='{\"device\":\"'+config.uniqueID+'\",\"op\":\"ch\",'+'\"file\":["'+files.join('","')+'"]}';
+  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID+'",') : ("");
+  var deviceInfo = '"device":"' + config.uniqueID + '"';
+  var opInfo = '"op":"ch"';
+  var fileInfo = '"file":["' + files.join('","') + '"]';
+  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr+" && git commit -m '"+commitLog+"'";
     console.log(files);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n"+comstr);
@@ -188,7 +201,6 @@ exports.getGitLog = function(repoPath, callback) {
         commitLog.push(tmplogItem);
       }
     }
-    console.log(commitLog);
     callback(null, commitLog)
   })
 }

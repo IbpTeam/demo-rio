@@ -342,7 +342,6 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
           }
           console.log(result_vid);
           allItems = allItems.concat(result_vid);
-          console.log(allItems);
           var resultRecentAccess = utils.getRecent(allItems, num);
           console.log('get recent success!');
           getRecentAccessDataCb(resultRecentAccess);
@@ -1062,10 +1061,9 @@ exports.renameDesktopFile = renameDesktopFile;
  *    string, a category name, as 'document'
  *
  **/
-function getGitLog(getGitLogCb,category) {
+function getGitLog(getGitLogCb, category) {
   console.log("Request handler 'getGitLog' was called.");
   var cate = utils.getCategoryObject(category);
   cate.getGitLog(getGitLogCb);
 }
 exports.getGitLog = getGitLog;
-

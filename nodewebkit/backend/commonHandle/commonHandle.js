@@ -22,7 +22,6 @@ var config = require("../config");
 var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
 var commonDAO = require("./CommonDAO");
-var resourceRepo = require("./repo");
 var device = require("../data/device");
 var util = require('util');
 var events = require('events');
@@ -30,13 +29,13 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
+var repo = require("./repo");
 
 var writeDbNum = 0;
 var dataPath;
 
 
 function copyFile(oldPath, newPath, callback) {
-  var repeat = 0;
   fs_extra.copy(oldPath, newPath, function(err) {
     if (err) {
       console.log(err);
@@ -80,28 +79,31 @@ function copyFile(oldPath, newPath, callback) {
  *
  */
 function createData(item, callback) {
-  var itemPath = item.path;
-  var itemFilename = item.filename + item.postfix;
+  var sOriginPath = item.path;
+  var sFileName = item.filename + '.' + item.postfix;
   var category = item.category;
-  var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-  var dest = resourcesPath + '/data/' + itemFilename;
-  var desPath = resourcesPath + 'Des';
-  var desDest = desPath + '/' + itemFilename + '.md';
-  copyFile(itemPath, dest, function(result) {
+  var sRealRepoDir = utils.getRealRepoDir(category);
+  var sDesRepoDir = utils.getDesRepoDir(category);
+  var sRealDir = utils.getRealDir(category);
+  var sDesDir = utils.getDesDir(category);
+  var sFilePath = path.join(sRealDir, sFileName);
+  var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+  copyFile(sOriginPath, sFilePath, function(result) {
     if (result !== 'success') {
       console.log(result);
       return;
     }
-    var itemDesPath = resourcesPath + 'Des/';
-    dataDes.createItem(item, itemDesPath, function() {
+    dataDes.createItem(item, sDesDir, function() {
       commonDAO.createItem(item, function(err) {
         if (err) {
           console.log(err);
           return;
         }
-        resourceRepo.repoAddsCommit(resourcesPath, [dest], function() {
-          resourceRepo.repoAddsCommit(desPath, [desDest], function() {
-            callback('success');
+        repo.repoAddsCommit(sDesRepoDir, [sDesFilePath], null, function() {
+          repo.getLatestCommit(sDesRepoDir, function(commitID) {
+            repo.repoAddsCommit(sRealRepoDir, [sFilePath], commitID, function() {
+              callback('success');
+            })
           })
         });
       })
@@ -158,31 +160,33 @@ function createDataAll(items, callback) {
   for (var i = 0; i < itemsRename.length; i++) {
     var item = itemsRename[i];
     (function(_item) {
-      var itemPath = _item.path;
-      var itemFilename = _item.filename + '.' + _item.postfix;
+      var sOriginPath = _item.path;
+      var sFileName = _item.filename + '.' + _item.postfix;
       var category = _item.category;
-      var resourcesPath = config.RESOURCEPATH + '/' + category.toLowerCase();
-      var dest = resourcesPath + '/data/' + itemFilename;
-      _item.path = dest;
-      var desPath = resourcesPath + 'Des';
-      var desDest = desPath + '/' + itemFilename + '.md';
-      copyFile(itemPath, dest, function(result) {
+      var sRealRepoDir = utils.getRealRepoDir(category);
+      var sDesRepoDir = utils.getDesRepoDir(category);
+      var sDesDir = utils.getDesDir(category);
+      var sRealDir = utils.getRealDir(category);
+      var sFilePath = path.join(sRealDir, sFileName);
+      var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+      copyFile(sOriginPath, sFilePath, function(result) {
         if (result !== 'success') {
           console.log(result);
           return;
         }
-        var itemDesPath = resourcesPath + 'Des/data';
-        dataDes.createItem(_item, itemDesPath, function() {
+        dataDes.createItem(_item, sDesDir, function() {
           allItems.push(_item);
-          allItemPath.push(dest);
-          allDesPath.push(itemDesPath + '/' + itemFilename + '.md');
+          allItemPath.push(sFilePath);
+          allDesPath.push(sDesFilePath);
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              resourceRepo.repoAddsCommit(resourcesPath, allItemPath, function() {
-                resourceRepo.repoAddsCommit(desPath, allDesPath, function() {
-                  console.log('create data all success!');
-                  callback('success');
+              repo.repoAddsCommit(sDesRepoDir, allDesPath, null, function() {
+                repo.getLatestCommit(sDesRepoDir, function(commitID) {
+                  repo.repoAddsCommit(sRealRepoDir, allItemPath, commitID, function() {
+                    console.log('create data all success!');
+                    callback('success');
+                  })
                 })
               });
             })
@@ -194,11 +198,6 @@ function createDataAll(items, callback) {
   }
 }
 exports.createDataAll = createDataAll;
-
-var commonDao = require("./CommonDAO");
-var utils = require("../utils");
-var repo = require("./repo");
-
 
 exports.getItemByUri = function(category, uri, callback) {
   var conditions = ["URI = " + "'" + uri + "'"];
@@ -230,12 +229,15 @@ exports.removeFile = function(category, item, callback) {
         return;
       }
       //TODO git commit
+      var aDesFiles = [sDesFullName];
+      var sDesDir = utils.getDesDir(category);
       var aRealFiles = [sFullName];
       var sRealDir = utils.getRealDir(category);
-      repo.repoRmsCommit(sRealDir, aRealFiles, function() {
-        var aDesFiles = [sDesFullName];
-        var sDesDir = utils.getDesDir(category);
-        repo.repoRmsCommit(sDesDir, aDesFiles, callback);
+      var sDesRepoDir = utils.getDesRepoDir(category);
+      repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
+        repo.getLatestCommit(sDesRepoDir, function(commitID) {
+          repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
+        })
       });
     });
   });
@@ -302,10 +304,10 @@ function getRecentAccessData(category, getRecentAccessDataCb, num) {
   function findItemsCb(err, items) {
     if (err) {
       console.log(err);
-      return getRecentAccessDataCb(err,null);
+      return getRecentAccessDataCb(err, null);
     }
     var DataByNum = utils.getRecent(items, num);
-    getRecentAccessDataCb(null,DataByNum);
+    getRecentAccessDataCb(null, DataByNum);
     for (var k in DataByNum) {
       console.log(DataByNum[k].lastAccessTime);
     }

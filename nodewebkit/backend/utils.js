@@ -114,6 +114,15 @@ exports.getDesDir = function(category) {
   return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
 }
 
+exports.getDesRepoDir = function(category) {
+  var sDirName = category + "Des";
+  return path.join(process.env["HOME"], ".resources", sDirName);
+}
+
+exports.getRealRepoDir = function(category) {
+  return path.join(process.env["HOME"], ".resources", category);
+}
+
 exports.getCategory = function(path) {
   var pointIndex = path.lastIndexOf('.');
   if (pointIndex == -1) {

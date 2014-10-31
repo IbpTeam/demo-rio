@@ -352,7 +352,7 @@ function openDataByUri(openDataByUriCb, uri) {
       util.log("item.path=" + item.path);
       var desFilePath = item.path.replace(CATEGORY_NAME, DES_DIR) + ".md";
       util.log("desPath=" + desFilePath);
-      dataDes.updateItem(desFilePath, updateItem, function() {
+      dataDes.updateItem(desFilePath, updateItem, null, function() {
         resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
@@ -399,3 +399,4 @@ function getGitLog(callback) {
   resourceRepo.getGitLog(repoPath, callback);
 }
 exports.getGitLog = getGitLog;
+

@@ -350,7 +350,7 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(CATEGORY_NAME,DES_DIR)+".md";
       util.log("desPath="+desFilePath);
       dataDes.updateItem(desFilePath,updateItem, function() {
-        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], function() {
+        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];

@@ -689,7 +689,7 @@ function updateDataValue(updateDataValueCb, items) {
         }
         files.push(desFilePath);
       }
-      resourceRepo.repoChsCommit(config.RESOURCEPATH, files, function() {
+      resourceRepo.repoChsCommit(config.RESOURCEPATH, files, null, function() {
         updateDataValueCb('success');
       });
     } else {
