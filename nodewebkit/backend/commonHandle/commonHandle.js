@@ -321,14 +321,18 @@ exports.getRecentAccessData = getRecentAccessData;
 /**
  * @method pullRequest
  *    Fetch from remote and merge.
+ * @param category
+ *    Category.
  * @param deviceId
  *    Remote device id.
  * @param deviceIp
  *    Remote device ip.
  * @param deviceAccount
  *    Remote device account.
- * @param resourcesPath
+ * @param repoPath
  *    Repository path.
+ * @param desRepoPath
+ *    Des repository path.
  * @param callback
  *    Callback.
  */
@@ -339,7 +343,7 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
     resourceRepo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
       var aFilePaths = new Array();
       desFileNames.forEach(function(desFileName){
-        aFilePaths.push(utils.getDesPath(category,desFileName));
+        aFilePaths.push(path.join(desRepoPath,"data",desFileName));
       });
       console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
       //TODO base on files, modify data in db
