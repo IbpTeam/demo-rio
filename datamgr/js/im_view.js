@@ -10,8 +10,6 @@ function _IM_View() {
 
 _IM_View.prototype = {
 
-
-
   showRec: function(msgobj) {
     var msg = msgobj['MsgObj'];
     toIP = msgobj['IP'];
@@ -19,7 +17,7 @@ _IM_View.prototype = {
     var msgtime = new Date();
     msgtime.setTime(msg.time);
     var time = msgtime.getHours() + ':' + msgtime.getMinutes() + ':' + msgtime.getSeconds();
-    $('#header_title').text( 'Talking to '+toAccount);
+    $('#header_title').text( toAccount);
     $("#popup_dialog").modal('show');
     document.getElementById('disp_text').value +=  msg.from + ' ' +  time + '  :\n' + msg.message + '\n\n';
   },
@@ -28,12 +26,12 @@ _IM_View.prototype = {
     toAccount = to["account"];
     toIP = to["ip"];
     toUID=to['device_id']; 
-    $('#header_title').text( 'Talking to '+toAccount);
+    $('#header_title').text( toAccount);
     $("#popup_dialog").modal('show'); 
   },
 
   init: function() {
-    var title = 'Talking to '+toAccount;
+    var title = toAccount;
     var message = '';
     var data_json = '';
     $("#popup_dialog").remove();
@@ -49,11 +47,10 @@ _IM_View.prototype = {
                          <div> <textarea id="send_text" rows="5" cols="68"></textarea> </div> \
                          <p></p> \
                          <div align="right"> \
-                          <button type="button" class="btn btn-primary" id="close_button">close</button> \
-                          <button type="button" class="btn btn-primary" id="send_button">send</button> \
+                          <button type="button"  id="close_button">关闭</button> \
+                          <button type="button"  id="send_button">发送</button> \
                          </div> ';
     body.html(message);
-
 
     var content = $('<div class="modal-content"></div>');
     content.append(header);
@@ -64,10 +61,8 @@ _IM_View.prototype = {
     var div = $('<div id="popup_dialog" class="modal fade" data-backdrop="false"></div>');
     div.append(dialog);
     $('body').append(div);
-    //$("#popup_dialog").modal('show');
 
     $('#send_button').on('click',function(){
-
       function sendIMMsgCb(){
         var msg = document.getElementById('send_text').value;
         document.getElementById('disp_text').value += localAccount + '   ' + sendTime + '  :\n' + msg + '\n\n';
@@ -78,15 +73,11 @@ _IM_View.prototype = {
         localUID=localData.UID;
         var ipset = {};
         ipset["IP"] = toIP;
-        ipset["UID"] = toUID;// "34234324r34rerfe45r4a"; 
+        ipset["UID"] = toUID;
         var msgtime = new Date();
         sendTime = msgtime.getHours() + ':' + msgtime.getMinutes() + ':' + msgtime.getSeconds();
-
-
         DataAPI.sendIMMsg(sendIMMsgCb,ipset, toAccount,document.getElementById('send_text').value);
-      });
-
-      
+      }); 
     });
 
     $('#close_button').on('click',function(){
@@ -100,11 +91,8 @@ _IM_View.prototype = {
       document.getElementById('send_text').value = '';
       $("#popup_dialog").modal('hide');
     });
-
   }
-
 };
-
 
 (function() {
   im_view = new _IM_View();

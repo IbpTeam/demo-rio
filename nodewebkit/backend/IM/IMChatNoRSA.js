@@ -78,7 +78,6 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
           break;
         case 'Reply':
           {
-            //console.log("=========================================");
             //sender received message, sesson end
           }
           break;
@@ -253,7 +252,6 @@ function sendMSGbyAccountNoRSA(TABLE, ACCOUNT, MSG, PORT) {
 }
 
 function senderFunc(ACCOUNT, IPSET, PORT, MSG, SENTCALLBACK) {
-  console.log('LOCALACCOUNT----------------'+LOCALACCOUNT);
   var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
   sendIMMsg(IPSET.IP, PORT, tmpmsg, SENTCALLBACK);
 }

@@ -12,8 +12,6 @@ function getLocalData(getLocalDataCb){
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
-
-
 /*
 *IMChat start Server
 */
