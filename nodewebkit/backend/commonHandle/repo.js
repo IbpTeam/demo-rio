@@ -133,20 +133,24 @@ function getPullFileList(stdout){
       line.pop(line[index]);
     }
   }
+  console.log("###################################"+line);
   for(var index in line){
     if(line[index].indexOf('data/')==-1){
       line.pop(line[index]);
     }
   }
+  console.log("###################################"+line);
   for(var index in line){
     var endIndex=line[index].indexOf('|');
     line[index]=line[index].substring(0,endIndex).trim();
   }
+  console.log("###################################"+line);
   for(var index in line){
     console.log(line[index]);
   }
 
   console.log("###################################"+line);
+  line.pop(line[0]);
   return line;
 } 
 
