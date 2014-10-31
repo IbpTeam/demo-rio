@@ -35,6 +35,8 @@ var transfer = require('../Transfer/msgTransfer');
 var writeDbNum = 0;
 var dataPath;
 
+// @const
+var DATA_PATH = "data";
 
 function copyFile(oldPath, newPath, callback) {
   fs_extra.copy(oldPath, newPath, function(err) {
@@ -397,26 +399,40 @@ exports.updateDB = function(category, updateDBCb) {
 /**
  * @method pullRequest
  *    Fetch from remote and merge.
+ * @param category
+ *    Category.
  * @param deviceId
  *    Remote device id.
  * @param deviceIp
  *    Remote device ip.
  * @param deviceAccount
  *    Remote device account.
- * @param resourcesPath
+ * @param repoPath
  *    Repository path.
+ * @param desRepoPath
+ *    Des repository path.
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId, address, account, repoPath, desRepoPath, callback) {
+function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,callback){
   //First pull real file
   //Second pull des file
-  resourceRepo.pullFromOtherRepo(deviceId, address, account, repoPath, function(files) {
-    console.log(files);
-    resourceRepo.pullFromOtherRepo(deviceId, address, account, desRepoPath, function(files) {
-      console.log(files);
+  console.log("=============================="+repoPath);
+  console.log("=============================="+desRepoPath);
+  repo.pullFromOtherRepo(deviceId,address,account,repoPath,function(realFileNames){
+    repo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
+      var aFilePaths = new Array();
+      var sDesPath = utils.getDesRepoDir(category);
+      desFileNames.forEach(function(desFileName){
+        aFilePaths.push(path.join(sDesPath,desFileName));
+      });
+      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
       //TODO base on files, modify data in db
-      callback(deviceId, address, account);
+      dataDes.readDesFiles(aFilePaths,function(desObjs){
+        dataDes.writeDesObjs2Db(desObjs,function(status){
+          callback(deviceId,address,account);
+        });
+      });
     });
   });
 }
