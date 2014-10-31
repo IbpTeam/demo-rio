@@ -29,7 +29,11 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
+<<<<<<< HEAD
 var repo = require("./repo");
+=======
+var transfer = require('../Transfer/msgTransfer');
+>>>>>>> 658b5fdd05609a34cb93a5d509cad9e09a80b724
 
 var writeDbNum = 0;
 var dataPath;
@@ -392,3 +396,51 @@ exports.updateDB = function(category, updateDBCb) {
     }
   })
 }
+exports.getRecentAccessData = getRecentAccessData;
+
+/**
+ * @method pullRequest
+ *    Fetch from remote and merge.
+ * @param deviceId
+ *    Remote device id.
+ * @param deviceIp
+ *    Remote device ip.
+ * @param deviceAccount
+ *    Remote device account.
+ * @param resourcesPath
+ *    Repository path.
+ * @param callback
+ *    Callback.
+ */
+function pullRequest(deviceId,address,account,repoPath,desRepoPath,callback){
+  //First pull real file
+  //Second pull des file
+  resourceRepo.pullFromOtherRepo(deviceId,address,account,repoPath,function(files){
+    console.log(files);
+    resourceRepo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(files){
+      console.log(files);
+      //TODO base on files, modify data in db
+      callback(deviceId,address,account);
+    });
+  });
+}
+exports.pullRequest = pullRequest;
+
+function syncOnlineReq(repo) {
+  var msgObj={
+    type:"syncOnline",
+    ip:config.SERVERIP,
+    path:repo,
+    account:config.ACCOUNT,
+    deviceId:config.uniqueID
+  };
+  for (var index in device.devicesList) {  
+    if(device.devicesList[index].online==true){
+      if(device.devicesList[index].ip!=config.SERVERIP){
+        transfer.sendMsg(device.devicesList[index],msgObj);
+      }
+    }
+  }  
+}
+exports.syncOnlineReq = syncOnlineReq;
+

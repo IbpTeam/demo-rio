@@ -373,6 +373,27 @@ function openDataByUri(openDataByUriCb, uri) {
 }
 exports.openDataByUri = openDataByUri;
 
+/**
+ * @method pullRequest
+ *    Fetch from remote and merge.
+ * @param deviceId
+ *    Remote device id.
+ * @param deviceIp
+ *    Remote device ip.
+ * @param deviceAccount
+ *    Remote device account.
+ * @param resourcesPath
+ *    Repository path.
+ * @param callback
+ *    Callback.
+ */
+function pullRequest(deviceId,address,account,resourcesPath,callback){
+  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
+  commonHandle.pullRequest(deviceId,address,account,sRepoPath,sDesRepoPath,callback);
+}
+exports.pullRequest = pullRequest;
+
 /** 
  * @Method: getGitLog
  *    To get git log in a specific git repo

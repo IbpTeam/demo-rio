@@ -133,26 +133,6 @@ function clientOnData(client, callback) {
     var msgObj = JSON.parse(data);
     client.end();
     callback(false, msgObj);
-    /*   switch(msgObj.type){     
-  case 'file': {   
-    if(msgObj.state==='0')
-     callback(false);
-    else
-      callback(true);
-  }
-  break;  
-  case 'set': {  
-    console.log('msg set:'+msgObj);  
-     
-  }
-  break;  
-  case 'Reply': {
-  }
-  break;
-  default: {  
-    console.log("this is in default switch on data");
-  }
-      }*/
   });
 }
 

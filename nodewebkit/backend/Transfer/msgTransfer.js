@@ -16,6 +16,7 @@ var repo = require("../commonHandle/repo");
 var fs = require("fs");
 var cp = require("child_process");
 var path = require("path");
+var documents = require("../data/document");
 
 // @Enum sync state
 var syncState = {
@@ -30,7 +31,8 @@ var msgType = {
   TYPE_REQUEST:"syncRequest",
   TYPE_RESPONSE:"syncResponse",
   TYPE_START:"syncStart",
-  TYPE_COMPLETE:"syncComplete"
+  TYPE_COMPLETE:"syncComplete",
+  TYPE_ONLINE:"syncOnline"
 };
 
 // @const
@@ -39,6 +41,7 @@ var PRI_KEY = "rio_rsa";
 var PUB_KEY = "rio_rsa.pub";
 var AUTHORIZED_KEYS = "authorized_keys";
 var CONFIG_FILE = "config";
+var RESOURCES_PATH = path.join(process.env["HOME"],".resources");
 
 var iCurrentState = syncState.SYNC_IDLE;
 var syncList = new Array();
@@ -48,12 +51,13 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  imchat.initIMServerNoRSA(recieveMsgCb);
+  imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
 }
 
-function recieveMsgCb(msg){
+function recieveMsgCb(msgobj){
+  var msg = msgobj['MsgObj'];
   console.log("Receive message : " + msg);
-  var oMessage = JSON.parse(msg);
+  var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
       syncRequest(oMessage);
@@ -68,6 +72,10 @@ function recieveMsgCb(msg){
     }
     case msgType.TYPE_COMPLETE: {
       syncComplete(oMessage);
+    }
+    break;
+    case msgType.TYPE_ONLINE: {
+      syncOnline(oMessage);
     }
     break;
     default: {
@@ -91,10 +99,10 @@ function sendMsg(device,msgObj){
     UID:device.device_id
   };
   var sMsgStr = JSON.stringify(msgObj);
-  //console.log("sendMsg-------------------------"+sMsgStr);
+  console.log("sendMsg-------------------------"+sMsgStr);
   imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
 }
-
+exports.sendMsg=sendMsg;
 /**
  * @method sendMsgCb
  *    Received from remote when message arrived.
@@ -104,8 +112,8 @@ function sendMsg(device,msgObj){
 function sendMsgCb(msgObj){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
-  var msg = msgobj['MsgObj'];
-  console.log("[Send message successfull] + Msg : " + msg.message);
+  //var msg = msgObj['MsgObj'];
+  //console.log("[Send message successfull] + Msg : " + msg.message);
 }
 
 /**
@@ -254,6 +262,10 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
+  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+device.ip);
+  if(device.ip != "192.168.162.122"){
+    return;
+  }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       iCurrentState = syncState.SYNC_REQUEST;
@@ -262,7 +274,7 @@ exports.serviceUp = function(device){
         requestMsg = {
           type:msgType.TYPE_REQUEST,
           ip:config.SERVERIP,
-          path:config.RESOURCEPATH,
+          path:RESOURCES_PATH,
           account:config.ACCOUNT,
           deviceId:config.uniqueID,
           pubKey:pubKeyStr
@@ -312,7 +324,7 @@ function syncRequest(msgObj){
           responseMsg = {
             type:msgType.TYPE_RESPONSE,
             ip:config.SERVERIP,
-            resourcePath:config.RESOURCEPATH,
+            resourcePath:RESOURCES_PATH,
             account:config.ACCOUNT,
             deviceId:config.uniqueID,
             pubKey:pubKeyStr
@@ -370,7 +382,7 @@ function syncResponse(msgObj){
           responseMsg = {
             type:msgType.TYPE_START,
             ip:config.SERVERIP,
-            resourcePath:config.RESOURCEPATH,
+            resourcePath:RESOURCES_PATH,
             account:config.ACCOUNT,
             deviceId:config.uniqueID
           };
@@ -412,9 +424,10 @@ function syncStart(msgObj){
       break;
     }
     case syncState.SYNC_RESPONSE:{
-    //Start to sync
-    iCurrentState = syncState.SYNC_START;
-    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      //Start to sync
+      iCurrentState = syncState.SYNC_START;
+      documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       break;
     }
     case syncState.SYNC_START:{
@@ -438,7 +451,7 @@ function syncStart(msgObj){
  * @param deviceIp
  *    Remote device ip.
  */
-function mergeCompleteCallback(deviceId,deviceAccount,deviceIp){
+function mergeCompleteCallback(deviceId,deviceIp,deviceAccount){
   var device = {
     device_id:deviceId,
     ip:deviceIp,
@@ -496,5 +509,16 @@ function syncComplete(msgObj){
       iCurrentState = syncState.SYNC_IDLE;
       break;
     }
+  }
+}
+
+function syncOnline(msgObj) {
+  console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  console.log(msgObj);
+  console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  if(iCurrentState == syncState.SYNC_IDLE){
+    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
+      console.log(result);
+    });
   }
 }

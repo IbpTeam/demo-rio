@@ -130,15 +130,44 @@ exports.getLatestCommit = function(repoPath, callback) {
   });
 }
 
-exports.pullFromOtherRepo = function(deviceId, address, account, repoName, callback) {
-  var dataDir = config.USERCONFIGPATH + repoName;
+function getPullFileList(stdout){
+  var line=stdout.split("\n");
+  for(var index in line){
+    if(line[index].indexOf('|')==-1 ){
+      line.pop(line[index]);
+    }
+  }
+  console.log("###################################"+line);
+  for(var index in line){
+    if(line[index].indexOf('data/')==-1){
+      line.pop(line[index]);
+    }
+  }
+  console.log("###################################"+line);
+  for(var index in line){
+    var endIndex=line[index].indexOf('|');
+    line[index]=line[index].substring(0,endIndex).trim();
+  }
+  console.log("###################################"+line);
+  for(var index in line){
+    console.log(line[index]);
+  }
+
+  console.log("###################################"+line);
+  line.pop(line[0]);
+  return line;
+} 
+
+exports.pullFromOtherRepo = function (deviceId,address,account,resourcesPath,callback)
+{
+  var sBaseName = path.basename(resourcesPath);
+  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
   var cp = require('child_process');
-  var cmd = 'cd ' + dataDir + '&& git pull ' + account + '@' + address + ':' + dataDir;
+  var cmd = 'cd '+sLocalResourcesPath+'&& git pull '+account+'@'+address+':'+resourcesPath;
   console.log(cmd);
-  cp.exec(cmd, function(error, stdout, stderr) {
-    console.log(stdout + stderr);
-    callback(deviceId, account, address);
-    filesHandle.watcher1Start(dataDir, filesHandle.monitorFilesCb);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    callback(getPullFileList(stdout));
   });
 }
 
@@ -196,6 +225,7 @@ exports.getGitLog = function(repoPath, callback) {
     callback(null, commitLog)
   })
 }
+<<<<<<< HEAD
 
 exports.repoReset = function(repoPath, commitID, callback) {
   var exec = require('child_process').exec;
@@ -213,3 +243,5 @@ exports.repoReset = function(repoPath, commitID, callback) {
     }
   })
 }
+=======
+>>>>>>> 658b5fdd05609a34cb93a5d509cad9e09a80b724
