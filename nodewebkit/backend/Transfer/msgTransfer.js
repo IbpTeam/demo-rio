@@ -18,6 +18,9 @@ var cp = require("child_process");
 var path = require("path");
 var documents = require("../data/document");
 var pictures = require("../data/picture");
+var commonHandle = require('../commonHandle/commonHandle');
+var utils = require('../utils');
+
 
 // @Enum sync state
 var syncState = {
@@ -522,6 +525,22 @@ function syncOnline(msgObj) {
   if(iCurrentState == syncState.SYNC_IDLE){
     repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
       console.log(result);
+      var aFilePaths = new Array();
+
+
+      var cate= utils.getCategoryByPath(msgObj.path);
+      var baseName=path.basename(msgObj.path);
+      var sDesPath=utils.getDesDir(cate);
+      desFileNames.forEach(function(desFileName){
+        aFilePaths.push(path.join(sDesPath,baseName));
+      });
+      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+      //TODO base on files, modify data in db
+      dataDes.readDesFiles(aFilePaths,function(desObjs){
+        dataDes.writeDesObjs2Db(desObjs,function(status){
+          callback(deviceId,address,account);
+        });
+      });
     });
   }
 }
