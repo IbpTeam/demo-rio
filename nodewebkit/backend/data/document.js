@@ -397,9 +397,9 @@ function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
   //First pull real file
   //Second pull des file
-  resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,function(filses){
+  resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,function(files){
     console.log(files);
-    resourceRepo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,function(filses){
+    resourceRepo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,function(files){
       console.log(files);
       //TODO base on files, modify data in db
       callback(deviceId,address,account);
