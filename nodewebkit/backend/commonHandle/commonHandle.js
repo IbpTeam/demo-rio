@@ -314,3 +314,31 @@ function getRecentAccessData(category, getRecentAccessDataCb, num) {
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
 }
 exports.getRecentAccessData = getRecentAccessData;
+
+/**
+ * @method pullRequest
+ *    Fetch from remote and merge.
+ * @param deviceId
+ *    Remote device id.
+ * @param deviceIp
+ *    Remote device ip.
+ * @param deviceAccount
+ *    Remote device account.
+ * @param resourcesPath
+ *    Repository path.
+ * @param callback
+ *    Callback.
+ */
+function pullRequest(deviceId,address,account,repoPath,desRepoPath,callback){
+  //First pull real file
+  //Second pull des file
+  resourceRepo.pullFromOtherRepo(deviceId,address,account,repoPath,function(files){
+    console.log(files);
+    resourceRepo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(files){
+      console.log(files);
+      //TODO base on files, modify data in db
+      callback(deviceId,address,account);
+    });
+  });
+}
+exports.pullRequest = pullRequest;
