@@ -1042,19 +1042,39 @@ exports.renameDesktopFile = renameDesktopFile;
  *        string, contain specific error
  *
  *    @param2: result,
- *        array, result of git log
+ *        object, result of git log; the preoperty would be commit id
  *
  *        example:
- *        [{
- *          "commitID": "fb8741699802459bfb5e6ba36c9a7ec894134943",
- *          "Author": " \u201Cshuanzi\u201D \u003C\u201Cdaixiquan@gmail.com\u201D\u003E",
- *          "Date": "   Thu Oct 30 16:03:52 2014 +0800",
- *          "content": {
- *                      "device": "ace6f9045d75a83682e76288f79dd824",
- *                      "op": "add",
- *                      "file": ["/home/xiquan/.resources/document/data/Release_note_0.7.txt"]
- *                     }
- *         }]
+ *        {
+ *            "8fa016846720fe5182113a1880b6623f9e9bec68": {
+ *                "commitID": "8fa016846720fe5182113a1880b6623f9e9bec68",
+ *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
+ *                "Date": "   Fri Oct 31 13:42:43 2014 +0800",
+ *                "content": {
+ *                    "relateCommit": "acd5c16b0650dbfbfd20e36a53799a4f9cd40eaf",
+ *                    "device": "ace6f9045d75a83682e76288f79dd824",
+ *                    "op": "rm",
+ *                    "file": [
+ *                        "testfile.txt"
+ *                    ]
+ *                }
+ *            },
+ *            "dda06b7b042a8256aac6a37843539bd2e7a98821": {
+ *                "commitID": "dda06b7b042a8256aac6a37843539bd2e7a98821",
+ *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
+ *                "Date": "   Fri Oct 31 11:19:49 2014 +0800",
+ *                "content": {
+ *                    "relateCommit": "0a14c542fabc48104673c7fbc631bf1e7a3128f6",
+ *                    "device": "ace6f9045d75a83682e76288f79dd824",
+ *                    "op": "add",
+ *                    "file": [
+ *                        "/home/xiquan/.resources/document/data/Release_note_0.7.txt",
+ *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0RC.txt",
+ *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0alpha.txt",
+ *                    ]
+ *                }
+ *            }
+ *        }
  *
  *
  * @param2: category
@@ -1067,3 +1087,32 @@ function getGitLog(getGitLogCb, category) {
   cate.getGitLog(getGitLogCb);
 }
 exports.getGitLog = getGitLog;
+
+
+/** 
+ * @Method: repoReset
+ *    To reset git repo to a history commit version. This action would also res-
+ *    -des file repo 
+ *
+ * @param1: repoResetCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: commitID
+ *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ *
+ **/
+function repoReset(repoResetCb, category, commitID) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoReset(commitID, repoResetCb);
+}
+exports.repoReset = repoReset;

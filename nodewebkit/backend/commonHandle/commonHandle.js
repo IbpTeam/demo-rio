@@ -300,6 +300,27 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   }
 }
 
+/** 
+ * @Method: repoReset
+ *    To reset git repo to a history commit version. This action would also res-
+ *    -des file repo 
+ *
+ * @param1: repoResetCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: commitID
+ *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ *
+ **/
 function getRecentAccessData(category, getRecentAccessDataCb, num) {
   function findItemsCb(err, items) {
     if (err) {
