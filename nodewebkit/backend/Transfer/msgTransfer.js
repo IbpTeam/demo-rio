@@ -31,7 +31,8 @@ var msgType = {
   TYPE_REQUEST:"syncRequest",
   TYPE_RESPONSE:"syncResponse",
   TYPE_START:"syncStart",
-  TYPE_COMPLETE:"syncComplete"
+  TYPE_COMPLETE:"syncComplete",
+  TYPE_ONLINE:"syncOnline"
 };
 
 // @const
@@ -71,6 +72,10 @@ function recieveMsgCb(msgobj){
     }
     case msgType.TYPE_COMPLETE: {
       syncComplete(oMessage);
+    }
+    break;
+    case msgType.TYPE_ONLINE: {
+      syncOnline(oMessage);
     }
     break;
     default: {
@@ -504,5 +509,16 @@ function syncComplete(msgObj){
       iCurrentState = syncState.SYNC_IDLE;
       break;
     }
+  }
+}
+
+function syncOnline(msgObj) {
+  console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  console.log(msgObj);
+  console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  if(iCurrentState == syncState.SYNC_IDLE){
+    pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
+      console.log(result);
+    });
   }
 }

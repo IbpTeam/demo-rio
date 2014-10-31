@@ -17,11 +17,11 @@ function getDeviceList(){
         item.sync=false;
         devicesList[item.device_id]=item;
       });
-      /*console.log("----------------------devicesList:-----------------------");
+      console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("---------------------------------------------------------");*/
+      console.log("---------------------------------------------------------");
     }
   });
 }
@@ -107,49 +107,43 @@ function rmDevice(device){
 exports.addDevice = addDevice;
 
 function startDeviceDiscoveryService(){
-  console.log("start Device Discovery Service ");
-//  var io = require('socket.io').listen(config.SOCKETIOPORT);
-//  io.sockets.on('connection', function (socket) {
-    getDeviceList();
-    mdns.addDeviceListener(function (signal, args){
-      if(args==null || args.txt==null){
-        return;
-      }
-      if(args.txt[0]=="demo-rio"){
-        var device={
-          device_id:args.txt[1],
-          name:args.txt[2],
-          resourcePath:args.txt[3],
-          ip:args.txt[4],
-          account:args.txt[5]
-        };
-        switch(signal){
-          case 'ItemNew':{
-            //socket.emit('mdnsUp', args);
-//            console.log(args);
-            addDevice(device);
-            //msgTransfer.serviceUp(device);
-          }       
-          break;
-          case 'ItemRemove':{
-            //socket.emit('mdnsDown', args);
-            console.log(args);  
-            rmDevice(device);        
-          }
-          break;
+  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$start Device Discovery Service ");
+  getDeviceList();
+  mdns.addDeviceListener(function (signal, args){
+    if(args==null || args.txt==null){
+      return;
+    }
+    if(args.txt[0]=="demo-rio"){
+      var device={
+        device_id:args.txt[1],
+        name:args.txt[2],
+        resourcePath:args.txt[3],
+        ip:args.txt[4],
+        account:args.txt[5]
+      };
+      switch(signal){
+        case 'ItemNew':{
+          addDevice(device);
+          //msgTransfer.serviceUp(device);
+        }       
+        break;
+        case 'ItemRemove':{
+          //socket.emit('mdnsDown', args);
+          console.log(args);  
+          rmDevice(device);        
         }
+        break;
       }
-    });
-    mdns.createServer(function(){
-      var name = config.SERVERNAME;
-      var port = config.MDNSPORT;
-      var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
+    }
+  });
+  mdns.createServer(function(){
+    var name = config.SERVERNAME;
+    var port = config.MDNSPORT;
+    var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
 /*      console.log("************************************");
       console.log(txtarray);
             console.log("************************************");*/
-
-      mdns.entryGroupCommit(name,  port, txtarray);
-    });
-//  });
+    mdns.entryGroupCommit(name,  port, txtarray);
+  });
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
