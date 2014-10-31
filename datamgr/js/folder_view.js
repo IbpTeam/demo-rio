@@ -187,7 +187,7 @@ function path_transfer(front_path, base_dir){
   }
 }
 
-function get_category(global_dir){
+function get_category(){
   return global_dir.substring(global_dir.lastIndexOf('/')+1, global_dir.length).toLowerCase();
 }
 
@@ -235,7 +235,7 @@ function Folder(jquery_element) {
               }else{
                 window.alert("Add new file failed!");
               }              
-            }, filename, get_category(global_dir));
+            }, filename, get_category());
           /*  var filetypes = ['文本文档', 'WPS Word文档', 'WPS Powerpoint文档', 'WPS Excel文档'];
           //  var sub_popup_menu = self.files.gen_popup_menu(filetypes);
             self.files.children('.dropdown-menu').remove();
@@ -290,14 +290,14 @@ function Folder(jquery_element) {
             gen_popup_dialog('属性', '"基于html5的文件管理器模型"');
             break;
           case 'Paste':
-            var real_path = path_transfer(global_dir, data_dir);
-            if(real_path != null){
-              console.log(copied_filepath);
-              DataAPI.pasteFile(function(is_success){
-                console.log('is_success: ', is_success);
+            console.log(copied_filepath);
+            DataAPI.pasteFile(function(result){
+              if(result == 'success'){
                 global_self.open(global_dir);
-              }, copied_filepath, real_path);
-            }
+              }else{
+                window.alert("Paste file failed!");
+              }
+            }, copied_filepath, get_category());
             copied_filepath = '';
             break;
         }
@@ -560,7 +560,6 @@ Folder.prototype.gen_popup_menu = function(contents){
 var global_self;
 var global_dir;
 var file_arch_json = {};
-var data_dir;
 var copied_filepath = '';
 
 //wangyu: add this function for open folder in folder view mode.
@@ -1065,9 +1064,6 @@ Folder.prototype.open = function(dir) {
     window.alert('Path ' + global_dir + ' does not exist.');
     break;
   }
-  DataAPI.getResourceDataDir(function(dataDir){
-    data_dir = dataDir;
-  });
 }
 
 $.extend(Folder.prototype, $.eventEmitter);

@@ -394,24 +394,29 @@ exports.pullFromOtherRepo = pullFromOtherRepo;
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
 //返回类型：成功返回success;失败返回失败原因
-function pasteFile(pasteFileCb, sourcePath, desPath) {
+function pasteFile(pasteFileCb, filename, category) {
   console.log("Request handler 'pasteFile' was called.");
-  var filename = path.basename(sourcePath);
+  var name = path.basename(filename);
   var postfix = path.extname(filename);
-  if (sourcePath.indexOf(desPath) != -1) {
-    filename = path.basename(sourcePath, postfix);
-    desPath = utils.parsePath(desPath + '/' + filename + '_copy' + postfix);
-  } else {
-    desPath = utils.parsePath(desPath + '/' + filename);
-  }
-  var sourcePathNew = utils.parsePath(sourcePath);
-  cp.exec("cp " + sourcePathNew + " " + desPath, function(error, stdout, stderr) {
+  name = path.basename(filename, postfix);
+  var desPath = '/tmp/' + name + '_copy' + postfix;
+  cp.exec("cp " + filename + " " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
-      pasteFileCb(false);
-    }else{
-    
-      pasteFileCb(true);
+      creatFileCb(false);
+    } else {
+      if(category == 'document' || category == 'music' || category == 'picture'){
+        var cate = utils.getCategoryObject(category);
+        cate.createData([desPath], function(err, result){
+          if(err != null){
+            pasteFileCb(false);
+          }else{
+            cp.exec("rm " + desPath, function(error, stdout, stderr) {
+              pasteFileCb(result);
+            });
+          }
+        });
+      }
     }
   });
 }
