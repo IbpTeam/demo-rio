@@ -107,8 +107,8 @@ function sendMsg(device,msgObj){
 function sendMsgCb(msgObj){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
-  var msg = msgobj['MsgObj'];
-  console.log("[Send message successfull] + Msg : " + msg.message);
+  //var msg = msgObj['MsgObj'];
+  //console.log("[Send message successfull] + Msg : " + msg.message);
 }
 
 /**
