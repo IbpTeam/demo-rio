@@ -409,9 +409,10 @@ function pasteFile(pasteFileCb, sourcePath, desPath) {
     if (error !== null) {
       console.log('exec error: ' + error);
       pasteFileCb(false);
+    }else{
+    
+      pasteFileCb(true);
     }
-    //    filesHandle.addFile(desPath, pasteFileCb(true));
-    pasteFileCb(true);
   });
 }
 exports.pasteFile = pasteFile;
@@ -419,16 +420,26 @@ exports.pasteFile = pasteFile;
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因
-function createFile(creatFileCb, filePostfix, desPath) {
+function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var data = new Date();
-  desPath = utils.parsePath(desPath + '/NewFile_' + data.toLocaleString().replace(' ', '_') + '.' + filePostfix);
+  var desPath = '/tmp/'+filename;
   cp.exec("touch " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     } else {
-      creatFileCb(true);
+      if(category == 'document' || category == 'music' || category == 'picture'){
+        var cate = utils.getCategoryObject(category);
+        cate.createData([desPath], function(err, result){
+          if(err != null){
+            createFileCb(false);
+          }else{
+            cp.exec("rm " + desPath, function(error, stdout, stderr) {
+              createFileCb(result);
+            });
+          }
+        });
+      }
     }
   });
 }

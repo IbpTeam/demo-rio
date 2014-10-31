@@ -187,6 +187,10 @@ function path_transfer(front_path, base_dir){
   }
 }
 
+function get_category(global_dir){
+  return global_dir.substring(global_dir.lastIndexOf('/')+1, global_dir.length).toLowerCase();
+}
+
 function gen_add_tags_dialog(data_uri){
   console.log("gen_add_tags_dialog!", data_uri);
   var file_propery='<form>';
@@ -223,11 +227,15 @@ function Folder(jquery_element) {
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
           case 'New Document'://wangyu: add this action.
-            var target_path = path_transfer(global_dir, data_dir);
-            DataAPI.createFile(function(is_success){
-              console.log('is_success: ', is_success);
-              global_self.open(global_dir);
-            }, 'txt', target_path);
+            var data = new Date();
+            var filename = 'NewFile_' + data.toLocaleString().replace(' ', '_') + '.txt';
+            DataAPI.createFile(function(result){
+              if(result == 'success'){
+                global_self.open(global_dir);
+              }else{
+                window.alert("Add new file failed!");
+              }              
+            }, filename, get_category(global_dir));
           /*  var filetypes = ['文本文档', 'WPS Word文档', 'WPS Powerpoint文档', 'WPS Excel文档'];
           //  var sub_popup_menu = self.files.gen_popup_menu(filetypes);
             self.files.children('.dropdown-menu').remove();
