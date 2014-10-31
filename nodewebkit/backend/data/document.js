@@ -38,7 +38,6 @@ var DES_DIR_NAME = "documentDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR, 'data');
 
 
 /**
