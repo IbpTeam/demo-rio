@@ -21,12 +21,12 @@
   function print(win,something){
     if(typeof something == "object"){
       win.document.write("{");
+      win.document.write("<br/>");
       for(var k in something){
         win.document.write(k);
         win.document.write(" : ");
         print(win,something[k]);
         win.document.write(", ");        
-        win.document.write("<br/>");
       }
       win.document.write("}");
       win.document.write("<br/>");

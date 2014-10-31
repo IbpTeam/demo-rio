@@ -1036,6 +1036,7 @@ function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
 exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
+
 /** 
  * @Method: getGitLog
  *    To get git log in a specific git repo
