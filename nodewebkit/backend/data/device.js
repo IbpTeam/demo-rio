@@ -17,11 +17,11 @@ function getDeviceList(){
         item.sync=false;
         devicesList[item.device_id]=item;
       });
-      /*console.log("----------------------devicesList:-----------------------");
+      console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
-      console.log("---------------------------------------------------------");*/
+      console.log("---------------------------------------------------------");
     }
   });
 }
@@ -126,9 +126,9 @@ function startDeviceDiscoveryService(){
         switch(signal){
           case 'ItemNew':{
             //socket.emit('mdnsUp', args);
-//            console.log(args);
+            console.log(device+"#################$$$$$$$$$$$$$$$$$4");
             addDevice(device);
-            //msgTransfer.serviceUp(device);
+            msgTransfer.serviceUp(device);
           }       
           break;
           case 'ItemRemove':{
