@@ -110,7 +110,8 @@ function serverAndMapHandler(path) {
       });
     }
   }
-  
+}
+
 function MD5(str, encoding) {
   return crypto.createHash('md5').update(str).digest(encoding || 'hex');
 }
