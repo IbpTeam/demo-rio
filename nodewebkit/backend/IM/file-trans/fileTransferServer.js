@@ -26,7 +26,6 @@ function transferFile(server, ltnServer, callback) {
         res.statusCode = 404;
         res.setHeader('Content-Type', 'text/plain');
         res.end('no such a file ' + key + '\n');
-        //  callback(true,'no such a file',server);
       } else {
         var info = pathMap.get(key);
         if (info === undefined) {
