@@ -53,7 +53,7 @@ exports.initServer = function(){
   imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
 }
 
-function recieveMsgCb(msg){
+function recieveMsgCb(msgobj){
   var msg = msgobj['MsgObj'];
   console.log("Receive message : " + msg);
   var oMessage = JSON.parse(msg.message);

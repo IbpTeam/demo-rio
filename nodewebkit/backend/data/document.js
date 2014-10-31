@@ -393,8 +393,8 @@ exports.getRecentAccessData = getRecentAccessData;
  *    Callback.
  */
 function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(repoName,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(repoName,DES_DIR);
+  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
   //First pull real file
   //Second pull des file
   resourceRepo.pullFromOtherRepo(deviceId,address,account,sRepoPath,function(filses){
