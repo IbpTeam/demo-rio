@@ -57,9 +57,7 @@ function transferFile(ip, input, name, callback) {
         console.log('state====接受文件====1');
         fileTransferServer.transferFile(fileServer, fileServerLst, function(err, msg, server, fileServerListening) { //发送端初始化传输信息
           if (err) { //发送端初始化传输信息失败-----有点问题请稍候重发----界面显示  
-            // client.fileTransferError(rstObj.file,msg,function(){       
             console.log('transfer------error--------' + msg);
-            //   });         
             client.fileTransferStart(true, '', '', '', '', name, 0, function(err, rstObj) {
               serverAndMapHandler();
             });
