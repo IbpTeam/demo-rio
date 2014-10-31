@@ -30,8 +30,11 @@ function AddressBar(element) {
     self.emit('navigate', $(this).parent().attr('data-path'));
     return false;
   });
-  self.address_bar.parent().delegate('input', 'click', function(){
+  self.address_bar.parent().delegate('#folder-mode', 'click', function(){
     self.emit('fold_mode_view');
+  });
+  self.address_bar.parent().delegate('#history', 'click', function(){
+    self.emit('show_history');
   });
 }
 

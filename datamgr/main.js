@@ -78,6 +78,9 @@ WDC.requireAPI(['data', 'app'], function(data, app){
     addressbar.on('fold_mode_view', function() {
       folder.use_folder_view_mode();
     });
+    addressbar.on('show_history', function() {
+      folder.show_history();
+    });
 
     im_view.init();
     DataAPI.startIMChatServer(function(msgobj){

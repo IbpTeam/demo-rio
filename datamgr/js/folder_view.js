@@ -731,20 +731,48 @@ Folder.prototype.get_callback_data = function(data_json){
   global_self.show_folder_view(global_dir);
 }
 
+//wangyu: add this function to show history
+Folder.prototype.show_history = function(){
+  if(global_dir.lastIndexOf('/') != -1){
+    DataAPI.getGitLog(function(err, result){
+      var file_propery='';
+      for(var i=0; i<result.length; i++){
+        file_propery += '<li class="divider">--------------------</li>';
+        for(var key in result[i]){
+          if(key == 'content'){
+            for(var content_key in result[i][key]){
+              if(content_key == 'file'){
+                for(var j=0; j<result[i][key][content_key].length; j++){
+                  file_propery += '<p>' + result[i][key][content_key][j] + '</p>';
+                }
+              }else{
+                file_propery += '<p>' + content_key + ': ' + result[i][key][content_key] + '</p>';
+              }
+            }
+          }else{
+            file_propery += '<p>' + key + ': ' + result[i][key] + '</p>';
+          }
+        }
+      }
+      gen_popup_dialog('History', file_propery);
+    }, global_dir.substring(global_dir.lastIndexOf('/')+1, global_dir.length).toLowerCase());
+  }
+}
+
 //wangyu: add this funtion for folder view.
 Folder.prototype.use_folder_view_mode = function(){
   switch(global_dir){
   case 'root':
     break;
-  case 'root/Contacts':
+  case 'root/Contact':
     break;
-  case 'root/Pictures':
+  case 'root/Picture':
     //getAllDataByCate(this.folder_view_mode_cb, 'Pictures');
     break;
-  case 'root/Videos':
+  case 'root/Video':
     //getAllDataByCate(this.folder_view_mode_cb, 'Videos');
     break;
-  case 'root/Documents':
+  case 'root/Document':
     DataAPI.getAllDataByCate(this.folder_view_mode_cb, 'Documents');
     break;
   case 'root/Music':
