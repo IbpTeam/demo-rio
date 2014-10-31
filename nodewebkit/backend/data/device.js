@@ -128,7 +128,7 @@ function startDeviceDiscoveryService(){
             //socket.emit('mdnsUp', args);
 //            console.log(args);
             addDevice(device);
-            //msgTransfer.serviceUp(device);
+            msgTransfer.serviceUp(device);
           }       
           break;
           case 'ItemRemove':{

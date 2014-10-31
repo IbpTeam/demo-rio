@@ -54,8 +54,9 @@ exports.initServer = function(){
 }
 
 function recieveMsgCb(msg){
+  var msg = msgobj['MsgObj'];
   console.log("Receive message : " + msg);
-  var oMessage = JSON.parse(msg);
+  var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
       syncRequest(oMessage);
@@ -93,7 +94,7 @@ function sendMsg(device,msgObj){
     UID:device.device_id
   };
   var sMsgStr = JSON.stringify(msgObj);
-  //console.log("sendMsg-------------------------"+sMsgStr);
+  console.log("sendMsg-------------------------"+sMsgStr);
   imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
 }
 
@@ -256,6 +257,10 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
+  if(device.ip != "192.168.160.72"){
+    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+device.ip);
+    return;
+  }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       iCurrentState = syncState.SYNC_REQUEST;
