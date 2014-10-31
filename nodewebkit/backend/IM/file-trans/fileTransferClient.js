@@ -50,7 +50,6 @@ function fileTransfer(ip, filePort, ltnPort, path, output, length, callback) {
     read.on('end', function(data) {
       test.end();
       transferHashTable.remove(path);
-      //callback(true,1);
       //调用显示传输进度的函数  之后再调用client.transferFileRatio------------界面显示
       client.transferFileRatio(2, ip, ltnPort, path, currentRatio, function() {
         console.log('   transferFileRatio----onend---');

@@ -2,7 +2,6 @@ var transferFile = require('./transferFile');
 var fileTransferServer = require('./fileTransferServer');
 var crypto = require('crypto');
 var input = __dirname + '/geju.mkv';
-//var input = __dirname + '/file1.txt'
 var input0 = __dirname + '/JsFormat.tar.gz'
 var fileServer;
 var IP = '192.168.160.66';
@@ -14,8 +13,8 @@ console.log(__dirname);
 console.log(name0);
 
 transferFile.transferFile(IP, input, name, function() {
-	console.log('transferFiletransferFiletransferFiletransferFiletransferFile');
+    console.log('transferFiletransferFiletransferFiletransferFiletransferFile');
 });
 transferFile.transferFile(IP, input0, name0, function() {
-	console.log('transferFiletransferFiletransferFiletransferFiletransferFile');
+    console.log('transferFiletransferFiletransferFiletransferFiletransferFile');
 });
