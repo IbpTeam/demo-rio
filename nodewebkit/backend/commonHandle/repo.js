@@ -145,6 +145,9 @@ function getPullFileList(stdout){
   for(var index in line){
     console.log(line[index]);
   }
+
+  console.log("###################################"+line);
+  return line;
 } 
 
 exports.pullFromOtherRepo = function (deviceId,address,account,resourcesPath,callback)
