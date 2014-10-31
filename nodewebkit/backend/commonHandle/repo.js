@@ -154,7 +154,7 @@ function getPullFileList(stdout){
   }
 
   console.log("###################################"+line);
-  line.pop(line[0]);
+  line.shift());
   return line;
 } 
 
