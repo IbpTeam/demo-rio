@@ -257,7 +257,7 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
-  if(device.ip != "192.168.160.72"){
+  if(device.ip != "192.168.162.122"){
     console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+device.ip);
     return;
   }
