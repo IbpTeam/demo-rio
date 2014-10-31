@@ -423,7 +423,7 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
     repo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
       var aFilePaths = new Array();
       desFileNames.forEach(function(desFileName){
-        aFilePaths.push(path.join(desRepoPath,"data",desFileName));
+        aFilePaths.push(path.join(desRepoPath,desFileName));
       });
       console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
       //TODO base on files, modify data in db

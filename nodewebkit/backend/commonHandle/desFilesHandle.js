@@ -191,6 +191,7 @@ exports.readDesFile = readDesFile;
 function writeDesObjs2Db(desObjs,callback){
   commonDAO.createItems(desObjs,callback);
 }
+exports.writeDesObjs2Db = writeDesObjs2Db;
 
 /** 
  * @Method: deleteItem
