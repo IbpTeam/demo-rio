@@ -438,13 +438,14 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
 }
 exports.pullRequest = pullRequest;
 
-function syncOnlineReq(repo) {
+function syncOnlineReq(cate) {
   var msgObj = {
     type: "syncOnline",
     ip: config.SERVERIP,
-    path: repo,
+    path: utils.getDesRepoDir(cate),
     account: config.ACCOUNT,
-    deviceId: config.uniqueID
+    deviceId: config.uniqueID,
+    category:cate
   };
   for (var index in device.devicesList) {
     if (device.devicesList[index].online == true) {
