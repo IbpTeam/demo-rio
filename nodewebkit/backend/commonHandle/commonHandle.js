@@ -417,8 +417,8 @@ exports.updateDB = function(category, updateDBCb) {
 function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,callback){
   //First pull real file
   //Second pull des file
-  resourceRepo.pullFromOtherRepo(deviceId,address,account,repoPath,function(realFileNames){
-    resourceRepo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
+  repo.pullFromOtherRepo(deviceId,address,account,repoPath,function(realFileNames){
+    repo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
       var aFilePaths = new Array();
       desFileNames.forEach(function(desFileName){
         aFilePaths.push(path.join(desRepoPath,"data",desFileName));
