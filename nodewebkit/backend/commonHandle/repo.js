@@ -147,11 +147,12 @@ function getPullFileList(stdout){
   }
 } 
 
-exports.pullFromOtherRepo = function (deviceId,address,account,repoName,callback)
+exports.pullFromOtherRepo = function (deviceId,address,account,resourcesPath,callback)
 {
-  var dataDir=config.USERCONFIGPATH+repoName;
+  var sBaseName = path.basename(resourcesPath);
+  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
   var cp = require('child_process');
-  var cmd = 'cd '+dataDir+'&& git pull '+account+'@'+address+':'+dataDir;
+  var cmd = 'cd '+sLocalResourcesPath+'&& git pull '+account+'@'+address+':'+resourcesPath;
   console.log(cmd);
   cp.exec(cmd,function(error,stdout,stderr){
     console.log(stdout+stderr);
