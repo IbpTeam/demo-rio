@@ -76,25 +76,11 @@ function startApp(){
  **/
 function initializeApp(sFullPath) {
   config.USERCONFIGPATH = sFullPath;
-  var sConfigPath = path.join(config.USERCONFIGPATH, CONFIG_JS);
   var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
   var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
-  var bIsConfExist = false;
   filesHandle.isPulledFile = false;
-  console.log("Config Path is : " + sConfigPath);
   console.log("UniqueID Path is : " + sUniqueIDPath);
-  fs.exists(sConfigPath, function(configExists) {
-    if (!configExists) {
-      console.log("No data777777777777777777777777777");
-    } else {
-      bIsConfExist = true;
-      var dataDir = require(sConfigPath).dataDir;
-      //config.RESOURCEPATH = dataDir;
-      util.log("monitor : " + dataDir);
-      filesHandle.monitorFiles(dataDir, filesHandle.monitorFilesCb);
-      filesHandle.monitorDesFiles(dataDir + "/.des", filesHandle.monitorDesFilesCb);
-    }
     /*
      * TODO: desktop config part is not working now, will fix it later
      */
@@ -103,42 +89,37 @@ function initializeApp(sFullPath) {
     //     console.log("init config error");
     //     return;
     //   }
-      fs.exists(sUniqueIDPath, function(uniqueExists) {
-        if (!uniqueExists) {
-          console.log("UniqueID.js is not exists, start to set sys uid.");
-          setSysUid(null, sUniqueIDPath, function() {
-            if (bIsConfExist)
-              device.startDeviceDiscoveryService();
-          });
-          return;
-        }
-        console.log("UniqueID.js is exist.");
-        var deviceID = require(sUniqueIDPath).uniqueID;
-        setSysUid(deviceID, sUniqueIDPath, function() {
-          if (bIsConfExist) {
-            device.startDeviceDiscoveryService();
-          }
-          fs.exists(sNetLinkStatusPath, function(netlinkExists) {
-            if (!netlinkExists) {
-              cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-                util.log("touch .netlinkstatus");
-                config.NETLINKSTATUSPATH = sNetLinkStatusPath;
-                cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-                  util.log(sNetLinkStatusPath);
-                  filesHandle.monitorNetlink(sNetLinkStatusPath);
-                });
-              });
-            } else {
-              config.NETLINKSTATUSPATH = sNetLinkStatusPath;
-              cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-                util.log(sNetLinkStatusPath);
-                filesHandle.monitorNetlink(sNetLinkStatusPath);
-              });
-            }
-          });
-        });
+  fs.exists(sUniqueIDPath, function(uniqueExists) {
+    if (!uniqueExists) {
+      console.log("UniqueID.js is not exists, start to set sys uid.");
+      setSysUid(null, sUniqueIDPath, function() {
+        device.startDeviceDiscoveryService();
       });
-    //})
+      return;
+    }
+    console.log("UniqueID.js is exist.");
+    var deviceID = require(sUniqueIDPath).uniqueID;
+    setSysUid(deviceID, sUniqueIDPath, function() {
+      device.startDeviceDiscoveryService();
+      fs.exists(sNetLinkStatusPath, function(netlinkExists) {
+        if (!netlinkExists) {
+          cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
+            util.log("touch .netlinkstatus");
+            config.NETLINKSTATUSPATH = sNetLinkStatusPath;
+            cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
+              util.log(sNetLinkStatusPath);
+              filesHandle.monitorNetlink(sNetLinkStatusPath);
+              });
+          });
+        } else {
+          config.NETLINKSTATUSPATH = sNetLinkStatusPath;
+          cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
+            util.log(sNetLinkStatusPath);
+            filesHandle.monitorNetlink(sNetLinkStatusPath);
+          });
+        }
+      });
+    });
   });
 }
 
