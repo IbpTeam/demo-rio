@@ -373,11 +373,31 @@ function openDataByUri(openDataByUriCb, uri) {
 exports.openDataByUri = openDataByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 
+/**
+ * @method pullRequest
+ *    Fetch from remote and merge.
+ * @param deviceId
+ *    Remote device id.
+ * @param deviceIp
+ *    Remote device ip.
+ * @param deviceAccount
+ *    Remote device account.
+ * @param resourcesPath
+ *    Repository path.
+ * @param callback
+ *    Callback.
+ */
+function pullRequest(deviceId,address,account,resourcesPath,callback){
+  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
+  commonHandle.pullRequest(deviceId,address,account,resourcesPath,sRepoPath,sDesRepoPath,callback);
+}
+exports.pullRequest = pullRequest;
 
 /** 
  * @Method: getGitLog
@@ -394,7 +414,7 @@ exports.getRecentAccessData = getRecentAccessData;
  *
  **/
 function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
+  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!');
   var repoPath = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
   resourceRepo.getGitLog(repoPath, callback);
 }
