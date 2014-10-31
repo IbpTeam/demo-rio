@@ -136,6 +136,61 @@ function sortObj(Item,callback){
   createDesFile(oNewItem,itemDesPath,callback);
 }
 
+/** 
+ * @Method: readDesFiles
+ *    Read describe file and generate desObj.
+ * @param: filePaths
+ *    An array of describe file path.
+ * @param: callback
+ *    Callback return all describe object.
+ **/
+function readDesFiles(filePaths,callback){
+  var aDesObj = new Array();
+  var iFileNum = 0;
+  filePaths.forEach(function(filePath){
+    readDesFile(filePath,function(fileObj){
+      iFileNum++;
+      if(fileObj != null)
+        aDesObj.push(fileObj);
+      if(iFileNum == filePaths.length)
+        callback(aDesObj);
+    });
+  });
+}
+exports.readDesFiles = readDesFiles;
+
+/** 
+ * @Method: readDesFile
+ *    Read describe file and generate desObj.
+ * @param: filePath
+ *    Describe file path.
+ * @param: callback
+ *    Callback return all describe object.
+ **/
+function readDesFile(filePath,callback){
+  fs.readFile(filePath,'utf8',function(err,data){
+    if(err){
+      console.log("read file error!");
+      console.log(err);
+      callback(null);
+      return;
+    }
+    callback(JSON.parse(data));
+  });
+}
+exports.readDesFile = readDesFile;
+
+/** 
+ * @Method: writeDesObjs2Db
+ *    Write desObj to database.
+ * @param: desObjs
+ *    An array of desObj.
+ * @param: callback
+ *    Callback.
+ **/
+function writeDesObjs2Db(desObjs,callback){
+  commonDAO.createItems(desObjs,callback);
+}
 
 /** 
  * @Method: deleteItem

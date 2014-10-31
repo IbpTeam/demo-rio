@@ -35,6 +35,8 @@ var transfer = require('../Transfer/msgTransfer');
 var writeDbNum = 0;
 var dataPath;
 
+// @const
+var DATA_PATH = "data";
 
 function copyFile(oldPath, newPath, callback) {
   var repeat = 0;
@@ -330,15 +332,22 @@ exports.getRecentAccessData = getRecentAccessData;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,repoPath,desRepoPath,callback){
+function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,callback){
   //First pull real file
   //Second pull des file
-  resourceRepo.pullFromOtherRepo(deviceId,address,account,repoPath,function(files){
-    console.log(files);
-    resourceRepo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(files){
-      console.log(files);
+  resourceRepo.pullFromOtherRepo(deviceId,address,account,repoPath,function(realFileNames){
+    resourceRepo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
+      var aFilePaths = new Array();
+      desFileNames.forEach(function(desFileName){
+        aFilePaths.push(utils.getDesPath(category,desFileName));
+      });
+      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
       //TODO base on files, modify data in db
-      callback(deviceId,address,account);
+      dataDes.readDesFiles(aFilePaths,function(desObjs){
+        dataDes.writeDesObjs2Db(desObjs,function(status){
+          callback(deviceId,address,account);
+        });
+      });
     });
   });
 }

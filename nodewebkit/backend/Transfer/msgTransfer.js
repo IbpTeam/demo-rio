@@ -17,6 +17,7 @@ var fs = require("fs");
 var cp = require("child_process");
 var path = require("path");
 var documents = require("../data/document");
+var pictures = require("../data/picture");
 
 // @Enum sync state
 var syncState = {
@@ -426,7 +427,9 @@ function syncStart(msgObj){
     case syncState.SYNC_RESPONSE:{
       //Start to sync
       iCurrentState = syncState.SYNC_START;
-      documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+        pictures.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      });
       //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       break;
     }
