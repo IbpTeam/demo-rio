@@ -225,7 +225,6 @@ exports.getGitLog = function(repoPath, callback) {
     callback(null, commitLog)
   })
 }
-<<<<<<< HEAD
 
 exports.repoReset = function(repoPath, commitID, callback) {
   var exec = require('child_process').exec;
@@ -243,5 +242,3 @@ exports.repoReset = function(repoPath, commitID, callback) {
     }
   })
 }
-=======
->>>>>>> 658b5fdd05609a34cb93a5d509cad9e09a80b724

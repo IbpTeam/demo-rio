@@ -347,10 +347,11 @@ function openDataByUri(openDataByUriCb, uri) {
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
-      util.log("item.path="+item.path);
-      var desFilePath = item.path.replace(CATEGORY_NAME,DES_DIR)+".md";
-      util.log("desPath="+desFilePath);
-      dataDes.updateItem(desFilePath,updateItem, function() {
+      util.log("item.path=" + item.path);
+      var re = new RegExp('/' + CATEGORY_NAME + '/')
+      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
+      util.log("desPath=" + desFilePath);
+      dataDes.updateItem(desFilePath, updateItem, function() {
         resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
@@ -366,7 +367,7 @@ function openDataByUri(openDataByUriCb, uri) {
       });
     }
   }
-  getByUri(uri,getItemByUriCb);
+  getByUri(uri, getItemByUriCb);
 }
 exports.openDataByUri = openDataByUri;
 
@@ -390,10 +391,10 @@ exports.getRecentAccessData = getRecentAccessData;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
-  commonHandle.pullRequest(deviceId,address,account,sRepoPath,sDesRepoPath,callback);
+function pullRequest(deviceId, address, account, resourcesPath, callback) {
+  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath, DES_DIR);
+  commonHandle.pullRequest(deviceId, address, account, sRepoPath, sDesRepoPath, callback);
 }
 exports.pullRequest = pullRequest;
 
@@ -412,7 +413,7 @@ exports.pullRequest = pullRequest;
  *
  **/
 function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!') 
+  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
   resourceRepo.getGitLog(REAL_REPO_DIR, callback);
 }
 exports.getGitLog = getGitLog;
@@ -421,7 +422,7 @@ exports.getGitLog = getGitLog;
 /** 
  * @Method: repoReset
  *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo 
+ *    -des file repo
  *
  * @param1: repoResetCb
  *    @result, (_err,result)
@@ -449,12 +450,16 @@ function repoReset(commitID, callback) {
         resourceRepo.repoReset(REAL_REPO_DIR, commitID, function(err, result) {
           if (err) {
             console.log(err);
-            callback({'document':err}, null);
+            callback({
+              'document': err
+            }, null);
           } else {
             resourceRepo.repoReset(DES_REPO_DIR, desCommitID, function(err, result) {
               if (err) {
                 console.log(err);
-                callback({'document':err}, null);
+                callback({
+                  'document': err
+                }, null);
               } else {
                 console.log('reset success!')
                 callback(null, result)
@@ -465,7 +470,9 @@ function repoReset(commitID, callback) {
       } else {
         var _err = 'related des commit id error!';
         console.log(_err);
-        callback({'document':_err}, null);
+        callback({
+          'document': _err
+        }, null);
       }
     }
   })
