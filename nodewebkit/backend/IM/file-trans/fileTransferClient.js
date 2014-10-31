@@ -4,8 +4,6 @@ var client = require('./client');
 var request = require('request');
 var util = require('util');
 var HashTable = require('hashtable');
-//var TAPE_SIZE=10;
-//var BLOK_SIZE=65536;
 var RATIO_SIZE = 0.1;
 
 var transferHashTable = new HashTable();
@@ -15,9 +13,6 @@ function cancelTransfer(path, callback) {
   if (fileTransferStream !== undefined) {
     fileTransferStream.abort();
     transferHashTable.remove(path);
-    //     client.transferFileCancel(ip,ltnPort,path,function(){      
-    //  console.log('   transferFileRatio----transferFileCancel---');
-    //       });
   }
   callback();
 }
@@ -51,10 +46,6 @@ function fileTransfer(ip, filePort, ltnPort, path, output, length, callback) {
           console.log('   transferFileRatio----ondata---');
         });
       }
-      //         if(currentRatio>0.5)
-      //     cancelTransfer(path,function(){
-      //     console.log('client cancel accept file');
-      //    });
     });
     read.on('end', function(data) {
       test.end();

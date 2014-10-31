@@ -33,11 +33,6 @@ function transferProcessing(rstObj) {
     case 1:
       { //显示进度信息---------正在传输百分之。。。---界面显示  
         console.log('transferProcessing--okkkkkkkkk------' + rstObj.path + ' ' + ' ' + rstObj.ratio);
-        //       if(rstObj.ratio>0.5){
-        //    transferCancel('192.168.160.66',rstObj.path,function(){
-        //    console.log('server do not want to transfer!!!'+rstObj.path);
-        //  });
-        //       }
       }
       break;
     default:
@@ -67,11 +62,6 @@ function transferFile(ip, input, name, callback) {
             //   });         
             client.fileTransferStart(true, '', '', '', '', name, 0, function(err, rstObj) {
               serverAndMapHandler();
-              /*if(err||rstObj.state==='1'){//接收端 初始化接收信息失败 或 接收端回复信息出错 ---------界面显示     
-      serverAndMapHandler();          
-    }else{//显示正在传输文件---------界面显示     
-      console.log('transfer------ing--------'+JSON.stringify(rstObj));                    
-    } */
             });
           } else {
             fileServer = server;
