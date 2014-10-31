@@ -57,7 +57,7 @@ function loadResources(loadResourcesCb, path) {
   var PicList = [];
   var DskList = [];
 
-  function walk(path, pathDes) {
+  function walk(path) {
     var dirList = fs.readdirSync(path);
     dirList.forEach(function(item) {
       if (fs.statSync(path + '/' + item).isDirectory()) {
@@ -1092,7 +1092,7 @@ exports.getGitLog = getGitLog;
 /** 
  * @Method: repoReset
  *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo 
+ *    -des file repo
  *
  * @param1: repoResetCb
  *    @result, (_err,result)
@@ -1113,6 +1113,26 @@ exports.getGitLog = getGitLog;
 function repoReset(repoResetCb, category, commitID) {
   console.log("Request handler 'getGitLog' was called.");
   var cate = utils.getCategoryObject(category);
-  cate.repoReset(commitID, repoResetCb);
+  cate.repoReset(commitID, function(err, result) {
+    if (err) {
+      var _err = {
+        'data': err
+      }
+      console.log(_err);
+      repoResetCb(_err, null);
+    } else {
+      commonHandle.updateDB(category, function(err, result) {
+        if (err) {
+          var _err = {
+            'data': err
+          }
+          console.log(_err, null);
+        } else {
+          console.log('reset ' + category + ' repo success!');
+          repoResetCb(null, result);
+        }
+      })
+    }
+  });
 }
 exports.repoReset = repoReset;

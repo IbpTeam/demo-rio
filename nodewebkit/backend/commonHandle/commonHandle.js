@@ -88,6 +88,7 @@ function createData(item, callback) {
   var sDesDir = utils.getDesDir(category);
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+  item.path = sFilePath;
   copyFile(sOriginPath, sFilePath, function(result) {
     if (result !== 'success') {
       console.log(result);
@@ -169,6 +170,7 @@ function createDataAll(items, callback) {
       var sRealDir = utils.getRealDir(category);
       var sFilePath = path.join(sRealDir, sFileName);
       var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+      _item.path = sFilePath;
       copyFile(sOriginPath, sFilePath, function(result) {
         if (result !== 'success') {
           console.log(result);
@@ -303,7 +305,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
 /** 
  * @Method: repoReset
  *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo 
+ *    -des file repo
  *
  * @param1: repoResetCb
  *    @result, (_err,result)
@@ -321,7 +323,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
  *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
  *
  **/
-function getRecentAccessData(category, getRecentAccessDataCb, num) {
+exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
   function findItemsCb(err, items) {
     if (err) {
       console.log(err);
@@ -336,4 +338,57 @@ function getRecentAccessData(category, getRecentAccessDataCb, num) {
   var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
 }
-exports.getRecentAccessData = getRecentAccessData;
+
+exports.updateDB = function(category, updateDBCb) {
+  var desRepoDir = utils.getDesDir(category);
+  fs.readdir(desRepoDir, function(err, files) {
+    if (err) {
+      console.log(err);
+      updateDBCb({
+        'commonHandle': err
+      }, null);
+    } else {
+      var allFileInfo = [];
+      var count = 0;
+      var lens = files.length;
+      console.log(files);
+      for (var i = 0; i < lens; i++) {
+        var fileItem = path.join(utils.getDesDir(category), files[i]);
+        var isEnd = (count === lens - 1);
+        (function(_fileItem, _isEnd) {
+          fs.readFile(_fileItem, 'utf8', function(err, data) {
+            var oFileInfo = JSON.parse(data);
+            console.log('$$$$$$$$$$$$$$', oFileInfo)
+            allFileInfo.push(oFileInfo);
+            if (_isEnd) {
+              console.log(allFileInfo)
+              var items = [{
+                category: category
+              }];
+              commonDAO.deleteItems(items, function(result) {
+                if (result == 'commit') {
+                  commonDAO.createItems(allFileInfo, function(result) {
+                    if (result == 'commit') {
+                      updateDBCb(null, 'success');
+                    } else {
+                      var _err = {
+                        'commonHandle': 'create items error!'
+                      }
+                      updateDBCb(_err, null);
+                    }
+                  })
+                } else {
+                  var _err = {
+                    'commonHandle': 'delete items error!'
+                  }
+                  updateDBCb(_err, null);
+                }
+              })
+            }
+          })
+          count++;
+        })(fileItem, isEnd)
+      }
+    }
+  })
+}

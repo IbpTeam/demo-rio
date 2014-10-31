@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var commit_id = "9a67fd92557d84e2f657122e54c190b83cc6e185";
+  var commit_id = "664fada60cc3c97c21fce472540dbc30a5607028";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -49,7 +49,7 @@
   }
   function test_getGitLog(getGitLogCb){
     WDC.requireAPI(['data'], function(data){
-      data.getGitLog(getGitLogCb,'picture');
+      data.getGitLog(getGitLogCb,'document');
     });        
   }
 
@@ -67,7 +67,7 @@
   }
   function test_repoReset(repoResetCb){
     WDC.requireAPI(['data'], function(data){
-      data.repoReset(repoResetCb,'picture',commit_id);
+      data.repoReset(repoResetCb,'document',commit_id);
     });        
   }
 
