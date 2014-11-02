@@ -12,7 +12,6 @@ var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
 var keySizeBits = 1024;
 var size = 65537;
-
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;

@@ -12,6 +12,7 @@
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var path = require("path");
 var filesHandle = require("../filesHandle");
 var commonDAO = require("./CommonDAO");
@@ -74,7 +75,7 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs.writeFile(sPath, sItem,{flag:'wx'},function (err) {
+  fs_extra.writeFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
@@ -135,6 +136,62 @@ function sortObj(Item,callback){
   createDesFile(oNewItem,itemDesPath,callback);
 }
 
+/** 
+ * @Method: readDesFiles
+ *    Read describe file and generate desObj.
+ * @param: filePaths
+ *    An array of describe file path.
+ * @param: callback
+ *    Callback return all describe object.
+ **/
+function readDesFiles(filePaths,callback){
+  var aDesObj = new Array();
+  var iFileNum = 0;
+  filePaths.forEach(function(filePath){
+    readDesFile(filePath,function(fileObj){
+      iFileNum++;
+      if(fileObj != null)
+        aDesObj.push(fileObj);
+      if(iFileNum == filePaths.length)
+        callback(aDesObj);
+    });
+  });
+}
+exports.readDesFiles = readDesFiles;
+
+/** 
+ * @Method: readDesFile
+ *    Read describe file and generate desObj.
+ * @param: filePath
+ *    Describe file path.
+ * @param: callback
+ *    Callback return all describe object.
+ **/
+function readDesFile(filePath,callback){
+  fs.readFile(filePath,'utf8',function(err,data){
+    if(err){
+      console.log("read file error!");
+      console.log(err);
+      callback(null);
+      return;
+    }
+    callback(JSON.parse(data));
+  });
+}
+exports.readDesFile = readDesFile;
+
+/** 
+ * @Method: writeDesObjs2Db
+ *    Write desObj to database.
+ * @param: desObjs
+ *    An array of desObj.
+ * @param: callback
+ *    Callback.
+ **/
+function writeDesObjs2Db(desObjs,callback){
+  commonDAO.createItems(desObjs,callback);
+}
+exports.writeDesObjs2Db = writeDesObjs2Db;
 
 /** 
  * @Method: deleteItem
@@ -171,11 +228,9 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
-exports.updateItem = function(chItem,attrs,itemDesPath,callback){
-  var nameindex=chItem.lastIndexOf('/');
-  var fileName=chItem.substring(nameindex+1,chItem.length);
-  var desFilePath = itemDesPath+"/"+fileName+".md";
-  fs.readFile(desFilePath,'utf8',function(err,data){
+exports.updateItem = function(file,attrs,callback){
+  console.log("update::::::::::"+file);
+  fs.readFile(file,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
        console.log(err);
@@ -186,7 +241,7 @@ exports.updateItem = function(chItem,attrs,itemDesPath,callback){
         json[attr]=attrs[attr];
       }
       var sItem = JSON.stringify(json,null,4);
-      fs.open(desFilePath,"w",0644,function(err,fd){
+      fs.open(file,"w",0644,function(err,fd){
         if(err){
           console.log("open des file error!");         
         }
@@ -225,11 +280,12 @@ exports.updateItems = function(oItems,callback){
     var category = item.category;
     var filePath = "";
     var desFilePath = "";
-    if(category === "Contacts"){
-      desFilePath = config.RESOURCEPATH + '/.des/contacts/'+item.name+'.md';
+    if(category === "contact"){
+      desFilePath = config.RESOURCEPATH + '/contactDes/data/'+item.name+'.md';
     }else{
       filePath = item.path;
-      desFilePath = (filePath.replace(/\/resources\//,'/resources/.des/')) + '.md';
+      var re = new RegExp('/'+category.toLowerCase()+'/', "i");
+      desFilePath = (filePath.replace(re,'/'+category.toLowerCase()+'Des/')) + '.md';
     }
     updateItemsHelper(callback,desFilePath,item);
   }

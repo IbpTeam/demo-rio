@@ -165,20 +165,20 @@ function path_transfer(front_path, base_dir){
     case 'root':
       return base_dir;
       break;
-    case 'root/Contacts':
+    case 'root/Contact':
       return null;
       break;
-    case 'root/Pictures':
-     return base_dir+'/pictures';
+    case 'root/Picture':
+     return base_dir+'/picture';
       break;
-    case 'root/Videos':
-      return base_dir+'/videos';
+    case 'root/Video':
+      return base_dir+'/video';
       break;
-    case 'root/Documents':
-      return base_dir+'/documents';
+    case 'root/Document':
+      return base_dir+'/document';
       break;
     case 'root/Music':
-      return base_dir+'/musics';
+      return base_dir+'/music';
       break;
     default:
       return null;
@@ -327,10 +327,10 @@ function Folder(jquery_element) {
 //          }        
 //        }
         if($(dst_file).attr('data-path').lastIndexOf('.') != -1 || 
-        $(dst_file).attr('data-path') == 'root/Contacts' || 
-        $(dst_file).attr('data-path') == 'root/Pictures' || 
-        $(dst_file).attr('data-path') == 'root/Videos' || 
-        $(dst_file).attr('data-path') == 'root/Documents' || 
+        $(dst_file).attr('data-path') == 'root/Contact' || 
+        $(dst_file).attr('data-path') == 'root/Picture' || 
+        $(dst_file).attr('data-path') == 'root/Video' || 
+        $(dst_file).attr('data-path') == 'root/Document' || 
         $(dst_file).attr('data-path') == 'root/Music'){
           var file_json = self.find_json_by_path($(dst_file).attr('data-path'));
           if(!file_json){
@@ -457,10 +457,10 @@ function Folder(jquery_element) {
   this.files.delegate('.file', 'dblclick', function(e) {
     var file_json;
     if($(this).attr('data-path').lastIndexOf('.') != -1 || 
-       $(this).attr('data-path') == 'root/Contacts' || 
-       $(this).attr('data-path') == 'root/Pictures' || 
-       $(this).attr('data-path') == 'root/Videos' || 
-       $(this).attr('data-path') == 'root/Documents' || 
+       $(this).attr('data-path') == 'root/Contact' || 
+       $(this).attr('data-path') == 'root/Picture' || 
+       $(this).attr('data-path') == 'root/Video' || 
+       $(this).attr('data-path') == 'root/Document' || 
        $(this).attr('data-path') == 'root/Music'){     
       file_json = self.find_json_by_path($(this).attr('data-path'));
       if(!file_json){
@@ -650,32 +650,32 @@ Folder.prototype.get_callback_data = function(data_json){
     }        
     global_self.emit('set_favorites', data_json);	 
     break;
-  case 'root/Contacts':
+  case 'root/Contact':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
       //data_json[i]['img'] = data_json[i]['photoPath'];
-      data_json[i]['props']['path'] = 'root/Contacts/'+data_json[i]['name']+'.contacts';
+      data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
       data_json[i]['props']['name'] = data_json[i]['name'];
       data_json[i]['props']['type'] = 'other';
       data_json[i]['props']['icon'] = 'Contacts';
     }
     global_self.emit('set_sidebar', data_json);
     break;
-  case 'root/Pictures':
+  case 'root/Picture':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
       data_json[i]['props']['img'] = data_json[i]['path'];
-      data_json[i]['props']['path'] = 'root/Pictures/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+      data_json[i]['props']['path'] = 'root/Picture/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
       data_json[i]['props']['name'] = data_json[i]['filename'];      
       data_json[i]['props']['type'] = 'file';
       data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);;
     }
     global_self.emit('set_sidebar', data_json);
     break;
-  case 'root/Videos':
+  case 'root/Video':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Videos/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+      data_json[i]['props']['path'] = 'root/Video/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
       data_json[i]['props']['name'] = data_json[i]['filename'];
       //data_json[i]['img'] = '.'+data_json[i]['photoPath'];            
       data_json[i]['props']['type'] = 'file';
@@ -683,10 +683,10 @@ Folder.prototype.get_callback_data = function(data_json){
     }
     global_self.emit('set_sidebar', data_json);
     break;
-  case 'root/Documents':
+  case 'root/Document':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Documents/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+      data_json[i]['props']['path'] = 'root/Document/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
       data_json[i]['props']['name'] = data_json[i]['filename'];   
       data_json[i]['props']['type'] = 'file';
       data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
@@ -1006,17 +1006,17 @@ Folder.prototype.open = function(dir) {
   case 'root':
     DataAPI.getAllCate(this.get_callback_data);
     break;
-  case 'root/Contacts':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Contacts');
+  case 'root/Contact':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Contact');
     break;
-  case 'root/Pictures':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Pictures');
+  case 'root/Picture':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Picture');
     break;
-  case 'root/Videos':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Videos');
+  case 'root/Video':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Video');
     break;
-  case 'root/Documents':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Documents');
+  case 'root/Document':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Document');
     break;
   case 'root/Music':
     DataAPI.getAllDataByCate(this.get_callback_data, 'Music');

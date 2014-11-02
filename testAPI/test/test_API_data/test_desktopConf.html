@@ -15,7 +15,6 @@
 </head>
 <body>
   <script language=javascript>  
-  WDC.startServer();//start server
 
   function print(win, something) {
     if (typeof something == "object") {
@@ -46,11 +45,30 @@
     }
   }
 
-  function readThemeConfCb(err, result) {
+  function initDesktopCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
+      win.document.write("test API initDesktop()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_initDesktop(initDesktopCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.initDesktop(initDesktopCb);
+    });
+  }
+
+  function readThemeConfCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+
       win.document.write("test API readThemeConf()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -58,7 +76,6 @@
       print(win, result)
     };
   }
-
   function test_readThemeConf(readThemeConfCb) {
     WDC.requireAPI(['data'], function(data) {
       data.readThemeConf(readThemeConfCb);
@@ -66,10 +83,11 @@
   }
 
   function writeThemeConfCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
+      
       win.document.write("test API writeThemeConf()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -92,10 +110,11 @@
   }
 
   function readWidgetConfCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
+      
       win.document.write("test API readWidgetConf()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -111,10 +130,11 @@
   }
 
   function writeWidgetConfCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
+      
       win.document.write("test API writeWidgetConf()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -137,10 +157,11 @@
   }
 
   function readDesktopFileCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
+      
       win.document.write("test API readDesktopFile()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -151,16 +172,17 @@
 
   function test_readDesktopFile(readDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'totem';
+      var sFileName = 'cinnamon';
       data.readDesktopFile(readDesktopFileCb, sFileName);
     });
   }
 
   function writeDesktopFileCb(err, result) {
+    var win = window.open('');
     if (err) {
-      print(err);
+      print(win,err);
     } else {
-      var win = window.open('');
+      
       win.document.write("test API writeDesktopFile()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -263,7 +285,7 @@
   }
   function test_CreateWatcher(CreateWatcherCb) {
     WDC.requireAPI(['data'], function(data) {
-      var watchDir = '/resources/.desktop/desktop';
+      var watchDir = '/data/desktop';
       data.CreateWatcher(CreateWatcherCb, watchDir);
     });
   }
@@ -301,8 +323,8 @@
   }
   function test_copyFile(copyFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldPath = '/testFile/book.pdf';
-      var newPath = '/testFile/test_book.pdf';
+      var oldPath = '/data/Theme.conf';
+      var newPath = '/data/desktop/test.txt';
       data.copyFile(copyFileCb, oldPath, newPath);
     });
   }
@@ -321,14 +343,69 @@
   }
   function test_moveFile(moveFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldPath = '/resources/documents';
-      var newPath = '/testFile/test';
+      var oldPath = '/data/desktop/test.txt';
+      var newPath = '/data/test.txt';
       data.moveFile(moveFileCb, oldPath, newPath);
+    });
+  }
+
+  function renameDesktopFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API renameDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_renameDesktopFile(renameDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oldName = 'cinnamon';
+      var newName = 'test_rename';
+      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
     });
   }
 
 
   </script>
+
+<h2 onclick="show('initDesktop')">initDesktop(initDesktopCb)<span><a class="mark" href="#test_initDesktop" id="test_initDesktop" onclick="test_initDesktop(initDesktopCb)">test</a></span></h2>
+<div id="initDesktop" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @Method: readThemeConf
+     read file Theme.conf
+ 
+  @param: callback
+     result as a json object
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function initDesktopCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+
+      win.document.write("test API initDesktop()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_initDesktop(initDesktopCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.initDesktop(initDesktopCb);
+    });
+  }      
+</pre>
+</div>
+</div>
 
 <h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
 <div id="readThemeCon" style="display:none;">
@@ -706,6 +783,38 @@
       var fromPath = '/testFile/book.pdf';
       var toPath = '/testFile/test_book.pdf';
       data.moveFile(moveFileCb, fromPath, toPath);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('renameDesktopFile')">renameDesktopFile(renameDesktopFileCb)<span><a class="mark" href="#test_renameDesktopFile" id="test_renameDesktopFile" onclick="test_renameDesktopFile(renameDesktopFileCb)">test</a></span></h2>
+<div id="renameDesktopFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function renameDesktopFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API renameDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_renameDesktopFile(renameDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oldPath = 'cinnamon';
+      var newPath = 'test_rename';
+      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
     });
   }
 </pre>
