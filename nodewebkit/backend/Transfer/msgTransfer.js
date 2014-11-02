@@ -500,7 +500,7 @@ function syncComplete(msgObj){
     case syncState.SYNC_COMPLETE:{
       var device = {
         device_id:msgObj.deviceId,
-        ip:msgObj.deviceIp,
+        ip:msgObj.ip,
         account:msgObj.deviceAccount
       };
       var completeMsg = {
