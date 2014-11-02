@@ -150,6 +150,7 @@ function readDesFiles(filePaths,callback){
   filePaths.forEach(function(filePath){
     readDesFile(filePath,function(fileObj){
       iFileNum++;
+      console.log("num:"+iFileNum+"-------------------------------------------length:"+filePaths.length);
       if(fileObj != null)
         aDesObj.push(fileObj);
       if(iFileNum == filePaths.length)
