@@ -304,7 +304,7 @@ function setTagByUri(callback, oTags, sUri) {
           files.push(desFilePath);
         }
         var chPath = config.RESOURCEPATH + '/' + category.toLowerCase() + 'Des';
-        repo.repoChsCommit(chPath, files, function() {
+        repo.repoChsCommit(chPath, files, null, function() {
           callback(result);
         });
       } else {
@@ -382,7 +382,7 @@ function rmTagsByUri(callback, oTags, oUri) {
               }
               console.log(files);
               var desPath = config.RESOURCEPATH + '/' + category.toLowerCase() + 'Des';
-              repo.repoChsCommit(desPath, files, function() {
+              repo.repoChsCommit(desPath, files, null, function() {
                 callback(result);
               });
             } else {
@@ -459,7 +459,7 @@ function rmTagsAll(callback, oTags) {
                 files.push(desFilePath);
               }
               var desPath = config.RESOURCEPATH + '/' + category.toLowerCase() + 'Des';
-              repo.repoChsCommit(desPath, files, function() {
+              repo.repoChsCommit(desPath, files, null, function() {
                 callback(result);
               });
             } else {
