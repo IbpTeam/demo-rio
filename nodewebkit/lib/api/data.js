@@ -203,7 +203,7 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if (cate == 'Contacts' || cate == 'contacts') {
+  if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
     commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
