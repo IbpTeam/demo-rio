@@ -305,7 +305,8 @@ exports.openDataByUri = openDataByUri;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  filesHandle.updateDataValue(updateDataValueCb, item);
+  var cate = utils.getCategoryObject(item[0].category);
+  cate.updateDataValue(item[0], updateDataValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
