@@ -16,17 +16,17 @@
 <body>
   <script language=javascript>  
 
-  var commit_id = "664fada60cc3c97c21fce472540dbc30a5607028";
+  var commit_id = "257ab40866dc2c98016986109578fd067671e9d7";
 
   function print(win,something){
     if(typeof something == "object"){
       win.document.write("{");
+      win.document.write("<br/>");
       for(var k in something){
         win.document.write(k);
         win.document.write(" : ");
         print(win,something[k]);
         win.document.write(", ");        
-        win.document.write("<br/>");
       }
       win.document.write("}");
       win.document.write("<br/>");
