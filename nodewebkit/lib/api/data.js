@@ -23,6 +23,18 @@ var dskhandle = require('../../backend/data/desktop');
 var repo = require('../../backend/commonHandle/repo');
 
 /*
+*getLocalData
+*/
+function getLocalData(getLocalDataCb){
+  var localJson={};
+  localJson['account']=imChat.LOCALACCOUNT;
+  localJson['UID']=imChat.LOCALUUID;
+ 
+  getLocalDataCb(localJson);
+}
+exports.getLocalData = getLocalData;
+
+/*
  *IMChat
  */
 function startIMChatServer(startIMChatServerCb) {
@@ -32,8 +44,8 @@ function startIMChatServer(startIMChatServerCb) {
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb, ipset, msg) {
-  imChat.sendMSGbyUIDNoRSA(ipset, "rtty123", msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb,ipset, toAccount,msg){
+  imChat.sendMSGbyUIDNoRSA(ipset,toAccount, msg, 6986, sendIMMsgCb);
 }
 exports.sendIMMsg = sendIMMsg;
 

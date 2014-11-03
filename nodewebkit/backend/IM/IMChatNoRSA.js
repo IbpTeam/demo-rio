@@ -14,7 +14,8 @@ var keySizeBits = 1024;
 var size = 65537;
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
-
+exports.LOCALACCOUNT=LOCALACCOUNT;
+exports.LOCALUUID=LOCALUUID;
 /*
  * @method MD5
  *  计算某个字符串的MD5值
@@ -76,7 +77,6 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
           break;
         case 'Reply':
           {
-            //console.log("=========================================");
             //sender received message, sesson end
           }
           break;
