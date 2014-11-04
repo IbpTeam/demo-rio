@@ -86,7 +86,6 @@ WDC.requireAPI(['data', 'app'], function(data, app){
     DataAPI.startIMChatServer(function(msgobj){
       im_view.showRec(msgobj);
     });
-
   });
 });
 
