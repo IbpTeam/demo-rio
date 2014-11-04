@@ -96,6 +96,27 @@ exports.repoChsCommit = function(repoPath, files, commitID, callback) {
   });
 }
 
+exports.repoResetCommit = function(repoPath, file, commitID, callback) {
+  var exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git commit -m ';
+  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
+  var deviceInfo = '"device":"' + config.uniqueID + '"';
+  var opInfo = '"op":"reset"';
+  var fileInfo = '"file":["' + file + '"]';
+  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
+  comstr = +commitLog + "'";
+  console.log(file);.
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
+  exec(comstr, function(error, stdout, stderr) {
+    if (error) {
+      console.log("Git change error");
+    } else {
+      console.log("Git change success");
+      callback();
+    }
+  });
+}
+
 exports.getLatestCommit = function(repoPath, callback) {
   console.log("getLatestCommit " + repoPath);
   //open a git repo
@@ -130,43 +151,42 @@ exports.getLatestCommit = function(repoPath, callback) {
   });
 }
 
-function getPullFileList(stdout){
-  var line=stdout.split("\n");
-  for(var index in line){
-    if(line[index].indexOf('|')==-1 ){
+function getPullFileList(stdout) {
+  var line = stdout.split("\n");
+  for (var index in line) {
+    if (line[index].indexOf('|') == -1) {
       line.pop(line[index]);
     }
   }
-  console.log("###################################"+line);
-  for(var index in line){
-    if(line[index].indexOf('data/')==-1){
+  console.log("###################################" + line);
+  for (var index in line) {
+    if (line[index].indexOf('data/') == -1) {
       line.pop(line[index]);
     }
   }
-  console.log("###################################"+line);
-  for(var index in line){
-    var endIndex=line[index].indexOf('|');
-    line[index]=line[index].substring(0,endIndex).trim();
+  console.log("###################################" + line);
+  for (var index in line) {
+    var endIndex = line[index].indexOf('|');
+    line[index] = line[index].substring(0, endIndex).trim();
   }
-  console.log("###################################"+line);
-  for(var index in line){
+  console.log("###################################" + line);
+  for (var index in line) {
     console.log(line[index]);
   }
 
-  console.log("###################################"+line);
+  console.log("###################################" + line);
   line.shift();
   return line;
-} 
+}
 
-exports.pullFromOtherRepo = function (deviceId,address,account,resourcesPath,callback)
-{
+exports.pullFromOtherRepo = function(deviceId, address, account, resourcesPath, callback) {
   var sBaseName = path.basename(resourcesPath);
-  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
+  var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
   var cp = require('child_process');
-  var cmd = 'cd '+sLocalResourcesPath+'&& git pull '+account+'@'+address+':'+resourcesPath;
+  var cmd = 'cd ' + sLocalResourcesPath + '&& git pull ' + account + '@' + address + ':' + resourcesPath;
   console.log(cmd);
-  cp.exec(cmd,function(error,stdout,stderr){
-    console.log(stdout+stderr);
+  cp.exec(cmd, function(error, stdout, stderr) {
+    console.log(stdout + stderr);
     callback(getPullFileList(stdout));
   });
 }
@@ -239,6 +259,26 @@ exports.repoReset = function(repoPath, commitID, callback) {
     } else {
       console.log('success', stdout);
       callback(null, 'success');
+    }
+  })
+}
+
+exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callback) {
+  var exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + file;
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  exec(comstr, function(err, stdout, stderr) {
+      if (err) {
+        console.log(err, stderr);
+        callback({
+          'repo': err
+        }, null);
+      } else {
+        repoResetCommit(repoPath, file, relateCommitId, function() {
+          console.log('reset file: ' + file + ' success!');
+          callback(null, 'success');
+        })
+      }
     }
   })
 }
