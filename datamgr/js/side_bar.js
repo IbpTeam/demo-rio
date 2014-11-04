@@ -107,6 +107,7 @@ SideBar.prototype.set_tags = function(json){
   }
 }
 */
+/*
 SideBar.prototype.set_filters = function(json){
   var self = this;
   var result = [];
@@ -122,28 +123,28 @@ SideBar.prototype.set_filters = function(json){
 		    result.push('<input type="button" id="filter_135" value="345开头"/>');
             self.filters.delegate("#filter_135", "click", function(){
               var keyword = "345";
-//              self.do_filter(json, keyword);
+              self.do_filter(json, keyword);
             });
 		    break;
 		  case 'Pictures':
 		    result.push('<input type="button" id="filter_group" value="版本组"/>');
         self.filters.delegate("#filter_group", "click", function(){
           var keyword = "版本组";
-//          self.do_filter(json, keyword);
+          self.do_filter(json, keyword);
         });
 		    break;
 		  case 'Music':
 		    result.push('<input type="button" id="filter_jay" value="东风破"/>');
         self.filters.delegate("#filter_jay", "click", function(){
           var keyword = "东风破";
-//          self.do_filter(json, keyword);
+          self.do_filter(json, keyword);
         });
 		    break;
 		  case 'Documents':
 		    result.push('<input type="button" id="filter_hgj" value="COS Desktop"/>');
         self.filters.delegate("#filter_hgj", "click", function(){
           var keyword = "COS Desktop";
-//          self.do_filter(json, keyword);
+          self.do_filter(json, keyword);
         });
 		    break;
       default:
@@ -152,7 +153,7 @@ SideBar.prototype.set_filters = function(json){
 	}
   self.filters.html(result.join('\n'));
 }
-
+*/
 
 /*SideBar.prototype.do_filter = function(json){
   var self = this;

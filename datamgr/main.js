@@ -53,7 +53,7 @@ WDC.requireAPI(['data', 'app'], function(data, app){
     folder.on('set_sidebar', function(event){
       var messages = Array.prototype.slice.call(arguments, 1);
       sidebar.set_tags(messages);
-      sidebar.set_filters(messages);
+//      sidebar.set_filters(messages);
       sidebar.set_recent(messages);
     });
     
