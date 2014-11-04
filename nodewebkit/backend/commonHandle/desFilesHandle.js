@@ -253,7 +253,8 @@ exports.updateItem = function(file,attrs,callback){
               console.log(err);
             }
             else{
-              callback();
+              console.log(sItem)
+              callback("success");
             }
           });
         }
@@ -273,7 +274,6 @@ exports.updateItem = function(file,attrs,callback){
  **/
 var length;
 exports.updateItems = function(oItems,callback){
-  console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{");
   console.log(oItems);
   length = oItems.length;
   for(var k in oItems){
