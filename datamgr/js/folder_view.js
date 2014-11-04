@@ -5,8 +5,7 @@
 //eval(fs.readFileSync('../backend/api.js')+'');
 
 //var ip='192.168.160.176';
-var ip = '127.0.0.1';
-var port = ':8888';
+
 // Template engine
 function gen_popup_dialog(title, message, data_json){
   $("#popup_dialog").remove();
