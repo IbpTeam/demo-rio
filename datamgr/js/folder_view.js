@@ -67,7 +67,7 @@ function get_all_data_file(data_json){
     file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
   }
   if(data_json.hasOwnProperty('URI')){
-    file_propery += '<button type="button" class="btn btn-primary" id="edit_button" data-dismiss="modal">Edit</button>';
+    file_propery += '<button type="button" class="btn active" id="edit_button" data-dismiss="modal">Edit</button>';
   }
   gen_popup_dialog('Property', file_propery, data_json);
 }
@@ -82,7 +82,7 @@ function gen_edit_dialog(data_json){
     file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
   }
   file_propery += '</form></br>';
-  file_propery += '<button type="button" class="btn btn-success" id="save_button" data-dismiss="modal">Save</button>';
+  file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
   gen_popup_dialog('Edit', file_propery);
   $('#save_button').on('click', function(){
     for(var key in data_json){
@@ -186,6 +186,10 @@ function path_transfer(front_path, base_dir){
   }
 }
 
+function get_category(){
+  return global_dir.substring(global_dir.lastIndexOf('/')+1, global_dir.length).toLowerCase();
+}
+
 function gen_add_tags_dialog(data_uri){
   console.log("gen_add_tags_dialog!", data_uri);
   var file_propery='<form>';
@@ -222,11 +226,15 @@ function Folder(jquery_element) {
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
           case 'New Document'://wangyu: add this action.
-            var target_path = path_transfer(global_dir, data_dir);
-            DataAPI.createFile(function(is_success){
-              console.log('is_success: ', is_success);
-              global_self.open(global_dir);
-            }, 'txt', target_path);
+            var data = new Date();
+            var filename = 'NewFile_' + data.toLocaleString().replace(' ', '_') + '.txt';
+            DataAPI.createFile(function(result){
+              if(result == 'success'){
+                global_self.open(global_dir);
+              }else{
+                window.alert("Add new file failed!");
+              }              
+            }, filename, get_category());
           /*  var filetypes = ['文本文档', 'WPS Word文档', 'WPS Powerpoint文档', 'WPS Excel文档'];
           //  var sub_popup_menu = self.files.gen_popup_menu(filetypes);
             self.files.children('.dropdown-menu').remove();
@@ -281,14 +289,14 @@ function Folder(jquery_element) {
             gen_popup_dialog('属性', '"基于html5的文件管理器模型"');
             break;
           case 'Paste':
-            var real_path = path_transfer(global_dir, data_dir);
-            if(real_path != null){
-              console.log(copied_filepath);
-              DataAPI.pasteFile(function(is_success){
-                console.log('is_success: ', is_success);
+            console.log(copied_filepath);
+            DataAPI.pasteFile(function(result){
+              if(result == 'success'){
                 global_self.open(global_dir);
-              }, copied_filepath, real_path);
-            }
+              }else{
+                window.alert("Paste file failed!");
+              }
+            }, copied_filepath, get_category());
             copied_filepath = '';
             break;
         }
@@ -417,7 +425,9 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(self.after_delete_file,file_json['URI']);
+                  DataAPI.rmDataByUri(function(){
+                    global_self.open(global_dir);
+                  },file_json['URI']);
                 break;
               }
             break;
@@ -523,11 +533,6 @@ function Folder(jquery_element) {
   });
 }
 
-//wangyu: add after delete file operation function
-Folder.prototype.after_delete_file = function(){
-  global_self.open(global_dir);
-}
-
 Folder.prototype.gen_popup_menu = function(contents){
   this.files.children('.dropdown-menu').remove();
   var menu = $('<ul></ul>');
@@ -551,7 +556,6 @@ Folder.prototype.gen_popup_menu = function(contents){
 var global_self;
 var global_dir;
 var file_arch_json = {};
-var data_dir;
 var copied_filepath = '';
 
 //wangyu: add this function for open folder in folder view mode.
@@ -726,8 +730,58 @@ Folder.prototype.get_callback_data = function(data_json){
     break;
   }
   file_arch_json[global_dir] = data_json;
-//console.log('data from server after treat:', data_json);
   global_self.show_folder_view(global_dir);
+}
+
+//wangyu: add this function to show history
+Folder.prototype.show_history = function(){
+  if(global_dir.lastIndexOf('/') != -1){
+    DataAPI.getGitLog(function(err, result){
+      var file_property='';
+      var commitIds = [];
+      for(var commitId in result){
+        commitIds.push(commitId);
+      }
+      var count = 0;
+      for(var i in result){
+        file_property += '<li class="divider">--------------------</li>';
+        file_property += '<p>'+result[i]['Author']+' '+result[i]['content']['op']+' data on '+result[i]['Date'];
+        file_property += ' using device '+result[i]['content']['device']+'</p>';
+        file_property += '<input type=button class="btn active" id='+result[i]['commitID']+' value="More Detail"/>';        
+        if(count == commitIds.length - 1){
+          file_property += '<input type=button class="btn active" name="null" value="Confirm Recover"/>';
+        }else{
+          file_property += '<input type=button class="btn active" name='+commitIds[count + 1]+' value="Confirm Recover"/>';
+          count ++;
+        }
+      }
+      var history_win = Window.create('operation_history', 'Operation History', {left:100, top:100, height: 500, width: 500, resize: true});
+      history_win._windowContent.append(file_property);
+      //gen_popup_dialog('History', file_property);
+      $('input[value="More Detail"]').on('click', function(){
+        var detail_win = Window.create('operation_details', 'Operation Details', {left:150, top:150, height: 500, width: 430, resize: true});
+        var details = '';
+        for(var i=0; i<result[this.id]['content']['file'].length; i++){
+          details += '<p>' + result[this.id]['content']['file'][i] + '</p>';
+        }
+        detail_win._windowContent.append(details);
+      });
+      $('input[value="Confirm Recover"]').on('click', function(){
+        if(this.name == 'null'){
+          window.alert("You are already in the first version, so you can not do recovery operation.");
+        }else{
+          DataAPI.repoReset(function(err, result){
+            if(result == 'success'){
+              window.alert("Version recover successfully!");
+              global_self.open(global_dir);
+            }else{
+              window.alert("Version recover failed!");
+            }
+          }, get_category(), this.name);
+        }
+      });
+    }, get_category());
+  }
 }
 
 //wangyu: add this funtion for folder view.
@@ -735,15 +789,15 @@ Folder.prototype.use_folder_view_mode = function(){
   switch(global_dir){
   case 'root':
     break;
-  case 'root/Contacts':
+  case 'root/Contact':
     break;
-  case 'root/Pictures':
+  case 'root/Picture':
     //getAllDataByCate(this.folder_view_mode_cb, 'Pictures');
     break;
-  case 'root/Videos':
+  case 'root/Video':
     //getAllDataByCate(this.folder_view_mode_cb, 'Videos');
     break;
-  case 'root/Documents':
+  case 'root/Document':
     DataAPI.getAllDataByCate(this.folder_view_mode_cb, 'Documents');
     break;
   case 'root/Music':
@@ -1028,9 +1082,6 @@ Folder.prototype.open = function(dir) {
     window.alert('Path ' + global_dir + ' does not exist.');
     break;
   }
-  DataAPI.getResourceDataDir(function(dataDir){
-    data_dir = dataDir;
-  });
 }
 
 $.extend(Folder.prototype, $.eventEmitter);
