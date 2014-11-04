@@ -67,7 +67,7 @@ function get_all_data_file(data_json){
     file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
   }
   if(data_json.hasOwnProperty('URI')){
-    file_propery += '<button type="button" class="btn btn-primary" id="edit_button" data-dismiss="modal">Edit</button>';
+    file_propery += '<button type="button" class="btn active" id="edit_button" data-dismiss="modal">Edit</button>';
   }
   gen_popup_dialog('Property', file_propery, data_json);
 }
@@ -82,7 +82,7 @@ function gen_edit_dialog(data_json){
     file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
   }
   file_propery += '</form></br>';
-  file_propery += '<button type="button" class="btn btn-success" id="save_button" data-dismiss="modal">Save</button>';
+  file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
   gen_popup_dialog('Edit', file_propery);
   $('#save_button').on('click', function(){
     for(var key in data_json){
@@ -425,7 +425,9 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(self.after_delete_file,file_json['URI']);
+                  DataAPI.rmDataByUri(function(){
+                    global_self.open(global_dir);
+                  },file_json['URI']);
                 break;
               }
             break;
@@ -529,11 +531,6 @@ function Folder(jquery_element) {
     value:15,
     change: self.show_folder_view,
   });
-}
-
-//wangyu: add after delete file operation function
-Folder.prototype.after_delete_file = function(){
-  global_self.open(global_dir);
 }
 
 Folder.prototype.gen_popup_menu = function(contents){
@@ -733,7 +730,6 @@ Folder.prototype.get_callback_data = function(data_json){
     break;
   }
   file_arch_json[global_dir] = data_json;
-//console.log('data from server after treat:', data_json);
   global_self.show_folder_view(global_dir);
 }
 
@@ -741,27 +737,50 @@ Folder.prototype.get_callback_data = function(data_json){
 Folder.prototype.show_history = function(){
   if(global_dir.lastIndexOf('/') != -1){
     DataAPI.getGitLog(function(err, result){
-      var file_propery='';
-      for(var i=0; i<result.length; i++){
-        file_propery += '<li class="divider">--------------------</li>';
-        for(var key in result[i]){
-          if(key == 'content'){
-            for(var content_key in result[i][key]){
-              if(content_key == 'file'){
-                for(var j=0; j<result[i][key][content_key].length; j++){
-                  file_propery += '<p>' + result[i][key][content_key][j] + '</p>';
-                }
-              }else{
-                file_propery += '<p>' + content_key + ': ' + result[i][key][content_key] + '</p>';
-              }
-            }
-          }else{
-            file_propery += '<p>' + key + ': ' + result[i][key] + '</p>';
-          }
+      var file_property='';
+      var commitIds = [];
+      for(var commitId in result){
+        commitIds.push(commitId);
+      }
+      var count = 0;
+      for(var i in result){
+        file_property += '<li class="divider">--------------------</li>';
+        file_property += '<p>'+result[i]['Author']+' '+result[i]['content']['op']+' data on '+result[i]['Date'];
+        file_property += ' using device '+result[i]['content']['device']+'</p>';
+        file_property += '<input type=button class="btn active" id='+result[i]['commitID']+' value="More Detail"/>';        
+        if(count == commitIds.length - 1){
+          file_property += '<input type=button class="btn active" name="null" value="Confirm Recover"/>';
+        }else{
+          file_property += '<input type=button class="btn active" name='+commitIds[count + 1]+' value="Confirm Recover"/>';
+          count ++;
         }
       }
-      gen_popup_dialog('History', file_propery);
-    }, global_dir.substring(global_dir.lastIndexOf('/')+1, global_dir.length).toLowerCase());
+      var history_win = Window.create('operation_history', 'Operation History', {left:100, top:100, height: 500, width: 500, resize: true});
+      history_win._windowContent.append(file_property);
+      //gen_popup_dialog('History', file_property);
+      $('input[value="More Detail"]').on('click', function(){
+        var detail_win = Window.create('operation_details', 'Operation Details', {left:150, top:150, height: 500, width: 430, resize: true});
+        var details = '';
+        for(var i=0; i<result[this.id]['content']['file'].length; i++){
+          details += '<p>' + result[this.id]['content']['file'][i] + '</p>';
+        }
+        detail_win._windowContent.append(details);
+      });
+      $('input[value="Confirm Recover"]').on('click', function(){
+        if(this.name == 'null'){
+          window.alert("You are already in the first version, so you can not do recovery operation.");
+        }else{
+          DataAPI.repoReset(function(err, result){
+            if(result == 'success'){
+              window.alert("Version recover successfully!");
+              global_self.open(global_dir);
+            }else{
+              window.alert("Version recover failed!");
+            }
+          }, get_category(), this.name);
+        }
+      });
+    }, get_category());
   }
 }
 
