@@ -215,7 +215,7 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if (cate == 'Contacts' || cate == 'contacts') {
+  if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
     commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
@@ -317,7 +317,8 @@ exports.openDataByUri = openDataByUri;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  filesHandle.updateDataValue(updateDataValueCb, item);
+  var cate = utils.getCategoryObject(item[0].category);
+  cate.updateDataValue(item[0], updateDataValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
@@ -1048,6 +1049,7 @@ function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
 exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
+
 /** 
  * @Method: getGitLog
  *    To get git log in a specific git repo

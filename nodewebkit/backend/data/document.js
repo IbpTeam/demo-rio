@@ -34,9 +34,9 @@ var device = require('./device');
 
 //@const
 var CATEGORY_NAME = "document";
-var DES_DIR = "documentDes";
+var DES_NAME = "documentDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
+var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 
@@ -400,7 +400,7 @@ exports.getRecentAccessData = getRecentAccessData;
  */
 function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
   commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
