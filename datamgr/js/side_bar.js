@@ -287,16 +287,16 @@ SideBar.prototype.set_favorites = function(favorites_json){
     var str='<li data-path="'+favorites_json[i]['props'].path+'"><a href="#"><i class="';
     switch(favorites_json[i]['props'].name)
     {
-      case 'Contacts':
+      case 'Contact':
         str+='glyphicon glyphicon-user';
         break;
-      case 'Pictures':
+      case 'Picture':
         str+='glyphicon glyphicon-picture';
         break;
-      case 'Videos':
+      case 'Video':
         str+='glyphicon glyphicon-film';
         break;
-      case 'Documents':
+      case 'Document':
         str+='glyphicon glyphicon-book';
         break;
       case 'Music':
