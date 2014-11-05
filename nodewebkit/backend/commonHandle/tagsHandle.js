@@ -270,11 +270,9 @@ function setTagByUri(callback, oTags, sUri) {
     for (var k in items) {
       var item = items[k];
 
-      if (!item.others) {
-        //item has no tags 
+      if (!item.others) { //item has no tags 
         var newTags = oTags.join(",");
-      } else {
-        //item has tag(s)
+      } else { //item has tag(s)
         item.others = item.others + ",";
         var newTags = (item.others).concat(oTags.join(","));
       }
@@ -294,8 +292,8 @@ function setTagByUri(callback, oTags, sUri) {
         var files = [];
         for (var k in tmpDesItem) {
           var desFilePath;
-          if (tmpDesItem[k].category === "Contacts") {
-            desFilePath = config.RESOURCEPATH + '/contactsDes/data/' + tmpDesItem[k].name + '.md';
+          if (tmpDesItem[k].category === "contact") {
+            desFilePath = pathModule.join(config.RESOURCEPATH, 'contactsDes', 'data', tmpDesItem[k].name + '.md');
           } else {
             var filePath = item.path;
             var re = new RegExp('/' + category.toLowerCase() + '/', "i");
@@ -316,6 +314,38 @@ function setTagByUri(callback, oTags, sUri) {
   commonDAO.findItems(null, [category], ["URI = " + "'" + sUri + "'"], null, findItemsCb)
 }
 exports.setTagByUri = setTagByUri;
+
+function rmTagUriSingle(callback, sTag, sUri) {
+  var allFiles = [];
+  var deleteTags = [];
+  var category = utils.getCategoryByUri(sUri);
+  var sCondition = "uri = '" + sUri + "'";
+  commonDAO.findItems(null, [category], sCondition, null, function(err, resultItem) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    buildDeleteItems(allFiles, resultItem);
+    var resultItems = doDeleteTags(allFiles, [sTag]);
+    var oItem = resultItems[0];
+    if (category == 'contact') {
+      delete oItem.path;
+      var sFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', oItem.name + '.md');
+    } else {
+      var sFilePath = item.path;
+    }
+    dataDes.updateItem(sFilePath, oItem, function(result) {
+      commonDAO.updateItem(oItem, function(err) {
+        if (err) {
+          callback(err, null);
+        } else {
+          callback(null, 'success');
+        }
+      })
+    })
+  })
+}
+exports.rmTagsByUri = rmTagsByUri;
 
 
 /**
@@ -338,7 +368,7 @@ function rmTagsByUri(callback, oTags, oUri) {
     condition.push("uri = '" + oUri[k] + "'");
   }
   var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['documents'], sCondition, null, function(err, resultDoc) {
+  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
     if (err) {
       console.log(err);
       return;
@@ -350,13 +380,13 @@ function rmTagsByUri(callback, oTags, oUri) {
         return;
       }
       buildDeleteItems(allFiles, resultMusic)
-      commonDAO.findItems(null, ['pictures'], sCondition, null, function(err, resultPic) {
+      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
         if (err) {
           console.log(err);
           return;
         }
         buildDeleteItems(allFiles, resultPic)
-        commonDAO.findItems(null, ['videos'], sCondition, null, function(err, resultVideo) {
+        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
           if (err) {
             console.log(err);
             return;
@@ -480,13 +510,13 @@ function buildDeleteItems(allFiles, result) {
     var sUri = result[0].URI;
     var category = utils.getCategoryByUri(sUri);
     for (var k in result) {
-      var newDoc = {
+      var newItem = {
         path: result[k].path,
         category: category,
         URI: result[k].URI,
         others: result[k].others
       };
-      allFiles.push(newDoc);
+      allFiles.push(newItem);
     }
   }
 }
