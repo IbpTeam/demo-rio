@@ -742,7 +742,8 @@ function findDesktopFileFromSystem(fileName, callback) {
       if (index == $xdg_data_dirs.length) {
         return callback('Not found', null);
       }
-      exec('find ' + $xdg_data_dirs[index] + ' -name ' + fileName, function(err, stdout, stderr) {
+      var sCommand = 'find ' + $xdg_data_dirs[index] + ' -name ' + fileName;
+      exec(sCommand, function(err, stdout, stderr) {
         if (err) {
           console.log('find ' + fileName + ' error!');
           console.log(err, stderr);
@@ -1511,44 +1512,3 @@ function renameDesktopFile(callback, oldName, newName) {
   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
 }
 exports.renameDesktopFile = renameDesktopFile;
-
-function repoResetFile(commitID, file, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var desCommitID = oGitLog[commitID].content.relateCommit;
-      if (desCommitID) {
-        resourceRepo.repoResetFile(DES_REPO_DIR, file, desCommitID, null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } else {
-            getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoResetFile(REAL_REPO_DIR, file, commitID, relateCommitID, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  callback({
-                    'document': err
-                  }, null);
-                } else {
-                  console.log('reset success!')
-                  callback(null, result)
-                }
-              })
-            })
-          }
-        })
-      } else {
-        var _err = 'related des commit id error!';
-        console.log(_err);
-        callback({
-          'document': _err
-        }, null);
-      }
-    }
-  })
-}
-exports.repoResetFile = repoResetFile;
