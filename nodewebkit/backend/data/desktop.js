@@ -120,7 +120,7 @@ function getnit(initType) {
 function initDesktop(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var path = configPath + '/data';
+    var path = REAL_DIR;
     fs_extra.ensureDir(path, function(err) {
       if (err) {
         console.log(err);
@@ -136,6 +136,9 @@ function initDesktop(callback) {
           return;
         }
         buildDesFile('Theme', 'conf', pathTheme, function() {
+          var sThemeDesDir = pathModule.join(DES_DIR, 'Theme.conf.md');
+          var sWidgetDesDir = pathModule.join(DES_DIR, 'Widget.conf.md');
+          var sDesDir = [sThemeDesDir, sWidgetDesDir];
           var tmpWidget = getnit("widget");
           var pathWidget = path + "/Widget.conf";
           var sItemWidget = JSON.stringify(tmpWidget, null, 4);
@@ -146,39 +149,46 @@ function initDesktop(callback) {
               return;
             }
             buildDesFile('Widget', 'conf', pathWidget, function() {
-              var pathDesk = path + "/desktop";
-              fs_extra.ensureDir(pathDesk, function(err) {
-                if (err) {
-                  console.log("init desktop config file error!");
-                  console.log(err);
-                  return;
-                }
-                var pathDock = path + "/dock";
-                fs_extra.ensureDir(pathDock, function(err) {
-                  if (err) {
-                    console.log("init dock config file error!");
-                    console.log(err);
-                    return;
-                  }
-                  var pathApp = path + "/applications";
-                  fs_extra.ensureDir(pathApp, function(err) {
-                    if (err) {
-                      console.log("init application config file error!");
-                      console.log(err);
-                      return;
-                    }
-                    console.log('build local desktop file success');
-                    callback("success");
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
-    })
+              resourceRepo.repoAddsCommit(DES_REPO_DIR, sDesDir, null, function() {
+                resourceRepo.getLatestCommit(DES_REPO_DIR, function(commitID) {
+                  var sRealDir = [pathTheme, pathWidget];
+                  resourceRepo.repoAddsCommit(REAL_REPO_DIR, sRealDir, commitID, function() {
+                    var pathDesk = path + "/desktop";
+                    fs_extra.ensureDir(pathDesk, function(err) {
+                      if (err) {
+                        console.log("init desktop config file error!");
+                        console.log(err);
+                        return;
+                      }
+                      var pathDock = path + "/dock";
+                      fs_extra.ensureDir(pathDock, function(err) {
+                        if (err) {
+                          console.log("init dock config file error!");
+                          console.log(err);
+                          return;
+                        }
+                        var pathApp = path + "/applications";
+                        fs_extra.ensureDir(pathApp, function(err) {
+                          if (err) {
+                            console.log("init application config file error!");
+                            console.log(err);
+                            return;
+                          }
+                          console.log('build local desktop file success');
+                          callback("success");
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   } else {
-    console.log("Not a linux system! Not supported now!")
+    console.log("Not a linux system! Not supported now!");
   }
 }
 exports.initDesktop = initDesktop;
