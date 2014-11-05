@@ -24,6 +24,13 @@ var chokidar = require('chokidar');
 var exec = require('child_process').exec;
 var configPath = config.RESOURCEPATH + "/desktop";
 
+var CATEGORY_NAME = "desktop";
+var DES_NAME = "desktopDes";
+var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
+var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
+var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
+var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
+
 function newInit(initType) {
   var initTheme = {
     name: null,
@@ -158,16 +165,17 @@ function initDesktop(callback) {
                   console.log(err);
                   return;
                 }
-
-                function buildLocalDesktopFileCb(result) {
-                  if (result === "success") {
-                    callback("success");
-                  } else {
-                    console.log("build desktop error");
-                    return;
-                  }
-                }
-                buildLocalDesktopFile(buildLocalDesktopFileCb);
+                console.log('build local desktop file success');
+                callback("success");
+                // function buildLocalDesktopFileCb(result) {
+                //   if (result === "success") {
+                //     callback("success");
+                //   } else {
+                //     console.log("build desktop error");
+                //     return;
+                //   }
+                // }
+                // buildLocalDesktopFile(buildLocalDesktopFileCb);
               });
             });
           });
@@ -499,8 +507,8 @@ function writeWidgetConf(callback, oWidget) {
             //var chItem = sWidgetConfPath;
             //var itemDesPath = sPath.replace(/\/resources\//, '/resources/.des/');
             // dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-               callback(null, "success");
-            // });
+          callback(null, "success");
+          // });
         }
       });
     })
@@ -562,16 +570,17 @@ function readDesktopFile(callback, sFileName) {
             var _err = "readDesktopFile : parse desktop file error!";
             callback(_err, null);
           } else {
+
             console.log("readDesktopFile success!");
             callback(null, attr);
+
           }
         }
         var sPath = result;
         parseDesktopFile(parseDesktopFileCb, sPath);
       }
     }
-    var sFullName = sFileName + ".desktop";
-    findDesktopFile(findDesktopFileCb, sFullName)
+    findDesktopFile(findDesktopFileCb, sFileName)
   } else {
     console.log("Not a linux system! Not supported now!");
   }
@@ -671,7 +680,7 @@ function parseDesktopFile(callback, sPath) {
       }
     });
   } else {
-    console.log("Not a linux system! Not supported now!")
+    console.log("Not a linux system! Not supported now!");
   }
 }
 
@@ -727,7 +736,7 @@ function parseDesktopFile(callback, sPath) {
 function deParseDesktopFile(callback, oDesktop) {
   if (typeof callback !== 'function')
     throw 'Bad type for callback';
-  if (typeof oDesktop !== 'object') {
+  if (typeof oDesktop !== 'object') {+
     console.log("error : oDesktop is not an object!");
     var _err = "deParseDesktopFile : input is not an object!";
     callback(_err, null);
@@ -750,6 +759,41 @@ function deParseDesktopFile(callback, oDesktop) {
   }
 }
 
+function findDesktopFileFromSystem(fileName, callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type for callback';
+  exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
+    if (err) {
+      console.log('echo $XDG_DATA_DIRS error!');
+      console.log(err, stderr);
+      return callback(err, null);
+    }
+    var xdg_data_dirs = stdout.substr(0, stdout.length - 1).split(':');
+    for (var i = 0; i < xdg_data_dirs.length; ++i) {
+      xdg_data_dirs[i] = xdg_data_dirs[i].replace(/[\/]$/, '');
+    }
+    var tryInThisPath = function(index) {
+      if (index == $xdg_data_dirs.length) {
+        return callback('Not found', null);
+      }
+      exec('find ' + $xdg_data_dirs[index] + ' -name ' + fileName, function(err, stdout, stderr) {
+        if (err) {
+          console.log('find ' + fileName + ' error!');
+          console.log(err, stderr);
+          return callback(err, null);
+        }
+        if (stdout == '') {
+          tryInThisPath(index + 1);
+        } else {
+          var result = stdout.replace('\n', '');
+          return callback(null, result[0]);
+        }
+      });
+    };
+    tryInThisPath(0);
+  })
+}
+
 /** 
  * @Method: findDesktopFile
  *    To find a desktop file with name of sFilename. Since we maintain all .des-
@@ -761,8 +805,8 @@ function deParseDesktopFile(callback, oDesktop) {
  *            as: '/usr/share/applications/cinnamon.desktop'
  *
  * @param2: sFileName
- *    string, a file name
- *    exmple: var sFileName = 'cinnamon.desktop';
+ *    string, a short file name, no posfix
+ *    exmple: var sFileName = 'cinnamon';
  *
  **/
 function findDesktopFile(callback, sFileName) {
@@ -770,27 +814,83 @@ function findDesktopFile(callback, sFileName) {
     throw 'Bad type for callback';
   var systemType = os.type();
   if (systemType === "Linux") {
+    var sFileName = sFileName + '.desktop';
     var xdgDataDir = [];
-    var sBoundary = configPath + '/data/applications -name ';
+    var sAppPath = REAL_DIR + '/applications';
+    var sBoundary = sAppPath + ' -name ';
     var sCommand = 'find ' + sBoundary + sFileName;
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
-        console.log(stderr);
-        console.log(err);
-        return;
+        console.log('find ' + sFilename + ' error!');
+        console.log(err, stderr);
+        return callback(err, null);
       }
       if (stdout == '') {
-        console.log('Not Found!');
-        callback("Not found");
-      } else {
-        var result = stdout.split('\n');
-        callback(result[0]);
+        console.log('Not Found in Local!');
+        findDesktopFileFromSystem(sFileName, function(err, result) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var sNewFilePath = pathModule.join(sAppPath, sFileName);
+          fs_extra.copy(result, sNewFilePath, function(err) {
+            if (err) {
+              console.log('copy file error!\n', err);
+              return callback(err, null);
+            }
+            buildDesFile(sFileName, sNewFilePath, function() {
+              console.log('find ' + sFilename + ' success!');
+              return callback(null, sNewFilePath)
+            })
+          })
+        })
       }
+      console.log('find ' + sFilename + ' success!');
+      var result = stdout.split('\n');
+      return callback(null, result[0]);
     })
   } else {
     console.log("Not a linux system! Not supported now!");
   }
 }
+
+
+/** 
+ * @Method: buildDesFile
+ *    This function is only for building des file for desktop file
+ *
+ **/
+function buildDesFile(fileName, newFilePath, callback) {
+  fs.stat(newFilePath, function(err, stat) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var mtime = stat.mtime;
+    var ctime = stat.ctime;
+    var size = stat.size;
+    uniqueID.getFileUid(function(uri) {
+      var itemInfo = {
+        URI: uri + "#" + category,
+        category: CATEGORY_NAME,
+        postfix: 'desktop',
+        filename: fileName,
+        size: size,
+        path: newFilePath,
+        createTime: ctime,
+        lastModifyTime: mtime,
+        lastAccessTime: ctime,
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID
+      };
+      createDesFile(itemInfo, DES_DIR, function() {
+        callback()
+      })
+    })
+  })
+}
+
 
 /** 
  * @Method: findAllDesktopFiles
