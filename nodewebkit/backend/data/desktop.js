@@ -135,112 +135,53 @@ function initDesktop(callback) {
           console.log(err);
           return;
         }
-        var tmpWidget = getnit("widget");
-        var pathWidget = path + "/Widget.conf";
-        var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-        fs_extra.outputFile(pathWidget, sItemWidget, function(err) {
-          if (err) {
-            console.log("init Widget config file error!");
-            console.log(err);
-            return;
-          }
-          var pathDesk = path + "/desktop";
-          fs_extra.ensureDir(pathDesk, function(err) {
+        buildDesFile('Theme', 'conf', pathTheme, function() {
+          var tmpWidget = getnit("widget");
+          var pathWidget = path + "/Widget.conf";
+          var sItemWidget = JSON.stringify(tmpWidget, null, 4);
+          fs_extra.outputFile(pathWidget, sItemWidget, function(err) {
             if (err) {
-              console.log("init desktop config file error!");
+              console.log("init Widget config file error!");
               console.log(err);
               return;
             }
-            var pathDock = path + "/dock";
-            fs_extra.ensureDir(pathDock, function(err) {
-              if (err) {
-                console.log("init dock config file error!");
-                console.log(err);
-                return;
-              }
-              var pathApp = path + "/applications";
-              fs_extra.ensureDir(pathApp, function(err) {
+            buildDesFile('Widget', 'conf', pathWidget, function() {
+              var pathDesk = path + "/desktop";
+              fs_extra.ensureDir(pathDesk, function(err) {
                 if (err) {
-                  console.log("init application config file error!");
+                  console.log("init desktop config file error!");
                   console.log(err);
                   return;
                 }
-                console.log('build local desktop file success');
-                callback("success");
-                // function buildLocalDesktopFileCb(result) {
-                //   if (result === "success") {
-                //     callback("success");
-                //   } else {
-                //     console.log("build desktop error");
-                //     return;
-                //   }
-                // }
-                // buildLocalDesktopFile(buildLocalDesktopFileCb);
-              });
-            });
-          });
-        });
-      });
+                var pathDock = path + "/dock";
+                fs_extra.ensureDir(pathDock, function(err) {
+                  if (err) {
+                    console.log("init dock config file error!");
+                    console.log(err);
+                    return;
+                  }
+                  var pathApp = path + "/applications";
+                  fs_extra.ensureDir(pathApp, function(err) {
+                    if (err) {
+                      console.log("init application config file error!");
+                      console.log(err);
+                      return;
+                    }
+                    console.log('build local desktop file success');
+                    callback("success");
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
     })
   } else {
     console.log("Not a linux system! Not supported now!")
   }
 }
 exports.initDesktop = initDesktop;
-
-/** 
- * @Method: buildHelper
- *    only help buildLocalDesktopFile() to combine specif param, in order to
- *    make it have correct param in a loop
- *
- **/
-function buildHelper(callback, sAppPath, sOriginPath, isEnd) {
-  if (sOriginPath === "") {
-    console.log("error : path is empty!");
-    return;
-  } else {
-    function fsCopyCb(err) {
-      if (err) {
-        console.log(err);
-        console.log(sOriginPath)
-        return;
-      }
-      if (isEnd) {
-        console.log('build local desktop file ends');
-        callback("success");
-      }
-    }
-    fs_extra.copy(sOriginPath, sAppPath + sOriginPath, fsCopyCb);
-  }
-}
-
-/** 
- * @Method: buildLocalDesktopFile
- *    copy all .desktop file into local /.desktop for maintainace
- *
- * @param: callback
- *    @result
- *        string, retrive 'success' when success
- *
- **/
-function buildLocalDesktopFile(callback) {
-  if (typeof callback !== 'function')
-    throw 'Bad type of callback!!';
-  console.log("==== start building local desktop files! ====");
-  var sAppPath = configPath + '/data/applications';
-  var tag = 0;
-
-  function findAllDesktopFilesCb(oAllDesktopFiles) {
-    for (var i = 0; i < oAllDesktopFiles.length; i++) {
-      var sOriginPath = oAllDesktopFiles[i];
-      var isEnd = (tag == oAllDesktopFiles.length - 1);
-      buildHelper(callback, sAppPath, sOriginPath, isEnd);
-      tag++;
-    }
-  }
-  findAllDesktopFiles(findAllDesktopFilesCb);
-}
-
 
 /** 
  * @Method: readThemeConf
@@ -279,7 +220,7 @@ function buildLocalDesktopFile(callback) {
 function readThemeConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var ThemeConfPath = configPath + "/data/Theme.conf";
+    var ThemeConfPath = pathModule.join(REAL_DIR, "Theme.conf");
     fs.readFile(ThemeConfPath, 'utf8', function(err, data) {
       if (err) {
         console.log("read Theme config file error!");
@@ -287,12 +228,20 @@ function readThemeConf(callback) {
         var _err = "readThemeConf : read Theme config file error!";
         callback(_err, null);
       } else {
-        var json = JSON.parse(data);
-        callback(null, json);
+        var op = 'access';
+        updateDesFile(op, ThemeConfPath, function(err, result) {
+          if (err) {
+            console.log('update theme des file error!\n', err);
+            callback(err, null);
+          } else {
+            var json = JSON.parse(data);
+            callback(null, json);
+          }
+        });
       }
     });
   } else {
-    console.log("Not a linux system! Not supported now!")
+    console.log("Not a linux system! Not supported now!");
   }
 }
 exports.readThemeConf = readThemeConf;
@@ -342,7 +291,7 @@ exports.readThemeConf = readThemeConf;
 function writeThemeConf(callback, oTheme) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var ThemeConfPath = configPath + "/data/Theme.conf";
+    var ThemeConfPath = pathModule.join(REAL_DIR, "Theme.conf");
     var itemDesPath = config.RESOURCEPATH + "Des";
     fs.readFile(ThemeConfPath, 'utf-8', function(err, data) {
       if (err) {
@@ -362,21 +311,18 @@ function writeThemeConf(callback, oTheme) {
           var _err = "writeThemeConf : write Theme config file error!";
           callback(_err, null);
         } else {
-          var currentTime = (new Date());
-          config.riolog("time: " + currentTime);
-          var attrs = {
-            lastAccessTime: currentTime,
-            lastModifyTime: currentTime,
-            lastAccessDev: config.uniqueID
-          }
-          var chItem = ThemeConfPath;
-          //var itemDesPath = path.replace(/\/resources\//, '/resources/.des/');
-          // dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-          callback(null, "success");
-          // });
+          var op = 'modify';
+          updateDesFile(op, ThemeConfPath, function(err, result) {
+            if (err) {
+              console.log('update theme des file error!\n', err);
+              callback(err, null);
+            } else {
+              callback(null, result);
+            }
+          });
         }
       });
-    })
+    });
   } else {
     console.log("Not a linux system! Not supported now!")
   }
@@ -420,16 +366,24 @@ exports.writeThemeConf = writeThemeConf;
 function readWidgetConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var WidgetConfPath = configPath + "/data/Widget.conf";
+    var WidgetConfPath = pathModule.join(REAL_DIR, "Widget.conf");
     fs.readFile(WidgetConfPath, 'utf8', function(err, data) {
       if (err) {
-        console.log("read Theme config file error!");
+        console.log("read Widget config file error!");
         console.log(err);
-        var _err = "readWidgetConf : read Theme config file error!";
+        var _err = "readWidgetConf : read Widget config file error!";
         callback(_err, null);
       } else {
-        var oJson = JSON.parse(data);
-        callback(null, oJson);
+        var op = 'access';
+        updateDesFile(op, WidgetConfPath, function(err, result) {
+          if (err) {
+            console.log('update Widget des file error!\n', err);
+            callback(err, null);
+          } else {
+            var json = JSON.parse(data);
+            callback(null, json);
+          }
+        });
       }
     });
   } else {
@@ -477,7 +431,7 @@ exports.readWidgetConf = readWidgetConf;
 function writeWidgetConf(callback, oWidget) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    var sWidgetConfPath = configPath + "/data/Widget.conf";
+    var sWidgetConfPath = pathModule.join(REAL_DIR, "Widget.conf");
     var sPath = configPath;
     fs.readFile(sWidgetConfPath, 'utf-8', function(err, data) {
       if (err) {
@@ -497,18 +451,15 @@ function writeWidgetConf(callback, oWidget) {
           var _err = "writeWidgetConf : write Widget config file error!";
           callback(_err, null);
         } else {
-          var currentTime = (new Date());
-          config.riolog("time: " + currentTime);
-          var attrs = {
-              lastAccessTime: currentTime,
-              lastModifyTime: currentTime,
-              lastAccessDev: config.uniqueID
+          var op = 'modify';
+          updateDesFile(op, sWidgetConfPath, function(err, result) {
+            if (err) {
+              console.log('update theme des file error!\n', err);
+              callback(err, null);
+            } else {
+              callback(null, result);
             }
-            //var chItem = sWidgetConfPath;
-            //var itemDesPath = sPath.replace(/\/resources\//, '/resources/.des/');
-            // dataDes.updateItem(chItem, attrs, itemDesPath, function() {
-          callback(null, "success");
-          // });
+          });
         }
       });
     })
@@ -532,23 +483,30 @@ exports.writeWidgetConf = writeWidgetConf;
  *                parse file error : "readDesktopFile : parse desktop file error!"
  *
  *    result example:
- *    {
- *      Type: Application
- *      Name: Cinnamon
- *      Comment: Window management and application launching
- *      Exec: /usr/bin / cinnamon - launcher
- *      X - GNOME - Bugzilla - Bugzilla: GNOME
- *      X - GNOME - Bugzilla - Product: cinnamon
- *      X - GNOME - Bugzilla - Component: general
- *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;GTK;System;Core;
- *      OnlyShowIn: GNOME;
- *      NoDisplay: true
- *      X - GNOME - Autostart - Phase: WindowManager
- *      X - GNOME - Provides: panel;windowmanager;
- *      X - GNOME - Autostart - Notify: true
- *      X - GNOME - AutoRestart: true
+ *  {
+ *
+ *    [Desktop Entry]:{
+ *        Type: Application
+ *        Name: Cinnamon
+ *        Comment: Window management and application launching
+ *        Exec: /usr/bin / cinnamon - launcher
+ *        X - GNOME - Bugzilla - Bugzilla: GNOME
+ *        X - GNOME - Bugzilla - Product: cinnamon
+ *        X - GNOME - Bugzilla - Component: general
+ *        X - GNOME - Bugzilla - Version: 1.8.8
+ *        Categories: GNOME;GTK;System;Core;
+ *        OnlyShowIn: GNOME;
+ *        NoDisplay: true
+ *        X - GNOME - Autostart - Phase: WindowManager
+ *        X - GNOME - Provides: panel;windowmanager;
+ *        X - GNOME - Autostart - Notify: true
+ *        X - GNOME - AutoRestart: true
+ *    },
+ *    [Desktop Action Compose]:{
+ *              ...
  *    }
+ *          ...
+ *  }
  *
  * @param2: sFileName
  *    string,name of target file ,suffix is not required
@@ -564,23 +522,30 @@ function readDesktopFile(callback, sFileName) {
         var _err = "readDesktopFile : desktop file NOT FOUND!";
         callback(_err, null);
       } else {
+        var sPath = result;
+
         function parseDesktopFileCb(err, attr) {
           if (err) {
             console.log(err);
             var _err = "readDesktopFile : parse desktop file error!";
             callback(_err, null);
           } else {
-
-            console.log("readDesktopFile success!");
-            callback(null, attr);
-
+            var op = 'access';
+            updateDesFile(op, sPath, function(err, result) {
+              if (err) {
+                console.log('update ' + sFileName + ' des file error!\n', err);
+                callback(err, null);
+              } else {
+                console.log("readDesktopFile success!");
+                callback(null, attr);
+              }
+            });
           }
         }
-        var sPath = result;
-        parseDesktopFile(parseDesktopFileCb, sPath);
       }
+      parseDesktopFile(parseDesktopFileCb, sPath);
     }
-    findDesktopFile(findDesktopFileCb, sFileName)
+    findDesktopFile(findDesktopFileCb, sFileName);
   } else {
     console.log("Not a linux system! Not supported now!");
   }
@@ -736,8 +701,9 @@ function parseDesktopFile(callback, sPath) {
 function deParseDesktopFile(callback, oDesktop) {
   if (typeof callback !== 'function')
     throw 'Bad type for callback';
-  if (typeof oDesktop !== 'object') {+
-    console.log("error : oDesktop is not an object!");
+  if (typeof oDesktop !== 'object') {
+    +
+      console.log("error : oDesktop is not an object!");
     var _err = "deParseDesktopFile : input is not an object!";
     callback(_err, null);
   } else if (oDesktop === {}) {
@@ -838,17 +804,17 @@ function findDesktopFile(callback, sFileName) {
               console.log('copy file error!\n', err);
               return callback(err, null);
             }
-            buildDesFile(sFileName, sNewFilePath, function() {
+            buildDesFile(sFileName, 'desktop', sNewFilePath, function() {
               console.log('find ' + sFilename + ' success!');
-              return callback(null, sNewFilePath)
-            })
-          })
-        })
+              return callback(null, sNewFilePath);
+            });
+          });
+        });
       }
       console.log('find ' + sFilename + ' success!');
       var result = stdout.split('\n');
       return callback(null, result[0]);
-    })
+    });
   } else {
     console.log("Not a linux system! Not supported now!");
   }
@@ -860,7 +826,7 @@ function findDesktopFile(callback, sFileName) {
  *    This function is only for building des file for desktop file
  *
  **/
-function buildDesFile(fileName, newFilePath, callback) {
+function buildDesFile(fileName, postfix, newFilePath, callback) {
   fs.stat(newFilePath, function(err, stat) {
     if (err) {
       console.log(err);
@@ -873,7 +839,7 @@ function buildDesFile(fileName, newFilePath, callback) {
       var itemInfo = {
         URI: uri + "#" + category,
         category: CATEGORY_NAME,
-        postfix: 'desktop',
+        postfix: postfix,
         filename: fileName,
         size: size,
         path: newFilePath,
@@ -883,10 +849,52 @@ function buildDesFile(fileName, newFilePath, callback) {
         createDev: config.uniqueID,
         lastModifyDev: config.uniqueID,
         lastAccessDev: config.uniqueID
+      }
+      var sDesDir = DES_DIR;
+      if (postfix == 'desktop') {
+        sDesDir = pathModule.(DES_DIR, 'applications');
+      }
+      desFilesHandle.createDesFile(itemInfo, sDesDir, function() {
+        callback();
+      });
+    });
+  });
+}
+
+function updateDesFile(sOp, sFilePath, callback) {
+  fs.stat(sFilePath, function(err, stat) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    var mtime = stat.mtime;
+    var ctime = stat.ctime;
+    var size = stat.size;
+    if (sOp == 'modify') {
+      var itemInfo = {
+        size: size,
+        createTime: ctime,
+        lastModifyTime: mtime,
+        lastAccessTime: ctime,
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID
       };
-      createDesFile(itemInfo, DES_DIR, function() {
-        callback()
-      })
+    } else if (sOp == 'access') {
+      var itemInfo = {
+        size: size,
+        createTime: ctime,
+        lastAccessTime: ctime,
+        createDev: config.uniqueID,
+        lastAccessDev: config.uniqueID
+      };
+    }
+    desFilesHandle.updateItem(itemInfo, DES_DIR, function(result) {
+      if (result == 'success') {
+        return callback(null, 'success');
+      }
+      var _err = 'update des file error!';
+      return callback(_err, null);
     })
   })
 }
@@ -1026,6 +1034,8 @@ function writeDesktopFile(callback, sFileName, oEntries) {
         var _err = "writeDesktopFile : desktop file NOT FOUND!";
         callback(_err, null);
       } else {
+        var sPath = result_find;
+
         function parseDesktopFileCb(err, attr) {
           if (err) {
             console.log(err);
@@ -1037,7 +1047,6 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                 for (var element in oEntries[entry]) {
                   attr[entry][element] = oEntries[entry][element];
                 }
-                //attr[entry] = oEntries[entry];
               } else {
                 console.log("entry content empty!");
                 var _err = "writeDesktopFile : entry content empty!";
@@ -1059,16 +1068,23 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                     var _err = "writeDesktopFile : write desktop file error!";
                     callback(_err, null);
                   } else {
-                    console.log("write file success!");
-                    callback(null, "success");
+                    var op = 'modify';
+                    updateDesFile(op, sPath, function() {
+                      if (err) {
+                        console.log('update ' + sFileName + ' des file error!\n', err);
+                        callback(err, null);
+                      } else {
+                        console.log("write file success!");
+                        callback(null, "success");
+                      }
+                    });
                   }
-                })
+                });
               }
             }
             deParseDesktopFile(deParseDesktopFileCb, attr);
           }
         }
-        var sPath = result_find;
         parseDesktopFile(parseDesktopFileCb, sPath);
       }
     }
