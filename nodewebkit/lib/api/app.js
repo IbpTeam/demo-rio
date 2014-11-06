@@ -1,27 +1,5 @@
 var config = require('../../backend/config');
 
-/**
- * AppList 用于存放所有已安装程序列表，目前暂时支持默认自带的程序，如数据管理器
- * 音乐播放器等
- * 每一个APP对象包括以下属性：
- *   name:程序名称
- *   win:窗口对象，如果为null则处于未打开状态
- *   path:程序的启动路径，应该是html文件，可以是相对repo/app路径
- */
-var AppList=[
-  {
-    id:"app1",
-    name:"datamgr",
-    win:null,
-    path:"demo-rio/datamgr/file-explorer.html"
-  },
-  {
-    id:"app_example",
-    name:"example",
-    win:null,
-    path:"demo-rio/appExample/index.html"
-  }
-];
 
 /**
  * @method startAppByName
@@ -45,8 +23,8 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
   try{
     var runapp=null;
     var app;
-    for(var i = 0; i < AppList.length; i++) {
-      app = AppList[i];
+    for(var i = 0; i < config.AppList.length; i++) {
+      app = config.AppList[i];
       if (app.name == sAppName) {
         runapp=app;
         break;
