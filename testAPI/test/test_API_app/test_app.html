@@ -9,9 +9,14 @@
     line-height: 2;
   }
   </style>
+  <link rel="stylesheet" type="text/css" href="../../lib/css/demoUI.css"/>
+  <link rel="stylesheet" type="text/css" href="../../lib/css/demoUItheme.css"/>
+  <link rel="stylesheet" type="text/css" href="../../lib/css/demoUIFont.css"/>
+  
   <script src="../../lib/require.js"></script>
   <script src="../../lib/jquery.js"></script>
   <script src="../../lib/api.js"></script>
+  <script type="text/javascript" src="../../lib/js/demoUI.js"></script>
 </head>
 <body>
   <script language=javascript>  
@@ -57,6 +62,20 @@
     });
   }
 
+  function startAppByNameCb(result){
+    var win = window.open('');
+    win.document.write("test API startAppByName()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+
+  function startAppByName(startAppByNameCb){
+    WDC.requireAPI(['app'], function(app){
+      app.startAppByName(startAppByNameCb, "datamgr", null);
+    });
+  }
   </script>
 
 <h2 onclick="show('sendKeyToApp')">sendKeyToApp(sendKeyToAppCb)<span><a class="mark" href="#test_sendKeyToApp" id="test_sendKeyToApp" onclick="sendKeyToApp(sendKeyToAppCb)">test</a></span></h2>
@@ -98,6 +117,48 @@
   }
 </pre>
 </div>
+</div>
+
+<h2 onclick="show('startAppByName')">startAppByName(startAppByNameCb)<span><a class="mark" href="#test_startAppByName" id="test_startAppByName" onclick="startAppByName(startAppByNameCb)">test</a></span></h2>
+<div id="startAppByName" style="display:none;">
+<div style="color:#930000">
+  <pre>
+@method startAppByName
+  根据应用名字打开应用
+
+@param1 callback function
+  回调函数
+  @cbparam1
+     object, 返回app对象，失败则返回null
+     {
+       name:APP NAME,
+       window:APP Window object
+     }
+@param2 sAppName string
+  启动程序名称
+@param3 oParamBag string
+  启动程序参数，可以json格式封装
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function startAppByNameCb(result){
+    var win = window.open('');
+    win.document.write("test API startAppByName()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+
+  function startAppByName(startAppByNameCb){
+    WDC.requireAPI(['app'], function(app){
+      app.startAppByName(startAppByNameCb, "datamgr", null);
+    });
+  }
+</pre>
 </div>
 
 </body>
