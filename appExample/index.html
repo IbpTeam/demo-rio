@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>示例应用</title>
+  
+    <link rel="stylesheet" type="text/css" href="css/demoUI.css"/>
+    <link rel="stylesheet" type="text/css" href="css/demoUItheme.css"/>
+    <link rel="stylesheet" type="text/css" href="css/demoUIFont.css"/>
+    <link rel="stylesheet" type="text/css" href="css/desktop.css"/>
+    
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="lib/demoUI.js"></script>
+    <script type="text/javascript" src="lib/require.js"></script>
+    <script type="text/javascript" src="lib/api.js"></script>
+    <script>
+      /**
+       * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
+       */
+      function onStart(params){
+        console.log("onStart():" + params);
+      }
+    </script>
+
+  </head>
+  <body> 
+    <p>
+      这是一个示例应用程序
+    </p>
+    <div>
+      <p>
+        参数是：<div id="params"></div>
+      </p>
+    <div>
+  </body>
+</html>
