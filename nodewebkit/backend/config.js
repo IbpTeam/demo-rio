@@ -10,6 +10,15 @@ exports.RESOURCEPATH = path.join(process.env["HOME"],".resources");
 
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
+
+/**
+ * APP Path
+ * Default APP Base path is repo/app dir，we use __dirname to locate it
+ */
+var APPBASEPATH;
+APPBASEPATH = path.join(__dirname,"../../../");
+exports.APPBASEPATH = APPBASEPATH;
+
 /**
  * Database Path
  *
