@@ -293,7 +293,7 @@ function setTagByUri(callback, oTags, sUri) {
         for (var k in tmpDesItem) {
           var desFilePath;
           if (tmpDesItem[k].category === "contact") {
-            desFilePath = pathModule.join(config.RESOURCEPATH, 'contactsDes', 'data', tmpDesItem[k].name + '.md');
+            desFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', tmpDesItem[k].name + '.md');
           } else {
             var filePath = item.path;
             var re = new RegExp('/' + category.toLowerCase() + '/', "i");
