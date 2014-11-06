@@ -9,7 +9,7 @@
  *
  * @version:0.1.1
  **/
-var path = require('path');
+var pathModule = require('path');
 var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
@@ -863,7 +863,7 @@ function buildDesFile(fileName, postfix, newFilePath, callback) {
       }
       var sDesDir = DES_DIR;
       if (postfix == 'desktop') {
-        sDesDir = pathModule.(DES_DIR, 'applications');
+        sDesDir = pathModule.join(DES_DIR, 'applications');
       }
       desFilesHandle.createDesFile(itemInfo, sDesDir, function() {
         callback();

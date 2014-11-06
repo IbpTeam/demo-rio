@@ -105,7 +105,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   var fileInfo = '"file":["' + file + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = +commitLog + "'";
-  console.log(file);.
+  console.log(file);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
@@ -273,17 +273,16 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
   var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + file;
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
-      if (err) {
-        console.log(err, stderr);
-        callback({
-          'repo': err
-        }, null);
-      } else {
-        repoResetCommit(repoPath, file, relateCommitId, function() {
-          console.log('reset file: ' + file + ' success!');
-          callback(null, 'success');
-        })
-      }
+    if (err) {
+      console.log(err, stderr);
+      callback({
+        'repo': err
+      }, null);
+    } else {
+      repoResetCommit(repoPath, file, relateCommitId, function() {
+        console.log('reset file: ' + file + ' success!');
+        callback(null, 'success');
+      })
     }
   })
 }
