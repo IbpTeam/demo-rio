@@ -17,36 +17,9 @@ var mimeTypes = {
      "ogg": "audio/mpeg"
 };
 
-function route(handle, pathname, absolute , response, postData) {
-  config.riolog("About to route a request for " + pathname);
-   
-    var pos = pathname.lastIndexOf(".");
-    var suffix = '';
-    if(pos != -1){
-        suffix = pathname.substr(pos+1).toLowerCase();
-    }
-    
-  if ( pathname == '/callapi' ) {
-    config.riolog("request /callapi:" + postData);
-    var postDataJSON=JSON.parse(postData);
-    var args=postDataJSON.args;
-    var apiPathArr=postDataJSON.api.split(".");
-    var sendresponse = function(){
-      response.writeHead(200, {"Content-Type": mimeTypes["js"]});
-      response.write(JSON.stringify(Array.prototype.slice.call(arguments)));
-      response.end();
-    }
-    args.unshift(sendresponse);
-    handle[apiPathArr[0]][apiPathArr[1]].apply(null, args);
-  } else {
-    //Use api_remote.js for /lib/api.js
-    var realPath;
-    if (pathname == "/lib/api.js") {
-      pathname = "/lib/api_remote.js";
-    }else if (pathname.lastIndexOf("/lib/api/", 0) === 0 && pathname.indexOf(".js", pathname.length - 3) !== -1) {
-      realPath = __dirname + "/.."+pathname.replace(/.js$/,"_remote.js");
-      var onehandle = require(".."+pathname.substring(0, pathname.length - 3));
-      var modulename = pathname.substring(9, pathname.length - 3);
+function getRemoteAPIFile(handle, modulename, response){
+      var realPath = path.join(__dirname, "../lib/api/", modulename + "_remote.js");
+      var onehandle = require("../lib/api/" + modulename + ".js");
       handle[modulename] = onehandle;
       path.exists(realPath, function (exists) {
         var handle_remote=[];
@@ -104,67 +77,139 @@ function route(handle, pathname, absolute , response, postData) {
             response.write('.');
             response.write(func);
             response.write('", Array.prototype.slice.call(arguments));};');
-          }
-        }
+          }//end of if func exist in ***_remote.js
+        }//end for one handle
         response.write('return o;});', "binary");
         response.end();
         return;
+      });//end of path exist
+      return;
+}
+
+function getRealFile(pathname, response){
+  path.exists("."+pathname, function (exists) {
+    var realPath;
+    if (!exists) {
+      realPath = pathname;
+    }else {
+      realPath = "." + pathname;
+    }
+    path.exists(realPath, function (exists) {
+      if (!exists) {
+        response.writeHead(404, {
+          'Content-Type': 'text/plain'
+        });
+        response.write("This request URL " + realPath + " was not found on this server.");
+        response.end();
+      }else {
+        fs.readFile(realPath, "binary", function (err, file) {
+          if (err) {
+            response.writeHead(500, {
+                'Content-Type': 'text/plain'
+            });
+            response.end(err);
+          } else {
+            var content_type;
+            var suffix = pathname.substring(pathname.lastIndexOf('.') + 1).toLowerCase();
+            switch(suffix){
+            case 'css':
+              content_type = mimeTypes[suffix];
+              break;
+            case 'mp3':
+              content_type = mimeTypes[suffix];
+              break;
+            case 'ogg':
+              content_type = mimeTypes[suffix];
+              break;
+            case 'js':
+              content_type = mimeTypes[suffix];
+              break;
+            default:
+              content_type = 'text/html';
+              break;
+            }
+            response.writeHead(200, {
+              'Content-Type': content_type
+            });
+            response.write(file, "binary");
+            response.end();
+          }
+        });
+      }
+    });
+  });
+}
+
+/**
+ * This is the key function of http router
+ */
+function route(handle, pathname, response, postData) {
+  if ( pathname == '/callapi' ) {
+    //This is for remote call api in internet browser.
+    var postDataJSON=JSON.parse(postData);
+    var args=postDataJSON.args;
+    var apiPathArr=postDataJSON.api.split(".");
+    var sendresponse = function(){
+      response.writeHead(200, {"Content-Type": mimeTypes["js"]});
+      response.write(JSON.stringify(Array.prototype.slice.call(arguments)));
+      response.end();
+    }
+    args.unshift(sendresponse);
+    handle[apiPathArr[0]][apiPathArr[1]].apply(null, args);
+    return;
+  }else if ( pathname.lastIndexOf("/callapp/", 0) === 0) {
+    //This is for remote open app in internet browser.
+    var sAppName=pathname.substring(9, pathname.indexOf('/', 10));
+    var sFilename=pathname.substring(9 + sAppName.length + 1, pathname.length);
+    var runapp=null;
+    var app;
+    for(var i = 0; i < config.AppList.length; i++) {
+      app = config.AppList[i];
+      if (app.name == sAppName) {
+        runapp=app;
+        break;
+      }
+    }
+
+    if (runapp === null) {
+      console.log("Error no app " + sAppName);
+      response.writeHead(404, {
+        'Content-Type': 'text/plain'
       });
+      response.write("This request URL " + pathname + " was not found on this server.");
+      response.end();
       return;
     }
-    path.exists("."+pathname, function (exists) {
-      config.riolog("pathname="+pathname);
-      if (!exists) {
-        realPath = pathname;
-      }else {
-        realPath = "." + pathname;
-      }
-      path.exists(realPath, function (exists) {
-      config.riolog("realPath="+realPath);
-        if (!exists) {
-          response.writeHead(404, {
-            'Content-Type': 'text/plain'
-          });
-          response.write("This request URL " + realPath + " was not found on this server.");
-          response.end();
-        } 
-        else {
-          fs.readFile(realPath, "binary", function (err, file) {
-            if (err) {
-              response.writeHead(500, {
-                  'Content-Type': 'text/plain'
-              });
-              response.end(err);
-            } else {
-              var content_type;
-              switch(suffix){
-              case 'css':
-                content_type = mimeTypes[suffix];
-                break;
-              case 'mp3':
-                content_type = mimeTypes[suffix];
-                break;
-              case 'ogg':
-                content_type = mimeTypes[suffix];
-                break;
-              case 'js':
-                content_type = mimeTypes[suffix];
-                break;
-              default:
-                content_type = 'text/html';
-                break;
-              }
-              response.writeHead(200, {
-                'Content-Type': content_type
-              });
-              response.write(file, "binary");
-              response.end();
-            }
-          });
-        }
-      });
-    });
-  }
+
+    dirOfrunapp=runapp.path.substring(0, runapp.path.lastIndexOf('/'));
+    var realpath;
+    if ( sFilename === "index.html" ) {
+      getRealFile(path.join(config.APPBASEPATH, runapp.path), response);
+    } else if ( sFilename === "lib/api.js") {
+      getRealFile(path.join(config.APPBASEPATH, dirOfrunapp, "lib/api_remote.js"), response);
+    } else if ( sFilename.lastIndexOf("lib/api/", 0) === 0 && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
+      var modulename = sFilename.substring(8, sFilename.length - 3);
+      getRemoteAPIFile(handle, modulename, response);
+    }else {
+      getRealFile(path.join(config.APPBASEPATH, dirOfrunapp, sFilename), response);
+    }
+    return;
+  }else {
+    //Use api_remote.js for /lib/api.js
+    var realPath;
+    if (pathname == "/lib/api.js") {
+      pathname = "./lib/api_remote.js";
+      getRealFile(pathname, response);
+      return;
+    }else if (pathname.lastIndexOf("/lib/api/", 0) === 0 && pathname.indexOf(".js", pathname.length - 3) !== -1) {
+      var modulename = pathname.substring(9, pathname.length - 3);
+      getRemoteAPIFile(handle, modulename, response);
+      return;
+    }else {
+      getRealFile(pathname, response);
+      return;
+    }//end of /lib/api/***.js
+  }//end of if callapi callapp and else
 }
 
 exports.route = route;

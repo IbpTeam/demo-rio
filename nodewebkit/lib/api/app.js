@@ -1,4 +1,5 @@
 var config = require('../../backend/config');
+var path = require("path");
 
 
 /**
@@ -47,7 +48,7 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
       contentDiv: false,
       iframe: true
     });
-    twin.appendHtml(config.APPBASEPATH + "/" + runapp.path + (sParams===null?"":("?"+sParams)));
+    twin.appendHtml(path.join(config.APPBASEPATH, runapp.path) + (sParams===null?"":("?"+sParams)));
     setTimeout(startAppByNameCb(twin), 0);
   }catch(e){
     console.log("Error happened:" + e.message);
