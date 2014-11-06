@@ -225,24 +225,29 @@ exports.getGitLog = function(repoPath, callback) {
     for (var i = 0; i < tmpLog.length; i++) {
       var Item = tmpLog[i];
       if (Item !== "") {
+        var re_Author = /Author:/;
+        var re_Data = /Datae:/;
+        var re_Merge = /Merge:/;
         var logItem = Item.split('\n');
         var tmplogItem = {};
         tmplogItem.commitID = logItem[0];
-        tmplogItem.Author = logItem[1].replace(/Author:/, "");
-        tmplogItem.Date = logItem[2].replace(/Date:/, "");
-        if (logItem[3] == "") {
-          tmplogItem.content = logItem[4];
-        } else if (logItem[4]) {
-          tmplogItem.content = logItem[5];
-        } else {
-          tmplogItem.content = logItem[3];
+        for (var i = 0; i < logItem.length; i++) {
+          var item = logItem[i];
+          if (re_Author.test(item)) {
+            tmplogItem.Author = item.replace(/Author:/, "");
+          } else if (re_Data.test(item)) {
+            tmplogItem.Date = item.replace(/Date:/, "");
+          } else if (re_Merge.test(item)) {
+            tmplogItem.Merge = item.replace(/Merge:/, "");
+          } else if (item !== '') {
+            tmplogItem.content = JSON.parse(item);
+          }
         }
-        tmplogItem.content = JSON.parse(tmplogItem.content);
         commitLog[tmplogItem.commitID] = tmplogItem;
       }
     }
     console.log(commitLog);
-    callback(null, commitLog)
+    callback(null, commitLog);
   })
 }
 

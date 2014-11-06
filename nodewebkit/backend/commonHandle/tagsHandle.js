@@ -157,7 +157,7 @@ function getAllTags(callback) {
       callback(TagFile);
     }
   }
-  commonDAO.findItems(null, ['tags'], null, null, findItemsCb)
+  commonDAO.findItems(null, ['tags'], null, null, findItemsCb);
 }
 exports.getAllTags = getAllTags;
 
@@ -175,7 +175,7 @@ exports.getAllTags = getAllTags;
 function getTagsByUri(callback, sUri) {
   var sTableName = utils.getCategoryByUri(sUri);
   var condition = ["uri = '" + sUri + "'"];
-  var column = ["others"]
+  var column = ["others"];
 
   function findItemsCb(err, result) {
     if (err) {
@@ -183,7 +183,7 @@ function getTagsByUri(callback, sUri) {
       return;
     }
     var tags = result[0].others;
-    tags = tags.split(",")
+    tags = tags.split(",");
     callback(tags);
   }
   commonDAO.findItems(null, sTableName, condition, null, findItemsCb);
@@ -289,29 +289,37 @@ function setTagByUri(callback, oTags, sUri) {
     }
     dataDes.updateItems(tmpDesItem, function(result) {
       if (result === "success") {
-        var files = [];
-        for (var k in tmpDesItem) {
-          var desFilePath;
-          if (tmpDesItem[k].category === "contact") {
-            desFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', tmpDesItem[k].name + '.md');
+        commonDAO.updateItems(tmpDBItem, function(result) {
+          if (result === "commit") {
+            var files = [];
+            for (var k in tmpDesItem) {
+              var desFilePath;
+              if (tmpDesItem[k].category === "contact") {
+                desFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', tmpDesItem[k].name + '.md');
+              } else {
+                var filePath = item.path;
+                var re = new RegExp('/' + category + '/', "i");
+                desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
+              }
+              files.push(desFilePath);
+            }
+            var chPath = config.RESOURCEPATH + '/' + category + 'Des';
+            repo.repoChsCommit(chPath, files, null, function() {
+              callback(result);
+            });
           } else {
-            var filePath = item.path;
-            var re = new RegExp('/' + category.toLowerCase() + '/', "i");
-            desFilePath = (filePath.replace(re, '/' + category.toLowerCase() + 'Des/')) + '.md';
+            console.log("error in update data base error!");
+            return;
           }
-          files.push(desFilePath);
-        }
-        var chPath = config.RESOURCEPATH + '/' + category.toLowerCase() + 'Des';
-        repo.repoChsCommit(chPath, files, null, function() {
-          callback(result);
-        });
+        })
       } else {
         console.log("error in update des file!");
         return;
       }
     });
   }
-  commonDAO.findItems(null, [category], ["URI = " + "'" + sUri + "'"], null, findItemsCb)
+  var condition = ["URI = " + "'" + sUri + "'"];
+  commonDAO.findItems(null, [category], condition, null, findItemsCb);
 }
 exports.setTagByUri = setTagByUri;
 
@@ -394,24 +402,24 @@ function rmTagsByUri(callback, oTags, oUri) {
           buildDeleteItems(allFiles, resultVideo)
           var resultItems = doDeleteTags(allFiles, oTags);
           dataDes.updateItems(resultItems, function(result) {
-            console.log("{{{{{{{{{{{{{{{{{{{{{{{{{result:");
+            console.log("my update result:");
             console.log(result);
             if (result === "success") {
               var files = [];
               for (var k in allFiles) {
                 var desFilePath;
                 var category = allFiles[k].category;
-                if (category === "Contacts") {
-                  desFilePath = config.RESOURCEPATH + '/contactsDes/data/' + allFiles[k].name + '.md';
+                if (category === "contact") {
+                  desFilePath = config.RESOURCEPATH + '/contactDes/data/' + allFiles[k].name + '.md';
                 } else {
                   var filePath = allFiles[k].path;
-                  var re = new RegExp('/' + category.toLowerCase() + '/', "i");
-                  desFilePath = (filePath.replace(re, '/' + category.toLowerCase() + 'Des/')) + '.md';
+                  var re = new RegExp('/' + category + '/', "i");
+                  desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
                 }
                 files.push(desFilePath);
               }
               console.log(files);
-              var desPath = config.RESOURCEPATH + '/' + category.toLowerCase() + 'Des';
+              var desPath = config.RESOURCEPATH + '/' + category + 'Des';
               repo.repoChsCommit(desPath, files, null, function() {
                 callback(result);
               });
@@ -448,7 +456,7 @@ function rmTagsAll(callback, oTags) {
     condition.push("others like '%" + oTags[k] + "%'");
   }
   var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['documents'], sCondition, null, function(err, resultDoc) {
+  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
     if (err) {
       console.log(err);
       return;
@@ -460,13 +468,13 @@ function rmTagsAll(callback, oTags) {
         return;
       }
       buildDeleteItems(allFiles, resultMusic)
-      commonDAO.findItems(null, ['pictures'], sCondition, null, function(err, resultPic) {
+      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
         if (err) {
           console.log(err);
           return;
         }
         buildDeleteItems(allFiles, resultPic)
-        commonDAO.findItems(null, ['videos'], sCondition, null, function(err, resultVideo) {
+        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
           if (err) {
             console.log(err);
             return;
@@ -479,16 +487,16 @@ function rmTagsAll(callback, oTags) {
               for (var k in allFiles) {
                 var desFilePath;
                 var category = allFiles[k].category;
-                if (category === "Contacts") {
-                  desFilePath = config.RESOURCEPATH + '/contactsDes/data/' + allFiles[k].name + '.md';
+                if (category === "contact") {
+                  desFilePath = config.RESOURCEPATH + '/contactDes/data/' + allFiles[k].name + '.md';
                 } else {
                   var filePath = allFiles[k].path;
-                  var re = new RegExp('/' + category.toLowerCase() + '/', "i");
-                  desFilePath = (filePath.replace(re, '/' + category.toLowerCase() + 'Des/')) + '.md';
+                  var re = new RegExp('/' + category + '/', "i");
+                  desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
                 }
                 files.push(desFilePath);
               }
-              var desPath = config.RESOURCEPATH + '/' + category.toLowerCase() + 'Des';
+              var desPath = config.RESOURCEPATH + '/' + category + 'Des';
               repo.repoChsCommit(desPath, files, null, function() {
                 callback(result);
               });
