@@ -1,16 +1,48 @@
 var util = require('util');
 var os = require('os');
+var path = require("path");
 
 /*
  * Config Path
  * */
-var USERCONFIGPATH;
-exports.USERCONFIGPATH = USERCONFIGPATH;
 var RESOURCEPATH;
-exports.RESOURCEPATH = RESOURCEPATH;
+exports.RESOURCEPATH = path.join(process.env["HOME"],".resources");
 
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
+
+/**
+ * APP Path
+ * Default APP Base path is repo/app dir，we use __dirname to locate it
+ */
+var APPBASEPATH;
+APPBASEPATH = path.join(__dirname,"../../../");
+exports.APPBASEPATH = APPBASEPATH;
+
+/**
+ * AppList 用于存放所有已安装程序列表，目前暂时支持默认自带的程序，如数据管理器
+ * 音乐播放器等
+ * 每一个APP对象包括以下属性：
+ *   name:程序名称
+ *   win:窗口对象，如果为null则处于未打开状态
+ *   path:程序的启动路径，应该是html文件，可以是相对repo/app路径
+ */
+var AppList=[
+  {
+    id:"app1",
+    name:"datamgr",
+    win:null,
+    path:"demo-rio/datamgr/file-explorer.html"
+  },
+  {
+    id:"app_example",
+    name:"example",
+    win:null,
+    path:"demo-rio/appExample/index.html"
+  }
+];
+exports.AppList = AppList;
+
 /**
  * Database Path
  *
@@ -28,15 +60,13 @@ var DBDEBUG=1;
  * Server network config
  * */
 var SERVERPORT=8888;
-var MSGPORT=8889;
+var MSGPORT=8892;
 exports.MSGPORT = MSGPORT;
 exports.SERVERPORT = SERVERPORT;
 var FILEPORT=8080;
 exports.FILEPORT=FILEPORT;
 var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
-var SOCKETIOPORT=8891;
-exports.SOCKETIOPORT = SOCKETIOPORT;
 var SERVERIP;
 exports.SERVERIP = SERVERIP;
 var SERVERNAME;

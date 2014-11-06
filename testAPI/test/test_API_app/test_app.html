@@ -1,0 +1,165 @@
+<html>
+<head>
+  <title>test_filesHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <link rel="stylesheet" type="text/css" href="../../lib/css/demoUI.css"/>
+  <link rel="stylesheet" type="text/css" href="../../lib/css/demoUItheme.css"/>
+  <link rel="stylesheet" type="text/css" href="../../lib/css/demoUIFont.css"/>
+  
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+  <script type="text/javascript" src="../../lib/js/demoUI.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+
+  function print(win,something){
+    if(typeof something == "object"){
+      for(var k in something){
+        win.document.write("{");
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write("}");
+        win.document.write("<br/>");
+      }
+    }else{
+      win.document.write(something);
+    }
+  }
+  
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
+
+  function sendKeyToAppCb(result){
+    var win = window.open('');
+    win.document.write("test API sendKeyToApp()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function sendKeyToApp(sendKeyToAppCb){
+    WDC.requireAPI(['app'], function(app){
+      app.sendKeyToApp(sendKeyToAppCb, "test", "F5");
+    });
+  }
+
+  function startAppByNameCb(result){
+    var win = window.open('');
+    win.document.write("test API startAppByName()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+
+  function startAppByName(startAppByNameCb){
+    WDC.requireAPI(['app'], function(app){
+      app.startAppByName(startAppByNameCb, "datamgr", null);
+    });
+  }
+  </script>
+
+<h2 onclick="show('sendKeyToApp')">sendKeyToApp(sendKeyToAppCb)<span><a class="mark" href="#test_sendKeyToApp" id="test_sendKeyToApp" onclick="sendKeyToApp(sendKeyToAppCb)">test</a></span></h2>
+<div id="sendKeyToApp" style="display:none;">
+<div style="color:#930000">
+  <pre>
+ @method sendKeyToApp
+   向已打开的应用发送键盘或鼠标事件
+
+ @param1 callback function
+   回调函数
+   @cbparam1
+      boolean, true 代表是成功，false代表是失败
+ @param2 pid
+   string，要发送的程序执行的pid
+ @param3 key
+   string，要打开发送的键盘事件
+    参照 grep "XK_" /usr/include/X11/keysymdef.h|sed 's/ XK_/ /g'
+    或参照 grep "XK_" /usr/include/X11/XF86keysym.h|sed 's/XK_//g' (for 'multimedia keyboard' keysyms)
+ 注：暂时只支持部分程序操作，如PPT，因此暂时采用windowname+xdotool的方式进行控制
+ 
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function sendKeyToAppCb(result){
+    var win = window.open('');
+    win.document.write("test API sendKeyToApp()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function sendKeyToApp(sendKeyToAppCb){
+    WDC.requireAPI(['app'], function(app){
+      app.sendKeyToApp(function(){}, "html", "F5");
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('startAppByName')">startAppByName(startAppByNameCb)<span><a class="mark" href="#test_startAppByName" id="test_startAppByName" onclick="startAppByName(startAppByNameCb)">test</a></span></h2>
+<div id="startAppByName" style="display:none;">
+<div style="color:#930000">
+  <pre>
+@method startAppByName
+  根据应用名字打开应用
+
+@param1 callback function
+  回调函数
+  @cbparam1
+     object, 返回app对象，失败则返回null
+     {
+       name:APP NAME,
+       window:APP Window object
+     }
+@param2 sAppName string
+  启动程序名称
+@param3 oParamBag string
+  启动程序参数，可以json格式封装
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function startAppByNameCb(result){
+    var win = window.open('');
+    win.document.write("test API startAppByName()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+
+  function startAppByName(startAppByNameCb){
+    WDC.requireAPI(['app'], function(app){
+      app.startAppByName(startAppByNameCb, "datamgr", null);
+    });
+  }
+</pre>
+</div>
+
+</body>
+</html>

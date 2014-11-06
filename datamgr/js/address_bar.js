@@ -1,32 +1,27 @@
-//var events = require("events");
-//var util = require("util");
-
 //Notice: difference parameters between gen_bar and gen_one_fie
-// Template engine
 function gen_bar(dirs){
- var result = [];
+  var result = [];
   //console.log('dirs', dirs);
- for(var i=0; i<dirs.length; i++){
+  /*for(var i=0; i<dirs.length; i++){
     var dir = dirs[i];
-  if(i != dirs.length-1){//<span class="divider">/</span>
-   result.push('<li data-path="' + dir.path + '"><a href="#">' + dir.name + '</a></li>');
-  }else{
-   result.push('<li data-path="' + dir.path + '"  class="active"><a href="#">' + dir.name + '</a></li>');  
-  }
- }
- return result.join('\n');
+    if(i != dirs.length-1){
+      result.push('<li data-path="' + dir.path + '"><a href="#">' + dir.name + '</a></li>');
+    }else{
+      result.push('<li data-path="' + dir.path + '"  class="active"><a href="#">' + dir.name + '</a></li>');  
+    } 
+  }*/
+  result.push('<li data-path="' + dirs[dirs.length-1].path + '"  class="active"><a href="#">' + dirs[dirs.length-1].name + '</a></li>');
+  return result.join('\n');
 }
 function gen_one_fie(dir){
- var result = [];
- result.push('<li data-path="' + dir['props'].path + '"><a href="#">' + dir['props'].name + '</a></li>');
- return result.join('\n');  
+  var result = [];
+  result.push('<li data-path="' + dir['props'].path + '"><a href="#">' + dir['props'].name + '</a></li>');
+  return result.join('\n');  
 }
 
 // Our real type
 function AddressBar(element) {
-  //events.EventEmitter.call(this);
   this.address_bar = element;
-
   // Monitor click on AddressBar
   var self = this;
   self.address_bar.delegate('a', 'click', function() {
@@ -35,19 +30,19 @@ function AddressBar(element) {
     self.emit('navigate', $(this).parent().attr('data-path'));
     return false;
   });
-  self.address_bar.parent().delegate('input', 'click', function(){
+  self.address_bar.parent().delegate('#folder-mode', 'click', function(){
     self.emit('fold_mode_view');
   });
+  self.address_bar.parent().delegate('#history', 'click', function(){
+    self.emit('show_history');
+  });
 }
-
-
-//util.inherits(AddressBar, events.EventEmitter);
 
 AddressBar.prototype.set = function(dir_path) {
   //this.current_path = path.normalize(dir_path);
   var path_sep='/';
   this.current_path = dir_path;
-  var sequence = this.current_path.split(path_sep);//path.sep
+  var sequence = this.current_path.split(path_sep);
   var result = [];
   var i = 0;
   for (; i < sequence.length; ++i) {
@@ -59,7 +54,6 @@ AddressBar.prototype.set = function(dir_path) {
   console.log('current_path:' + this.current_path);
   console.log('sequence:', sequence);
   console.log('result:', result);
-
   // Add root for *nix
   if (sequence[0] == ''){// && process.platform != 'win32') {
     result[0] = {
@@ -72,7 +66,6 @@ AddressBar.prototype.set = function(dir_path) {
 }
 
 AddressBar.prototype.enter = function(mine) {
-  // Where is current
   var how_many = this.address_bar.children().length;
   var where = this.address_bar.children('.active').index();
   if (where == how_many - 1) {
@@ -86,10 +79,7 @@ AddressBar.prototype.enter = function(mine) {
   this.address_bar.append(gen_one_fie(mine));
   this.address_bar.find('a:last').trigger('click');
 }
-
 $.extend(AddressBar.prototype, $.eventEmitter);
-//exports.AddressBar = AddressBar;
-
 
   /*
   var sequence = [ "", "home", "cos", "Templates" ];

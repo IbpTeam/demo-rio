@@ -5,10 +5,9 @@
 //eval(fs.readFileSync('../backend/api.js')+'');
 
 //var ip='192.168.160.176';
-var ip = '127.0.0.1';
-var port = ':8888';
+
 // Template engine
-function gen_popup_dialog(title, message){
+function gen_popup_dialog(title, message, data_json){
   $("#popup_dialog").remove();
   var header_btn = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
   var header_title = $('<h4 class="modal-title"></h4>');
@@ -20,8 +19,8 @@ function gen_popup_dialog(title, message){
   body.html(message);
   
   var footer = $('<div class="modal-footer"></div>');
-  var footer_edit = $('<button type="button" class="btn btn-success" onclick="gen_edit_dialog()">Edit</button>');
-  footer.append(footer_edit);
+  //var footer_edit = $('<button type="button" class="btn btn-success" data-dismiss="modal" id="edit_button">Edit</button>');
+  //footer.append(footer_edit);
   var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
   footer.append(footer_btn);
   
@@ -32,7 +31,7 @@ function gen_popup_dialog(title, message){
   
   var dialog = $('<div class="modal-dialog"></div>');
   dialog.append(content);
-  var div = $('<div id="popup_dialog" class="modal fade"></div>');
+  var div = $('<div id="popup_dialog" class="modal fade" data-backdrop="false"></div>');
   div.append(dialog);
   $('body').append(div);
   $("#popup_dialog").modal('show');
@@ -47,105 +46,119 @@ function gen_popup_dialog(title, message){
   $('#popup_dialog').on('hidden.bs.modal', function(){
     $(this).remove();
   });
+  $('#edit_button').on('click', function(){
+    if(data_json != null){
+      $(this).removeData('bs.modal');
+      gen_edit_dialog(data_json);
+    }
+    else{
+      window.alert("You can not edit this file.");
+    }
+  });
 }
-function gen_edit_dialog(message){
-  console.log("gen edit dialog!");
+
+function get_all_data_file(data_json){
+  console.log('get all data file', data_json);
+  var file_propery='';
+  for(var key in data_json){
+    if(key == 'props' || key == 'URI'){
+      continue;
+    }
+    file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
+  }
+  if(data_json.hasOwnProperty('URI')){
+    file_propery += '<button type="button" class="btn active" id="edit_button" data-dismiss="modal">Edit</button>';
+  }
+  gen_popup_dialog('Property', file_propery, data_json);
 }
+
+function gen_edit_dialog(data_json){
+  console.log("gen edit dialog!", data_json);
+  var file_propery='<form>';
+  for(var key in data_json){
+    if(key == 'props' || key == 'URI'){
+      continue;
+    }
+    file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
+  }
+  file_propery += '</form></br>';
+  file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
+  gen_popup_dialog('Edit', file_propery);
+  $('#save_button').on('click', function(){
+    var new_json = {};
+    for(var key in data_json){
+      if(key == 'props' || key == 'URI'){
+        continue;
+      }
+      var new_value = document.getElementById(key).value;
+      new_json[key] = new_value;
+    }
+    new_json['category'] = get_category();
+    new_json['URI'] = data_json['URI'];
+    DataAPI.updateDataValue(function(result){
+      if(result == 'success'){
+        window.alert("Saved successfully!");
+      }
+      else{
+        window.alert("Saved failed!");
+      }
+    }, [new_json]);
+  });
+}
+
+function sendKeyToWindow(windowname, key){
+  console.log("sendkey " + key + " To Window " + windowname);
+  AppAPI.sendKeyToApp(function(){}, windowname, key);
+}
+
 function cb_get_data_source_file(data_json){
   console.log('get data source file', data_json);
   if(!data_json['openmethod'] || !data_json['content']){
     window.alert('openmethod or content not found.');
     return false;
   }
+
   var method = data_json['openmethod'];
   var content = data_json['content'];
-  
-  var path, arg, pos, suffix = '', results_arr = []; 
   switch(method){
-  case 'direct':
-    //http://localhost:8888/home/v1/demo-resources/contactsphoto/jianmin.jpg?query=absolute
-    if(/http:\/\/([^\?]*)\?(.*)/.test(content)){
-      results_arr = content.replace(/http:\/\/([^\?]*)\?(.*)/, '$1\n$2').split('\n');
-      path = results_arr[0];
-      //arg =  results_arr[1];
-      pos = path.lastIndexOf(".");
-      if(pos != -1){
-        suffix = path.substr(pos+1).toLowerCase();
-      }
-    }
-    //{"openmethod":"direct","content":"/home/cos/Templates/resources/contactsphoto/wangfeng.jpg"}
-    else
-    {
-      path = content;
-      pos = path.lastIndexOf(".");
-      if(pos != -1){
-        suffix = path.substr(pos+1).toLowerCase();
-      }
-    }
-    break;
-  default:
-    break;
-  }
-  
-  var file_content ='';
-  switch(method){
-  case 'direct':
-    switch(suffix){
-    case 'jpg':
-      file_content = '<img src=' + content + '>';
+    case 'alert':
+      window.alert(content);
       break;
-    case 'txt':
-      //var data = '';
-      file_content = $("<p></p>").load(content);
-      //console.log('*****************file_content', data);
-//      if(frontend_type == frontend_local){ 
-//        results.push('<div class="icon"> <img src="' + file['props'].img + '"></div>');
-//      }else{
-//        results.push('<div class="icon"> <img src="' + file['props'].img + '?query=absolute"></div>');
-//      }
-      break;
-    case 'ogg':
-      file_content = $('<audio controls></audio>');
-      file_content.html('<source src=' + content + ' type="audio/ogg">');
-      //"http://localhost:8888/home/v1/resources/musics/whoyouare.mp3?query=absolute"
+    case 'html':
+      var file_content;
+      var format = data_json['format'];
+      switch(format){
+        case 'audio':
+          file_content = $('<audio controls></audio>');
+          file_content.html('<source src=\"' + content + '\"" type="audio/ogg">');
+          break;
+        case 'div':
+          file_content = content;
+          break;
+        case 'txtfile':
+          file_content = $("<p></p>").load(content);
+          break;
+        default:
+          file_content = content;
+          break;
+      }
+
+      var title = data_json['title'];
+      if (!data_json['windowname']){
+        gen_popup_dialog(title, file_content);
+      }else{
+        gen_popup_dialog("窗口控制", "<div>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
+            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+          </div>");
+      }
       break;
     default:
-      window.alert('suffix is not recognized.');
       break;
-    }
-    gen_popup_dialog('文件浏览', file_content);
-    break;
-  case 'local':
-    var commend = "xdg-open \"" + content + "\"";
-    DataAPI.openLocalDataSourceByPath(function (resultstr){
-      file_content = $("<p>" + resultstr + "</p>");
-      gen_popup_dialog('文件打开', file_content);
-    }, content);
-    break;
-  case 'remote':
-    //window.alert('需要使用noVNC打开' + '\nopenmethod:'+method+'\ncontent:'+content);
-    var host = window.location.host.split(':')[0];       //localhost run
-    console.log(host);
-    var password = "demo123";
-    function turnToVNC()
-    {
-      window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
-    }
-    setTimeout(turnToVNC,1000);
-    break;
   }
-  //{"openmethod":"local","content":"/home/cos/Templates/resources/documents/preseed\u5B9E\u73B0livecd\u81EA\u52A8\u5B89\u88C5.docx"}
-}
-function cb_get_all_data_file(data_json){
-  console.log('get all data file', data_json);
-  var file_propery='';
-  for(var key in data_json){
-    if(key == 'props'){
-      continue;
-    }
-    file_propery += '<p>' + key + ': ' + data_json[key] + '</p>';
-  }
-  gen_popup_dialog('属性', file_propery);
+  return;
 }
 
 function path_transfer(front_path, base_dir){
@@ -153,25 +166,49 @@ function path_transfer(front_path, base_dir){
     case 'root':
       return base_dir;
       break;
-    case 'root/Contacts':
+    case 'root/Contact':
       return null;
       break;
-    case 'root/Pictures':
-     return base_dir+'/pictures';
+    case 'root/Picture':
+     return base_dir+'/picture';
       break;
-    case 'root/Videos':
-      return base_dir+'/videos';
+    case 'root/Video':
+      return base_dir+'/video';
       break;
-    case 'root/Documents':
-      return base_dir+'/documents';
+    case 'root/Document':
+      return base_dir+'/document';
       break;
     case 'root/Music':
-      return base_dir+'/musics';
+      return base_dir+'/music';
       break;
     default:
       return null;
       break;
   }
+}
+
+function get_category(){
+  return global_dir.substring(global_dir.lastIndexOf('/')+1, global_dir.length).toLowerCase();
+}
+
+function gen_add_tags_dialog(data_uri){
+  console.log("gen_add_tags_dialog!", data_uri);
+  var file_propery='<form>';
+  file_propery += '<input id="newtag" type="text" size="60" aligin="right" />';
+  file_propery += '</form></br>';
+  file_propery += '<button type="button" class="btn btn-success" id="addtag_button" data-dismiss="modal">Add</button>';
+  gen_popup_dialog('Add new tag', file_propery);
+  $('#addtag_button').on('click', function(){
+    var new_tag = document.getElementById('newtag').value;
+    DataAPI.setTagByUri(function(result){
+      if(result == 'success'){
+        window.alert("Add tags successfully!");
+      }
+      else{
+        window.alert("Add tags failed!");
+      }
+    }, [new_tag], data_uri);
+  });
 }
 
 // Our type
@@ -190,11 +227,15 @@ function Folder(jquery_element) {
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
           case 'New Document'://wangyu: add this action.
-            var target_path = path_transfer(global_dir, data_dir);
-            DataAPI.createFile(function(is_success){
-              console.log('is_success: ', is_success);
-              global_self.open(global_dir);
-            }, 'txt', target_path);
+            var data = new Date();
+            var filename = 'NewFile_' + data.toLocaleString().replace(' ', '_') + '.txt';
+            DataAPI.createFile(function(result){
+              if(result == 'success'){
+                global_self.open(global_dir);
+              }else{
+                window.alert("Add new file failed!");
+              }              
+            }, filename, get_category());
           /*  var filetypes = ['文本文档', 'WPS Word文档', 'WPS Powerpoint文档', 'WPS Excel文档'];
           //  var sub_popup_menu = self.files.gen_popup_menu(filetypes);
             self.files.children('.dropdown-menu').remove();
@@ -249,14 +290,14 @@ function Folder(jquery_element) {
             gen_popup_dialog('属性', '"基于html5的文件管理器模型"');
             break;
           case 'Paste':
-            var real_path = path_transfer(global_dir, data_dir);
-            if(real_path != null){
-              console.log(copied_filepath);
-              DataAPI.pasteFile(function(is_success){
-                console.log('is_success: ', is_success);
+            console.log(copied_filepath);
+            DataAPI.pasteFile(function(result){
+              if(result == 'success'){
                 global_self.open(global_dir);
-              }, copied_filepath, real_path);
-            }
+              }else{
+                window.alert("Paste file failed!");
+              }
+            }, copied_filepath, get_category());
             copied_filepath = '';
             break;
         }
@@ -285,7 +326,7 @@ function Folder(jquery_element) {
     $(this).addClass('focus');
     switch(e.which){
     case 3:
-      var contents = ['Open', 'Copy', 'Property', 'Delete'];// '编辑'
+      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags'];// '编辑' 'Property'
       var popup_menu = self.gen_popup_menu(contents);
       var dst_file = this;
       $(popup_menu).on('mouseup', function(e){
@@ -295,10 +336,10 @@ function Folder(jquery_element) {
 //          }        
 //        }
         if($(dst_file).attr('data-path').lastIndexOf('.') != -1 || 
-        $(dst_file).attr('data-path') == 'root/Contacts' || 
-        $(dst_file).attr('data-path') == 'root/Pictures' || 
-        $(dst_file).attr('data-path') == 'root/Videos' || 
-        $(dst_file).attr('data-path') == 'root/Documents' || 
+        $(dst_file).attr('data-path') == 'root/Contact' || 
+        $(dst_file).attr('data-path') == 'root/Picture' || 
+        $(dst_file).attr('data-path') == 'root/Video' || 
+        $(dst_file).attr('data-path') == 'root/Document' || 
         $(dst_file).attr('data-path') == 'root/Music'){
           var file_json = self.find_json_by_path($(dst_file).attr('data-path'));
           if(!file_json){
@@ -312,7 +353,10 @@ function Folder(jquery_element) {
                   self.emit('navigate', file_json);
                 break;
                 case 'file':
-                  DataAPI.getDataSourceByUri(cb_get_data_source_file, file_json.URI);
+                  DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+                break;
+                case 'other':
+                  get_all_data_file(file_json);
                 break;
               }
             break;
@@ -327,6 +371,39 @@ function Folder(jquery_element) {
                 break;
               }
             break;
+            case 'Rename':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not rename the category.');
+                break;
+                case 'file':
+                  var inputer = Inputer.create('button-name');
+                  var options = {
+                    'left': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().left,
+                    'top': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().top,
+                    'width': 80,
+                    'height': 25,
+                    'oldtext': file_json['props'].name,
+                    'callback': function(newtext){
+                      var new_file_json = {
+                        URI: file_json['URI'],
+                        path: file_json['path'],
+                        filename: newtext,
+                      };
+                      DataAPI.updateDataValue(function(result){
+                        if(result == 'success'){
+                          global_self.open(global_dir);
+                        }
+                        else{
+                          window.alert("Rename failed!");
+                        }
+                      }, [new_file_json]);
+                    }
+                  }
+                  inputer.show(options);
+                break;
+              }
+            break;
             case 'Property':
               switch(file_json['props']['type']){
                 case 'folder':
@@ -338,7 +415,7 @@ function Folder(jquery_element) {
                   gen_popup_dialog('属性', file_propery);
                 break;
                 case 'file':
-                  DataAPI.getDataByUri(cb_get_all_data_file, file_json.URI);
+                  DataAPI.getDataByUri(get_all_data_file, file_json.URI);
                 break;
               }
             break;
@@ -349,11 +426,19 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  item = {};
-                  item['is_delete'] = 1;
-                  item['URI'] = file_json['URI'];
-                  item['category'] = file_json['props']['path'].substring(file_json['props']['path'].indexOf('/')+1, file_json['props']['path'].lastIndexOf('/'));
-                  DataAPI.updateDataValue(self.after_delete_file, [item]);
+                  DataAPI.rmDataByUri(function(){
+                    global_self.open(global_dir);
+                  },file_json['URI']);
+                break;
+              }
+            break;
+            case 'Add tags':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not add tags for the whole category.');
+                break;
+                case 'file':
+                  gen_add_tags_dialog(file_json['URI']);
                 break;
               }
             break;         
@@ -383,10 +468,10 @@ function Folder(jquery_element) {
   this.files.delegate('.file', 'dblclick', function(e) {
     var file_json;
     if($(this).attr('data-path').lastIndexOf('.') != -1 || 
-       $(this).attr('data-path') == 'root/Contacts' || 
-       $(this).attr('data-path') == 'root/Pictures' || 
-       $(this).attr('data-path') == 'root/Videos' || 
-       $(this).attr('data-path') == 'root/Documents' || 
+       $(this).attr('data-path') == 'root/Contact' || 
+       $(this).attr('data-path') == 'root/Picture' || 
+       $(this).attr('data-path') == 'root/Video' || 
+       $(this).attr('data-path') == 'root/Document' || 
        $(this).attr('data-path') == 'root/Music'){     
       file_json = self.find_json_by_path($(this).attr('data-path'));
       if(!file_json){
@@ -399,11 +484,14 @@ function Folder(jquery_element) {
         break;
       case 'file':
         if(file_json.URI.indexOf('#') != -1){
-          DataAPI.getDataSourceByUri(cb_get_data_source_file, file_json.URI);
+          DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
         }
         break;
+      case 'device':
+        im_view.showSend(file_json);
+        break;
       case 'other':
-        cb_get_all_data_file(file_json);
+        get_all_data_file(file_json);
         break;
       }
     }else{
@@ -446,11 +534,6 @@ function Folder(jquery_element) {
   });
 }
 
-//wangyu: add after delete file operation function
-Folder.prototype.after_delete_file = function(){
-  global_self.open(global_dir);
-}
-
 Folder.prototype.gen_popup_menu = function(contents){
   this.files.children('.dropdown-menu').remove();
   var menu = $('<ul></ul>');
@@ -474,7 +557,6 @@ Folder.prototype.gen_popup_menu = function(contents){
 var global_self;
 var global_dir;
 var file_arch_json = {};
-var data_dir;
 var copied_filepath = '';
 
 //wangyu: add this function for open folder in folder view mode.
@@ -497,7 +579,6 @@ Folder.prototype.find_json_by_path = function(filepath){
   var all = file_arch_json[global_dir];
   //console.log('global_dir', global_dir);
   //console.log('filepath', filepath);
-  //console.log('file_arch_json[global_dir]', file_arch_json[global_dir]);
   var file = false;
   if(all.length){
     for(var i=0; i<all.length; i++){
@@ -554,6 +635,8 @@ Folder.prototype.set_icon = function(postfix){
       return 'Pictures';
     case 'png':
       return 'Pictures';
+    case 'html5ppt':
+      return 'html5ppt'
     default:
       return 'Documents';
   }
@@ -569,40 +652,34 @@ Folder.prototype.get_callback_data = function(data_json){
       data_json[i]['props']['type'] = 'folder';
       data_json[i]['props']['icon'] = 'folder';
     }        
-	    //console.log('set favorites1.', data_json);
-//	    if(file_arch_json.hasOwnProperty('root')){
-//	        console.log('root value:', file_arch_json['root']);
-//	    }else{	    
-//	        console.log('---------------********************************-----------------');
     global_self.emit('set_favorites', data_json);	 
-//	    }
     break;
-  case 'root/Contacts':
+  case 'root/Contact':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
       //data_json[i]['img'] = data_json[i]['photoPath'];
-      data_json[i]['props']['path'] = 'root/Contacts/'+data_json[i]['name']+'.contacts';
+      data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
       data_json[i]['props']['name'] = data_json[i]['name'];
       data_json[i]['props']['type'] = 'other';
       data_json[i]['props']['icon'] = 'Contacts';
     }
     global_self.emit('set_sidebar', data_json);
     break;
-  case 'root/Pictures':
+  case 'root/Picture':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
       data_json[i]['props']['img'] = data_json[i]['path'];
-      data_json[i]['props']['path'] = 'root/Pictures/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+      data_json[i]['props']['path'] = 'root/Picture/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
       data_json[i]['props']['name'] = data_json[i]['filename'];      
       data_json[i]['props']['type'] = 'file';
       data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);;
     }
     global_self.emit('set_sidebar', data_json);
     break;
-  case 'root/Videos':
+  case 'root/Video':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Videos/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+      data_json[i]['props']['path'] = 'root/Video/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
       data_json[i]['props']['name'] = data_json[i]['filename'];
       //data_json[i]['img'] = '.'+data_json[i]['photoPath'];            
       data_json[i]['props']['type'] = 'file';
@@ -610,10 +687,10 @@ Folder.prototype.get_callback_data = function(data_json){
     }
     global_self.emit('set_sidebar', data_json);
     break;
-  case 'root/Documents':
+  case 'root/Document':
     for(var i=0; i<data_json.length; i++){
       data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Documents/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+      data_json[i]['props']['path'] = 'root/Document/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
       data_json[i]['props']['name'] = data_json[i]['filename'];   
       data_json[i]['props']['type'] = 'file';
       data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
@@ -636,7 +713,7 @@ Folder.prototype.get_callback_data = function(data_json){
       data_json[i]['props'] = {};
       data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name']+'.device';
       data_json[i]['props']['name'] = data_json[i]['name'];           
-      data_json[i]['props']['type'] = 'other';
+      data_json[i]['props']['type'] = 'device';
       data_json[i]['props']['icon'] = 'Devices';
     }
     global_self.emit('set_sidebar', data_json);
@@ -653,8 +730,58 @@ Folder.prototype.get_callback_data = function(data_json){
     break;
   }
   file_arch_json[global_dir] = data_json;
-//console.log('data from server after treat:', data_json);
   global_self.show_folder_view(global_dir);
+}
+
+//wangyu: add this function to show history
+Folder.prototype.show_history = function(){
+  if(global_dir.lastIndexOf('/') != -1){
+    DataAPI.getGitLog(function(err, result){
+      var file_property='';
+      var commitIds = [];
+      for(var commitId in result){
+        commitIds.push(commitId);
+      }
+      var count = 0;
+      for(var i in result){
+        file_property += '<li class="divider">--------------------</li>';
+        file_property += '<p>'+result[i]['Author']+' '+result[i]['content']['op']+' data on '+result[i]['Date'];
+        file_property += ' using device '+result[i]['content']['device']+'</p>';
+        file_property += '<input type=button class="btn active" id='+result[i]['commitID']+' value="More Detail"/>';        
+        if(count == commitIds.length - 1){
+          file_property += '<input type=button class="btn active" name="null" value="Confirm Recover"/>';
+        }else{
+          file_property += '<input type=button class="btn active" name='+commitIds[count + 1]+' value="Confirm Recover"/>';
+          count ++;
+        }
+      }
+      var history_win = Window.create('operation_history', 'Operation History', {left:100, top:100, height: 500, width: 500, resize: true});
+      history_win._windowContent.append(file_property);
+      //gen_popup_dialog('History', file_property);
+      $('input[value="More Detail"]').on('click', function(){
+        var detail_win = Window.create('operation_details', 'Operation Details', {left:150, top:150, height: 500, width: 430, resize: true});
+        var details = '';
+        for(var i=0; i<result[this.id]['content']['file'].length; i++){
+          details += '<p>' + result[this.id]['content']['file'][i] + '</p>';
+        }
+        detail_win._windowContent.append(details);
+      });
+      $('input[value="Confirm Recover"]').on('click', function(){
+        if(this.name == 'null'){
+          window.alert("You are already in the first version, so you can not do recovery operation.");
+        }else{
+          DataAPI.repoReset(function(err, result){
+            if(result == 'success'){
+              window.alert("Version recover successfully!");
+              global_self.open(global_dir);
+            }else{
+              window.alert("Version recover failed!");
+            }
+          }, get_category(), this.name);
+        }
+      });
+    }, get_category());
+  }
 }
 
 //wangyu: add this funtion for folder view.
@@ -662,15 +789,15 @@ Folder.prototype.use_folder_view_mode = function(){
   switch(global_dir){
   case 'root':
     break;
-  case 'root/Contacts':
+  case 'root/Contact':
     break;
-  case 'root/Pictures':
+  case 'root/Picture':
     //getAllDataByCate(this.folder_view_mode_cb, 'Pictures');
     break;
-  case 'root/Videos':
+  case 'root/Video':
     //getAllDataByCate(this.folder_view_mode_cb, 'Videos');
     break;
-  case 'root/Documents':
+  case 'root/Document':
     DataAPI.getAllDataByCate(this.folder_view_mode_cb, 'Documents');
     break;
   case 'root/Music':
@@ -743,7 +870,7 @@ Folder.prototype.show_folder_mode_view = function(fs_structure, data_json, datap
     }
     results.push('<div class="file" data-path="' + data_json.path + '">');
     results.push('<div class="icon"> <img src="icons/' + data_json.icon + '.png"></div>');
-    results.push('<div class="name">' + data_json.name + '</div>');
+    results.push('<div class="name" id="'+data_json.name+'">' + data_json.name + '</div>');
     results.push('</div>');
   }
   global_self.files.html(results.join('\n'));
@@ -786,7 +913,13 @@ Folder.prototype.gen_view_files_normal = function(files){
     }else{
         results.push('<div class="icon"> <img src="icons/' + file['props'].icon + '.png"></div>');
     }
-    results.push('<div class="name">' + file['props'].name + '</div>');
+    if(file['props'].name.indexOf(' ') != -1 ||
+       file['props'].name.indexOf('\'' != -1)){
+      var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+      results.push('<div class="name" id="'+ id +'">' + file['props'].name + '</div>');
+    }else{
+      results.push('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>');
+    }
     results.push('</div>');
   }
   return results.join('\n');
@@ -872,7 +1005,7 @@ Folder.prototype.gen_view_table = function(files){
         global_self.emit('navigate', file_json);
         break;
       case 'file':
-        DataAPI.getDataSourceByUri(cb_get_data_source_file, file_json.URI);
+        DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
         break;
       }
     });
@@ -927,17 +1060,17 @@ Folder.prototype.open = function(dir) {
   case 'root':
     DataAPI.getAllCate(this.get_callback_data);
     break;
-  case 'root/Contacts':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Contacts');
+  case 'root/Contact':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Contact');
     break;
-  case 'root/Pictures':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Pictures');
+  case 'root/Picture':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Picture');
     break;
-  case 'root/Videos':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Videos');
+  case 'root/Video':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Video');
     break;
-  case 'root/Documents':
-    DataAPI.getAllDataByCate(this.get_callback_data, 'Documents');
+  case 'root/Document':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Document');
     break;
   case 'root/Music':
     DataAPI.getAllDataByCate(this.get_callback_data, 'Music');
@@ -949,9 +1082,6 @@ Folder.prototype.open = function(dir) {
     window.alert('Path ' + global_dir + ' does not exist.');
     break;
   }
-  DataAPI.getResourceDataDir(function(dataDir){
-    data_dir = dataDir;
-  });
 }
 
 $.extend(Folder.prototype, $.eventEmitter);

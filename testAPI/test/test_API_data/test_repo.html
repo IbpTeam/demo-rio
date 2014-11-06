@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>test_repo_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+
+  var commit_id = "257ab40866dc2c98016986109578fd067671e9d7";
+
+  function print(win,something){
+    if(typeof something == "object"){
+      win.document.write("{");
+      win.document.write("<br/>");
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write(", ");        
+      }
+      win.document.write("}");
+      win.document.write("<br/>");
+    }else{
+      win.document.write(something);
+    }
+  }
+ 
+  function getGitLogCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API getGitLog()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_getGitLog(getGitLogCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getGitLog(getGitLogCb,'document');
+    });        
+  }
+
+  function repoResetCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoReset()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoReset(repoResetCb){
+    WDC.requireAPI(['data'], function(data){
+      data.repoReset(repoResetCb,'document',commit_id);
+    });        
+  }
+
+  </script>
+
+<h2 onclick="show('getGitLog')">getGitLog(getGitLogCb)<span><a class="mark" href="#test_getGitLog" id="test_getGitLog" onclick="test_getGitLog(getGitLogCb)">test</a></span></h2>
+<div id="getGitLog" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getGitLogCb(result){
+      var win = window.open('');
+      win.document.write("test API getGitLog()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;"); 
+    }
+
+    function test_getGitLog(getGitLogCb){
+      WDC.requireAPI(['data'], function(data){
+        data.getGitLog(getGitLogCb);
+      });        
+    }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('repoReset')">repoReset(repoResetCb)<span><a class="mark" href="#test_repoReset" id="test_repoReset" onclick="test_repoReset(repoResetCb)">test</a></span></h2>
+<div id="repoReset" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function repoResetCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoReset()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoReset(repoResetCb){
+    WDC.requireAPI(['data'], function(data){
+      data.repoReset(repoResetCb,'document',commit_id);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+</body>
+</html>
