@@ -18,4 +18,16 @@ WDC.requireAPI = function(apilist, callback){
   requirejs(apilist, callback);
 }
 
+$(document).ready(function(){
+  if (typeof onStart === "function"){
+    try{
+      var nIndex=window.location.href.lastIndexOf("?");
+      var sParam= nIndex<0?null:window.location.href.substring(nIndex + 1, window.location.href.length);
+      onStart(sParam);
+    }catch(e){
+      console.log("Warning: onStart should be supported :" + e.message);
+    }
+  }
+});
+
 console.log("end of api_remote.js.");

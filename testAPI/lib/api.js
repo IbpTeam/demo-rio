@@ -9,6 +9,18 @@ try {
   console.log("Error: Can not load nodewebkit modules, so we can not use the WDC api.");
 }
 
+$(document).ready(function(){
+  if (typeof onStart === "function"){
+    try{
+      var nIndex=window.location.href.lastIndexOf("?");
+      var sParam= nIndex<0?null:window.location.href.substring(nIndex + 1, window.location.href.length);
+      onStart(sParam);
+    }catch(e){
+      console.log("Warning: onStart should be supported :" + e.message);
+    }
+  }
+});
+
 WDC.isDebug = true;
 WDC.isRemote = false;
 console.log("end of api.js.");
