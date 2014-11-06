@@ -2,11 +2,11 @@
 pre_config();
 var DataAPI;
 var AppAPI;
-WDC.requireAPI(['data', 'app'], function(data, app){
-  console.log("data:" +  data + " app:" + app);
-  DataAPI=data;
-  AppAPI=app;
-  $(document).ready(function() {
+function main(params){
+  WDC.requireAPI(['data', 'app'], function(data, app){
+    console.log("data:" +  data + " app:" + app);
+    DataAPI=data;
+    AppAPI=app;
     DataAPI.getServerAddress(configuration);
     //configuration();
 
@@ -87,7 +87,7 @@ WDC.requireAPI(['data', 'app'], function(data, app){
       im_view.showRec(msgobj);
     });
   });
-});
+}
 
 //function folder_view_mode(){
 //  var folder = new Folder($('#files'));
