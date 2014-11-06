@@ -1,16 +1,21 @@
 .btn {
   padding: 4px;
   font-size: 15px;
-  border: 1px solid #cccccc;
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+  border-radius: 6px;
+  color: #090909;
   background-color: #ffffff;
+  border: 1px solid #cccccc;
 }
 .btn.disabled,
 .btn.disable {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
   cursor: default;
   pointer-events: none;
   color: #ababab;
@@ -24,13 +29,77 @@
   border-color: #cccccc;
 }
 .btn.active:hover {
-  border: 2px solid #b3b3b3;
+  border: 1px solid #b3b3b3;
   background-color: #d9d9d9;
   background-image: linear-gradient(to bottom, #d9d9d9, #333333);
   background-image: -moz-linear-gradient(top, #d9d9d9, #333333);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#d9d9d9), to(#333333));
   background-image: -webkit-linear-gradient(top, #d9d9d9, #333333);
   background-image: -o-linear-gradient(top, #d9d9d9, #333333);
+  background-repeat: repeat-x;
+  outline: 0;
+}
+.btn.active:active {
+  background-color: #333333;
+  background-image: linear-gradient(to bottom, #333333, #333333);
+  background-image: -moz-linear-gradient(top, #333333, #333333);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#333333), to(#333333));
+  background-image: -webkit-linear-gradient(top, #333333, #333333);
+  background-image: -o-linear-gradient(top, #333333, #333333);
+  background-repeat: repeat-x;
+  outline: 0;
+}
+.btn.error-btn {
+  cursor: default;
+  background-color: #cc3333;
+  color: #ffffff;
+  border-color: #ff0033;
+}
+.btn.error-btn:hover {
+  border: 1px solid #b3b3b3;
+  background-color: #d9d9d9;
+  background-image: linear-gradient(to bottom, #d9d9d9, #cc3333);
+  background-image: -moz-linear-gradient(top, #d9d9d9, #cc3333);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#d9d9d9), to(#cc3333));
+  background-image: -webkit-linear-gradient(top, #d9d9d9, #cc3333);
+  background-image: -o-linear-gradient(top, #d9d9d9, #cc3333);
+  background-repeat: repeat-x;
+  outline: 0;
+}
+.btn.error-btn:active {
+  background-color: #cc3333;
+  background-image: linear-gradient(to bottom, #cc3333, #cc3333);
+  background-image: -moz-linear-gradient(top, #cc3333, #cc3333);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#cc3333), to(#cc3333));
+  background-image: -webkit-linear-gradient(top, #cc3333, #cc3333);
+  background-image: -o-linear-gradient(top, #cc3333, #cc3333);
+  background-repeat: repeat-x;
+  outline: 0;
+}
+.btn.success-btn {
+  cursor: default;
+  background-color: #009933;
+  color: #ffffff;
+  border-color: #00ff33;
+}
+.btn.success-btn:hover {
+  border: 1px solid #b3b3b3;
+  background-color: #d9d9d9;
+  background-image: linear-gradient(to bottom, #d9d9d9, #009933);
+  background-image: -moz-linear-gradient(top, #d9d9d9, #009933);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#d9d9d9), to(#009933));
+  background-image: -webkit-linear-gradient(top, #d9d9d9, #009933);
+  background-image: -o-linear-gradient(top, #d9d9d9, #009933);
+  background-repeat: repeat-x;
+  outline: 0;
+}
+.btn.success-btn:active {
+  background-color: #009933;
+  background-image: linear-gradient(to bottom, #009933, #009933);
+  background-image: -moz-linear-gradient(top, #009933, #009933);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#009933), to(#009933));
+  background-image: -webkit-linear-gradient(top, #009933, #009933);
+  background-image: -o-linear-gradient(top, #009933, #009933);
   background-repeat: repeat-x;
   outline: 0;
 }
@@ -427,17 +496,17 @@ ul.messenger .messenger-spinner {
   color: #ababab;
 }
 .window .window-content {
-  margin-top: 5px;
+  margin-top: 0;
   margin-right: 4px;
   margin-bottom: 2px;
   margin-left: 4px;
+  overflow: auto;
   background-color: #ffffff;
 }
-.window .lb-drag-div {
+.window .rb-drag-div {
   position: absolute;
   bottom: 0px;
   right: 0px;
-  border: 1px solid #cccccc;
   width: 10px;
   height: 10px;
   cursor: se-resize;

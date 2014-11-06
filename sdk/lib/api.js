@@ -4,6 +4,7 @@ var WDC={};
 
 try {
   WDC=require('demo-rio');
+  WDC.startServer();
 }catch (e){
   console.log("Error happened when require demo-rio:" + e.message);
   console.log("Error: Can not load nodewebkit modules, so we can not use the WDC api.");
