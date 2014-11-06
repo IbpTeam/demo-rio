@@ -12,7 +12,7 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
       contentDiv: false,
       iframe: true
     });
-    twin.appendHtml("callapp/" + sAppName + "/index.html" + (sParams===null?"":("?"+sParams)));
+    twin.appendHtml("/callapp/" + sAppName + "/index.html" + (sParams===null?"":("?"+sParams)));
     setTimeout(startAppByNameCb(twin), 0);
   }catch(e){
     console.log("Error happened:" + e.message);
