@@ -213,20 +213,24 @@ function gen_add_tags_dialog(data_uri){
 
 // Our type
 function Folder(jquery_element) {
-  //events.EventEmitter.call(this);
   this.files = jquery_element;
   var self = this;
   this.files.parent().on('mousedown', function(e) {
     switch(e.which){
     case 3:
-      var contents = ['New Folder', 'New Document', 'Property'];
+      var contents = [];
+      if(get_category() == 'document'){
+        contents.push('New Document');
+      }
       if(copied_filepath != ''){
         contents.push('Paste');
       }
-      var popup_menu = self.gen_popup_menu(contents);      
+      contents.push('Property');
+      
+//      var popup_menu = self.gen_popup_menu(contents);      
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
-          case 'New Document'://wangyu: add this action.
+          case 'New Document':
             var data = new Date();
             var filename = 'NewFile_' + data.toLocaleString().replace(' ', '_') + '.txt';
             DataAPI.createFile(function(result){
@@ -236,55 +240,6 @@ function Folder(jquery_element) {
                 window.alert("Add new file failed!");
               }              
             }, filename, get_category());
-          /*  var filetypes = ['文本文档', 'WPS Word文档', 'WPS Powerpoint文档', 'WPS Excel文档'];
-          //  var sub_popup_menu = self.files.gen_popup_menu(filetypes);
-            self.files.children('.dropdown-menu').remove();
-            var sub_popup_menu = $('<ul></ul>');
-            $(sub_popup_menu).attr({
-              'class':'dropdown-menu',
-              'role':'menu',
-              'aria-labelledby': 'dropdownMenu'
-            });
-            var items = [];
-            for(var i=0; i<filetypes.length; i++){
-              items.push('<li><a tabindex="-1" href="#">' + filetypes[i] + '</a></li>');
-            }
-            $(sub_popup_menu).html(items.join('\n'));  
-            self.files.html(sub_popup_menu);
-            $(sub_popup_menu).on('mousedown', function(e){
-              e.stopPropagation();  
-            });
-            $(sub_popup_menu).on('mouseup', function(event){
-              var target_path = path_transfer(global_dir, data_dir);
-              switch($(event.target).text()){
-                case '文件夹':
-                  break;
-                case '文本文档':
-                  DataAPI.createFile(function(is_success){
-                    console.log('is_success: ', is_success);
-                    global_self.open(global_dir);
-                  }, 'txt', target_path);
-                  break;
-                case 'WPS Word文档':
-                  DataAPI.createFile(function(is_success){
-                    console.log('is_success: ', is_success);
-                    global_self.open(global_dir);
-                  }, 'docx', target_path);
-                  break;
-                case 'WPS Powerpoint文档':
-                  DataAPI.createFile(function(is_success){
-                    console.log('is_success: ', is_success);
-                    global_self.open(global_dir);
-                  }, 'pptx', target_path);
-                  break;
-                case 'WPS Excel文档':
-                  DataAPI.createFile(function(is_success){
-                    console.log('is_success: ', is_success);
-                    global_self.open(global_dir);
-                  }, 'xlsx', target_path);
-                  break;
-              }
-            }*/
             break;
           case 'Property':
             gen_popup_dialog('属性', '"基于html5的文件管理器模型"');
@@ -326,7 +281,7 @@ function Folder(jquery_element) {
     $(this).addClass('focus');
     switch(e.which){
     case 3:
-      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags'];// '编辑' 'Property'
+      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags'];
       var popup_menu = self.gen_popup_menu(contents);
       var dst_file = this;
       $(popup_menu).on('mouseup', function(e){
