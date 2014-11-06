@@ -17,6 +17,7 @@ var config = require("../config");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var resourceRepo = require("../commonHandle/repo");
+var desFilesHandle = require("../commonHandle/desFilesHandle");
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
@@ -526,13 +527,14 @@ exports.writeWidgetConf = writeWidgetConf;
 function readDesktopFile(callback, sFileName) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    function findDesktopFileCb(result) {
-      if (result === "Not found" || result === "") {
-        console.log("desktop file NOT FOUND!");
+    function findDesktopFileCb(err, result) {
+      if (err) {
+        console.log("find desktop file error!", err);
         var _err = "readDesktopFile : desktop file NOT FOUND!";
         callback(_err, null);
       } else {
-        var sPath = result;
+        console.log('======================', result);
+        var sPath = result[0];
 
         function parseDesktopFileCb(err, attr) {
           if (err) {
@@ -749,10 +751,10 @@ function findDesktopFileFromSystem(fileName, callback) {
       xdg_data_dirs[i] = xdg_data_dirs[i].replace(/[\/]$/, '');
     }
     var tryInThisPath = function(index) {
-      if (index == $xdg_data_dirs.length) {
+      if (index == xdg_data_dirs.length) {
         return callback('Not found', null);
       }
-      var sCommand = 'find ' + $xdg_data_dirs[index] + ' -name ' + fileName;
+      var sCommand = 'find ' + xdg_data_dirs[index] + ' -name ' + fileName;
       exec(sCommand, function(err, stdout, stderr) {
         if (err) {
           console.log('find ' + fileName + ' error!');
@@ -848,7 +850,7 @@ function buildDesFile(fileName, postfix, newFilePath, callback) {
     var size = stat.size;
     uniqueID.getFileUid(function(uri) {
       var itemInfo = {
-        URI: uri + "#" + category,
+        URI: uri + "#" + CATEGORY_NAME,
         category: CATEGORY_NAME,
         postfix: postfix,
         filename: fileName,
@@ -865,7 +867,7 @@ function buildDesFile(fileName, postfix, newFilePath, callback) {
       if (postfix == 'desktop') {
         sDesDir = pathModule.join(DES_DIR, 'applications');
       }
-      desFilesHandle.createDesFile(itemInfo, sDesDir, function() {
+      desFilesHandle.createItem(itemInfo, sDesDir, function() {
         callback();
       });
     });

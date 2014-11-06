@@ -230,7 +230,7 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  *    No arguments other than a file name array are given to the completion callback.
  **/
 exports.updateItem = function(file,attrs,callback){
-  console.log("update::::::::::"+file);
+  console.log("update::::::::::",file);
   fs.readFile(file,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
