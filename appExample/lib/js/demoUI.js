@@ -1,4 +1,4 @@
-/*! ui-lib - v0.0.1 - 2014-10-27
+/*! ui-lib - v0.0.1 - 2014-11-06
 * Copyright (c) 2014 */
 function Class() {}
 
@@ -78,7 +78,7 @@ var ContextMenu = Class.extend({
     var _this = this;
     $(document).on('mouseup', 'html', function (e) {
       e.preventDefault();
-      e.stopPropagation();
+      // e.stopPropagation();
       if(e.which == 1)
         _this.hide();
     });
@@ -876,20 +876,69 @@ var Inputer = Class.extend({
  * (for noConflict), and making it a callable function.
  */
 
-(function(){
+(function() {
   var _prevMessenger = window.Messenger;
   var localMessenger;
 
-  localMessenger = window.Messenger = function(){
+  localMessenger = window.Messenger = function() {
     return localMessenger._call.apply(this, arguments);
   }
 
-  window.Messenger.noConflict = function(){
+  window.Messenger.noConflict = function() {
     window.Messenger = _prevMessenger;
 
     return localMessenger;
   }
 })();
+
+////***********add Message interface ********////
+var Messenge = Class.extend({
+  init: function() {
+    this.messenger = window.Messenger._call.apply(this, arguments);
+  },
+
+  post: function() {
+    this.messenger.post(arguments[0]);
+  },
+
+  run: function() {
+    var length = arguments.length;
+    switch (length) {
+    case 0:
+      this.messenger.run();
+      break;
+    case 1:
+      this.messenger.run(arguments[0]);
+      break;
+    case 2:
+      this.messenger.run(arguments[0], arguments[1]);
+      break;
+    case 3:
+      this.messenger.run(arguments[0], arguments[1], arguments[2]);
+      break;
+    }
+  },
+
+  update: function(opts_) {
+    this.messenger.update(opts_);
+  },
+
+  cancel: function() {
+    this.messenger.hide();
+  },
+
+  hide: function() {
+    this.messenger.hide();
+  },
+
+  hideAll: function() {
+    this.messenger.hideAll();
+  },
+
+  setOptions: function(opts_) {
+    window.Messenger.options = opts_;
+  }
+});
 
 /*
  * This file contains shims for when Underscore and Backbone
@@ -899,46 +948,47 @@ var Inputer = Class.extend({
  * Both of which are Copyright (c) 2009-2013 Jeremy Ashkenas, DocumentCloud
  */
 window.Messenger._ = (function() {
-  if (window._)
-    return window._
+  if (window._) return window._
 
-  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+  var ArrayProto = Array.prototype,
+  ObjProto = Object.prototype,
+  FuncProto = Function.prototype;
 
   // Create quick reference variables for speed access to core prototypes.
-  var push       = ArrayProto.push,
-      slice      = ArrayProto.slice,
-      concat       = ArrayProto.concat,
-      toString     = ObjProto.toString,
-      hasOwnProperty   = ObjProto.hasOwnProperty;
+  var push = ArrayProto.push,
+  slice = ArrayProto.slice,
+  concat = ArrayProto.concat,
+  toString = ObjProto.toString,
+  hasOwnProperty = ObjProto.hasOwnProperty;
 
   // All **ECMAScript 5** native function implementations that we hope to use
   // are declared here.
-  var
-    nativeForEach    = ArrayProto.forEach,
-    nativeMap      = ArrayProto.map,
-    nativeReduce     = ArrayProto.reduce,
-    nativeReduceRight  = ArrayProto.reduceRight,
-    nativeFilter     = ArrayProto.filter,
-    nativeEvery    = ArrayProto.every,
-    nativeSome     = ArrayProto.some,
-    nativeIndexOf    = ArrayProto.indexOf,
-    nativeLastIndexOf  = ArrayProto.lastIndexOf,
-    nativeIsArray    = Array.isArray,
-    nativeKeys     = Object.keys,
-    nativeBind     = FuncProto.bind;
+  var nativeForEach = ArrayProto.forEach,
+  nativeMap = ArrayProto.map,
+  nativeReduce = ArrayProto.reduce,
+  nativeReduceRight = ArrayProto.reduceRight,
+  nativeFilter = ArrayProto.filter,
+  nativeEvery = ArrayProto.every,
+  nativeSome = ArrayProto.some,
+  nativeIndexOf = ArrayProto.indexOf,
+  nativeLastIndexOf = ArrayProto.lastIndexOf,
+  nativeIsArray = Array.isArray,
+  nativeKeys = Object.keys,
+  nativeBind = FuncProto.bind;
 
   // Create a safe reference to the Underscore object for use below.
   var _ = {};
 
   // Establish the object that gets returned to break out of a loop iteration.
   var breaker = {};
-  
+
   var each = _.each = _.forEach = function(obj, iterator, context) {
     if (obj == null) return;
     if (nativeForEach && obj.forEach === nativeForEach) {
       obj.forEach(iterator, context);
     } else if (obj.length === +obj.length) {
-      for (var i = 0, l = obj.length; i < l; i++) {
+      for (var i = 0,
+      l = obj.length; i < l; i++) {
         if (iterator.call(context, obj[i], i, obj) === breaker) return;
       }
     } else {
@@ -957,7 +1007,8 @@ window.Messenger._ = (function() {
   };
 
   _.once = function(func) {
-    var ran = false, memo;
+    var ran = false,
+    memo;
     return function() {
       if (ran) return memo;
       ran = true;
@@ -970,28 +1021,31 @@ window.Messenger._ = (function() {
   var idCounter = 0;
   _.uniqueId = function(prefix) {
     var id = ++idCounter + '';
-    return prefix ? prefix + id : id;
+    return prefix ? prefix + id: id;
   };
 
   _.filter = _.select = function(obj, iterator, context) {
     var results = [];
     if (obj == null) return results;
     if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
-    each(obj, function(value, index, list) {
+    each(obj,
+    function(value, index, list) {
       if (iterator.call(context, value, index, list)) results[results.length] = value;
     });
     return results;
   };
 
   // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
-  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'],
+  function(name) {
     _['is' + name] = function(obj) {
       return toString.call(obj) == '[object ' + name + ']';
     };
   });
 
   _.defaults = function(obj) {
-    each(slice.call(arguments, 1), function(source) {
+    each(slice.call(arguments, 1),
+    function(source) {
       if (source) {
         for (var prop in source) {
           if (obj[prop] == null) obj[prop] = source[prop];
@@ -1002,7 +1056,8 @@ window.Messenger._ = (function() {
   };
 
   _.extend = function(obj) {
-    each(slice.call(arguments, 1), function(source) {
+    each(slice.call(arguments, 1),
+    function(source) {
       if (source) {
         for (var prop in source) {
           obj[prop] = source[prop];
@@ -1012,7 +1067,8 @@ window.Messenger._ = (function() {
     return obj;
   };
 
-  _.keys = nativeKeys || function(obj) {
+  _.keys = nativeKeys ||
+  function(obj) {
     if (obj !== Object(obj)) throw new TypeError('Invalid object');
     var keys = [];
     for (var key in obj) if (_.has(obj, key)) keys[keys.length] = key;
@@ -1050,7 +1106,8 @@ window.Messenger.Events = (function() {
         }
       } else if (eventSplitter.test(name)) {
         var names = name.split(eventSplitter);
-        for (var i = 0, l = names.length; i < l; i++) {
+        for (var i = 0,
+        l = names.length; i < l; i++) {
           obj[action].apply(obj, [names[i]].concat(rest));
         }
       } else {
@@ -1059,32 +1116,42 @@ window.Messenger.Events = (function() {
     };
 
     var triggerEvents = function(events, args) {
-      var ev, i = -1, l = events.length;
+      var ev, i = -1,
+      l = events.length;
       switch (args.length) {
-      case 0: while (++i < l) (ev = events[i]).callback.call(ev.ctx);
-      return;
-      case 1: while (++i < l) (ev = events[i]).callback.call(ev.ctx, args[0]);
-      return;
-      case 2: while (++i < l) (ev = events[i]).callback.call(ev.ctx, args[0], args[1]);
-      return;
-      case 3: while (++i < l) (ev = events[i]).callback.call(ev.ctx, args[0], args[1], args[2]);
-      return;
-      default: while (++i < l) (ev = events[i]).callback.apply(ev.ctx, args);
+      case 0:
+        while (++i < l)(ev = events[i]).callback.call(ev.ctx);
+        return;
+      case 1:
+        while (++i < l)(ev = events[i]).callback.call(ev.ctx, args[0]);
+        return;
+      case 2:
+        while (++i < l)(ev = events[i]).callback.call(ev.ctx, args[0], args[1]);
+        return;
+      case 3:
+        while (++i < l)(ev = events[i]).callback.call(ev.ctx, args[0], args[1], args[2]);
+        return;
+      default:
+        while (++i < l)(ev = events[i]).callback.apply(ev.ctx, args);
       }
     };
 
     var Events = {
 
       on: function(name, callback, context) {
-        if (!(eventsApi(this, 'on', name, [callback, context]) && callback)) return this;
+        if (! (eventsApi(this, 'on', name, [callback, context]) && callback)) return this;
         this._events || (this._events = {});
         var list = this._events[name] || (this._events[name] = []);
-        list.push({callback: callback, context: context, ctx: context || this});
+        list.push({
+          callback: callback,
+          context: context,
+          ctx: context || this
+        });
         return this;
       },
 
       once: function(name, callback, context) {
-        if (!(eventsApi(this, 'once', name, [callback, context]) && callback)) return this;
+        if (! (eventsApi(this, 'once', name, [callback, context]) && callback)) return this;
         var self = this;
         var once = _.once(function() {
           self.off(name, once);
@@ -1111,9 +1178,7 @@ window.Messenger.Events = (function() {
             if (callback || context) {
               for (j = 0, k = list.length; j < k; j++) {
                 ev = list[j];
-                if ((callback && callback !== ev.callback &&
-                                 callback !== ev.callback._callback) ||
-                    (context && context !== ev.context)) {
+                if ((callback && callback !== ev.callback && callback !== ev.callback._callback) || (context && context !== ev.context)) {
                   events.push(ev);
                 }
               }
@@ -1140,7 +1205,7 @@ window.Messenger.Events = (function() {
         var listeners = this._listeners || (this._listeners = {});
         var id = obj._listenerId || (obj._listenerId = _.uniqueId('l'));
         listeners[id] = obj;
-        obj.on(name, typeof name === 'object' ? this : callback, this);
+        obj.on(name, typeof name === 'object' ? this: callback, this);
         return this;
       },
 
@@ -1148,7 +1213,7 @@ window.Messenger.Events = (function() {
         var listeners = this._listeners;
         if (!listeners) return;
         if (obj) {
-          obj.off(name, typeof name === 'object' ? this : callback, this);
+          obj.off(name, typeof name === 'object' ? this: callback, this);
           if (!name && !callback) delete listeners[obj._listenerId];
         } else {
           if (typeof name === 'object') callback = this;
@@ -1161,7 +1226,7 @@ window.Messenger.Events = (function() {
       }
     };
 
-    Events.bind   = Events.on;
+    Events.bind = Events.on;
     Events.unbind = Events.off;
     return Events;
   };
@@ -1169,973 +1234,1021 @@ window.Messenger.Events = (function() {
 })();
 
 (function() {
-  var $, ActionMessenger, BaseView, Events, RetryingMessage, _, _Message, _Messenger, _ref, _ref1, _ref2,
-  __hasProp = {}.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  var $, ActionMessenger, BaseView, Events, RetryingMessage, _, _Message, _Messenger, _ref, _ref1, _ref2, __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) {
+    for (var key in parent) {
+      if (__hasProp.call(parent, key)) child[key] = parent[key];
+    }
+    function ctor() {
+      this.constructor = child;
+    }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor();
+    child.__super__ = parent.prototype;
+    return child;
+  },
   __slice = [].slice,
-  __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  __indexOf = [].indexOf ||
+  function(item) {
+    for (var i = 0,
+    l = this.length; i < l; i++) {
+      if (i in this && this[i] === item) return i;
+    }
+    return - 1;
+  };
 
   $ = jQuery;
 
-  _ = (_ref = window._) != null ? _ref : window.Messenger._;
+  _ = (_ref = window._) != null ? _ref: window.Messenger._;
 
-  Events = (_ref1 = typeof Backbone !== "undefined" && Backbone !== null ? Backbone.Events : void 0) != null ? _ref1 : window.Messenger.Events;
+  Events = (_ref1 = typeof Backbone !== "undefined" && Backbone !== null ? Backbone.Events: void 0) != null ? _ref1: window.Messenger.Events;
 
   BaseView = (function() {
 
-  function BaseView(options) {
-    $.extend(this, Events);
-    if (_.isObject(options)) {
-    if (options.el) {
-      this.setElement(options.el);
+    function BaseView(options) {
+      $.extend(this, Events);
+      if (_.isObject(options)) {
+        if (options.el) {
+          this.setElement(options.el);
+        }
+        this.model = options.model;
+      }
+      this.initialize.apply(this, arguments);
     }
-    this.model = options.model;
-    }
-    this.initialize.apply(this, arguments);
-  }
 
-  BaseView.prototype.setElement = function(el) {
-    this.$el = $(el);
-    return this.el = this.$el[0];
-  };
+    BaseView.prototype.setElement = function(el) {
+      this.$el = $(el);
+      return this.el = this.$el[0];
+    };
 
-  BaseView.prototype.delegateEvents = function(events) {
-    var delegateEventSplitter, eventName, key, match, method, selector, _results;
-    if (!(events || (events = _.result(this, "events")))) {
-    return;
-    }
-    this.undelegateEvents();
-    delegateEventSplitter = /^(\S+)\s*(.*)$/;
-    _results = [];
-    for (key in events) {
-    method = events[key];
-    if (!_.isFunction(method)) {
-      method = this[events[key]];
-    }
-    if (!method) {
-      throw new Error("Method \"" + events[key] + "\" does not exist");
-    }
-    match = key.match(delegateEventSplitter);
-    eventName = match[1];
-    selector = match[2];
-    method = _.bind(method, this);
-    eventName += ".delegateEvents" + this.cid;
-    if (selector === '') {
-      _results.push(this.jqon(eventName, method));
-    } else {
-      _results.push(this.jqon(eventName, selector, method));
-    }
-    }
-    return _results;
-  };
+    BaseView.prototype.delegateEvents = function(events) {
+      var delegateEventSplitter, eventName, key, match, method, selector, _results;
+      if (! (events || (events = _.result(this, "events")))) {
+        return;
+      }
+      this.undelegateEvents();
+      delegateEventSplitter = /^(\S+)\s*(.*)$/;
+      _results = [];
+      for (key in events) {
+        method = events[key];
+        if (!_.isFunction(method)) {
+          method = this[events[key]];
+        }
+        if (!method) {
+          throw new Error("Method \"" + events[key] + "\" does not exist");
+        }
+        match = key.match(delegateEventSplitter);
+        eventName = match[1];
+        selector = match[2];
+        method = _.bind(method, this);
+        eventName += ".delegateEvents" + this.cid;
+        if (selector === '') {
+          _results.push(this.jqon(eventName, method));
+        } else {
+          _results.push(this.jqon(eventName, selector, method));
+        }
+      }
+      return _results;
+    };
 
-  BaseView.prototype.jqon = function(eventName, selector, method) {
-    var _ref2;
-    if (this.$el.on != null) {
-    return (_ref2 = this.$el).on.apply(_ref2, arguments);
-    } else {
-    if (!(method != null)) {
-      method = selector;
-      selector = void 0;
-    }
-    if (selector != null) {
-      return this.$el.delegate(selector, eventName, method);
-    } else {
-      return this.$el.bind(eventName, method);
-    }
-    }
-  };
+    BaseView.prototype.jqon = function(eventName, selector, method) {
+      var _ref2;
+      if (this.$el.on != null) {
+        return (_ref2 = this.$el).on.apply(_ref2, arguments);
+      } else {
+        if (! (method != null)) {
+          method = selector;
+          selector = void 0;
+        }
+        if (selector != null) {
+          return this.$el.delegate(selector, eventName, method);
+        } else {
+          return this.$el.bind(eventName, method);
+        }
+      }
+    };
 
-  BaseView.prototype.jqoff = function(eventName) {
-    var _ref2;
-    if (this.$el.off != null) {
-    return (_ref2 = this.$el).off.apply(_ref2, arguments);
-    } else {
-    this.$el.undelegate();
-    return this.$el.unbind(eventName);
-    }
-  };
+    BaseView.prototype.jqoff = function(eventName) {
+      var _ref2;
+      if (this.$el.off != null) {
+        return (_ref2 = this.$el).off.apply(_ref2, arguments);
+      } else {
+        this.$el.undelegate();
+        return this.$el.unbind(eventName);
+      }
+    };
 
-  BaseView.prototype.undelegateEvents = function() {
-    return this.jqoff(".delegateEvents" + this.cid);
-  };
+    BaseView.prototype.undelegateEvents = function() {
+      return this.jqoff(".delegateEvents" + this.cid);
+    };
 
-  BaseView.prototype.remove = function() {
-    this.undelegateEvents();
-    return this.$el.remove();
-  };
+    BaseView.prototype.remove = function() {
+      this.undelegateEvents();
+      return this.$el.remove();
+    };
 
-  return BaseView;
+    return BaseView;
 
   })();
 
   _Message = (function(_super) {
 
-  __extends(_Message, _super);
+    __extends(_Message, _super);
 
-  function _Message() {
-    return _Message.__super__.constructor.apply(this, arguments);
-  }
-
-  _Message.prototype.defaults = {
-    hideAfter: 10,
-    scroll: true,
-    closeButtonText: "&times;"
-  };
-
-  _Message.prototype.initialize = function(opts) {
-    if (opts == null) {
-    opts = {};
+    function _Message() {
+      return _Message.__super__.constructor.apply(this, arguments);
     }
-    this.shown = false;
-    this.rendered = false;
-    this.messenger = opts.messenger;
-    return this.options = $.extend({}, this.options, opts, this.defaults);
-  };
 
-  _Message.prototype.show = function() {
-    var wasShown;
-    if (!this.rendered) {
-    this.render();
-    }
-    this.$message.removeClass('messenger-hidden');
-    wasShown = this.shown;
-    this.shown = true;
-    if (!wasShown) {
-    return this.trigger('show');
-    }
-  };
-
-  _Message.prototype.hide = function() {
-    var wasShown;
-    if (!this.rendered) {
-    return;
-    }
-    this.$message.addClass('messenger-hidden');
-    wasShown = this.shown;
-    this.shown = false;
-    if (wasShown) {
-    return this.trigger('hide');
-    }
-  };
-
-  _Message.prototype.cancel = function() {
-    return this.hide();
-  };
-
-  _Message.prototype.update = function(opts) {
-    var _ref2,
-    _this = this;
-    if (_.isString(opts)) {
-    opts = {
-      message: opts
+    _Message.prototype.defaults = {
+      hideAfter: 10,
+      scroll: true,
+      closeButtonText: "&times;"
     };
-    }
-    $.extend(this.options, opts);
-    this.lastUpdate = new Date();
-    this.rendered = false;
-    this.events = (_ref2 = this.options.events) != null ? _ref2 : {};
-    this.render();
-    this.actionsToEvents();
-    this.delegateEvents();
-    this.checkClickable();
-    if (this.options.hideAfter) {
-    this.$message.addClass('messenger-will-hide-after');
-    if (this._hideTimeout != null) {
-      clearTimeout(this._hideTimeout);
-    }
-    this._hideTimeout = setTimeout(function() {
-      return _this.hide();
-    }, this.options.hideAfter * 1000);
-    } else {
-    this.$message.removeClass('messenger-will-hide-after');
-    }
-    if (this.options.hideOnNavigate) {
-    this.$message.addClass('messenger-will-hide-on-navigate');
-    if ((typeof Backbone !== "undefined" && Backbone !== null ? Backbone.history : void 0) != null) {
-      Backbone.history.on('route', function() {
-      return _this.hide();
+
+    _Message.prototype.initialize = function(opts) {
+      if (opts == null) {
+        opts = {};
+      }
+      this.shown = false;
+      this.rendered = false;
+      this.messenger = opts.messenger;
+      return this.options = $.extend({},
+      this.options, opts, this.defaults);
+    };
+
+    _Message.prototype.show = function() {
+      var wasShown;
+      if (!this.rendered) {
+        this.render();
+      }
+      this.$message.removeClass('messenger-hidden');
+      wasShown = this.shown;
+      this.shown = true;
+      if (!wasShown) {
+        return this.trigger('show');
+      }
+    };
+
+    _Message.prototype.hide = function() {
+      var wasShown;
+      if (!this.rendered) {
+        return;
+      }
+      this.$message.addClass('messenger-hidden');
+      wasShown = this.shown;
+      this.shown = false;
+      if (wasShown) {
+        return this.trigger('hide');
+      }
+    };
+
+    _Message.prototype.cancel = function() {
+      return this.hide();
+    };
+
+    _Message.prototype.update = function(opts) {
+      var _ref2, _this = this;
+      if (_.isString(opts)) {
+        opts = {
+          message: opts
+        };
+      }
+      $.extend(this.options, opts);
+      this.lastUpdate = new Date();
+      this.rendered = false;
+      this.events = (_ref2 = this.options.events) != null ? _ref2: {};
+      this.render();
+      this.actionsToEvents();
+      this.delegateEvents();
+      this.checkClickable();
+      if (this.options.hideAfter) {
+        this.$message.addClass('messenger-will-hide-after');
+        if (this._hideTimeout != null) {
+          clearTimeout(this._hideTimeout);
+        }
+        this._hideTimeout = setTimeout(function() {
+          return _this.hide();
+        },
+        this.options.hideAfter * 1000);
+      } else {
+        this.$message.removeClass('messenger-will-hide-after');
+      }
+      if (this.options.hideOnNavigate) {
+        this.$message.addClass('messenger-will-hide-on-navigate');
+        if ((typeof Backbone !== "undefined" && Backbone !== null ? Backbone.history: void 0) != null) {
+          Backbone.history.on('route',
+          function() {
+            return _this.hide();
+          });
+        }
+      } else {
+        this.$message.removeClass('messenger-will-hide-on-navigate');
+      }
+      return this.trigger('update', this);
+    };
+
+    _Message.prototype.scrollTo = function() {
+      if (!this.options.scroll) {
+        return;
+      }
+      return $.scrollTo(this.$el, {
+        duration: 400,
+        offset: {
+          left: 0,
+          top: -20
+        }
       });
-    }
-    } else {
-    this.$message.removeClass('messenger-will-hide-on-navigate');
-    }
-    return this.trigger('update', this);
-  };
+    };
 
-  _Message.prototype.scrollTo = function() {
-    if (!this.options.scroll) {
-    return;
-    }
-    return $.scrollTo(this.$el, {
-    duration: 400,
-    offset: {
-      left: 0,
-      top: -20
-    }
-    });
-  };
+    _Message.prototype.timeSinceUpdate = function() {
+      if (this.lastUpdate) {
+        return (new Date) - this.lastUpdate;
+      } else {
+        return null;
+      }
+    };
 
-  _Message.prototype.timeSinceUpdate = function() {
-    if (this.lastUpdate) {
-    return (new Date) - this.lastUpdate;
-    } else {
-    return null;
-    }
-  };
+    _Message.prototype.actionsToEvents = function() {
+      var act, name, _ref2, _results, _this = this;
+      _ref2 = this.options.actions;
+      _results = [];
+      for (name in _ref2) {
+        act = _ref2[name];
+        _results.push(this.events["click [data-action=\"" + name + "\"] a"] = (function(act) {
+          return function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            _this.trigger("action:" + name, act, e);
+            return act.action.call(_this, e, _this);
+          };
+        })(act));
+      }
+      return _results;
+    };
 
-  _Message.prototype.actionsToEvents = function() {
-    var act, name, _ref2, _results,
-    _this = this;
-    _ref2 = this.options.actions;
-    _results = [];
-    for (name in _ref2) {
-    act = _ref2[name];
-    _results.push(this.events["click [data-action=\"" + name + "\"] a"] = (function(act) {
-      return function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      _this.trigger("action:" + name, act, e);
-      return act.action.call(_this, e, _this);
-      };
-    })(act));
-    }
-    return _results;
-  };
+    _Message.prototype.checkClickable = function() {
+      var evt, name, _ref2, _results;
+      _ref2 = this.events;
+      _results = [];
+      for (name in _ref2) {
+        evt = _ref2[name];
+        if (name === 'click') {
+          _results.push(this.$message.addClass('messenger-clickable'));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
 
-  _Message.prototype.checkClickable = function() {
-    var evt, name, _ref2, _results;
-    _ref2 = this.events;
-    _results = [];
-    for (name in _ref2) {
-    evt = _ref2[name];
-    if (name === 'click') {
-      _results.push(this.$message.addClass('messenger-clickable'));
-    } else {
-      _results.push(void 0);
-    }
-    }
-    return _results;
-  };
+    _Message.prototype.undelegateEvents = function() {
+      var _ref2;
+      _Message.__super__.undelegateEvents.apply(this, arguments);
+      return (_ref2 = this.$message) != null ? _ref2.removeClass('messenger-clickable') : void 0;
+    };
 
-  _Message.prototype.undelegateEvents = function() {
-    var _ref2;
-    _Message.__super__.undelegateEvents.apply(this, arguments);
-    return (_ref2 = this.$message) != null ? _ref2.removeClass('messenger-clickable') : void 0;
-  };
+    _Message.prototype.parseActions = function() {
+      var act, actions, n_act, name, _ref2, _ref3;
+      actions = [];
+      _ref2 = this.options.actions;
+      for (name in _ref2) {
+        act = _ref2[name];
+        n_act = $.extend({},
+        act);
+        n_act.name = name;
+        if ((_ref3 = n_act.label) == null) {
+          n_act.label = name;
+        }
+        actions.push(n_act);
+      }
+      return actions;
+    };
 
-  _Message.prototype.parseActions = function() {
-    var act, actions, n_act, name, _ref2, _ref3;
-    actions = [];
-    _ref2 = this.options.actions;
-    for (name in _ref2) {
-    act = _ref2[name];
-    n_act = $.extend({}, act);
-    n_act.name = name;
-    if ((_ref3 = n_act.label) == null) {
-      n_act.label = name;
-    }
-    actions.push(n_act);
-    }
-    return actions;
-  };
+    _Message.prototype.template = function(opts) {
+      var $action, $actions, $cancel, $link, $message, $text, action, _i, _len, _ref2, _this = this;
+      $message = $("<div class='messenger-message message alert " + opts.type + " message-" + opts.type + " alert-" + opts.type + "'>");
+      if (opts.showCloseButton) {
+        $cancel = $('<button type="button" class="messenger-close" data-dismiss="alert">');
+        $cancel.html(opts.closeButtonText);
+        $cancel.click(function() {
+          _this.cancel();
+          return true;
+        });
+        $message.append($cancel);
+      }
+      $text = $("<div class=\"messenger-message-inner\">" + opts.message + "</div>");
+      $message.append($text);
+      if (opts.actions.length) {
+        $actions = $('<div class="messenger-actions">');
+      }
+      _ref2 = opts.actions;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        action = _ref2[_i];
+        $action = $('<span>');
+        $action.attr('data-action', "" + action.name);
+        $link = $('<a>');
+        $link.html(action.label);
+        $action.append($('<span class="messenger-phrase">'));
+        $action.append($link);
+        $actions.append($action);
+      }
+      $message.append($actions);
+      return $message;
+    };
 
-  _Message.prototype.template = function(opts) {
-    var $action, $actions, $cancel, $link, $message, $text, action, _i, _len, _ref2,
-    _this = this;
-    $message = $("<div class='messenger-message message alert " + opts.type + " message-" + opts.type + " alert-" + opts.type + "'>");
-    if (opts.showCloseButton) {
-    $cancel = $('<button type="button" class="messenger-close" data-dismiss="alert">');
-    $cancel.html(opts.closeButtonText);
-    $cancel.click(function() {
-      _this.cancel();
-      return true;
-    });
-    $message.append($cancel);
-    }
-    $text = $("<div class=\"messenger-message-inner\">" + opts.message + "</div>");
-    $message.append($text);
-    if (opts.actions.length) {
-    $actions = $('<div class="messenger-actions">');
-    }
-    _ref2 = opts.actions;
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-    action = _ref2[_i];
-    $action = $('<span>');
-    $action.attr('data-action', "" + action.name);
-    $link = $('<a>');
-    $link.html(action.label);
-    $action.append($('<span class="messenger-phrase">'));
-    $action.append($link);
-    $actions.append($action);
-    }
-    $message.append($actions);
-    return $message;
-  };
+    _Message.prototype.render = function() {
+      var opts;
+      if (this.rendered) {
+        return;
+      }
+      if (!this._hasSlot) {
+        this.setElement(this.messenger._reserveMessageSlot(this));
+        this._hasSlot = true;
+      }
+      opts = $.extend({},
+      this.options, {
+        actions: this.parseActions()
+      });
+      this.$message = $(this.template(opts));
+      this.$el.html(this.$message);
+      this.shown = true;
+      this.rendered = true;
+      return this.trigger('render');
+    };
 
-  _Message.prototype.render = function() {
-    var opts;
-    if (this.rendered) {
-    return;
-    }
-    if (!this._hasSlot) {
-    this.setElement(this.messenger._reserveMessageSlot(this));
-    this._hasSlot = true;
-    }
-    opts = $.extend({}, this.options, {
-    actions: this.parseActions()
-    });
-    this.$message = $(this.template(opts));
-    this.$el.html(this.$message);
-    this.shown = true;
-    this.rendered = true;
-    return this.trigger('render');
-  };
-
-  return _Message;
+    return _Message;
 
   })(BaseView);
 
   RetryingMessage = (function(_super) {
 
-  __extends(RetryingMessage, _super);
+    __extends(RetryingMessage, _super);
 
-  function RetryingMessage() {
-    return RetryingMessage.__super__.constructor.apply(this, arguments);
-  }
-
-  RetryingMessage.prototype.initialize = function() {
-    RetryingMessage.__super__.initialize.apply(this, arguments);
-    return this._timers = {};
-  };
-
-  RetryingMessage.prototype.cancel = function() {
-    this.clearTimers();
-    this.hide();
-    if ((this._actionInstance != null) && (this._actionInstance.abort != null)) {
-    return this._actionInstance.abort();
+    function RetryingMessage() {
+      return RetryingMessage.__super__.constructor.apply(this, arguments);
     }
-  };
 
-  RetryingMessage.prototype.clearTimers = function() {
-    var name, timer, _ref2, _ref3;
-    _ref2 = this._timers;
-    for (name in _ref2) {
-    timer = _ref2[name];
-    clearTimeout(timer);
-    }
-    this._timers = {};
-    return (_ref3 = this.$message) != null ? _ref3.removeClass('messenger-retry-soon messenger-retry-later') : void 0;
-  };
-
-  RetryingMessage.prototype.render = function() {
-    var action, name, _ref2, _results;
-    RetryingMessage.__super__.render.apply(this, arguments);
-    this.clearTimers();
-    _ref2 = this.options.actions;
-    _results = [];
-    for (name in _ref2) {
-    action = _ref2[name];
-    if (action.auto) {
-      _results.push(this.startCountdown(name, action));
-    } else {
-      _results.push(void 0);
-    }
-    }
-    return _results;
-  };
-
-  RetryingMessage.prototype.renderPhrase = function(action, time) {
-    var phrase;
-    phrase = action.phrase.replace('TIME', this.formatTime(time));
-    return phrase;
-  };
-
-  RetryingMessage.prototype.formatTime = function(time) {
-    var pluralize;
-    pluralize = function(num, str) {
-    num = Math.floor(num);
-    if (num !== 1) {
-      str = str + 's';
-    }
-    return 'in ' + num + ' ' + str;
+    RetryingMessage.prototype.initialize = function() {
+      RetryingMessage.__super__.initialize.apply(this, arguments);
+      return this._timers = {};
     };
-    if (Math.floor(time) === 0) {
-    return 'now...';
-    }
-    if (time < 60) {
-    return pluralize(time, 'second');
-    }
-    time /= 60;
-    if (time < 60) {
-    return pluralize(time, 'minute');
-    }
-    time /= 60;
-    return pluralize(time, 'hour');
-  };
 
-  RetryingMessage.prototype.startCountdown = function(name, action) {
-    var $phrase, remaining, tick, _ref2,
-    _this = this;
-    if (this._timers[name] != null) {
-    return;
-    }
-    $phrase = this.$message.find("[data-action='" + name + "'] .messenger-phrase");
-    remaining = (_ref2 = action.delay) != null ? _ref2 : 3;
-    if (remaining <= 10) {
-    this.$message.removeClass('messenger-retry-later');
-    this.$message.addClass('messenger-retry-soon');
-    } else {
-    this.$message.removeClass('messenger-retry-soon');
-    this.$message.addClass('messenger-retry-later');
-    }
-    tick = function() {
-    var delta;
-    $phrase.text(_this.renderPhrase(action, remaining));
-    if (remaining > 0) {
-      delta = Math.min(remaining, 1);
-      remaining -= delta;
-      return _this._timers[name] = setTimeout(tick, delta * 1000);
-    } else {
-      _this.$message.removeClass('messenger-retry-soon messenger-retry-later');
-      delete _this._timers[name];
-      return action.action();
-    }
+    RetryingMessage.prototype.cancel = function() {
+      this.clearTimers();
+      this.hide();
+      if ((this._actionInstance != null) && (this._actionInstance.abort != null)) {
+        return this._actionInstance.abort();
+      }
     };
-    return tick();
-  };
 
-  return RetryingMessage;
+    RetryingMessage.prototype.clearTimers = function() {
+      var name, timer, _ref2, _ref3;
+      _ref2 = this._timers;
+      for (name in _ref2) {
+        timer = _ref2[name];
+        clearTimeout(timer);
+      }
+      this._timers = {};
+      return (_ref3 = this.$message) != null ? _ref3.removeClass('messenger-retry-soon messenger-retry-later') : void 0;
+    };
+
+    RetryingMessage.prototype.render = function() {
+      var action, name, _ref2, _results;
+      RetryingMessage.__super__.render.apply(this, arguments);
+      this.clearTimers();
+      _ref2 = this.options.actions;
+      _results = [];
+      for (name in _ref2) {
+        action = _ref2[name];
+        if (action.auto) {
+          _results.push(this.startCountdown(name, action));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    RetryingMessage.prototype.renderPhrase = function(action, time) {
+      var phrase;
+      phrase = action.phrase.replace('TIME', this.formatTime(time));
+      return phrase;
+    };
+
+    RetryingMessage.prototype.formatTime = function(time) {
+      var pluralize;
+      pluralize = function(num, str) {
+        num = Math.floor(num);
+        if (num !== 1) {
+          str = str + 's';
+        }
+        return 'in ' + num + ' ' + str;
+      };
+      if (Math.floor(time) === 0) {
+        return 'now...';
+      }
+      if (time < 60) {
+        return pluralize(time, 'second');
+      }
+      time /= 60;
+      if (time < 60) {
+        return pluralize(time, 'minute');
+      }
+      time /= 60;
+      return pluralize(time, 'hour');
+    };
+
+    RetryingMessage.prototype.startCountdown = function(name, action) {
+      var $phrase, remaining, tick, _ref2, _this = this;
+      if (this._timers[name] != null) {
+        return;
+      }
+      $phrase = this.$message.find("[data-action='" + name + "'] .messenger-phrase");
+      remaining = (_ref2 = action.delay) != null ? _ref2: 3;
+      if (remaining <= 10) {
+        this.$message.removeClass('messenger-retry-later');
+        this.$message.addClass('messenger-retry-soon');
+      } else {
+        this.$message.removeClass('messenger-retry-soon');
+        this.$message.addClass('messenger-retry-later');
+      }
+      tick = function() {
+        var delta;
+        $phrase.text(_this.renderPhrase(action, remaining));
+        if (remaining > 0) {
+          delta = Math.min(remaining, 1);
+          remaining -= delta;
+          return _this._timers[name] = setTimeout(tick, delta * 1000);
+        } else {
+          _this.$message.removeClass('messenger-retry-soon messenger-retry-later');
+          delete _this._timers[name];
+          return action.action();
+        }
+      };
+      return tick();
+    };
+
+    return RetryingMessage;
 
   })(_Message);
 
   _Messenger = (function(_super) {
 
-  __extends(_Messenger, _super);
+    __extends(_Messenger, _super);
 
-  function _Messenger() {
-    return _Messenger.__super__.constructor.apply(this, arguments);
-  }
-
-  _Messenger.prototype.tagName = 'ul';
-
-  _Messenger.prototype.className = 'messenger';
-
-  _Messenger.prototype.messageDefaults = {
-    type: 'info'
-  };
-
-  _Messenger.prototype.initialize = function(options) {
-    this.options = options != null ? options : {};
-    this.history = [];
-    return this.messageDefaults = $.extend({}, this.messageDefaults, this.options.messageDefaults);
-  };
-
-  _Messenger.prototype.render = function() {
-    return this.updateMessageSlotClasses();
-  };
-
-  _Messenger.prototype.findById = function(id) {
-    return _.filter(this.history, function(rec) {
-    return rec.msg.options.id === id;
-    });
-  };
-
-  _Messenger.prototype._reserveMessageSlot = function(msg) {
-    var $slot, dmsg,
-    _this = this;
-    $slot = $('<li>');
-    $slot.addClass('messenger-message-slot');
-    this.$el.prepend($slot);
-    this.history.push({
-    msg: msg,
-    $slot: $slot
-    });
-    this._enforceIdConstraint(msg);
-    msg.on('update', function() {
-    return _this._enforceIdConstraint(msg);
-    });
-    while (this.options.maxMessages && this.history.length > this.options.maxMessages) {
-    dmsg = this.history.shift();
-    dmsg.msg.remove();
-    dmsg.$slot.remove();
+    function _Messenger() {
+      return _Messenger.__super__.constructor.apply(this, arguments);
     }
-    return $slot;
-  };
 
-  _Messenger.prototype._enforceIdConstraint = function(msg) {
-    var entry, _i, _len, _msg, _ref2;
-    if (msg.options.id == null) {
-    return;
-    }
-    _ref2 = this.history;
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-    entry = _ref2[_i];
-    _msg = entry.msg;
-    if ((_msg.options.id != null) && _msg.options.id === msg.options.id && msg !== _msg) {
-      if (msg.options.singleton) {
-      msg.hide();
-      return;
-      } else {
-      _msg.hide();
-      }
-    }
-    }
-  };
+    _Messenger.prototype.tagName = 'ul';
 
-  _Messenger.prototype.newMessage = function(opts) {
-    var msg, _ref2, _ref3, _ref4,
-    _this = this;
-    if (opts == null) {
-    opts = {};
-    }
-    opts.messenger = this;
-    _Message = (_ref2 = (_ref3 = Messenger.themes[(_ref4 = opts.theme) != null ? _ref4 : this.options.theme]) != null ? _ref3.Message : void 0) != null ? _ref2 : RetryingMessage;
-    msg = new _Message(opts);
-    msg.on('show', function() {
-    if (opts.scrollTo && _this.$el.css('position') !== 'fixed') {
-      return msg.scrollTo();
-    }
-    });
-    msg.on('hide show render', this.updateMessageSlotClasses, this);
-    return msg;
-  };
+    _Messenger.prototype.className = 'messenger';
 
-  _Messenger.prototype.updateMessageSlotClasses = function() {
-    var anyShown, last, rec, willBeFirst, _i, _len, _ref2;
-    willBeFirst = true;
-    last = null;
-    anyShown = false;
-    _ref2 = this.history;
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-    rec = _ref2[_i];
-    rec.$slot.removeClass('messenger-first messenger-last messenger-shown');
-    if (rec.msg.shown && rec.msg.rendered) {
-      rec.$slot.addClass('messenger-shown');
-      anyShown = true;
-      last = rec;
-      if (willBeFirst) {
-      willBeFirst = false;
-      rec.$slot.addClass('messenger-first');
-      }
-    }
-    }
-    if (last != null) {
-    last.$slot.addClass('messenger-last');
-    }
-    return this.$el["" + (anyShown ? 'remove' : 'add') + "Class"]('messenger-empty');
-  };
-
-  _Messenger.prototype.hideAll = function() {
-    var rec, _i, _len, _ref2, _results;
-    _ref2 = this.history;
-    _results = [];
-    for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-    rec = _ref2[_i];
-    _results.push(rec.msg.hide());
-    }
-    return _results;
-  };
-
-  _Messenger.prototype.post = function(opts) {
-    var msg;
-    if (_.isString(opts)) {
-    opts = {
-      message: opts
+    _Messenger.prototype.messageDefaults = {
+      type: 'info'
     };
-    }
-    opts = $.extend(true, {}, this.messageDefaults, opts);
-    msg = this.newMessage(opts);
-    msg.update(opts);
-    return msg;
-  };
 
-  return _Messenger;
+    _Messenger.prototype.initialize = function(options) {
+      this.options = options != null ? options: {};
+      this.history = [];
+      return this.messageDefaults = $.extend({},
+      this.messageDefaults, this.options.messageDefaults);
+    };
+
+    _Messenger.prototype.render = function() {
+      return this.updateMessageSlotClasses();
+    };
+
+    _Messenger.prototype.findById = function(id) {
+      return _.filter(this.history,
+      function(rec) {
+        return rec.msg.options.id === id;
+      });
+    };
+
+    _Messenger.prototype._reserveMessageSlot = function(msg) {
+      var $slot, dmsg, _this = this;
+      $slot = $('<li>');
+      $slot.addClass('messenger-message-slot');
+      this.$el.prepend($slot);
+      this.history.push({
+        msg: msg,
+        $slot: $slot
+      });
+      this._enforceIdConstraint(msg);
+      msg.on('update',
+      function() {
+        return _this._enforceIdConstraint(msg);
+      });
+      while (this.options.maxMessages && this.history.length > this.options.maxMessages) {
+        dmsg = this.history.shift();
+        dmsg.msg.remove();
+        dmsg.$slot.remove();
+      }
+      return $slot;
+    };
+
+    _Messenger.prototype._enforceIdConstraint = function(msg) {
+      var entry, _i, _len, _msg, _ref2;
+      if (msg.options.id == null) {
+        return;
+      }
+      _ref2 = this.history;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        entry = _ref2[_i];
+        _msg = entry.msg;
+        if ((_msg.options.id != null) && _msg.options.id === msg.options.id && msg !== _msg) {
+          if (msg.options.singleton) {
+            msg.hide();
+            return;
+          } else {
+            _msg.hide();
+          }
+        }
+      }
+    };
+
+    _Messenger.prototype.newMessage = function(opts) {
+      var msg, _ref2, _ref3, _ref4, _this = this;
+      if (opts == null) {
+        opts = {};
+      }
+      opts.messenger = this;
+      _Message = (_ref2 = (_ref3 = Messenger.themes[(_ref4 = opts.theme) != null ? _ref4: this.options.theme]) != null ? _ref3.Message: void 0) != null ? _ref2: RetryingMessage;
+      msg = new _Message(opts);
+      msg.on('show',
+      function() {
+        if (opts.scrollTo && _this.$el.css('position') !== 'fixed') {
+          return msg.scrollTo();
+        }
+      });
+      msg.on('hide show render', this.updateMessageSlotClasses, this);
+      return msg;
+    };
+
+    _Messenger.prototype.updateMessageSlotClasses = function() {
+      var anyShown, last, rec, willBeFirst, _i, _len, _ref2;
+      willBeFirst = true;
+      last = null;
+      anyShown = false;
+      _ref2 = this.history;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        rec = _ref2[_i];
+        rec.$slot.removeClass('messenger-first messenger-last messenger-shown');
+        if (rec.msg.shown && rec.msg.rendered) {
+          rec.$slot.addClass('messenger-shown');
+          anyShown = true;
+          last = rec;
+          if (willBeFirst) {
+            willBeFirst = false;
+            rec.$slot.addClass('messenger-first');
+          }
+        }
+      }
+      if (last != null) {
+        last.$slot.addClass('messenger-last');
+      }
+      return this.$el["" + (anyShown ? 'remove': 'add') + "Class"]('messenger-empty');
+    };
+
+    _Messenger.prototype.hideAll = function() {
+      var rec, _i, _len, _ref2, _results;
+      _ref2 = this.history;
+      _results = [];
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        rec = _ref2[_i];
+        _results.push(rec.msg.hide());
+      }
+      return _results;
+    };
+
+    _Messenger.prototype.post = function(opts) {
+      var msg;
+      if (_.isString(opts)) {
+        opts = {
+          message: opts
+        };
+      }
+      opts = $.extend(true, {},
+      this.messageDefaults, opts);
+      msg = this.newMessage(opts);
+      msg.update(opts);
+      return msg;
+    };
+
+    return _Messenger;
 
   })(BaseView);
 
   ActionMessenger = (function(_super) {
 
-  __extends(ActionMessenger, _super);
+    __extends(ActionMessenger, _super);
 
-  function ActionMessenger() {
-    return ActionMessenger.__super__.constructor.apply(this, arguments);
-  }
-
-  ActionMessenger.prototype.doDefaults = {
-    progressMessage: null,
-    successMessage: null,
-    errorMessage: "Error connecting to the server.",
-    showSuccessWithoutError: true,
-    retry: {
-    auto: true,
-    allow: true
-    },
-    action: $.ajax
-  };
-
-  ActionMessenger.prototype.hookBackboneAjax = function(msgr_opts) {
-    var _ajax,
-    _this = this;
-    if (msgr_opts == null) {
-    msgr_opts = {};
+    function ActionMessenger() {
+      return ActionMessenger.__super__.constructor.apply(this, arguments);
     }
-    if (!(window.Backbone != null)) {
-    throw 'Expected Backbone to be defined';
-    }
-    msgr_opts = _.defaults(msgr_opts, {
-    id: 'BACKBONE_ACTION',
-    errorMessage: false,
-    successMessage: "Request completed successfully.",
-    showSuccessWithoutError: false
-    });
-    _ajax = function(options) {
-    var sync_msgr_opts;
-    sync_msgr_opts = _.extend({}, msgr_opts, options.messenger);
-    return _this["do"](sync_msgr_opts, options);
+
+    ActionMessenger.prototype.doDefaults = {
+      progressMessage: null,
+      successMessage: null,
+      errorMessage: "Error connecting to the server.",
+      showSuccessWithoutError: true,
+      retry: {
+        auto: true,
+        allow: true
+      },
+      action: $.ajax
     };
-    if (Backbone.ajax != null) {
-    if (Backbone.ajax._withoutMessenger) {
-      Backbone.ajax = Backbone.ajax._withoutMessenger;
-    }
-    if (!(msgr_opts.action != null) || msgr_opts.action === this.doDefaults.action) {
-      msgr_opts.action = Backbone.ajax;
-    }
-    _ajax._withoutMessenger = Backbone.ajax;
-    return Backbone.ajax = _ajax;
-    } else {
-    return Backbone.sync = _.wrap(Backbone.sync, function() {
-      var args, _old_ajax, _old_sync;
-      _old_sync = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      _old_ajax = $.ajax;
-      $.ajax = _ajax;
-      _old_sync.call.apply(_old_sync, [this].concat(__slice.call(args)));
-      return $.ajax = _old_ajax;
-    });
-    }
-  };
 
-  ActionMessenger.prototype._getHandlerResponse = function(returnVal) {
-    if (returnVal === false) {
-    return false;
-    }
-    if (returnVal === true || !(returnVal != null)) {
-    return true;
-    }
-    return returnVal;
-  };
-
-  ActionMessenger.prototype._parseEvents = function(events) {
-    var desc, firstSpace, func, label, out, type, _ref2;
-    if (events == null) {
-    events = {};
-    }
-    out = {};
-    for (label in events) {
-    func = events[label];
-    firstSpace = label.indexOf(' ');
-    type = label.substring(0, firstSpace);
-    desc = label.substring(firstSpace + 1);
-    if ((_ref2 = out[type]) == null) {
-      out[type] = {};
-    }
-    out[type][desc] = func;
-    }
-    return out;
-  };
-
-  ActionMessenger.prototype._normalizeResponse = function() {
-    var data, elem, resp, type, xhr, _i, _len;
-    resp = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    type = null;
-    xhr = null;
-    data = null;
-    for (_i = 0, _len = resp.length; _i < _len; _i++) {
-    elem = resp[_i];
-    if (elem === 'success' || elem === 'timeout' || elem === 'abort') {
-      type = elem;
-    } else if (((elem != null ? elem.readyState : void 0) != null) && ((elem != null ? elem.responseText : void 0) != null)) {
-      xhr = elem;
-    } else if (_.isObject(elem)) {
-      data = elem;
-    }
-    }
-    return [type, data, xhr];
-  };
-
-  ActionMessenger.prototype.run = function() {
-    var args, events, getMessageText, handler, handlers, m_opts, msg, old, opts, type, _ref2,
-    _this = this;
-    m_opts = arguments[0], opts = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
-    if (opts == null) {
-    opts = {};
-    }
-    m_opts = $.extend(true, {}, this.messageDefaults, this.doDefaults, m_opts != null ? m_opts : {});
-    events = this._parseEvents(m_opts.events);
-    getMessageText = function(type, xhr) {
-    var message;
-    message = m_opts[type + 'Message'];
-    if (_.isFunction(message)) {
-      return message.call(_this, type, xhr);
-    }
-    return message;
-    };
-    msg = (_ref2 = m_opts.messageInstance) != null ? _ref2 : this.newMessage(m_opts);
-    if (m_opts.id != null) {
-    msg.options.id = m_opts.id;
-    }
-    if (m_opts.progressMessage != null) {
-    msg.update($.extend({}, m_opts, {
-      message: getMessageText('progress', null),
-      type: 'info'
-    }));
-    }
-    handlers = {};
-    _.each(['error', 'success'], function(type) {
-    var originalHandler;
-    originalHandler = opts[type];
-    return handlers[type] = function() {
-      var data, defaultOpts, handlerResp, msgOpts, reason, resp, responseOpts, xhr, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
-      resp = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      _ref3 = _this._normalizeResponse.apply(_this, resp), reason = _ref3[0], data = _ref3[1], xhr = _ref3[2];
-      if (type === 'success' && !(msg.errorCount != null) && m_opts.showSuccessWithoutError === false) {
-      m_opts['successMessage'] = null;
+    ActionMessenger.prototype.hookBackboneAjax = function(msgr_opts) {
+      var _ajax, _this = this;
+      if (msgr_opts == null) {
+        msgr_opts = {};
       }
-      if (type === 'error') {
-      if ((_ref4 = m_opts.errorCount) == null) {
-        m_opts.errorCount = 0;
+      if (! (window.Backbone != null)) {
+        throw 'Expected Backbone to be defined';
       }
-      m_opts.errorCount += 1;
-      }
-      handlerResp = m_opts.returnsPromise ? resp[0] : typeof originalHandler === "function" ? originalHandler.apply(null, resp) : void 0;
-      responseOpts = _this._getHandlerResponse(handlerResp);
-      if (_.isString(responseOpts)) {
-      responseOpts = {
-        message: responseOpts
+      msgr_opts = _.defaults(msgr_opts, {
+        id: 'BACKBONE_ACTION',
+        errorMessage: false,
+        successMessage: "Request completed successfully.",
+        showSuccessWithoutError: false
+      });
+      _ajax = function(options) {
+        var sync_msgr_opts;
+        sync_msgr_opts = _.extend({},
+        msgr_opts, options.messenger);
+        return _this["do"](sync_msgr_opts, options);
       };
-      }
-      if (type === 'error' && ((xhr != null ? xhr.status : void 0) === 0 || reason === 'abort')) {
-      msg.hide();
-      return;
-      }
-      if (type === 'error' && ((m_opts.ignoredErrorCodes != null) && (_ref5 = xhr != null ? xhr.status : void 0, __indexOf.call(m_opts.ignoredErrorCodes, _ref5) >= 0))) {
-      msg.hide();
-      return;
-      }
-      defaultOpts = {
-      message: getMessageText(type, xhr),
-      type: type,
-      events: (_ref6 = events[type]) != null ? _ref6 : {},
-      hideOnNavigate: type === 'success'
-      };
-      msgOpts = $.extend({}, m_opts, defaultOpts, responseOpts);
-      if (typeof ((_ref7 = msgOpts.retry) != null ? _ref7.allow : void 0) === 'number') {
-      msgOpts.retry.allow--;
-      }
-      if (type === 'error' && (xhr != null ? xhr.status : void 0) >= 500 && ((_ref8 = msgOpts.retry) != null ? _ref8.allow : void 0)) {
-      if (msgOpts.retry.delay == null) {
-        if (msgOpts.errorCount < 4) {
-        msgOpts.retry.delay = 10;
-        } else {
-        msgOpts.retry.delay = 5 * 60;
+      if (Backbone.ajax != null) {
+        if (Backbone.ajax._withoutMessenger) {
+          Backbone.ajax = Backbone.ajax._withoutMessenger;
         }
-      }
-      if (msgOpts.hideAfter) {
-        if ((_ref9 = msgOpts._hideAfter) == null) {
-        msgOpts._hideAfter = msgOpts.hideAfter;
+        if (! (msgr_opts.action != null) || msgr_opts.action === this.doDefaults.action) {
+          msgr_opts.action = Backbone.ajax;
         }
-        msgOpts.hideAfter = msgOpts._hideAfter + msgOpts.retry.delay;
-      }
-      msgOpts._retryActions = true;
-      msgOpts.actions = {
-        retry: {
-        label: 'retry now',
-        phrase: 'Retrying TIME',
-        auto: msgOpts.retry.auto,
-        delay: msgOpts.retry.delay,
-        action: function() {
-          msgOpts.messageInstance = msg;
-          return setTimeout(function() {
-          return _this["do"].apply(_this, [msgOpts, opts].concat(__slice.call(args)));
-          }, 0);
-        }
-        },
-        cancel: {
-        action: function() {
-          return msg.cancel();
-        }
-        }
-      };
-      } else if (msgOpts._retryActions) {
-      delete msgOpts.actions.retry;
-      delete msgOpts.actions.cancel;
-      delete m_opts._retryActions;
-      }
-      msg.update(msgOpts);
-      if (responseOpts && msgOpts.message) {
-      Messenger(_.extend({}, _this.options, {
-        instance: _this
-      }));
-      return msg.show();
+        _ajax._withoutMessenger = Backbone.ajax;
+        return Backbone.ajax = _ajax;
       } else {
-      return msg.hide();
+        return Backbone.sync = _.wrap(Backbone.sync,
+        function() {
+          var args, _old_ajax, _old_sync;
+          _old_sync = arguments[0],
+          args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+          _old_ajax = $.ajax;
+          $.ajax = _ajax;
+          _old_sync.call.apply(_old_sync, [this].concat(__slice.call(args)));
+          return $.ajax = _old_ajax;
+        });
       }
     };
-    });
-    if (!m_opts.returnsPromise) {
-    for (type in handlers) {
-      handler = handlers[type];
-      old = opts[type];
-      opts[type] = handler;
-    }
-    }
-    msg._actionInstance = m_opts.action.apply(m_opts, [opts].concat(__slice.call(args)));
-    if (m_opts.returnsPromise) {
-    msg._actionInstance.then(handlers.success, handlers.error);
-    }
-    return msg;
-  };
 
-  ActionMessenger.prototype["do"] = ActionMessenger.prototype.run;
-
-  ActionMessenger.prototype.ajax = function() {
-    var args, m_opts;
-    m_opts = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-    m_opts.action = $.ajax;
-    return this.run.apply(this, [m_opts].concat(__slice.call(args)));
-  };
-
-  ActionMessenger.prototype.expectPromise = function(action, m_opts) {
-    m_opts = _.extend({}, m_opts, {
-    action: action,
-    returnsPromise: true
-    });
-    return this.run(m_opts);
-  };
-
-  ActionMessenger.prototype.error = function(m_opts) {
-    if (m_opts == null) {
-    m_opts = {};
-    }
-    if (typeof m_opts === 'string') {
-    m_opts = {
-      message: m_opts
+    ActionMessenger.prototype._getHandlerResponse = function(returnVal) {
+      if (returnVal === false) {
+        return false;
+      }
+      if (returnVal === true || !(returnVal != null)) {
+        return true;
+      }
+      return returnVal;
     };
-    }
-    m_opts.type = 'error';
-    return this.post(m_opts);
-  };
 
-  ActionMessenger.prototype.info = function(m_opts) {
-    if (m_opts == null) {
-    m_opts = {};
-    }
-    if (typeof m_opts === 'string') {
-    m_opts = {
-      message: m_opts
+    ActionMessenger.prototype._parseEvents = function(events) {
+      var desc, firstSpace, func, label, out, type, _ref2;
+      if (events == null) {
+        events = {};
+      }
+      out = {};
+      for (label in events) {
+        func = events[label];
+        firstSpace = label.indexOf(' ');
+        type = label.substring(0, firstSpace);
+        desc = label.substring(firstSpace + 1);
+        if ((_ref2 = out[type]) == null) {
+          out[type] = {};
+        }
+        out[type][desc] = func;
+      }
+      return out;
     };
-    }
-    m_opts.type = 'info';
-    return this.post(m_opts);
-  };
 
-  ActionMessenger.prototype.success = function(m_opts) {
-    if (m_opts == null) {
-    m_opts = {};
-    }
-    if (typeof m_opts === 'string') {
-    m_opts = {
-      message: m_opts
+    ActionMessenger.prototype._normalizeResponse = function() {
+      var data, elem, resp, type, xhr, _i, _len;
+      resp = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      type = null;
+      xhr = null;
+      data = null;
+      for (_i = 0, _len = resp.length; _i < _len; _i++) {
+        elem = resp[_i];
+        if (elem === 'success' || elem === 'timeout' || elem === 'abort') {
+          type = elem;
+        } else if (((elem != null ? elem.readyState: void 0) != null) && ((elem != null ? elem.responseText: void 0) != null)) {
+          xhr = elem;
+        } else if (_.isObject(elem)) {
+          data = elem;
+        }
+      }
+      return [type, data, xhr];
     };
-    }
-    m_opts.type = 'success';
-    return this.post(m_opts);
-  };
 
-  return ActionMessenger;
+    ActionMessenger.prototype.run = function() {
+      var args, events, getMessageText, handler, handlers, m_opts, msg, old, opts, type, _ref2, _this = this;
+      m_opts = arguments[0],
+      opts = arguments[1],
+      args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
+      if (opts == null) {
+        opts = {};
+      }
+      m_opts = $.extend(true, {},
+      this.messageDefaults, this.doDefaults, m_opts != null ? m_opts: {});
+      events = this._parseEvents(m_opts.events);
+      getMessageText = function(type, xhr) {
+        var message;
+        message = m_opts[type + 'Message'];
+        if (_.isFunction(message)) {
+          return message.call(_this, type, xhr);
+        }
+        return message;
+      };
+      msg = (_ref2 = m_opts.messageInstance) != null ? _ref2: this.newMessage(m_opts);
+      if (m_opts.id != null) {
+        msg.options.id = m_opts.id;
+      }
+      if (m_opts.progressMessage != null) {
+        msg.update($.extend({},
+        m_opts, {
+          message: getMessageText('progress', null),
+          type: 'info'
+        }));
+      }
+      handlers = {};
+      _.each(['error', 'success'],
+      function(type) {
+        var originalHandler;
+        originalHandler = opts[type];
+        return handlers[type] = function() {
+          var data, defaultOpts, handlerResp, msgOpts, reason, resp, responseOpts, xhr, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+          resp = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          _ref3 = _this._normalizeResponse.apply(_this, resp),
+          reason = _ref3[0],
+          data = _ref3[1],
+          xhr = _ref3[2];
+          if (type === 'success' && !(msg.errorCount != null) && m_opts.showSuccessWithoutError === false) {
+            m_opts['successMessage'] = null;
+          }
+          if (type === 'error') {
+            if ((_ref4 = m_opts.errorCount) == null) {
+              m_opts.errorCount = 0;
+            }
+            m_opts.errorCount += 1;
+          }
+          handlerResp = m_opts.returnsPromise ? resp[0] : typeof originalHandler === "function" ? originalHandler.apply(null, resp) : void 0;
+          responseOpts = _this._getHandlerResponse(handlerResp);
+          if (_.isString(responseOpts)) {
+            responseOpts = {
+              message: responseOpts
+            };
+          }
+          if (type === 'error' && ((xhr != null ? xhr.status: void 0) === 0 || reason === 'abort')) {
+            msg.hide();
+            return;
+          }
+          if (type === 'error' && ((m_opts.ignoredErrorCodes != null) && (_ref5 = xhr != null ? xhr.status: void 0, __indexOf.call(m_opts.ignoredErrorCodes, _ref5) >= 0))) {
+            msg.hide();
+            return;
+          }
+          defaultOpts = {
+            message: getMessageText(type, xhr),
+            type: type,
+            events: (_ref6 = events[type]) != null ? _ref6: {},
+            hideOnNavigate: type === 'success'
+          };
+          msgOpts = $.extend({},
+          m_opts, defaultOpts, responseOpts);
+          if (typeof((_ref7 = msgOpts.retry) != null ? _ref7.allow: void 0) === 'number') {
+            msgOpts.retry.allow--;
+          }
+          if (type === 'error' && (xhr != null ? xhr.status: void 0) >= 500 && ((_ref8 = msgOpts.retry) != null ? _ref8.allow: void 0)) {
+            if (msgOpts.retry.delay == null) {
+              if (msgOpts.errorCount < 4) {
+                msgOpts.retry.delay = 10;
+              } else {
+                msgOpts.retry.delay = 5 * 60;
+              }
+            }
+            if (msgOpts.hideAfter) {
+              if ((_ref9 = msgOpts._hideAfter) == null) {
+                msgOpts._hideAfter = msgOpts.hideAfter;
+              }
+              msgOpts.hideAfter = msgOpts._hideAfter + msgOpts.retry.delay;
+            }
+            msgOpts._retryActions = true;
+            msgOpts.actions = {
+              retry: {
+                label: 'retry now',
+                phrase: 'Retrying TIME',
+                auto: msgOpts.retry.auto,
+                delay: msgOpts.retry.delay,
+                action: function() {
+                  msgOpts.messageInstance = msg;
+                  return setTimeout(function() {
+                    return _this["do"].apply(_this, [msgOpts, opts].concat(__slice.call(args)));
+                  },
+                  0);
+                }
+              },
+              cancel: {
+                action: function() {
+                  return msg.cancel();
+                }
+              }
+            };
+          } else if (msgOpts._retryActions) {
+            delete msgOpts.actions.retry;
+            delete msgOpts.actions.cancel;
+            delete m_opts._retryActions;
+          }
+          msg.update(msgOpts);
+          if (responseOpts && msgOpts.message) {
+            Messenger(_.extend({},
+            _this.options, {
+              instance: _this
+            }));
+            return msg.show();
+          } else {
+            return msg.hide();
+          }
+        };
+      });
+      if (!m_opts.returnsPromise) {
+        for (type in handlers) {
+          handler = handlers[type];
+          old = opts[type];
+          opts[type] = handler;
+        }
+      }
+      msg._actionInstance = m_opts.action.apply(m_opts, [opts].concat(__slice.call(args)));
+      if (m_opts.returnsPromise) {
+        msg._actionInstance.then(handlers.success, handlers.error);
+      }
+      return msg;
+    };
+
+    ActionMessenger.prototype["do"] = ActionMessenger.prototype.run;
+
+    ActionMessenger.prototype.ajax = function() {
+      var args, m_opts;
+      m_opts = arguments[0],
+      args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      m_opts.action = $.ajax;
+      return this.run.apply(this, [m_opts].concat(__slice.call(args)));
+    };
+
+    ActionMessenger.prototype.expectPromise = function(action, m_opts) {
+      m_opts = _.extend({},
+      m_opts, {
+        action: action,
+        returnsPromise: true
+      });
+      return this.run(m_opts);
+    };
+
+    ActionMessenger.prototype.error = function(m_opts) {
+      if (m_opts == null) {
+        m_opts = {};
+      }
+      if (typeof m_opts === 'string') {
+        m_opts = {
+          message: m_opts
+        };
+      }
+      m_opts.type = 'error';
+      return this.post(m_opts);
+    };
+
+    ActionMessenger.prototype.info = function(m_opts) {
+      if (m_opts == null) {
+        m_opts = {};
+      }
+      if (typeof m_opts === 'string') {
+        m_opts = {
+          message: m_opts
+        };
+      }
+      m_opts.type = 'info';
+      return this.post(m_opts);
+    };
+
+    ActionMessenger.prototype.success = function(m_opts) {
+      if (m_opts == null) {
+        m_opts = {};
+      }
+      if (typeof m_opts === 'string') {
+        m_opts = {
+          message: m_opts
+        };
+      }
+      m_opts.type = 'success';
+      return this.post(m_opts);
+    };
+
+    return ActionMessenger;
 
   })(_Messenger);
 
   $.fn.messenger = function() {
-  var $el, args, func, instance, opts, _ref2, _ref3, _ref4;
-  func = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-  if (func == null) {
-    func = {};
-  }
-  $el = this;
-  if (!(func != null) || !_.isString(func)) {
-    opts = func;
-    if (!($el.data('messenger') != null)) {
-    _Messenger = (_ref2 = (_ref3 = Messenger.themes[opts.theme]) != null ? _ref3.Messenger : void 0) != null ? _ref2 : ActionMessenger;
-    $el.data('messenger', instance = new _Messenger($.extend({
-      el: $el
-    }, opts)));
-    instance.render();
+    var $el, args, func, instance, opts, _ref2, _ref3, _ref4;
+    func = arguments[0],
+    args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    if (func == null) {
+      func = {};
     }
-    return $el.data('messenger');
-  } else {
-    return (_ref4 = $el.data('messenger'))[func].apply(_ref4, args);
-  }
+    $el = this;
+    if (! (func != null) || !_.isString(func)) {
+      opts = func;
+      if (! ($el.data('messenger') != null)) {
+        _Messenger = (_ref2 = (_ref3 = Messenger.themes[opts.theme]) != null ? _ref3.Messenger: void 0) != null ? _ref2: ActionMessenger;
+        $el.data('messenger', instance = new _Messenger($.extend({
+          el: $el
+        },
+        opts)));
+        instance.render();
+      }
+      return $el.data('messenger');
+    } else {
+      return (_ref4 = $el.data('messenger'))[func].apply(_ref4, args);
+    }
   };
 
   window.Messenger._call = function(opts) {
-  var $el, $parent, choosen_loc, chosen_loc, classes, defaultOpts, inst, loc, locations, _i, _len;
-  defaultOpts = {
-    extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
-    theme: 'future',
-    maxMessages: 9,
-    parentLocations: ['body']
-  };
-  opts = $.extend(defaultOpts, $._messengerDefaults, Messenger.options, opts);
-  if (opts.theme != null) {
-    opts.extraClasses += " messenger-theme-" + opts.theme;
-  }
-  inst = opts.instance || Messenger.instance;
-  if (opts.instance == null) {
-    locations = opts.parentLocations;
-    $parent = null;
-    choosen_loc = null;
-    for (_i = 0, _len = locations.length; _i < _len; _i++) {
-    loc = locations[_i];
-    $parent = $(loc);
-    if ($parent.length) {
-      chosen_loc = loc;
-      break;
+    var $el, $parent, choosen_loc, chosen_loc, classes, defaultOpts, inst, loc, locations, _i, _len;
+    defaultOpts = {
+      extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
+      theme: 'future',
+      maxMessages: 9,
+      parentLocations: ['body']
+    };
+    opts = $.extend(defaultOpts, $._messengerDefaults, Messenger.options, opts);
+    if (opts.theme != null) {
+      opts.extraClasses += " messenger-theme-" + opts.theme;
     }
+    inst = opts.instance || Messenger.instance;
+    if (opts.instance == null) {
+      locations = opts.parentLocations;
+      $parent = null;
+      choosen_loc = null;
+      for (_i = 0, _len = locations.length; _i < _len; _i++) {
+        loc = locations[_i];
+        $parent = $(loc);
+        if ($parent.length) {
+          chosen_loc = loc;
+          break;
+        }
+      }
+      if (!inst) {
+        $el = $('<ul>');
+        $parent.prepend($el);
+        inst = $el.messenger(opts);
+        inst._location = chosen_loc;
+        Messenger.instance = inst;
+      } else if (!$(inst._location).is($(chosen_loc))) {
+        inst.$el.detach();
+        $parent.prepend(inst.$el);
+      }
     }
-    if (!inst) {
-    $el = $('<ul>');
-    $parent.prepend($el);
-    inst = $el.messenger(opts);
-    inst._location = chosen_loc;
-    Messenger.instance = inst;
-    } else if (!$(inst._location).is($(chosen_loc))) {
-    inst.$el.detach();
-    $parent.prepend(inst.$el);
+    if (inst._addedClasses != null) {
+      inst.$el.removeClass(inst._addedClasses);
     }
-  }
-  if (inst._addedClasses != null) {
-    inst.$el.removeClass(inst._addedClasses);
-  }
-  inst.$el.addClass(classes = "" + inst.className + " " + opts.extraClasses);
-  inst._addedClasses = classes;
-  return inst;
+    inst.$el.addClass(classes = "" + inst.className + " " + opts.extraClasses);
+    inst._addedClasses = classes;
+    return inst;
   };
 
   $.extend(Messenger, {
-  Message: RetryingMessage,
-  Messenger: ActionMessenger,
-  themes: (_ref2 = Messenger.themes) != null ? _ref2 : {}
+    Message: RetryingMessage,
+    Messenger: ActionMessenger,
+    themes: (_ref2 = Messenger.themes) != null ? _ref2: {}
   });
 
   $.globalMessenger = window.Messenger = Messenger;
 
 }).call(this);
 
+//theme.
 (function() {
-  var $, FutureMessage, spinner_template,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var $, FutureMessage, spinner_template, __hasProp = {}.hasOwnProperty,
+  __extends = function(child, parent) {
+    for (var key in parent) {
+      if (__hasProp.call(parent, key)) child[key] = parent[key];
+    }
+    function ctor() {
+      this.constructor = child;
+    }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor();
+    child.__super__ = parent.prototype;
+    return child;
+  };
 
   $ = jQuery;
 
@@ -2165,77 +2278,154 @@ window.Messenger.Events = (function() {
   };
 
 }).call(this);
-
-;(function ($, window, document, undefined) {
-  $.fn.modalBox = function (method, option) {
-
-    if (methods[method]) {
-      methods[method].call(this, option);
-    } else if (typeof method === 'object' || !method) {
-      methods.open.call(this, method);
+var ModalBox = Class.extend({
+  init:function($obj_, options_){
+    this._options = {
+      width: 'auto',
+      height: 'auto',
+      left: 'auto',
+      top: 'auto',
+      overlay: true,
+      iconClose: false,
+      keyClose: true,
+      bodyClose: true,
+      iconImg: 'img/close.png',
+      //callback function
+      onOpen: function () {},
+      onClose: function () {}
     }
-    return this;
-  };
-  $.modalBox = {};
 
-  //default options
+    if (options_) {
+      for(var key in options_)
+      	  this._options[key] = options_[key];
+    }; 
 
-  $.modalBox.defaults = {
-    //all properties with unit like 10px
-    width: 'auto',
-    height: 'auto',
-    left: 'auto',
-    top: 'auto',
-    overlay: true,
-    iconClose: false,
-    keyClose: true,
-    bodyClose: true,
-    iconImg: 'img/close.png',
+    this._obj = $obj_;
+    this._width = this._obj.width();
+    this._height = this._obj.height();
+    this._widthOut = this._obj.outerWidth();
+    this._heightOut = this._obj.outerHeight();
+    this._winWidth = $(window).width();
+    this._winHeight = $(window).height();
+    this._setWidth = Math.min(this._widthOut, this._winWidth) - (this._widthOut - this._width);
+    this._setHeight = Math.min(this._heightOut, this._winHeight) - (this._heightOut - this._height);
 
-    //callback function
-    onOpen: function () {},
-    onClose: function () {}
-  };
+    this._obj.addClass('iw-modalBox');
+    this.setOptions();
+  },
 
-  //global methods
-
-  //to close all modal box
-  $.modalBox.close = function () {
-    $('.iw-modalBox').each(function () {
-      methods.close.call($(this));
-    });
-
-  };
-
-
-  //internal method
-  var keyEvent = function (e) {
-    var keyCode = e.keyCode;
-    //check for esc key is pressed.
-    if (keyCode == 27) {
-      $.modalBox.close();
-    }
-  };
-  var clickEvent = function (e) {
-    //check if modalbox is defined in data
-    if (e.data) {
-      methods.close.call(e.data.modalBox);
+  setOptions:function(){
+    var _this = this;
+    if (_this._options.width !== 'auto') {
+      _this._obj.css('width', _this._options.width);
     } else {
-      $.modalBox.close();
+      _this._obj.width(_this._setWidth);
     }
-  };
-  var resizeEvent = function (e) {
-    var img = e.data.img,
-      elm = e.data.elm;
-    img.css({
-      top: (elm.offset().top - $(window).scrollTop() - 8) + 'px',
-      left: (elm.offset().left - $(window).scrollLeft() + elm.width() - 8) + 'px',
+    if (_this._options.height !== 'auto') {
+      _this._obj.css('height',_this._options.height);
+    } else {
+      _this._obj.height(_this._setHeight);
+    }
+
+    var top = '50%',
+      left = '50%';
+      marginLeft = _this._widthOut / 2;
+      marginTop = _this._heightOut / 2;
+
+    if (_this._options.left !== 'auto') {
+    	left = _this._options.left;
+    	marginLeft = 0;
+    }
+    if (_this._options.top !== 'auto') {
+    	top = _this._options.top;
+    	marginTop = 0;
+    };
+
+    this._obj.css({
+      top: top,
+      left: left,
       position: 'fixed',
+      display: 'block',
+      'margin-left': -marginLeft,
+      'margin-top': -marginTop,
       'z-index': '99999'
     });
-  };
-  //to show overlay
-  var addOverlay = function () {
+
+    if (_this._options.overlay) {
+    	_this.addOverlay();
+    };
+
+    if (_this._options.iconClose) {
+      if ((_this._widthOut < (_this._winWidth)) && (_this._heightOut < _this._winHeight)){
+        var randId = Math.ceil(Math.random() * 1000) + 'close';
+        var img = $('<img src="' + _this._options.iconImg + '" class="iw-closeImg" id="' + randId + '"/>');
+        _this._obj.attr('closeImg',randId);
+        img.bind('click',function(){
+        	_this.close.call(_this);
+        });
+        $(window).bind('resize.iw-modalBox',{
+          img: img,
+          obj: _this._obj
+        }, _this.resizeEvent);
+        $(window).triggerHandler('resize.iw-modalBox');
+        $('body').append(img);
+      };
+    };
+
+    if (_this._options.keyClose) {
+      _this.keyEvent();
+    };
+
+    if (_this._options.bodyClose) {
+      var overlay = $('.iw-modalOverlay');
+      if (overlay.length === 0) {
+        addOverlay();
+        overlay = $('.iw-modalOverlay');
+        overlay.css({
+          'background':'none'
+        });
+      };
+      overlay.bind('mousedown',function(){
+      	  _this.close.call(_this);
+      });
+    };
+
+    _this._options.onOpen.call(this);
+  },
+
+  close:function(){
+    var _this = this;
+    if (_this._obj.hasClass('iw-modalBox')) {
+      var imgId = _this._obj.attr('closeImg');
+      if (imgId) {
+        _this._obj.removeAttr('closeImg');
+        $('#'+imgId).remove();
+      };
+      _this._obj.css({
+      	  'display': 'none'
+      })
+      _this._obj.width(_this._width);
+      _this._obj.height(_this._height);
+      _this._options.onClose.call(_this);
+      _this._obj.removeClass('iw-modalBox');
+      if ($('.iw-modalBox').length === 0) {
+      	  $('.iw-modalOverlay').remove();
+      	  $(document).unbind('resize.iw-modalBox');
+      };
+    };
+  },
+
+  keyEvent:function(){
+    var _this = this;
+    $(document).keydown(function(e){
+      var key = e.which;
+      if(key === 27){
+        _this.close();
+      }
+    });
+  },
+  
+  addOverlay:function(){
     $('body').append('<div class="iw-modalOverlay"></div>');
     $('.iw-modalOverlay').css({
       display: 'block',
@@ -2245,155 +2435,20 @@ window.Messenger.Events = (function() {
       top: 0,
       left: 0,
       'z-index': '1000'
-
     });
-  };
+  },
 
-  var methods = {
-    open: function (option) {
-      option = $.extend({}, $.modalBox.defaults, option);
-
-      var elm = this,
-        elmWidth = elm.width(),
-        elmHeight = elm.height(),
-        elmWidthO = elm.outerWidth(),
-        elmHeightO = elm.outerHeight(),
-        windowWidth = $(window).width(),
-        windowHeight = $(window).height(),
-        width = Math.min(elmWidthO, windowWidth) - (elmWidthO - elmWidth),
-        height = Math.min(elmHeightO, windowHeight) - (elmHeightO - elmHeight);
-
-      //to add modalBox class
-      elm.data('iw-size', {
-        'width': elmWidth,
-        'height': elmHeight
-      })
-        .addClass('iw-modalBox');
-			
-			//to maintian box-sizing property if a user define width and height use css method else use width/ height method.	
-      if(option.width != 'auto'){
-					elm.css('width',option.width);
-				}
-			else{
-					elm.width(width);	
-				}
-			
-      if(option.height != 'auto'){
-					elm.css('height',option.height);
-				}
-			else{
-					elm.height(height);	
-				}
-
-
-
-      var top = '50%',
-        left = '50%',
-        marginLeft = elm.outerWidth() / 2,
-        marginTop = elm.outerHeight() / 2;
-
-      if (option.left != 'auto') {
-        left = option.left;
-        marginLeft = '0';
-      }
-      if (option.top != 'auto') {
-        top = option.top;
-        marginTop = '0';
-      }
-
-      elm.css({
-        top: top,
-        left: left,
-        position: 'fixed',
-        display: 'block',
-        'margin-left': -marginLeft,
-        'margin-top': -marginTop,
-        'z-index': '99999'
-      });
-
-      if (option.overlay) {
-        addOverlay();
-      }
-
-      //to bind close event   
-      if (option.iconClose) {
-        if ((elm.outerWidth() < (windowWidth - 50)) && (elm.outerHeight() < (windowHeight - 50))) {
-          var randId = Math.ceil(Math.random() * 1000) + 'close';
-          var img = $('<img src="' + option.iconImg + '" class="iw-closeImg" id="' + randId + '"/>');
-          elm.attr('closeImg', randId);
-          img.bind('click', {
-            modalBox: elm
-          }, clickEvent);
-          //we will add resize event to retain the correct position of close button.
-          $(window).bind('resize.iw-modalBox', {
-            img: img,
-            elm: elm
-          }, resizeEvent);
-          $(window).triggerHandler('resize.iw-modalBox');
-          $('body').append(img);
-        }
-      }
-
-      if (option.keyClose) {
-        $(document).bind('keyup.iw-modalBox', keyEvent);
-      }
-
-      if (option.bodyClose) {
-        /*create a overlay(or use existing) in which we will give close event to overlay
-            and not in the body to come out of bubbling issue */
-        var overlay = $('.iw-modalOverlay');
-        if (overlay.length === 0) {
-          addOverlay();
-          overlay = $('.iw-modalOverlay');
-          overlay.css({
-            'background': 'none'
-          });
-        }
-        overlay.bind('mousedown', clickEvent);
-      }
-      //call callback function
-      option.onOpen.call(this);
-      elm.data('closeFun', option.onClose);
-
-    },
-    close: function () {
-      var elm = this;
-      if (elm.data('iw-size')) {
-        //close modal and unbind all event associated with it.
-        var imgId = elm.attr('closeImg');
-        if (imgId) {
-          elm.removeAttr('closeImg');
-          $('#' + imgId).remove();
-        }
-        elm.css({
-          'display': 'none'
-        });
-				
-				//to maintain box-sizing using width and height method instead css to set width or height
-				var orgSize=elm.data('iw-size');
-				elm.width(orgSize.width);
-				elm.height(orgSize.height);
-				
-        //call callback function
-        elm.data('closeFun').call(this);
-
-        //restore modal box
-        elm.removeData('iw-size')
-          .removeData('closeFun')
-        //remove class
-        .removeClass('iw-modalBox');
-
-        //if all modal box is closed unbinde all events.
-        if ($('.iw-modalBox').length === 0) {
-          $('.iw-modalOverlay').remove();
-          $(document).unbind('keyup.iw-modalBox');
-          $(window).unbind('resize.iw-modalBox');
-        }
-      }
-
-    }
-  };
-})(jQuery, window, document);
+  resizeEvent:function(e){
+    var _img = e.data.img,
+      _obj = e.data.obj;
+    _img.css({
+      top: (_obj.offset().top - $(window).scrollTop() - 8) + 'px',
+      left: (_obj.offset().left - $(window).scrollTop() + _obj.width() - 8) + 'px',
+      position: 'fixed',
+      'z-index': '99999'
+    });
+  }
+});
 //this ui is for reflection for img
 var Reflection = Class.extend({
   /**
@@ -2743,199 +2798,149 @@ var Tooltip = Class.extend({
     }); 
   }
 });
-//  Unslider by @idiot
- 
-(function($, f) {
-  //  If there's no jQuery, Unslider can't work, so kill the operation.
-  if(!$) return f;
-  
-  var Unslider = function() {
-    //  Set up our elements
-    this.el = f;
-    this.items = f;
-    
-    //  Dimensions
-    this.sizes = [];
-    this.max = [0,0];
-    
-    //  Current inded
-    this.current = 0;
-    
-    //  Start/stop timer
-    this.interval = f;
-        
-    //  Set some options
-    this.opts = {
+var Unslider = Class.extend({
+  init:function($obj_, options_){
+    this._obj = $obj_;
+    this._options = {
       speed: false,
-      delay: 3000, // f for no autoplay
-      complete: f, // when a slide's finished
-      keys: !f, // keyboard shortcuts - disable if it breaks things
-      dots: f, // display ••••o• pagination
-      fluid: f // is it a percentage width?,
+      delay: 3000,
+      complete: false,
+      keys: true,
+      dots: false,
+      fluid: false
     };
-    
-    //  Create a deep clone for methods where context changes
-    var _ = this;
+    this._sizes = [],
+    this._max = [this._obj.outerWidth(),this._obj.outerHeight()],
+    this._current = 0;
+    this._interval = false;
 
-    this.init = function(el, opts) {
-      this.el = el;
-      this.ul = el.children('ul');
-      this.max = [el.outerWidth(), el.outerHeight()];      
-      this.items = this.ul.children('li').each(this.calculate);
-      
-      //  Check whether we're passing any options in to Unslider
-      this.opts = $.extend(this.opts, opts);
-      
-      //  Set up the Unslider
-      this.setup();
-      
-      return this;
-    };
-    
-    //  Get the width for an element
-    //  Pass a jQuery element as the context with .call(), and the index as a parameter: Unslider.calculate.call($('li:first'), 0)
-    this.calculate = function(index) {
-      var me = $(this),
-        width = me.outerWidth(), height = me.outerHeight();
-      
-      //  Add it to the sizes list
-      _.sizes[index] = [width, height];
-      
-      //  Set the max values
-      if(width > _.max[0]) _.max[0] = width;
-      if(height > _.max[1]) _.max[1] = height;
-    };
-    
-    //  Work out what methods need calling
-    this.setup = function() {
-      //  Set the main element
-      this.el.css({
-        overflow: 'hidden',
-        width: _.max[0],
-        height: this.items.first().outerHeight()
-      });
-      
-      //  Set the relative widths
-      this.ul.css({width: (this.items.length * 100) + '%', position: 'relative'});
-      this.items.css('width', (100 / this.items.length) + '%');
-      
-      if(this.opts.delay !== f) {
-        this.start();
-        this.el.hover(this.stop, this.start);
-      }
-      
-      //  Custom keyboard support
-      this.opts.keys && $(document).keydown(this.keys);
-      
-      //  Dot pagination
-      this.opts.dots && this.dots();
-      
-      //  Little patch for fluid-width sliders. Screw those guys.
-      if(this.opts.fluid) {
-        var resize = function() {
-          _.el.css('width', Math.min(Math.round((_.el.outerWidth() / _.el.parent().outerWidth()) * 100), 100) + '%');
-        };
-        
-        resize();
-        $(window).resize(resize);
-      }
-      
-      if(this.opts.arrows) {
-        this.el.parent().append('<p class="arrows"><span class="prev">←</span><span class="next">→</span></p>')
-          .find('.arrows span').click(function() {
-            $.isFunction(_[this.className]) && _[this.className]();
-          });
-      };
-      
-      //  Swipe support
-      if($.event.swipe) {
-        this.el.on('swipeleft', _.prev).on('swiperight', _.next);
+    if (options_) {
+      for(var key in options_) {
+        this._options[key] = options_[key];
       }
     };
-    
-    //  Move Unslider to a slide index
-    this.move = function(index, cb) {
-      //  If it's out of bounds, go to the first slide
-      if(!this.items.eq(index).length) index = 0;
-      if(index < 0) index = (this.items.length - 1);
-      
-      var target = this.items.eq(index);
-      var obj = {height: target.outerHeight()};
-      var speed = cb ? 5 : this.opts.speed;
-      
-      if(!this.ul.is(':animated')) {      
-        //  Handle those pesky dots
-        _.el.find('.dot:eq(' + index + ')').addClass('active').siblings().removeClass('active');
+    this._ul = this._obj.children('ul');
+    this._items = this._ul.children('li');
+    this.calculate();
 
-        this.el.animate(obj, speed) && this.ul.animate($.extend({left: '-' + index + '00%'}, obj), speed, function(data) {
-          _.current = index;
-          $.isFunction(_.opts.complete) && !cb && _.opts.complete(_.el);
-        });
-      }
-    };
-    
-    //  Autoplay functionality
-    this.start = function() {
-      _.interval = setInterval(function() {
-        _.move(_.current + 1);
-      }, _.opts.delay);
-    };
-    
-    //  Stop autoplay
-    this.stop = function() {
-      _.interval = clearInterval(_.interval);
-      return _;
-    };
-    
-    //  Keypresses
-    this.keys = function(e) {
-      var key = e.which;
-      var map = {
-        //  Prev/next
-        37: _.prev,
-        39: _.next,
-        
-        //  Esc
-        27: _.stop
-      };
-      
-      if($.isFunction(map[key])) {
-        map[key]();
-      }
-    };
-    
-    //  Arrow navigation
-    this.next = function() { return _.stop().move(_.current + 1) };
-    this.prev = function() { return _.stop().move(_.current - 1) };
-    
-    this.dots = function() {
-      //  Create the HTML
-      var html = '<ol class="dots">';
-        $.each(this.items, function(index) { html += '<li class="dot' + (index < 1 ? ' active' : '') + '">' + (index + 1) + '</li>'; });
-        html += '</ol>';
-      
-      //  Add it to the Unslider
-      this.el.addClass('has-dots').append(html).find('.dot').click(function() {
-        _.move($(this).index());
-      });
-    };
-  };
-  
-  //  Create a jQuery plugin
-  $.fn.unslider = function(o) {
-    var len = this.length;
-    
-    //  Enable multiple-slider support
-    return this.each(function(index) {
-      //  Cache a copy of $(this), so it 
-      var me = $(this);
-      var instance = (new Unslider).init(me, o);
-      
-      //  Invoke an Unslider instance
-      me.data('unslider' + (len > 1 ? '-' + (index + 1) : ''), instance);
+    this.setup();
+  },
+
+  calculate: function(){
+    var _this = this;
+    for (var i = 0; i < _this._items.length; i++) {
+      var width = $(_this._items[i]).outerWidth();
+      var height = $(_this._items[i]).outerHeight();
+      _this._sizes[i] = [width,height];
+      if (width > _this._max[0]) {_this._max[0] = width};
+      if (height > _this._max[1]) {_this._max[1] = height};
+    }
+  },
+
+  setup:function(){
+    var _this = this;
+    this._obj.css({
+      overflow: 'hidden',
+      width: _this._max[0],
+      height: _this._items.first().outerHeight()
     });
-  };
-})(window.jQuery, false);
+
+    _this._ul.css({
+      width: (_this._items.length * 100) + '%',
+      position: 'relative'
+    });
+    _this._items.css({
+      width: (100 / _this._items.length)+'%'
+    })
+    if (this._options.delay !== false) {
+      _this.start();
+      _this._obj.hover(_this.stop,_this.start);
+    };
+    _this._options.keys && _this.keys();
+    _this._options.dots && _this.dots();
+
+    if (this._options.fluid) {
+      var resize = function(){
+        _this._obj.css('width',Math.min(Math.round((_this._obj.outerWidth() / _this._obj.parent().outerWidth()) * 100), 100) + '%');
+      };
+      resize();
+      $(window).resize(resize);
+    }
+
+    if (window.jQuery.event.swipe) {
+      _this._obj.on('swipeleft', _this.prev)
+        .on('swiperight',_this.next);
+    }
+  },
+
+  move:function(index_, cb_){
+    var _this = this;
+    if (!_this._items.eq(index_).length) {index_ = 0};
+    if (index_ < 0) { index_ = (_this._items.length -1 ) };
+    var _target = _this._items.eq(index_);
+    var _hobj = {height: _target.outerHeight()};
+    var speed = cb_ ? 5 :_this._options.speed;
+
+    if (!this._ul.is(':animated')) {
+      _this._obj.find('.dot:eq(' + index_ + ')').addClass('active').siblings().removeClass('active');
+      _this._obj.animate(_hobj, speed);
+      _this._ul.animate({left: '-' + index_ + '00%', height: _target.outerHeight()}, speed, function(data){
+        _this._current = index_;
+      });
+    };
+  },
+
+  start:function(){
+    var _this = this;
+    _this._interval = setInterval(function(){
+      _this.move(_this._current +1);
+    }, _this._options.delay);
+  },
+
+  stop:function(){
+    var _this = this;
+    _this._interval = clearInterval(_this._interval);
+  },
+
+  keys:function(){
+    var _this = this ;
+    $(document).keydown(function(e){
+      var key = e.which;
+      switch(key){
+        case 39: _this.next();
+            break;
+        case 37: _this.prev();
+            break;
+        case 27: _this.stop();
+            break; 
+      }
+    });
+  },
+
+  next:function(){
+    var _this = this;
+    _this.stop();
+    _this.move(_this._current +1);
+  },
+  prev:function(){
+    var _this = this;
+    _this.stop();
+    _this.move(_this._current -1);
+  },
+  dots:function(){
+    var _this = this;
+    var html = '<ol class="dots">'
+    for (var i = 0; i < _this._items.length; i++) {
+       html += '<li class="dot' + (i < 1 ? ' active' : '') + '">' + (i + 1) + '</li>'; 
+    };
+    html += '</ol>'
+    _this._obj.addClass('has-dots')
+      .append(html)
+      .find('.dot').click(function(){
+      	  _this.move($(this).index());
+      });
+  }
+});
 //windows lib for create window fastly
 //this is relaty font-awesome
 var Window = Class.extend({
@@ -2954,6 +2959,8 @@ var Window = Class.extend({
       left: 0,                         //位置x坐标
       top: 0,                           //位置y坐标
       contentDiv: true,    //是否新建div窗口
+      iframe:false,            //是否使用ifram作为内容框口
+      maxWindow: false,  //是否初始最大化
       resize: false,           //设置是否可重新调整窗口的大小
       minWidth: 200,            //设置窗口的最小宽度
       minHeight:200            //设置窗口的最小高度
@@ -2976,7 +2983,7 @@ var Window = Class.extend({
     this._isMax = false;                                    // record window is maxsize or not
 
     this._window = $('<div>',{
-      'id': 'window-'+this._id,
+      'id': this._id,
       'class': 'window'
     });
 
@@ -2999,17 +3006,31 @@ var Window = Class.extend({
         'class':'window-content'
       });
       this._window.append(this._windowContent);
+    } else if (this._options.iframe) {
+      this._windowContent = $('<iframe>',{
+        'class':'window-content',
+      })
+      this._window.append(this._windowContent);
+    };
+
+    if (this._options.resize == true) {
+      this._dragDiv = $('<div>', {
+        'class': 'rb-drag-div'
+      });
+      this._window.append(this._dragDiv);
     }
 
-    this._dragDiv = $('<div>', {
-      'class': 'lb-drag-div'
-    });
-    this._window.append(this._dragDiv);
-    $('body').append(this._window);
+    $('body').
+    append(this._window);
     
     this.setOptions();
     if (this._options.hideWindow === false){
-      this.showWindow();
+      this.show();
+    }else {
+      this.hide();
+    }
+    if(this._options.maxWindow){
+      this.maxWindow(this);
     }
     this.bindEvent();
   },
@@ -3024,14 +3045,14 @@ var Window = Class.extend({
         case 'close':
           if (_this._options[key] == true) {
             _this._titleButton.append("<a id='window-"+_this._id+"-close' class='window-button-close' href='#'><i class='icon-remove'></i></a>");
-            _this.setTitleButton($(_this._titleButton.children('.window-button-close')[0]),_this.closeWindow, _this);
+            _this.bindButton($(_this._titleButton.children('.window-button-close')[0]),_this.closeWindow, _this);
             $('.window-button-'+key).addClass('active');
           }
           break;
         case 'max':
           if (_this._options[key] == true) {
             _this._titleButton.append("<a id='window-"+_this._id+"-max' class='window-button-max' href='#'><i class='icon-resize-full'></i></a>");
-            _this.setTitleButton($(_this._titleButton.children('.window-button-max')[0]),_this.maxWindow, _this);
+            _this.bindButton($(_this._titleButton.children('.window-button-max')[0]),_this.maxWindow, _this);
             $('.window-button-'+key).addClass('active');
           }
           break;
@@ -3044,7 +3065,7 @@ var Window = Class.extend({
         case 'hide':
           if (_this._options[key] == true) {
             _this._titleButton.append("<a id='window-"+_this._id+"-hide' class='window-button-hide' href='#'><i class='icon-double-angle-up'></i></a>");
-            _this.setTitleButton($(_this._titleButton.children('.window-button-hide')[0]),_this.hideDiv, _this);
+            _this.bindButton($(_this._titleButton.children('.window-button-hide')[0]),_this.hideDiv, _this);
             $('.window-button-'+key).addClass('active');
           }
           break;
@@ -3060,7 +3081,7 @@ var Window = Class.extend({
    * @param {[event]} eventAction_ [event when click the target]
    * @param {[this]} windowObj_   [this ]
    */
-  setTitleButton:function($target_, eventAction_, windowObj_){
+  bindButton:function($target_, eventAction_, windowObj_){
     $target_.mousedown(function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
@@ -3088,7 +3109,7 @@ var Window = Class.extend({
     _icon.removeClass(oldIcon_);
     _icon.addClass(newIcon_);
     _a.unbind();
-    this.setTitleButton(_a, newAction_, this);
+    this.bindButton(_a, newAction_, this);
   },
 
   /**
@@ -3097,11 +3118,6 @@ var Window = Class.extend({
    */
   bindEvent:function(){
     var _this = this;
-
-    this._titleButton.mousedown(function(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
-    });
 
     //forbid context menu
     $(document).on('contextmenu','#'+_this._window[0].id, function(ev){
@@ -3117,43 +3133,44 @@ var Window = Class.extend({
         return ;
       };
       _this._isMouseOnTitleDown = true;
-      _this._offsetX = ev.offsetX;
-      _this._offsetY = ev.offsetY;
+      _this._offsetX = ev.clientX - _this._window.position().left;
+      _this._offsetY = ev.clientY - _this._window.position().top;
       _this._window.fadeTo(20, 0.5);
     }).mouseup(function(ev){
       ev.stopPropagation();
       _this._isMouseOnTitleDown = false;
-      _this._options.top = _this._window.position().top;
-      _this._options.left = _this._window.position().left;
       _this._window.fadeTo(20, 1);
     });
 
     //resize window
-    this._dragDiv.mousedown(function(ev){
-      ev.stopPropagation();
-      if (_this._isMax || _this._ishideDiv || !_this._options.resize) {
-        return ;
-      };
-      _this._isMouseResizeDown = true;
-      _this._window.fadeTo(20, 0.9);
-    }).mouseup(function(ev){
-      ev.stopPropagation();
-      if (!_this._isMouseResizeDown) {
-        return ;
-      }
-      _this._isMouseResizeDown = false;
-      _this._options.width = _this._window.width();
-      _this._options.height = _this._window.height();
-      _this._window.fadeTo(20, 1);
-    });
-
+    if (typeof this._dragDiv !== 'undefined') {
+      this._dragDiv.mousedown(function(ev){
+        ev.stopPropagation();
+        if (_this._isMax || _this._ishideDiv || !_this._options.resize) {
+          return ;
+        };
+        _this._isMouseResizeDown = true;
+        _this._window.fadeTo(20, 0.9);
+      }).mouseup(function(ev){
+        ev.stopPropagation();
+        if (!_this._isMouseResizeDown) {
+          return ;
+        }
+        _this._isMouseResizeDown = false;
+        _this._options.width = _this._window.width();
+        _this._options.height = _this._window.height();
+        _this._window.fadeTo(20, 1);
+      });
+    }
     $(document).mousemove(function(ev){
       if(_this._isMouseOnTitleDown){ 
         var x = ev.clientX - _this._offsetX; 
         var y = ev.clientY - _this._offsetY; 
-        _this.setWindowPos({left:x, top: y-1});
+        _this.setWindowPos({left:x, top: y});
+        _this._options.top = y;
+        _this._options.left = x;
         _this._titleDiv.css('cursor','move');
-      }else if (_this._isMouseResizeDown) {
+      }else if (_this._isMouseResizeDown && _this._options.resize) {
         var _width = ev.clientX - _this._window.position().left + 5;
         var _height = ev.clientY - _this._window.position().top + 5;
         if (_width < _this._options.minWidth){
@@ -3180,11 +3197,10 @@ var Window = Class.extend({
     _this._titleDiv.css({'width': _tmp+'px'});
     _tmp = size_.width-130;
     _this._titleText.css({'width': _tmp+'px'});
-    if (this._options.contentDiv) {
-      _tmp = size_.width -10;
-      var _tmp1 = size_.height - 50;
+    _tmp = size_.width -10;
+    var _tmp1 = size_.height - 50;
+    if(typeof _this._windowContent !== 'undefined')
       _this._windowContent.css({'width':_tmp+'px', 'height': _tmp1+'px'});
-    }
   },
   /**
    * [resizeWindowWithAnimate resize window with animate]
@@ -3199,11 +3215,11 @@ var Window = Class.extend({
     _this._titleDiv.animate({width: _tmp+'px'},_this._options.fadeSpeed);
     _tmp = size_.width-130;
     _this._titleText.animate({width: _tmp+'px'}, _this._options.fadeSpeed);
-    if (this._options.contentDiv) {
-      _tmp = size_.width -10;
-      var _tmp1 = size_.height - 50;
+    _tmp = size_.width -10;
+    var _tmp1 = size_.height - 50;
+    if(typeof _this._windowContent !== 'undefined'){
       _this._windowContent.animate({width:_tmp+'px', height: _tmp1+'px'},_this._options.fadeSpeed);
-    }
+    } 
   },
   /**
    * [maxWindow max window]
@@ -3213,7 +3229,7 @@ var Window = Class.extend({
   maxWindow:function(windowObj_){
     var _this = windowObj_;
     var _winWidth = document.body.clientWidth;
-    var _winHeight = $(document).height();
+    var _winHeight = document.body.clientHeight;
     var _dockBottom = $('#dock').attr('bottom');
     var _pos = {
       left: 0,
@@ -3283,7 +3299,7 @@ var Window = Class.extend({
    */
   hideDiv:function(windowObj_){
     var _this = windowObj_;
-    if (_this._options.contentDiv) {
+    if (typeof _this._windowContent !== 'undefined') {
       if (_this._options.animate) {
         _this._windowContent.slideUp(_this._options.fadeSpeed);
       } else {
@@ -3307,7 +3323,7 @@ var Window = Class.extend({
   showDiv:function(windowObj_){
     var _this = windowObj_;
     _this._ishide = false;
-    if (_this._options.contentDiv) {
+    if (typeof _this._windowContent !== 'undefined') {
       if (_this._options.animate) {
         _this._windowContent.slideDown(_this._options.fadeSpeed);
       } else {
@@ -3328,18 +3344,62 @@ var Window = Class.extend({
   setWindowPos:function(pos_){
     this._window.css('left', pos_['left'] + 'px');
     this._window.css('top', pos_['top'] + 'px');
-    this._dragDiv.css('left',pos_['left']+this._options._winWidth -10 + 'px');
-    this._dragDiv.css('top', pos_['left']+this._options._winHeight-10 + 'px');
+    if (typeof this._dragDiv !== 'undefined') {
+      this._dragDiv.css('left',pos_['left']+this._options._winWidth -10 + 'px');
+      this._dragDiv.css('top', pos_['pos']+this._options._winHeight-10 + 'px');
+    }
   },
   /**
-   * [showWindow show Window]
+   * [show show Window]
    * @return {[type]} [description]
    */
-  showWindow:function(){
+  show:function(){
     if (this._options.animate) {
       this._window.fadeIn(this._options.fadeSpeed);
     } else {
       this._window.show();
     }
+  },
+  /**
+   * [append appent content]
+   * @param  {[type]} content_ [append content]
+   * @return {[type]}          [description]
+   */
+  append:function(content_){
+    if (content_) {
+      this._windowContent.append(content_);
+    }
+  },
+  /**
+   * [close close window]
+   * @return {[type]} [description]
+   */
+  close:function(){
+    var _this = this ;
+    if (typeof this._window !== 'undefined'){
+      this.closeWindow(_this);
+    } 
+  },
+  /**
+   * [hide hide window]
+   * @return {[type]} [description]
+   */
+  hide:function(){
+    if (this._options.animate) {
+      this._window.fadeOut(this._options.fadeSpeed);
+    } else {
+      this._window.hide();
+    }
+  },
+  /**
+   * [appendHtml append html]
+   * @param  {[type]} src_ [description]
+   * @return {[type]}      [description]
+   */
+  appendHtml:function(src_){
+    if(this._options.iframe){
+      this._windowContent[0].src = src_;
+    }
   }
+
 });
