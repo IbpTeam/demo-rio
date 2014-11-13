@@ -25,7 +25,7 @@ $(document).ready(function(){
       var sParam= nIndex<0?null:window.location.href.substring(nIndex + 1, window.location.href.length);
       onStart(sParam);
     }catch(e){
-      console.log("Warning: onStart should be supported :" + e.message);
+      console.log("Warning: onStart should be supported :" + e.stack);
     }
   }
 });
