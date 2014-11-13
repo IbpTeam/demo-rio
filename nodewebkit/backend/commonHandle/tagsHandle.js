@@ -209,7 +209,7 @@ function getFilesByTags(callback, oTags) {
     condition.push("others like '%" + oTags[k] + "%'");
   }
   var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['documents'], sCondition, null, function(err, resultDoc) {
+  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
     if (err) {
       console.log(err);
       return;
@@ -221,13 +221,13 @@ function getFilesByTags(callback, oTags) {
         return;
       }
       allFiles = allFiles.concat(resultMusic);
-      commonDAO.findItems(null, ['pictures'], sCondition, null, function(err, resultPic) {
+      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
         if (err) {
           console.log(err);
           return;
         }
         allFiles = allFiles.concat(resultPic);
-        commonDAO.findItems(null, ['videos'], sCondition, null, function(err, resultVideo) {
+        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
           if (err) {
             console.log(err);
             return;
