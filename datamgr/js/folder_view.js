@@ -227,7 +227,7 @@ function Folder(jquery_element) {
       }
       contents.push('Property');
       
-//      var popup_menu = self.gen_popup_menu(contents);      
+      var popup_menu = self.gen_popup_menu(contents);      
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
           case 'New Document':
@@ -598,91 +598,80 @@ Folder.prototype.set_icon = function(postfix){
 }
 Folder.prototype.get_callback_data = function(data_json){
   console.log('data from server:', data_json);
-  switch(global_dir){
-  case 'root':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/'+data_json[i]['type'];
-      data_json[i]['props']['name'] = data_json[i]['type'];
-      data_json[i]['props']['type'] = 'folder';
-      data_json[i]['props']['icon'] = 'folder';
-    }        
-    global_self.emit('set_favorites', data_json);	 
-    break;
-  case 'root/Contact':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      //data_json[i]['img'] = data_json[i]['photoPath'];
-      data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
-      data_json[i]['props']['name'] = data_json[i]['name'];
-      data_json[i]['props']['type'] = 'file';
-      data_json[i]['props']['icon'] = 'Contacts';
+  var category = '';
+  for(var i=0; i<data_json.length; i++){
+    if(data_json[i].hasOwnProperty('type')){
+      category = 'root';
+    }else if(data_json[i].hasOwnProperty('URI') && data_json[i]['URI'].lastIndexOf('#') != -1){
+      category = data_json[i]['URI'].substring(data_json[i]['URI'].lastIndexOf('#')+1, data_json[i]['URI'].length);
+    }else if(data_json[i].hasOwnProperty('device_id')){
+      category = 'devices';
     }
-    global_self.emit('set_sidebar', data_json);
-    break;
-  case 'root/Picture':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['img'] = data_json[i]['path'];
-      data_json[i]['props']['path'] = 'root/Picture/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-      data_json[i]['props']['name'] = data_json[i]['filename'];      
-      data_json[i]['props']['type'] = 'file';
-      data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);;
+    switch(category){
+      case 'root':
+        data_json[i]['props'] = {};
+        data_json[i]['props']['path'] = 'root/'+data_json[i]['type'];
+        data_json[i]['props']['name'] = data_json[i]['type'];
+        data_json[i]['props']['type'] = 'folder';
+        data_json[i]['props']['icon'] = 'folder';       	 
+        break;
+      case 'contact':
+        data_json[i]['props'] = {};
+        //data_json[i]['img'] = data_json[i]['photoPath'];
+        data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
+        data_json[i]['props']['name'] = data_json[i]['name'];
+        data_json[i]['props']['type'] = 'other';
+        data_json[i]['props']['icon'] = 'Contacts';
+        break;
+      case 'picture':
+        data_json[i]['props'] = {};
+        data_json[i]['props']['img'] = data_json[i]['path'];
+        data_json[i]['props']['path'] = 'root/Picture/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+        data_json[i]['props']['name'] = data_json[i]['filename'];      
+        data_json[i]['props']['type'] = 'file';
+        data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);;
+        break;
+      case 'video':
+        data_json[i]['props'] = {};
+        data_json[i]['props']['path'] = 'root/Video/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+        data_json[i]['props']['name'] = data_json[i]['filename'];          
+        data_json[i]['props']['type'] = 'file';
+        data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);;
+        break;
+      case 'document':
+        data_json[i]['props'] = {};
+        data_json[i]['props']['path'] = 'root/Document/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+        data_json[i]['props']['name'] = data_json[i]['filename'];   
+        data_json[i]['props']['type'] = 'file';
+        data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
+        break;
+      case 'music':
+        data_json[i]['props'] = {};
+        data_json[i]['props']['path'] = 'root/Music/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
+        data_json[i]['props']['name'] = data_json[i]['filename'];           
+        data_json[i]['props']['type'] = 'file';
+        data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
+        break;
+      case 'devices':
+        data_json[i]['props'] = {};
+        data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name']+'.device';
+        data_json[i]['props']['name'] = data_json[i]['name'];           
+        data_json[i]['props']['type'] = 'device';
+        data_json[i]['props']['icon'] = 'Devices';
+        break;
+      default:
+        data_json[i]['props'] = {};
+        data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name'];
+        data_json[i]['props']['name'] = data_json[i]['name'];           
+        data_json[i]['props']['type'] = 'other';
+        data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
+      break;
     }
+  }
+  if(global_dir == 'root'){
+    global_self.emit('set_favorites', data_json);
+  }else{
     global_self.emit('set_sidebar', data_json);
-    break;
-  case 'root/Video':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Video/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-      data_json[i]['props']['name'] = data_json[i]['filename'];
-      //data_json[i]['img'] = '.'+data_json[i]['photoPath'];            
-      data_json[i]['props']['type'] = 'file';
-      data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);;
-    }
-    global_self.emit('set_sidebar', data_json);
-    break;
-  case 'root/Document':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Document/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-      data_json[i]['props']['name'] = data_json[i]['filename'];   
-      data_json[i]['props']['type'] = 'file';
-      data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
-    }
-    global_self.emit('set_sidebar', data_json);
-    break;
-  case 'root/Music':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = 'root/Music/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-      data_json[i]['props']['name'] = data_json[i]['filename'];
-      //data_json[i]['img'] = '.'+data_json[i]['photoPath'];            
-      data_json[i]['props']['type'] = 'file';
-      data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
-    }
-    global_self.emit('set_sidebar', data_json);
-    break;
-  case 'root/Devices':
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name']+'.device';
-      data_json[i]['props']['name'] = data_json[i]['name'];           
-      data_json[i]['props']['type'] = 'device';
-      data_json[i]['props']['icon'] = 'Devices';
-    }
-    global_self.emit('set_sidebar', data_json);
-    break;
-  default:
-    for(var i=0; i<data_json.length; i++){
-      data_json[i]['props'] = {};
-      data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name'];
-      data_json[i]['props']['name'] = data_json[i]['name'];           
-      data_json[i]['props']['type'] = 'other';
-      data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
-    }
-    global_self.emit('set_sidebar', data_json);
-    break;
   }
   file_arch_json[global_dir] = data_json;
   global_self.show_folder_view(global_dir);
