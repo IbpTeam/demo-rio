@@ -1553,10 +1553,16 @@ exports.copyFile = copyFile;
  **/
 function renameDesktopFile(callback, oldName, newName) {
   var sFilename = oldName;
+  var sDesFilePath = pathModule.join(DES_APP_DIR, oldName + '.desktop.md');
+  var sNewDesFilePath = pathModule.join(DES_APP_DIR, newName + '.desktop.md');
   var oEntries = {
     '[Desktop Entry]': {
-      'Name': newName
+      'Name': newName,
+      'Name[zh_CN]': newName
     }
+  }
+  var oDesEntries = {
+    filename: newName
   }
 
   function writeDesktopFileCb(err, result) {
@@ -1565,8 +1571,18 @@ function renameDesktopFile(callback, oldName, newName) {
       var _err = 'renameDesktopFile: ' + err;
       callback(_err);
     } else {
-      console.log('rename desktop file success!');
-      callback(null, result);
+      desFilesHandle.updateItem(sDesFilePath, oDesEntries, function(result) {
+        if (result === "success") {
+          fs_extra.move(sDesFilePath, sNewDesFilePath, function(err) {
+            if (err) {
+              console.log(err);
+              return callback(err, null);
+            }
+            console.log('rename desktop file success!');
+            callback(null, result);
+          })
+        }
+      })
     }
   }
   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
