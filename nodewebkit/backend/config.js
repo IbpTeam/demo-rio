@@ -32,12 +32,14 @@ var AppList=[
     id:"app1",
     name:"datamgr",
     win:null,
+    win2:null,
     path:"demo-rio/datamgr/file-explorer.html"
   },
   {
     id:"app_example",
     name:"example",
     win:null,
+    win2:null,
     path:"demo-rio/appExample/index.html"
   }
 ];
@@ -60,9 +62,9 @@ var DBDEBUG=1;
  * Server network config
  * */
 var SERVERPORT=8888;
+exports.SERVERPORT = SERVERPORT;
 var MSGPORT=8892;
 exports.MSGPORT = MSGPORT;
-exports.SERVERPORT = SERVERPORT;
 var FILEPORT=8080;
 exports.FILEPORT=FILEPORT;
 var MDNSPORT=8889;
@@ -71,6 +73,18 @@ var SERVERIP;
 exports.SERVERIP = SERVERIP;
 var SERVERNAME;
 exports.SERVERNAME = SERVERNAME;
+var WEBSOCKETPATH="/ws";
+exports.WEBSOCKETPATH = WEBSOCKETPATH;
+
+/*
+ * Secure config. The key and cert path should be set later.
+ * */
+var ISSECURE=true;
+exports.ISSECURE = ISSECURE;
+var KEYPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/key.pem");
+exports.KEYPATH = KEYPATH;
+var CERTPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/cert.pem");
+exports.CERTPATH = CERTPATH;
 
 /*
  * account

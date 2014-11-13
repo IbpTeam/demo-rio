@@ -142,10 +142,32 @@ function getRealFile(pathname, response){
 
 /**
  * This is the key function of http router
+ * param:
+ * handle: store some handler.
+ * pathname: The path is requested.
+ * response: The response object. if the pathname is websocket path,
+ *           then the reponse is a websocket client object.
+ * postData: The message or data from the request.
  */
 function route(handle, pathname, response, postData) {
-  if ( pathname == '/callapi' ) {
+  console.log("The route for path: %s, data: %s", pathname, postData);
+  if ( pathname == '/') {
+    response.write("The index pages is blank.");
+    response.end();
+    return;
+  }else if ( pathname == '/ws') {
+    var wsclient = response;
+    var message = postData;
+    wsclient.send("I have got your message whose length is " + postData.length);
+    return;
+  }else if ( pathname == '/callapi' ) {
     //This is for remote call api in internet browser.
+    if ( postData === null || postData.length === 0 ){
+      response.writeHead(404, {'Content-Type': 'text/plain'});
+      response.write("Invalid callapi");
+      response.end();
+      return;
+    }
     var postDataJSON=JSON.parse(postData);
     var args=postDataJSON.args;
     var apiPathArr=postDataJSON.api.split(".");
