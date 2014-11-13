@@ -775,10 +775,13 @@ function findDesktopFileFromSystem(fileName, callback) {
         return callback(err, null);
       }
       if (stdout == '') {
-        tryInThisPath(index + 1);
-      } else {
-        return callback(null, result[0]);
+        var _err = "Not find at all!";
+        console.log(_err);
+        return callback(_err, null);
       }
+      result = stdout.split('\n');
+      return callback(null, result[0]);
+
     });
   })
 }
