@@ -46,9 +46,7 @@ function main(params){
     });
     folder.on('set_favorites', function(event) {
       var messages = Array.prototype.slice.call(arguments, 1);
-      //console.log('set favorites2.', messages);
-      sidebar.set_favorites(messages);
-  
+      sidebar.set_favorites(messages);  
     });
     folder.on('set_sidebar', function(event){
       var messages = Array.prototype.slice.call(arguments, 1);
