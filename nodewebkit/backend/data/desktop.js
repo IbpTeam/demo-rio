@@ -974,43 +974,19 @@ function findAllDesktopFiles(callback) {
   if (systemType === "Linux") {
     var xdgDataDir = [];
     var sAllDesktop = "";
-    exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
+    var sTarget = '*.desktop';
+    var sBoundary = REAL_APP_DIR + ' -name ';
+    var sCommand = 'sfind ' + sBoundary + sTarget;
+    var optional = {
+      maxBuffer: 1000 * 1024
+    };
+    exec(sCommand, function(err, stdout, stderr) {
       if (err) {
-        console.log(stderr)
+        console.log(stderr);
         console.log(err);
         return;
-      } else {
-        xdgDataDir = stdout.substr(0, stdout.length - 1).split(':');
-        for (var i = 0; i < xdgDataDir.length; ++i) {
-          xdgDataDir[i] = xdgDataDir[i].replace(/[\/]$/, '');
-        }
-        console.log(xdgDataDir);
-
-        function tryInThisPath(callback, index) {
-          if (index == xdgDataDir.length) {
-            var oAllDesktop = sAllDesktop.split('\n');
-            oAllDesktop.pop();
-            callback(oAllDesktop);
-          } else {
-            var sTarget = '*.desktop';
-            var sBoundary = xdgDataDir[index] + ' -name ';
-            var sCommand = 'sudo find ' + sBoundary + sTarget;
-            var optional = {
-              maxBuffer: 1000 * 1024
-            };
-            exec(sCommand, function(err, stdout, stderr) {
-              if (err) {
-                console.log(stderr);
-                console.log(err);
-                return;
-              }
-              sAllDesktop = sAllDesktop + stdout;
-              tryInThisPath(callback, index + 1);
-            })
-          }
-        };
-        tryInThisPath(callback, 0);
       }
+      callback(stdout);
     })
   } else {
     console.log("Not a linux system! Not supported now!")
