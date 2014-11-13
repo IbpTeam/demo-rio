@@ -16,7 +16,7 @@ exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
  * Default APP Base path is repo/app dir，we use __dirname to locate it
  */
 var APPBASEPATH;
-APPBASEPATH = path.join(__dirname,"../../../");
+APPBASEPATH = path.join(__dirname,"../../..");
 exports.APPBASEPATH = APPBASEPATH;
 
 /**
