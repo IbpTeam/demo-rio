@@ -79,7 +79,7 @@ exports.WEBSOCKETPATH = WEBSOCKETPATH;
 /*
  * Secure config. The key and cert path should be set later.
  * */
-var ISSECURE=true;
+var ISSECURE=false;
 exports.ISSECURE = ISSECURE;
 var KEYPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/key.pem");
 exports.KEYPATH = KEYPATH;
