@@ -201,6 +201,22 @@ function initDesktop(callback) {
 exports.initDesktop = initDesktop;
 
 
+/** 
+ * @Method: readConfFile
+ *    read file *.conf
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "read Theme config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
+ *
+ *
+ **/
 function readConfFile(filePath, desFilePath, callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
@@ -231,6 +247,22 @@ function readConfFile(filePath, desFilePath, callback) {
 }
 exports.readThemeConf = readThemeConf;
 
+/** 
+ * @Method: readThemeConf
+ *    read file Theme.conf
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                read error  : "read Theme config file error!"
+ *
+ *    @param2: result,
+ *        object, the result in object
+ *
+ *
+ **/
 function writeConfFile(filePath, desFilePath, oTheme, callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
