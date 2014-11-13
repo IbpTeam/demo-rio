@@ -12,12 +12,9 @@ var now= new Date();
 function start(route, handle) {
   function onRequest(request, response) {
     var postData = "";
-    config.riolog(url.parse(request.url));
     var pathname = decodeURIComponent(url.parse(request.url).pathname);
-    var absolute = url.parse(request.url).query;
 
     config.riolog("Request for " + pathname + " received.");
-    config.riolog("Request for " + absolute );
     request.setEncoding("utf8");
 
     request.addListener("data", function(postDataChunk) {
@@ -25,7 +22,7 @@ function start(route, handle) {
       config.riolog("Received POST data chunk '"+ postDataChunk + "'.");
     });
     request.addListener("end", function() {
-      route(handle, pathname, absolute, response, postData);
+      route(handle, pathname, response, postData);
     });
   }
   http.createServer(onRequest).listen(config.SERVERPORT);

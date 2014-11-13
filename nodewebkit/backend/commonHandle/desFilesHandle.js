@@ -75,7 +75,8 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs_extra.writeFile(sPath, sItem,function (err) {
+  console.log('des file path: '+sPath);
+  fs.writeFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
@@ -258,7 +259,7 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  *    No arguments other than a file name array are given to the completion callback.
  **/
 exports.updateItem = function(file,attrs,callback){
-  console.log("update::::::::::"+file);
+  console.log("update::::::::::",file);
   fs.readFile(file,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
@@ -281,7 +282,7 @@ exports.updateItem = function(file,attrs,callback){
               console.log(err);
             }
             else{
-              console.log(sItem)
+              console.log('update item success!',file);
               callback("success");
             }
           });
