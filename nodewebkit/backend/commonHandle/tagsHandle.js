@@ -368,14 +368,11 @@ exports.rmTagsByUri = rmTagsByUri;
  *
  *
  */
-function rmTagsByUri(callback, oTags, oUri) {
+function rmTagsByUri(callback, oTags, sUri) {
   var allFiles = [];
   var condition = [];
   var deleteTags = [];
-  for (var k in oUri) {
-    condition.push("uri = '" + oUri[k] + "'");
-  }
-  var sCondition = [condition.join(' or ')];
+  var sCondition = ["uri = '" + sUri + "'"];
   commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
     if (err) {
       console.log(err);
@@ -399,8 +396,9 @@ function rmTagsByUri(callback, oTags, oUri) {
             console.log(err);
             return;
           }
-          buildDeleteItems(allFiles, resultVideo)
+          buildDeleteItems(allFiles, resultVideo);
           var resultItems = doDeleteTags(allFiles, oTags);
+          console.log(resultItems,"=======================",allFiles);
           dataDes.updateItems(resultItems, function(result) {
             console.log("my update result:");
             console.log(result);
@@ -418,11 +416,19 @@ function rmTagsByUri(callback, oTags, oUri) {
                 }
                 files.push(desFilePath);
               }
-              console.log(files);
-              var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-              repo.repoChsCommit(desPath, files, null, function() {
-                callback(result);
-              });
+              console.log(resultItems,"=======================",allFiles);
+              commonDAO.updateItems(resultItems, function(err) {
+                if (err) {
+                  console.log(err);
+                  callback(err);
+                } else {
+                  var desPath = config.RESOURCEPATH + '/' + category + 'Des';
+                  repo.repoChsCommit(desPath, files, null, function() {
+                    console.log("rm tags: ", oTags, " success!");
+                    callback(result);
+                  });
+                }
+              })
             } else {
               console.log("error in update des files");
               return;
@@ -550,5 +556,6 @@ function doDeleteTags(oAllFiles, oTags) {
     }
     (oAllFiles[j]).others = newTags.join(',');
   }
+  //console.log(oAllFiles,"=======================")
   return oAllFiles;
 }
