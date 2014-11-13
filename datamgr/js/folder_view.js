@@ -615,7 +615,7 @@ Folder.prototype.get_callback_data = function(data_json){
       //data_json[i]['img'] = data_json[i]['photoPath'];
       data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
       data_json[i]['props']['name'] = data_json[i]['name'];
-      data_json[i]['props']['type'] = 'other';
+      data_json[i]['props']['type'] = 'file';
       data_json[i]['props']['icon'] = 'Contacts';
     }
     global_self.emit('set_sidebar', data_json);
