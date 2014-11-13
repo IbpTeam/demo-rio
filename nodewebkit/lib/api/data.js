@@ -347,14 +347,12 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
           console.log(err_mus);
           return;
         }
-        console.log(result_mus);
         allItems = allItems.concat(result_mus);
         vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
           if (err_vid) {
             console.log(err_vid);
             return;
           }
-          console.log(result_vid);
           allItems = allItems.concat(result_vid);
           var resultRecentAccess = utils.getRecent(allItems, num);
           console.log('get recent success!');

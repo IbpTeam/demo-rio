@@ -64,7 +64,7 @@ exports.repoRmsCommit = function(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git rm error");
+      console.log("Git rm error",error,stderr);
     } else {
       console.log("Git rm success");
       callback();
@@ -88,7 +88,7 @@ exports.repoChsCommit = function(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error");
+      console.log("Git change error",error,stdout);
     } else {
       console.log("Git change success");
       callback();
@@ -109,7 +109,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error");
+      console.log("Git change error",error,stdout);
     } else {
       console.log("Git change success");
       callback();
