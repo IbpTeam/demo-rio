@@ -191,7 +191,35 @@ exports.readDesFile = readDesFile;
  *    Callback.
  **/
 function writeDesObjs2Db(desObjs,callback){
-  commonDAO.createItems(desObjs,callback);
+  var iSum = 0;
+  desObjs.forEach(function(desObj){
+    if(desObj.URI == null || desObj.URI == undefined){
+      iSum++;
+    }else{
+      var conditions = ["URI = " + "'" + uri + "'"];
+      commonDAO.findItems(null,desObjs.category,conditions,null,function(err,items){
+        if(err){
+          console.log(err);
+          callback("error");
+          return;
+        }
+        if(items.length > 0){
+          //TODO do update
+          commonDAO.updateItem(desObj,function(err){
+            iSum++;
+            if(iSum == desObjs.length)
+              callback("done");
+          });
+        }else{
+          commonDAO.createItem(desObj,function(err){
+            iSum++;
+            if(iSum == desObjs.length)
+              callback("done");
+          });
+        }
+      });
+    }
+  });
 }
 exports.writeDesObjs2Db = writeDesObjs2Db;
 
