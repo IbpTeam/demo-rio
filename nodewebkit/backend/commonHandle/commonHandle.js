@@ -206,7 +206,14 @@ exports.createDataAll = createDataAll;
 
 exports.getItemByUri = function(category, uri, callback) {
   var conditions = ["URI = " + "'" + uri + "'"];
-  commonDAO.findItems(null, category, conditions, null, callback);
+  commonDAO.findItems(null, category, conditions, null, function(err,result) {
+    if (err) {
+      console.log(err);
+      return;
+    } else {
+      callback(result);
+    }
+  });
 }
 
 function deleteItemByUri(category, uri, callback) {

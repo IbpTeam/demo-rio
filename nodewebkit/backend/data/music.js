@@ -477,3 +477,44 @@ function repoReset(commitID, callback) {
   })
 }
 exports.repoReset = repoReset;
+
+function repoResetFile(commitID, file, callback) {
+  getGitLog(function(err, oGitLog) {
+    if (err) {
+      callback(err, null);
+    } else {
+      var desCommitID = oGitLog[commitID].content.relateCommit;
+      if (desCommitID) {
+        resourceRepo.repoResetFile(DES_REPO_DIR, file, desCommitID, null, function(err, result) {
+          if (err) {
+            console.log(err);
+            callback({
+              'document': err
+            }, null);
+          } else {
+            getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
+              resourceRepo.repoResetFile(REAL_REPO_DIR, file, commitID, relateCommitID, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  callback({
+                    'document': err
+                  }, null);
+                } else {
+                  console.log('reset success!')
+                  callback(null, result)
+                }
+              })
+            })
+          }
+        })
+      } else {
+        var _err = 'related des commit id error!';
+        console.log(_err);
+        callback({
+          'document': _err
+        }, null);
+      }
+    }
+  })
+}
+exports.repoResetFile = repoResetFile;
