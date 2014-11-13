@@ -85,15 +85,16 @@ function gen_edit_dialog(data_json){
   file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
   gen_popup_dialog('Edit', file_propery);
   $('#save_button').on('click', function(){
+    var new_json = {};
     for(var key in data_json){
       if(key == 'props' || key == 'URI'){
         continue;
       }
       var new_value = document.getElementById(key).value;
-      data_json[key] = new_value;
+      new_json[key] = new_value;
     }
-    data_json['category'] = data_json['URI'].substring(data_json['URI'].lastIndexOf('#')+1, data_json['URI'].length);
-    delete data_json.props;
+    new_json['category'] = get_category();
+    new_json['URI'] = data_json['URI'];
     DataAPI.updateDataValue(function(result){
       if(result == 'success'){
         window.alert("Saved successfully!");
@@ -101,7 +102,7 @@ function gen_edit_dialog(data_json){
       else{
         window.alert("Saved failed!");
       }
-    }, [data_json]);
+    }, [new_json]);
   });
 }
 
@@ -578,7 +579,6 @@ Folder.prototype.find_json_by_path = function(filepath){
   var all = file_arch_json[global_dir];
   //console.log('global_dir', global_dir);
   //console.log('filepath', filepath);
-  //console.log('file_arch_json[global_dir]', file_arch_json[global_dir]);
   var file = false;
   if(all.length){
     for(var i=0; i<all.length; i++){
