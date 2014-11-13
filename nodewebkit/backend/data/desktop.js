@@ -200,6 +200,89 @@ function initDesktop(callback) {
 }
 exports.initDesktop = initDesktop;
 
+
+function readConfFile(filePath, desFilePath, callback) {
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    fs.readFile(filePath, 'utf8', function(err, data) {
+      if (err) {
+        console.log("read Theme config file error!");
+        console.log(err);
+        var _err = "readThemeConf : read Theme config file error!";
+        callback(_err, null);
+      } else {
+        var op = 'access';
+        updateDesFile(op, desFilePath, function(err, result) {
+          if (err) {
+            console.log('update theme des file error!\n', err);
+            callback(err, null);
+          } else {
+            resourceRepo.repoChsCommit(DES_REPO_DIR, [desFilePath], null, function() {
+              var json = JSON.parse(data);
+              callback(null, json);
+            })
+          }
+        });
+      }
+    });
+  } else {
+    console.log("Not a linux system! Not supported now!");
+  }
+}
+exports.readThemeConf = readThemeConf;
+
+function writeConfFile(filePath, desFilePath, oTheme, callback) {
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    fs.readFile(filePath, 'utf-8', function(err, data) {
+      if (err) {
+        console.log(err);
+        var _err = "read Theme.conf error!";
+        callback(_err, null);
+      }
+      var oData = JSON.parse(data);
+      var isModify = false;
+      for (var k in oTheme) {
+        if (oData[k] !== oTheme[k]) {
+          isModify = true;
+        }
+        oData[k] = oTheme[k];
+      }
+      if (!isModify) {
+        var _result = "Data Not Change!";
+        return callback(null, _result);
+      }
+      var sThemeModified = JSON.stringify(oData, null, 4);
+      fs.writeFile(filePath, sThemeModified, function(err) {
+        if (err) {
+          console.log("write Theme config file error!");
+          console.log(err);
+          callback(err, null);
+        } else {
+          var op = 'modify';
+          updateDesFile(op, desFilePath, function(err, result) {
+            if (err) {
+              console.log('update theme des file error!\n', err);
+              callback(err, null);
+            } else {
+              resourceRepo.repoChsCommit(DES_REPO_DIR, [desFilePath], null, function() {
+                resourceRepo.getLatestCommit(DES_REPO_DIR, function(commitID) {
+                  resourceRepo.repoChsCommit(REAL_DIR, [filePath], commitID, function() {
+                    callback(null, result);
+                  })
+                })
+              })
+            }
+          });
+        }
+      });
+    });
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
+}
+
+
 /** 
  * @Method: readThemeConf
  *    read file Theme.conf
@@ -237,27 +320,9 @@ exports.initDesktop = initDesktop;
 function readThemeConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    fs.readFile(THEME_PATH, 'utf8', function(err, data) {
-      if (err) {
-        console.log("read Theme config file error!");
-        console.log(err);
-        var _err = "readThemeConf : read Theme config file error!";
-        callback(_err, null);
-      } else {
-        var op = 'access';
-        updateDesFile(op, THEME_DES_PATH, function(err, result) {
-          if (err) {
-            console.log('update theme des file error!\n', err);
-            callback(err, null);
-          } else {
-            resourceRepo.repoChsCommit(DES_REPO_DIR, [THEME_DES_PATH], null, function() {
-              var json = JSON.parse(data);
-              callback(null, json);
-            })
-          }
-        });
-      }
-    });
+    readConfFile(THEME_PATH, THEME_DES_PATH, function(err, result) {
+      callback(err, result);
+    })
   } else {
     console.log("Not a linux system! Not supported now!");
   }
@@ -309,47 +374,16 @@ exports.readThemeConf = readThemeConf;
 function writeThemeConf(callback, oTheme) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    fs.readFile(THEME_PATH, 'utf-8', function(err, data) {
-      if (err) {
-        console.log(err);
-        var _err = "writeThemeConf : read Theme.conf error!";
-        callback(_err, null);
-      }
-      var oData = JSON.parse(data);
-      for (var k in oTheme) {
-        oData[k] = oTheme[k];
-      }
-      var sThemeModified = JSON.stringify(oData, null, 4);
-      fs.writeFile(THEME_PATH, sThemeModified, function(err) {
-        if (err) {
-          console.log("write Theme config file error!");
-          console.log(err);
-          var _err = "writeThemeConf : write Theme config file error!";
-          callback(_err, null);
-        } else {
-          var op = 'modify';
-          updateDesFile(op, THEME_DES_PATH, function(err, result) {
-            if (err) {
-              console.log('update theme des file error!\n', err);
-              callback(err, null);
-            } else {
-              resourceRepo.repoChsCommit(DES_REPO_DIR, [THEME_DES_PATH], null, function() {
-                resourceRepo.getLatestCommit(DES_REPO_DIR, function(commitID) {
-                  resourceRepo.repoChsCommit(REAL_DIR, [THEME_PATH], commitID, function() {
-                    callback(null, result);
-                  })
-                })
-              })
-            }
-          });
-        }
-      });
-    });
+    writeConfFile(THEME_PATH, THEME_DES_PATH, oTheme, function(err, result) {
+      callback(err, result);
+    })
   } else {
     console.log("Not a linux system! Not supported now!")
   }
 }
 exports.writeThemeConf = writeThemeConf;
+
+
 
 /** 
  * @Method: readWidgetConf
@@ -388,27 +422,9 @@ exports.writeThemeConf = writeThemeConf;
 function readWidgetConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    fs.readFile(WIGDET_PATH, 'utf8', function(err, data) {
-      if (err) {
-        console.log("read Widget config file error!");
-        console.log(err);
-        var _err = "readWidgetConf : read Widget config file error!";
-        callback(_err, null);
-      } else {
-        var op = 'access';
-        updateDesFile(op, WIGDET_DES_PATH, function(err, result) {
-          if (err) {
-            console.log('update Widget des file error!\n', err);
-            callback(err, null);
-          } else {
-            resourceRepo.repoChsCommit(DES_REPO_DIR, [WIGDET_DES_PATH], null, function() {
-              var json = JSON.parse(data);
-              callback(null, json);
-            })
-          }
-        });
-      }
-    });
+    readConfFile(WIGDET_PATH, WIGDET_DES_PATH, function(err, result) {
+      callback(err, result);
+    })
   } else {
     console.log("Not a linux system! Not supported now!")
   }
@@ -454,41 +470,8 @@ exports.readWidgetConf = readWidgetConf;
 function writeWidgetConf(callback, oWidget) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    fs.readFile(WIGDET_PATH, 'utf-8', function(err, data) {
-      if (err) {
-        console.log(err);
-        var _err = "writeWidgetConf : read Widget.conf error!";
-        callback(_err, null);
-      }
-      var oData = JSON.parse(data);
-      for (var k in oWidget) {
-        oData[k] = oWidget[k];
-      }
-      var sWidgetModfied = JSON.stringify(oData, null, 4);
-      fs.writeFile(WIGDET_PATH, sWidgetModfied, function(err) {
-        if (err) {
-          console.log("write Widget config file error!");
-          console.log(err);
-          var _err = "writeWidgetConf : write Widget config file error!";
-          callback(_err, null);
-        } else {
-          var op = 'modify';
-          updateDesFile(op, THEME_DES_PATH, function(err, result) {
-            if (err) {
-              console.log('update theme des file error!\n', err);
-              callback(err, null);
-            } else {
-              resourceRepo.repoChsCommit(DES_REPO_DIR, [WIGDET_DES_PATH], null, function() {
-                resourceRepo.getLatestCommit(DES_REPO_DIR, function(commitID) {
-                  resourceRepo.repoChsCommit(REAL_DIR, [WIGDET_PATH], commitID, function() {
-                    callback(null, result);
-                  })
-                })
-              })
-            }
-          });
-        }
-      });
+    writeConfFile(WIGDET_PATH, WIGDET_DES_PATH, oWidget, function(err, result) {
+      callback(err, result);
     })
   } else {
     console.log("Not a linux system! Not supported now!");
@@ -1073,9 +1056,13 @@ function writeDesktopFile(callback, sFileName, oEntries) {
             var _err = "writeDesktopFile : parse desktop file error!";
             callback(_err, null);
           } else {
+            var isModify = false;
             for (var entry in oEntries) {
               if (oEntries[entry]) {
                 for (var element in oEntries[entry]) {
+                  if (attr[entry][element] !== oEntries[entry][element]) {
+                    isModify = true;
+                  }
                   attr[entry][element] = oEntries[entry][element];
                 }
               } else {
@@ -1083,6 +1070,10 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                 var _err = "writeDesktopFile : entry content empty!";
                 callback(_err, null);
               }
+            }
+            if (!isModify) {
+              var _result = "Data Not Change!";
+              return callback(null, _result);
             }
 
             function deParseDesktopFileCb(err, result_deparse) {
