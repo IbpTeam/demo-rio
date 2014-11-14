@@ -908,21 +908,22 @@ function deParseListFile(output, filepath, callback) {
         var entry_fir = item[0];
         var content_fir = item[1];
         content_fir = content_fir.split('=');
-        var entry_sec = content_fir[1];
-        var content_sec = content_fir[0];
-        entry_sec = entry_sec.split(';');
-        for (var j = 0; j < entry_sec.length; j++) {
-          var entry_sec_ = entry_sec[j];
-          if (entry_sec_ !== '') {
-            if (!output[entry_fir]) {
-              output[entry_fir] = {};
-              output[entry_fir][entry_sec_] = [content_sec];
-            } else if (!output[entry_fir][entry_sec_]) {
-              output[entry_fir][entry_sec_] = [content_sec];
-            } else {
-              if (!utils.isExist(content_sec, output[entry_fir][entry_sec_])) {
-                output[entry_fir][entry_sec_].push(content_sec);
-              }
+        var entry_sec = content_fir[0];
+        var content_sec = content_fir[1];
+        content_sec = content_sec.split(';');
+        if (content_sec[content_sec.length - 1] == '') {
+          content_sec.pop();
+        }
+        if (!output[entry_fir]) {
+          output[entry_fir] = {};
+          output[entry_fir][entry_sec] = content_sec;
+        } else if (!output[entry_fir][entry_sec]) {
+          output[entry_fir][entry_sec] = content_sec;
+        } else {
+          for (var j = 0; j < content_sec.length; j++) {
+            var content_sec_ = content_sec[j];
+            if (!utils.isExist(content_sec_, output[entry_fir][entry_sec])) {
+              output[entry_fir][entry_sec].push(content_sec_);
             }
           }
         }
@@ -1710,3 +1711,15 @@ function renameDesktopFile(callback, oldName, newName) {
   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
 }
 exports.renameDesktopFile = renameDesktopFile;
+
+function openDataByRawPath(callback, filePath) {
+  var sCommand = 'xdg-open ' + filePath;
+  exec(sCommand, function(err, stdout, stderr) {
+    if (err) {
+      console.log(err, stdout, stderr);
+      return callback(err);
+    }
+    callback()
+  })
+}
+exports.openDataByRawPath = openDataByRawPath;

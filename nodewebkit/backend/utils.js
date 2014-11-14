@@ -1,4 +1,5 @@
 var path = require("path");
+var exec = require('child_process').exec;
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
