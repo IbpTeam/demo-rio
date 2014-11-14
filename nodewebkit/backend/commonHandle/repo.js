@@ -158,27 +158,11 @@ function getBranchList(stdout){
       line.pop(line[index]);
     }
   }
-  console.log("###################################" + line);
-  for (var index in line) {
-    if (line[index].indexOf('data/') == -1) {
-      line.pop(line[index]);
-    }
-  }
-  console.log("###################################" + line);
-  for (var index in line) {
-    var endIndex = line[index].indexOf('|');
-    line[index] = line[index].substring(0, endIndex).trim();
-  }
-  console.log("###################################" + line);
-  for (var index in line) {
-    console.log(line[index]);
-  }
   console.log("###################################"+line);
-  line.shift();
   return line;
 } 
 
-exports.haveBranch = function (resourcesPath,branch)
+exports.haveBranch = function (resourcesPath,branch,callback)
 {
   var sBaseName = path.basename(resourcesPath);
   var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
@@ -188,21 +172,23 @@ exports.haveBranch = function (resourcesPath,branch)
   cp.exec(cmd,function(error,stdout,stderr){
     console.log(stdout+stderr);
     var branchList=getBranchList(stdout);
-    if(branchList.in_array(branch)){
-      return true;
+    for (var index in branchList) {
+      if(branchList[index]==branch){
+        console.log("have branch : "+branch);
+        callback(true) ;
+      }
     }
-    else{
-      return false;
-    }
+    console.log("have no branch : "+branch);
+    callback(false) ;
   });
 }
 
 exports.addBranch = function (deviceId,address,account,resourcesPath,callback)
 {
+console.log("add branch : "+deviceId);
   var sBaseName = path.basename(resourcesPath);
   var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
   var cp = require('child_process');
-  //var cmd = 'cd '+sLocalResourcesPath+'&& git pull '+account+'@'+address+':'+resourcesPath;
   var cmd = 'cd '+sLocalResourcesPath+'&& git remote add '+deviceId+' '+account+'@'+address+':'+resourcesPath;
   console.log(cmd);
   cp.exec(cmd,function(error,stdout,stderr){
@@ -258,7 +244,7 @@ exports.pullFromOtherRepo = function (resourcesPath,branch,callback)
   var sBaseName = path.basename(resourcesPath);
   var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
   var cp = require('child_process');
-  var cmd = 'cd '+sLocalResourcesPath+'&& git checkout '+deviceId;
+  var cmd = 'cd '+sLocalResourcesPath+'&& git checkout '+branch;
   console.log(cmd);
   cp.exec(cmd,function(error,stdout,stderr){
     console.log(stdout+stderr);
@@ -270,12 +256,12 @@ exports.pullFromOtherRepo = function (resourcesPath,branch,callback)
       console.log(cmd);
       cp.exec(cmd,function(error,stdout,stderr){
         console.log(stdout+stderr);
-        var cmd = 'cd '+sLocalResourcesPath+'&& git diff --name-only '+deviceId;
+        var cmd = 'cd '+sLocalResourcesPath+'&& git diff --name-only '+branch;
         console.log(cmd);
         cp.exec(cmd,function(error,stdout,stderr){
           console.log(stdout+stderr);
           var fileList=getPullFileList(stdout);
-          var cmd = 'cd '+sLocalResourcesPath+'&& git merge '+deviceId;
+          var cmd = 'cd '+sLocalResourcesPath+'&& git merge '+branch;
           console.log(cmd);
           cp.exec(cmd,function(error,stdout,stderr){
             console.log(stdout+stderr);
