@@ -427,14 +427,14 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
   console.log("=============================="+repoPath);
   console.log("=============================="+desRepoPath);
   if(repo.haveBranch(repoPath,deviceId)==false){
-    addBranch(deviceId,address,account,repoPath,callback(branchName){
+    addBranch(deviceId,address,account,repoPath,function(branchName){
       if(branchName!=deviceId){
         console.log("addBranch error");
       }
       else{
         repo.pullFromOtherRepo(repoPath,deviceId,function(realFileNames){
           if(repo.haveBranch(desRepoPath,deviceId)==false){
-            addBranch(deviceId,address,account,desRepoPath,callback(branchName){
+            addBranch(deviceId,address,account,desRepoPath,function(branchName){
               if(branchName!=deviceId){
                console.log("addBranch error");
               }
@@ -479,7 +479,7 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
   else{
     repo.pullFromOtherRepo(repoPath,deviceId,function(realFileNames){
       if(repo.haveBranch(desRepoPath,deviceId)==false){
-        addBranch(deviceId,address,account,desRepoPath,callback(branchName){
+        addBranch(deviceId,address,account,desRepoPath,function(branchName){
           if(branchName!=deviceId){
             console.log("addBranch error");
           }
