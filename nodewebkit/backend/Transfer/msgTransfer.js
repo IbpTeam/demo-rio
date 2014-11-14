@@ -268,7 +268,7 @@ function getPubKey(callback){
  */
 exports.serviceUp = function(device){
   console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+device.ip);
-  if(device.ip != "192.168.162.122"){
+  if(device.ip != "192.168.162.72"){
     return;
   }
   switch(iCurrentState){
