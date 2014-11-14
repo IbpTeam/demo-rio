@@ -212,8 +212,8 @@ exports.initDesktop = initDesktop;
 
 
 /** 
- * @Method: readConfFile
- *    read file *.conf
+ * @Method: readJSONFile
+ *    read a json file, so far including *.conf, *.list, *.cache in local
  *
  * @param: callback
  *    @result, (_err,result)
@@ -227,20 +227,23 @@ exports.initDesktop = initDesktop;
  *
  *
  **/
-function readConfFile(filePath, desFilePath, callback) {
+function readJSONFile(filePath, desFilePath, callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
     fs.readFile(filePath, 'utf8', function(err, data) {
       if (err) {
-        console.log("read Theme config file error!");
+        console.log("read config file error!");
         console.log(err);
-        var _err = "readThemeConf : read Theme config file error!";
+        var _err = "readThemeConf : read config file error!";
         callback(_err, null);
+      } else if (!desFilePath) {
+        var json = JSON.parse(data);
+        callback(null, json);
       } else {
         var op = 'access';
         updateDesFile(op, desFilePath, function(err, result) {
           if (err) {
-            console.log('update theme des file error!\n', err);
+            console.log('update des file error!\n', err);
             callback(err, null);
           } else {
             resourceRepo.repoChsCommit(DES_REPO_DIR, [desFilePath], null, function() {
@@ -273,7 +276,7 @@ exports.readThemeConf = readThemeConf;
  *
  *
  **/
-function writeConfFile(filePath, desFilePath, oTheme, callback) {
+function writeJSONFile(filePath, desFilePath, oTheme, callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
     fs.readFile(filePath, 'utf-8', function(err, data) {
@@ -297,7 +300,7 @@ function writeConfFile(filePath, desFilePath, oTheme, callback) {
       var sThemeModified = JSON.stringify(oData, null, 4);
       fs.writeFile(filePath, sThemeModified, function(err) {
         if (err) {
-          console.log("write Theme config file error!");
+          console.log("write config file error!");
           console.log(err);
           callback(err, null);
         } else {
@@ -362,7 +365,7 @@ function writeConfFile(filePath, desFilePath, oTheme, callback) {
 function readThemeConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    readConfFile(THEME_PATH, THEME_DES_PATH, function(err, result) {
+    readJSONFile(THEME_PATH, THEME_DES_PATH, function(err, result) {
       callback(err, result);
     })
   } else {
@@ -416,7 +419,7 @@ exports.readThemeConf = readThemeConf;
 function writeThemeConf(callback, oTheme) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    writeConfFile(THEME_PATH, THEME_DES_PATH, oTheme, function(err, result) {
+    writeJSONFile(THEME_PATH, THEME_DES_PATH, oTheme, function(err, result) {
       callback(err, result);
     })
   } else {
@@ -464,8 +467,11 @@ exports.writeThemeConf = writeThemeConf;
 function readWidgetConf(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    readConfFile(WIGDET_PATH, WIGDET_DES_PATH, function(err, result) {
+    readJSONFile(WIGDET_PATH, WIGDET_DES_PATH, function(err, result) {
       callback(err, result);
+      readAppMethod(function(err, result) {
+        console.log(err, result);
+      }, 'defaults.list')
     })
   } else {
     console.log("Not a linux system! Not supported now!")
@@ -512,7 +518,7 @@ exports.readWidgetConf = readWidgetConf;
 function writeWidgetConf(callback, oWidget) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    writeConfFile(WIGDET_PATH, WIGDET_DES_PATH, oWidget, function(err, result) {
+    writeJSONFile(WIGDET_PATH, WIGDET_DES_PATH, oWidget, function(err, result) {
       callback(err, result);
     })
   } else {
@@ -520,6 +526,31 @@ function writeWidgetConf(callback, oWidget) {
   }
 }
 exports.writeWidgetConf = writeWidgetConf;
+
+
+/** 
+ * @Method: readAppMethod
+ *    read .list/.cache file
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain a specific error info.
+ *
+ *    @param2: result,
+ *        object, the result in json object.
+ *         (see object example above in comment of buildAppMethodInfo())
+ *
+ *
+ **/
+function readAppMethod(callback, sFileName) {
+  var sFilePath = pathModule.join(REAL_APP_DIR, sFileName);
+  readJSONFile(sFilePath, null, function(err, result) {
+    callback(err, result);
+  })
+}
+exports.readAppMethod = readAppMethod;
 
 /** 
  * @Method: readDesktopFile
@@ -845,7 +876,23 @@ function findDesktopFile(callback, filename) {
   }
 }
 
-function deParseListFile(result, filepath, callback) {
+/** 
+ * @Method: deParseListFile
+ *    To transe a .list/.cache file into a json object. The result would store
+ *    in the object output
+ *
+ *  @param1: output
+ *    object, this input object stores the reulst for multiple use.
+ *
+ * @param1: filepath
+ *    string, a full path string,
+ *            as: '/usr/share/applications/defaults.list'
+ *
+ * @param2: callabck
+ *    callback without return anything
+ *
+ **/
+function deParseListFile(output, filepath, callback) {
   fs.readFile(filepath, function(err, data) {
     if (err) {
       console.log(err);
@@ -867,24 +914,67 @@ function deParseListFile(result, filepath, callback) {
         for (var j = 0; j < entry_sec.length; j++) {
           var entry_sec_ = entry_sec[j];
           if (entry_sec_ !== '') {
-            if (!result[entry_fir]) {
-              result[entry_fir] = {};
-              result[entry_fir][entry_sec_] = [content_sec];
-            } else if (!result[entry_fir][entry_sec_]) {
-              result[entry_fir][entry_sec_] = [content_sec];
+            if (!output[entry_fir]) {
+              output[entry_fir] = {};
+              output[entry_fir][entry_sec_] = [content_sec];
+            } else if (!output[entry_fir][entry_sec_]) {
+              output[entry_fir][entry_sec_] = [content_sec];
             } else {
-              if (!utils.isExist(content_sec, result[entry_fir][entry_sec_])) {
-                result[entry_fir][entry_sec_].push(content_sec);
+              if (!utils.isExist(content_sec, output[entry_fir][entry_sec_])) {
+                output[entry_fir][entry_sec_].push(content_sec);
               }
             }
           }
         }
       }
     }
-    callback(result);
+    callback();
   })
 }
 
+/** 
+ * @Method: buildAppMethodInfo
+ *    To write a .list/.cache file into a json file. File name would remain at
+ *    and the file content would a in json.
+ *
+ *    content example as below:
+ *
+ *    {
+ *     "application": {
+ *        "glade-3.desktop": [
+ *          "x-glade"
+ *        ],
+ *        "gnumeric.desktop": [
+ *          "x-gnumeric"
+ *        ]
+ *      },
+ *      "image": {
+ *
+ *        "totem.desktop": [
+ *          "vnd.rn-realpix"
+ *        ],
+ *        "gimp.desktop": [
+ *          "x-psd"
+ *        ]
+ *      },
+ *      "inode": {
+ *        "nemo.desktop": [
+ *          "directory"
+ *        ],
+ *        "caja.desktop": [
+ *          "directory"
+ *        ]
+ *      }
+ *    }
+ *
+ *
+ * @param1: targetFile
+ *    string, a file name, should be eihter 'defaults.list' or 'mimeinfo.cache'
+ *
+ * @param2: callabck
+ *    Callback would return err if err occurs;otherwise return null.
+ *
+ **/
 function buildAppMethodInfo(targetFile, callback) {
   utils.findFilesFromSystem(targetFile, function(err, result) {
     if (err) {
@@ -899,7 +989,7 @@ function buildAppMethodInfo(targetFile, callback) {
     var count = 0;
     for (var i = 0; i < lens; i++) {
       (function(listContent, filepath, callback_) {
-        deParseListFile(listContent, filepath, function(result) {
+        deParseListFile(listContent, filepath, function() {
           console.log(isEnd);
           var isEnd = (count === lens - 1);
           if (isEnd) {

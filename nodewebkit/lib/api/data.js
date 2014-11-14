@@ -415,12 +415,12 @@ function pasteFile(pasteFileCb, filename, category) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     } else {
-      if(category == 'document' || category == 'music' || category == 'picture'){
+      if (category == 'document' || category == 'music' || category == 'picture') {
         var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result){
-          if(err != null){
+        cate.createData([desPath], function(err, result) {
+          if (err != null) {
             pasteFileCb(false);
-          }else{
+          } else {
             cp.exec("rm " + desPath, function(error, stdout, stderr) {
               pasteFileCb(result);
             });
@@ -437,18 +437,18 @@ exports.pasteFile = pasteFile;
 //返回类型：成功返回success;失败返回失败原因
 function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var desPath = '/tmp/'+filename;
+  var desPath = '/tmp/' + filename;
   cp.exec("touch " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     } else {
-      if(category == 'document' || category == 'music' || category == 'picture'){
+      if (category == 'document' || category == 'music' || category == 'picture') {
         var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result){
-          if(err != null){
+        cate.createData([desPath], function(err, result) {
+          if (err != null) {
             createFileCb(false);
-          }else{
+          } else {
             cp.exec("rm " + desPath, function(error, stdout, stderr) {
               createFileCb(result);
             });
@@ -1058,6 +1058,29 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
   desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
 }
 exports.renameDesktopFile = renameDesktopFile;
+
+
+/** 
+ * @Method: readAppMethod
+ *    read .list/.cache file
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain a specific error info.
+ *
+ *    @param2: result,
+ *        object, the result in json object.
+ *         (see object example in comment of buildAppMethodInfo())
+ *
+ *
+ **/
+function readAppMethod(readAppMethodCb, sFileName) {
+  console.log("Request handler 'readAppMethod' was called.");
+  desktopConf.readAppMethod(readAppMethodCb, sFileName);
+}
+exports.readAppMethod = readAppMethod;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();

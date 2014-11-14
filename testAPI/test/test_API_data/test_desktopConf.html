@@ -349,23 +349,22 @@
     });
   }
 
-  function renameDesktopFileCb(err, result) {
+  function readAppMethodCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win,err);
     } else {
-      win.document.write("test API renameDesktopFile()");
+      win.document.write("test API readAppMethod()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_renameDesktopFile(renameDesktopFileCb) {
+  function test_readAppMethod(readAppMethodCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldName = 'totem';
-      var newName = 'test_rename';
-      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+      var sFileName = 'defaults.list';
+      data.readAppMethod(readAppMethodCb,sFileName);
     });
   }
 
@@ -815,6 +814,37 @@
       var oldPath = 'cinnamon';
       var newPath = 'test_rename';
       data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('readAppMethod')">readAppMethod(readAppMethodCb)<span><a class="mark" href="#test_readAppMethod" id="test_readAppMethod" onclick="test_readAppMethod(readAppMethodCb)">test</a></span></h2>
+<div id="readAppMethod" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readAppMethodCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API readAppMethod()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_readAppMethod(readAppMethodCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFileName = 'defaults';
+      data.readAppMethod(readAppMethodCb, sFileName);
     });
   }
 </pre>
