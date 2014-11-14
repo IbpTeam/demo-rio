@@ -525,7 +525,11 @@ function syncOnline(msgObj) {
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   if(iCurrentState == syncState.SYNC_IDLE){
-    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
+    if(repo.haveBranch(msgObj.path,msgObj.deviceId)==false){
+      console.log("Unknown device!!!!!!!!!!!");
+      return;
+    }
+    repo.pullFromOtherRepo(msgObj.path,msgObj.deviceId,function(result){
       console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
       var aFilePaths = new Array();
 

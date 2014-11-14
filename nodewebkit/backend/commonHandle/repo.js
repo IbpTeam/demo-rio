@@ -130,6 +130,81 @@ exports.getLatestCommit = function(repoPath, callback) {
   });
 }
 
+function getBranchList(stdout){
+  var line=stdout.split("\n");
+  for(var index in line){
+    if(line[index].indexOf('|')==-1 ){
+      line.pop(line[index]);
+    }
+  }
+  console.log("###################################"+line);
+  for(var index in line){
+    if(line[index].indexOf('data/')==-1){
+      line.pop(line[index]);
+    }
+  }
+  console.log("###################################"+line);
+  for(var index in line){
+    var endIndex=line[index].indexOf('|');
+    line[index]=line[index].substring(0,endIndex).trim();
+  }
+  console.log("###################################"+line);
+  for(var index in line){
+    console.log(line[index]);
+  }
+  console.log("###################################"+line);
+  line.shift();
+  return line;
+} 
+
+exports.haveBranch = function (resourcesPath,branch)
+{
+  var sBaseName = path.basename(resourcesPath);
+  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
+  var cp = require('child_process');
+  var cmd = 'cd '+sLocalResourcesPath+'&& git branch';
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var branchList=getBranchList(stdout);
+    if(branchList.in_array(branch)){
+      return true;
+    }
+    else{
+      return false;
+    }
+  });
+}
+
+exports.addBranch = function (deviceId,address,account,resourcesPath,callback)
+{
+  var sBaseName = path.basename(resourcesPath);
+  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
+  var cp = require('child_process');
+  //var cmd = 'cd '+sLocalResourcesPath+'&& git pull '+account+'@'+address+':'+resourcesPath;
+  var cmd = 'cd '+sLocalResourcesPath+'&& git remote add '+deviceId+' '+account+'@'+address+':'+resourcesPath;
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var cmd = 'cd '+sLocalResourcesPath+'&& git fetch '+deviceId;
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      var cmd = 'cd '+sLocalResourcesPath+'&& git checkout -b '+deviceId+' '+deviceId+'/master';
+      console.log(cmd);
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        var cmd = 'cd '+sLocalResourcesPath+'&& git checkout master';
+        console.log(cmd);
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          callback(deviceId);
+        });
+      });
+    });
+  });
+}
+
 function getPullFileList(stdout){
   var line=stdout.split("\n");
   for(var index in line){
@@ -152,22 +227,42 @@ function getPullFileList(stdout){
   for(var index in line){
     console.log(line[index]);
   }
-
   console.log("###################################"+line);
   line.shift();
   return line;
 } 
 
-exports.pullFromOtherRepo = function (deviceId,address,account,resourcesPath,callback)
+exports.pullFromOtherRepo = function (resourcesPath,branch,callback)
 {
   var sBaseName = path.basename(resourcesPath);
   var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
   var cp = require('child_process');
-  var cmd = 'cd '+sLocalResourcesPath+'&& git pull '+account+'@'+address+':'+resourcesPath;
+  var cmd = 'cd '+sLocalResourcesPath+'&& git checkout '+deviceId;
   console.log(cmd);
   cp.exec(cmd,function(error,stdout,stderr){
     console.log(stdout+stderr);
-    callback(getPullFileList(stdout));
+    var cmd = 'cd '+sLocalResourcesPath+'&& git pull';
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      var cmd = 'cd '+sLocalResourcesPath+'&& git checkout master';
+      console.log(cmd);
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        var cmd = 'cd '+sLocalResourcesPath+'&& git diff --name-only '+deviceId;
+        console.log(cmd);
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          var fileList=getPullFileList(stdout);
+          var cmd = 'cd '+sLocalResourcesPath+'&& git merge '+deviceId;
+          console.log(cmd);
+          cp.exec(cmd,function(error,stdout,stderr){
+            console.log(stdout+stderr);
+            callback(fileList);
+          });
+        });
+      });
+    });
   });
 }
 
