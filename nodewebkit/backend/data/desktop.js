@@ -18,6 +18,7 @@ var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var resourceRepo = require("../commonHandle/repo");
 var desFilesHandle = require("../commonHandle/desFilesHandle");
+var utils = require('../utils');
 var util = require('util');
 var events = require('events');
 var uniqueID = require("../uniqueID");
@@ -181,8 +182,17 @@ function initDesktop(callback) {
                             console.log(err);
                             return;
                           }
-                          console.log('build local desktop file success');
-                          callback("success");
+                          buildAppMethodInfo('defaults.list', function(err, result) {
+                            if (err) {
+                              console.log(err);
+                              return;
+                            }
+                            buildAppMethodInfo('mimeinfo.cache', function(err, result) {
+                              console.log(result);
+                              console.log('build local desktop file success');
+                              callback("success");
+                            })
+                          })
                         });
                       });
                     });
@@ -564,8 +574,6 @@ function readDesktopFile(callback, sFileName) {
         var _err = "readDesktopFile : find desktop file error!";
         callback(_err, null);
       } else {
-        console.log('======================');
-        console.log(result);
         var sPath = result;
 
         function parseDesktopFileCb(err, attr) {
@@ -750,7 +758,7 @@ function deParseDesktopFile(callback, oDesktop) {
     throw 'Bad type for callback';
   if (typeof oDesktop !== 'object') {
     +
-      console.log("error : oDesktop is not an object!");
+    console.log("error : oDesktop is not an object!");
     var _err = "deParseDesktopFile : input is not an object!";
     callback(_err, null);
   } else if (oDesktop === {}) {
@@ -772,34 +780,6 @@ function deParseDesktopFile(callback, oDesktop) {
   }
 }
 
-function findDesktopFileFromSystem(fileName, callback) {
-  if (typeof callback !== 'function')
-    throw 'Bad type for callback';
-  exec('echo $XDG_DATA_DIRS', function(err, stdout, stderr) {
-    if (err) {
-      console.log('echo $XDG_DATA_DIRS error!');
-      console.log(err, stderr);
-      return callback(err, null);
-    }
-    var sCommand = 'locate ' + fileName;
-    console.log(sCommand);
-    exec(sCommand, function(err, stdout, stderr) {
-      if (err) {
-        console.log('find ' + fileName + ' error!');
-        console.log(err, stderr);
-        return callback(err, null);
-      }
-      if (stdout == '') {
-        var _err = "Not find at all!";
-        console.log(_err);
-        return callback(_err, null);
-      }
-      result = stdout.split('\n');
-      return callback(null, result[0]);
-
-    });
-  })
-}
 
 /** 
  * @Method: findDesktopFile
@@ -835,14 +815,15 @@ function findDesktopFile(callback, filename) {
       }
       if (stdout == '') {
         console.log('Not Found in Local!');
-        findDesktopFileFromSystem(sFileName, function(err, result) {
+        utils.findFilesFromSystem(sFileName, function(err, result) {
           if (err) {
             console.log(err);
             return callback(err, null);
           }
+          var desktopFilePath = result[0];
           var sNewFilePath = pathModule.join(sAppPath, sFileName);
-          console.log("find desktop file: ", result);
-          fs_extra.copy(result, sNewFilePath, function(err) {
+          console.log("find desktop file: ", desktopFilePath);
+          fs_extra.copy(desktopFilePath, sNewFilePath, function(err) {
             if (err) {
               console.log('copy file error!\n', err);
               return callback(err, null);
@@ -864,6 +845,81 @@ function findDesktopFile(callback, filename) {
   }
 }
 
+function deParseListFile(result, filepath, callback) {
+  fs.readFile(filepath, function(err, data) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    data = data.toString();
+    var data_ = data.split('\n');
+    data_.shift();
+    for (var i = 0; i < data_.length; i++) {
+      var item = data_[i];
+      if (item !== '') {
+        item = item.split('/');
+        var entry_fir = item[0];
+        var content_fir = item[1];
+        content_fir = content_fir.split('=');
+        var entry_sec = content_fir[1];
+        var content_sec = content_fir[0];
+        entry_sec = entry_sec.split(';');
+        for (var j = 0; j < entry_sec.length; j++) {
+          var entry_sec_ = entry_sec[j];
+          if (entry_sec_ !== '') {
+            if (!result[entry_fir]) {
+              result[entry_fir] = {};
+              result[entry_fir][entry_sec_] = [content_sec];
+            } else if (!result[entry_fir][entry_sec_]) {
+              result[entry_fir][entry_sec_] = [content_sec];
+            } else {
+              if (!utils.isExist(content_sec, result[entry_fir][entry_sec_])) {
+                result[entry_fir][entry_sec_].push(content_sec);
+              }
+            }
+          }
+        }
+      }
+    }
+    callback(result);
+  })
+}
+
+function buildAppMethodInfo(targetFile, callback) {
+  utils.findFilesFromSystem(targetFile, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    if (result[result.length - 1] == '') {
+      result.pop();
+    }
+    var result_ = {};
+    var lens = result.length;
+    var count = 0;
+    for (var i = 0; i < lens; i++) {
+      (function(listContent, filepath, callback_) {
+        deParseListFile(listContent, filepath, function(result) {
+          console.log(isEnd);
+          var isEnd = (count === lens - 1);
+          if (isEnd) {
+            console.log(result);
+            var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
+            var sListContent = JSON.stringify(listContent, null, 4);
+            fs.writeFile(outPutPath, sListContent, function(err) {
+              if (err) {
+                console.log(err);
+                callback(err);
+              }
+              callback(null);
+            })
+          }
+          count++;
+        })
+      })(result_, result[i], callback);
+    }
+  })
+}
 
 /** 
  * @Method: buildDesFile
