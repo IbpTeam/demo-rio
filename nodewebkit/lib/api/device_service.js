@@ -10,106 +10,13 @@ var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 
 
-function deviceStateCb(signal, obj) {
-  interface = obj.interface;
-  protocol = obj.protocol;
-  name = obj.name;
-  stype = obj.stype;
-  domain = obj.domain;
-  host = obj.host;
-  aprotocol = obj.aprotocol;
-  address = obj.address;
-  port = obj.port;
-  txt = obj.txt;
-  flags = obj.flags;
-  if (obj == null || obj.txt == null) {
-    return;
-  }
-  if (obj.txt[0] == "demo-rio") {
-    var device = {
-      device_id: obj.txt[1],
-      name: obj.txt[2],
-      resourcePath: obj.txt[3],
-      ip: obj.txt[4],
-      account: obj.txt[5]
-    };
-    switch (signal) {
-      case 'ItemNew':
-        {
-          console.log(device.device_id, device.name);
-        }
-        break;
-      case 'ItemRemove':
-        {
-          console.log(device.device_id);
-        }
-        break;
-    }
-  }
-}
-
-function deviceStateCbbyAccount(signal, obj) {
-  interface = obj.interface;
-  protocol = obj.protocol;
-  name = obj.name;
-  stype = obj.stype;
-  domain = obj.domain;
-  host = obj.host;
-  aprotocol = obj.aprotocol;
-  address = obj.address;
-  port = obj.port;
-  txt = obj.txt;
-  flags = obj.flags;
-  //console.log(obj);
-  if (obj == null || obj.txt == null) {
-    return;
-  }
-  if (obj.txt[0] == "demo-rio") {
-    var device = {
-      device_id: obj.txt[1],
-      name: obj.txt[2],
-      resourcePath: obj.txt[3],
-      ip: obj.txt[4],
-      account: obj.txt[5]
-    };
-    switch (signal) {
-      case 'ItemNew':
-        {
-          console.log('ItemNew');
-        }
-        break;
-      case 'ItemRemove':
-        {
-          console.log('ItemRemove');
-        }
-        break;
-    }
-  }
-  switch (signal) {
-    case 'ItemNew':
-      console.log('A new device is add, obj: ', obj);
-      break;
-    case 'ItemRemove':
-      console.log('A device is removed, obj: ', obj);
-      break;
-  }
-}
-
-
-function devicePublishCb() {
-  var name = 'demo-rio';
-  var port = '8885';
-  var txtarray = ['demo-rio', LOCALACCOUNT, LOCALUUID];
-  mdns.entryGroupCommit(name, port, txtarray);
-}
-
 /**
  * @method getUserList
  *  获取当前局域网内的用户列表
  *
- * @param1 UserListCb
+ * @param UserListCb
  *   回调函数
- *  @list
+ *  @param1 arr
  *   Array, 该数组代表当前局域网内的用户列表
  *
  */
@@ -133,15 +40,15 @@ exports.getUserList = getUserList;
  * @method getDeviceByAccount
  *  获取当前局域网内某一账户下的所有设备列表
  *
- * @param1 Account
- *  string，表示待获取设备列表的账户
- * @param2 DeviceListCb
+ * @param DeviceListCb
  *   回调函数
- *  @list
+ *  @param1
  *   Array, 该数组代表当前局域网内的某一用户下设备列表
+ * @param Account
+ *  string，表示待获取设备列表的账户
  *
  */
-function getDeviceByAccount(Account, DeviceListCb) {
+function getDeviceByAccount(DeviceListCb, Account) {
   mdns.showDeviceList(function(args) {
     deviceList = args;
     var obj;
@@ -157,53 +64,38 @@ function getDeviceByAccount(Account, DeviceListCb) {
 }
 exports.getDeviceByAccount = getDeviceByAccount;
 
-function showDeviceListCb(args) {
-  deviceList = args;
-  console.log("\n=====device list as below=====");
-  var cnt = 1;
-  var obj;
-  for (address in deviceList) {
-    obj = deviceList[address]
-    var txtarray = obj.txt
-    var txt = ''
-    for (var i = 0; i < txtarray.length; i++) {
-      txt += (txtarray[i] + '; ');
-    }
-    console.log(obj.address + ':' + obj.port + ' - ' + '"' + obj.name + '" (' + txt + ')');
-  }
-}
 
 
 /**
  * @method addListenerByAccount
  *  为设备添加监听函数，当某一用户下的设备上下线时，触发相应的回调函数
  *
- * @param1 Account
+ * @param ListenerCb
+ *   回调函数
+ *  @param1 obj
+ *   object
+ *   其中，obj中的flag字段，表示用来区分设备的上线或下线，其值为"up"或"down"
+ *   obj中的info字段，指定帐户内的设备信息，包括设备ip，设备名称，附加字段。
+ *   example:
+ *   { flag: 'up',
+ *  info:
+ *  { interface: 2,
+ *  protocol: 0,
+ *  name: 'demo-rio',
+ *  stype: '_http._tcp',
+ *  domain: 'local',
+ *  host: 'rtty-Junyi-M580.local',
+ *  aprotocol: 0,
+ *  address: '192.168.1.100',
+ *  port: 8885,
+ *  txt: [ 'demo-rio', 'USER1', '0ace23c24390ca960a7edfe26b7aaa47' ],
+ *  flags: 29 } }
+ * @param Account
  *  string，表示待监听的用户账户
- * @param2 UpBack
- *   回调函数
- *  @obj
- *   object, 指定帐户内的设备信息，包括设备ip，设备名称，附加字段
- * @param3 DownBack
- *   回调函数
- *  @obj
- *   object, 指定帐户内的设备信息，包括设备ip，设备名称，附加字段
  *
  */
-function addListenerByAccount(Account, UpBack, DownBack) {
+function addListenerByAccount(ListenerCb, Account) {
   mdns.addDeviceListener(function(signal, obj) {
-    interface = obj.interface;
-    protocol = obj.protocol;
-    name = obj.name;
-    stype = obj.stype;
-    domain = obj.domain;
-    host = obj.host;
-    aprotocol = obj.aprotocol;
-    address = obj.address;
-    port = obj.port;
-    txt = obj.txt;
-    flags = obj.flags;
-    //console.log(obj);
     if (obj == null || obj.txt == null) {
       return;
     }
@@ -219,16 +111,22 @@ function addListenerByAccount(Account, UpBack, DownBack) {
         switch (signal) {
           case 'ItemNew':
             {
+              var UpCbPara = {
+                flag: "up",
+                info: obj
+              };
               console.log("this is in addListenerByAccount function, account: ", Account);
-              console.log(device.device_id, device.name);
-              UpBack(obj);
+              ListenerCb(UpCbPara);
             }
             break;
           case 'ItemRemove':
             {
+              var DownCbPara = {
+                flag: "down",
+                info: obj
+              };
               console.log("this is in addListenerByAccount function, account: ", Account);
-              console.log(device.device_id);
-              DownBack(obj);
+              ListenerCb(DownCbPara);
             }
             break;
         }
@@ -239,57 +137,56 @@ function addListenerByAccount(Account, UpBack, DownBack) {
 exports.addListenerByAccount = addListenerByAccount;
 
 /**
- * @method addListenerByAccount
+ * @method addListener
  *  为设备添加监听函数，当设备上下线时，触发相应的回调函数
  *
- * @param1 UpBack
+ * @param ListenerCb
  *   回调函数
- *  @obj
- *   object, 上线的设备信息，包括设备ip，设备名称，附加字段
- * @param2 DownBack
- *   回调函数
- *  @obj
- *   object, 下线的设备信息，包括设备ip，设备名称，附加字段
+ *  @param1 obj
+ *   object
+ *   其中，obj中的flag字段，表示用来区分设备的上线或下线，其值为"up"或"down"
+ *   obj中的info字段，指定帐户内的设备信息，包括设备ip，设备名称，附加字段。
+ *   example:
+ *   { flag: 'up',
+ *  info:
+ *  { interface: 2,
+ *  protocol: 0,
+ *  name: 'demo-rio',
+ *  stype: '_http._tcp',
+ *  domain: 'local',
+ *  host: 'rtty-Junyi-M580.local',
+ *  aprotocol: 0,
+ *  address: '192.168.1.100',
+ *  port: 8885,
+ *  txt: [ 'demo-rio', 'USER1', '0ace23c24390ca960a7edfe26b7aaa47' ],
+ *  flags: 29 } }
  *
  */
-function addListener(UpBack, DownBack) {
+function addListener(ListenerCb) {
   mdns.addDeviceListener(function(signal, obj) {
-    // interface = obj.interface;
-    protocol = obj.protocol;
-    name = obj.name;
-    stype = obj.stype;
-    domain = obj.domain;
-    host = obj.host;
-    aprotocol = obj.aprotocol;
-    address = obj.address;
-    port = obj.port;
-    txt = obj.txt;
-    flags = obj.flags;
-    //console.log(obj);
     if (obj == null || obj.txt == null) {
       return;
     }
     if (obj.txt[0] == "demo-rio") {
-      var device = {
-        device_id: obj.txt[1],
-        name: obj.txt[2],
-        resourcePath: obj.txt[3],
-        ip: obj.txt[4],
-        account: obj.txt[5]
-      };
       switch (signal) {
         case 'ItemNew':
           {
+            var UpCbPara = {
+              flag: "up",
+              info: obj
+            };
             console.log("this is in addListener function");
-            console.log(device.device_id, device.name);
-            UpBack(obj);
+            ListenerCb(UpCbPara);
           }
           break;
         case 'ItemRemove':
           {
+            var DownCbPara = {
+              flag: "down",
+              info: obj
+            };
             console.log("this is in addListener function");
-            console.log(device.device_id);
-            DownBack(obj);
+            ListenerCb(DownCbPara);
           }
           break;
       }
@@ -301,38 +198,67 @@ exports.addListener = addListener;
 /**
  * @method startMdnsService
  *  开启设备发现服务，同时广播本机的信息
+ *   @param StateCb
+ *   回调函数
+ *    @param1 state
+ *     bool 当成功开启设备发现服务时，值为true，否则为false
  *
  */
-function startMdnsService() {
-  mdns.createServer(devicePublishCb);
+function startMdnsService(StateCb) {
+  try {
+    mdns.createServer(function() {
+      var name = 'demo-rio';
+      var port = '8885';
+      var txtarray = ['demo-rio', LOCALACCOUNT, LOCALUUID];
+      mdns.entryGroupCommit(name, port, txtarray);
+      StateCb(true);
+    });
+  } catch (err) {
+    console.log(err);
+    StateCb(false);
+  }
 }
 exports.startMdnsService = startMdnsService;
 
-/**
- * @method startMdnsListener
- *  在调用addListener或者addListenerByAccount，添加监听回调函数之后，调用本函数开启设备发现服务
- *
- */
-function startMdnsListener() {
-  mdns.createServer(function() {});
-}
-exports.startMdnsListener = startMdnsListener;
 
 /**
  * @method deviceDown
  *  发布本机设备下线信息
+ *  @param StateCb
+ *   @param1 state
+ *    bool 当成功发布设备下线消息时，值为true，否则为false
  *
  */
-function deviceDown() {
-  setTimeout(function() {
-    mdns.entryGroupReset()
-  }, 0);
+function deviceDown(StateCb) {
+  try {
+    setTimeout(function() {
+      mdns.entryGroupReset()
+    }, 0);
+    StateCb(true);
+  } catch (err) {
+    console.log(err);
+    StateCb(false);
+  }
 }
 exports.deviceDown = deviceDown;
 
-function showDeviceList() {
+
+/**
+ * @method showDeviceList
+ *  获取当前局域网内的设备列表
+ *
+ * @param ListCb
+ *   回调函数
+ *  @param1 arr
+ *   Array, 该数组代表当前局域网内的用户列表，详细使用说明见test_dev.js
+ *
+ */
+function showDeviceList(ListCb) {
   setTimeout(function() {
-    mdns.showDeviceList(showDeviceListCb)
+    mdns.showDeviceList(function(args) {
+      deviceList = args;
+      ListCb(deviceList);
+    })
   }, 0);
 }
 exports.showDeviceList = showDeviceList;
