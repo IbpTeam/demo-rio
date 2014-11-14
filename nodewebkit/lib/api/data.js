@@ -23,13 +23,13 @@ var dskhandle = require('../../backend/data/desktop');
 var repo = require('../../backend/commonHandle/repo');
 
 /*
-*getLocalData
-*/
-function getLocalData(getLocalDataCb){
-  var localJson={};
-  localJson['account']=imChat.LOCALACCOUNT;
-  localJson['UID']=imChat.LOCALUUID;
- 
+ *getLocalData
+ */
+function getLocalData(getLocalDataCb) {
+  var localJson = {};
+  localJson['account'] = imChat.LOCALACCOUNT;
+  localJson['UID'] = imChat.LOCALUUID;
+
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
@@ -44,8 +44,8 @@ function startIMChatServer(startIMChatServerCb) {
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb,ipset, toAccount,msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,toAccount, msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb, ipset, toAccount, msg) {
+  imChat.sendMSGbyUIDNoRSA(ipset, toAccount, msg, 6986, sendIMMsgCb);
 }
 exports.sendIMMsg = sendIMMsg;
 
@@ -347,14 +347,12 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
           console.log(err_mus);
           return;
         }
-        console.log(result_mus);
         allItems = allItems.concat(result_mus);
         vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
           if (err_vid) {
             console.log(err_vid);
             return;
           }
-          console.log(result_vid);
           allItems = allItems.concat(result_vid);
           var resultRecentAccess = utils.getRecent(allItems, num);
           console.log('get recent success!');
@@ -1171,3 +1169,30 @@ function repoReset(repoResetCb, category, commitID) {
   });
 }
 exports.repoReset = repoReset;
+
+function repoResetFile(repoResetFileCb, category, commitID, file) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoResetFile(commitID, function(err, result) {
+    if (err) {
+      var _err = {
+        'data': err
+      }
+      console.log(_err);
+      repoResetFileCb(_err, null);
+    } else {
+      commonHandle.updateDB(category, function(err, result) {
+        if (err) {
+          var _err = {
+            'data': err
+          }
+          console.log(_err, null);
+        } else {
+          console.log('reset ' + category + ' repo success!');
+          repoResetFileCb(null, result);
+        }
+      })
+    }
+  });
+}
+exports.repoResetFile = repoResetFile;
