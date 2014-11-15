@@ -78,7 +78,7 @@
   }
   function test_readThemeConf(readThemeConfCb) {
     WDC.requireAPI(['data'], function(data) {
-      data.readThemeConf(readThemeConfCb);
+      data.readDesktopConfig(readThemeConfCb,'Theme.conf');
     });
   }
 
@@ -105,7 +105,7 @@
         test: "object_tesdast",
         modify: 1
       }
-      data.writeThemeConf(writeThemeConfCb, oTheme);
+      data.writeDesktopConfig(writeThemeConfCb,'Theme.conf',oTheme);
     });
   }
 
@@ -122,10 +122,9 @@
       print(win, result)
     };
   }
-
   function test_readWidgetConf(readWidgetConfCb) {
     WDC.requireAPI(['data'], function(data) {
-      data.readWidgetConf(readWidgetConfCb);
+    data.readDesktopConfig(readWidgetConfCb,"Widget.conf");
     });
   }
 
@@ -152,7 +151,7 @@
         test: "objectasd",
         modify: 1
       }
-      data.writeWidgetConf(writeWidgetConfCb, oTheme);
+      data.writeDesktopConfig(writeWidgetConfCb,'Widget.conf', oTheme);
     });
   }
 
@@ -172,8 +171,8 @@
 
   function test_readDesktopFile(readDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'totem';
-      data.readDesktopFile(readDesktopFileCb, sFileName);
+      var sFileName = 'totem.desktop';
+      data.readDesktopConfig(readDesktopFileCb, sFileName);
     });
   }
 
@@ -227,29 +226,9 @@
 
   function test_writeDesktopFile(writeDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'totem';
+      var sFileName = 'totem.desktop';
       var oEntries = test_entry;
-      data.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
-    });
-  }
-
-  function findAllDesktopFilesCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API findAllDesktopFiles()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_findAllDesktopFiles(findAllDesktopFilesCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'cinnamon.desktop';
-      var oEntries = {};
-      data.findAllDesktopFiles(findAllDesktopFilesCb);
+      data.writeDesktopConfig(writeDesktopFileCb,sFileName, oEntries);
     });
   }
 
@@ -349,10 +328,29 @@
     });
   }
 
-  function renameDesktopFileCb(err, result) {
+  function readAppMethodCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win,err);
+    } else {
+      win.document.write("test API readAppMethod()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_readAppMethod(readAppMethodCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFileName = 'defaults.list';
+      data.readDesktopConfig(readAppMethodCb,sFileName);
+    });
+  }
+
+  function renameDesktopFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
     } else {
       win.document.write("test API renameDesktopFile()");
       win.document.write("<br/>");
@@ -363,9 +361,9 @@
   }
   function test_renameDesktopFile(renameDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldName = 'totem';
-      var newName = 'test_rename';
-      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+      var sFileName = 'totem';
+      var newName = 'test_totem';
+      data.renameDesktopFile(renameDesktopFileCb, sFileName, newName);
     });
   }
 
@@ -614,37 +612,6 @@
 </div>
 </div>
 
-<h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(findAllDesktopFilesCb)">test</a></span></h2>
-<div id="findAllDesktopFiles" style="display:none;">
-<div style="color:#930000">
-  <pre>
-
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function findAllDesktopFilesCb(err,result){
-    if(err){
-      print(err);
-    }else{
-    var win = window.open('');
-    win.document.write("test API findAllDesktopFiles()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result)
-  };
-  }
-  function test_findAllDesktopFiles(findAllDesktopFilesCb){
-    WDC.requireAPI(['data'], function(data){
-      var fileName = 'cinnamon.desktop';
-      data.findAllDesktopFiles(findAllDesktopFilesCb);
-    });
-  }    
-</pre>
-</div>
-</div>
-
 <h2 onclick="show('CreateWatcher')">CreateWatcher(CreateWatcherCb)<span><a class="mark" href="#test_CreateWatcher" id="test_CreateWatcher" onclick="test_CreateWatcher(CreateWatcherCb)">test</a></span></h2>
 <div id="CreateWatcher" style="display:none;">
 <div style="color:#930000">
@@ -812,9 +779,40 @@
   }
   function test_renameDesktopFile(renameDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldPath = 'cinnamon';
-      var newPath = 'test_rename';
-      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+      var sFileName = 'totem.desktop';
+      var newName = 'test_totem'
+      data.renameDesktopFile(renameDesktopFileCb, sFileName, newName);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('readAppMethod')">readAppMethod(readAppMethodCb)<span><a class="mark" href="#test_readAppMethod" id="test_readAppMethod" onclick="test_readAppMethod(readAppMethodCb)">test</a></span></h2>
+<div id="readAppMethod" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function readAppMethodCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API readAppMethod()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_readAppMethod(readAppMethodCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFileName = 'defaults';
+      data.readAppMethod(readAppMethodCb, sFileName);
     });
   }
 </pre>

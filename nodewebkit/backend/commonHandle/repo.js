@@ -64,7 +64,7 @@ exports.repoRmsCommit = function(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git rm error",error,stderr);
+      console.log("Git rm error", error, stderr);
     } else {
       console.log("Git rm success");
       callback();
@@ -88,7 +88,7 @@ exports.repoChsCommit = function(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error",error,stdout);
+      console.log("Git change error", error, stdout);
     } else {
       console.log("Git change success");
       callback();
@@ -109,7 +109,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error",error,stdout);
+      console.log("Git change error", error, stdout);
     } else {
       console.log("Git change success");
       callback();
@@ -225,12 +225,14 @@ exports.getGitLog = function(repoPath, callback) {
     for (var i = 0; i < tmpLog.length; i++) {
       var Item = tmpLog[i];
       if (Item !== "") {
-        var re_Author = /Author:/;
-        var re_Data = /Datae:/;
-        var re_Merge = /Merge:/;
+        var re_Author = /Author/;
+        var re_Data = /Datae/;
+        var re_Merge = /Merge/;
+        var re_relate = /relateCommit/;
         var logItem = Item.split('\n');
         var tmplogItem = {};
         tmplogItem.commitID = logItem[0];
+        logItem.shift();
         for (var i = 0; i < logItem.length; i++) {
           var item = logItem[i];
           if (re_Author.test(item)) {
@@ -239,8 +241,8 @@ exports.getGitLog = function(repoPath, callback) {
             tmplogItem.Date = item.replace(/Date:/, "");
           } else if (re_Merge.test(item)) {
             tmplogItem.Merge = item.replace(/Merge:/, "");
-          } else if (item !== '') {
-            tmplogItem.content = JSON.parse(item);
+          } else if(re_relate.test(item)){
+              tmplogItem.content = JSON.parse(item);
           }
         }
         commitLog[tmplogItem.commitID] = tmplogItem;
