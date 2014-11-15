@@ -234,7 +234,7 @@ function initContacts(loadContactsCb, resourcePath) {
 exports.initContacts = initContacts;
 
 function updateDataValue(item, callback) {
-  console.log('????????????????name: ', item)
+  console.log('update value : ', item)
   var desFilePath = pathModule.join(DES_DIR, item.name + '.md');
   dataDes.updateItem(desFilePath, item, function(result) {
     if (result === "success") {

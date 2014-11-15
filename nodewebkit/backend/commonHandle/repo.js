@@ -64,7 +64,7 @@ exports.repoRmsCommit = function(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git rm error");
+      console.log("Git rm error", error, stderr);
     } else {
       console.log("Git rm success");
       callback();
@@ -88,7 +88,7 @@ exports.repoChsCommit = function(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error");
+      console.log("Git change error", error, stdout);
     } else {
       console.log("Git change success");
       callback();
@@ -109,7 +109,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error");
+      console.log("Git change error", error, stdout);
     } else {
       console.log("Git change success");
       callback();
@@ -151,43 +151,110 @@ exports.getLatestCommit = function(repoPath, callback) {
   });
 }
 
-function getPullFileList(stdout) {
-  var line = stdout.split("\n");
-  for (var index in line) {
-    if (line[index].indexOf('|') == -1) {
+function getBranchList(stdout){
+  var line=stdout.split("\n");
+  for(var index in line){
+    if(line[index].indexOf('|')==-1 ){
       line.pop(line[index]);
     }
   }
-  console.log("###################################" + line);
-  for (var index in line) {
-    if (line[index].indexOf('data/') == -1) {
-      line.pop(line[index]);
-    }
-  }
-  console.log("###################################" + line);
-  for (var index in line) {
-    var endIndex = line[index].indexOf('|');
-    line[index] = line[index].substring(0, endIndex).trim();
-  }
-  console.log("###################################" + line);
-  for (var index in line) {
-    console.log(line[index]);
-  }
+  console.log("###################################"+line);
+  return line;
+} 
 
-  console.log("###################################" + line);
-  line.shift();
+exports.haveBranch = function (resourcesPath,branch,callback)
+{
+  var sBaseName = path.basename(resourcesPath);
+  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
+  var cp = require('child_process');
+  var cmd = 'cd '+sLocalResourcesPath+'&& git branch';
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var branchList=getBranchList(stdout);
+    for (var index in branchList) {
+      if(branchList[index]==branch){
+        console.log("have branch : "+branch);
+        callback(true) ;
+      }
+    }
+    console.log("have no branch : "+branch);
+    callback(false) ;
+  });
+}
+
+exports.addBranch = function (deviceId,address,account,resourcesPath,callback)
+{
+console.log("add branch : "+deviceId);
+  var sBaseName = path.basename(resourcesPath);
+  var sLocalResourcesPath=path.join(process.env["HOME"],".resources",sBaseName);
+  var cp = require('child_process');
+  var cmd = 'cd '+sLocalResourcesPath+'&& git remote add '+deviceId+' '+account+'@'+address+':'+resourcesPath;
+  console.log(cmd);
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var cmd = 'cd '+sLocalResourcesPath+'&& git fetch '+deviceId;
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      var cmd = 'cd '+sLocalResourcesPath+'&& git checkout -b '+deviceId+' '+deviceId+'/master';
+      console.log(cmd);
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        var cmd = 'cd '+sLocalResourcesPath+'&& git checkout master';
+        console.log(cmd);
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          callback(deviceId);
+        });
+      });
+    });
+  });
+}
+
+function getPullFileList(stdout){
+  var line=stdout.split("\n");
+  for(var index in line){
+    if(line[index]=="" ){
+      line.pop(line[index]);
+    }
+  }
   return line;
 }
 
-exports.pullFromOtherRepo = function(deviceId, address, account, resourcesPath, callback) {
+exports.pullFromOtherRepo = function (resourcesPath,branch,callback)
+{
   var sBaseName = path.basename(resourcesPath);
   var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
   var cp = require('child_process');
-  var cmd = 'cd ' + sLocalResourcesPath + '&& git pull ' + account + '@' + address + ':' + resourcesPath;
+  var cmd = 'cd '+sLocalResourcesPath+'&& git checkout '+branch;
   console.log(cmd);
-  cp.exec(cmd, function(error, stdout, stderr) {
-    console.log(stdout + stderr);
-    callback(getPullFileList(stdout));
+  cp.exec(cmd,function(error,stdout,stderr){
+    console.log(stdout+stderr);
+    var cmd = 'cd '+sLocalResourcesPath+'&& git pull';
+    console.log(cmd);
+    cp.exec(cmd,function(error,stdout,stderr){
+      console.log(stdout+stderr);
+      var cmd = 'cd '+sLocalResourcesPath+'&& git checkout master';
+      console.log(cmd);
+      cp.exec(cmd,function(error,stdout,stderr){
+        console.log(stdout+stderr);
+        var cmd = 'cd '+sLocalResourcesPath+'&& git diff --name-only '+branch;
+        console.log(cmd);
+        cp.exec(cmd,function(error,stdout,stderr){
+          console.log(stdout+stderr);
+          var fileList=getPullFileList(stdout);
+          console.log("fileList:");
+          console.log(fileList);
+          var cmd = 'cd '+sLocalResourcesPath+'&& git merge '+branch;
+          console.log(cmd);
+          cp.exec(cmd,function(error,stdout,stderr){
+            console.log(stdout+stderr);
+            callback(fileList);
+          });
+        });
+      });
+    });
   });
 }
 
@@ -225,12 +292,14 @@ exports.getGitLog = function(repoPath, callback) {
     for (var i = 0; i < tmpLog.length; i++) {
       var Item = tmpLog[i];
       if (Item !== "") {
-        var re_Author = /Author:/;
-        var re_Data = /Datae:/;
-        var re_Merge = /Merge:/;
+        var re_Author = /Author/;
+        var re_Data = /Datae/;
+        var re_Merge = /Merge/;
+        var re_relate = /relateCommit/;
         var logItem = Item.split('\n');
         var tmplogItem = {};
         tmplogItem.commitID = logItem[0];
+        logItem.shift();
         for (var i = 0; i < logItem.length; i++) {
           var item = logItem[i];
           if (re_Author.test(item)) {
@@ -239,8 +308,8 @@ exports.getGitLog = function(repoPath, callback) {
             tmplogItem.Date = item.replace(/Date:/, "");
           } else if (re_Merge.test(item)) {
             tmplogItem.Merge = item.replace(/Merge:/, "");
-          } else if (item !== '') {
-            tmplogItem.content = JSON.parse(item);
+          } else if(re_relate.test(item)){
+              tmplogItem.content = JSON.parse(item);
           }
         }
         commitLog[tmplogItem.commitID] = tmplogItem;
