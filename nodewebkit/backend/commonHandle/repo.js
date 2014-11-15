@@ -215,27 +215,10 @@ console.log("add branch : "+deviceId);
 function getPullFileList(stdout){
   var line=stdout.split("\n");
   for(var index in line){
-    if(line[index].indexOf('|')==-1 ){
+    if(line[index]=="" ){
       line.pop(line[index]);
     }
   }
-  console.log("###################################"+line);
-  for(var index in line){
-    if(line[index].indexOf('data/')==-1){
-      line.pop(line[index]);
-    }
-  }
-  console.log("###################################"+line);
-  for(var index in line){
-    var endIndex=line[index].indexOf('|');
-    line[index]=line[index].substring(0,endIndex).trim();
-  }
-  console.log("###################################"+line);
-  for(var index in line){
-    console.log(line[index]);
-  }
-  console.log("###################################"+line);
-  line.shift();
   return line;
 }
 
@@ -261,6 +244,8 @@ exports.pullFromOtherRepo = function (resourcesPath,branch,callback)
         cp.exec(cmd,function(error,stdout,stderr){
           console.log(stdout+stderr);
           var fileList=getPullFileList(stdout);
+          console.log("fileList:");
+          console.log(fileList);
           var cmd = 'cd '+sLocalResourcesPath+'&& git merge '+branch;
           console.log(cmd);
           cp.exec(cmd,function(error,stdout,stderr){
