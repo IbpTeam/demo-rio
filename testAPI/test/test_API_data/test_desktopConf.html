@@ -347,6 +347,26 @@
     });
   }
 
+  function renameDesktopFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win,err);
+    } else {
+      win.document.write("test API renameDesktopFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_renameDesktopFile(renameDesktopFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFileName = 'totem.desktop';
+      var ,newName = 'test_totem';
+      data.renameDesktopFile(renameDesktopFileCb,sFileName,newName);
+    });
+  }
+
 
   </script>
 
