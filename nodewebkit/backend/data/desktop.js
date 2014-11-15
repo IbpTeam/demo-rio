@@ -258,7 +258,6 @@ function readJSONFile(filePath, desFilePath, callback) {
     console.log("Not a linux system! Not supported now!");
   }
 }
-exports.readThemeConf = readThemeConf;
 
 /** 
  * @Method: readThemeConf
@@ -327,119 +326,15 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
   }
 }
 
-
 /** 
- * @Method: readThemeConf
- *    read file Theme.conf
- *
- * @param: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "readThemeConf : read Theme config file error!"
- *
- *    @param2: result,
- *        object, the result in object
- *
- *    object example:
- *    {
- *       "icontheme": {
- *           "name": "Mint-X",
- *           "active": true,
- *           "icon": null,
- *           "path": "$HOME",
- *           "id": "computer",
- *           "pos": {
- *               "x": null,
- *               "y": null
- *           }
- *       },
- *     "computer": {
- *           ...
- *           }
- *          ...
- *    }
- *
- **/
-function readThemeConf(callback) {
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    readJSONFile(THEME_PATH, THEME_DES_PATH, function(err, result) {
-      callback(err, result);
-    })
-  } else {
-    console.log("Not a linux system! Not supported now!");
-  }
-}
-exports.readThemeConf = readThemeConf;
-
-
-
-/** 
- * @Method: writeThemeConf
- *    modify file Theme.conf
- *
- * @param: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "writeThemeConf : read Theme.conf error!"
- *                write error : "writeThemeConf : write Theme config file error!"
- *
- *    @param2: result,
- *        string, retrieve success when success
- *
- * @param: oTheme
- *    object, only content that needs to be modified
- *
- *    oThem example:
- *    var oTheme =
- *    {
- *       "icontheme": {
- *           "name": "Mint-X",
- *           "active": true,
- *           "icon": null,
- *           "path": "$HOME",
- *           "id": "computer",
- *           "pos": {
- *               "x": null,
- *               "y": null
- *           }
- *       },
- *     "computer": {
- *           ...
- *           }
- *          ...
- *    }
- *
- *
- **/
-function writeThemeConf(callback, oTheme) {
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    writeJSONFile(THEME_PATH, THEME_DES_PATH, oTheme, function(err, result) {
-      callback(err, result);
-    })
-  } else {
-    console.log("Not a linux system! Not supported now!")
-  }
-}
-exports.writeThemeConf = writeThemeConf;
-
-
-
-/** 
- * @Method: readWidgetConf
+ * @Method: readConf
  *    read file Widget.conf
  *
- * @param: callback
+ * @param1: callback
  *    @result, (_err,result)
  *
  *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "readWidgetConf : read Theme config file error!"
+ *        string, contain specific error info.
  *
  *    @param2: result,
  *        object, the result in object
@@ -463,34 +358,45 @@ exports.writeThemeConf = writeThemeConf;
  *          ...
  *    }
  *
+ *  @param2: sFileName
+ *    string, a short file name.
+ *            for now we only have 2 type: 'Theme.conf', 'Widget.conf'.
+ *
+ *
  **/
-function readWidgetConf(callback) {
+function readConf(callback, sFileName) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    readJSONFile(WIGDET_PATH, WIGDET_DES_PATH, function(err, result) {
+    if (sFileName === 'Theme.conf') {
+      var sFileDir = THEME_PATH;
+      var sDesFileDir = THEME_DES_PATH;
+      console.log('reading Theme.conf!');
+    } else if (sFileName === 'Widget.conf') {
+      var sFileDir = WIGDET_PATH;
+      var sDesFileDir = WIGDET_DES_PATH;
+      console.log('reading Widget.conf!');
+    } else {
+      var _err = 'Error: Not a .conf file!';
+      console.log(_err)
+      return callback(_err, null);
+    }
+    readJSONFile(sFileDir, sDesFileDir, function(err, result) {
       callback(err, result);
-      readAppMethod(function(err, result) {
-        console.log(err, result);
-      }, 'defaults.list')
     })
   } else {
     console.log("Not a linux system! Not supported now!")
   }
-
 }
-exports.readWidgetConf = readWidgetConf;
 
 /** 
- * @Method: writeThemeConf
- *    modify file Theme.conf
+ * @Method: writeConf
+ *    modify a file .conf
  *
  * @param: callback
  *    @result, (_err,result)
  *
  *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "writeWidgetConf : read Widget.conf error!"
- *                write error : "writeWidgetConf : write Widget config file error!"
+ *        string, contain specific error info.
  *
  *    @param2: result,
  *        object, the result in object
@@ -515,24 +421,36 @@ exports.readWidgetConf = readWidgetConf;
  *    }
  *
  **/
-function writeWidgetConf(callback, oWidget) {
+function writeConf(callback, sFileName, oContent) {
   var systemType = os.type();
   if (systemType === "Linux") {
-    writeJSONFile(WIGDET_PATH, WIGDET_DES_PATH, oWidget, function(err, result) {
+    if (sFileName === 'Theme.conf') {
+      var sFileDir = THEME_PATH;
+      var sDesFileDir = THEME_DES_PATH;
+      console.log('writing Theme.conf!');
+    } else if (sFileName === 'Widget.conf') {
+      var sFileDir = WIGDET_PATH;
+      var sDesFileDir = WIGDET_DES_PATH;
+      console.log('writing Widget.conf!');
+    } else {
+      var _err = 'Error: Bad .conf file!';
+      console.log(_err)
+      return callback(_err, null);
+    }
+    writeJSONFile(sFileDir, sDesFileDir, oContent, function(err, result) {
       callback(err, result);
     })
   } else {
     console.log("Not a linux system! Not supported now!");
   }
 }
-exports.writeWidgetConf = writeWidgetConf;
 
 
 /** 
  * @Method: readAppMethod
  *    read .list/.cache file
  *
- * @param: callback
+ * @param1: callback
  *    @result, (_err,result)
  *
  *    @param1: _err,
@@ -542,6 +460,9 @@ exports.writeWidgetConf = writeWidgetConf;
  *        object, the result in json object.
  *         (see object example above in comment of buildAppMethodInfo())
  *
+ *  @param2: sFileName
+ *     string, a short file name as "defaults.list".
+ *
  *
  **/
 function readAppMethod(callback, sFileName) {
@@ -550,7 +471,6 @@ function readAppMethod(callback, sFileName) {
     callback(err, result);
   })
 }
-exports.readAppMethod = readAppMethod;
 
 /** 
  * @Method: readDesktopFile
@@ -592,8 +512,8 @@ exports.readAppMethod = readAppMethod;
  *  }
  *
  * @param2: sFileName
- *    string,name of target file ,suffix is not required
- *    example: var sFileName = 'cinnamon';
+ *    string,name of target file ,postfix is required
+ *    example: var sFileName = 'cinnamon.desktop';
  *
  **/
 function readDesktopFile(callback, sFileName) {
@@ -614,7 +534,7 @@ function readDesktopFile(callback, sFileName) {
             callback(_err, null);
           } else {
             var op = 'access';
-            var desFilePath = pathModule.join(DES_APP_DIR, sFileName + '.desktop.md');
+            var desFilePath = pathModule.join(DES_APP_DIR, sFileName + '.md');
             updateDesFile(op, desFilePath, function(err, result) {
               if (err) {
                 console.log('update ' + sFileName + ' des file error!\n', err);
@@ -636,7 +556,6 @@ function readDesktopFile(callback, sFileName) {
     console.log("Not a linux system! Not supported now!");
   }
 }
-exports.readDesktopFile = readDesktopFile;
 
 /** 
  * @Method: parseDesktopFile
@@ -823,8 +742,8 @@ function deParseDesktopFile(callback, oDesktop) {
  *            as: '/usr/share/applications/cinnamon.desktop'
  *
  * @param2: sFileName
- *    string, a short file name, no posfix
- *    exmple: var sFileName = 'cinnamon';
+ *    string, a short file name, a posfix is reauqired
+ *    exmple: var sFileName = 'cinnamon.desktop';
  *
  **/
 function findDesktopFile(callback, filename) {
@@ -832,7 +751,7 @@ function findDesktopFile(callback, filename) {
     throw 'Bad type for callback';
   var systemType = os.type();
   if (systemType === "Linux") {
-    var sFileName = filename + '.desktop';
+    var sFileName = filename;
     var xdgDataDir = [];
     var sAppPath = REAL_DIR + '/applications';
     var sBoundary = sAppPath + ' -name ';
@@ -859,6 +778,7 @@ function findDesktopFile(callback, filename) {
               console.log('copy file error!\n', err);
               return callback(err, null);
             }
+            filename = filename.replace(/.desktop/, '');
             buildDesFile(filename, 'desktop', sNewFilePath, function() {
               console.log('find ' + sFileName + ' success!');
               return callback(null, sNewFilePath);
@@ -991,7 +911,6 @@ function buildAppMethodInfo(targetFile, callback) {
     for (var i = 0; i < lens; i++) {
       (function(listContent, filepath, callback_) {
         deParseListFile(listContent, filepath, function() {
-          console.log(isEnd);
           var isEnd = (count === lens - 1);
           if (isEnd) {
             console.log(result);
@@ -1000,9 +919,9 @@ function buildAppMethodInfo(targetFile, callback) {
             fs.writeFile(outPutPath, sListContent, function(err) {
               if (err) {
                 console.log(err);
-                callback(err);
+                return callback(err);
               }
-              callback(null);
+              callback('success');
             })
           }
           count++;
@@ -1278,7 +1197,100 @@ function writeDesktopFile(callback, sFileName, oEntries) {
     console.log("Not a linux system! Not supported now!");
   }
 }
-exports.writeDesktopFile = writeDesktopFile;
+
+/** 
+ * @Method: readDesktopConfig
+ *    To read desktop config file. Including .conf, .desktop, .list and . cache
+ *
+ * @param1: sFileName
+ *    string, a short name as 'cinnamon.desktop', the postfix is required.
+ *
+ * @param2: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error info.
+ *
+ *    @param2: result,
+ *        object, result in json, more detail example in specifc function commn-
+ *                ent.
+ *
+ **/
+function readDesktopConfig(sFileName, callback) {
+  var postfix = utils.getPostfix(sFileName);
+  switch (postfix) {
+    case "conf":
+      {
+        return readConf(callback, sFileName);
+      }
+      break;
+    case "desktop":
+      {
+        return readDesktopFile(callback, sFileName);
+      }
+      break;
+    case "list":
+      {
+        return readAppMethod(callback, sFileName);
+      }
+      break;
+    case "cache":
+      {
+        return readAppMethod(callback, sFileName);
+      }
+      break;
+    default:
+      {
+        var _err = 'Error: bad file name or type not supported!';
+        return callback(_err, null);
+      }
+  }
+}
+exports.readDesktopConfig = readDesktopConfig;
+
+/** 
+ * @Method: writeDesktopConfig
+ *    To modify desktop config file. Including .conf, .desktop, .list and . cac-
+ *    he
+ *
+ * @param1: sFileName
+ *    string, a short name as 'cinnamon.desktop', the postfix is required.
+ *
+ * @param2: oContent
+ *    object, content to modify, should a object, more detail example in specifc
+ *            function commnent.
+ *
+ * @param3: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error info.
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ **/
+function writeDesktopConfig(sFileName, oContent, callback) {
+  var postfix = utils.getPostfix(sFileName);
+  switch (postfix) {
+    case "conf":
+      {
+        return writeConf(callback, sFileName, oContent);
+      }
+      break;
+    case "desktop":
+      {
+        return writeDesktopFile(callback, sFileName, oContent);
+      }
+      break;
+    default:
+      {
+        var _err = 'Error: bad file name or type not supported!';
+        return callback(_err, null);
+      }
+  }
+}
+exports.writeDesktopConfig = writeDesktopConfig;
 
 //COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
 //modified by xiquan
@@ -1711,6 +1723,7 @@ function renameDesktopFile(callback, oldName, newName) {
   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
 }
 exports.renameDesktopFile = renameDesktopFile;
+
 
 function openDataByRawPath(callback, filePath) {
   var sCommand = 'xdg-open ' + filePath;
