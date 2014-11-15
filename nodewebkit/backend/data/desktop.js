@@ -279,7 +279,7 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
     fs.readFile(filePath, 'utf-8', function(err, data) {
       if (err) {
         console.log(err);
-        var _err = "read Theme.conf error!";
+        var _err = "write config file error!";
         callback(_err, null);
       }
       var oData = JSON.parse(data);
@@ -1730,7 +1730,7 @@ function openDataByRawPath(callback, filePath) {
       console.log(err, stdout, stderr);
       return callback(err);
     }
-    callback()
+    callback('success')
   })
 }
 exports.openDataByRawPath = openDataByRawPath;
