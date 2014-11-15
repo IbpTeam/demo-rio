@@ -23,13 +23,13 @@ var dskhandle = require('../../backend/data/desktop');
 var repo = require('../../backend/commonHandle/repo');
 
 /*
-*getLocalData
-*/
-function getLocalData(getLocalDataCb){
-  var localJson={};
-  localJson['account']=imChat.LOCALACCOUNT;
-  localJson['UID']=imChat.LOCALUUID;
- 
+ *getLocalData
+ */
+function getLocalData(getLocalDataCb) {
+  var localJson = {};
+  localJson['account'] = imChat.LOCALACCOUNT;
+  localJson['UID'] = imChat.LOCALUUID;
+
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
@@ -44,8 +44,8 @@ function startIMChatServer(startIMChatServerCb) {
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb,ipset, toAccount,msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,toAccount, msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb, ipset, toAccount, msg) {
+  imChat.sendMSGbyUIDNoRSA(ipset, toAccount, msg, 6986, sendIMMsgCb);
 }
 exports.sendIMMsg = sendIMMsg;
 
@@ -215,7 +215,7 @@ exports.getAllCate = getAllCate;
  */
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-  if (cate == 'Contacts' || cate == 'contacts') {
+  if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
     commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
@@ -317,7 +317,8 @@ exports.openDataByUri = openDataByUri;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  filesHandle.updateDataValue(updateDataValueCb, item);
+  var cate = utils.getCategoryObject(item[0].category);
+  cate.updateDataValue(item[0], updateDataValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
@@ -346,14 +347,12 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
           console.log(err_mus);
           return;
         }
-        console.log(result_mus);
         allItems = allItems.concat(result_mus);
         vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
           if (err_vid) {
             console.log(err_vid);
             return;
           }
-          console.log(result_vid);
           allItems = allItems.concat(result_vid);
           var resultRecentAccess = utils.getRecent(allItems, num);
           console.log('get recent success!');
@@ -405,24 +404,30 @@ exports.pullFromOtherRepo = pullFromOtherRepo;
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
 //返回类型：成功返回success;失败返回失败原因
-function pasteFile(pasteFileCb, sourcePath, desPath) {
+function pasteFile(pasteFileCb, filename, category) {
   console.log("Request handler 'pasteFile' was called.");
-  var filename = path.basename(sourcePath);
+  var name = path.basename(filename);
   var postfix = path.extname(filename);
-  if (sourcePath.indexOf(desPath) != -1) {
-    filename = path.basename(sourcePath, postfix);
-    desPath = utils.parsePath(desPath + '/' + filename + '_copy' + postfix);
-  } else {
-    desPath = utils.parsePath(desPath + '/' + filename);
-  }
-  var sourcePathNew = utils.parsePath(sourcePath);
-  cp.exec("cp " + sourcePathNew + " " + desPath, function(error, stdout, stderr) {
+  name = path.basename(filename, postfix);
+  var desPath = '/tmp/' + name + '_copy' + postfix;
+  cp.exec("cp " + filename + " " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
-      pasteFileCb(false);
+      creatFileCb(false);
+    } else {
+      if(category == 'document' || category == 'music' || category == 'picture'){
+        var cate = utils.getCategoryObject(category);
+        cate.createData([desPath], function(err, result){
+          if(err != null){
+            pasteFileCb(false);
+          }else{
+            cp.exec("rm " + desPath, function(error, stdout, stderr) {
+              pasteFileCb(result);
+            });
+          }
+        });
+      }
     }
-    //    filesHandle.addFile(desPath, pasteFileCb(true));
-    pasteFileCb(true);
   });
 }
 exports.pasteFile = pasteFile;
@@ -430,16 +435,26 @@ exports.pasteFile = pasteFile;
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因
-function createFile(creatFileCb, filePostfix, desPath) {
+function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var data = new Date();
-  desPath = utils.parsePath(desPath + '/NewFile_' + data.toLocaleString().replace(' ', '_') + '.' + filePostfix);
+  var desPath = '/tmp/'+filename;
   cp.exec("touch " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     } else {
-      creatFileCb(true);
+      if(category == 'document' || category == 'music' || category == 'picture'){
+        var cate = utils.getCategoryObject(category);
+        cate.createData([desPath], function(err, result){
+          if(err != null){
+            createFileCb(false);
+          }else{
+            cp.exec("rm " + desPath, function(error, stdout, stderr) {
+              createFileCb(result);
+            });
+          }
+        });
+      }
     }
   });
 }
@@ -1048,6 +1063,7 @@ function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
 exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
+
 /** 
  * @Method: getGitLog
  *    To get git log in a specific git repo
@@ -1153,3 +1169,30 @@ function repoReset(repoResetCb, category, commitID) {
   });
 }
 exports.repoReset = repoReset;
+
+function repoResetFile(repoResetFileCb, category, commitID, file) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoResetFile(commitID, function(err, result) {
+    if (err) {
+      var _err = {
+        'data': err
+      }
+      console.log(_err);
+      repoResetFileCb(_err, null);
+    } else {
+      commonHandle.updateDB(category, function(err, result) {
+        if (err) {
+          var _err = {
+            'data': err
+          }
+          console.log(_err, null);
+        } else {
+          console.log('reset ' + category + ' repo success!');
+          repoResetFileCb(null, result);
+        }
+      })
+    }
+  });
+}
+exports.repoResetFile = repoResetFile;

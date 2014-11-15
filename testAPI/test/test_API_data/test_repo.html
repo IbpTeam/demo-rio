@@ -16,17 +16,17 @@
 <body>
   <script language=javascript>  
 
-  var commit_id = "664fada60cc3c97c21fce472540dbc30a5607028";
+  var commit_id = "257ab40866dc2c98016986109578fd067671e9d7";
 
   function print(win,something){
     if(typeof something == "object"){
       win.document.write("{");
+      win.document.write("<br/>");
       for(var k in something){
         win.document.write(k);
         win.document.write(" : ");
         print(win,something[k]);
         win.document.write(", ");        
-        win.document.write("<br/>");
       }
       win.document.write("}");
       win.document.write("<br/>");
@@ -68,6 +68,25 @@
   function test_repoReset(repoResetCb){
     WDC.requireAPI(['data'], function(data){
       data.repoReset(repoResetCb,'document',commit_id);
+    });        
+  }
+
+  function repoResetFileCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoResetFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoResetFile(repoResetFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var file = '';
+      data.repoResetFile(repoResetFileCb,'document',commit_id,file);
     });        
   }
 
@@ -125,6 +144,37 @@
   function test_repoReset(repoResetCb){
     WDC.requireAPI(['data'], function(data){
       data.repoReset(repoResetCb,'document',commit_id);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('repoResetFile')">repoResetFile(repoResetFileCb)<span><a class="mark" href="#test_repoResetFile" id="test_repoResetFile" onclick="test_repoResetFile(repoResetFileCb)">test</a></span></h2>
+<div id="repoResetFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function repoResetFileCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoResetFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoResetFile(repoResetFileCb){
+    WDC.requireAPI(['data'], function(data){
+      data.repoResetFile(repoResetFileCb,'document',commit_id);
     });        
   }
   </pre>

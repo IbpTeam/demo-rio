@@ -682,7 +682,7 @@ function updateDataValue(updateDataValueCb, items) {
       var files = [];
       for (var k in items) {
         var desFilePath;
-        if (items[k].category === "Contacts") {
+        if (items[k].category === "Contact") {
           desFilePath = config.RESOURCEPATH + '/.des/contacts/' + items[k].name + '.md';
         } else {
           desFilePath = (items[k].path.replace(/\/resources\//, '/resources/.des/')) + '.md';

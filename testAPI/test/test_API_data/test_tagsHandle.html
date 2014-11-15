@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "ace6f9045d75a83682e76288f79dd824#67bcd2209e4ec7f60e97#Music";
+  var test_uri = "2111e5d173432405ee078cdbef46f0ab#af59e506a952b2de3bb7#document";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -102,7 +102,7 @@
   }
   function test_getFilesByTags(getFilesByTagsCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ['musics','pictures','documents'];
+      var oTags = ['music','picture','document'];
       var oUri = test_uri;
       data.getFilesByTags(getFilesByTagsCb,oTags);
     });  
@@ -134,12 +134,7 @@
   function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ["documents","Conference","Teaching","contactsphoto"];
-      var oUri = ["ace6f9045d75a83682e76288f79dd824#b1bff3cc39043f672b68#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#e000b5893d98dd2f200e#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#e7d263532a1a08f578cb#Documents",
-                  "ace6f9045d75a83682e76288f79dd824#cb8fe0069bbcf6949293#Documents",
-                  ];
-      data.rmTagsByUri(rmTagsByUriCb,oTags,oUri);
+      data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
     });  
   }
 

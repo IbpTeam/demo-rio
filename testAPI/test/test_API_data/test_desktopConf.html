@@ -101,8 +101,8 @@
       var oTheme = {
         tast: "good",
         this: "is",
-        only: "a",
-        test: "object",
+        only: "aasdas",
+        test: "object_tesdast",
         modify: 1
       }
       data.writeThemeConf(writeThemeConfCb, oTheme);
@@ -149,7 +149,7 @@
         tast: "good",
         this: "is",
         only: "a",
-        test: "object",
+        test: "objectasd",
         modify: 1
       }
       data.writeWidgetConf(writeWidgetConfCb, oTheme);
@@ -172,7 +172,7 @@
 
   function test_readDesktopFile(readDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'cinnamon';
+      var sFileName = 'totem';
       data.readDesktopFile(readDesktopFileCb, sFileName);
     });
   }
@@ -221,7 +221,7 @@
       "Name": "Play/Pause",
       "Exec": "totem --play-pause",
       "OnlyShowIn": "Unity;",
-      "test_entry": "good"
+      "test_entry": "goosd_test"
     }
   }
 
@@ -363,7 +363,7 @@
   }
   function test_renameDesktopFile(renameDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldName = 'cinnamon';
+      var oldName = 'totem';
       var newName = 'test_rename';
       data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
     });

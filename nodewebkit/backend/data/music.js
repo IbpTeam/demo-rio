@@ -32,9 +32,9 @@ var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "music";
-var DES_DIR = "musicDes";
+var DES_NAME = "musicDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_DIR);
+var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 /**
@@ -392,7 +392,7 @@ exports.getRecentAccessData = getRecentAccessData;
  */
 function pullRequest(deviceId,address,account,resourcesPath,callback){
   var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_DIR);
+  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
   commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
 }
 exports.pullRequest = pullRequest;
@@ -477,3 +477,44 @@ function repoReset(commitID, callback) {
   })
 }
 exports.repoReset = repoReset;
+
+function repoResetFile(commitID, file, callback) {
+  getGitLog(function(err, oGitLog) {
+    if (err) {
+      callback(err, null);
+    } else {
+      var desCommitID = oGitLog[commitID].content.relateCommit;
+      if (desCommitID) {
+        resourceRepo.repoResetFile(DES_REPO_DIR, file, desCommitID, null, function(err, result) {
+          if (err) {
+            console.log(err);
+            callback({
+              'document': err
+            }, null);
+          } else {
+            getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
+              resourceRepo.repoResetFile(REAL_REPO_DIR, file, commitID, relateCommitID, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  callback({
+                    'document': err
+                  }, null);
+                } else {
+                  console.log('reset success!')
+                  callback(null, result)
+                }
+              })
+            })
+          }
+        })
+      } else {
+        var _err = 'related des commit id error!';
+        console.log(_err);
+        callback({
+          'document': _err
+        }, null);
+      }
+    }
+  })
+}
+exports.repoResetFile = repoResetFile;

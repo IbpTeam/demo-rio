@@ -1,4 +1,4 @@
-var mdns = require('../lib/api/device.js');
+var mdns = require('../../nodewebkit/lib/api/device.js');
 function deviceStateCb(signal, obj){
   interface = obj.interface;
   protocol = obj.protocol;
