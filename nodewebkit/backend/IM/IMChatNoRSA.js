@@ -48,7 +48,7 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
     console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
-
+    
     c.on('data', function(msgStri) {
       console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
       var msgStr = JSON.parse(msgStri);
