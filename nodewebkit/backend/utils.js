@@ -193,16 +193,6 @@ exports.getRealRepoDir = function(category) {
   return path.join(process.env["HOME"], ".resources", category);
 }
 
-exports.getPostfix = function(substring) {
-  var pointIndex = substring.lastIndexOf('.');
-  if (pointIndex == -1) {
-    var itemPostfix = "";
-  } else {
-    var itemPostfix = substring.substr(pointIndex + 1);
-  }
-  return itemPostfix;
-}
-
 exports.getCategory = function(path) {
   var pointIndex = path.lastIndexOf('.');
   if (pointIndex == -1) {

@@ -1217,7 +1217,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
  *
  **/
 function readDesktopConfig(sFileName, callback) {
-  var postfix = utils.getPostfix(sFileName);
+  var postfix = pathModule.extname(sFileName);
   switch (postfix) {
     case "conf":
       {
@@ -1271,7 +1271,7 @@ exports.readDesktopConfig = readDesktopConfig;
  *
  **/
 function writeDesktopConfig(sFileName, oContent, callback) {
-  var postfix = utils.getPostfix(sFileName);
+  var postfix = pathModule.extname(sFileName);
   switch (postfix) {
     case "conf":
       {
