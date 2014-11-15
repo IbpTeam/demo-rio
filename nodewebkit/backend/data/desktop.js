@@ -41,22 +41,22 @@ var WIGDET_DES_PATH = pathModule.join(DES_DIR, 'Widget.conf.md');
 
 function newInit(initType) {
   var initTheme = {
-    name: null,
-    active: null,
-    icon: null,
-    path: null,
-    id: null,
+    name: 'undefined',
+    active: 'undefined',
+    icon: 'undefined',
+    path: 'undefined',
+    id: 'undefined',
     pos: {
-      x: null,
-      y: null
+      x: 'undefined',
+      y: 'undefined'
     }
   }
   var initWidget = {
-    id: null,
-    path: null,
+    id: 'undefined',
+    path: 'undefined',
     position: {
-      x: null,
-      y: null
+      x: 'undefined',
+      y: 'undefined'
     }
   }
   if (initType === "theme") {
@@ -70,13 +70,13 @@ function getnit(initType) {
   if (initType === "theme") {
     var _icontheme = newInit(initType);
     _icontheme.name = 'Mint-X';
-    _icontheme.active = true;
-    _icontheme.path = '$HOME';
-    _icontheme.id = 'computer';
+    _icontheme.active = false;
 
     var _computer = newInit(initType);
     _computer.name = 'Computer';
-    _computer.active = false;
+    _computer.active = true;
+    _computer.path = '$HOME';
+    _computer.id = 'computer';
 
     var _trash = newInit(initType);
     _trash.name = 'Trash';
@@ -97,21 +97,19 @@ function getnit(initType) {
       network: _network,
       document: _document
     }
-
-    return result;
   } else if (initType === "widget") {
-
-    var result = {
-      cat: newInit(initType),
-      book: newInit(initType),
-      boat: newInit(initType),
-      book1: newInit(initType),
-      totem_dock: newInit(initType),
-      firefox_dock: newInit(initType)
+    var _clock = newInit(initType);
+    _clock.name = 'clock';
+    _clock.path = '$img/clock.png'
+    _clock.position = {
+      x: 0,
+      y: 0
     }
-    return result;
+    var result = {
+      clock: _clock
+    }
   }
-
+  return result;
 }
 
 
@@ -1219,29 +1217,29 @@ function writeDesktopFile(callback, sFileName, oEntries) {
 function readDesktopConfig(sFileName, callback) {
   var postfix = pathModule.extname(sFileName);
   switch (postfix) {
-    case "conf":
+    case ".conf":
       {
         return readConf(callback, sFileName);
       }
       break;
-    case "desktop":
+    case ".desktop":
       {
         return readDesktopFile(callback, sFileName);
       }
       break;
-    case "list":
+    case ".list":
       {
         return readAppMethod(callback, sFileName);
       }
       break;
-    case "cache":
+    case ".cache":
       {
         return readAppMethod(callback, sFileName);
       }
       break;
     default:
       {
-        var _err = 'Error: bad file name or type not supported!';
+        var _err = 'Error: bad file name or type not supported! '+sFileName;
         return callback(_err, null);
       }
   }
@@ -1273,12 +1271,12 @@ exports.readDesktopConfig = readDesktopConfig;
 function writeDesktopConfig(sFileName, oContent, callback) {
   var postfix = pathModule.extname(sFileName);
   switch (postfix) {
-    case "conf":
+    case ".conf":
       {
         return writeConf(callback, sFileName, oContent);
       }
       break;
-    case "desktop":
+    case ".desktop":
       {
         return writeDesktopFile(callback, sFileName, oContent);
       }
