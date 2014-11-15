@@ -490,7 +490,10 @@ function Folder(jquery_element) {
       case 'device':
         im_view.showSend(file_json);
         break;
-      case 'other':
+      case 'contact':
+        get_all_data_file(file_json);
+        break;
+      case 'devices':
         get_all_data_file(file_json);
         break;
       }
