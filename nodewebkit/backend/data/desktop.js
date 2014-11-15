@@ -1239,7 +1239,7 @@ function readDesktopConfig(sFileName, callback) {
       break;
     default:
       {
-        var _err = 'Error: bad file name or type not supported! '+sFileName;
+        var _err = 'Error: bad file name or type not supported! ' + sFileName;
         return callback(_err, null);
       }
   }
@@ -1677,7 +1677,7 @@ exports.copyFile = copyFile;
  *
  * @param2: oldName
  *    string, file name of specific file you need to rename
- *    exmple: var oldName = 'exampleName'
+ *    exmple: var oldName = 'exampleName.desktop'
  *
  * @param3: newName
  *    string, a new name that you want to set
@@ -1685,7 +1685,7 @@ exports.copyFile = copyFile;
  *
  **/
 function renameDesktopFile(callback, oldName, newName) {
-  var sFilename = oldName;
+  var sFilename = oldName + '.desktop';
   var sDesFilePath = pathModule.join(DES_APP_DIR, oldName + '.desktop.md');
   var sNewDesFilePath = pathModule.join(DES_APP_DIR, newName + '.desktop.md');
   var oEntries = {

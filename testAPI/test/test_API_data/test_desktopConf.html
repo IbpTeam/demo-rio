@@ -350,7 +350,7 @@
   function renameDesktopFileCb(err, result) {
     var win = window.open('');
     if (err) {
-      print(win,err);
+      print(win, err);
     } else {
       win.document.write("test API renameDesktopFile()");
       win.document.write("<br/>");
@@ -361,9 +361,9 @@
   }
   function test_renameDesktopFile(renameDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'totem.desktop';
-      var ,newName = 'test_totem';
-      data.renameDesktopFile(renameDesktopFileCb,sFileName,newName);
+      var sFileName = 'totem';
+      var newName = 'test_totem';
+      data.renameDesktopFile(renameDesktopFileCb, sFileName, newName);
     });
   }
 
@@ -779,9 +779,9 @@
   }
   function test_renameDesktopFile(renameDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldPath = 'cinnamon';
-      var newPath = 'test_rename';
-      data.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+      var sFileName = 'totem.desktop';
+      var newName = 'test_totem'
+      data.renameDesktopFile(renameDesktopFileCb, sFileName, newName);
     });
   }
 </pre>
