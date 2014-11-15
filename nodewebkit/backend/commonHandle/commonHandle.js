@@ -426,22 +426,107 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
   //Second pull des file
   console.log("=============================="+repoPath);
   console.log("=============================="+desRepoPath);
-  repo.pullFromOtherRepo(deviceId,address,account,repoPath,function(realFileNames){
-    repo.pullFromOtherRepo(deviceId,address,account,desRepoPath,function(desFileNames){
-      var aFilePaths = new Array();
-      var sDesPath = utils.getDesRepoDir(category);
-      desFileNames.forEach(function(desFileName){
-        aFilePaths.push(path.join(sDesPath,desFileName));
+  repo.haveBranch(repoPath,deviceId,function(result){
+    if(result==false){
+      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
+      repo.addBranch(deviceId,address,account,repoPath,function(branchName){
+        if(branchName!=deviceId){
+          console.log("addBranch error");
+        }
+        else{
+          repo.pullFromOtherRepo(repoPath,deviceId,function(realFileNames){
+            repo.haveBranch(desRepoPath,deviceId,function(result){
+              if(result==false){
+                repo.addBranch(deviceId,address,account,desRepoPath,function(branchName){
+                  if(branchName!=deviceId){
+                   console.log("addBranch error");
+                  }
+                  else{
+                    repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+                      var aFilePaths = new Array();
+                      var sDesPath = utils.getDesRepoDir(category);
+                      desFileNames.forEach(function(desFileName){
+                        aFilePaths.push(path.join(sDesPath,desFileName));
+                      });
+                      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                      //TODO base on files, modify data in db
+                      dataDes.readDesFiles(aFilePaths,function(desObjs){
+                        dataDes.writeDesObjs2Db(desObjs,function(status){
+                          callback(deviceId,address,account);
+                        });
+                      });
+                    });
+                  }
+                });
+              }
+              else{
+                repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+                  var aFilePaths = new Array();
+                  var sDesPath = utils.getDesRepoDir(category);
+                  desFileNames.forEach(function(desFileName){
+                     aFilePaths.push(path.join(sDesPath,desFileName));
+                   });
+                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //TODO base on files, modify data in db
+                  dataDes.readDesFiles(aFilePaths,function(desObjs){
+                    dataDes.writeDesObjs2Db(desObjs,function(status){
+                      callback(deviceId,address,account);
+                    });
+                  });
+                });
+              }
+            });
+          });
+        }
       });
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-      //TODO base on files, modify data in db
-      dataDes.readDesFiles(aFilePaths,function(desObjs){
-        dataDes.writeDesObjs2Db(desObjs,function(status){
-          callback(deviceId,address,account);
+    }
+    else{
+      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
+      repo.pullFromOtherRepo(repoPath,deviceId,function(realFileNames){
+        repo.haveBranch(desRepoPath,deviceId,function(result){
+          if(result==false){
+            repo.addBranch(deviceId,address,account,desRepoPath,function(branchName){
+              if(branchName!=deviceId){
+                console.log("addBranch error");
+              }
+              else{
+                repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+                  var aFilePaths = new Array();
+                  var sDesPath = utils.getDesRepoDir(category);
+                  desFileNames.forEach(function(desFileName){
+                    aFilePaths.push(path.join(sDesPath,desFileName));
+                  });
+                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //TODO base on files, modify data in db
+                  dataDes.readDesFiles(aFilePaths,function(desObjs){
+                    dataDes.writeDesObjs2Db(desObjs,function(status){
+                      callback(deviceId,address,account);
+                    });
+                  });
+                });
+              }
+            });
+          }
+          else{
+            repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+              var aFilePaths = new Array();
+              var sDesPath = utils.getDesRepoDir(category);
+              desFileNames.forEach(function(desFileName){
+                aFilePaths.push(path.join(sDesPath,desFileName));
+              });
+              console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+              //TODO base on files, modify data in db
+              dataDes.readDesFiles(aFilePaths,function(desObjs){
+                dataDes.writeDesObjs2Db(desObjs,function(status){
+                  callback(deviceId,address,account);
+                });
+              });
+            });
+          }
         });
       });
-    });
-  });
+    }
+  }); 
 }
 exports.pullRequest = pullRequest;
 

@@ -124,7 +124,7 @@ function startDeviceDiscoveryService(){
       switch(signal){
         case 'ItemNew':{
           addDevice(device);
-          //msgTransfer.serviceUp(device);
+          msgTransfer.serviceUp(device);
         }       
         break;
         case 'ItemRemove':{
