@@ -5,6 +5,7 @@ var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
+var other = require("./data/other");
 var devices = require("./data/device");
 //@const
 var DATA_DIR = "data";
@@ -78,6 +79,12 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
+  }else{
+    return {
+      category: "other",
+      filename: itemFilename,
+      postfix: itemPostfix
+    };
   }
 }
 exports.getCategoryByPath = getCategoryByPath;
@@ -119,7 +126,7 @@ exports.getCategoryObject = function(category) {
       }
       break;
     default:
-      return null;
+      return other;
   }
 }
 
@@ -153,7 +160,7 @@ exports.getCategoryObjectByUri = function(sUri) {
       }
       break;
     default:
-      return null;
+      return other;
   }
 }
 
@@ -243,6 +250,12 @@ exports.getCategory = function(path) {
   } else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
     return {
       category: "Configuration",
+      filename: itemFilename,
+      postfix: itemPostfix
+    };
+  } else {
+    return {
+      category: "other",
       filename: itemFilename,
       postfix: itemPostfix
     };
