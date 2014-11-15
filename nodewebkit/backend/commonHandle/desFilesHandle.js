@@ -196,8 +196,10 @@ function writeDesObjs2Db(desObjs,callback){
     if(desObj.URI == null || desObj.URI == undefined){
       iSum++;
     }else{
-      var conditions = ["URI = " + "'" + uri + "'"];
-      commonDAO.findItems(null,desObjs.category,conditions,null,function(err,items){
+      var conditions = ["URI = " + "'" + desObj.URI + "'"];
+      console.log("desObjs:@@@@@@@@@@@@@@@@@@@@2");
+      console.log(desObj);
+      commonDAO.findItems(null,[desObj.category],conditions,null,function(err,items){
         if(err){
           console.log(err);
           callback("error");
