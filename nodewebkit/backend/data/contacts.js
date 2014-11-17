@@ -138,9 +138,7 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
  *    Callback
  */
 function removeByUri(uri, callback) {
-  getByUri(uri, function(err, items) {
-    if (err)
-      console.log(err);
+  getByUri(uri, function(items) {
     //Remove des file
     var sDesFullPath = utils.getDesPath(CATEGORY_NAME,items[0].name);
     console.log("000000000000000000000000000000000"+sDesFullPath);
