@@ -3,11 +3,10 @@ var userAccount = require("../../backend/IM/pubkeyServer.js");
 var rsaKey = require("../../backend/IM/rsaKey.js");
 
 var HOME_DIR = "/home";
-var SSH = ".ssh";
 var DEMO_RIO = ".demo-rio";
 var CURUSER = process.env['USER'];
-var SSHPATH = path.join(HOME_DIR, CURUSER, SSH);
 var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var SSHPATH = path.join(USERCONFIGPATH,"key");
 var uniqueID = require(USERCONFIGPATH + '/uniqueID.js')
 
 var prikeypath = path.join(SSHPATH, "priKey.pem");
