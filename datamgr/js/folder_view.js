@@ -201,7 +201,7 @@ function gen_add_tags_dialog(data_uri){
   $('#addtag_button').on('click', function(){
     var new_tag = document.getElementById('newtag').value;
     DataAPI.setTagByUri(function(result){
-      if(result == 'success'){
+      if(result == 'commit'){
         window.alert("Add tags successfully!");
       }
       else{
@@ -209,6 +209,36 @@ function gen_add_tags_dialog(data_uri){
       }
     }, [new_tag], data_uri);
   });
+}
+
+function gen_delete_tags_dialog(data_uri){
+  console.log("gen_delete_tags_dialog!", data_uri);
+  DataAPI.getTagsByUri(function(tags){
+    var file_propery='<form>';
+    for(var i=0; i<tags.length; i++){
+      file_propery += '<input name="tags" value="'+tags[i]+'" type="checkbox" size="60" aligin="right" />';
+      file_propery += tags[i]+'</br>';
+    }
+    file_propery += '</form></br>';
+    file_propery += '<button type="button" class="btn btn-success" id="deletetag_button" data-dismiss="modal">Delete</button>';
+    var tags_to_delete = [];
+    gen_popup_dialog('Delete tags', file_propery);
+    $('#deletetag_button').on('click', function(){
+       var webtags = document.forms[0].tags;
+       for (var i=0; i<webtags.length; ++i){
+         if(webtags[i].checked){
+           tags_to_delete.push(webtags[i].value);
+         }
+       }
+      DataAPI.rmTagsByUri(function(result){
+        if(result == 'commit'){
+          window.alert("Delete tags successfully!");
+        }else{
+          window.alert("Delete tags failed!");
+        }
+      }, tags_to_delete, data_uri);
+    });
+  }, data_uri);
 }
 
 // Our type
@@ -281,7 +311,7 @@ function Folder(jquery_element) {
     $(this).addClass('focus');
     switch(e.which){
     case 3:
-      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags'];
+      var contents = ['Open', 'Copy', 'Rename', 'Delete', 'Add tags', 'Delete tags'];
       var popup_menu = self.gen_popup_menu(contents);
       var dst_file = this;
       $(popup_menu).on('mouseup', function(e){
@@ -385,6 +415,11 @@ function Folder(jquery_element) {
                     global_self.open(global_dir);
                   },file_json['URI']);
                 break;
+                case 'contact':
+                  DataAPI.rmDataByUri(function(){
+                    global_self.open(global_dir);
+                  },file_json['URI']);
+                break;
               }
             break;
             case 'Add tags':
@@ -396,7 +431,17 @@ function Folder(jquery_element) {
                   gen_add_tags_dialog(file_json['URI']);
                 break;
               }
-            break;         
+            break;
+            case 'Delete tags':
+              switch(file_json['props']['type']){
+                case 'folder':
+                  window.alert('You can not delete tags for the whole category.');
+                break;
+                case 'file':
+                  gen_delete_tags_dialog(file_json['URI']);
+                break;
+              }
+            break;       
           }
         }
         $(this).remove();
@@ -445,7 +490,10 @@ function Folder(jquery_element) {
       case 'device':
         im_view.showSend(file_json);
         break;
-      case 'other':
+      case 'contact':
+        get_all_data_file(file_json);
+        break;
+      case 'devices':
         get_all_data_file(file_json);
         break;
       }
@@ -620,7 +668,7 @@ Folder.prototype.get_callback_data = function(data_json){
         //data_json[i]['img'] = data_json[i]['photoPath'];
         data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
         data_json[i]['props']['name'] = data_json[i]['name'];
-        data_json[i]['props']['type'] = 'other';
+        data_json[i]['props']['type'] = 'contact';
         data_json[i]['props']['icon'] = 'Contacts';
         break;
       case 'picture':
@@ -665,7 +713,7 @@ Folder.prototype.get_callback_data = function(data_json){
         data_json[i]['props']['name'] = data_json[i]['name'];           
         data_json[i]['props']['type'] = 'other';
         data_json[i]['props']['icon'] = global_self.set_icon(data_json[i]['postfix']);
-      break;
+        break;
     }
   }
   if(global_dir == 'root'){
@@ -701,7 +749,6 @@ Folder.prototype.show_history = function(){
       }
       var history_win = Window.create('operation_history', 'Operation History', {left:100, top:100, height: 500, width: 500, resize: true});
       history_win._windowContent.append(file_property);
-      //gen_popup_dialog('History', file_property);
       $('input[value="More Detail"]').on('click', function(){
         var detail_win = Window.create('operation_details', 'Operation Details', {left:150, top:150, height: 500, width: 430, resize: true});
         var details = '';

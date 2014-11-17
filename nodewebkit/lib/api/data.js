@@ -4,6 +4,7 @@ var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
 var documents = require("../../backend/data/document");
+var other = require("../../backend/data/other");
 var pictures = require("../../backend/data/picture");
 var video = require("../../backend/data/video");
 var music = require("../../backend/data/music");
@@ -15,11 +16,6 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var docHandle = require('../../backend/data/document');
-var picHandle = require('../../backend/data/picture');
-var musHandle = require('../../backend/data/music');
-var vidHandle = require('../../backend/data/video');
-var dskhandle = require('../../backend/data/desktop');
 var repo = require('../../backend/commonHandle/repo');
 
 /*
@@ -69,6 +65,7 @@ function loadResources(loadResourcesCb, path) {
   var MusList = [];
   var PicList = [];
   var DskList = [];
+  var OtherList = [];
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -116,6 +113,8 @@ function loadResources(loadResourcesCb, path) {
             MusList.push(path + '/' + item);
           } else if (sPos == 'conf' || sPos == 'desktop') {
             DskList.push(path + '/' + item);
+          } else {
+            OtherList.push(path + '/' + item);
           }
         }
       }
@@ -123,31 +122,38 @@ function loadResources(loadResourcesCb, path) {
   }
   walk(path);
 
-  docHandle.createData(DocList, function(err, result) {
+  documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
       callback(err, null);
     } else {
 
-      picHandle.createData(PicList, function(err, result) {
+      pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
         } else {
 
-          musHandle.createData(MusList, function(err, result) {
+          music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
             } else {
-              console.log("load resources success!");
-              loadResourcesCb('success');
+              other.createData(OtherList, function(err,result){
+                if (err) {
+                  console.log(err);
+                  callback(err, null);
+                }else{
+                  console.log("load resources success!");
+                  loadResourcesCb('success');
+                }
+              });
             }
-          })
+          });
         }
-      })
+      });
     }
-  })
+  });
 }
 exports.loadResources = loadResources;
 
@@ -328,27 +334,27 @@ exports.updateDataValue = updateDataValue;
 function getRecentAccessData(getRecentAccessDataCb, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
   var allItems = [];
-  docHandle.getRecentAccessData(num, function(err_doc, result_doc) {
+  documents.getRecentAccessData(num, function(err_doc, result_doc) {
     if (err_doc) {
       console.log(err_doc);
       return;
     }
     console.log(result_doc);
     allItems = allItems.concat(result_doc);
-    picHandle.getRecentAccessData(num, function(err_pic, result_pic) {
+    pictures.getRecentAccessData(num, function(err_pic, result_pic) {
       if (err_pic) {
         console.log(err_pic);
         return;
       }
       console.log(result_pic);
       allItems = allItems.concat(result_pic);
-      musHandle.getRecentAccessData(num, function(err_mus, result_mus) {
+      music.getRecentAccessData(num, function(err_mus, result_mus) {
         if (err_mus) {
           console.log(err_mus);
           return;
         }
         allItems = allItems.concat(result_mus);
-        vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
+        video.getRecentAccessData(num, function(err_vid, result_vid) {
           if (err_vid) {
             console.log(err_vid);
             return;
