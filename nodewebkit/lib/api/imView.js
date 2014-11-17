@@ -22,6 +22,13 @@ function startIMChatServer(startIMChatServerCb){
 }
 exports.startIMChatServer = startIMChatServer;
 /*
+*IMChat close Server
+*/
+function closeIMChatServer(server) {
+  imChat.closeIMServerNoRSA(server);
+}
+exports.closeIMChatServer = closeIMChatServer;
+/*
 * imChat send message
 */
 function sendIMMsg(sendIMMsgCb,ipset, toAcciount,msg){

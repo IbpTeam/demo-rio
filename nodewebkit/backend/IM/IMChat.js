@@ -8,7 +8,7 @@ var rsaKey = require('./rsaKey');
 var account = require('./pubkeyServer.js');
 var config = require('../config.js');
 var HOME_DIR ="/home";
-var SSH_DIR = ".ssh";
+var SSH_DIR = ".demo-rio";
 var CURUSER = process.env['USER'];
 var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, SSH_DIR);
 var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
@@ -17,10 +17,10 @@ var LOCALACCOUNT = uniqueID.Account;
 var LOCALACCOUNTKEY = uniqueID.AccountKey;
 var LOCALUUID = uniqueID.uniqueID;
 
-var LOCALPRIKEY = '/rio_rsa';
-var KEYSERVERPUB = '/serverKey.pem';
-var LOCALPUBKEY = '/rio_rsa.pem';//use in imchat
-var PUB_KEY = "/rio_rsa.pub";//use in msgTransfer
+var LOCALPRIKEY = '/key/rio_rsa';
+var KEYSERVERPUB = '/key/serverKey.pem';
+var LOCALPUBKEY = '/key/rio_rsa.pem';//use in imchat
+var PUB_KEY = "/key/rio_rsa.pub";//use in msgTransfer
 
 /*
  * @method MD5
@@ -105,13 +105,13 @@ function initIMServer(port,ReceivedMsgCallback) {
             setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
             //console.log("pubkey is "+pubKey);
             isExist(msgObj.uuid, function() {
-              var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/users/' + msgObj.uuid + '.pem');
+              var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + msgObj.uuid + '.pem');
               var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
               var tmpsmsg = encryptSentMSG(tp, tmpkey)
               c.write(tmpsmsg);
             }, function() {
               requestPubKey(msgObj.uuid, msgObj.from, keyPair, function() {
-                var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/users/' + msgObj.uuid + '.pem');
+                var tmpkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + msgObj.uuid + '.pem');
                 var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
                 var tmpsmsg = encryptSentMSG(tp, tmpkey)
                 c.write(tmpsmsg);
@@ -339,7 +339,7 @@ function sendMSGbyUID(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
 
 function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR, SENTCALLBACK) {
   function insendfunc() {
-    var tmppubkey = rsaKey.loadServerKey(USERCONFIGPATH + '/users/' + IPSET.UID + '.pem');
+    var tmppubkey = rsaKey.loadServerKey(USERCONFIGPATH + '/key/users/' + IPSET.UID + '.pem');
     /************************************************************
                 A should be replaced by the local account
                 ********************************************************/
@@ -356,7 +356,7 @@ function existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, LOCALPAIR, SENTCALLBACK) {
 }
 
 function isExist(UUID, existfunc, noexistfunc) {
-  fs.exists(USERCONFIGPATH + '/users/' + UUID + '.pem', function(exists) {
+  fs.exists(USERCONFIGPATH + '/key/users/' + UUID + '.pem', function(exists) {
     //console.log(USERCONFIGPATH+'/key/users/' + UUID + '.pem');
     if (exists) {
       existfunc();
@@ -391,7 +391,7 @@ function requestPubKey(UUID, ACCOUNT, LOCALPAIR, INSENTFUNC) {
     msg.data.detail.forEach(function(row) {
       if (row.UUID == UUID) {
         //console.log("UUUUUUIIIIIIIDDDDDD:  "+row.UUID);
-        savePubkey(USERCONFIGPATH + '/users/' + row.UUID + '.pem', row.pubKey, INSENTFUNC);
+        savePubkey(USERCONFIGPATH + '/key/users/' + row.UUID + '.pem', row.pubKey, INSENTFUNC);
         //console.log("DDDDDDDDDDD"+row.pubKey);
       };
     });

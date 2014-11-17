@@ -36,6 +36,18 @@ function loadServerKey(serverKeyPath) {
 exports.loadServerKey = loadServerKey;
 
 function generateKeypair(priKeyPath, pubKeyPath, pemKeyPath, generateKeypairCb) {
+  var exists = fs.existsSync(priKeyPath);
+  if (exists) {
+    fs.unlinkSync(priKeyPath);
+  }
+  exists = fs.existsSync(pubKeyPath);
+  if (exists) {
+    fs.unlinkSync(pubKeyPath);
+  }
+  exists = fs.existsSync(pemKeyPath);
+  if (exists) {
+    fs.unlinkSync(pemKeyPath);
+  }
   var sCommandStr = "ssh-keygen -t rsa -b 1024 -P '' -f '" + priKeyPath + "'";
   cp.exec(sCommandStr, function(err, stdout, stderr) {
     if (err) {
