@@ -186,6 +186,10 @@ function initDesktop(callback) {
                               return;
                             }
                             buildAppMethodInfo('mimeinfo.cache', function(err, result) {
+                              if (err) {
+                                console.log(err);
+                                return;
+                              }
                               console.log(result);
                               console.log('build local desktop file success');
                               callback("success");
@@ -917,9 +921,9 @@ function buildAppMethodInfo(targetFile, callback) {
             fs.writeFile(outPutPath, sListContent, function(err) {
               if (err) {
                 console.log(err);
-                return callback(err);
+                return callback(err,null);
               }
-              callback('success');
+              callback(null,'success');
             })
           }
           count++;
