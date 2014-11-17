@@ -529,7 +529,7 @@ function readDesktopFile(callback, sFileName) {
       function parseDesktopFileCb(err, attr) {
         if (err) {
           console.log(err);
-          var _err = "readDesktopFile : parse desktop file error!";
+          var _err = "readDesktopFile : parse desktop sfile error!";
           return callback(_err, null);
         }
         console.log("readDesktopFile success!");
@@ -1064,8 +1064,8 @@ function buildLocalDesktopFile(callback) {
       var sFileOriginPath = oFiles[i];
       (function(_sFileOriginPath) {
         if (_sFileOriginPath !== '') {
-          var sFileName = utils.getFileNameByPath(_sFileOriginPath);
-          var newPath = pathModule.join(REAL_APP_DIR, sFileName);
+          var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
+          var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
           fs_extra.copy(_sFileOriginPath, newPath, function(err) {
             if (err) {
               console.log(sFileName + ', file exist!');
