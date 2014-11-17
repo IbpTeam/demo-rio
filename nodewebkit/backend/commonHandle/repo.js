@@ -40,7 +40,7 @@ exports.repoAddsCommit = function(repoPath, files, commitID, callback) {
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git add error");
-      console.log(error, stderr)
+      console.log(error, stderr,stdout)
     } else {
       console.log("Git add success");
       callback('success');

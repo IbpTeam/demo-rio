@@ -250,6 +250,12 @@ exports.getCategory = function(path) {
   }
 }
 
+//get file name with postfix from a path
+exports.getFileNameByPath = function(sPath) {
+  var nameindex = sPath.lastIndexOf('/');
+  return sPath.substring(nameindex + 1, sPath.length);
+}
+
 exports.renameExists = function(allFiles) {
   var fileNameBase = {};
   var k = 0;

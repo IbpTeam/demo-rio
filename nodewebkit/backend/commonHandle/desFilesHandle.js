@@ -75,7 +75,6 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  console.log('des file path: '+sPath);
   fs.writeFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
