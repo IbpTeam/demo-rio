@@ -6,6 +6,12 @@ function SideBar(jquery_element) {
   this.filters = $(jquery_element).children('#filters');
   this.recent = $(jquery_element).children('#recent');
   var self = this;
+  self.filters.delegate('#search_submit', 'click', function(){
+    var keyword = document.getElementById('search_input').value;
+    DataAPI.getFilesByTags(function(result){
+      self.emit('show_filter_result', result);
+    }, [keyword]);
+  });
 }
 
 SideBar.prototype.set_tags = function(json){

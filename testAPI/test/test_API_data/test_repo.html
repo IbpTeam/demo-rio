@@ -71,6 +71,25 @@
     });        
   }
 
+  function repoResetFileCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoResetFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoResetFile(repoResetFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var file = '';
+      data.repoResetFile(repoResetFileCb,'document',commit_id,file);
+    });        
+  }
+
   </script>
 
 <h2 onclick="show('getGitLog')">getGitLog(getGitLogCb)<span><a class="mark" href="#test_getGitLog" id="test_getGitLog" onclick="test_getGitLog(getGitLogCb)">test</a></span></h2>
@@ -125,6 +144,37 @@
   function test_repoReset(repoResetCb){
     WDC.requireAPI(['data'], function(data){
       data.repoReset(repoResetCb,'document',commit_id);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('repoResetFile')">repoResetFile(repoResetFileCb)<span><a class="mark" href="#test_repoResetFile" id="test_repoResetFile" onclick="test_repoResetFile(repoResetFileCb)">test</a></span></h2>
+<div id="repoResetFile" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function repoResetFileCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoResetFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoResetFile(repoResetFileCb){
+    WDC.requireAPI(['data'], function(data){
+      data.repoResetFile(repoResetFileCb,'document',commit_id);
     });        
   }
   </pre>

@@ -75,7 +75,8 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs_extra.writeFile(sPath, sItem,function (err) {
+  console.log('des file path: '+sPath);
+  fs.writeFile(sPath, sItem,function (err) {
     if(err){
       console.log("================");
       console.log("writeFile error!");
@@ -190,7 +191,37 @@ exports.readDesFile = readDesFile;
  *    Callback.
  **/
 function writeDesObjs2Db(desObjs,callback){
-  commonDAO.createItems(desObjs,callback);
+  var iSum = 0;
+  desObjs.forEach(function(desObj){
+    if(desObj.URI == null || desObj.URI == undefined){
+      iSum++;
+    }else{
+      var conditions = ["URI = " + "'" + desObj.URI + "'"];
+      console.log("desObjs:@@@@@@@@@@@@@@@@@@@@2");
+      console.log(desObj);
+      commonDAO.findItems(null,[desObj.category],conditions,null,function(err,items){
+        if(err){
+          console.log(err);
+          callback("error");
+          return;
+        }
+        if(items.length > 0){
+          //TODO do update
+          commonDAO.updateItem(desObj,function(err){
+            iSum++;
+            if(iSum == desObjs.length)
+              callback("done");
+          });
+        }else{
+          commonDAO.createItem(desObj,function(err){
+            iSum++;
+            if(iSum == desObjs.length)
+              callback("done");
+          });
+        }
+      });
+    }
+  });
 }
 exports.writeDesObjs2Db = writeDesObjs2Db;
 
@@ -230,7 +261,7 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  *    No arguments other than a file name array are given to the completion callback.
  **/
 exports.updateItem = function(file,attrs,callback){
-  console.log("update::::::::::"+file);
+  console.log("update::::::::::",file);
   fs.readFile(file,'utf8',function(err,data){
     if (err) {
       console.log("read file error!");
@@ -253,7 +284,7 @@ exports.updateItem = function(file,attrs,callback){
               console.log(err);
             }
             else{
-              console.log(sItem)
+              console.log('update item success!',file);
               callback("success");
             }
           });

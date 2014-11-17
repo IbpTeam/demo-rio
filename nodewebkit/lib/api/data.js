@@ -4,6 +4,7 @@ var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
 var documents = require("../../backend/data/document");
+var other = require("../../backend/data/other");
 var pictures = require("../../backend/data/picture");
 var video = require("../../backend/data/video");
 var music = require("../../backend/data/music");
@@ -15,21 +16,16 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var docHandle = require('../../backend/data/document');
-var picHandle = require('../../backend/data/picture');
-var musHandle = require('../../backend/data/music');
-var vidHandle = require('../../backend/data/video');
-var dskhandle = require('../../backend/data/desktop');
 var repo = require('../../backend/commonHandle/repo');
 
 /*
-*getLocalData
-*/
-function getLocalData(getLocalDataCb){
-  var localJson={};
-  localJson['account']=imChat.LOCALACCOUNT;
-  localJson['UID']=imChat.LOCALUUID;
- 
+ *getLocalData
+ */
+function getLocalData(getLocalDataCb) {
+  var localJson = {};
+  localJson['account'] = imChat.LOCALACCOUNT;
+  localJson['UID'] = imChat.LOCALUUID;
+
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
@@ -44,8 +40,8 @@ function startIMChatServer(startIMChatServerCb) {
 }
 exports.startIMChatServer = startIMChatServer;
 
-function sendIMMsg(sendIMMsgCb,ipset, toAccount,msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,toAccount, msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb, ipset, toAccount, msg) {
+  imChat.sendMSGbyUIDNoRSA(ipset, toAccount, msg, 6986, sendIMMsgCb);
 }
 exports.sendIMMsg = sendIMMsg;
 
@@ -69,6 +65,7 @@ function loadResources(loadResourcesCb, path) {
   var MusList = [];
   var PicList = [];
   var DskList = [];
+  var OtherList = [];
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -116,6 +113,8 @@ function loadResources(loadResourcesCb, path) {
             MusList.push(path + '/' + item);
           } else if (sPos == 'conf' || sPos == 'desktop') {
             DskList.push(path + '/' + item);
+          } else {
+            OtherList.push(path + '/' + item);
           }
         }
       }
@@ -123,31 +122,38 @@ function loadResources(loadResourcesCb, path) {
   }
   walk(path);
 
-  docHandle.createData(DocList, function(err, result) {
+  documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
       callback(err, null);
     } else {
 
-      picHandle.createData(PicList, function(err, result) {
+      pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
         } else {
 
-          musHandle.createData(MusList, function(err, result) {
+          music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
             } else {
-              console.log("load resources success!");
-              loadResourcesCb('success');
+              other.createData(OtherList, function(err,result){
+                if (err) {
+                  console.log(err);
+                  callback(err, null);
+                }else{
+                  console.log("load resources success!");
+                  loadResourcesCb('success');
+                }
+              });
             }
-          })
+          });
         }
-      })
+      });
     }
-  })
+  });
 }
 exports.loadResources = loadResources;
 
@@ -328,33 +334,31 @@ exports.updateDataValue = updateDataValue;
 function getRecentAccessData(getRecentAccessDataCb, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
   var allItems = [];
-  docHandle.getRecentAccessData(num, function(err_doc, result_doc) {
+  documents.getRecentAccessData(num, function(err_doc, result_doc) {
     if (err_doc) {
       console.log(err_doc);
       return;
     }
     console.log(result_doc);
     allItems = allItems.concat(result_doc);
-    picHandle.getRecentAccessData(num, function(err_pic, result_pic) {
+    pictures.getRecentAccessData(num, function(err_pic, result_pic) {
       if (err_pic) {
         console.log(err_pic);
         return;
       }
       console.log(result_pic);
       allItems = allItems.concat(result_pic);
-      musHandle.getRecentAccessData(num, function(err_mus, result_mus) {
+      music.getRecentAccessData(num, function(err_mus, result_mus) {
         if (err_mus) {
           console.log(err_mus);
           return;
         }
-        console.log(result_mus);
         allItems = allItems.concat(result_mus);
-        vidHandle.getRecentAccessData(num, function(err_vid, result_vid) {
+        video.getRecentAccessData(num, function(err_vid, result_vid) {
           if (err_vid) {
             console.log(err_vid);
             return;
           }
-          console.log(result_vid);
           allItems = allItems.concat(result_vid);
           var resultRecentAccess = utils.getRecent(allItems, num);
           console.log('get recent success!');
@@ -417,12 +421,12 @@ function pasteFile(pasteFileCb, filename, category) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     } else {
-      if(category == 'document' || category == 'music' || category == 'picture'){
+      if (category == 'document' || category == 'music' || category == 'picture') {
         var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result){
-          if(err != null){
+        cate.createData([desPath], function(err, result) {
+          if (err != null) {
             pasteFileCb(false);
-          }else{
+          } else {
             cp.exec("rm " + desPath, function(error, stdout, stderr) {
               pasteFileCb(result);
             });
@@ -439,18 +443,18 @@ exports.pasteFile = pasteFile;
 //返回类型：成功返回success;失败返回失败原因
 function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var desPath = '/tmp/'+filename;
+  var desPath = '/tmp/' + filename;
   cp.exec("touch " + desPath, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
       creatFileCb(false);
     } else {
-      if(category == 'document' || category == 'music' || category == 'picture'){
+      if (category == 'document' || category == 'music' || category == 'picture') {
         var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result){
-          if(err != null){
+        cate.createData([desPath], function(err, result) {
+          if (err != null) {
             createFileCb(false);
-          }else{
+          } else {
             cp.exec("rm " + desPath, function(error, stdout, stderr) {
               createFileCb(result);
             });
@@ -601,217 +605,6 @@ function initDesktop(initDesktopCb) {
 }
 exports.initDesktop = initDesktop;
 
-
-/** 
- * @Method: readThemeConf
- *    read file Theme.conf
- *
- * @param: readThemeConfCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "readThemeConf : read Theme config file error!"
- *
- *    @param2: result,
- *        object, the result in object
- *
- *    object example:
- *    {
- *       "icontheme": {
- *           "name": "Mint-X",
- *           "active": true,
- *           "icon": null,
- *           "path": "$HOME",
- *           "id": "computer",
- *           "pos": {
- *               "x": null,
- *               "y": null
- *           }
- *       },
- *     "computer": {
- *           ...
- *           }
- *          ...
- *    }
- *
- **/
-function readThemeConf(readThemeConfCb) {
-  console.log("Request handler 'readThemeConf' was called.");
-  desktopConf.readThemeConf(readThemeConfCb);
-}
-exports.readThemeConf = readThemeConf;
-
-/** 
- * @Method: writeThemeConf
- *    modify file Theme.conf
- *
- * @param: readThemeConfCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "writeThemeConf : read Theme.conf error!"
- *                write error : "writeThemeConf : write Theme config file error!"
- *
- *    @param2: result,
- *        string, retrieve success when success
- *
- * @param: oTheme
- *    object, only content that needs to be modified
- *
- *    oThem example:
- *    var oTheme =
- *    {
- *       "icontheme": {
- *           "name": "Mint-X",
- *           "active": true,
- *           "icon": null,
- *           "path": "$HOME",
- *           "id": "computer",
- *           "pos": {
- *               "x": null,
- *               "y": null
- *           }
- *       },
- *     "computer": {
- *           ...
- *           }
- *          ...
- *    }
- *
- *
- **/
-function writeThemeConf(writeThemeConfCb, oTheme) {
-  console.log("Request handler 'writeThemeConf' was called.");
-  desktopConf.writeThemeConf(writeThemeConfCb, oTheme);
-}
-exports.writeThemeConf = writeThemeConf;
-
-/** 
- * @Method: readWidgetConf
- *    read file Widget.conf
- *
- * @param: readWidgetConfCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error : "readWidgetConf : read Theme config file error!"
- *
- *    @param2: result,
- *        object, the result in object
- *
- *    result example:
- *    {
- *       "icontheme": {
- *           "name": "Mint-X",
- *           "active": true,
- *           "icon": null,
- *           "path": "$HOME",
- *           "id": "computer",
- *           "pos": {
- *               "x": null,
- *               "y": null
- *           }
- *       },
- *     "computer": {
- *           ...
- *           }
- *          ...
- *    }
- *
- **/
-function readWidgetConf(readWidgetConfCb) {
-  console.log("Request handler 'readWidgetConf' was called.");
-  desktopConf.readWidgetConf(readWidgetConfCb);
-}
-exports.readWidgetConf = readWidgetConf;
-
-/** 
- * @Method: writeThemeConf
- *    modify file Theme.conf
- *
- * @param: writeWidgetConfCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error : "writeWidgetConf: read Widget.conf error!"
- *                write error: "writeWidgetConf: write Widget config file error!"
- *
- *    @param2: result,
- *        object, the result in object
- *
- *    result example:
- *    {
- *       "icontheme": {
- *           "name": "Mint-X",
- *           "active": true,
- *           "icon": null,
- *           "path": "$HOME",
- *           "id": "computer",
- *           "pos": {
- *               "x": null,
- *               "y": null
- *           }
- *       },
- *     "computer": {
- *           ...
- *           }
- *          ...
- *    }
- *
- **/
-function writeWidgetConf(writeWidgetConfCb, oWidget) {
-  console.log("Request handler 'writeWidgetConf' was called.");
-  desktopConf.writeWidgetConf(writeWidgetConfCb, oWidget);
-}
-exports.writeWidgetConf = writeWidgetConf;
-
-/** 
- * @Method: readDesktopFile
- *   find a desktop file with name of sFilename
- *   exmple: var sFileName = 'cinnamon';
- *
- * @param: readDesktopFileCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "readDesktopFile : desktop file NOT FOUND!"
- *                parse file error : "readDesktopFile : parse desktop file error!"
- *
- *    result example:
- *    {
- *      Type: Application
- *      Name: Cinnamon
- *      Comment: Window management and application launching
- *      Exec: /usr/bin / cinnamon - launcher
- *      X - GNOME - Bugzilla - Bugzilla: GNOME
- *      X - GNOME - Bugzilla - Product: cinnamon
- *      X - GNOME - Bugzilla - Component: general
- *      X - GNOME - Bugzilla - Version: 1.8.8
- *      Categories: GNOME;GTK;System;Core;
- *      OnlyShowIn: GNOME;
- *      NoDisplay: true
- *      X - GNOME - Autostart - Phase: WindowManager
- *      X - GNOME - Provides: panel;windowmanager;
- *      X - GNOME - Autostart - Notify: true
- *      X - GNOME - AutoRestart: true
- *    }
- *
- * @param2: sFileName
- *    string,name of target file ,suffix is not required
- *    example: var sFileName = 'cinnamon';
- *
- **/
-function readDesktopFile(readDesktopFileCb, sFileName) {
-  console.log("Request handler 'readDesktopFile' was called.");
-  desktopConf.readDesktopFile(readDesktopFileCb, sFileName);
-}
-exports.readDesktopFile = readDesktopFile;
-
 /** 
  * @Method: writeDesktopFile
  *    modify a desktop file
@@ -876,7 +669,7 @@ exports.writeDesktopFile = writeDesktopFile;
  * THIS IS NOT AN API FOR APPLICATIONS, ONLY HERE FOR TEST
  *
  * @Method: findAllDesktopFiles
- *    find all .desktop files in system
+ *    find all .desktop files in local
  *
  * @param: callback
  *    @result
@@ -900,9 +693,62 @@ function findAllDesktopFiles(findAllDesktopFilesCb) {
 exports.findAllDesktopFiles = findAllDesktopFiles;
 
 /** 
+ * @Method: readDesktopConfig
+ *    To read desktop config file. Including .conf, .desktop, .list and . cache
+ *
+ * @param1: sFileName
+ *    string, a short name as 'cinnamon.desktop', the postfix is required.
+ *
+ * @param2: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error info.
+ *
+ *    @param2: result,
+ *        object, result in json, more detail example in specifc function commn-
+ *                ent.
+ *
+ *
+ **/
+function readDesktopConfig(readDesktopConfigCb, sFileName) {
+  console.log("Request handler 'readDesktopConfig' was called.");
+  desktopConf.readDesktopConfig(sFileName, readDesktopConfigCb);
+}
+exports.readDesktopConfig = readDesktopConfig;
+
+/** 
+ * @Method: writeDesktopConfig
+ *    To modify desktop config file. Including .conf, .desktop, .list and . cac-
+ *    he
+ *
+ * @param1: sFileName
+ *    string, a short name as 'cinnamon.desktop', the postfix is required.
+ *
+ * @param2: oContent
+ *    object, content to modify, should a object, more detail example in specifc
+ *            function commnent.
+ *
+ * @param3: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error info.
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
+ *
+ **/
+function writeDesktopConfig(writeDesktopConfigCb, sFileName, oContent) {
+  console.log("Request handler 'writeDesktopConfig' was called.");
+  desktopConf.writeDesktopConfig(sFileName, oContent, writeDesktopConfigCb);
+}
+exports.writeDesktopConfig = writeDesktopConfig;
+
+/** 
  * @Method: CreateWatcher
- *    To create a wacther on a dir. This wacther would listen on 3 type of ev-
- *    -ent:
+ *    To create a wacther on a dir. This wacther would listen on 3 type of even-
+ *    t:
  *      'add'   : a new file or dir is added;
  *      'delete': a file or dir is deleted;
  *      'rename': a file is renamed;
@@ -1171,3 +1017,54 @@ function repoReset(repoResetCb, category, commitID) {
   });
 }
 exports.repoReset = repoReset;
+
+/** 
+ * @Method: repoResetFile
+ *    To reset a single file to a history commit version. This action would also
+ *    reset des file repo
+ *
+ * @param1: repoResetCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: commitID
+ *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ *
+ * @param4: file
+ *    string, a file full path, as '/home/xiquan/document/test.txt'
+ *
+ **/
+function repoResetFile(repoResetFileCb, category, commitID, file) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoResetFile(commitID, function(err, result) {
+    if (err) {
+      var _err = {
+        'data': err
+      }
+      console.log(_err);
+      repoResetFileCb(_err, null);
+    } else {
+      commonHandle.updateDB(category, function(err, result) {
+        if (err) {
+          var _err = {
+            'data': err
+          }
+          console.log(_err, null);
+        } else {
+          console.log('reset ' + category + ' repo success!');
+          repoResetFileCb(null, result);
+        }
+      })
+    }
+  });
+}
+exports.repoResetFile = repoResetFile;
