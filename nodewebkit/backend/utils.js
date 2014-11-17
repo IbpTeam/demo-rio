@@ -1,4 +1,5 @@
 var path = require("path");
+var exec = require('child_process').exec;
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
@@ -159,25 +160,25 @@ exports.getCategoryObjectByUri = function(sUri) {
 
 //example: ~/.resources/.documentDes/data/$FILENAME
 exports.getDesPath = function(category, fullName) {
-  var sDirName = category + "Des";
-  var sDesName = fullName + ".md";
-  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
-}
-//example: ~/.resources/.document/data
+    var sDirName = category + "Des";
+    var sDesName = fullName + ".md";
+    return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
+  }
+  //example: ~/.resources/.document/data
 exports.getRealDir = function(category) {
-  return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
-}
-//example: ~/.resources/.documentDes/data
+    return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
+  }
+  //example: ~/.resources/.documentDes/data
 exports.getDesDir = function(category) {
-  var sDirName = category + "Des";
-  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
-}
-//example: ~/.resources/.document
+    var sDirName = category + "Des";
+    return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
+  }
+  //example: ~/.resources/.document
 exports.getRepoDir = function(category) {
-  var sDirName = category ;
-  return path.join(process.env["HOME"], ".resources", sDirName);
-}
-//example: ~/.resources/.documentDes
+    var sDirName = category;
+    return path.join(process.env["HOME"], ".resources", sDirName);
+  }
+  //example: ~/.resources/.documentDes
 exports.getDesRepoDir = function(category) {
   var sDirName = category + "Des";
   return path.join(process.env["HOME"], ".resources", sDirName);
@@ -249,6 +250,12 @@ exports.getCategory = function(path) {
   }
 }
 
+//get file name with postfix from a path
+exports.getFileNameByPath = function(sPath) {
+  var nameindex = sPath.lastIndexOf('/');
+  return sPath.substring(nameindex + 1, sPath.length);
+}
+
 exports.renameExists = function(allFiles) {
   var fileNameBase = {};
   var k = 0;
@@ -285,4 +292,32 @@ exports.getRecent = function(items, num) {
   }
   var DataByNum = oNewData.slice(0, num);
   return DataByNum;
+}
+
+exports.findFilesFromSystem = function(targe, callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type for callback';
+  var sCommand = 'locate ' + targe;
+  exec(sCommand, function(err, stdout, stderr) {
+    if (err) {
+      console.log('find ' + targe + ' error!');
+      console.log(err, stderr);
+      return callback(err, null);
+    } else if (stdout == '') {
+      var _err = "Not find at all!";
+      console.log(_err);
+      return callback(_err, null);
+    }
+    result = stdout.split('\n');
+    console.log('result: \n', result);
+    callback(null, result);
+  });
+}
+
+exports.isExist = function(entry, array) {
+  for (var i = 0; i < array.length; i++) {
+    if (entry === array[i])
+      return true;
+  }
+  return false;
 }

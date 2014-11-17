@@ -35,9 +35,7 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *    Callback
  */
 function removeByUri(uri, callback) {
-  getByUri(uri, function(err, items) {
-    if (err)
-      console.log(err);
+  getByUri(uri, function(items) {
     //Remove real file
     fs.unlink(items[0].path, function(err) {
       if (err) {
@@ -81,11 +79,7 @@ exports.getRecentAccessData = getRecentAccessData;
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
 function openDataByUri(openDataByUriCb, uri) {
-  function getItemByUriCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  function getItemByUriCb(items) {
     var item = items[0];
     if (item == null) {
       config.riolog("read data : " + item);
@@ -318,3 +312,44 @@ function repoReset(commitID, callback) {
   })
 }
 exports.repoReset = repoReset;
+
+function repoResetFile(commitID, file, callback) {
+  getGitLog(function(err, oGitLog) {
+    if (err) {
+      callback(err, null);
+    } else {
+      var desCommitID = oGitLog[commitID].content.relateCommit;
+      if (desCommitID) {
+        resourceRepo.repoResetFile(DES_REPO_DIR, file, desCommitID, null, function(err, result) {
+          if (err) {
+            console.log(err);
+            callback({
+              'document': err
+            }, null);
+          } else {
+            getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
+              resourceRepo.repoResetFile(REAL_REPO_DIR, file, commitID, relateCommitID, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  callback({
+                    'document': err
+                  }, null);
+                } else {
+                  console.log('reset success!')
+                  callback(null, result)
+                }
+              })
+            })
+          }
+        })
+      } else {
+        var _err = 'related des commit id error!';
+        console.log(_err);
+        callback({
+          'document': _err
+        }, null);
+      }
+    }
+  })
+}
+exports.repoResetFile = repoResetFile;
