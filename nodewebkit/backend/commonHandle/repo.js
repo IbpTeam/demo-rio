@@ -5,6 +5,20 @@ var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
 
+var repos=[
+  "contactDes",
+  "desktop",
+  "desktopDes",
+  "document",
+  "documentDes",
+  "music",
+  "musicDes",
+  "picture",
+  "pictureDes",
+  "video",
+  "videoDes"
+];
+
 exports.repoInit = function(repoPath, callback) {
   git.Repo.init(repoPath, false, function(initReporError, repo) {
     if (initReporError)
@@ -353,3 +367,18 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
     }
   })
 }
+/*
+function traversalRepos = function(callback) {
+  for(var index in repos){
+    var repoPath=path.join(config.RESOURCEPATH,repos[index]);
+    callback(repoPath);
+  }
+}
+
+exports.getHotRepos = function(callback) {
+  traversalRepos(function(repoPath){
+    var exec = require('child_process').exec;
+    var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + file;
+    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  });
+}*/
