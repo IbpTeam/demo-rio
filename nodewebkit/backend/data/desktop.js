@@ -1034,7 +1034,7 @@ function findAllDesktopFiles(callback) {
     var xdgDataDir = [];
     var sAllDesktop = "";
     var sTarget = '*.desktop';
-    var sBoundary = "'/usr/share|/usr/local/share'";
+    var sBoundary = "'/usr/share/applications|/usr/local/share/applications'";
     var sLimits = ' | egrep ' + sBoundary
     var sCommand = 'locate ' + sTarget + sLimits;
     console.log('runnnnnnnnnnnnnnn: ' + sCommand)
