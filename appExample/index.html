@@ -19,6 +19,11 @@
       function onStart(params){
         console.log("onStart():" + params);
         $('#params').text("程序参数是:" + params);
+        WDC.requireAPI(['app'], function(app){
+          app.getAppList(function(appArr){
+            $('#applist').text("已安装的程序有：" + appArr.length + "个，包括：" + appArr);
+          });
+        });
       }
     </script>
 
@@ -30,6 +35,9 @@
     <div>
       <p>
         <div id="params">正在加载程序。。。</div>
+      </p>
+      <p>
+        <div id="applist"></div>
       </p>
     <div>
   </body>
