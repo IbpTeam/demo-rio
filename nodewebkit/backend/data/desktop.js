@@ -305,12 +305,11 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoChsCommit(DES_REPO_DIR, [desFilePath], null, function() {
-                resourceRepo.getLatestCommit(DES_REPO_DIR, function(commitID) {
-                  resourceRepo.repoChsCommit(REAL_DIR, [filePath], commitID, function() {
-                    callback(null, result);
-                  })
-                })
+              resourceRepo.repoCommitBoth('ch', REAL_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
+                if (err) {
+                  return callback(err, null);
+                }
+                callback(null, 'success');
               })
             }
           });
@@ -1215,13 +1214,12 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                         console.log('update ' + sFileName + ' des file error!\n', err);
                         callback(err, null);
                       } else {
-                        resourceRepo.repoChsCommit(DES_REPO_DIR, [desFilePath], null, function() {
-                          resourceRepo.getLatestCommit(DES_REPO_DIR, function(commitID) {
-                            resourceRepo.repoChsCommit(REAL_REPO_DIR, [sWritePath], commitID, function() {
-                              console.log("write file success!");
-                              callback(null, "success");
-                            })
-                          })
+                        resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
+                          if (err) {
+                            return callback(err, null);
+                          }
+                          console.log("write file success!");
+                          callback(null, "success");
                         })
                       }
                     });
@@ -1280,7 +1278,31 @@ function getAllDesktopFile(callback) {
         return callback(err, null);
       }
       stdout = stdout.split('\n')
-      callback(null, stdout);
+      var result = {};
+      var count = 0;
+      var lens = stdout.length;
+      for (var i = 0; i < lens; i++) {
+        var item = stdout[i];
+        if (item !== '') {
+          (function(_item) {
+            var _dir = pathModule.join(REAL_APP_DIR, _item);
+            fs.stat(_dir, function(err, stat) {
+              if (err) {
+                console.log(err);
+                return callback(err, null);
+              }
+              result[_item] = stat.ino;
+              var isEnd = (count === lens - 1);
+              if (isEnd) {
+                callback(null, result);
+              }
+              count++;
+            })
+          })(item)
+        } else {
+          count++;
+        }
+      }
     })
   } else {
     console.log("Not a linux system! Not supported now!")
@@ -1569,7 +1591,7 @@ var DirWatcher = Event.extend({
 
   //get dir 
   getBaseDir: function() {
-    return REAL_REPO_DIR + this._watchDir ;
+    return REAL_REPO_DIR + this._watchDir;
   },
 
   //close watch()
