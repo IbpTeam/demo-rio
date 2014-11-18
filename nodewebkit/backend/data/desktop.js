@@ -1243,7 +1243,7 @@ function getAllDesktopFile(callback) {
     var sAllDesktop = "";
     var sTarget = process.env["HOME"] + "/.resources/desktop/data/applications";
     var sBoundary = '.desktop';
-    var sLimits = ' | grep ' + sBoundary
+    var sLimits = ' | grep ' + sBoundary;
     var sCommand = 'ls ' + sTarget + sLimits;
     console.log('runnnnnnnnnnnnnnn: ' + sCommand)
     exec(sCommand, function(err, stdout, stderr) {
