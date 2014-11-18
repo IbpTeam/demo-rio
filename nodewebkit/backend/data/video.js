@@ -504,3 +504,13 @@ function repoResetFile(commitID, file, callback) {
   })
 }
 exports.repoResetFile = repoResetFile;
+
+function rename(sUri, sNewName, callback) {
+  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    callback(null, result);
+  })
+}
+exports.rename = rename;
