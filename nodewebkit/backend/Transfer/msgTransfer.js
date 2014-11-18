@@ -267,8 +267,8 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
-  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
+    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
     return;
   }
   switch(iCurrentState){
