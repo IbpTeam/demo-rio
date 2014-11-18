@@ -1,0 +1,9 @@
+{
+  "name": "example",
+  "main": "index.html",
+  "description": "Rio APP example.",
+  "version": "0.0.2",
+  "dependencies": {
+    "demo-rio": "~0.0.1"
+  }
+}
