@@ -381,6 +381,7 @@ function rmTagsByUri(callback, oTags, sUri) {
     }
     buildDeleteItems(allFiles, result_find);
     var resultItems = doDeleteTags(allFiles, oTags);
+    console.log(resultItems);
     dataDes.updateItems(resultItems, function(result) {
       console.log("my update result: ", result);
       if (result === "success") {
@@ -528,6 +529,5 @@ function doDeleteTags(oAllFiles, oTags) {
     }
     (oAllFiles[j]).others = newTags.join(',');
   }
-  //console.log(oAllFiles,"=======================")
   return oAllFiles;
 }

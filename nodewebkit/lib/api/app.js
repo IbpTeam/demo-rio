@@ -1,6 +1,33 @@
 var config = require('../../backend/config');
 var path = require("path");
 
+/**
+ * @method getAppList
+ *   根据应用名字打开应用
+ *
+ * @param1 callback function
+ *   回调函数
+ *   @cbparam1
+ *      Array of string, 返回app名称列表，失败则返回null
+ *      [
+ *        name1, name2, name3...
+ *      ]
+ */
+function getAppList(getAppListCb){
+  console.log("Request handler 'getAppList' was called.");
+  try{
+    var appArr=new Array(config.AppList.length);
+    for(var i = 0; i < config.AppList.length; i++) {
+      appArr[i]=config.AppList[i].name;
+    }
+    setTimeout(getAppListCb(appArr));
+  }catch(e){
+    console.log("Error happened:" + e.message);
+    setTimeout(getAppListCb(null), 0);
+    return;
+  }
+}
+exports.getAppList=getAppList;
 
 /**
  * @method startAppByName
@@ -49,6 +76,7 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
       iframe: true
     });
     twin.appendHtml(path.join(config.APPBASEPATH, runapp.path) + (sParams===null?"":("?"+sParams)));
+    app.win=twin;
     setTimeout(startAppByNameCb(twin), 0);
   }catch(e){
     console.log("Error happened:" + e.message);
@@ -57,40 +85,6 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
   }
 };
 exports.startAppByName=startAppByName;
-
-/**
- * @method getAppDataDir
- *   获取数据路径
- *
- * @param1 callback function
- *   回调函数
- *   @cbparam1
- *      string, 返回应用数据目录
- */
-function getAppDataDir(getAppDataDirCb){
-  console.log("Request handler 'getAppDataDir' was called.");
-  var gui = global.window.nwDispatcher.requireNwGui();
-  console.log(gui.App.dataPath);
-  setTimeout(getAppDataDirCb(gui.App.dataPath), 0);
-}
-exports.getAppDataDir = getAppDataDir;
-
-/**
- * @method getAppArgv
- *   获取应用调用参数
- *
- * @param1 callback function
- *   回调函数
- *   @cbparam1
- *      string, 返回应用调用参数
- */
-function getAppArgv(getAppArgvCb){
-  console.log("Request handler 'getAppArgv' was called.");
-  var gui = global.window.nwDispatcher.requireNwGui();
-  console.log(gui.App.argv);
-  setTimeout(getAppArgvCb(gui.App.argv), 0);
-}
-exports.getAppArgv = getAppArgv;
 
 /**
  * @method sendKeyToApp
