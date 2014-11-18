@@ -6,17 +6,19 @@ var events = require('events');
 var utils = require('../utils');
 
 var repos=[
-  "contactDes",
-  "desktop",
-  "desktopDes",
-  "document",
-  "documentDes",
-  "music",
-  "musicDes",
-  "picture",
-  "pictureDes",
-  "video",
-  "videoDes"
+  {name:"contactDes",status:"empty"},
+  {name:"desktop",status:"empty"},
+  {name:"desktopDes",status:"empty"},
+  {name:"document",status:"empty"},
+  {name:"documentDes",status:"empty"},
+  {name:"music",status:"empty"},
+  {name:"musicDes",status:"empty"},
+  {name:"other",status:"empty"},
+  {name:"otherDes",status:"empty"},
+  {name:"picture",status:"empty"},
+  {name:"pictureDes",status:"empty"},
+  {name:"video",status:"empty"},
+  {name:"videoDes",status:"empty"},
 ];
 
 exports.repoInit = function(repoPath, callback) {
@@ -367,18 +369,40 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
     }
   })
 }
-/*
-function traversalRepos = function(callback) {
-  for(var index in repos){
-    var repoPath=path.join(config.RESOURCEPATH,repos[index]);
-    callback(repoPath);
-  }
+
+var num=repos.length;
+var index=0;
+function isEmptyRepo(repoPath,completeCb){
+  var exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git show ';
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  exec(comstr, function(err, stdout, stderr) {
+    //console.log(stdout+stderr);
+    if(err){
+      if(stdout.indexOf("fatal: bad default revision")>=0){
+        console.log("empty repo: "+repos[index].name);
+      }
+    }
+    else{
+      console.log("hot repo: "+repos[index].name);
+      repos[index].status="hot";
+    }
+    index++;
+    if(index==num){
+      completeCb();
+    }
+    else{
+      isEmptyRepo(path.join(config.RESOURCEPATH,repos[index].name),completeCb);
+    }
+  });
 }
 
-exports.getHotRepos = function(callback) {
-  traversalRepos(function(repoPath){
-    var exec = require('child_process').exec;
-    var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + file;
-    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+function getReposStatus (callback) {
+  isEmptyRepo(path.join(config.RESOURCEPATH,repos[index].name),function(){
+    for(var index in repos){
+      console.log(repos[index]);
+    }
+    callback();
   });
-}*/
+}
+exports.getReposStatus=getReposStatus;
