@@ -1233,7 +1233,26 @@ function writeDesktopFile(callback, sFileName, oEntries) {
   }
 }
 
-
+/** 
+ *
+ * @Method: getAllDesktopFile
+ *    get all .desktop files in local
+ *
+ * @param: callback
+ *    @result
+ *    object, an array of all desktop file's name
+ *
+ *    example:
+ *        [
+ *         "urxvt.desktop",
+ *         "lynx.desktop",
+ *         "rodent.desktop",
+ *         "icecat.desktop",
+ *         "pcmanfm.desktop",
+ *         "mozilla-browser.desktop",
+ *        ]
+ *
+ **/
 function getAllDesktopFile(callback) {
   if (typeof callback !== 'function')
     throw 'Bad type for callback';
