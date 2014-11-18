@@ -70,7 +70,7 @@ function createData(items, callback) {
       var mtime = stat.mtime;
       var ctime = stat.ctime;
       var size = stat.size;
-      var cate = utils.getCategory(items);
+      var cate = utils.getCategoryByPath(items);
       var category = CATEGORY_NAME;
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
@@ -129,7 +129,7 @@ function createData(items, callback) {
               var mtime = stat.mtime;
               var ctime = stat.ctime;
               var size = stat.size;
-              var cate = utils.getCategory(_item);
+              var cate = utils.getCategoryByPath(_item);
               var category = CATEGORY_NAME;
               var itemFilename = cate.filename;
               var itemPostfix = cate.postfix;
@@ -186,7 +186,7 @@ exports.createData = createData;
 
 
 /**
- * @method removeMusicByUri
+ * @method removeByUri
  *    Remove Music by uri.
  * @param uri
  *    The Music's URI.
