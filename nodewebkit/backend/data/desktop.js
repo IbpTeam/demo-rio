@@ -609,9 +609,12 @@ function parseDesktopFile(callback, sPath) {
           return "$";
         })
         data = data.split('$');
-        if (data[0] === "" | data[0] === "\n") {
+        
+        var reg = new RegExp('#\n|#\s|#^[a-z]');
+        if (data[0] === "" | data[0] === "\n" | reg.test(data[0])) {
           data.shift(); //the first element is a "", remove it
         }
+        console.log(data)
         if (desktopHeads.length === data.length) {
           for (var i = 0; i < data.length; i++) {
             var lines = data[i].split('\n');
