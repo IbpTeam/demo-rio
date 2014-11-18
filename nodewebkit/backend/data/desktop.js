@@ -1849,3 +1849,73 @@ function openDataByRawPath(callback, filePath) {
   })
 }
 exports.openDataByRawPath = openDataByRawPath;
+
+
+/** 
+ * @Method: linkAppToDesktop
+ *    Make a soft link from a desktop file to /desktop or /dock
+ *
+ * @param2: sApp
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'exampleName.desktop'
+ *
+ * @param3: sType
+ *    string, only 2 choices: 'desktop', 'dock'
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function linkAppToDesktop(sApp, sType, callback) {
+  if (sType !== 'desktop' && sType !== 'dock') {
+    var _err = "Error: bad dir type!";
+    return callback(_err, null);
+  }
+  var sSrc = pathModule.join(REAL_APP_DIR, sApp);
+  var sDir = pathModule.join(REAL_DIR, sType, sApp);
+  fs.symlink(sSrc, sDir, function(err) {
+    if (err) {
+      console.log(err, sSrc, sDir)
+      return callback(err, null);
+    }
+    callback(null, 'success');
+  })
+}
+exports.linkAppToDesktop = linkAppToDesktop;
+
+/** 
+ * @Method: unlinkApp
+ *    Unlink from a desktop file to /desktop or /dock
+ *
+ * @param2: sDir
+ *    string, a link short path as /desktop/test.desktop.
+ 
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function unlinkApp(sDir, callback) {
+  var sTarget = pathModule.join(REAL_DIR, sDir);
+  fs.unlink(sTarget, function(err) {
+    if (err) {
+      console.log(err, sTarget)
+      return callback(err, null);
+    }
+    callback(null, 'success');
+  })
+}
+exports.unlinkApp = unlinkApp;

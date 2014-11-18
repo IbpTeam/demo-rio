@@ -385,6 +385,45 @@
     });
   }
 
+  function linkAppToDesktopCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API linkAppToDesktop()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_linkAppToDesktop(linkAppToDesktopCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sApp = 'totem.desktop';
+      var sType = 'desktop';
+      data.linkAppToDesktop(linkAppToDesktopCb,sApp,sType);
+    });
+  }
+
+  function unlinkAppCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API unlinkApp()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_unlinkApp(unlinkAppCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sDir = '/desktop/totem.desktop';
+      data.unlinkApp(unlinkAppCb,sDir);
+    });
+  }
+
 
   </script>
 
@@ -861,6 +900,69 @@
   function test_getAllDesktopFile(getAllDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
       data.getAllDesktopFile(getAllDesktopFileCb);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('linkAppToDesktop')">linkAppToDesktop(linkAppToDesktopCb,sApp,sType)<span><a class="mark" href="#test_linkAppToDesktop" id="test_linkAppToDesktop" onclick="test_linkAppToDesktop(linkAppToDesktopCb)">test</a></span></h2>
+<div id="linkAppToDesktop" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function linkAppToDesktopCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API linkAppToDesktop()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_linkAppToDesktop(linkAppToDesktopCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sApp = 'totem.desktop';
+      var sType = 'desktop';
+      data.linkAppToDesktop(linkAppToDesktopCb,sApp,sType);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('unlinkApp')">unlinkApp(unlinkAppCb,sDir)<span><a class="mark" href="#test_unlinkApp" id="test_unlinkApp" onclick="test_unlinkApp(unlinkAppCb)">test</a></span></h2>
+<div id="unlinkApp" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function unlinkAppCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API unlinkApp()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_unlinkApp(unlinkAppCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sDir = '/desktop/totem.desktop';
+      data.unlinkApp(unlinkAppCb,sDir);
     });
   }
 </pre>
