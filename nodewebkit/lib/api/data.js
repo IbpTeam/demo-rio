@@ -610,29 +610,29 @@ exports.initDesktop = initDesktop;
  *
  * THIS IS NOT AN API FOR APPLICATIONS, ONLY HERE FOR TEST
  *
- * @Method: findAllDesktopFiles
- *    find all .desktop files in local
+ * @Method: getAllDesktopFile
+ *    get all .desktop files in local
  *
  * @param: callback
  *    @result
- *    object, an array of all desktop file's full path
+ *    object, an array of all desktop file's name
  *
  *    example:
  *        [
- *         "/usr/share/xfce4/helpers/urxvt.desktop",
- *         "/usr/share/xfce4/helpers/lynx.desktop",
- *         "/usr/share/xfce4/helpers/rodent.desktop",
- *         "/usr/share/xfce4/helpers/icecat.desktop",
- *         "/usr/share/xfce4/helpers/pcmanfm.desktop",
- *         "/usr/share/xfce4/helpers/mozilla-browser.desktop",
+ *         "urxvt.desktop",
+ *         "lynx.desktop",
+ *         "rodent.desktop",
+ *         "icecat.desktop",
+ *         "pcmanfm.desktop",
+ *         "mozilla-browser.desktop",
  *        ]
  *
  **/
-function findAllDesktopFiles(findAllDesktopFilesCb) {
-  console.log("Request handler 'findAllDesktopFiles' was called.");
-  desktopConf.findAllDesktopFiles(findAllDesktopFilesCb);
+function getAllDesktopFile(getAllDesktopFileCb) {
+  console.log("Request handler 'getAllDesktopFile' was called.");
+  desktopConf.getAllDesktopFile(getAllDesktopFileCb);
 }
-exports.findAllDesktopFiles = findAllDesktopFiles;
+exports.getAllDesktopFile = getAllDesktopFile;
 
 /** 
  * @Method: readDesktopConfig

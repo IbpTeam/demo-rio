@@ -609,12 +609,11 @@ function parseDesktopFile(callback, sPath) {
           return "$";
         })
         data = data.split('$');
-        
+
         var reg = new RegExp('#\n|#\s|#^[a-z]');
         if (data[0] === "" | data[0] === "\n" | reg.test(data[0])) {
           data.shift(); //the first element is a "", remove it
         }
-        console.log(data)
         if (desktopHeads.length === data.length) {
           for (var i = 0; i < data.length; i++) {
             var lines = data[i].split('\n');
@@ -1233,6 +1232,35 @@ function writeDesktopFile(callback, sFileName, oEntries) {
     console.log("Not a linux system! Not supported now!");
   }
 }
+
+
+function getAllDesktopFile(callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type for callback';
+  var systemType = os.type();
+  if (systemType === "Linux") {
+    var xdgDataDir = [];
+    var sAllDesktop = "";
+    var sTarget = process.env["HOME"] + "/.resources/desktop/data/applications";
+    var sBoundary = '.desktop';
+    var sLimits = ' | grep ' + sBoundary
+    var sCommand = 'ls ' + sTarget + sLimits;
+    console.log('runnnnnnnnnnnnnnn: ' + sCommand)
+    exec(sCommand, function(err, stdout, stderr) {
+      if (err) {
+        console.log(stderr);
+        console.log(err, stdout, stderr);
+        return callback(err, null);
+      }
+      stdout = stdout.split('\n')
+      callback(null, stdout);
+    })
+  } else {
+    console.log("Not a linux system! Not supported now!")
+  }
+}
+exports.getAllDesktopFile = getAllDesktopFile;
+
 
 /** 
  * @Method: readDesktopConfig
