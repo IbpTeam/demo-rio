@@ -6,6 +6,8 @@ var ds = require("../../lib/api/device_service");
 var devicesList=new Array();
 exports.devicesList = devicesList;
 
+var USER_ACCOUNT = "v1";
+
 function getDeviceList(){
   commonDAO.findItems(null,["devices"],null,null,function(err,items){
     if(err){
@@ -106,17 +108,25 @@ function rmDevice(device){
 }
 exports.addDevice = addDevice;
 
+/**
+ * @method listenDeviceCallback
+ *    Callback for device linstener.
+ * @param callback
+ *    This callback.
+ */
+function listenDeviceCallback(deviceObj){
+  if(deviceObj.flag === "up"){
+    console.log("device up:", deviceObj);
+  }
+  if(deviceObj.flag === "down"){
+    console.log("device down:", deviceObj);
+  }
+}
+
 function startDeviceDiscoveryService(){
   console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$start Device Discovery Service ");
   getDeviceList();
-  ds.addListener(function(deviceObj){
-    if(deviceObj.flag === "up"){
-      console.log("device up:", deviceObj);
-    }
-    if(deviceObj.flag === "down"){
-      console.log("device down:", deviceObj);
-    }
-  });
+  ds.addListenerByAccount(listenDeviceCallback, USER_ACCOUNT);
   /*mdns.addDeviceListener(function (signal, args){
     if(args==null || args.txt==null){
       return;
