@@ -1,6 +1,30 @@
-目录结构
-nodewebkit目录是后端程序目录，是一个node module，名为demo-rio
-datamgr目录是数据管理器前段程序
-testAPI目录是测试代码目录
-sdk目录是存放应用开发相关文件，其中的lib目录被每个应用依赖，需要拷贝至各个目录
-docs目录存放开发文档相关文件
+1.目录结构
+1.1 nodewebkit:后端程序目录，是一个node module，名为demo-rio
+1.2 datamgr:数据管理器前端程序
+1.3 testAPI:测试代码目录
+1.4 sdk:存放应用开发相关文件，其中的lib目录被每个应用依赖，需要拷贝至各个目录
+1.5 docs:存放开发文档相关文件
+
+2.运行数据管理器datamgr
+2.1 进入repo目录执行:
+      $. set_env
+2.2 运行主程序：
+      $r
+2.3 选择1打开datamgr：
+      $1
+2.4 第一次运行后datamgr中没有数据，从现有系统中导入数据：
+      $r
+      $2
+      $选择“App: db-insert-data”，按照提示选择数据文件所在路径
+    再次运行datamgr，即可看到导入的数据：
+      $r
+      $1
+
+3.查看及测试数据框架API
+3.1 进入repo目录执行:
+      $. set_env
+3.2 运行testAPI应用：
+      $r
+      $2
+3.3 选择“App: test_API”链接，即可看到所有类型的API。对于每一个API，都可以看到详细信息和使用范例，开发者还可以直接点击“test”对API进行测试，查看其返回结果。
+
