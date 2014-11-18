@@ -1021,3 +1021,34 @@ function repoResetFile(repoResetFileCb, category, commitID, file) {
   });
 }
 exports.repoResetFile = repoResetFile;
+
+
+/** 
+ * @Method: renameDataByUri
+ *    rename a file
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: sUri
+ *    string, a specific uri, as '9a67fd92557d84e2f657122e54c190b83cc6e#document'
+ *
+ * @param4: sNewName
+ *    string, a file name, as 'test_rename.txt'
+ *
+ * @param1: renameDataByUriCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ **/
+function renameDataByUri(category,sUri, sNewName, renameDataByUriCb) {
+  console.log("Request handler 'renameDataByUri' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.rename(sUri, sNewName, renameDataByUriCb);
+}
+exports.renameDataByUri = renameDataByUri;

@@ -543,3 +543,70 @@ function syncOnlineReq(cate) {
 }
 exports.syncOnlineReq = syncOnlineReq;
 
+
+function renameDataByUri(category, sUri, sNewName, callback) {
+  var sCondition = "URI = '" + sUri + "'";
+  commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    var item = result[0];
+    var sOriginPath = item.path;
+    var sOriginName = path.basename(sOriginPath);
+    var sNewPath = path.dirname(sOriginPath) + '/' + sNewName;
+    if (sNewName === sOriginName) {
+      return callback(null, 'success');
+    }
+    console.log('1==================')
+    fs_extra.move(sOriginPath, sNewPath, function(err) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      console.log('2==================')
+      var reg_path = new RegExp('/' + category + '/');
+      var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/')+'.md';
+      var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
+      fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
+        if (err) {
+          console.log(err);
+          return callback(err, null);
+        }
+        console.log('3==================')
+        var currentTime = (new Date());
+        console.log(item);
+        var sUri = item.URI;
+        var oUpdataInfo = {
+          URI: sUri,
+          category: category,
+          filename: utils.getFileNameByPathShort(sNewPath),
+          postfix: utils.getPostfixByPathShort(sNewPath),
+          lastModifyTime: currentTime,
+          lastAccessTime: currentTime,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID,
+          path:sNewPath
+        }
+        commonDAO.updateItem(oUpdataInfo, function(err) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          console.log('4==================')
+          dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
+            if (result === "success") {
+              var sRepoPath = utils.getRepoDir(category);
+              var sRepoDesPath = utils.getDesRepoDir(category);
+              console.log('5==================')
+              repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
+                callback(null, result);
+              })
+            }
+          })
+        })
+      })
+    })
+  })
+}
+exports.renameDataByUri = renameDataByUri;

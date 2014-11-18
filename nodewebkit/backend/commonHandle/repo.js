@@ -370,7 +370,37 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
   })
 }
 
-
+/** 
+ * @Method: repoCommitBoth
+ *    To get git log in a specific git repo
+ *
+ * @param1: op
+ *    string, only 3 choices: 'add', 'rm', 'ch'.
+ *
+ * @param2: realPath
+ *    string, a category repo path,
+ *            usually as :'/home/xiquan/.resource/document/data/somefile.txt'
+ *
+ * @param3: desPath
+ *    string, a category repo path,
+ *            usually as : '/home/xiquan/.resource/documentDes/data/somefile.txt.md'
+ *
+ * @param4: oFiles
+ *    array, a array of file path
+ *
+ * @param5: oDesFiles
+ *    array, a array of des file path
+ *
+ * @param6: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        objcet, retrieve 'success' when success
+ *
+ **/
 exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
   if (op = 'add') {
     var repoCommit = repoAddsCommit;
@@ -428,3 +458,41 @@ function getReposStatus (callback) {
   });
 }
 exports.getReposStatus=getReposStatus;
+
+
+exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callback) {
+  var exec = require('child_process').exec;
+  var sDesOrigin = sOrigin.replace(/\/data\//, 'Des/data/') + '.md';
+  var sDesNew = sNew.replace(/\/data\//, 'Des/data/') + '.md';
+  console.log('===================',sDesOrigin,sDesNew)
+  var deComstr = 'cd ' + desRepoPath;
+  var deviceInfo = '"device":"' + config.uniqueID + '"';
+  deComstr = deComstr + ' && git rm "' + sDesOrigin + '"' + ' && git add "' + sDesNew + '"';
+  var opInfo = '"op":"rename"';
+  var fileInfo = '"file":["' + sDesOrigin + '","' + sDesNew + '"]';
+  var commitLog = '{' + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
+  exec(deComstr, function(error, stdout, stderr) {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    getLatestCommit(desRepoPath, function(relateCommitId) {
+      var comstr = 'cd ' + repoPath;
+      comstr = comstr + ' && git rm "' + sOrigin + '"' + ' && git add "' + sNew + '"';
+      var opInfo = '"op":"rename"';
+      var fileInfo = '"file":["' + sOrigin + '","' + sNew + '"]';
+      var relateCommit = '"relateCommit": "' + relateCommitId + '",';
+      var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
+      comstr = comstr + " && git commit -m '" + commitLog + "'";
+      console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
+      exec(comstr, function(error, stdout, stderr) {
+        if (error) {
+          console.log("Git change error", error, stdout);
+          return
+        }
+        console.log("Git change success");
+        callback();
+      });
+    })
+  })
+}
