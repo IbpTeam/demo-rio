@@ -20,6 +20,18 @@ var repos=[
   {name:"video",status:"empty"},
   {name:"videoDes",status:"empty"},
 ];
+var desRepos=[
+  {name:"contactDes",status:"empty"},
+  {name:"desktopDes",status:"empty"},
+  {name:"documentDes",status:"empty"},
+  {name:"musicDes",status:"empty"},
+  {name:"otherDes",status:"empty"},
+  {name:"pictureDes",status:"empty"},
+  {name:"videoDes",status:"empty"},
+];
+
+var num=desRepos.length;
+var index=0;
 
 exports.repoInit = function(repoPath, callback) {
   git.Repo.init(repoPath, false, function(initReporError, repo) {
@@ -370,7 +382,6 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
   })
 }
 
-
 exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
   if (op = 'add') {
     var repoCommit = repoAddsCommit;
@@ -392,8 +403,6 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
   })
 }
 
-var num=repos.length;
-var index=0;
 function isEmptyRepo(repoPath,completeCb){
   var exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git show ';
@@ -402,29 +411,33 @@ function isEmptyRepo(repoPath,completeCb){
     //console.log(stdout+stderr);
     if(err){
       if(stdout.indexOf("fatal: bad default revision")>=0){
-        console.log("empty repo: "+repos[index].name);
+        console.log("empty repo: "+desRepos[index].name);
       }
     }
     else{
-      console.log("hot repo: "+repos[index].name);
-      repos[index].status="hot";
+      console.log("hot repo: "+desRepos[index].name);
+      desRepos[index].status="hot";
     }
     index++;
     if(index==num){
       completeCb();
     }
     else{
-      isEmptyRepo(path.join(config.RESOURCEPATH,repos[index].name),completeCb);
+      isEmptyRepo(path.join(config.RESOURCEPATH,desRepos[index].name),completeCb);
     }
   });
 }
 
 function getReposStatus (callback) {
-  isEmptyRepo(path.join(config.RESOURCEPATH,repos[index].name),function(){
-    for(var index in repos){
-      console.log(repos[index]);
+  isEmptyRepo(path.join(config.RESOURCEPATH,desRepos[index].name),function(){
+    var aRepoArr = new Array();
+    for(var index in desRepos){
+      console.log(desRepos[index]);
+      if(repo[index].status != "empty"){
+        aRepoArr.push(desRepos[index].name);
+      }
     }
-    callback();
+    callback(aRepoArr);
   });
 }
 exports.getReposStatus=getReposStatus;
