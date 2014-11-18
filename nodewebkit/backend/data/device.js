@@ -134,7 +134,6 @@ function listenDeviceCallback(deviceObj){
 }
 
 function startDeviceDiscoveryService(){
-  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$start Device Discovery Service ");
   getDeviceList();
   ds.addListenerByAccount(listenDeviceCallback, USER_ACCOUNT);
   //Start device service
