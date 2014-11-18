@@ -895,25 +895,31 @@ function buildAppMethodInfo(targetFile, callback) {
     var result_ = {};
     var lens = result.length;
     var count = 0;
+    var reg = /\/.resources\//g;
     for (var i = 0; i < lens; i++) {
-      (function(listContent, filepath, callback_) {
-        deParseListFile(listContent, filepath, function() {
-          var isEnd = (count === lens - 1);
-          if (isEnd) {
-            console.log(result);
-            var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
-            var sListContent = JSON.stringify(listContent, null, 4);
-            fs.writeFile(outPutPath, sListContent, function(err) {
-              if (err) {
-                console.log(err);
-                return callback(err, null);
-              }
-              callback(null, 'success');
-            })
-          }
-          count++;
-        })
-      })(result_, result[i], callback);
+      var item = result[i];
+      if (!reg.test(item)) {
+        (function(listContent, filepath) {
+          deParseListFile(listContent, filepath, function() {
+            var isEnd = (count === lens - 1);
+            if (isEnd) {
+              console.log(result);
+              var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
+              var sListContent = JSON.stringify(listContent, null, 4);
+              fs.writeFile(outPutPath, sListContent, function(err) {
+                if (err) {
+                  console.log(err);
+                  return callback(err, null);
+                }
+                callback(null, 'success');
+              })
+            }
+            count++;
+          })
+        })(result_, item);
+      } else {
+        count++;
+      }
     }
   })
 }
@@ -1041,6 +1047,8 @@ function findAllDesktopFiles(callback) {
         console.log(err, stdout, stderr);
         return callback(err, null);
       }
+      //stdout = stdout.split('\n')
+      console.log(stdout)
       callback(null, stdout);
     })
   } else {
