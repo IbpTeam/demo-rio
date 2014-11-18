@@ -1,4 +1,6 @@
 var http = require("http");
+var https = require("https");
+var ws = require("ws");
 var url = require("url");
 var sys = require('sys');
 var path = require('path');
@@ -25,7 +27,37 @@ function start(route, handle) {
       route(handle, pathname, response, postData);
     });
   }
-  http.createServer(onRequest).listen(config.SERVERPORT);
+  var server;
+  if (config.ISSECURE === true){
+    try{
+      var options = {
+        key: fs.readFileSync(config.KEYPATH),
+        cert: fs.readFileSync(config.CERTPATH)
+      };
+      server = https.createServer(options, onRequest);
+    }catch(e){
+      console.log("Warning: some exception happened when create https server, so use http now.");
+      server = http.createServer(onRequest);
+    }
+  }else {
+    server = http.createServer(onRequest);
+  }
+  server.listen(config.SERVERPORT);
+
+  //Start the webSocketServer for path /ws
+  var WebSocketServer = require('ws').Server;
+  var wsServer = new WebSocketServer({server: server, path: config.WEBSOCKETPATH});
+  wsServer.on('connection', function(client) {
+    client.send('This is a message from the server! ' + new Date().getTime());
+    client.on('message', function(message){
+        console.log('received: %s', message);
+        route(handle, config.WEBSOCKETPATH, client, message);
+    });
+    client.on('disconnect',function(){
+      console.log('websocket has disconnected:%s', client);
+    });
+  });
+
   config.riolog("Server has started.");
 }
 
