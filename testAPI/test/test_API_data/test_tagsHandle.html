@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "2111e5d173432405ee078cdbef46f0ab#af59e506a952b2de3bb7#document";
+  var test_uri = "f721dae4cd299cc899a5ae9c589b6d0b#023df250a668c1868d52#picture";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -133,7 +133,7 @@
   }
   function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ["documents","Conference","Teaching","contactsphoto"];
+      var oTags = ["pictures"];
       data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
     });  
   }

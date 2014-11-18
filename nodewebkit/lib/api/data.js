@@ -63,6 +63,7 @@ function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
   var DocList = [];
   var MusList = [];
+  var VidList = [];
   var PicList = [];
   var DskList = [];
   var OtherList = [];
@@ -109,8 +110,10 @@ function loadResources(loadResourcesCb, path) {
             DocList.push(path + '/' + item);
           } else if (sPos == 'jpg' || sPos == 'png') {
             PicList.push(path + '/' + item);
-          } else if (sPos == 'mp3' || sPos == 'ogg') {
+          } else if (sPos == 'mp3') {
             MusList.push(path + '/' + item);
+          } else if (sPos == 'ogg') {
+            VidList.push(path + '/' + item);
           } else if (sPos == 'conf' || sPos == 'desktop') {
             DskList.push(path + '/' + item);
           } else {
@@ -126,26 +129,36 @@ function loadResources(loadResourcesCb, path) {
     if (err) {
       console.log(err);
       callback(err, null);
-    } else {
-
+    } 
+    else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
-        } else {
-
+        } 
+        else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
-            } else {
-              other.createData(OtherList, function(err,result){
+            } 
+            else {
+              video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback(err, null);
-                }else{
-                  console.log("load resources success!");
-                  loadResourcesCb('success');
+                  }
+                else{
+                  other.createData(OtherList, function(err,result){
+                    if (err) {
+                      console.log(err);
+                      callback(err, null);
+                    }
+                    else{
+                      console.log("load resources success!");
+                      loadResourcesCb('success');
+                    }
+                  });
                 }
               });
             }
@@ -605,64 +618,6 @@ function initDesktop(initDesktopCb) {
 }
 exports.initDesktop = initDesktop;
 
-/** 
- * @Method: writeDesktopFile
- *    modify a desktop file
- *
- * @param: writeDesktopFileCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "writeDesktopFile: desktop file NOT FOUND!"
- *                write error : "writeDesktopFile: write desktop file error!"
- *                parse error : "writeDesktopFile: parse desktop file error!"
- *                parse error : "writeDesktopFile: deparse desktop file error!"
- *                input  error: "writeDesktopFile: entry content empty!"
- *
- *    @param2: result
- *        string, retrieve 'success' when success
- *
- * @param2: sFileName
- *    string, a file name
- *    exmple: var sFileName = 'cinnamon';
- *
- * @param3: oEntries
- *    object, this object indludes those entries that you want
- *            to change in this desktop file.
- *
- *    example:
- *    var oEntries = {
- *      "[Desktop Entry]": {
- *        "Name": "Videos",
- *        "Name[zh_CN]": "test",
- *        "Comment": "test",
- *        "Comment[zh_CN]": "test",
- *        "Keywords": "test",
- *        "Exec": "test",
- *        "Icon": "test",
- *        "Terminal": "false",
- *        "Type": "test",
- *        "Categories": "test",
- *      },
- *      "[Desktop Action Play]": {
- *        "Name": "test/test",
- *        "Exec": "test --play-pause",
- *        "OnlyShowIn": "test;"
- *      },
- *      "[Desktop Action Next]": {
- *        "Name": "test",
- *        "Exec": "test --next",
- *        "OnlyShowIn": "Unity;"
- *      }
- *    }
- *
- **/
-function writeDesktopFile(writeDesktopFileCb, sFileName, oEntries) {
-  console.log("Request handler 'writeDesktopFile' was called.");
-  desktopConf.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
-}
-exports.writeDesktopFile = writeDesktopFile;
 
 /** 
  *

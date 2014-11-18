@@ -5,6 +5,22 @@ var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
 
+var repos=[
+  {name:"contactDes",status:"empty"},
+  {name:"desktop",status:"empty"},
+  {name:"desktopDes",status:"empty"},
+  {name:"document",status:"empty"},
+  {name:"documentDes",status:"empty"},
+  {name:"music",status:"empty"},
+  {name:"musicDes",status:"empty"},
+  {name:"other",status:"empty"},
+  {name:"otherDes",status:"empty"},
+  {name:"picture",status:"empty"},
+  {name:"pictureDes",status:"empty"},
+  {name:"video",status:"empty"},
+  {name:"videoDes",status:"empty"},
+];
+
 exports.repoInit = function(repoPath, callback) {
   git.Repo.init(repoPath, false, function(initReporError, repo) {
     if (initReporError)
@@ -40,7 +56,7 @@ exports.repoAddsCommit = function(repoPath, files, commitID, callback) {
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git add error");
-      console.log(error, stderr)
+      console.log(error, stderr,stdout)
     } else {
       console.log("Git add success");
       callback('success');
@@ -292,30 +308,28 @@ exports.getGitLog = function(repoPath, callback) {
     for (var i = 0; i < tmpLog.length; i++) {
       var Item = tmpLog[i];
       if (Item !== "") {
-        var re_Author = /Author/;
-        var re_Data = /Datae/;
-        var re_Merge = /Merge/;
-        var re_relate = /relateCommit/;
+        var reg_Author = /Author/;
+        var reg_Data = /Date/;
+        var reg_Merge = /Merge/;
+        var reg_relate = /relateCommit|\{"device":/;
         var logItem = Item.split('\n');
         var tmplogItem = {};
         tmplogItem.commitID = logItem[0];
-        logItem.shift();
-        for (var i = 0; i < logItem.length; i++) {
-          var item = logItem[i];
-          if (re_Author.test(item)) {
+        for (var j = 0; j < logItem.length; j++) {
+          var item = logItem[j];
+          if (reg_Author.test(item)) {
             tmplogItem.Author = item.replace(/Author:/, "");
-          } else if (re_Data.test(item)) {
+          } else if (reg_Data.test(item)) {
             tmplogItem.Date = item.replace(/Date:/, "");
-          } else if (re_Merge.test(item)) {
+          } else if (reg_Merge.test(item)) {
             tmplogItem.Merge = item.replace(/Merge:/, "");
-          } else if(re_relate.test(item)){
+          } else if(reg_relate.test(item)){
               tmplogItem.content = JSON.parse(item);
           }
         }
-        commitLog[tmplogItem.commitID] = tmplogItem;
+        commitLog[logItem[0]] = tmplogItem;
       }
     }
-    console.log(commitLog);
     callback(null, commitLog);
   })
 }
@@ -355,3 +369,40 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
     }
   })
 }
+
+var num=repos.length;
+var index=0;
+function isEmptyRepo(repoPath,completeCb){
+  var exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git show ';
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  exec(comstr, function(err, stdout, stderr) {
+    //console.log(stdout+stderr);
+    if(err){
+      if(stdout.indexOf("fatal: bad default revision")>=0){
+        console.log("empty repo: "+repos[index].name);
+      }
+    }
+    else{
+      console.log("hot repo: "+repos[index].name);
+      repos[index].status="hot";
+    }
+    index++;
+    if(index==num){
+      completeCb();
+    }
+    else{
+      isEmptyRepo(path.join(config.RESOURCEPATH,repos[index].name),completeCb);
+    }
+  });
+}
+
+function getReposStatus (callback) {
+  isEmptyRepo(path.join(config.RESOURCEPATH,repos[index].name),function(){
+    for(var index in repos){
+      console.log(repos[index]);
+    }
+    callback();
+  });
+}
+exports.getReposStatus=getReposStatus;
