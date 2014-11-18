@@ -605,64 +605,6 @@ function initDesktop(initDesktopCb) {
 }
 exports.initDesktop = initDesktop;
 
-/** 
- * @Method: writeDesktopFile
- *    modify a desktop file
- *
- * @param: writeDesktopFileCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "writeDesktopFile: desktop file NOT FOUND!"
- *                write error : "writeDesktopFile: write desktop file error!"
- *                parse error : "writeDesktopFile: parse desktop file error!"
- *                parse error : "writeDesktopFile: deparse desktop file error!"
- *                input  error: "writeDesktopFile: entry content empty!"
- *
- *    @param2: result
- *        string, retrieve 'success' when success
- *
- * @param2: sFileName
- *    string, a file name
- *    exmple: var sFileName = 'cinnamon';
- *
- * @param3: oEntries
- *    object, this object indludes those entries that you want
- *            to change in this desktop file.
- *
- *    example:
- *    var oEntries = {
- *      "[Desktop Entry]": {
- *        "Name": "Videos",
- *        "Name[zh_CN]": "test",
- *        "Comment": "test",
- *        "Comment[zh_CN]": "test",
- *        "Keywords": "test",
- *        "Exec": "test",
- *        "Icon": "test",
- *        "Terminal": "false",
- *        "Type": "test",
- *        "Categories": "test",
- *      },
- *      "[Desktop Action Play]": {
- *        "Name": "test/test",
- *        "Exec": "test --play-pause",
- *        "OnlyShowIn": "test;"
- *      },
- *      "[Desktop Action Next]": {
- *        "Name": "test",
- *        "Exec": "test --next",
- *        "OnlyShowIn": "Unity;"
- *      }
- *    }
- *
- **/
-function writeDesktopFile(writeDesktopFileCb, sFileName, oEntries) {
-  console.log("Request handler 'writeDesktopFile' was called.");
-  desktopConf.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
-}
-exports.writeDesktopFile = writeDesktopFile;
 
 /** 
  *
