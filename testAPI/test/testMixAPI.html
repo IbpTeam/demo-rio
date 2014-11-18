@@ -27,15 +27,6 @@
           console.log("mix.openDev:" + typeof res + " " + res);
         });
       });
-      WDC.requireAPI(["app"], function(app){
-        console.log("app:" + app);
-        app.getAppDataDir(function (dataPath){
-          console.log("AppDataDir:" + dataPath);
-        });
-        app.getAppArgv(function (argv){
-          console.log("AppArgv:" + argv);
-        });
-      });
     </script>
   </body>
 </html>
