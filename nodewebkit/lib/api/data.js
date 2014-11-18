@@ -608,8 +608,6 @@ exports.initDesktop = initDesktop;
 
 /** 
  *
- * THIS IS NOT AN API FOR APPLICATIONS, ONLY HERE FOR TEST
- *
  * @Method: getAllDesktopFile
  *    get all .desktop files in local
  *
