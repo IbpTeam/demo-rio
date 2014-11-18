@@ -558,13 +558,11 @@ function renameDataByUri(category, sUri, sNewName, callback) {
     if (sNewName === sOriginName) {
       return callback(null, 'success');
     }
-    console.log('1==================')
     fs_extra.move(sOriginPath, sNewPath, function(err) {
       if (err) {
         console.log(err);
         return callback(err, null);
       }
-      console.log('2==================')
       var reg_path = new RegExp('/' + category + '/');
       var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/')+'.md';
       var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
@@ -573,7 +571,6 @@ function renameDataByUri(category, sUri, sNewName, callback) {
           console.log(err);
           return callback(err, null);
         }
-        console.log('3==================')
         var currentTime = (new Date());
         console.log(item);
         var sUri = item.URI;
@@ -593,12 +590,10 @@ function renameDataByUri(category, sUri, sNewName, callback) {
             console.log(err);
             return callback(err, null);
           }
-          console.log('4==================')
           dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
             if (result === "success") {
               var sRepoPath = utils.getRepoDir(category);
               var sRepoDesPath = utils.getDesRepoDir(category);
-              console.log('5==================')
               repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
                 callback(null, result);
               })

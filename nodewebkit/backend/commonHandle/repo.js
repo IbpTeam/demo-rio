@@ -464,7 +464,6 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
   var exec = require('child_process').exec;
   var sDesOrigin = sOrigin.replace(/\/data\//, 'Des/data/') + '.md';
   var sDesNew = sNew.replace(/\/data\//, 'Des/data/') + '.md';
-  console.log('===================',sDesOrigin,sDesNew)
   var deComstr = 'cd ' + desRepoPath;
   var deviceInfo = '"device":"' + config.uniqueID + '"';
   deComstr = deComstr + ' && git rm "' + sDesOrigin + '"' + ' && git add "' + sDesNew + '"';
