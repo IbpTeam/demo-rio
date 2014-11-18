@@ -129,32 +129,27 @@ function loadResources(loadResourcesCb, path) {
     if (err) {
       console.log(err);
       callback(err, null);
-    } 
-    else {
+    } else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
-        } 
-        else {
+        } else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
-            } 
-            else {
+            } else {
               video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback(err, null);
-                  }
-                else{
-                  other.createData(OtherList, function(err,result){
+                } else {
+                  other.createData(OtherList, function(err, result) {
                     if (err) {
                       console.log(err);
                       callback(err, null);
-                    }
-                    else{
+                    } else {
                       console.log("load resources success!");
                       loadResourcesCb('success');
                     }
@@ -860,6 +855,55 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
 }
 exports.renameDesktopFile = renameDesktopFile;
 
+/** 
+ * @Method: linkAppToDesktop
+ *    Make a soft link from a desktop file to /desktop or /dock
+ *
+ * @param2: sApp
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'exampleName.desktop'
+ *
+ * @param3: sType
+ *    string, only 2 choices: 'desktop', 'dock'
+ *
+ * @param1: callback
+ *    @result, (_err)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ **/
+function linkAppToDesktop(linkAppToDesktopCb, sApp, sType) {
+  console.log("Request handler 'linkAppToDesktop' was called.");
+  desktopConf.linkAppToDesktop(sApp, sType, linkAppToDesktopCb);
+}
+exports.linkAppToDesktop = linkAppToDesktop;
+
+/** 
+ * @Method: unlinkApp
+ *    Unlink from a desktop file to /desktop or /dock
+ *
+ * @param2: sDir
+ *    string, a link full path.
+ 
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function unlinkApp(unlinkAppCb, sDir) {
+  console.log("Request handler 'unlinkApp' was called.");
+  desktopConf.unlinkApp(sDir, unlinkAppCb);
+}
+exports.unlinkApp = unlinkApp;
+
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
@@ -1046,7 +1090,7 @@ exports.repoResetFile = repoResetFile;
  *        string, retieve 'success' when success
  *
  **/
-function renameDataByUri(category,sUri, sNewName, renameDataByUriCb) {
+function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
   console.log("Request handler 'renameDataByUri' was called.");
   var cate = utils.getCategoryObject(category);
   cate.rename(sUri, sNewName, renameDataByUriCb);
