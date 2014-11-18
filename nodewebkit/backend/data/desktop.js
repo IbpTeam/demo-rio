@@ -529,7 +529,7 @@ function readDesktopFile(callback, sFileName) {
       function parseDesktopFileCb(err, attr) {
         if (err) {
           console.log(err);
-          var _err = "readDesktopFile : parse desktop sfile error!";
+          var _err = "readDesktopFile : parse desktop file error!";
           return callback(_err, null);
         }
         console.log("readDesktopFile success!");
@@ -609,7 +609,7 @@ function parseDesktopFile(callback, sPath) {
           return "$";
         })
         data = data.split('$');
-        if (data[0] === "") {
+        if (data[0] === "" | data[0] === "\n") {
           data.shift(); //the first element is a "", remove it
         }
         if (desktopHeads.length === data.length) {
