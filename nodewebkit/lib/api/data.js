@@ -63,6 +63,7 @@ function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
   var DocList = [];
   var MusList = [];
+  var VidList = [];
   var PicList = [];
   var DskList = [];
   var OtherList = [];
@@ -109,8 +110,10 @@ function loadResources(loadResourcesCb, path) {
             DocList.push(path + '/' + item);
           } else if (sPos == 'jpg' || sPos == 'png') {
             PicList.push(path + '/' + item);
-          } else if (sPos == 'mp3' || sPos == 'ogg') {
+          } else if (sPos == 'mp3') {
             MusList.push(path + '/' + item);
+          } else if (sPos == 'ogg') {
+            VidList.push(path + '/' + item);
           } else if (sPos == 'conf' || sPos == 'desktop') {
             DskList.push(path + '/' + item);
           } else {
@@ -126,26 +129,36 @@ function loadResources(loadResourcesCb, path) {
     if (err) {
       console.log(err);
       callback(err, null);
-    } else {
-
+    } 
+    else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
-        } else {
-
+        } 
+        else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
-            } else {
-              other.createData(OtherList, function(err,result){
+            } 
+            else {
+              video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback(err, null);
-                }else{
-                  console.log("load resources success!");
-                  loadResourcesCb('success');
+                  }
+                else{
+                  other.createData(OtherList, function(err,result){
+                    if (err) {
+                      console.log(err);
+                      callback(err, null);
+                    }
+                    else{
+                      console.log("load resources success!");
+                      loadResourcesCb('success');
+                    }
+                  });
                 }
               });
             }
