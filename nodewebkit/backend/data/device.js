@@ -114,12 +114,22 @@ exports.addDevice = addDevice;
  * @param callback
  *    This callback.
  */
-function listenDeviceCallback(deviceObj){
+function listenDeviceCallback(deviceObj){ 
+  var device={
+    device_id:deviceObj.info.txt[2],
+    name:deviceObj.info.host,
+    resourcePath:config.RESOURCEPATH,
+    ip:deviceObj.info.address,
+    account:deviceObj.info.txt[1]
+  };
   if(deviceObj.flag === "up"){
-    console.log("device up:", deviceObj);
+    console.log("device up:", device);
+    addDevice(device);
+    msgTransfer.serviceUp(device);
   }
   if(deviceObj.flag === "down"){
-    console.log("device down:", deviceObj);
+    console.log("device down:", device);  
+    rmDevice(device);
   }
 }
 
@@ -127,47 +137,11 @@ function startDeviceDiscoveryService(){
   console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$start Device Discovery Service ");
   getDeviceList();
   ds.addListenerByAccount(listenDeviceCallback, USER_ACCOUNT);
-  /*mdns.addDeviceListener(function (signal, args){
-    if(args==null || args.txt==null){
-      return;
-    }
-    if(args.txt[0]=="demo-rio"){
-      var device={
-        device_id:args.txt[1],
-        name:args.txt[2],
-        resourcePath:args.txt[3],
-        ip:args.txt[4],
-        account:args.txt[5]
-      };
-      switch(signal){
-        case 'ItemNew':{
-          addDevice(device);
-          msgTransfer.serviceUp(device);
-        }       
-        break;
-        case 'ItemRemove':{
-          //socket.emit('mdnsDown', args);
-          console.log(args);  
-          rmDevice(device);        
-        }
-        break;
-      }
-    }
-  });*/
   //Start device service
   ds.startMdnsService(function(state) {
     if (state === true) {
       console.log('start MDNS service successful!');
     };
   });
-  /*mdns.createServer(function(){
-    var name = config.SERVERNAME;
-    var port = config.MDNSPORT;
-    var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
-      console.log("************************************");
-      console.log(txtarray);
-            console.log("************************************");
-    mdns.entryGroupCommit(name,  port, txtarray);
-  });*/
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
