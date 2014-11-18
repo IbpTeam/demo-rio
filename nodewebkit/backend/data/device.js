@@ -1,7 +1,7 @@
 var commonDAO = require("../commonHandle/CommonDAO");
 var msgTransfer = require("../Transfer/msgTransfer");
 var config = require("../config");
-var mdns = require('../../lib/api/device.js');
+var ds = require("../../lib/api/device_service");
 
 var devicesList=new Array();
 exports.devicesList = devicesList;
@@ -109,7 +109,15 @@ exports.addDevice = addDevice;
 function startDeviceDiscoveryService(){
   console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$start Device Discovery Service ");
   getDeviceList();
-  mdns.addDeviceListener(function (signal, args){
+  ds.addListener(function(deviceObj){
+    if(deviceObj.flag === "up"){
+      console.log("device up:", deviceObj);
+    }
+    if(deviceObj.flag === "down"){
+      console.log("device down:", deviceObj);
+    }
+  });
+  /*mdns.addDeviceListener(function (signal, args){
     if(args==null || args.txt==null){
       return;
     }
@@ -135,15 +143,21 @@ function startDeviceDiscoveryService(){
         break;
       }
     }
+  });*/
+  //Start device service
+  ds.startMdnsService(function(state) {
+    if (state === true) {
+      console.log('start MDNS service successful!');
+    };
   });
-  mdns.createServer(function(){
+  /*mdns.createServer(function(){
     var name = config.SERVERNAME;
     var port = config.MDNSPORT;
     var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
-/*      console.log("************************************");
+      console.log("************************************");
       console.log(txtarray);
-            console.log("************************************");*/
+            console.log("************************************");
     mdns.entryGroupCommit(name,  port, txtarray);
-  });
+  });*/
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
