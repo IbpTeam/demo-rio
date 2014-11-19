@@ -37,7 +37,8 @@ var msgType = {
   TYPE_RESPONSE:"syncResponse",
   TYPE_START:"syncStart",
   TYPE_COMPLETE:"syncComplete",
-  TYPE_ONLINE:"syncOnline"
+  TYPE_ONLINE:"syncOnline",
+  TYPE_REFUSED:"syncRefused"
 };
 
 // @const
@@ -81,6 +82,10 @@ function recieveMsgCb(msgobj){
     break;
     case msgType.TYPE_ONLINE: {
       syncOnline(oMessage);
+    }
+    break;
+    case msgType.TYPE_REFUSED: {
+      syncRefused(oMessage);
     }
     break;
     default: {
@@ -266,7 +271,7 @@ function getPubKey(callback){
  * @param device
  *    Device object,include device id,name,ip and so on.
  */
-exports.serviceUp = function(device){
+function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
     console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
     return;
@@ -306,6 +311,43 @@ exports.serviceUp = function(device){
     }
   }
 }
+exports.serviceUp = serviceUp;
+
+/**
+ * @method syncRefused
+ *    Sync refused callback.
+ * @param msgObj
+ *    Message object.
+ */
+function syncRefused(msgObj){
+  switch(iCurrentState){
+    case syncState.SYNC_IDLE:{
+      //Todo send error msg to reset remote state
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+    case syncState.SYNC_REQUEST:{
+      var syncDevice = syncList.shift();
+      syncList.push(syncDevice);
+      iCurrentState = syncState.SYNC_IDLE;
+      setTimeout(serviceUp(syncList[0]),5000);
+      console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
+      break;
+    }
+    case syncState.SYNC_RESPONSE:{
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+    case syncState.SYNC_START:{
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+    case syncState.SYNC_COMPLETE:{
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+  }
+}
 
 /**
  * @method syncRequest
@@ -340,20 +382,39 @@ function syncRequest(msgObj){
       break;
     }
     case syncState.SYNC_REQUEST:{
-      //ToDo-判断等待的是否为同一台设备
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
     case syncState.SYNC_RESPONSE:{
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
     case syncState.SYNC_START:{
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
   }
@@ -412,6 +473,12 @@ function syncResponse(msgObj){
   }
 }
 
+/**
+ * @method syncStart
+ *    Sync start callback.
+ * @param msgObj
+ *    Message object.
+ */
 function syncStart(msgObj){
   var device = {
     device_id:msgObj.deviceId,
@@ -515,6 +582,9 @@ function syncComplete(msgObj){
       //Todo check sync list, if length>0, do sync.
       //if syncList.length>0, get device info ,and call serviceup
       iCurrentState = syncState.SYNC_IDLE;
+      if(syncList.length > 0){
+        serviceUp(syncList[0]);
+      }
       break;
     }
   }
