@@ -2,11 +2,11 @@
 pre_config();
 var DataAPI;
 var AppAPI;
-WDC.requireAPI(['data', 'app'], function(data, app){
-  console.log("data:" +  data + " app:" + app);
-  DataAPI=data;
-  AppAPI=app;
-  $(document).ready(function() {
+function main(params){
+  WDC.requireAPI(['data', 'app'], function(data, app){
+    console.log("data:" +  data + " app:" + app);
+    DataAPI=data;
+    AppAPI=app;
     DataAPI.getServerAddress(configuration);
     //configuration();
 
@@ -46,14 +46,11 @@ WDC.requireAPI(['data', 'app'], function(data, app){
     });
     folder.on('set_favorites', function(event) {
       var messages = Array.prototype.slice.call(arguments, 1);
-      //console.log('set favorites2.', messages);
-      sidebar.set_favorites(messages);
-  
+      sidebar.set_favorites(messages);  
     });
     folder.on('set_sidebar', function(event){
       var messages = Array.prototype.slice.call(arguments, 1);
       sidebar.set_tags(messages);
-      sidebar.set_filters(messages);
       sidebar.set_recent(messages);
     });
     
@@ -61,18 +58,11 @@ WDC.requireAPI(['data', 'app'], function(data, app){
       folder.open(dir);
       addressbar.set(dir);
     });
-  /*  sidebar.on('do_filter', function(event, keyword, json) {
-      console.log('wangyu: on do_filter.');
-      var messages = Array.prototype.slice.call(arguments, 2);
-      sidebar.do_filter(messages, keyword);
-    });*/
     sidebar.on('show_filter_result', function(event) {
       var messages = Array.prototype.slice.call(arguments, 1);
       folder.get_callback_data(messages);
-      //addressbar.set(dir);
     });
     addressbar.on('navigate', function(event, dir) {
-      //console.log('**************dir:', dir);
       folder.open(dir);
     });
     addressbar.on('fold_mode_view', function() {
@@ -87,12 +77,7 @@ WDC.requireAPI(['data', 'app'], function(data, app){
       im_view.showRec(msgobj);
     });
   });
-});
-
-//function folder_view_mode(){
-//  var folder = new Folder($('#files'));
-//  folder.use_folder_view_mode();
-//}
+}
 
 function pre_config(){
   (function(jQuery) {

@@ -1,4 +1,5 @@
 var path = require("path");
+var exec = require('child_process').exec;
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
@@ -66,9 +67,15 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
-  } else if (itemPostfix == 'mp3' || itemPostfix == 'ogg') {
+  } else if (itemPostfix == 'mp3') {
     return {
       category: "music",
+      filename: itemFilename,
+      postfix: itemPostfix
+    };
+  } else if (itemPostfix == 'ogg') {
+    return {
+      category: "video",
       filename: itemFilename,
       postfix: itemPostfix
     };
@@ -159,25 +166,25 @@ exports.getCategoryObjectByUri = function(sUri) {
 
 //example: ~/.resources/.documentDes/data/$FILENAME
 exports.getDesPath = function(category, fullName) {
-  var sDirName = category + "Des";
-  var sDesName = fullName + ".md";
-  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
-}
-//example: ~/.resources/.document/data
+    var sDirName = category + "Des";
+    var sDesName = fullName + ".md";
+    return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
+  }
+  //example: ~/.resources/.document/data
 exports.getRealDir = function(category) {
-  return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
-}
-//example: ~/.resources/.documentDes/data
+    return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
+  }
+  //example: ~/.resources/.documentDes/data
 exports.getDesDir = function(category) {
-  var sDirName = category + "Des";
-  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
-}
-//example: ~/.resources/.document
+    var sDirName = category + "Des";
+    return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
+  }
+  //example: ~/.resources/.document
 exports.getRepoDir = function(category) {
-  var sDirName = category ;
-  return path.join(process.env["HOME"], ".resources", sDirName);
-}
-//example: ~/.resources/.documentDes
+    var sDirName = category;
+    return path.join(process.env["HOME"], ".resources", sDirName);
+  }
+  //example: ~/.resources/.documentDes
 exports.getDesRepoDir = function(category) {
   var sDirName = category + "Des";
   return path.join(process.env["HOME"], ".resources", sDirName);
@@ -192,61 +199,24 @@ exports.getRealRepoDir = function(category) {
   return path.join(process.env["HOME"], ".resources", category);
 }
 
-exports.getCategory = function(path) {
-  var pointIndex = path.lastIndexOf('.');
-  if (pointIndex == -1) {
-    var itemPostfix = "none";
-    var nameindex = path.lastIndexOf('/');
-    var itemFilename = path.substring(nameindex + 1, path.length);
-  } else {
-    var itemPostfix = path.substr(pointIndex + 1);
-    var nameindex = path.lastIndexOf('/');
-    var itemFilename = path.substring(nameindex + 1, pointIndex);
-  }
-  if (itemPostfix == 'none' ||
-    itemPostfix == 'ppt' ||
-    itemPostfix == 'pptx' ||
-    itemPostfix == 'doc' ||
-    itemPostfix == 'docx' ||
-    itemPostfix == 'wps' ||
-    itemPostfix == 'odt' ||
-    itemPostfix == 'et' ||
-    itemPostfix == 'txt' ||
-    itemPostfix == 'xls' ||
-    itemPostfix == 'xlsx' ||
-    itemPostfix == 'ods' ||
-    itemPostfix == 'zip' ||
-    itemPostfix == 'sh' ||
-    itemPostfix == 'gz' ||
-    itemPostfix == 'html' ||
-    itemPostfix == 'et' ||
-    itemPostfix == 'odt' ||
-    itemPostfix == 'pdf' ||
-    itemPostfix == 'html5ppt') {
-    return {
-      category: "Documents",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'jpg' || itemPostfix == 'png') {
-    return {
-      category: "Pictures",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'mp3' || itemPostfix == 'ogg') {
-    return {
-      category: "Music",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
-    return {
-      category: "Configuration",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  }
+
+//get file name with postfix from a path
+exports.getFileNameByPath = function(sPath) {
+  var nameindex = sPath.lastIndexOf('/');
+  return sPath.substring(nameindex + 1, sPath.length);
+}
+
+//get file name without postfix from a path
+exports.getFileNameByPathShort = function(sPath) {
+  var nameindex = sPath.lastIndexOf('/');
+  var posindex = sPath.lastIndexOf('.');
+  return sPath.substring(nameindex + 1, posindex-1);
+}
+
+//get file postfix from a path
+exports.getPostfixByPathShort = function(sPath) {
+  var posindex = sPath.lastIndexOf('.');
+  return sPath.substring(posindex+1, sPath.length);
 }
 
 exports.renameExists = function(allFiles) {
@@ -285,4 +255,32 @@ exports.getRecent = function(items, num) {
   }
   var DataByNum = oNewData.slice(0, num);
   return DataByNum;
+}
+
+exports.findFilesFromSystem = function(targe, callback) {
+  if (typeof callback !== 'function')
+    throw 'Bad type for callback';
+  var sCommand = 'locate ' + targe;
+  exec(sCommand, function(err, stdout, stderr) {
+    if (err) {
+      console.log('find ' + targe + ' error!');
+      console.log(err, stderr);
+      return callback(err, null);
+    } else if (stdout == '') {
+      var _err = "Not find at all!";
+      console.log(_err);
+      return callback(_err, null);
+    }
+    result = stdout.split('\n');
+    console.log('result: \n', result);
+    callback(null, result);
+  });
+}
+
+exports.isExist = function(entry, array) {
+  for (var i = 0; i < array.length; i++) {
+    if (entry === array[i])
+      return true;
+  }
+  return false;
 }

@@ -1,41 +1,35 @@
 /**
  * @Copyright:
  *
- * @Description: Music Handle.
+ * @Description: Documents Handle.
  *
  * @author: Wangfeng Xiquan Yuanzhe
  *
- * @Data:2014.10.28
+ * @Data:2014.11.15
  *
- * @version:0.3.0
+ * @version:0.3.2
  **/
 
-var http = require("http");
-var url = require("url");
-var sys = require('sys');
 var pathModule = require('path');
-var git = require("nodegit");
 var fs = require('fs');
-var fs_extra = require('fs-extra');
-var os = require('os');
 var config = require("../config");
 var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
-var events = require('events');
-var csvtojson = require('../csvTojson');
-var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
+var uniqueID = require("../uniqueID");
+
 
 //@const
-var CATEGORY_NAME = "music";
-var DES_NAME = "musicDes";
+var CATEGORY_NAME = "other";
+var DES_NAME = "otherDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
+
 
 /**
  * @method createData
@@ -53,13 +47,22 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *                 '/home/xiquan/resource/documents/test3.txt'].
  *
  * @param2: callback
- *    @result
- *    string, retrieve 'success' when success
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain error info as below
+ *                error: "createData: commonHandle createData error"
+ *                error: "createData: items should be an array"
+ *                error: "createData: commonHandle createData all error"
+ *                error: "createData: input error"
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success
  *
  */
 function createData(items, callback) {
   if (items == [] || items == "") {
-    return callback(null, 'no Music');
+    return callback(null, 'no Documents');
   }
   if (typeof items == 'string') {
     fs.stat(items, function(err, stat) {
@@ -81,15 +84,11 @@ function createData(items, callback) {
           id: null,
           URI: uri + "#" + category,
           category: category,
-          is_delete: 0,
           others: someTags.join(","),
           filename: itemFilename,
           postfix: itemPostfix,
           size: size,
           path: items,
-          album: '流行',
-          composerName: "Xiquan",
-          actorName: "Xiquan",
           createTime: ctime,
           lastModifyTime: mtime,
           lastAccessTime: ctime,
@@ -132,7 +131,7 @@ function createData(items, callback) {
               var cate = utils.getCategoryByPath(_item);
               var category = CATEGORY_NAME;
               var itemFilename = cate.filename;
-              var itemPostfix = cate.postfix;
+              var itemPostfix = cate.postfix
               var someTags = tagsHandle.getTagsByPath(_item);
               var resourcesPath = config.RESOURCEPATH + '/' + category;
               uniqueID.getFileUid(function(uri) {
@@ -140,15 +139,11 @@ function createData(items, callback) {
                   id: null,
                   URI: uri + "#" + category,
                   category: category,
-                  is_delete: 0,
                   others: someTags.join(","),
                   filename: itemFilename,
                   postfix: itemPostfix,
                   size: size,
                   path: _item,
-                  album: '流行',
-                  composerName: "Xiquan",
-                  actorName: "Xiquan",
                   createTime: ctime,
                   lastModifyTime: mtime,
                   lastAccessTime: ctime,
@@ -184,12 +179,11 @@ function createData(items, callback) {
 }
 exports.createData = createData;
 
-
 /**
- * @method removeByUri
- *    Remove Music by uri.
+ * @method removeDocumentByUri
+ *    Remove document by uri.
  * @param uri
- *    The Music's URI.
+ *    The document's URI.
  * @param callback
  *    Callback
  */
@@ -213,9 +207,9 @@ exports.removeByUri = removeByUri;
 
 /**
  * @method getByUri
- *    Get music info in db.
+ *    Get document info in db.
  * @param uri
- *    The Music's URI.
+ *    The document's URI.
  * @param callback
  *    Callback
  */
@@ -355,6 +349,7 @@ function openDataByUri(openDataByUriCb, uri) {
           commonDAO.updateItems(updateItems, function(result) {
             console.log(result);
             openDataByUriCb(source);
+            commonHandle.syncOnlineReq(CATEGORY_NAME);
           });
         });
       });
@@ -365,7 +360,7 @@ function openDataByUri(openDataByUriCb, uri) {
 exports.openDataByUri = openDataByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
@@ -384,10 +379,10 @@ exports.getRecentAccessData = getRecentAccessData;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
-  commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
+function pullRequest(deviceId, address, account, resourcesPath, callback) {
+  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
+  commonHandle.pullRequest(CATEGORY_NAME, deviceId, address, account, sRepoPath, sDesRepoPath, callback);
 }
 exports.pullRequest = pullRequest;
 
@@ -410,7 +405,6 @@ function getGitLog(callback) {
   resourceRepo.getGitLog(REAL_REPO_DIR, callback);
 }
 exports.getGitLog = getGitLog;
-
 
 /** 
  * @Method: repoReset
@@ -444,14 +438,14 @@ function repoReset(commitID, callback) {
           if (err) {
             console.log(err);
             callback({
-              'document': err
+              'other': err
             }, null);
           } else {
             resourceRepo.repoReset(DES_REPO_DIR, desCommitID, function(err, result) {
               if (err) {
                 console.log(err);
                 callback({
-                  'document': err
+                  'other': err
                 }, null);
               } else {
                 console.log('reset success!')
@@ -464,7 +458,7 @@ function repoReset(commitID, callback) {
         var _err = 'related des commit id error!';
         console.log(_err);
         callback({
-          'document': _err
+          'other': _err
         }, null);
       }
     }
@@ -483,7 +477,7 @@ function repoResetFile(commitID, file, callback) {
           if (err) {
             console.log(err);
             callback({
-              'document': err
+              'other': err
             }, null);
           } else {
             getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
@@ -491,7 +485,7 @@ function repoResetFile(commitID, file, callback) {
                 if (err) {
                   console.log(err);
                   callback({
-                    'document': err
+                    'other': err
                   }, null);
                 } else {
                   console.log('reset success!')
@@ -505,20 +499,10 @@ function repoResetFile(commitID, file, callback) {
         var _err = 'related des commit id error!';
         console.log(_err);
         callback({
-          'document': _err
+          'other': _err
         }, null);
       }
     }
   })
 }
 exports.repoResetFile = repoResetFile;
-
-function rename(sUri, sNewName, callback) {
-  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  })
-}
-exports.rename = rename;

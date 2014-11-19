@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>示例应用</title>
+  
+    <link rel="stylesheet" type="text/css" href="css/demoUI.css"/>
+    <link rel="stylesheet" type="text/css" href="css/demoUItheme.css"/>
+    <link rel="stylesheet" type="text/css" href="css/demoUIFont.css"/>
+    
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/require.js"></script>
+    <script type="text/javascript" src="lib/api.js"></script>
+    <script type="text/javascript" src="lib/demoUI.js"></script>
+    <script>
+      /**
+       * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
+       */
+      function onStart(params){
+        console.log("onStart():" + params);
+        $('#params').text("程序参数是:" + params);
+        WDC.requireAPI(['app'], function(app){
+          app.getAppList(function(appArr){
+            $('#applist').text("已安装的程序有：" + appArr.length + "个，包括：" + appArr);
+          });
+        });
+      }
+    </script>
+
+  </head>
+  <body> 
+    <p>
+      这是一个示例应用程序
+    </p>
+    <div>
+      <p>
+        <div id="params">正在加载程序。。。</div>
+      </p>
+      <p>
+        <div id="applist"></div>
+      </p>
+    <div>
+  </body>
+</html>

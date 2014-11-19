@@ -1,36 +1,90 @@
-/**
- * @method getAppDataDir
- *   获取数据路径
- *
- * @param1 callback function
- *   回调函数
- *   @cbparam1
- *      string, 返回应用数据目录
- */
-function getAppDataDir(getAppDataDirCb){
-  console.log("Request handler 'getAppDataDir' was called.");
-  var gui = global.window.nwDispatcher.requireNwGui();
-  console.log(gui.App.dataPath);
-  setTimeout(getAppDataDirCb(gui.App.dataPath), 0);
-}
-exports.getAppDataDir = getAppDataDir;
+var config = require('../../backend/config');
+var path = require("path");
 
 /**
- * @method getAppArgv
- *   获取应用调用参数
+ * @method getAppList
+ *   根据应用名字打开应用
  *
  * @param1 callback function
  *   回调函数
  *   @cbparam1
- *      string, 返回应用调用参数
+ *      Array of string, 返回app名称列表，失败则返回null
+ *      [
+ *        name1, name2, name3...
+ *      ]
  */
-function getAppArgv(getAppArgvCb){
-  console.log("Request handler 'getAppArgv' was called.");
-  var gui = global.window.nwDispatcher.requireNwGui();
-  console.log(gui.App.argv);
-  setTimeout(getAppArgvCb(gui.App.argv), 0);
+function getAppList(getAppListCb){
+  console.log("Request handler 'getAppList' was called.");
+  try{
+    var appArr=new Array(config.AppList.length);
+    for(var i = 0; i < config.AppList.length; i++) {
+      appArr[i]=config.AppList[i].name;
+    }
+    setTimeout(getAppListCb(appArr));
+  }catch(e){
+    console.log("Error happened:" + e.message);
+    setTimeout(getAppListCb(null), 0);
+    return;
+  }
 }
-exports.getAppArgv = getAppArgv;
+exports.getAppList=getAppList;
+
+/**
+ * @method startAppByName
+ *   根据应用名字打开应用
+ *
+ * @param1 callback function
+ *   回调函数
+ *   @cbparam1
+ *      object, 返回app对象，失败则返回null
+ *      {
+ *        name:APP NAME,
+ *        window:APP Window object
+ *      }
+ * @param2 sAppName string
+ *   启动程序名称
+ * @param3 oParamBag string
+ *   启动程序参数，可以json格式封装
+ */
+function startAppByName(startAppByNameCb, sAppName, sParams){
+  console.log("Request handler 'startAppByName' was called. sAppName:" +sAppName + " oParamBag:" + sParams);
+  try{
+    var runapp=null;
+    var app;
+    for(var i = 0; i < config.AppList.length; i++) {
+      app = config.AppList[i];
+      if (app.name == sAppName) {
+        runapp=app;
+        break;
+      }
+    }
+
+    if (runapp === null) {
+      console.log("Error no app " + sAppName);
+      setTimeout(startAppByNameCb(null), 0);
+      return;
+    }
+
+    var twin=window.Window.create(runapp.id, runapp.name, {
+      left:200,
+      top:200,
+      height: 500,
+      width: 660,
+      fadeSpeed: 500,
+      animate: true,
+      contentDiv: false,
+      iframe: true
+    });
+    twin.appendHtml(path.join(config.APPBASEPATH, runapp.path) + (sParams===null?"":("?"+sParams)));
+    app.win=twin;
+    setTimeout(startAppByNameCb(twin), 0);
+  }catch(e){
+    console.log("Error happened:" + e.message);
+    setTimeout(startAppByNameCb(null), 0);
+    return;
+  }
+};
+exports.startAppByName=startAppByName;
 
 /**
  * @method sendKeyToApp
