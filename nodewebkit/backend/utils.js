@@ -6,7 +6,6 @@ var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
-var other = require("./data/other");
 var devices = require("./data/device");
 //@const
 var DATA_DIR = "data";
@@ -86,12 +85,6 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
-  }else{
-    return {
-      category: "other",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
   }
 }
 exports.getCategoryByPath = getCategoryByPath;
@@ -133,7 +126,7 @@ exports.getCategoryObject = function(category) {
       }
       break;
     default:
-      return other;
+      return null;
   }
 }
 
@@ -167,7 +160,7 @@ exports.getCategoryObjectByUri = function(sUri) {
       }
       break;
     default:
-      return other;
+      return null;
   }
 }
 
@@ -204,6 +197,26 @@ exports.getDesRepoDir = function(category) {
 
 exports.getRealRepoDir = function(category) {
   return path.join(process.env["HOME"], ".resources", category);
+}
+
+
+//get file name with postfix from a path
+exports.getFileNameByPath = function(sPath) {
+  var nameindex = sPath.lastIndexOf('/');
+  return sPath.substring(nameindex + 1, sPath.length);
+}
+
+//get file name without postfix from a path
+exports.getFileNameByPathShort = function(sPath) {
+  var nameindex = sPath.lastIndexOf('/');
+  var posindex = sPath.lastIndexOf('.');
+  return sPath.substring(nameindex + 1, posindex-1);
+}
+
+//get file postfix from a path
+exports.getPostfixByPathShort = function(sPath) {
+  var posindex = sPath.lastIndexOf('.');
+  return sPath.substring(posindex+1, sPath.length);
 }
 
 exports.renameExists = function(allFiles) {

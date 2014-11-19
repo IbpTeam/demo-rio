@@ -129,32 +129,27 @@ function loadResources(loadResourcesCb, path) {
     if (err) {
       console.log(err);
       callback(err, null);
-    } 
-    else {
+    } else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
-        } 
-        else {
+        } else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
-            } 
-            else {
+            } else {
               video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback(err, null);
-                  }
-                else{
-                  other.createData(OtherList, function(err,result){
+                } else {
+                  other.createData(OtherList, function(err, result) {
                     if (err) {
                       console.log(err);
                       callback(err, null);
-                    }
-                    else{
+                    } else {
                       console.log("load resources success!");
                       loadResourcesCb('success');
                     }
@@ -621,92 +616,32 @@ function initDesktop(initDesktopCb) {
 }
 exports.initDesktop = initDesktop;
 
-/** 
- * @Method: writeDesktopFile
- *    modify a desktop file
- *
- * @param: writeDesktopFileCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error  : "writeDesktopFile: desktop file NOT FOUND!"
- *                write error : "writeDesktopFile: write desktop file error!"
- *                parse error : "writeDesktopFile: parse desktop file error!"
- *                parse error : "writeDesktopFile: deparse desktop file error!"
- *                input  error: "writeDesktopFile: entry content empty!"
- *
- *    @param2: result
- *        string, retrieve 'success' when success
- *
- * @param2: sFileName
- *    string, a file name
- *    exmple: var sFileName = 'cinnamon';
- *
- * @param3: oEntries
- *    object, this object indludes those entries that you want
- *            to change in this desktop file.
- *
- *    example:
- *    var oEntries = {
- *      "[Desktop Entry]": {
- *        "Name": "Videos",
- *        "Name[zh_CN]": "test",
- *        "Comment": "test",
- *        "Comment[zh_CN]": "test",
- *        "Keywords": "test",
- *        "Exec": "test",
- *        "Icon": "test",
- *        "Terminal": "false",
- *        "Type": "test",
- *        "Categories": "test",
- *      },
- *      "[Desktop Action Play]": {
- *        "Name": "test/test",
- *        "Exec": "test --play-pause",
- *        "OnlyShowIn": "test;"
- *      },
- *      "[Desktop Action Next]": {
- *        "Name": "test",
- *        "Exec": "test --next",
- *        "OnlyShowIn": "Unity;"
- *      }
- *    }
- *
- **/
-function writeDesktopFile(writeDesktopFileCb, sFileName, oEntries) {
-  console.log("Request handler 'writeDesktopFile' was called.");
-  desktopConf.writeDesktopFile(writeDesktopFileCb, sFileName, oEntries);
-}
-exports.writeDesktopFile = writeDesktopFile;
 
 /** 
  *
- * THIS IS NOT AN API FOR APPLICATIONS, ONLY HERE FOR TEST
- *
- * @Method: findAllDesktopFiles
- *    find all .desktop files in local
+ * @Method: getAllDesktopFile
+ *    get all .desktop files in local
  *
  * @param: callback
  *    @result
- *    object, an array of all desktop file's full path
+ *    object, an array of all desktop file's name
  *
  *    example:
  *        [
- *         "/usr/share/xfce4/helpers/urxvt.desktop",
- *         "/usr/share/xfce4/helpers/lynx.desktop",
- *         "/usr/share/xfce4/helpers/rodent.desktop",
- *         "/usr/share/xfce4/helpers/icecat.desktop",
- *         "/usr/share/xfce4/helpers/pcmanfm.desktop",
- *         "/usr/share/xfce4/helpers/mozilla-browser.desktop",
+ *         "urxvt.desktop",
+ *         "lynx.desktop",
+ *         "rodent.desktop",
+ *         "icecat.desktop",
+ *         "pcmanfm.desktop",
+ *         "mozilla-browser.desktop",
  *        ]
  *
  **/
-function findAllDesktopFiles(findAllDesktopFilesCb) {
-  console.log("Request handler 'findAllDesktopFiles' was called.");
-  desktopConf.findAllDesktopFiles(findAllDesktopFilesCb);
+function getAllDesktopFile(getAllDesktopFileCb) {
+  console.log("Request handler 'getAllDesktopFile' was called.");
+  desktopConf.getAllDesktopFile(getAllDesktopFileCb);
 }
-exports.findAllDesktopFiles = findAllDesktopFiles;
+exports.getAllDesktopFile = getAllDesktopFile;
 
 /** 
  * @Method: readDesktopConfig
@@ -923,6 +858,55 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
 }
 exports.renameDesktopFile = renameDesktopFile;
 
+/** 
+ * @Method: linkAppToDesktop
+ *    Make a soft link from a desktop file to /desktop or /dock
+ *
+ * @param2: sApp
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'exampleName.desktop'
+ *
+ * @param3: sType
+ *    string, only 2 choices: 'desktop', 'dock'
+ *
+ * @param1: callback
+ *    @result, (_err)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ **/
+function linkAppToDesktop(linkAppToDesktopCb, sApp, sType) {
+  console.log("Request handler 'linkAppToDesktop' was called.");
+  desktopConf.linkAppToDesktop(sApp, sType, linkAppToDesktopCb);
+}
+exports.linkAppToDesktop = linkAppToDesktop;
+
+/** 
+ * @Method: unlinkApp
+ *    Unlink from a desktop file to /desktop or /dock
+ *
+ * @param2: sDir
+ *    string, a link full path.
+ 
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function unlinkApp(unlinkAppCb, sDir) {
+  console.log("Request handler 'unlinkApp' was called.");
+  desktopConf.unlinkApp(sDir, unlinkAppCb);
+}
+exports.unlinkApp = unlinkApp;
+
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
@@ -1084,3 +1068,34 @@ function repoResetFile(repoResetFileCb, category, commitID, file) {
   });
 }
 exports.repoResetFile = repoResetFile;
+
+
+/** 
+ * @Method: renameDataByUri
+ *    rename a file
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: sUri
+ *    string, a specific uri, as '9a67fd92557d84e2f657122e54c190b83cc6e#document'
+ *
+ * @param4: sNewName
+ *    string, a file name, as 'test_rename.txt'
+ *
+ * @param1: renameDataByUriCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ **/
+function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
+  console.log("Request handler 'renameDataByUri' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.rename(sUri, sNewName, renameDataByUriCb);
+}
+exports.renameDataByUri = renameDataByUri;
