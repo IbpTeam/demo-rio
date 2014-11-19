@@ -132,6 +132,11 @@ exports.getCategoryObject = function(category) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
       return other;
   }
@@ -166,6 +171,11 @@ exports.getCategoryObjectByUri = function(sUri) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
       return other;
   }
@@ -194,12 +204,12 @@ exports.getCategoryObjectByDes = function(sDesName) {
         return music;
       }
       break;
-    case "videoDes"
+    case "videoDes":
       {
         return video;
       }
       break;
-    case "desktopDes"
+    case "desktopDes":
       {
         return desktopConf;
       }
