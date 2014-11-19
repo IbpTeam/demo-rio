@@ -378,19 +378,14 @@ function Folder(jquery_element) {
                     'height': 25,
                     'oldtext': file_json['props'].name,
                     'callback': function(newtext){
-                      var new_file_json = {
-                        URI: file_json['URI'],
-                        path: file_json['path'],
-                        filename: newtext,
-                      };
-                      DataAPI.updateDataValue(function(result){
+                      DataAPI.renameDataByUri(get_category(), file_json['URI'], newtext+'.'+file_json['postfix'], function(err, result){
                         if(result == 'success'){
                           global_self.open(global_dir);
                         }
                         else{
                           window.alert("Rename failed!");
                         }
-                      }, [new_file_json]);
+                      });
                     }
                   }
                   inputer.show(options);
