@@ -367,16 +367,19 @@ function syncRequest(msgObj){
       iCurrentState = syncState.SYNC_RESPONSE;
       getPubKey(function(pubKeyStr){
         setPubKey(msgObj.pubKey,function(){
-          syncList.unshift(device);
-          responseMsg = {
-            type:msgType.TYPE_RESPONSE,
-            ip:config.SERVERIP,
-            resourcePath:RESOURCES_PATH,
-            account:config.ACCOUNT,
-            deviceId:config.uniqueID,
-            pubKey:pubKeyStr
-          };
-          sendMsg(device,responseMsg);
+          repo.getReposStatus(function(repoArr){
+            syncList.unshift(device);
+            responseMsg = {
+              type:msgType.TYPE_RESPONSE,
+              ip:config.SERVERIP,
+              resourcePath:RESOURCES_PATH,
+              account:config.ACCOUNT,
+              deviceId:config.uniqueID,
+              pubKey:pubKeyStr,
+              repositories:repoArr
+            };
+            sendMsg(device,responseMsg);
+          });
         });
       });
       break;
@@ -445,15 +448,18 @@ function syncResponse(msgObj){
       else{
         iCurrentState = syncState.SYNC_RESPONSE;
         setPubKey(msgObj.pubKey,function(){
-          responseMsg = {
-            type:msgType.TYPE_START,
-            ip:config.SERVERIP,
-            resourcePath:RESOURCES_PATH,
-            account:config.ACCOUNT,
-            deviceId:config.uniqueID
-          };
-          sendMsg(device,responseMsg);
-          syncStart(msgObj);
+          repo.getReposStatus(function(repoArr){
+            responseMsg = {
+              type:msgType.TYPE_START,
+              ip:config.SERVERIP,
+              resourcePath:RESOURCES_PATH,
+              account:config.ACCOUNT,
+              deviceId:config.uniqueID,
+              repositories:repoArr
+            };
+            sendMsg(device,responseMsg);
+            syncStart(msgObj);
+          });
         });
       }
       break;
