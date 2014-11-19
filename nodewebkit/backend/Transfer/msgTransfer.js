@@ -330,7 +330,7 @@ function syncRefused(msgObj){
       var syncDevice = syncList.shift();
       syncList.push(syncDevice);
       iCurrentState = syncState.SYNC_IDLE;
-      setTimeout(serviceUp(syncList[0]),5000);
+      setTimeout(serviceUp(syncList[0]),10000);
       console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
       break;
     }
@@ -504,6 +504,17 @@ function syncStart(msgObj){
     case syncState.SYNC_RESPONSE:{
       //Start to sync
       iCurrentState = syncState.SYNC_START;
+      var aHotRepos = msgObj.repositories;
+      var iRepoNum = 0;
+      aHotRepos.forEach(function(hotRepo){
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+hotRepo);
+        utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+          iRepoNum++;
+          if(iRepoNum == aHotRepos.length){
+            mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
+          }
+        });
+      });
       //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
       //  pictures.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       //});
