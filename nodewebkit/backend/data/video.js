@@ -15,9 +15,13 @@ var fs = require('fs');
 var config = require("../config");
 var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
+var util = require('util');
 var utils = require('../utils');
+var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
+var uniqueID = require("../uniqueID");
+
 
 //@const
 var CATEGORY_NAME = "video";
@@ -27,7 +31,154 @@ var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 /**
- * @method removeVideoByUri
+ * @method createData
+ *    To create des file, dataBase resocrd and git commit for all data input. T-
+ *    -his is only for array or string data input. The proccess would be copy f-
+ *    -rst, then create the des file, after all des file done, then write into
+ *    data base, final step is commit git.
+ *
+ * @param1: items
+ *    object, an array or string of data full path.
+ *    examplt:
+ *    var items = '/home/xiquan/resource/documents/test.txt', or
+ *    var items = ['/home/xiquan/resource/documents/test1.txt',
+ *                 '/home/xiquan/resource/documents/test2.txt'
+ *                 '/home/xiquan/resource/documents/test3.txt'].
+ *
+ * @param2: callback
+ *    @result
+ *    string, retrieve 'success' when success
+ *
+ */
+function createData(items, callback) {
+  if (items == [] || items == "") {
+    return callback(null, 'no Video');
+  }
+  if (typeof items == 'string') {
+    fs.stat(items, function(err, stat) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      var mtime = stat.mtime;
+      var ctime = stat.ctime;
+      var size = stat.size;
+      var cate = utils.getCategoryByPath(items);
+      var category = CATEGORY_NAME;
+      var itemFilename = cate.filename;
+      var itemPostfix = cate.postfix;
+      var someTags = tagsHandle.getTagsByPath(items);
+      var resourcesPath = config.RESOURCEPATH + '/' + category;
+      uniqueID.getFileUid(function(uri) {
+        var itemInfo = {
+          id: null,
+          URI: uri + "#" + category,
+          category: category,
+          is_delete: 0,
+          others: someTags.join(","),
+          filename: itemFilename,
+          postfix: itemPostfix,
+          size: size,
+          path: items,
+          album: '流行',
+          composerName: "Xiquan",
+          actorName: "Xiquan",
+          createTime: ctime,
+          lastModifyTime: mtime,
+          lastAccessTime: ctime,
+          createDev: config.uniqueID,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID
+        };
+        commonHandle.createData(itemInfo, function(result) {
+          if (result === 'success') {
+            callback(null, result);
+          } else {
+            var _err = 'createData: commonHandle createData error!';
+            console.log('createData error!');
+            callback(_err, null);
+          }
+        })
+      })
+    })
+  } else if (typeof items == 'object') {
+    if (!items.length) {
+      console.log('create data input error!');
+      var _err = 'createData: items should be an array!';
+      callback(_err, null);
+    } else {
+      var itemInfoAll = [];
+      var count = 0;
+      var lens = items.length;
+      for (var i = 0; i < lens; i++) {
+        var item = items[i];
+        (function(_item) {
+          fs.stat(_item, function(err, stat) {
+            if (err) {
+              console.log(err);
+              var _err = err;
+              callback(_err, null);
+            } else {
+              var mtime = stat.mtime;
+              var ctime = stat.ctime;
+              var size = stat.size;
+              var cate = utils.getCategoryByPath(_item);
+              var category = CATEGORY_NAME;
+              var itemFilename = cate.filename;
+              var itemPostfix = cate.postfix;
+              var someTags = tagsHandle.getTagsByPath(_item);
+              var resourcesPath = config.RESOURCEPATH + '/' + category;
+              uniqueID.getFileUid(function(uri) {
+                var itemInfo = {
+                  id: null,
+                  URI: uri + "#" + category,
+                  category: category,
+                  is_delete: 0,
+                  others: someTags.join(","),
+                  filename: itemFilename,
+                  postfix: itemPostfix,
+                  size: size,
+                  path: _item,
+                  directorName: "Xiquan",
+                  actorName: "Xiquan",
+                  createTime: ctime,
+                  lastModifyTime: mtime,
+                  lastAccessTime: ctime,
+                  createDev: config.uniqueID,
+                  lastModifyDev: config.uniqueID,
+                  lastAccessDev: config.uniqueID
+                };
+                itemInfoAll.push(itemInfo);
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                  commonHandle.createDataAll(itemInfoAll, function(result) {
+                    if (result === 'success') {
+                      callback(null, result);
+                    } else {
+                      var _err = 'createData: commonHandle createData all error!';
+                      console.log('createData error!');
+                      callback(_err, null);
+                    }
+                  })
+                }
+                count++;
+              })
+            }
+          })
+        })(item)
+      }
+    }
+  } else {
+    console.log('input error: items is undefined!');
+    var _err = 'createData: input error';
+    callback(_err, null);
+  }
+}
+exports.createData = createData;
+
+
+/**
+ * @method removeByUri
  *    Remove Video by uri.
  * @param uri
  *    The Video's URI.
@@ -113,7 +264,7 @@ function openDataByUri(openDataByUriCb, uri) {
           case 'ogg':
             source = {
               openmethod: 'html',
-              format: 'audio',
+              format: 'video',
               title: '文件浏览',
               content: item.path
             }
@@ -353,3 +504,13 @@ function repoResetFile(commitID, file, callback) {
   })
 }
 exports.repoResetFile = repoResetFile;
+
+function rename(sUri, sNewName, callback) {
+  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    callback(null, result);
+  })
+}
+exports.rename = rename;

@@ -6,7 +6,6 @@ var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
 var config = require("./config");
-var filesHandle = require("./filesHandle");
 var util = require('util');
 var cp = require('child_process');
 var now= new Date();  
@@ -57,7 +56,6 @@ function start(route, handle) {
       console.log('websocket has disconnected:%s', client);
     });
   });
-
   config.riolog("Server has started.");
 }
 
