@@ -595,11 +595,12 @@ function parseDesktopFile(callback, sPath) {
         callback(_err, null);
       } else {
         var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
+        var re_rn = /\n|\r|\r\n/g
         var desktopHeads = [];
         var oAllDesktop = {};
         data = data.replace(re, function() {
           var headEntry = (RegExp.lastMatch).toString();
-          headEntry = headEntry.replace(/\n/g, "");
+          headEntry = headEntry.replace(re_rn, "");
           desktopHeads.push(headEntry); //once get a match, strore it
           return "$";
         })
@@ -616,9 +617,9 @@ function parseDesktopFile(callback, sPath) {
             for (var j = 0; j < lines.length - 1; ++j) {
               if (lines[j] !== "") {
                 var tmp = lines[j].split('=');
-                attr[tmp[0]] = tmp[1];
+                attr[tmp[0]] = tmp[1].replace(re_rn, "");;
                 for (var k = 2; k < tmp.length; k++) {
-                  attr[tmp[0]] += '=' + tmp[k];
+                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");;
                 }
               }
             }
@@ -744,7 +745,7 @@ function findDesktopFile(callback, filename) {
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
         console.log('find ' + sFileName + ' error!');
-        console.log(err, stderr);
+        console.log(err, stderr,stdout);
         return callback(err, null);
       }
       if (stdout == '') {
