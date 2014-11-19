@@ -429,12 +429,15 @@ function pasteFile(pasteFileCb, filename, category) {
   var postfix = path.extname(filename);
   name = path.basename(filename, postfix);
   var desPath = '/tmp/' + name + '_copy' + postfix;
-  cp.exec("cp " + filename + " " + desPath, function(error, stdout, stderr) {
+  filename = utils.parsePath(filename);
+  var desPathParse = utils.parsePath(desPath);
+  console.log("cp " + filename + " " + desPath);
+  cp.exec("cp " + filename + " " + desPathParse, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
-      creatFileCb(false);
+      pasteFileCb(false);
     } else {
-      if (category == 'document' || category == 'music' || category == 'picture') {
+      if (category == 'document' || category == 'music' || category == 'picture' || category == 'video') {
         var cate = utils.getCategoryObject(category);
         cate.createData([desPath], function(err, result) {
           if (err != null) {
