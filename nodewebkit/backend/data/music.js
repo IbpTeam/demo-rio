@@ -270,6 +270,14 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
+          case 'mp3':
+            source = {
+              openmethod: 'html',
+              format: 'audio',
+              title: '文件浏览',
+              content: item.path
+            }
+            break;
           case 'none':
             source = {
               openmethod: 'alert',
@@ -512,3 +520,13 @@ function repoResetFile(commitID, file, callback) {
   })
 }
 exports.repoResetFile = repoResetFile;
+
+function rename(sUri, sNewName, callback) {
+  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    callback(null, result);
+  })
+}
+exports.rename = rename;

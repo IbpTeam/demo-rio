@@ -594,19 +594,20 @@ function parseDesktopFile(callback, sPath) {
         var _err = "parseDesktopFile : read desktop file error";
         callback(_err, null);
       } else {
-        var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n/g; //match all string like [***]
+        var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
+        var re_rn = /\n|\r|\r\n/g
         var desktopHeads = [];
         var oAllDesktop = {};
         data = data.replace(re, function() {
           var headEntry = (RegExp.lastMatch).toString();
-          headEntry = headEntry.replace(/\n/g, "");
+          headEntry = headEntry.replace(re_rn, "");
           desktopHeads.push(headEntry); //once get a match, strore it
           return "$";
         })
         data = data.split('$');
 
-        var reg = new RegExp('#\n|#\s|#^[a-z]');
-        if (data[0] === "" | data[0] === "\n" | reg.test(data[0])) {
+        var reg = new RegExp('#\r|#\n|#\s|#^[a-z]');
+        if (data[0] === ""|data[0] === "\r" | data[0] === "\n" | reg.test(data[0])) {
           data.shift(); //the first element is a "", remove it
         }
         if (desktopHeads.length === data.length) {
@@ -616,16 +617,16 @@ function parseDesktopFile(callback, sPath) {
             for (var j = 0; j < lines.length - 1; ++j) {
               if (lines[j] !== "") {
                 var tmp = lines[j].split('=');
-                attr[tmp[0]] = tmp[1];
+                attr[tmp[0]] = tmp[1].replace(re_rn, "");;
                 for (var k = 2; k < tmp.length; k++) {
-                  attr[tmp[0]] += '=' + tmp[k];
+                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");;
                 }
               }
             }
             oAllDesktop[desktopHeads[i]] = attr;
           }
         } else {
-          console.log("desktop file entries not match!");
+          console.log(sPath,"desktop file entries not match!");
           var _err = "parseDesktopFile : desktop file entries not match!";
           callback(_err, null);
         }
@@ -744,7 +745,7 @@ function findDesktopFile(callback, filename) {
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
         console.log('find ' + sFileName + ' error!');
-        console.log(err, stderr);
+        console.log(err, stderr,stdout);
         return callback(err, null);
       }
       if (stdout == '') {
@@ -1075,7 +1076,8 @@ function buildLocalDesktopFile(callback) {
           var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
           fs_extra.copy(_sFileOriginPath, newPath, function(err) {
             if (err) {
-              console.log(sFileName + ', file exist!');
+              console.log(sFileName + ', file copy error!');
+              count++;
             } else {
               oRealFiles.push(newPath);
               oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
@@ -1298,7 +1300,7 @@ function getAllDesktopFile(callback) {
               }
               count++;
             })
-          })(item)
+          })(item);
         } else {
           count++;
         }
@@ -1849,3 +1851,84 @@ function openDataByRawPath(callback, filePath) {
   })
 }
 exports.openDataByRawPath = openDataByRawPath;
+
+
+/** 
+ * @Method: linkAppToDesktop
+ *    Make a soft link from a desktop file to /desktop or /dock
+ *
+ * @param2: sApp
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'exampleName.desktop'
+ *
+ * @param3: sType
+ *    string, only 2 choices: 'desktop', 'dock'
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function linkAppToDesktop(sApp, sType, callback) {
+  if (sType !== 'desktop' && sType !== 'dock') {
+    var _err = "Error: bad dir type!";
+    return callback(_err, null);
+  }
+  var sSrc = pathModule.join(REAL_APP_DIR, sApp);
+  var sDir = pathModule.join(REAL_DIR, sType, sApp);
+  fs.symlink(sSrc, sDir, function(err) {
+    if (err) {
+      console.log(err, sSrc, sDir)
+      return callback(err, null);
+    }
+    callback(null, 'success');
+  })
+}
+exports.linkAppToDesktop = linkAppToDesktop;
+
+/** 
+ * @Method: unlinkApp
+ *    Unlink from a desktop file to /desktop or /dock
+ *
+ * @param2: sDir
+ *    string, a link short path as /desktop/test.desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function unlinkApp(sDir, callback) {
+  var sTarget = pathModule.join(REAL_DIR, sDir);
+  fs.unlink(sTarget, function(err) {
+    if (err) {
+      console.log(err, sTarget)
+      return callback(err, null);
+    }
+    callback(null, 'success');
+  })
+}
+exports.unlinkApp = unlinkApp;
+
+/*TODO: to be continue ...*/
+// function dragToDesktop(oFiles, callback) {
+
+// }
+// exports.dragToDesktop = dragToDesktop;
+
+// function newFile() {
+
+// }
+// exports.newFile = newFile;

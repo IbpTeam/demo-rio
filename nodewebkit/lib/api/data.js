@@ -129,32 +129,27 @@ function loadResources(loadResourcesCb, path) {
     if (err) {
       console.log(err);
       callback(err, null);
-    } 
-    else {
+    } else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
           callback(err, null);
-        } 
-        else {
+        } else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
               callback(err, null);
-            } 
-            else {
+            } else {
               video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback(err, null);
-                  }
-                else{
-                  other.createData(OtherList, function(err,result){
+                } else {
+                  other.createData(OtherList, function(err, result) {
                     if (err) {
                       console.log(err);
                       callback(err, null);
-                    }
-                    else{
+                    } else {
                       console.log("load resources success!");
                       loadResourcesCb('success');
                     }
@@ -429,12 +424,15 @@ function pasteFile(pasteFileCb, filename, category) {
   var postfix = path.extname(filename);
   name = path.basename(filename, postfix);
   var desPath = '/tmp/' + name + '_copy' + postfix;
-  cp.exec("cp " + filename + " " + desPath, function(error, stdout, stderr) {
+  filename = utils.parsePath(filename);
+  var desPathParse = utils.parsePath(desPath);
+  console.log("cp " + filename + " " + desPath);
+  cp.exec("cp " + filename + " " + desPathParse, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
-      creatFileCb(false);
+      pasteFileCb(false);
     } else {
-      if (category == 'document' || category == 'music' || category == 'picture') {
+      if (category == 'document' || category == 'music' || category == 'picture' || category == 'video') {
         var cate = utils.getCategoryObject(category);
         cate.createData([desPath], function(err, result) {
           if (err != null) {
@@ -860,6 +858,55 @@ function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
 }
 exports.renameDesktopFile = renameDesktopFile;
 
+/** 
+ * @Method: linkAppToDesktop
+ *    Make a soft link from a desktop file to /desktop or /dock
+ *
+ * @param2: sApp
+ *    string, file name of specific file you need to rename
+ *    exmple: var oldName = 'exampleName.desktop'
+ *
+ * @param3: sType
+ *    string, only 2 choices: 'desktop', 'dock'
+ *
+ * @param1: callback
+ *    @result, (_err)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ **/
+function linkAppToDesktop(linkAppToDesktopCb, sApp, sType) {
+  console.log("Request handler 'linkAppToDesktop' was called.");
+  desktopConf.linkAppToDesktop(sApp, sType, linkAppToDesktopCb);
+}
+exports.linkAppToDesktop = linkAppToDesktop;
+
+/** 
+ * @Method: unlinkApp
+ *    Unlink from a desktop file to /desktop or /dock
+ *
+ * @param2: sDir
+ *    string, a link full path.
+ 
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain error info as below
+ *                write error : 'renameDesktopFile : specific error'
+ *
+ *    @param: result,
+ *        string, retrieve success when success.
+ *
+ **/
+function unlinkApp(unlinkAppCb, sDir) {
+  console.log("Request handler 'unlinkApp' was called.");
+  desktopConf.unlinkApp(sDir, unlinkAppCb);
+}
+exports.unlinkApp = unlinkApp;
+
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
@@ -1021,3 +1068,34 @@ function repoResetFile(repoResetFileCb, category, commitID, file) {
   });
 }
 exports.repoResetFile = repoResetFile;
+
+
+/** 
+ * @Method: renameDataByUri
+ *    rename a file
+ *
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param3: sUri
+ *    string, a specific uri, as '9a67fd92557d84e2f657122e54c190b83cc6e#document'
+ *
+ * @param4: sNewName
+ *    string, a file name, as 'test_rename.txt'
+ *
+ * @param1: renameDataByUriCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, retieve 'success' when success
+ *
+ **/
+function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
+  console.log("Request handler 'renameDataByUri' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.rename(sUri, sNewName, renameDataByUriCb);
+}
+exports.renameDataByUri = renameDataByUri;
