@@ -264,7 +264,7 @@ function openDataByUri(openDataByUriCb, uri) {
           case 'ogg':
             source = {
               openmethod: 'html',
-              format: 'audio',
+              format: 'video',
               title: '文件浏览',
               content: item.path
             }

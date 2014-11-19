@@ -270,6 +270,14 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
+          case 'mp3':
+            source = {
+              openmethod: 'html',
+              format: 'audio',
+              title: '文件浏览',
+              content: item.path
+            }
+            break;
           case 'none':
             source = {
               openmethod: 'alert',
