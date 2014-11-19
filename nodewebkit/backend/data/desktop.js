@@ -594,34 +594,38 @@ function parseDesktopFile(callback, sPath) {
         var _err = "parseDesktopFile : read desktop file error";
         callback(_err, null);
       } else {
-        var re = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
+        var re_head = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
+        var re_comment = /^#[a-z, ,A-Z]/;
         var desktopHeads = [];
         var oAllDesktop = {};
-        data = data.replace(re, function() {
+        data = data.replace(re_head, function() {
           var headEntry = (RegExp.lastMatch).toString();
           headEntry = headEntry.replace(re_rn, "");
           desktopHeads.push(headEntry); //once get a match, strore it
           return "$";
         })
         data = data.split('$');
-
-        var reg = new RegExp('#\r|#\n|#\s|#^[a-z]');
-        if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | reg.test(data[0])) {
+        if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | re_comment.test(data[0])) {
           data.shift(); //the first element is a "", remove it
         }
         if (desktopHeads.length === data.length) {
           for (var i = 0; i < data.length; i++) {
             var lines = data[i].split('\n');
             var attr = {};
-            var re_comment = /^#+\s|^#+[a-z, ,A-Z]/g;
+
             for (var j = 0; j < lines.length - 1; ++j) {
               if (lines[j] !== "" && !re_comment.test(lines[j])) {
                 var tmp = lines[j].split('=');
-
-                attr[tmp[0]] = tmp[1].replace(re_rn, "");
-                for (var k = 2; k < tmp.length; k++) {
-                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
+                try {
+                  attr[tmp[0]] = tmp[1].replace(re_rn, "");
+                  for (var k = 2; k < tmp.length; k++) {
+                    attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
+                  }
+                } catch (e) {
+                  console.log(e);
+                  console.log(lines[j])
+                  return;
                 }
               }
             }
