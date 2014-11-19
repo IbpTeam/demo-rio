@@ -544,6 +544,32 @@ function setTagByUri(setTagByUriCb, oTags, oUri) {
 exports.setTagByUri = setTagByUri;
 
 /**
+ * @method setTagByUri
+ *   get all tags in db
+ *
+ * @param1 setTagsByUriMultiCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, return specific error info
+ *
+ *    @param: result,
+ *        string, retieve 'commit' when success
+ *
+ * @param2 oTags
+ *    array, an array of tags to be set
+ *
+ * @param3 oUri
+ *    array, an array of uri
+ *
+ */
+function setTagByUriMulti(setTagByUriMultiCb, oTags, oUri) {
+  console.log("Request handler 'setTagByUriMulti' was called.");
+  tagsHandle.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
+}
+exports.setTagByUriMulti = setTagByUriMulti;
+
+/**
  * @method getFilesByTag
  *   get all files with specific tags
  *
