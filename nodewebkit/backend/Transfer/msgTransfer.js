@@ -396,7 +396,7 @@ function syncRequest(msgObj){
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
-      sendMsg(device,responseMsg);
+      sendMsg(device,refusedMsg);
       break;
     }
     case syncState.SYNC_START:{
