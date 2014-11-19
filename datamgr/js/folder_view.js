@@ -130,7 +130,11 @@ function cb_get_data_source_file(data_json){
       switch(format){
         case 'audio':
           file_content = $('<audio controls></audio>');
-          file_content.html('<source src=\"' + content + '\"" type="audio/ogg">');
+          file_content.html('<source src=\"' + content + '\"" type="audio/mpeg">');
+          break;
+        case 'video':
+          file_content = $('<video width="400" height="300" controls></video>');
+          file_content.html('<source src=\"' + content + '\"" type="video/ogg">');
           break;
         case 'div':
           file_content = content;
@@ -637,7 +641,9 @@ Folder.prototype.set_icon = function(postfix){
     case 'wps':
       return 'word';
     case 'ogg':
-      return 'Music';
+      return 'Videos';
+    case 'mp3':
+      return 'Music'
     case 'jpg':
       return 'Pictures';
     case 'png':

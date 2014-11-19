@@ -264,7 +264,7 @@ function openDataByUri(openDataByUriCb, uri) {
           case 'ogg':
             source = {
               openmethod: 'html',
-              format: 'audio',
+              format: 'video',
               title: '文件浏览',
               content: item.path
             }
@@ -504,6 +504,8 @@ function repoResetFile(commitID, file, callback) {
   })
 }
 exports.repoResetFile = repoResetFile;
+<<<<<<< HEAD
+=======
 
 function rename(sUri, sNewName, callback) {
   commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
@@ -514,3 +516,4 @@ function rename(sUri, sNewName, callback) {
   })
 }
 exports.rename = rename;
+>>>>>>> 7bc7674b367d55533b5a82ff2307cf87736e2f7a

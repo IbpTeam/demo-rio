@@ -15,7 +15,7 @@ function parsePath(path) {
   var pathNew = '';
   for (var i = 0; i < pathNodes.length; i++) {
     if (pathNodes[i].indexOf(' ') != -1) {
-      pathNew += '"' + pathNodes[i] + '"/';
+      pathNew += "'" + pathNodes[i] + "'/";
     } else {
       pathNew += pathNodes[i] + '/';
     }
