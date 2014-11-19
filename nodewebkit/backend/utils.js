@@ -210,7 +210,7 @@ exports.getFileNameByPath = function(sPath) {
 exports.getFileNameByPathShort = function(sPath) {
   var nameindex = sPath.lastIndexOf('/');
   var posindex = sPath.lastIndexOf('.');
-  return sPath.substring(nameindex + 1, posindex-1);
+  return sPath.substring(nameindex + 1, posindex);
 }
 
 //get file postfix from a path
