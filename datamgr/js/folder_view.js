@@ -269,8 +269,8 @@ function Folder(jquery_element) {
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
           case 'New Document':
-            var data = new Date();
-            var filename = 'NewFile_' + data.toLocaleString().replace(' ', '_') + '.txt';
+            var name = 'NewFile';
+            var filename = name + '.txt';
             DataAPI.createFile(function(result){
               if(result == 'success'){
                 global_self.open(global_dir);
@@ -380,7 +380,7 @@ function Folder(jquery_element) {
                     'callback': function(newtext){
                       DataAPI.renameDataByUri(get_category(), file_json['URI'], newtext+'.'+file_json['postfix'], function(err, result){
                         if(result == 'success'){
-                          global_self.open(global_dir);
+                          $("#"+file_json['props'].name).html(newtext);
                         }
                         else{
                           window.alert("Rename failed!");
@@ -414,13 +414,23 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(function(){
-                    global_self.open(global_dir);
+                  DataAPI.rmDataByUri(function(result){
+                    if(result == "success"){
+                      var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+                      $("#"+id).parent().remove();
+                    }else{
+                      window.alert("Delete file failed!");
+                    }
                   },file_json['URI']);
                 break;
                 case 'contact':
-                  DataAPI.rmDataByUri(function(){
-                    global_self.open(global_dir);
+                  DataAPI.rmDataByUri(function(result){
+                    if(result == "success"){
+                      var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+                      $("#"+id).parent().remove();
+                    }else{
+                      window.alert("Delete file failed!");
+                    }
                   },file_json['URI']);
                 break;
               }
