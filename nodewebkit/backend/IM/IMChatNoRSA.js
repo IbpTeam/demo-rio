@@ -26,6 +26,8 @@ exports.LOCALUUID=LOCALUUID;
  * @return md5
  *  返回md5校验值
  */
+
+
 function MD5(str, encoding) {
   return crypto.createHash('md5').update(str).digest(encoding || 'hex');
 }
@@ -60,18 +62,14 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
         console.log(err);
         return;
       }
-      switch (msgObj.type) {
+      switch (msgStr[0].type) {
         case 'SentEnFirst':
           {
-            console.log(msgObj.message);
-            var msgtime = new Date();
-            msgtime.setTime(msgObj.time);
-            console.log(msgtime);
             var CalBakMsg = {};
             CalBakMsg['MsgObj'] = msgObj;
             CalBakMsg['IP'] = remoteAD; 
-            setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
-            var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from);
+            setTimeout(ReceivedMsgCallback(msgObj.type,CalBakMsg), 0);
+            var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from,'');
             c.write(tp);
           }
           break;
@@ -129,13 +127,13 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
 function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   var count = 0;
   var id = 0;
-  var tmpenmsg = SENDMSG;
+  var tmpenmsg =  SENDMSG;
   var MSG = JSON.parse(SENDMSG);
   var dec = MSG[0].content;
   var pat = JSON.parse(dec);
 
   if (!net.isIP(IP)) {
-    console.log('Input IP Format Error!');
+    console.log('Input IP Format Error!',IP);
     return;
   };
   var client = new net.Socket();
@@ -148,6 +146,9 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
     id = setInterval(function(C, tmpenmsg) {
       if (count < 5) {
         console.log("this is in resending " + tmpenmsg);
+        if (typeof tmpenmsg === 'object') {
+          tmpenmsg = JSON.stringify(tmpenmsg);
+        };
         client.write(tmpenmsg);
         count++;
       } else {
@@ -214,55 +215,20 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   });
 }
 
-/*
- * @method sendMSGbyAccountNoRSA
- *  根据账户来发送消息，该函数从对应表中获取某一帐号所对应的所有IP地址集合，然后遍历该集合，把消息推送到该帐号的所有IP地址
- * @param TABLE
- *  用来存储ACCOUNT和IP对应关系的对应表，若对应表为空，说明该机器不在局域网内，将该消息推送到服务器端
- * @param ACCOUNT
- *  接收方帐号
- * @param MSG
- *  待发送消息
- * @param PORT
- *  消息接收方的通信端口
- * @return null
- *  没有返回值
- */
-function sendMSGbyAccountNoRSA(TABLE, ACCOUNT, MSG, PORT) {
-  var ipset = TABLE.get(ACCOUNT);
 
-  if (typeof ipset == "undefined") {
-    console.log("destination account not in local lan!");
-    /*
-    here are some server msg send functions!
-    */
-  };
-  /*
-  MSG already be capsuled by encapsuMSG function
-  */
-  for (var i = 0; i < ipset.length; i++) {
-    console.log("sending " + ipset[i].UID + " in account " + ACCOUNT);
-    senderFunc
-    existsPubkeyPem(ipset[i], ACCOUNT, MSG, PORT, localkeyPair, function(msg) {
-      console.log("msg sent successful:::" + msg);
-    });
-  };
-  console.log("send " + ipset.length + " IPs in " + ACCOUNT);
-}
-
-function senderFunc(ACCOUNT, IPSET, PORT, MSG, SENTCALLBACK) {
-  var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT);
+function senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK) {
+  var tmpmsg = encapsuMSG(MSG, "SentEnFirst", LOCALACCOUNT, LOCALUUID, ACCOUNT,TOAPP);
   sendIMMsg(IPSET.IP, PORT, tmpmsg, SENTCALLBACK);
 }
 
-function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
+function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT,TOAPP, SENTCALLBACK) {
   if (typeof IPSET.UID == "undefined") {
     console.log("receiver uuid null");
     /*
     here are some server msg send functions!
     */
   };
-  senderFunc(ACCOUNT, IPSET, PORT, MSG, SENTCALLBACK);
+  senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK);
 }
 
 
@@ -283,7 +249,7 @@ function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
  * @return rply
  *  封装好，并且已经序列化的消息字符串
  */
-function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
+function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
   var MESSAGE = [];
   var tmp = {};
   var restmp = {};
@@ -298,7 +264,7 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
         tmp["uuid"] = FROMUUID;
         tmp["to"] = TO;
         tmp["message"] = MSG;
-        tmp['type'] = TYPE;
+        tmp['type'] = TOAPP;
         tmp['time'] = now.getTime();
         var content = JSON.stringify(tmp);
         restmp['content'] = content;
@@ -326,7 +292,7 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
         tmp["uuid"] = FROMUUID;
         tmp["to"] = TO;
         tmp["message"] = MSG;
-        tmp['type'] = TYPE;
+        tmp['type'] = TOAPP;
         tmp['time'] = now.getTime();
         var content = JSON.stringify(tmp);
         restmp['content'] = content;
@@ -352,5 +318,4 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO) {
 }
 
 exports.initIMServerNoRSA = initIMServerNoRSA;
-exports.sendMSGbyAccountNoRSA = sendMSGbyAccountNoRSA;
 exports.sendMSGbyUIDNoRSA = sendMSGbyUIDNoRSA;
