@@ -259,37 +259,31 @@ exports.deleteItem = function(rmItem,itemDesPath,callback){
  * @param: callback
  *    No arguments other than a file name array are given to the completion callback.
  **/
-exports.updateItem = function(file,attrs,callback){
-  console.log("update::::::::::",file);
-  fs.readFile(file,'utf8',function(err,data){
+exports.updateItem = function(file, attrs, callback) {
+  console.log("update::::::::::", file);
+  fs.readFile(file, 'utf8', function(err, data) {
     if (err) {
       console.log("read file error!");
-       console.log(err);
+      return console.log(err);
     }
-    else{
-      var json=JSON.parse(data);
-      for(var attr in attrs){
-        json[attr]=attrs[attr];
+    var json = JSON.parse(data);
+    for (var attr in attrs) {
+      json[attr] = attrs[attr];
+    }
+    var sItem = JSON.stringify(json, null, 4);
+    fs.open(file, "w", 0644, function(err, fd) {
+      if (err) {
+        return console.log("open des file error!");
       }
-      var sItem = JSON.stringify(json,null,4);
-      fs.open(file,"w",0644,function(err,fd){
-        if(err){
-          console.log("open des file error!");         
+      fs.write(fd, sItem, 0, 'utf8', function(err) {
+        if (err) {
+          console.log("write des file error!");
+          return console.log(err);
         }
-        else{
-          fs.write(fd,sItem,0,'utf8',function(err){  
-            if (err) {
-              console.log("write des file error!");
-              console.log(err);
-            }
-            else{
-              console.log('update item success!',file);
-              callback("success");
-            }
-          });
-        }
+        console.log('update item success!', file);
+        callback("success");
       });
-    } 
+    });
   });
 }
 
@@ -303,61 +297,58 @@ exports.updateItem = function(file,attrs,callback){
  *    No arguments other than a file name array are given to the completion callback.
  **/
 var length;
-exports.updateItems = function(oItems,callback){
+exports.updateItems = function(oItems, callback) {
   console.log(oItems);
   length = oItems.length;
-  for(var k in oItems){
+  for (var k in oItems) {
     var item = oItems[k];
     var category = item.category;
     var filePath = "";
     var desFilePath = "";
-    if(category === "contact"){
-      desFilePath = config.RESOURCEPATH + '/contactDes/data/'+item.name+'.md';
-    }else{
+    if (category === "contact") {
+      desFilePath = config.RESOURCEPATH + '/contactDes/data/' + item.name + '.md';
+    } else {
       filePath = item.path;
-      var re = new RegExp('/'+category.toLowerCase()+'/', "i");
-      desFilePath = (filePath.replace(re,'/'+category.toLowerCase()+'Des/')) + '.md';
+      var re = new RegExp('/' + category.toLowerCase() + '/', "i");
+      desFilePath = (filePath.replace(re, '/' + category.toLowerCase() + 'Des/')) + '.md';
     }
-    updateItemsHelper(callback,desFilePath,item);
+    updateItemsHelper(callback, desFilePath, item);
   }
 }
 
 //combine data with callback
-function updateItemsHelper(callback,desFilePath,item){
-  fs.readFile(desFilePath,'utf8',function(err,data){
+function updateItemsHelper(callback, desFilePath, item) {
+  fs.readFile(desFilePath, 'utf8', function(err, data) {
     if (err) {
       console.log("read file error!");
       return;
     }
-    else{
-      var json=JSON.parse(data);
-      for(var attr in item){
-        json[attr]=item[attr];
+    var json = JSON.parse(data);
+    for (var attr in item) {
+      json[attr] = item[attr];
+    }
+    var sItem = JSON.stringify(json, null, 4);
+    fs.open(desFilePath, "w", 0644, function(err, fd) {
+      if (err) {
+        console.log("open des file error!");
+        return;
       }
-      var sItem = JSON.stringify(json,null,4);
-      fs.open(desFilePath,"w",0644,function(err,fd){
-        if(err){
-          console.log("open des file error!");  
-          return;       
+      fs.write(fd, sItem, 0, 'utf8', function(err) {
+        if (err) {
+          console.log("write des file error!", sItem);
+          console.log(err);
+          return;
         }
-        else{
-          fs.write(fd,sItem,0,'utf8',function(err){  
-            if (err) {
-              console.log("write des file error!");
-              console.log(err);
-              return;
-            }
-            else{
-              length--;
-              if(length == 0){
-                callback("success");
-                console.log("write des file success!");
-              }
-            }
-          });
+        length--;
+        if (length == 0) {
+          console.log("write des file success!");
+          callback("success");
+        } else {
+          console.log("write des file error!", sItem);
+          return;
         }
       });
-    }   
+    });
   })
 }
 

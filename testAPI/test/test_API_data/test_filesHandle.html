@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "c1edda1b617efecbb0c3a97901d73215#720d01a031343106c0cb#picture";
+  var test_uri = "4364cd9b6e169bd0769cba0d5ac9cb2e#2f1c76d3a869d2cae7c7#document";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -225,8 +225,8 @@
   function test_renameDataByUri(renameDataByUriCb){
     WDC.requireAPI(['data'], function(data){
       var sUri = test_uri;
-      var sNewName = 'test_rename.jpg';
-      var category = 'picture';
+      var sNewName = 'test_rename.txt';
+      var category = 'document';
       data.renameDataByUri(category,sUri, sNewName,renameDataByUriCb);
     });        
   }
