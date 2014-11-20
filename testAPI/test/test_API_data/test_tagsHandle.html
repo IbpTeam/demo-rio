@@ -16,10 +16,10 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "52a34b2a758a5c78cfdb2a163092e8b3#459bd72d0eeded0cc767#document";
-  var test_uri1 = "52a34b2a758a5c78cfdb2a163092e8b3#c99f07d865bc1a1f0190#document";
-  var test_uri2 = "52a34b2a758a5c78cfdb2a163092e8b3#79f76795a1b051ed24cb#music";
-  var test_uri3 = "52a34b2a758a5c78cfdb2a163092e8b3#6c9926eb0b55aede1052#picture";
+  var test_uri = "32a365a5ee8e6e27eeb342ae1837b665#7fd0182cc6ae55d049f4#document";
+  var test_uri1 = "32a365a5ee8e6e27eeb342ae1837b665#0996d8ec134d4d546c07#music";
+  var test_uri2 = "32a365a5ee8e6e27eeb342ae1837b665#59fa5ceda804ce908d3e#picture";
+  var test_uri3 = "32a365a5ee8e6e27eeb342ae1837b665#104250bc84de4cbab0c7#picture";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -109,7 +109,7 @@
   }
   function test_setTagByUriMulti(setTagByUriMultiCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oTags = ['my', 'good', 'tag'];
+      var oTags = ['fas', 'eee', 'ttt'];
       var oUri = [test_uri, test_uri2, test_uri3, test_uri1];
       data.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
     });

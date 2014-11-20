@@ -424,6 +424,25 @@
     });
   }
 
+  function dragToDesktopCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API dragToDesktop()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_dragToDesktop(dragToDesktopCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
+      data.dragToDesktop(dragToDesktopCb,sFilePath);
+    });
+  }
+
 
   </script>
 
@@ -963,6 +982,37 @@
     WDC.requireAPI(['data'], function(data) {
       var sDir = '/desktop/totem.desktop';
       data.unlinkApp(unlinkAppCb,sDir);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('dragToDesktop')">dragToDesktop(dragToDesktopCb,sFilePath)<span><a class="mark" href="#test_dragToDesktop" id="test_dragToDesktop" onclick="test_dragToDesktop(dragToDesktopCb)">test</a></span></h2>
+<div id="dragToDesktop" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function dragToDesktopCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API dragToDesktop()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_dragToDesktop(dragToDesktopCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
+      data.dragToDesktop(dragToDesktopCb,sFilePath);
     });
   }
 </pre>

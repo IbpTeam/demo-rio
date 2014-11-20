@@ -92,11 +92,11 @@ function createData(items, callback) {
         };
         commonHandle.createData(itemInfo, function(result) {
           if (result === 'success') {
-            callback(null, result);
+            callback(null, result, resultFile);
           } else {
             var _err = 'createData: commonHandle createData error!';
             console.log('createData error!');
-            callback(_err, null);
+            callback(_err, null, null);
           }
         })
       })

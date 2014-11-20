@@ -16,8 +16,10 @@ var os = require('os');
 var config = require("../config");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
+var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
 var desFilesHandle = require("../commonHandle/desFilesHandle");
+var tagsHandle = require("../commonHandle/tagsHandle");
 var utils = require('../utils');
 var util = require('util');
 var events = require('events');
@@ -1697,6 +1699,7 @@ exports.shellExec = shellExec;
 /** 
  * @Method: moveFile
  *    To move a file or dir from oldPath to newPath.
+ *    Path is limited under /desktop.
  *    !!!The dir CAN have content and contend would be move to new dir as well.
  *    !!!Notice that if you are moving a dir, the newPath has to be a none exist
  *    !!!new dir, otherwise comes error.
@@ -1714,26 +1717,25 @@ exports.shellExec = shellExec;
  *
  * @param2: oldPath
  *    string, a dir under user path
- *    exmple: var oldPath = '/.resources/DesktopConf/Theme.conf'
+ *    exmple: var oldPath = '/test.txt'
  *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/Theme.conf')
  *
  * @param3: newPath
  *    string, a dir under user path
- *    exmple: var newPath = '/.resources/DesktopConf/BadTheme.conf'
+ *    exmple: var newPath = '/testDir/test.txt'
  *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/BadTheme.conf')
  *
  **/
 function moveFile(callback, oldPath, newPath) {
-  var oldFullpath = configPath + oldPath;
-  var newFullpath = configPath + newPath;
-  console.log(oldFullpath, newFullpath);
+  var oldFullpath = pathModule.join(REAL_DIR, 'desktop', oldPath);
+  var newFullpath = pathModule.join(REAL_DIR, 'desktop', newPath);
   fs_extra.move(oldFullpath, newFullpath, function(err) {
     if (err) {
       console.log(err);
       var _err = 'moveFile : move error';
       callback(_err, null);
     } else {
-      console.log('move file success!');
+      console.log('move ', oldPath, ' to ', newPath);
       callback(null, 'success');
     }
   })
@@ -1887,10 +1889,10 @@ function linkAppToDesktop(sApp, sType, callback) {
     return callback(_err, null);
   }
   var sSrc = pathModule.join(REAL_APP_DIR, sApp);
-  var sDir = pathModule.join(REAL_DIR, sType, sApp);
-  fs.symlink(sSrc, sDir, function(err) {
+  var sDes = pathModule.join(REAL_DIR, sType, sApp);
+  fs.symlink(sSrc, sDes, function(err) {
     if (err) {
-      console.log(err, sSrc, sDir)
+      console.log(err, sSrc, sDes)
       return callback(err, null);
     }
     callback(null, 'success');
@@ -1928,13 +1930,111 @@ function unlinkApp(sDir, callback) {
 }
 exports.unlinkApp = unlinkApp;
 
-/*TODO: to be continue ...*/
-// function dragToDesktop(oFiles, callback) {
+/** 
+ * @Method: dragToDesktop
+ *    To drag a file from any where to desktop.
+ *
+ * @param2: sFilePath
+ *    string, a target file path, should be a full path.
+ *            example: '/home/xiquan/somedir/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function dragToDesktop(sFilePath, callback) {
+  if (!sFilePath || sFilePath == '') {
+    var _err = 'Error: bad sFilePath!';
+    console.log(_err);
+    return callback(_err, null);
+  }
+  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+  var category = utils.getCategoryByPath(sFilePath).category;
+  if (reg_isLocal.test(sFilePath)) { //target file is from local
+    var sCondition = ["path = '" + sFilePath + "'"];
+    commonDAO.findItems(null, [category], sCondition, null, function(result) {
+      if (result === "error") {
+        var _err = "Error: find " + sFilePath + " in db error!"
+        return callback(_err, null);
+      }
+      var item = result[0];
+      var oTags = result.others.split(',');
+      if (utils.isExist('$desktop$', oTags)) {
+        console.log('Oh,Sorry, ' + sFilePath + ' Exists on desktop!');
+        return callback(null, 'exist');
+      }
 
-// }
-// exports.dragToDesktop = dragToDesktop;
+      function setTagsCb(result) {
+        if (result != 'commit') {
+          var _err = 'Error: set tags error!';
+          console.log(_err);
+          return callback(_err, null);
+        }
+        callback(null, sFilePath);
+      }
+      var sUri = item.URI;
+      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+    })
+  } else { //target file is from out of our data frame
+    utils.isNameExists(sFilePath, function(err, result) {
+      if (err) {
+        console.log('isNameExists error!');
+        return callback(err, null);
+      }
+      if (result) { //target's name is aready exist in db
+        console.log('target name is aready exist in db',result);
+        var data = new Date();
+        var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
+        var sNewName = surfix + result;
+        var sNewFilePath = pathModule.join(pathModule.dirname(sFilePath), sNewName);
+        
+        return doCreateData(sNewFilePath, category, callback);
+      }
+      //target's name is unique
+      console.log('target name is unique');
+      doCreateData(sFilePath, category, callback)
+    })
+  }
+}
+exports.dragToDesktop = dragToDesktop;
 
-// function newFile() {
+function doCreateData(sFilePath, category, callback) {
+  var cate = utils.getCategoryObject(category);
+  cate.createData(sFilePath, function(err, result, resultFile) {
+    if (err) {
+      console.log(err,resultFile, result, '===============================')
+      return callback(err, null);
+    }
+    var sCondition = ["path = '" + resultFile + "'"];
+    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+      if (err) {
+        var _err = "Error: find " + sFilePath + " in db error!";
+        return callback(_err, null);
+      }
+      var item = result[0];
 
-// }
-// exports.newFile = newFile;
+      function setTagsCb(result) {
+        if (result != 'commit') {
+          var _err = 'Error: set tags error!';
+          console.log(_err);
+          return callback(_err, null);
+        }
+        callback(null, resultFile);
+      }
+      var sUri = item.URI;
+      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+    })
+  });
+}
+
+
+function newFile() {
+
+}
+exports.newFile = newFile;

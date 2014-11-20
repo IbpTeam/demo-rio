@@ -83,7 +83,7 @@ function copyFile(oldPath, newPath, callback) {
  */
 function createData(item, callback) {
   var sOriginPath = item.path;
-  var sFileName = item.filename + '.' + item.postfix;
+  var sFileName = utils.renameExists([item.filename + '.' + item.postfix])[0];
   var category = item.category;
   var sRealRepoDir = utils.getRealRepoDir(category);
   var sDesRepoDir = utils.getDesRepoDir(category);
@@ -108,7 +108,7 @@ function createData(item, callback) {
             console.log(err);
             return callback(null);
           }
-          callback('success');
+          callback('success',sFilePath);
         })
       })
     });

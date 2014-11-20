@@ -325,6 +325,15 @@ function openDataByUri(openDataByUriCb, uri) {
 }
 exports.openDataByUri = openDataByUri;
 
+/*TODO: To be continue*/
+// function openDataByPath(openDataByPathCb, uri) {
+//   console.log("Request handler 'openDataByPath' was called.");
+//   var cate = utils.getCategoryByPath(uri);
+
+// }
+// exports.openDataByPath = openDataByPath;
+
+
 //API updateItemValue:修改数据某一个属性
 //返回类型：
 //成功返回success;
@@ -932,6 +941,30 @@ function unlinkApp(unlinkAppCb, sDir) {
   desktopConf.unlinkApp(sDir, unlinkAppCb);
 }
 exports.unlinkApp = unlinkApp;
+
+/** 
+ * @Method: dragToDesktopCb
+ *    To drag a file from any where to desktop.
+ *
+ * @param2: sFilePath
+ *    string, a target file path, should be a full path.
+ *            example: '/home/xiquan/somedir/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function dragToDesktop(dragToDesktopCb, sFilePath) {
+  console.log("Request handler 'dragToDesktop' was called.");
+  desktopConf.dragToDesktop(sFilePath, dragToDesktopCb);
+}
+exports.dragToDesktop = dragToDesktop;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
