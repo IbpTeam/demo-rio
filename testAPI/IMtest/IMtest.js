@@ -14,4 +14,4 @@ IM.RegisterApp(function(msgobj) {
 
 IM.StartIMService(function(state) {
   console.log(state);
-});
+},"true");
