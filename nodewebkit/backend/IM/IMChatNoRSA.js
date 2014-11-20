@@ -32,12 +32,6 @@ function MD5(str, encoding) {
   return crypto.createHash('md5').update(str).digest(encoding || 'hex');
 }
 
-
-function closeIMServerNoRSA(thisServer,cb){
-  if(thisServer!==undefined)
-    thisServer.close();
-}
-exports.closeIMServerNoRSA=closeIMServerNoRSA;
 /*
 * @method initIMServer
 * @param port
@@ -56,7 +50,7 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
     console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
-    
+
     c.on('data', function(msgStri) {
       console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
       var msgStr = JSON.parse(msgStri);
@@ -107,11 +101,6 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
   server.listen(port, function() {
     console.log('IMServer Binded! ' + port);
-    if(port===6986){
-      var CalBakMsg = {};
-      CalBakMsg['server'] = server;
-      setTimeout(ReceivedMsgCallback(CalBakMsg), 0);
-    }
   });
 }
 
