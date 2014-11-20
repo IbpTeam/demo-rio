@@ -596,7 +596,7 @@ function parseDesktopFile(callback, sPath) {
       } else {
         var re_head = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
-        var re_comment = /^#[a-z, ,A-Z]/;
+        var re_comment = /#/g;
         var desktopHeads = [];
         var oAllDesktop = {};
         data = data.replace(re_head, function() {

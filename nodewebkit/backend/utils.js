@@ -216,7 +216,7 @@ exports.getFileNameByPathShort = function(sPath) {
 //get file postfix from a path
 exports.getPostfixByPathShort = function(sPath) {
   var posindex = sPath.lastIndexOf('.');
-  return sPath.substring(posindex+1, sPath.length);
+  return sPath.substring(posindex + 1, sPath.length);
 }
 
 exports.renameExists = function(allFiles) {
