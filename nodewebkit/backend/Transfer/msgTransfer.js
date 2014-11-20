@@ -634,6 +634,12 @@ function syncOnline(msgObj) {
       });
     });
   }else{
+    var device = {
+      device_id:msgObj.deviceId,
+      ip:msgObj.ip,
+      account:msgObj.account
+    };
+    syncList.push(device);
     console.log("8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
   }
 }
