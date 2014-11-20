@@ -10,7 +10,7 @@
  * @version:0.2.1
  **/
 
-var imchat = require("../IM/IMChatNoRSA.js");
+var im = require("../../lib/api/IM.js");
 var config = require("../config");
 var repo = require("../commonHandle/repo");
 var fs = require("fs");
@@ -57,7 +57,12 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
+  //imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
+  im.RegisterApp(recieveMsgCb, "app1");
+
+  im.StartIMService(function(state) {
+    console.log(state);
+  });
 }
 
 function recieveMsgCb(msgobj){
