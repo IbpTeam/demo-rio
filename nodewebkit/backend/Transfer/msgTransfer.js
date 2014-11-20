@@ -111,7 +111,7 @@ function sendMsg(device,msgObj){
   var sMsgStr = JSON.stringify(msgObj);
   var imMsgObj = {
     IP: device.ip,
-    UID: device.device_id
+    UID: device.device_id,
     Account: device.account,
     Msg: sMsgStr,
     App: "app1"
