@@ -6,6 +6,7 @@ var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
+var music = require("./data/music");
 var devices = require("./data/device");
 var commonDAO = require("./commonHandle/CommonDAO");
 //@const
@@ -86,6 +87,12 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
+  }else{
+    return {
+      category: "other",
+      filename: itemFilename,
+      postfix: itemPostfix
+    }
   }
 }
 exports.getCategoryByPath = getCategoryByPath;
@@ -126,8 +133,13 @@ exports.getCategoryObject = function(category) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
-      return null;
+      return other;
   }
 }
 
@@ -160,8 +172,51 @@ exports.getCategoryObjectByUri = function(sUri) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
-      return null;
+      return other;
+  }
+}
+
+//get the category from Des
+exports.getCategoryObjectByDes = function(sDesName) {
+  switch (sDesName) {
+    case "contactDes":
+      {
+        return contacts;
+      }
+      break;
+    case "pictureDes":
+      {
+        return pictures;
+      }
+      break;
+    case "documentDes":
+      {
+        return documents;
+      }
+      break;
+    case "musicDes":
+      {
+        return music;
+      }
+      break;
+    case "videoDes":
+      {
+        return video;
+      }
+      break;
+    case "desktopDes":
+      {
+        return desktopConf;
+      }
+      break;
+    default:
+      return other;
   }
 }
 
