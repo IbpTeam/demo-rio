@@ -460,6 +460,7 @@ function isEmptyRepo(repoPath,completeCb){
 }
 
 function getReposStatus (callback) {
+  index = 0;
   isEmptyRepo(path.join(config.RESOURCEPATH,desRepos[index].name),function(){
     var aRepoArr = new Array();
     for(var arrIndex in desRepos){
