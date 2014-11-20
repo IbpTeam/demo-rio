@@ -391,11 +391,11 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
  *
  * @param2: realPath
  *    string, a category repo path,
- *            usually as :'/home/xiquan/.resource/document/data/somefile.txt'
+ *            usually as :'/home/xiquan/.resource/document'
  *
  * @param3: desPath
  *    string, a category repo path,
- *            usually as : '/home/xiquan/.resource/documentDes/data/somefile.txt.md'
+ *            usually as : '/home/xiquan/.resource/documentDes'
  *
  * @param4: oFiles
  *    array, a array of file path
@@ -425,9 +425,9 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
     console.log(_err);
     return callback(_err, null);
   }
-  repoCommit(desPath, oDesFiles, null, function() {
+  repoCommit(realPath, oFiles, commitID, function() {
     getLatestCommit(desPath, function(commitID) {
-      repoCommit(realPath, oFiles, commitID, function() {
+      repoCommit(desPath, oDesFiles, null, function() {
         callback(null, 'success');
       });
     })

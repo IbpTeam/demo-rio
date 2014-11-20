@@ -246,11 +246,12 @@ exports.removeFile = function(category, item, callback) {
       var aRealFiles = [sFullName];
       var sRealDir = utils.getRealDir(category);
       var sDesRepoDir = utils.getDesRepoDir(category);
-      repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
+      /*repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
         repo.getLatestCommit(sDesRepoDir, function(commitID) {
           repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
         })
-      });
+      });*/
+      repo.repoCommitBoth("rm", path.join(sRealDir,sFullName), path.join(sDesDir,sDesFullName), oFiles, oDesFiles, callback);
     });
   });
 };
