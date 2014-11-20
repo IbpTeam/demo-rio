@@ -207,7 +207,7 @@ exports.addListener = addListener;
 function startMdnsService(StateCb) {
   try {
     mdns.createServer(function() {
-      var name = 'demo-rio';
+      var name = LOCALUUID;
       var port = '8885';
       var txtarray = ['demo-rio', LOCALACCOUNT, LOCALUUID];
       mdns.entryGroupCommit(name, port, txtarray);
