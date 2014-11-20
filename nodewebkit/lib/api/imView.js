@@ -17,8 +17,16 @@ exports.getLocalData = getLocalData;
 */
 function startIMChatServer(startIMChatServerCb){ 
   imChat.initIMServerNoRSA(6986, function(msgobj){ 
-    startIMChatServerCb(msgobj);
-  }); 
+    startIMChatServerCb(msgobj);/*
+    try{
+      var msgFile=msgobj.MsgObj.message;
+      var msg=msgobj;
+      msg.MsgObj.message=JSON.parse(msgFile);
+      startIMChatServerCb(msg);
+    }catch(e){
+      startIMChatServerCb(msgobj);
+    } */
+  });
 }
 exports.startIMChatServer = startIMChatServer;
 /*
@@ -31,7 +39,16 @@ exports.closeIMChatServer = closeIMChatServer;
 /*
 * imChat send message
 */
-function sendIMMsg(sendIMMsgCb,ipset, toAcciount,msg){
-  imChat.sendMSGbyUIDNoRSA(ipset,toAcciount, msg, 6986, sendIMMsgCb);
+function sendIMMsg(sendIMMsgCb,ipset, toAccount,msg){
+  imChat.sendMSGbyUIDNoRSA(ipset,toAccount, msg, 6986, sendIMMsgCb);
 }
 exports.sendIMMsg=sendIMMsg;
+/*
+function sendIMFile(sendIMFileCb,ipset, toAccount,msg){
+  transferFile.transferFile(msg,function(){
+
+  });
+  imChat.sendMSGbyUIDNoRSA(ipset,toAccount, msg, 6986, sendIMFileCb);
+}
+exports.sendIMFile=sendIMFile;
+*/
