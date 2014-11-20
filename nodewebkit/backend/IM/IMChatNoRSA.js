@@ -318,5 +318,4 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
 }
 
 exports.initIMServerNoRSA = initIMServerNoRSA;
-exports.sendMSGbyAccountNoRSA = sendMSGbyAccountNoRSA;
 exports.sendMSGbyUIDNoRSA = sendMSGbyUIDNoRSA;
