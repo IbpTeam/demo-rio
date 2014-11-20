@@ -1084,6 +1084,9 @@ Folder.prototype.open = function(dir) {
   case 'root/Devices':
     DataAPI.getAllDataByCate(this.get_callback_data, 'Devices');
     break;
+  case 'root/Other':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Other');
+    break;
   default:
     window.alert('Path ' + global_dir + ' does not exist.');
     break;
