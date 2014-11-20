@@ -464,7 +464,7 @@ function getReposStatus (callback) {
     var aRepoArr = new Array();
     for(var index in desRepos){
       console.log(desRepos[index]);
-      if(repo[index].status != "empty"){
+      if(desRepos[index].status != "empty"){
         aRepoArr.push(desRepos[index].name);
       }
     }
