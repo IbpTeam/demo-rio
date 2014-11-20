@@ -48,8 +48,7 @@ function startApp(){
   startonce = true;
   config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();
-  config.ACCOUNT = process.env['USER'];
-  var sFullPath = path.join(HOME_DIR, config.ACCOUNT, DEMO_RIO);
+  var sFullPath = path.join(HOME_DIR, process.env['USER'], DEMO_RIO);
   config.USERCONFIGPATH = sFullPath;
   config.DATABASEPATH = path.join(config.USERCONFIGPATH,DATABASENAME);
   util.log('mkdir ' + sFullPath);
@@ -99,6 +98,7 @@ function initializeApp(sFullPath) {
     }
     console.log("UniqueID.js is exist.");
     var deviceID = require(sUniqueIDPath).uniqueID;
+    config.ACCOUNT  = require(sUniqueIDPath).Account;
     setSysUid(deviceID, sUniqueIDPath, function() {
       device.startDeviceDiscoveryService();
       fs.exists(sNetLinkStatusPath, function(netlinkExists) {
@@ -136,7 +136,7 @@ function initializeApp(sFullPath) {
 function setSysUid(deviceID,uniqueIDPath,callback){
   if(deviceID == undefined || deviceID == null){
     uniqueID.SetSysUid(function(){
-      deviceID=require(uniqueIDPath).uniqueID;
+      deviceID = require(uniqueIDPath).uniqueID;
       console.log("deviceID = "+deviceID);
       config.uniqueID=deviceID;
       callback();

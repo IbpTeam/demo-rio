@@ -6,8 +6,6 @@ var ds = require("../../lib/api/device_service");
 var devicesList=new Array();
 exports.devicesList = devicesList;
 
-var USER_ACCOUNT = "v1";
-
 function getDeviceList(){
   commonDAO.findItems(null,["devices"],null,null,function(err,items){
     if(err){
@@ -135,7 +133,7 @@ function listenDeviceCallback(deviceObj){
 
 function startDeviceDiscoveryService(){
   getDeviceList();
-  ds.addListenerByAccount(listenDeviceCallback, USER_ACCOUNT);
+  ds.addListenerByAccount(listenDeviceCallback, config.ACCOUNT);
   //Start device service
   ds.startMdnsService(function(state) {
     if (state === true) {
