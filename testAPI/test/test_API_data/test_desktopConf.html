@@ -160,7 +160,7 @@
     if (err) {
       print(win,err);
     } else {
-      
+            console.log(result)
       win.document.write("test API readDesktopFile()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
@@ -171,7 +171,7 @@
 
   function test_readDesktopFile(readDesktopFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'libreoffice-draw.desktop';
+      var sFileName = 'google-chrome.desktop';
       data.readDesktopConfig(readDesktopFileCb, sFileName);
     });
   }
