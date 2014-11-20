@@ -108,14 +108,16 @@ function recieveMsgCb(msgobj){
  *    Message object.
  */
 function sendMsg(device,msgObj){
-  var account = device.account;
-  var ipset = {
-    IP:device.ip,
-    UID:device.device_id
-  };
   var sMsgStr = JSON.stringify(msgObj);
+  var imMsgObj = {
+    IP: device.ip,
+    UID: device.device_id
+    Account: device.account,
+    Msg: sMsgStr,
+    App: "app1"
+  };
   console.log("sendMsg-------------------------"+sMsgStr);
-  imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
+  im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
 /**
@@ -124,11 +126,11 @@ exports.sendMsg=sendMsg;
  * @param msg
  *    Message string.
  */
-function sendMsgCb(msgObj){
+function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  //console.log("[Send message successfull] + Msg : " + msg.message);
+  console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
 }
 
 /**
