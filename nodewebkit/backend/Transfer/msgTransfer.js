@@ -62,7 +62,7 @@ exports.initServer = function(){
 
   im.StartIMService(function(state) {
     console.log(state);
-  });
+  },"");
 }
 
 function recieveMsgCb(msgobj){
