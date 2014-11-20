@@ -10,13 +10,16 @@
   }
   </style>
   <script src="../../lib/require.js"></script>
-  <script src="../../lib/jquery.js"></script>
+<script src="../../lib/jquery.js"></script>
   <script src="../../lib/api.js"></script>
 </head>
 <body>
   <script language=javascript>  
 
-  var test_uri = "2111e5d173432405ee078cdbef46f0ab#af59e506a952b2de3bb7#document";
+  var test_uri = "52a34b2a758a5c78cfdb2a163092e8b3#459bd72d0eeded0cc767#document";
+  var test_uri1 = "52a34b2a758a5c78cfdb2a163092e8b3#c99f07d865bc1a1f0190#document";
+  var test_uri2 = "52a34b2a758a5c78cfdb2a163092e8b3#79f76795a1b051ed24cb#music";
+  var test_uri3 = "52a34b2a758a5c78cfdb2a163092e8b3#6c9926eb0b55aede1052#picture";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -87,9 +90,29 @@
   function test_setTagByUri(setTagByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['my','good','tag'];
-      var oUri = test_uri;
+      var oUri = test_uri2;
       data.setTagByUri(setTagByUriCb,oTags,oUri);
     });    
+  }
+
+  function setTagByUriMultiCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API setTagByUriMulti()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_setTagByUriMulti(setTagByUriMultiCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var oTags = ['my', 'good', 'tag'];
+      var oUri = [test_uri, test_uri2, test_uri3, test_uri1];
+      data.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
+    });
   }
 
   function getFilesByTagsCb(result){
@@ -133,10 +156,11 @@
   }
   function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ["documents","Conference","Teaching","contactsphoto"];
+      var oTags = ["pictures"];
       data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
     });  
   }
+
 
   </script>
 
@@ -196,6 +220,34 @@
       var oTags = ['my','good','tag'];
       var oUri = [test_uri];
       data.setTagByUri(setTagByUriCb,oTags,oUri);
+    });    
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('setTagByUriMulti')">setTagByUriMulti(setTagByUriMultiCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUriMulti" id="test_getAllTagsByCategory" onclick="test_setTagByUriMulti(setTagByUriMultiCb)">test</a></span></h2>
+<div id="setTagByUriMulti" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function setTagByUriMultiCb(result){
+    var win = window.open('');
+    win.document.write("test API setTagByUriMulti()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_setTagByUriMulti(setTagByUriMultiCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['my','good','tag'];
+      var oUri = [test_uri,test_uri2,test_uri3,test_uri1];
+      data.setTagByUriMulti(setTagByUriMultiCb,oTags,oUri);
     });    
   }
   </pre>

@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "06cf58657c1d0f4e50517d0e5531c037#d130683474bf94ad1d01#document";
+  var test_uri = "4364cd9b6e169bd0769cba0d5ac9cb2e#2f1c76d3a869d2cae7c7#document";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -208,6 +208,26 @@
   function test_getResourceDataDir(getResourceDataDirCb){
     WDC.requireAPI(['data'], function(data){
       data.getResourceDataDir(getResourceDataDirCb);
+    });        
+  }
+
+  function renameDataByUriCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+    }
+    win.document.write("test API renameDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_renameDataByUri(renameDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var sUri = test_uri;
+      var sNewName = 'test_rename.txt';
+      var category = 'document';
+      data.renameDataByUri(category,sUri, sNewName,renameDataByUriCb);
     });        
   }
 
@@ -599,6 +619,34 @@
   function test_openDataByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
       data.openDataByUri(openDataByUriCb, test_uri);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('renameDataByUri')">renameDataByUri(sUri, sNewName,renameDataByUriCb)<span><a class="mark" href="#test_renameDataByUri" id="test_renameDataByUri" onclick="test_renameDataByUri(renameDataByUriCb)">test</a></span></h2>
+<div id="renameDataByUri" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function renameDataByUriCb(result){
+    var win = window.open('');
+    win.document.write("test API renameDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_renameDataByUri(renameDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var sUri = test_uri;
+      var sNewName = 'test_rename.txt';
+      data.renameDataByUri(sUri, sNewName,renameDataByUriCb);
     });        
   }
   </pre>

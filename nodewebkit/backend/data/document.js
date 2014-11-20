@@ -29,8 +29,6 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
-var device = require('./device');
-
 
 //@const
 var CATEGORY_NAME = "document";
@@ -82,7 +80,7 @@ function createData(items, callback) {
       var mtime = stat.mtime;
       var ctime = stat.ctime;
       var size = stat.size;
-      var cate = utils.getCategory(items);
+      var cate = utils.getCategoryByPath(items);
       var category = CATEGORY_NAME;
       var itemFilename = cate.filename;
       var itemPostfix = cate.postfix;
@@ -139,7 +137,7 @@ function createData(items, callback) {
               var mtime = stat.mtime;
               var ctime = stat.ctime;
               var size = stat.size;
-              var cate = utils.getCategory(_item);
+              var cate = utils.getCategoryByPath(_item);
               var category = CATEGORY_NAME;
               var itemFilename = cate.filename;
               var itemPostfix = cate.postfix
@@ -201,9 +199,7 @@ exports.createData = createData;
  *    Callback
  */
 function removeByUri(uri, callback) {
-  getByUri(uri, function(err, items) {
-    if (err)
-      console.log(err);
+  getByUri(uri, function(items) {
     //Remove real file
     fs.unlink(items[0].path, function(err) {
       if (err) {
@@ -240,11 +236,7 @@ exports.getByUri = getByUri;
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
 function openDataByUri(openDataByUriCb, uri) {
-  function getItemByUriCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
+  function getItemByUriCb(items) {
     var item = items[0];
     if (item == null) {
       config.riolog("read data : " + item);
@@ -525,3 +517,13 @@ function repoResetFile(commitID, file, callback) {
   })
 }
 exports.repoResetFile = repoResetFile;
+
+function rename(sUri, sNewName, callback) {
+  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    callback(null, result);
+  })
+}
+exports.rename = rename;

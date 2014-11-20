@@ -267,8 +267,8 @@ function getPubKey(callback){
  *    Device object,include device id,name,ip and so on.
  */
 exports.serviceUp = function(device){
-  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+device.ip);
-  if(device.ip != "192.168.162.122"){
+  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
+  if(device.device_id.localeCompare(config.uniqueID) <= 0){
     return;
   }
   switch(iCurrentState){
@@ -525,7 +525,11 @@ function syncOnline(msgObj) {
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   if(iCurrentState == syncState.SYNC_IDLE){
-    repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.path,function(result){
+    if(repo.haveBranch(msgObj.path,msgObj.deviceId)==false){
+      console.log("Unknown device!!!!!!!!!!!");
+      return;
+    }
+    repo.pullFromOtherRepo(msgObj.path,msgObj.deviceId,function(result){
       console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
       var aFilePaths = new Array();
 
