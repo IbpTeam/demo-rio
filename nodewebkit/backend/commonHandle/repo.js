@@ -425,9 +425,9 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
     console.log(_err);
     return callback(_err, null);
   }
-  repoCommit(realPath, oFiles, commitID, function() {
+  repoCommit(realPath, oFiles,null , function() {
     getLatestCommit(desPath, function(commitID) {
-      repoCommit(desPath, oDesFiles, null, function() {
+      repoCommit(desPath, oDesFiles, commitID, function() {
         callback(null, 'success');
       });
     })

@@ -250,7 +250,7 @@ exports.removeFile = function(category, item, callback) {
           repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
         })
       });*/
-      repo.repoCommitBoth("rm", path.join(sRealDir,sFullName), path.join(sDesDir,sDesFullName), oFiles, oDesFiles, callback);
+      repo.repoCommitBoth("rm",sRealDir, sDesDir, aRealFiles, aDesFiles, callback);
     });
   });
 };
