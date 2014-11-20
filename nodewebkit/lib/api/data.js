@@ -547,17 +547,17 @@ function setTagByUri(setTagByUriCb, oTags, oUri) {
 exports.setTagByUri = setTagByUri;
 
 /**
- * @method setTagByUri
- *   get all tags in db
+ * @method setTagByUriMulti
+ *   set tags to multiple files by uri
  *
- * @param1 setTagsByUriMultiCb
+ * @param1 callback
  *    @result, (_err,result)
  *
  *    @param: _err,
  *        string, return specific error info
  *
  *    @param: result,
- *        string, retieve 'commit' when success
+ *        string, retieve 'success' when success
  *
  * @param2 oTags
  *    array, an array of tags to be set

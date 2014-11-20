@@ -315,7 +315,7 @@ exports.setTagByUri = setTagByUri;
  *        string, return specific error info
  *
  *    @param: result,
- *        string, retieve 'commit' when success
+ *        string, retieve 'success' when success
  *
  * @param2 oTags
  *    array, an array of tags to be set
