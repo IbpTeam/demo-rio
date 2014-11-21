@@ -1015,6 +1015,30 @@ function removeFileFromDB(removeFileFromDBCb, sFilePath) {
 }
 exports.removeFileFromDB = removeFileFromDB;
 
+/** 
+ * @Method: removeFileFromDesk
+ *   To remove a file from desktop. This action will only remove this file from
+ *   desktop.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDesk(removeFileFromDeskCb,sFilePath) {
+  console.log("Request handler 'removeFileFromDesk' was called.");
+  desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
+}
+exports.removeFileFromDesk = removeFileFromDesk;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();

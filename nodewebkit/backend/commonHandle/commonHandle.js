@@ -108,7 +108,7 @@ function createData(item, callback) {
             console.log(err);
             return callback(null);
           }
-          callback('success',sFilePath);
+          callback('success', sFilePath);
         })
       })
     });
@@ -227,10 +227,11 @@ exports.deleteItemByUri = deleteItemByUri;
 
 exports.removeFile = function(category, item, callback) {
   //TODO delete desFile
-  var sFullName = path.basename(item.path);
-  var sDesFullName = sFullName + ".md";
-  var sDesPath = utils.getDesPath(category, sFullName);
-  fs.unlink(sDesPath, function(err) {
+  var sFullPath = item.path;
+  var reg = new RegExp('/' + category + '/');
+  var sDesFullPath = sFullPath.replace(reg, '/' + category + 'Des/') + ".md";
+  var sDesPath = utils.getDesPath(category, sFullPath);
+  fs.unlink(sDesFullPath, function(err) {
     if (err)
       console.log(err);
     //TODO delete data from db
@@ -240,12 +241,12 @@ exports.removeFile = function(category, item, callback) {
         return;
       }
       //TODO git commit
-      var aDesFiles = [sDesFullName];
+      var aDesFiles = [sDesFullPath];
       var sDesDir = utils.getDesDir(category);
-      var aRealFiles = [sFullName];
-      var sRealDir = utils.getRealDir(category);
+      var aRealFiles = [sFullPath];
+      var sRealDir = utils.getRealRepoDir(category);
       var sDesRepoDir = utils.getDesRepoDir(category);
-      repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
+      repo.repoRmsCommit(sDesRepoDir, aDesFiles, null, function() {
         repo.getLatestCommit(sDesRepoDir, function(commitID) {
           repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
         })

@@ -92,7 +92,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git rm error", error, stderr);
+      console.log("Git rm error", error,stdout, stderr);
     } else {
       console.log("Git rm success");
       callback("success");

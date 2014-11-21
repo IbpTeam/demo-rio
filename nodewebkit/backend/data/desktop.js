@@ -2106,7 +2106,7 @@ function doCreateData(sFilePath, category, callback) {
 }
 
 /** 
- * @Method: removeFile
+ * @Method: removeFileFromDB
  *   To remove a file from desktop. This action will remove this file from data
  *   frame also.
  *
@@ -2138,10 +2138,10 @@ function removeFileFromDB(sFilePath, callback) {
       return callback(_err, null);
     }
     var sUri = result[0].URI;
-    cate.removeByUri(sUri, function(err) {
-      if (err) {
-        console.log('removeByUri error', err);
-        return callback(err, null);
+    cate.removeByUri(sUri, function(result) {
+      if (result !== 'success') {
+        console.log('removeByUri error', result);
+        return callback(result, null);
       }
       console.log('remove file success!');
       callback(null, 'success');
@@ -2151,9 +2151,9 @@ function removeFileFromDB(sFilePath, callback) {
 exports.removeFileFromDB = removeFileFromDB;
 
 /** 
- * @Method: removeFile
- *   To remove a file from desktop. This action will remove this file from data
- *   frame also.
+ * @Method: removeFileFromDesk
+ *   To remove a file from desktop. This action will only remove this file from
+ *   desktop.
  *
  * @param2: sFilePath
  *    string, file path, should be a full path in local.
@@ -2171,7 +2171,6 @@ exports.removeFileFromDB = removeFileFromDB;
  **/
 function removeFileFromDesk(sFilePath, callback) {
   var category = utils.getCategoryByPath(sFilePath).category;
-  var cate = utils.getCategoryObject(category);
   var sCondition = ["path = '" + sFilePath + "'"];
   commonDAO.findItems(['uri'], [category], sCondition, null, function(err, result) {
     if (err) {
@@ -2183,10 +2182,19 @@ function removeFileFromDesk(sFilePath, callback) {
       return callback(_err, null);
     }
     var sUri = result[0].URI;
-    //cate.
+
+    function rmTagsByUriCb(result) {
+      if (result !== 'commit') {
+        var _err = 'rmTagsByUri error!';
+        console.log(_err);
+        return callback(_err, null);
+      }
+      callback(null, 'success');
+    }
+    tagsHandle.rmTagsByUri(rmTagsByUriCb, ['$desktop$'], sUri)
   })
 }
-exports.removeFileFromDB = removeFileFromDB;
+exports.removeFileFromDesk = removeFileFromDesk;
 
 function getFilesFromDesk() {
 

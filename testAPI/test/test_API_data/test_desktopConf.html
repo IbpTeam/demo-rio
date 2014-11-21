@@ -485,6 +485,25 @@
     });
   }
 
+  function removeFileFromDeskCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API removeFileFromDesk()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_removeFileFromDesk(removeFileFromDeskCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
+      data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+    });
+  }
+
   </script>
 
 <h2 onclick="show('initDesktop')">initDesktop(initDesktopCb)<span><a class="mark" href="#test_initDesktop" id="test_initDesktop" onclick="test_initDesktop(initDesktopCb)">test</a></span></h2>
@@ -1116,6 +1135,37 @@
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = '/home/xiquan/testFile/small_image.jpg';
       data.removeFileFromDB(removeFileFromDBCb,sFilePath);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('removeFileFromDesk')">removeFileFromDesk(removeFileFromDeskCb,sFilePath)<span><a class="mark" href="#test_removeFileFromDesk" id="test_removeFileFromDesk" onclick="test_removeFileFromDesk(removeFileFromDeskCb)">test</a></span></h2>
+<div id="removeFileFromDesk" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function removeFileFromDeskCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API removeFileFromDesk()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_removeFileFromDesk(removeFileFromDeskCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
+      data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
     });
   }
 </pre>

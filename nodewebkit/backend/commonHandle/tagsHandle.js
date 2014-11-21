@@ -356,39 +356,6 @@ function setTagByUriMulti(callback, oTags, oUri) {
 }
 exports.setTagByUriMulti = setTagByUriMulti;
 
-function rmTagUriSingle(callback, sTag, sUri) {
-  var allFiles = [];
-  var deleteTags = [];
-  var category = utils.getCategoryByUri(sUri);
-  var sCondition = "uri = '" + sUri + "'";
-  commonDAO.findItems(null, [category], sCondition, null, function(err, resultItem) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    buildDeleteItems(allFiles, resultItem);
-    var resultItems = doDeleteTags(allFiles, [sTag]);
-    var oItem = resultItems[0];
-    if (category == 'contact') {
-      delete oItem.path;
-      var sFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', oItem.name + '.md');
-    } else {
-      var sFilePath = item.path;
-    }
-    dataDes.updateItem(sFilePath, oItem, function(result) {
-      commonDAO.updateItem(oItem, function(err) {
-        if (err) {
-          callback(err, null);
-        } else {
-          callback(null, 'success');
-        }
-      })
-    })
-  })
-}
-exports.rmTagsByUri = rmTagsByUri;
-
-
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri
