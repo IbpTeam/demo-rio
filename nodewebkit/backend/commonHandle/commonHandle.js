@@ -85,7 +85,7 @@ function createData(item, callback) {
   var sOriginPath = item.path;
   var sFileName = item.filename + '.' + item.postfix;
   var category = item.category;
-  var sRealRepoDir = utils.getRealRepoDir(category);
+  var sRealRepoDir = utils.getRepoDir(category);
   var sDesRepoDir = utils.getDesRepoDir(category);
   var sRealDir = utils.getRealDir(category);
   var sDesDir = utils.getDesDir(category);
@@ -167,7 +167,7 @@ function createDataAll(items, callback) {
       var sOriginPath = _item.path;
       var sFileName = _item.filename + '.' + _item.postfix;
       var category = _item.category;
-      var sRealRepoDir = utils.getRealRepoDir(category);
+      var sRealRepoDir = utils.getRepoDir(category);
       var sDesRepoDir = utils.getDesRepoDir(category);
       var sDesDir = utils.getDesDir(category);
       var sRealDir = utils.getRealDir(category);
@@ -239,18 +239,11 @@ exports.removeFile = function(category, item, callback) {
         callback("error");
         return;
       }
-      //TODO git commit
-      var aDesFiles = [sDesFullName];
-      var sDesDir = utils.getDesDir(category);
-      var aRealFiles = [sFullName];
-      var sRealDir = utils.getRealDir(category);
-      var sDesRepoDir = utils.getDesRepoDir(category);
-      /*repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
-        repo.getLatestCommit(sDesRepoDir, function(commitID) {
-          repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
-        })
-      });*/
-      repo.repoCommitBoth("rm",sRealDir, sDesDir, aRealFiles, aDesFiles, callback);
+      repo.repoCommitBoth('rm',utils.getRepoDir(category), 
+                               utils.getDesRepoDir(category), 
+                               [path.join(utils.getRealDir(category),sFullName)], 
+                               [path.join(utils.getDesDir(category),sDesFullName)],
+                               callback);
     });
   });
 };

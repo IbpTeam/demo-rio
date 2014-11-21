@@ -414,19 +414,21 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
  *
  **/
 exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
-  if (op = 'add') {
+  console.log('op= '+op);
+  if (op == 'add') {
     var repoCommit = repoAddsCommit;
-  } else if (op = 'rm') {
+  } else if (op == 'rm') {
     var repoCommit = repoRmsCommit;
-  } else if (op = 'ch') {
+  } else if (op == 'ch') {
     var repoCommit = repoChsCommit;
   } else {
     var _err = 'Error: bad op choice!';
     console.log(_err);
     return callback(_err, null);
   }
+  console.log('repoCommit= '+repoCommit);
   repoCommit(realPath, oFiles,null , function() {
-    getLatestCommit(desPath, function(commitID) {
+    getLatestCommit(realPath, function(commitID) {
       repoCommit(desPath, oDesFiles, commitID, function() {
         callback(null, 'success');
       });
