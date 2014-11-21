@@ -523,6 +523,23 @@ function getTagsByUri(getTagsByUriCb, sUri) {
 exports.getTagsByUri = getTagsByUri;
 
 /**
+ * @method getTagsByUris
+ *   get tags with specifc uris
+ *
+ * @param1 callback
+ *    all result in array
+ *
+ * @param2 oUris
+ *    array, an array of uris, uris should in the same category
+ *
+ */
+function getTagsByUris(getTagsByUrisCb, oUris) {
+  console.log("Request handler 'getTagsByUris' was called.");
+  tagsHandle.getTagsByUris(getTagsByUrisCb, oUris);
+}
+exports.getTagsByUris = getTagsByUris;
+
+/**
  * @method : setTagByUri
  *
  * @param1 : setTagByUriCb 回调函数
@@ -545,6 +562,32 @@ function setTagByUri(setTagByUriCb, oTags, oUri) {
   tagsHandle.setTagByUri(setTagByUriCb, oTags, oUri);
 }
 exports.setTagByUri = setTagByUri;
+
+/**
+ * @method setTagByUriMulti
+ *   set tags to multiple files by uri
+ *
+ * @param1 callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, return specific error info
+ *
+ *    @param: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2 oTags
+ *    array, an array of tags to be set
+ *
+ * @param3 oUri
+ *    array, an array of uri
+ *
+ */
+function setTagByUriMulti(setTagByUriMultiCb, oTags, oUri) {
+  console.log("Request handler 'setTagByUriMulti' was called.");
+  tagsHandle.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
+}
+exports.setTagByUriMulti = setTagByUriMulti;
 
 /**
  * @method getFilesByTag

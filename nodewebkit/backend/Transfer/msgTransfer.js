@@ -10,7 +10,7 @@
  * @version:0.2.1
  **/
 
-var imchat = require("../IM/IMChatNoRSA.js");
+var im = require("../../lib/api/IM.js");
 var config = require("../config");
 var repo = require("../commonHandle/repo");
 var fs = require("fs");
@@ -37,7 +37,8 @@ var msgType = {
   TYPE_RESPONSE:"syncResponse",
   TYPE_START:"syncStart",
   TYPE_COMPLETE:"syncComplete",
-  TYPE_ONLINE:"syncOnline"
+  TYPE_ONLINE:"syncOnline",
+  TYPE_REFUSED:"syncRefused"
 };
 
 // @const
@@ -56,7 +57,12 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
+  //imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
+  im.RegisterApp(recieveMsgCb, "app1");
+
+  im.StartIMService(function(state) {
+    console.log(state);
+  },"");
 }
 
 function recieveMsgCb(msgobj){
@@ -83,6 +89,10 @@ function recieveMsgCb(msgobj){
       syncOnline(oMessage);
     }
     break;
+    case msgType.TYPE_REFUSED: {
+      syncRefused(oMessage);
+    }
+    break;
     default: {
       console.log("this is in default switch on data");
     }
@@ -98,14 +108,16 @@ function recieveMsgCb(msgobj){
  *    Message object.
  */
 function sendMsg(device,msgObj){
-  var account = device.account;
-  var ipset = {
-    IP:device.ip,
-    UID:device.device_id
-  };
   var sMsgStr = JSON.stringify(msgObj);
+  var imMsgObj = {
+    IP: device.ip,
+    UID: device.device_id,
+    Account: device.account,
+    Msg: sMsgStr,
+    App: "app1"
+  };
   console.log("sendMsg-------------------------"+sMsgStr);
-  imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
+  im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
 /**
@@ -114,11 +126,11 @@ exports.sendMsg=sendMsg;
  * @param msg
  *    Message string.
  */
-function sendMsgCb(msgObj){
+function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  //console.log("[Send message successfull] + Msg : " + msg.message);
+  console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
 }
 
 /**
@@ -266,9 +278,9 @@ function getPubKey(callback){
  * @param device
  *    Device object,include device id,name,ip and so on.
  */
-exports.serviceUp = function(device){
-  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
+function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
+    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
     return;
   }
   switch(iCurrentState){
@@ -306,6 +318,43 @@ exports.serviceUp = function(device){
     }
   }
 }
+exports.serviceUp = serviceUp;
+
+/**
+ * @method syncRefused
+ *    Sync refused callback.
+ * @param msgObj
+ *    Message object.
+ */
+function syncRefused(msgObj){
+  switch(iCurrentState){
+    case syncState.SYNC_IDLE:{
+      //Todo send error msg to reset remote state
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+    case syncState.SYNC_REQUEST:{
+      var syncDevice = syncList.shift();
+      syncList.push(syncDevice);
+      iCurrentState = syncState.SYNC_IDLE;
+      setTimeout(serviceUp(syncList[0]),100000);
+      console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
+      break;
+    }
+    case syncState.SYNC_RESPONSE:{
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+    case syncState.SYNC_START:{
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+    case syncState.SYNC_COMPLETE:{
+      console.log("SYNC ERROR: current state is not request!");
+      break;
+    }
+  }
+}
 
 /**
  * @method syncRequest
@@ -325,35 +374,57 @@ function syncRequest(msgObj){
       iCurrentState = syncState.SYNC_RESPONSE;
       getPubKey(function(pubKeyStr){
         setPubKey(msgObj.pubKey,function(){
-          syncList.unshift(device);
-          responseMsg = {
-            type:msgType.TYPE_RESPONSE,
-            ip:config.SERVERIP,
-            resourcePath:RESOURCES_PATH,
-            account:config.ACCOUNT,
-            deviceId:config.uniqueID,
-            pubKey:pubKeyStr
-          };
-          sendMsg(device,responseMsg);
+          repo.getReposStatus(function(repoArr){
+            syncList.unshift(device);
+            responseMsg = {
+              type:msgType.TYPE_RESPONSE,
+              ip:config.SERVERIP,
+              resourcePath:RESOURCES_PATH,
+              account:config.ACCOUNT,
+              deviceId:config.uniqueID,
+              pubKey:pubKeyStr,
+              repositories:repoArr
+            };
+            sendMsg(device,responseMsg);
+          });
         });
       });
       break;
     }
     case syncState.SYNC_REQUEST:{
-      //ToDo-判断等待的是否为同一台设备
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
     case syncState.SYNC_RESPONSE:{
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,refusedMsg);
       break;
     }
     case syncState.SYNC_START:{
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      syncList.push(device);
+      refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,responseMsg);
       break;
     }
   }
@@ -384,15 +455,18 @@ function syncResponse(msgObj){
       else{
         iCurrentState = syncState.SYNC_RESPONSE;
         setPubKey(msgObj.pubKey,function(){
-          responseMsg = {
-            type:msgType.TYPE_START,
-            ip:config.SERVERIP,
-            resourcePath:RESOURCES_PATH,
-            account:config.ACCOUNT,
-            deviceId:config.uniqueID
-          };
-          sendMsg(device,responseMsg);
-          syncStart(msgObj);
+          repo.getReposStatus(function(repoArr){
+            responseMsg = {
+              type:msgType.TYPE_START,
+              ip:config.SERVERIP,
+              resourcePath:RESOURCES_PATH,
+              account:config.ACCOUNT,
+              deviceId:config.uniqueID,
+              repositories:repoArr
+            };
+            sendMsg(device,responseMsg);
+            syncStart(msgObj);
+          });
         });
       }
       break;
@@ -412,6 +486,12 @@ function syncResponse(msgObj){
   }
 }
 
+/**
+ * @method syncStart
+ *    Sync start callback.
+ * @param msgObj
+ *    Message object.
+ */
 function syncStart(msgObj){
   var device = {
     device_id:msgObj.deviceId,
@@ -431,10 +511,21 @@ function syncStart(msgObj){
     case syncState.SYNC_RESPONSE:{
       //Start to sync
       iCurrentState = syncState.SYNC_START;
+      var aHotRepos = msgObj.repositories;
+      var iRepoNum = 0;
+      aHotRepos.forEach(function(hotRepo){
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+hotRepo);
+        utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+          iRepoNum++;
+          if(iRepoNum == aHotRepos.length){
+            mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
+          }
+        });
+      });
       //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
       //  pictures.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       //});
-      documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       break;
     }
@@ -515,6 +606,9 @@ function syncComplete(msgObj){
       //Todo check sync list, if length>0, do sync.
       //if syncList.length>0, get device info ,and call serviceup
       iCurrentState = syncState.SYNC_IDLE;
+      if(syncList.length > 0){
+        serviceUp(syncList[0]);
+      }
       break;
     }
   }
@@ -547,6 +641,12 @@ function syncOnline(msgObj) {
       });
     });
   }else{
+    var device = {
+      device_id:msgObj.deviceId,
+      ip:msgObj.ip,
+      account:msgObj.account
+    };
+    syncList.push(device);
     console.log("8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
   }
 }
