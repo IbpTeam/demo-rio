@@ -317,7 +317,7 @@ function serviceUp(device){
       iCurrentState = syncState.SYNC_REQUEST;
       getPubKey(function(pubKeyStr){
         syncList.unshift(device);
-        requestMsg = {
+        var requestMsg = {
           type:msgType.TYPE_REQUEST,
           ip:config.SERVERIP,
           path:RESOURCES_PATH,
@@ -415,7 +415,7 @@ function syncRequest(msgObj){
         setPubKey(msgObj.pubKey,function(){
           repo.getReposStatus(function(repoArr){
             syncList.unshift(device);
-            responseMsg = {
+            var responseMsg = {
               type:msgType.TYPE_RESPONSE,
               ip:config.SERVERIP,
               resourcePath:RESOURCES_PATH,
@@ -431,16 +431,16 @@ function syncRequest(msgObj){
     }
     break;
     case syncState.SYNC_REQUEST:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
-      sendMsg(device,responseMsg);
+      sendMsg(device,refusedMsg);
     }
     break;
     case syncState.SYNC_RESPONSE:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
@@ -449,21 +449,21 @@ function syncRequest(msgObj){
     }
     break;
     case syncState.SYNC_START:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
-      sendMsg(device,responseMsg);
+      sendMsg(device,refusedMsg);
     }
     break;
     case syncState.SYNC_COMPLETE:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
-      sendMsg(device,responseMsg);
+      sendMsg(device,refusedMsg);
     }
     break;
     default:{
@@ -498,7 +498,7 @@ function syncResponse(msgObj){
         iCurrentState = syncState.SYNC_RESPONSE;
         setPubKey(msgObj.pubKey,function(){
           repo.getReposStatus(function(repoArr){
-            responseMsg = {
+            var responseMsg = {
               type:msgType.TYPE_START,
               ip:config.SERVERIP,
               resourcePath:RESOURCES_PATH,
