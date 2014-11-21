@@ -95,7 +95,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
       console.log("Git rm error", error, stderr);
     } else {
       console.log("Git rm success");
-      callback();
+      callback("success");
     }
   });
 }
@@ -391,11 +391,11 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
  *
  * @param2: realPath
  *    string, a category repo path,
- *            usually as :'/home/xiquan/.resource/document/data/somefile.txt'
+ *            usually as :'/home/xiquan/.resource/document'
  *
  * @param3: desPath
  *    string, a category repo path,
- *            usually as : '/home/xiquan/.resource/documentDes/data/somefile.txt.md'
+ *            usually as : '/home/xiquan/.resource/documentDes'
  *
  * @param4: oFiles
  *    array, a array of file path
@@ -414,20 +414,22 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
  *
  **/
 exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
-  if (op = 'add') {
+  console.log('op= '+op);
+  if (op == 'add') {
     var repoCommit = repoAddsCommit;
-  } else if (op = 'rm') {
+  } else if (op == 'rm') {
     var repoCommit = repoRmsCommit;
-  } else if (op = 'ch') {
+  } else if (op == 'ch') {
     var repoCommit = repoChsCommit;
   } else {
     var _err = 'Error: bad op choice!';
     console.log(_err);
     return callback(_err, null);
   }
-  repoCommit(desPath, oDesFiles, null, function() {
-    getLatestCommit(desPath, function(commitID) {
-      repoCommit(realPath, oFiles, commitID, function() {
+  console.log('repoCommit= '+repoCommit);
+  repoCommit(realPath, oFiles,null , function() {
+    getLatestCommit(realPath, function(commitID) {
+      repoCommit(desPath, oDesFiles, commitID, function() {
         callback(null, 'success');
       });
     })
@@ -460,12 +462,13 @@ function isEmptyRepo(repoPath,completeCb){
 }
 
 function getReposStatus (callback) {
+  index = 0;
   isEmptyRepo(path.join(config.RESOURCEPATH,desRepos[index].name),function(){
     var aRepoArr = new Array();
-    for(var index in desRepos){
-      console.log(desRepos[index]);
-      if(repo[index].status != "empty"){
-        aRepoArr.push(desRepos[index].name);
+    for(var arrIndex in desRepos){
+      console.log(desRepos[arrIndex]);
+      if(desRepos[arrIndex].status != "empty"){
+        aRepoArr.push(desRepos[arrIndex].name);
       }
     }
     callback(aRepoArr);
