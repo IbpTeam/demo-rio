@@ -62,6 +62,10 @@ function main(params){
       var messages = Array.prototype.slice.call(arguments, 1);
       folder.get_callback_data(messages);
     });
+    sidebar.on('show_filter_tag', function(event) {
+      var messages = Array.prototype.slice.call(arguments, 1);
+      addressbar.addtag(messages);
+    });
     addressbar.on('navigate', function(event, dir) {
       folder.open(dir);
     });

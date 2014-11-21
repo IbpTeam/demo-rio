@@ -65,6 +65,10 @@ AddressBar.prototype.set = function(dir_path) {
   this.address_bar.html(gen_bar(result));
 }
 
+AddressBar.prototype.addtag = function(tag){
+  this.address_bar.append('<li class="active"><a href="#">'+tag+'</a></li>');
+}
+
 AddressBar.prototype.enter = function(mine) {
   var how_many = this.address_bar.children().length;
   var where = this.address_bar.children('.active').index();
@@ -80,20 +84,3 @@ AddressBar.prototype.enter = function(mine) {
   this.address_bar.find('a:last').trigger('click');
 }
 $.extend(AddressBar.prototype, $.eventEmitter);
-
-  /*
-  var sequence = [ "", "home", "cos", "Templates" ];
-  var result = [ {
-    "name" : "",
-    "path" : ""
-  }, {
-    "name" : "home",
-    "path" : "/home"
-  }, {
-    "name" : "cos",
-    "path" : "/home/cos"
-  }, {
-    "name" : "Templates",
-    "path" : "/home/cos/Templates"
-  } ];
-  */
