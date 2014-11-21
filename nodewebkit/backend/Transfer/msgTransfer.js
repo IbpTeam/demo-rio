@@ -362,7 +362,7 @@ function syncRefused(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
     case syncState.SYNC_REQUEST:{
@@ -374,15 +374,15 @@ function syncRefused(msgObj){
       break;
     }
     case syncState.SYNC_RESPONSE:{
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
     case syncState.SYNC_START:{
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
   }
@@ -477,12 +477,12 @@ function syncResponse(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
     case syncState.SYNC_REQUEST:{
       if(syncList[0].device_id != msgObj.deviceId){
-      console.log("SYNC ERROR: current sync device is wrong!")
+      console.log("SYNC ERROR: current sync device is wrong!" + iCurrentState)
       }
       else{
         iCurrentState = syncState.SYNC_RESPONSE;
@@ -504,15 +504,15 @@ function syncResponse(msgObj){
       break;
     }
     case syncState.SYNC_RESPONSE:{
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
     case syncState.SYNC_START:{
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      console.log("SYNC ERROR: current state is not request!");
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
       break;
     }
   }
@@ -533,11 +533,11 @@ function syncStart(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
-      console.log("SYNC ERROR: current state is not response!");
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
       break;
     }
     case syncState.SYNC_REQUEST:{
-      console.log("SYNC ERROR: current state is not response!");
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
       break;
     }
     case syncState.SYNC_RESPONSE:{
@@ -562,11 +562,11 @@ function syncStart(msgObj){
       break;
     }
     case syncState.SYNC_START:{
-      console.log("SYNC ERROR: current state is not response!");
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
       break;
     }
     case syncState.SYNC_COMPLETE:{
-      console.log("SYNC ERROR: current state is not response!");
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
       break;
     }
   }
@@ -613,11 +613,11 @@ function syncComplete(msgObj){
       break;
     }
     case syncState.SYNC_REQUEST:{
-      console.log("SYNC ERROR: current sync device is start/complete!")
+      console.log("SYNC ERROR: current sync device is start/complete!" + iCurrentState)
       break;
     }
     case syncState.SYNC_START:{
-      console.log("Remote device sync completed...wait for us");
+      console.log("Remote device sync completed...wait for us" + iCurrentState);
       break;
     }
     case syncState.SYNC_COMPLETE:{
