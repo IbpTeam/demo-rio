@@ -116,7 +116,7 @@ function sendMsg(device,msgObj){
     Msg: sMsgStr,
     App: "app1"
   };
-  console.log("sendMsg-------------------------"+sMsgStr);
+  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
   im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
@@ -130,7 +130,7 @@ function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
+  //console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
 }
 
 /**
