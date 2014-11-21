@@ -59,7 +59,7 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
         var msgObj = JSON.parse(decrypteds);
         //console.log('MSG type:' + msgObj.type);
       } catch (err) {
-        //console.log(err);
+        console.log(err);
         return;
       }
       switch (msgStr[0].type) {
@@ -81,7 +81,7 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
         default:
           {
             console.log("this is in default switch on data");
-            //console.log(data);
+            console.log(data);
           }
       }
     });
@@ -91,16 +91,16 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
     });
 
     c.on('error', function() {
-      //console.log('Unexpected Error!');
+      console.log('Unexpected Error!');
     });
   });
 
   server.on('error', function(err) {
-    //console.log("Error: " + err.code + " on " + err.syscall);
+    console.log("Error: " + err.code + " on " + err.syscall);
   });
 
   server.listen(port, function() {
-    //console.log('IMServer Binded! ' + port);
+    console.log('IMServer Binded! ' + port);
   });
 }
 
@@ -138,7 +138,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   };
   var client = new net.Socket();
   client.setTimeout(6000, function() {
-    //console.log("connect time out");
+    console.log("connect time out");
     client.end();
   });
 
@@ -153,7 +153,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
         count++;
       } else {
         clearInterval(id);
-        //console.log("Send message error: no reply ");
+        console.log("Send message error: no reply ");
       };
 
     }, 1000, client, MSG);
@@ -209,7 +209,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   //client.end();
 
   client.on('error', function(err) {
-    //console.log("Error: " + err.code + " on " + err.syscall + " !  IP : " + IP);
+    console.log("Error: " + err.code + " on " + err.syscall + " !  IP : " + IP);
     clearInterval(id);
     client.end();
   });
@@ -308,7 +308,7 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
       break;
     default:
       {
-        //console.log("encapsuMSG : Please take a proper Type.");
+        console.log("encapsuMSG : Please take a proper Type.");
       }
   }
 
