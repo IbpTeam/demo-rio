@@ -1948,7 +1948,7 @@ exports.unlinkApp = unlinkApp;
  *        string, the path of target after load into local db.
  *
  **/
-function dragToDesktop(sFilePath, callback) {
+function dragToDesktopSingle(sFilePath, callback) {
   if (!sFilePath || sFilePath == '') {
     var _err = 'Error: bad sFilePath!';
     console.log(_err);
@@ -1988,19 +1988,91 @@ function dragToDesktop(sFilePath, callback) {
         return callback(err, null);
       }
       if (result) { //target's name is aready exist in db
-        console.log('target name is aready exist in db',result);
+        var _err = result + ': File Name Exists! Please Change it!';
+        console.log(_err);
+        return callback(_err, null);
+        /*TODO: To be continue: when name exists, we need rename function */
+        console.log('target name is aready exist in db', result);
         var data = new Date();
         var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
         var sNewName = surfix + result;
         var sNewFilePath = pathModule.join(pathModule.dirname(sFilePath), sNewName);
-        
-        return doCreateData(sNewFilePath, category, callback);
+        fs_extra.copy(sFilePath, sNewFilePath, function(err) {
+          if (err) {
+            console.log(err, 'copy file', sFilePath, ' error!');
+            return callback(err, null);
+          }
+          doCreateData(sNewFilePath, category, function(err, result) {
+            if (err) {
+              console.log(err, 'create data error!', sNewFilePath);
+              return callback(err, null);
+            }
+            exec('rm ' + sNewFilePath, function(err, stdout, stderr) {
+              if (err) {
+                console.log(err, stdout, stderr);
+                return callback(err, null);
+              }
+              console.log('drag', sNewFilePath, ' success!');
+              callback(null, result);
+            })
+          });
+        })
+      } else { //target's name is unique
+        console.log('target name is unique');
+        doCreateData(sFilePath, category, function(err, result) {
+          if (err) {
+            console.log(err, 'create data error!', sFilePath);
+            return callback(err, null);
+          }
+          callback(null, result);
+        })
       }
-      //target's name is unique
-      console.log('target name is unique');
-      doCreateData(sFilePath, category, callback)
     })
   }
+}
+exports.dragToDesktopSingle = dragToDesktopSingle;
+
+/*TODO: sqlite bug, not complete*/
+/** 
+ * @Method: dragToDesktopCb
+ *    To drag multiple files from any where to desktop.
+ *
+ * @param2: oFilePath
+ *    string, array of file path, should be a full path.
+ *            example: ['/home/xiquan/somedir/somefile.txt'].
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function dragToDesktop(oFilePath, callback) {
+  var count = 0;
+  var lens = oFilePath.length;
+  var resultFiles = [];
+  for (var i = 0; i < lens; i++) {
+    var item = oFilePath[i];
+    (function(_filePath) {
+      dragToDesktopSingle(_filePath, function(err, result) {
+        if (err) {
+          console.log(err);
+          return callback(err, null);
+        }
+        resultFiles.push(result);
+        var isEnd = (count === lens - 1);
+        if (isEnd) {
+          console.log('drag files success!');
+          callback(null, resultFiles);
+        }
+        count++;
+      })
+    })(item);
+  };
 }
 exports.dragToDesktop = dragToDesktop;
 
@@ -2008,7 +2080,7 @@ function doCreateData(sFilePath, category, callback) {
   var cate = utils.getCategoryObject(category);
   cate.createData(sFilePath, function(err, result, resultFile) {
     if (err) {
-      console.log(err,resultFile, result, '===============================')
+      console.log(err, resultFile, result);
       return callback(err, null);
     }
     var sCondition = ["path = '" + resultFile + "'"];
@@ -2033,8 +2105,89 @@ function doCreateData(sFilePath, category, callback) {
   });
 }
 
+/** 
+ * @Method: removeFile
+ *   To remove a file from desktop. This action will remove this file from data
+ *   frame also.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDB(sFilePath, callback) {
+  var category = utils.getCategoryByPath(sFilePath).category;
+  var cate = utils.getCategoryObject(category);
+  var sCondition = ["path = '" + sFilePath + "'"];
+  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sFilePath + ' not found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var sUri = result[0].URI;
+    cate.removeByUri(sUri, function(err) {
+      if (err) {
+        console.log('removeByUri error', err);
+        return callback(err, null);
+      }
+      console.log('remove file success!');
+      callback(null, 'success');
+    })
+  })
+}
+exports.removeFileFromDB = removeFileFromDB;
 
-function newFile() {
+/** 
+ * @Method: removeFile
+ *   To remove a file from desktop. This action will remove this file from data
+ *   frame also.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDesk(sFilePath, callback) {
+  var category = utils.getCategoryByPath(sFilePath).category;
+  var cate = utils.getCategoryObject(category);
+  var sCondition = ["path = '" + sFilePath + "'"];
+  commonDAO.findItems(['uri'], [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sFilePath + ' not found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var sUri = result[0].URI;
+    //cate.
+  })
+}
+exports.removeFileFromDB = removeFileFromDB;
+
+function getFilesFromDesk() {
 
 }
-exports.newFile = newFile;

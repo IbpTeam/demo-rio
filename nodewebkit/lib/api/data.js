@@ -943,7 +943,7 @@ function unlinkApp(unlinkAppCb, sDir) {
 exports.unlinkApp = unlinkApp;
 
 /** 
- * @Method: dragToDesktopCb
+ * @Method: dragToDesktopSingle
  *    To drag a file from any where to desktop.
  *
  * @param2: sFilePath
@@ -960,11 +960,61 @@ exports.unlinkApp = unlinkApp;
  *        string, the path of target after load into local db.
  *
  **/
-function dragToDesktop(dragToDesktopCb, sFilePath) {
+function dragToDesktopSingle(dragToDesktopSingleCb, sFilePath) {
+  console.log("Request handler 'dragToDesktopSingle' was called.");
+  desktopConf.dragToDesktopSingle(sFilePath, dragToDesktopSingleCb);
+}
+exports.dragToDesktopSingle = dragToDesktopSingle;
+
+/** 
+ * @Method: dragToDesktop
+ *    To drag multiple files from any where to desktop.
+ *
+ * @param2: oFilePath
+ *    string, array of file path, should be a full path.
+ *            example: ['/home/xiquan/somedir/somefile.txt'].
+ *
+ * @param1: dragToDesktopCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function dragToDesktop(dragToDesktopCb, oFilePath) {
   console.log("Request handler 'dragToDesktop' was called.");
-  desktopConf.dragToDesktop(sFilePath, dragToDesktopCb);
+  desktopConf.dragToDesktop(oFilePath, dragToDesktopCb);
 }
 exports.dragToDesktop = dragToDesktop;
+
+/** 
+ * @Method: removeFileFromDB
+ *   To remove a file from desktop. This action will remove this file from data
+ *   frame also.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: removeFileCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDB(removeFileFromDBCb, sFilePath) {
+  console.log("Request handler 'removeFileFromDB' was called.");
+  desktopConf.removeFileFromDB(sFilePath, removeFileFromDBCb);
+}
+exports.removeFileFromDB = removeFileFromDB;
+
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();

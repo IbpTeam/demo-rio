@@ -424,6 +424,25 @@
     });
   }
 
+  function dragToDesktopSingleCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API dragToDesktopSingle()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_dragToDesktopSingle(dragToDesktopSingleCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/testFile/small_image.jpg';
+      data.dragToDesktopSingle(dragToDesktopSingleCb,sFilePath);
+    });
+  }
+
   function dragToDesktopCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -438,11 +457,33 @@
   }
   function test_dragToDesktop(dragToDesktopCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
+      var sFilePath = ['/home/xiquan/testFile/small_image.jpg',
+                       '/home/xiquan/testFile/testJSON.txt',
+                       '/home/xiquan/testFile/testJSON1.txt',
+                       '/home/xiquan/testFile/test_1.mp3'
+                       ];
       data.dragToDesktop(dragToDesktopCb,sFilePath);
     });
   }
 
+  function removeFileFromDBCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API removeFileFromDB()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_removeFileFromDB(removeFileFromDBCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
+      data.removeFileFromDB(removeFileFromDBCb,sFilePath);
+    });
+  }
 
   </script>
 
@@ -988,6 +1029,37 @@
 </div>
 </div>
 
+<h2 onclick="show('dragToDesktopSingle')">dragToDesktopSingle(dragToDesktopSingleCb,sFilePath)<span><a class="mark" href="#test_dragToDesktopSingle" id="test_dragToDesktopSingle" onclick="test_dragToDesktopSingle(dragToDesktopSingleCb)">test</a></span></h2>
+<div id="dragToDesktopSingle" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function dragToDesktopSingleCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API dragToDesktopSingle()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_dragToDesktopSingle(dragToDesktopSingleCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
+      data.dragToDesktopSingle(dragToDesktopSingleCb,sFilePath);
+    });
+  }
+</pre>
+</div>
+</div>
+
 <h2 onclick="show('dragToDesktop')">dragToDesktop(dragToDesktopCb,sFilePath)<span><a class="mark" href="#test_dragToDesktop" id="test_dragToDesktop" onclick="test_dragToDesktop(dragToDesktopCb)">test</a></span></h2>
 <div id="dragToDesktop" style="display:none;">
 <div style="color:#930000">
@@ -1013,6 +1085,37 @@
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = '/home/xiquan/testFile/testJSON.txt';
       data.dragToDesktop(dragToDesktopCb,sFilePath);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('removeFileFromDB')">removeFileFromDB(removeFileFromDBCb,sFilePath)<span><a class="mark" href="#test_removeFileFromDB" id="test_removeFileFromDB" onclick="test_removeFileFromDB(removeFileFromDBCb)">test</a></span></h2>
+<div id="removeFileFromDB" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function removeFileFromDBCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API removeFileFromDB()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_removeFileFromDB(removeFileFromDBCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/testFile/small_image.jpg';
+      data.removeFileFromDB(removeFileFromDBCb,sFilePath);
     });
   }
 </pre>

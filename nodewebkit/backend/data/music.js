@@ -97,7 +97,7 @@ function createData(items, callback) {
           lastModifyDev: config.uniqueID,
           lastAccessDev: config.uniqueID
         };
-        commonHandle.createData(itemInfo, function(result) {
+        commonHandle.createData(itemInfo, function(result, resultFile) {
           if (result === 'success') {
             callback(null, result, resultFile);
           } else {

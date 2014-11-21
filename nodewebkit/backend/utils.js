@@ -8,6 +8,7 @@ var video = require("./data/video");
 var music = require("./data/music");
 var music = require("./data/music");
 var devices = require("./data/device");
+var other =require('./data/other')
 var commonDAO = require("./commonHandle/CommonDAO");
 //@const
 var DATA_DIR = "data";
@@ -87,7 +88,7 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
-  }else{
+  } else {
     return {
       category: "other",
       filename: itemFilename,
@@ -306,10 +307,10 @@ exports.isNameExists = function(sFilePath, callback) {
     if (err) {
       console.log('find ' + sFilePath + ' error!');
       return callback(err, null);
-    }
-    if (result == [] || !result) {
+    } else if (result == [] || result == '' || !result) {
       return callback(null, null);
     }
+    console.log(result, '=================')
     var sName = result[0].filename + '.' + result[0].postfix;
     callback(null, sName);
   })
