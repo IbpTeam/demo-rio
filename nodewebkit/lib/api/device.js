@@ -7,6 +7,8 @@ var bus = dbus.getBus('system');
 var serviceBrowserPath, entryGroupPath;
 var server, serviceBrowser, entryGroup;
 var deviceListeners = new Array();
+var globalIDforListener = 0;
+var deviceListenersObj = new Object();
 var deviceList = new Object();
 var showDeviceListCb;
 
@@ -26,7 +28,26 @@ function addDeviceListener(cb){
   deviceListeners.push(cb);
 }
 exports.addDeviceListener = addDeviceListener;
-
+/**
+ * @method addDeviceListenerToObj
+ *  为signal ItemNew和ItemRemove添加回调方法
+ *
+ * @param1 cb
+ *   回调函数
+ *  @signal
+ *   string, 代表信号类型，设备上线为ItemNew，设备下线为ItemRemove。
+ *  @obj
+ *   object, 设备发送的相关信息。{interface,protocol,name,stype,domain,host,aprotocol,address,port,txt,flags}@
+ *
+ *  @returns 该回调方法的ID
+ *
+ */
+function addDeviceListenerToObj(cb){
+  globalIDforListener++;
+  deviceListenersObj[globalIDforListener]=cb;
+  return globalIDforListener;
+}
+exports.addDeviceListenerToObj = addDeviceListenerToObj;
 /**
  * @method removeDeviceListener
  *  删除列表中的某一个回调方法
@@ -42,13 +63,29 @@ function removeDeviceListener(cb){
   }
 }
 exports.removeDeviceListener = removeDeviceListener;
+/**
+ * @method removeDeviceListenerFromObj
+ *  删除列表中的某一个回调方法
+ *
+ * @param1 id
+ *   方法对应的全局ID。
+ *
+ */
+function removeDeviceListenerFromObj(id){
+  delete deviceListenersObj[id];
+}
+exports.removeDeviceListenerFromObj = removeDeviceListenerFromObj;
 
 function callDeviceListener(type, args){
   for(index in deviceListeners){
     deviceListeners[index](type, args);
   }
 }
-
+function callDeviceListenerObj(type, args){
+  for(index in deviceListenersObj){
+    deviceListenersObj[index](type, args);
+  }
+}
 /**
  * @method showDeviceList
  *  显示当前设备列表 
@@ -154,7 +191,7 @@ function createServer(devicePublishCb){
     iface.EntryGroupNew();
 
     iface.ResolveService['error'] = function(err) {
-      console.log("ResolveService: " + err);
+      //console.log("ResolveService: " + err);
     }
     iface.ResolveService['timeout'] = 2000;
     iface.ResolveService['finish'] = function(result) {
@@ -176,7 +213,7 @@ function createServer(devicePublishCb){
       obj.txt = txt;
       obj.flags  = result[10];
       deviceList[obj.address] = obj;
-      callDeviceListener('ItemNew', obj);
+      callDeviceListenerObj('ItemNew', obj);
     };
   });
 }
@@ -222,7 +259,7 @@ function startServiceBrowser(path){
       var domain = arguments[4];
       var flags = arguments[5];
       if(arguments[1] != 1){//&& arguments[2] == 'demo-rio'
-        callDeviceListener('ItemRemove', deleteADevice(name));
+        callDeviceListenerObj('ItemRemove', deleteADevice(name));
       }
     });
   });
