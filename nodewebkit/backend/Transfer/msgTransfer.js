@@ -545,20 +545,19 @@ function syncStart(msgObj){
       iCurrentState = syncState.SYNC_START;
       var aHotRepos = msgObj.repositories;
       var iRepoNum = 0;
-      aHotRepos.forEach(function(hotRepo){
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+hotRepo);
-        utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
-          iRepoNum++;
-          if(iRepoNum == aHotRepos.length){
-            mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
-          }
+      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+aHotRepos.length);
+      if(aHotRepos.length > 0){
+        aHotRepos.forEach(function(hotRepo){
+          utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+            iRepoNum++;
+            if(iRepoNum == aHotRepos.length){
+              mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
+            }
+          });
         });
-      });
-      //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
-      //  pictures.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
-      //});
-      //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
-      //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      }else{
+        mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
+      }
       break;
     }
     case syncState.SYNC_START:{
