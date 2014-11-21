@@ -579,6 +579,23 @@ function getTagsByUri(getTagsByUriCb, sUri) {
 exports.getTagsByUri = getTagsByUri;
 
 /**
+ * @method getTagsByUris
+ *   get tags with specifc uris
+ *
+ * @param1 callback
+ *    all result in array
+ *
+ * @param2 oUris
+ *    array, an array of uris, uris should in the same category
+ *
+ */
+function getTagsByUris(getTagsByUrisCb, oUris) {
+  console.log("Request handler 'getTagsByUris' was called.");
+  tagsHandle.getTagsByUris(getTagsByUrisCb, oUris);
+}
+exports.getTagsByUris = getTagsByUris;
+
+/**
  * @method : setTagByUri
  *
  * @param1 : setTagByUriCb 回调函数

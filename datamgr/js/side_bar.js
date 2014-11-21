@@ -23,7 +23,6 @@ SideBar.prototype.set_tags = function(json){
   result.push('<li class="nav-header">标签</li>');
 
   function get_tags(mytags){
-    console.log("callback was baclled");
     if(mytags == null){
       self.tags.html(result.join('\n'));
     }
@@ -34,22 +33,23 @@ SideBar.prototype.set_tags = function(json){
       }
       self.tags.html(result.join('\n'));
       var children = self.tags.children('a');
-      for(var i=0; i<children.length; i++){
-        self.tags.delegate("#"+$(children[i]).attr('id'), "click", function(){
-          var tag = $(this).attr('id');
-          var tag_items = mytags.tagFiles[tag];
-          var filter_result = [];
-          for(var j=0; j<tag_items.length; j++)
-          {
-            DataAPI.getDataByUri(function(result){
-               filter_result.push(result[0]);
-              if(filter_result.length == tag_items.length){
-                self.emit('show_filter_result', filter_result);
-              }
-            }, tag_items[j][0]);
+      children.one("click", function(event){
+        var tag = $(this).attr('id');
+        self.emit('show_filter_tag', tag);
+        var tag_items = mytags.tagFiles[tag];
+        var filter_result = [];
+        if(tag_items != null){
+          for(var j=0; j<tag_items.length; j++){
+            filter_result.push({
+              URI: tag_items[j][0],
+              filename: tag_items[j][1],
+              postfix: tag_items[j][2],
+              path: tag_items[j][3]
+            });
           }
-        });
-      }
+        }
+        self.emit('show_filter_result', filter_result);
+      });
     }
   }
 
@@ -57,8 +57,11 @@ SideBar.prototype.set_tags = function(json){
     self.tags.html(result.join('\n'));
   }else{
     if(json[0].hasOwnProperty('URI') && json[0].URI != null){
-      var category = json[0].URI.substring(json[0].URI.lastIndexOf('#')+1, json[0].URI.length);
-      DataAPI.getAllTagsByCategory(get_tags,[category]);
+      var uris = [];
+      for(var i=0; i<json.length; i++){
+        uris.push(json[i].URI);
+      }
+      DataAPI.getTagsByUris(get_tags,uris);
     }
     else{
       self.tags.html(result.join('\n'));
