@@ -1988,10 +1988,10 @@ function dragToDesktopSingle(sFilePath, callback) {
         return callback(err, null);
       }
       if (result) { //target's name is aready exist in db
-        var _err = result + ': File Name Exists! Please Change it!';
-        console.log(_err);
-        return callback(_err, null);
         /*TODO: To be continue: when name exists, we need rename function */
+        // var _err = result + ': File Name Exists! Please Change it!';
+        // console.log(_err);
+        // return callback(_err, null);
         console.log('target name is aready exist in db', result);
         var data = new Date();
         var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
