@@ -73,7 +73,7 @@ exports.initServer = function(){
 
 function recieveMsgCb(msgobj){
   var msg = msgobj['MsgObj'];
-  console.log("Receive message : " + msg);
+  console.log("Receive message : " + msg.message);
   var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
