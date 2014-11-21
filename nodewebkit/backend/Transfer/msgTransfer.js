@@ -87,8 +87,8 @@ function recieveMsgCb(msgobj){
     case msgType.TYPE_START: {
       syncStart(oMessage);
     }
+    break;
     case msgType.TYPE_COMPLETE: {
-      console.log("8888888888888888888888888888888888"+oMessage);
       syncComplete(oMessage);
     }
     break;
@@ -598,7 +598,6 @@ function syncStart(msgObj){
  *    Remote device ip.
  */
 function mergeComplete(deviceId,deviceIp,deviceAccount){
-  console.log(":::=========================================================::::");
   var device = {
     device_id:deviceId,
     ip:deviceIp,
@@ -637,7 +636,6 @@ function syncComplete(msgObj){
     }
     break;
     case syncState.SYNC_COMPLETE:{
-  console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
       var device = {
         device_id:msgObj.deviceId,
         ip:msgObj.ip,
