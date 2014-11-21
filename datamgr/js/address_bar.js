@@ -27,8 +27,8 @@ function AddressBar(element) {
   self.address_bar.delegate('a', 'click', function() {
     self.address_bar.children('.active').removeClass('active');
     $(this).parent().addClass('active');
+    self.address_bar.children('#tag').remove();
     self.emit('navigate', $(this).parent().attr('data-path'));
-    return false;
   });
   self.address_bar.parent().delegate('#folder-mode', 'click', function(){
     self.emit('fold_mode_view');
@@ -66,7 +66,7 @@ AddressBar.prototype.set = function(dir_path) {
 }
 
 AddressBar.prototype.addtag = function(tag){
-  this.address_bar.append('<li class="active"><a href="#">'+tag+'</a></li>');
+  this.address_bar.append('<li id="tag">'+tag+'</li>');
 }
 
 AddressBar.prototype.enter = function(mine) {

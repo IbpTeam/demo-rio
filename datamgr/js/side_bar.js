@@ -33,20 +33,20 @@ SideBar.prototype.set_tags = function(json){
       }
       self.tags.html(result.join('\n'));
       var children = self.tags.children('a');
-      $("a").one("click", function(event){
+      children.one("click", function(event){
         var tag = $(this).attr('id');
         self.emit('show_filter_tag', tag);
         var tag_items = mytags.tagFiles[tag];
         var filter_result = [];
-        console.log("tag_items=====", tag_items);
-        for(var j=0; j<tag_items.length; j++)
-        {
-          filter_result.push({
-            URI: tag_items[j][0],
-            filename: tag_items[j][1],
-            postfix: tag_items[j][2],
-            path: tag_items[j][3]
-          });
+        if(tag_items != null){
+          for(var j=0; j<tag_items.length; j++){
+            filter_result.push({
+              URI: tag_items[j][0],
+              filename: tag_items[j][1],
+              postfix: tag_items[j][2],
+              path: tag_items[j][3]
+            });
+          }
         }
         self.emit('show_filter_result', filter_result);
       });
