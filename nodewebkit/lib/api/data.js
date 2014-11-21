@@ -124,6 +124,7 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
+  console.log(VidList)
 
   documents.createData(DocList, function(err, result) {
     if (err) {
@@ -1039,6 +1040,46 @@ function removeFileFromDesk(removeFileFromDeskCb,sFilePath) {
   desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
 }
 exports.removeFileFromDesk = removeFileFromDesk;
+
+/** 
+ * @Method: getFilesFromDesk
+ *   To get all files on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of files on desktop.
+ *
+ **/
+function getFilesFromDesk(getFilesFromDeskCb) {
+  console.log("Request handler 'getFilesFromDesk' was called.");
+  desktopConf.getFilesFromDesk(getFilesFromDeskCb);
+}
+exports.getFilesFromDesk = getFilesFromDesk;
+
+/** 
+ * @Method: getAllVideo
+ *   To get all vidoe files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getAllVideo(getAllVideoCb) {
+  console.log("Request handler 'getAllVideo' was called.");
+  desktopConf.getAllVideo(getAllVideoCb);
+}
+exports.getAllVideo = getAllVideo;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();

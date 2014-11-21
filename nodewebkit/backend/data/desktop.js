@@ -2138,13 +2138,28 @@ function removeFileFromDB(sFilePath, callback) {
       return callback(_err, null);
     }
     var sUri = result[0].URI;
-    cate.removeByUri(sUri, function(result) {
-      if (result !== 'success') {
-        console.log('removeByUri error', result);
-        return callback(result, null);
+    var sFullName = result[0].filename + result[0].postfix;
+    cate.removeByUri(sUri, function(err, result) {
+      if (err) {
+        console.log('removeByUri error', err);
+        return callback(err, null);
       }
-      console.log('remove file success!');
-      callback(null, 'success');
+      var dataDir = utils.getRealDir(category);
+      var desDataDir = pathModule.join(utils.getDesDir(category), sFullName + '.md');
+      fs_extra.ensureDir(dataDir, function(err) {
+        if (err) {
+          console.log(err, 'ensureDir error!');
+          return callback(err, null);
+        }
+        fs_extra.ensureDir(desDataDir, function(err) {
+          if (err) {
+            console.log(err, 'ensureDir error!');
+            return callback(err, null);
+          }
+        })
+        console.log('remove file success!');
+        callback(null, 'success');
+      })
     })
   })
 }
@@ -2196,6 +2211,90 @@ function removeFileFromDesk(sFilePath, callback) {
 }
 exports.removeFileFromDesk = removeFileFromDesk;
 
-function getFilesFromDesk() {
 
+/** 
+ * @Method: getFilesFromDesk
+ *   To get all files on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getFilesFromDesk(callback) {
+  function getFilesByTagsCb(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    console.log('get all files on desktop:\n', result);
+    var sPath = result[0].path;
+    fs.stat(sPath, function(err, stat) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      var sInode = stat.ino;
+      var sInfo = [sPath, sInode];;
+      callback(null, sInfo);
+    })
+  }
+  var oTags = ['$desktop'];
+  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
+exports.getFilesFromDesk = getFilesFromDesk;
+
+/** 
+ * @Method: getAllVideo
+ *   To get all vidoe files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getAllVideo(callback) {
+  commonDAO.findItems(null, ['video'], null, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'no videos found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var oInfoResult = {};
+    var count = 0;
+    var lens = result.length;
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      (function(_item) {
+        var sPath = _item.path;
+        fs.stat(sPath, function(err, stat) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var sInode = stat.ino;
+          oInfoResult[sInode] = sPath;
+          var isEnd = (count == lens - 1);
+          if (isEnd) {
+            callback(null, oInfoResult);
+          }
+          count++;
+        })
+      })(item)
+    }
+  })
+}
+exports.getAllVideo = getAllVideo;

@@ -212,28 +212,28 @@ function getFilesByTags(callback, oTags) {
   commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
     if (err) {
       console.log(err);
-      return;
+      return callback(err, null);
     }
     allFiles = allFiles.concat(resultDoc);
     commonDAO.findItems(null, ['music'], sCondition, null, function(err, resultMusic) {
       if (err) {
         console.log(err);
-        return;
+        return callback(err, null);
       }
       allFiles = allFiles.concat(resultMusic);
       commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
         if (err) {
           console.log(err);
-          return;
+          return callback(err, null);
         }
         allFiles = allFiles.concat(resultPic);
         commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
           if (err) {
             console.log(err);
-            return;
+            return callback(err, null);
           }
           allFiles = allFiles.concat(resultVideo);
-          callback(allFiles);
+          callback(null, allFiles);
         })
       })
     })

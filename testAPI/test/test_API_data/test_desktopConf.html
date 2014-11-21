@@ -499,8 +499,26 @@
   }
   function test_removeFileFromDesk(removeFileFromDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
+      var sFilePath = '/home/xiquan/.resources/picture/data/boy.jpg';
       data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+    });
+  }
+
+  function getAllVideoCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getAllVideo()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_getAllVideo(getAllVideoCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.getAllVideo(getAllVideoCb);
     });
   }
 
@@ -1166,6 +1184,66 @@
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
       data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('getFilesFromDesk')">getFilesFromDesk(getFilesFromDeskCb)<span><a class="mark" href="#test_getFilesFromDesk" id="test_getFilesFromDesk" onclick="test_getFilesFromDesk(getFilesFromDeskCb)">test</a></span></h2>
+<div id="getFilesFromDesk" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getFilesFromDeskCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getFilesFromDesk()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_getFilesFromDesk(getFilesFromDeskCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.getFilesFromDesk(getFilesFromDeskCb);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('getAllVideo')">getAllVideo(getAllVideoCb)<span><a class="mark" href="#test_getAllVideo" id="test_getAllVideo" onclick="test_getAllVideo(getAllVideoCb)">test</a></span></h2>
+<div id="getAllVideo" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getAllVideoCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getAllVideo()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_getAllVideo(getAllVideoCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.getAllVideo(getAllVideoCb);
     });
   }
 </pre>

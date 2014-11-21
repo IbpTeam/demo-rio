@@ -227,11 +227,10 @@ exports.deleteItemByUri = deleteItemByUri;
 
 exports.removeFile = function(category, item, callback) {
   //TODO delete desFile
-  var sFullPath = item.path;
-  var reg = new RegExp('/' + category + '/');
-  var sDesFullPath = sFullPath.replace(reg, '/' + category + 'Des/') + ".md";
-  var sDesPath = utils.getDesPath(category, sFullPath);
-  fs.unlink(sDesFullPath, function(err) {
+  var sFullName = path.basename(item.path);
+  var sDesFullName = sFullName + ".md";
+  var sDesPath = utils.getDesPath(category, sFullName);
+  fs.unlink(sDesPath, function(err) {
     if (err)
       console.log(err);
     //TODO delete data from db
@@ -240,11 +239,12 @@ exports.removeFile = function(category, item, callback) {
         callback("error");
         return;
       }
-      repo.repoCommitBoth('rm',utils.getRepoDir(category), 
-                               utils.getDesRepoDir(category), 
-                               [path.join(utils.getRealDir(category),sFullName)], 
-                               [path.join(utils.getDesDir(category),sDesFullName)],
-                               callback);
+      repo.repoCommitBoth('rm', 
+                          utils.getRepoDir(category),
+                          utils.getDesRepoDir(category), 
+                          [path.join(utils.getRealDir(category), sFullName)], 
+                          [path.join(utils.getDesDir(category), sDesFullName)],
+                          callback);
     });
   });
 };
