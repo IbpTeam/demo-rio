@@ -67,8 +67,8 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      //console.log("Git add error");
-      //console.log(error, stderr, stdout)
+      console.log("Git add error");
+      console.log(error, stderr, stdout)
     } else {
       //console.log("Git add success");
       callback('success');
@@ -92,7 +92,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      //console.log("Git rm error", error, stderr);
+      console.log("Git rm error", error, stderr);
     } else {
       //console.log("Git rm success");
       callback();
@@ -117,7 +117,7 @@ function repoChsCommit(repoPath, files, commitID, callback) {
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      //console.log("Git change error", error, stdout);
+      console.log("Git change error", error, stdout);
     } else {
       //console.log("Git change success");
       callback();
@@ -139,9 +139,9 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      //console.log("Git change error", error, stdout);
+      console.log("Git change error", error, stdout);
     } else {
-      //console.log("Git change success");
+      console.log("Git change success");
       callback();
     }
   });
@@ -310,7 +310,7 @@ exports.getGitLog = function(repoPath, callback) {
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
-      //console.log(err, stderr);
+      console.log(err, stderr);
       return callback({
         'repo': err
       }, null);
@@ -352,7 +352,7 @@ exports.repoReset = function(repoPath, commitID, callback) {
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
-      //console.log(err, stderr);
+      console.log(err, stderr);
       callback({
         'repo': err
       }, null);
@@ -369,7 +369,7 @@ exports.repoResetFile = function(repoPath, file, commitID, relateCommitId, callb
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
-      //console.log(err, stderr);
+      console.log(err, stderr);
       callback({
         'repo': err
       }, null);
@@ -422,7 +422,7 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
     var repoCommit = repoChsCommit;
   } else {
     var _err = 'Error: bad op choice!';
-    //console.log(_err);
+    console.log(_err);
     return callback(_err, null);
   }
   repoCommit(desPath, oDesFiles, null, function() {
@@ -487,7 +487,7 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
   var commitLog = '{' + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   exec(deComstr, function(error, stdout, stderr) {
     if (error) {
-      //console.log(error);
+      console.log(error);
       return;
     }
     getLatestCommit(desRepoPath, function(relateCommitId) {
@@ -501,10 +501,10 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
       //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
       exec(comstr, function(error, stdout, stderr) {
         if (error) {
-          //console.log("Git change error", error, stdout);
+          console.log("Git change error", error, stdout);
           return
         }
-        //console.log("Git change success");
+        console.log("Git change success");
         callback();
       });
     })
