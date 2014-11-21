@@ -326,14 +326,60 @@ function openDataByUri(openDataByUriCb, uri) {
 }
 exports.openDataByUri = openDataByUri;
 
-/*TODO: To be continue*/
-// function openDataByPath(openDataByPathCb, uri) {
-//   console.log("Request handler 'openDataByPath' was called.");
-//   var cate = utils.getCategoryByPath(uri);
+/**
+ * @method openDataByPath
+ *   打开path对应的数据
+ *
+ * @param1: sPath
+ *   string，要打开数据的FullPath
+ *
+ * @param2: callback
+ *   回调函数
+ *   @result
+ *     object: 显示数据或结果
+ *        结构如下：
+ *        {
+ *            openmethod: 'html',
+ *            format:     'audio',
+ *            title:      '文件浏览',
+ *            content:    item.path
+ *        }
+ *        其中具体说明如下：
+ *        openmethod: 打开方式，支持 html, alert两种
+ *          如果是alert，则只有content属性，为alert需要输出的结果
+ *          如果是html则具有format, title, content三种属性
+ *        title: 是返回结果的标题，如果显示则可以用这个为标题
+ *        format和content: 分别表示结果的格式和内容。
+ *          format:audio 音频格式，content是具体的音频引用路径
+ *          format:div   表示结果是一个div封装的字符串，可以直接显示在界面中
+ *          format:txtfile 表示结果是一个txt文件，可以通过load进行加载
+ *          format:other  其他结果都默认是一个div或html格式的字符串，可直接显示
+ *
+ */
+function openDataByPath(openDataByPathCb, sPath) {
+  console.log("Request handler 'openDataByPath' was called.");
+  var category = utils.getCategoryByPath(sPath).category;
+  var cate = utils.getCategoryObject(category);
+  var sCondition = ["path = '" + sPath + "'"];
+  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return openDataByPathCb(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sPath + ' not found in db!';
+      console.log(_err);
+      return openDataByPathCb(_err, null);
+    }
+    var sUri = result[0].URI;
+    var sFullName = result[0].filename + result[0].postfix;
 
-// }
-// exports.openDataByPath = openDataByPath;
-
+    function openDataByUriCb(result) {
+      openDataByPathCb(null, result);
+    }
+    cate.openDataByUri(openDataByUriCb, sUri);
+  })
+}
+exports.openDataByPath = openDataByPath;
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
