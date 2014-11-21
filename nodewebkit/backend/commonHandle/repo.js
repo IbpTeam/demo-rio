@@ -95,7 +95,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
       console.log("Git rm error", error, stderr);
     } else {
       console.log("Git rm success");
-      callback();
+      callback("success");
     }
   });
 }
@@ -462,6 +462,7 @@ function isEmptyRepo(repoPath,completeCb){
 }
 
 function getReposStatus (callback) {
+  index = 0;
   isEmptyRepo(path.join(config.RESOURCEPATH,desRepos[index].name),function(){
     var aRepoArr = new Array();
     for(var arrIndex in desRepos){

@@ -297,12 +297,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     }
     getAllDataByCateCb(items);
   }
-  if (cate == "Devices") {
-    commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
-  } else {
-    var conditions = ["is_delete = 0"];
-    commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
-  }
+  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
 }
 
 /** 

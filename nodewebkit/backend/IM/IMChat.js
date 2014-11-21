@@ -7,25 +7,20 @@ var NodeRsa = require('node-rsa');
 var rsaKey = require('./rsaKey');
 var account = require('./pubkeyServer.js');
 var config = require('../config.js');
-var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
+var HOME_DIR ="/home";
+var SSH_DIR = ".demo-rio";
 var CURUSER = process.env['USER'];
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, SSH_DIR);
 var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
-
-var keySizeBits = 1024;
-var size = 65537;
-
 
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALACCOUNTKEY = uniqueID.AccountKey;
 var LOCALUUID = uniqueID.uniqueID;
 
-var LOCALPRIKEY = '/key/priKey.pem';
+var LOCALPRIKEY = '/key/rio_rsa';
 var KEYSERVERPUB = '/key/serverKey.pem';
-var LOCALPUBKEY = '/key/pubKey.pem';
-
-
+var LOCALPUBKEY = '/key/rio_rsa.pem';//use in imchat
+var PUB_KEY = "/key/rio_rsa.pub";//use in msgTransfer
 
 /*
  * @method MD5
@@ -54,12 +49,10 @@ function MD5(str, encoding) {
 *  没有返回值
 */
 function initIMServer(port,ReceivedMsgCallback) {
-  //console.log(LOCALPRIKEY);
-  //console.log(USERCONFIGPATH+'/key/priKey.pem');
   /*
     we should load the keyPair first, in order to encrypt messages with RSA
     */
-  var keyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+  var keyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY);
   var pubKey = keyPair.getPublicPEM().toString('utf8');
 
   var server = net.createServer(function(c) {
@@ -77,7 +70,7 @@ function initIMServer(port,ReceivedMsgCallback) {
       if (msgStr[0].type == 'SenderChangePubkey') {
         var badkey = JSON.parse(msgStr[0].content);
         console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
-        var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+        var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY);
         requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
         return;
       };
@@ -240,7 +233,7 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
     switch (RPLY[0].type) {
       case 'Reply':
         {
-          var keyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+          var keyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY);
           try {
             var decrply = keyPair.decrypt(RPLY[0].content.toString('utf-8'), 'utf8');
           } catch (err) {
@@ -275,7 +268,7 @@ function sendIMMsg(IP, PORT, SENDMSG, KEYPAIR, SentCallBack) {
         {
           var badkey = JSON.parse(RPLY[0].content);
           console.log("pubkey :" + badkey["uuid"] + " in " + badkey["from"] + " incorrect");
-          var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+          var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY);
           requestPubKey(badkey["uuid"], badkey["from"], localkeyPair, function() {});
           clearInterval(id);
           client.end();
@@ -319,7 +312,7 @@ function sendMSGbyAccount(TABLE, ACCOUNT, MSG, PORT) {
   };
 
   //var localkeyPair = ursaED.loadPriKeySync(USERCONFIGPATH+LOCALPRIKEY);
-  var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+  var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY);
   /*
     MSG already be capsuled by encapsuMSG function
     */
@@ -340,7 +333,7 @@ function sendMSGbyUID(IPSET, ACCOUNT, MSG, PORT, SENTCALLBACK) {
         here are some server msg send functions!
         */
   };
-  var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY);
+  var localkeyPair = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY);
   existsPubkeyPem(IPSET, ACCOUNT, MSG, PORT, localkeyPair, SENTCALLBACK);
 }
 
@@ -389,7 +382,7 @@ function isExist(UUID, existfunc, noexistfunc) {
 function requestPubKey(UUID, ACCOUNT, LOCALPAIR, INSENTFUNC) {
   console.log("Pubkey of device: " + UUID + " in " + ACCOUNT + " doesn't exist , request from server!");
   var serverKeyPair = rsaKey.loadServerKey(USERCONFIGPATH + KEYSERVERPUB);
-  var tmppubkey = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY, USERCONFIGPATH + LOCALPUBKEY).getPublicPEM().toString('utf8');
+  var tmppubkey = rsaKey.initSelfRSAKeys(USERCONFIGPATH + LOCALPRIKEY).getPublicPEM().toString('utf8');
   account.login(LOCALACCOUNT, LOCALACCOUNTKEY, LOCALUUID, tmppubkey, LOCALPAIR, serverKeyPair, function(msg) {
     console.log("Login successful: +++" + JSON.stringify(msg));
   });
