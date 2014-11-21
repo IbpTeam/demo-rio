@@ -88,6 +88,7 @@ function recieveMsgCb(msgobj){
       syncStart(oMessage);
     }
     case msgType.TYPE_COMPLETE: {
+      console.log("8888888888888888888888888888888888"+oMessage);
       syncComplete(oMessage);
     }
     break;
@@ -326,27 +327,30 @@ function serviceUp(device){
         };
         sendMsg(device,requestMsg);
       });
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
       device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
       device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
     }
+    break;
     case syncState.SYNC_START:{
       device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
       device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -363,27 +367,30 @@ function syncRefused(msgObj){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
       var syncDevice = syncList.shift();
       syncList.push(syncDevice);
       iCurrentState = syncState.SYNC_IDLE;
       setTimeout(serviceUp(syncList[0]),100000);
       console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_START:{
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -421,8 +428,8 @@ function syncRequest(msgObj){
           });
         });
       });
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
       refusedMsg = {
         type:msgType.TYPE_REFUSED,
@@ -430,8 +437,8 @@ function syncRequest(msgObj){
         deviceId:config.uniqueID
       };
       sendMsg(device,responseMsg);
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
       refusedMsg = {
         type:msgType.TYPE_REFUSED,
@@ -439,8 +446,8 @@ function syncRequest(msgObj){
         deviceId:config.uniqueID
       };
       sendMsg(device,refusedMsg);
-      break;
     }
+    break;
     case syncState.SYNC_START:{
       refusedMsg = {
         type:msgType.TYPE_REFUSED,
@@ -448,8 +455,8 @@ function syncRequest(msgObj){
         deviceId:config.uniqueID
       };
       sendMsg(device,responseMsg);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
       refusedMsg = {
         type:msgType.TYPE_REFUSED,
@@ -457,7 +464,10 @@ function syncRequest(msgObj){
         deviceId:config.uniqueID
       };
       sendMsg(device,responseMsg);
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -478,8 +488,8 @@ function syncResponse(msgObj){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
       if(syncList[0].device_id != msgObj.deviceId){
       console.log("SYNC ERROR: current sync device is wrong!" + iCurrentState)
@@ -501,19 +511,22 @@ function syncResponse(msgObj){
           });
         });
       }
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_START:{
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
       console.log("SYNC ERROR: current state is not request!" + iCurrentState);
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -534,12 +547,12 @@ function syncStart(msgObj){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
       console.log("SYNC ERROR: current state is not response!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
       console.log("SYNC ERROR: current state is not response!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
       //Start to sync
       iCurrentState = syncState.SYNC_START;
@@ -558,15 +571,18 @@ function syncStart(msgObj){
       }else{
         mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
       }
-      break;
     }
+    break;
     case syncState.SYNC_START:{
       console.log("SYNC ERROR: current state is not response!" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
       console.log("SYNC ERROR: current state is not response!" + iCurrentState);
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -610,16 +626,16 @@ function syncComplete(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       console.log("SYNC completed!");
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
       console.log("SYNC ERROR: current sync device is start/complete!" + iCurrentState)
-      break;
     }
+    break;
     case syncState.SYNC_START:{
       console.log("Remote device sync completed...wait for us" + iCurrentState);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
       var device = {
@@ -640,7 +656,10 @@ function syncComplete(msgObj){
       //if syncList.length>0, get device info ,and call serviceup
       iCurrentState = syncState.SYNC_IDLE;
       checkSyncList();
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
