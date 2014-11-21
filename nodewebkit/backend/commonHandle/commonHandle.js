@@ -529,7 +529,7 @@ function syncOnlineReq(cate) {
     ip: config.SERVERIP,
     path: utils.getDesRepoDir(cate),
     account: config.ACCOUNT,
-    deviceId: config.uniqueID,
+    device_id: config.uniqueID,
     category: cate
   };
   for (var index in device.devicesList) {

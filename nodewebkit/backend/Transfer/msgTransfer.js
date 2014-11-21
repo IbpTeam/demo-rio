@@ -41,6 +41,12 @@ var msgType = {
   TYPE_REFUSED:"syncRefused"
 };
 
+// @Enum message type
+var syncMethod = {
+  METHOD_AUTO:"autoMethod",
+  METHOD_ONLINE:"onlineMethod"
+};
+
 // @const
 var SSH_DIR = ".ssh";
 var PRI_KEY = "rio_rsa";
@@ -120,6 +126,7 @@ function sendMsg(device,msgObj){
   im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
+
 /**
  * @method sendMsgCb
  *    Received from remote when message arrived.
@@ -131,6 +138,28 @@ function sendMsgCb(msg){
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
   //console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
+}
+
+/**
+ * @method checkSyncList
+ *    Check sync list and call specific function.
+ */
+function checkSyncList(){
+  if(syncList.length > 0){
+    switch(syncList[0].syncMethod){
+      case syncMethod.METHOD_AUTO:{
+        serviceUp(syncList[0]);
+      }
+      break;
+      case syncMethod.METHOD_ONLINE:{
+        syncOnline(syncList[0]);
+      }
+      break;
+      default:{
+
+      }
+    }
+  }
 }
 
 /**
@@ -280,7 +309,6 @@ function getPubKey(callback){
  */
 function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
-    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
     return;
   }
   switch(iCurrentState){
@@ -301,18 +329,22 @@ function serviceUp(device){
       break;
     }
     case syncState.SYNC_REQUEST:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
       break;
     }
     case syncState.SYNC_RESPONSE:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
       break;
     }
     case syncState.SYNC_START:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
       break;
     }
     case syncState.SYNC_COMPLETE:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
       break;
     }
@@ -606,9 +638,7 @@ function syncComplete(msgObj){
       //Todo check sync list, if length>0, do sync.
       //if syncList.length>0, get device info ,and call serviceup
       iCurrentState = syncState.SYNC_IDLE;
-      if(syncList.length > 0){
-        serviceUp(syncList[0]);
-      }
+      checkSyncList();
       break;
     }
   }
@@ -619,11 +649,11 @@ function syncOnline(msgObj) {
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   if(iCurrentState == syncState.SYNC_IDLE){
-    if(repo.haveBranch(msgObj.path,msgObj.deviceId)==false){
+    if(repo.haveBranch(msgObj.path,msgObj.device_id)==false){
       console.log("Unknown device!!!!!!!!!!!");
       return;
     }
-    repo.pullFromOtherRepo(msgObj.path,msgObj.deviceId,function(result){
+    repo.pullFromOtherRepo(msgObj.path,msgObj.device_id,function(result){
       console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
       var aFilePaths = new Array();
 
@@ -636,15 +666,18 @@ function syncOnline(msgObj) {
       //TODO base on files, modify data in db
       dataDes.readDesFiles(aFilePaths,function(desObjs){
         dataDes.writeDesObjs2Db(desObjs,function(status){
-          //callback(msgObj.deviceId,msgObj.ip,msgObj.account);
+          //callback(msgObj.device_id,msgObj.ip,msgObj.account);
         });
       });
     });
   }else{
     var device = {
-      device_id:msgObj.deviceId,
+      device_id:msgObj.device_id,
       ip:msgObj.ip,
-      account:msgObj.account
+      account:msgObj.account,
+      path:msgObj.path,
+      syncMethod:syncMethod.METHOD_ONLINE,
+      category:msgObj.category
     };
     syncList.push(device);
     console.log("8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
