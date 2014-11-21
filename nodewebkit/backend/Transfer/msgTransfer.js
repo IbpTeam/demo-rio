@@ -551,12 +551,12 @@ function syncStart(msgObj){
           utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
             iRepoNum++;
             if(iRepoNum == aHotRepos.length){
-              mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
+              mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
             }
           });
         });
       }else{
-        mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
+        mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
       }
       break;
     }
@@ -572,7 +572,7 @@ function syncStart(msgObj){
 }
 
 /**
- * @method mergeCompleteCallback
+ * @method mergeComplete
  *    Called when git merge completed.
  * @param deviceId
  *    Remote device id.
@@ -581,7 +581,8 @@ function syncStart(msgObj){
  * @param deviceIp
  *    Remote device ip.
  */
-function mergeCompleteCallback(deviceId,deviceIp,deviceAccount){
+function mergeComplete(deviceId,deviceIp,deviceAccount){
+  console.log(":::=========================================================::::");
   var device = {
     device_id:deviceId,
     ip:deviceIp,
@@ -620,6 +621,7 @@ function syncComplete(msgObj){
       break;
     }
     case syncState.SYNC_COMPLETE:{
+  console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
       var device = {
         device_id:msgObj.deviceId,
         ip:msgObj.ip,
