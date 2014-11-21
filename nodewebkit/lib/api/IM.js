@@ -22,14 +22,6 @@ var Port = 7777;
  *  MsgObj.from表示发送方的账户信息
  *  MsgObj.uuid表示发送方的设备UUID
  *  
- *   该结构体具体描述如下：
- * {
-   'type': result/error',
-   'option': 0x0000,
-   'state': 0/1,
-    'date': '',
-    'msg': 'register succeed/register failed/account existed/Err',
-  }
  * @param AppName
  *  string，新注册的应用名称，该名称用来区分消息的归属应用
  *
@@ -49,12 +41,16 @@ exports.RegisterApp = RegisterApp;
  *   回调函数，用来表示开启监听服务的状态
  *  @param1
  *   bool, 表示服务开启是否成功，若成功则为true，否则为false
+ * 
+ * @param Flag
+ *   string 表示是否开启加密状态服务
+ *   若加密则为true，否则为false
  *
  */
-function StartIMService(StartCb) {
+function StartIMService(StartCb,Flag) {
   try {
     IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
-      console.log("AppType :", AppType);
+      //console.log("AppType :", AppType);
       FuncObj.takeMsg(AppType, msgobj);
     });
     StartCb(true);

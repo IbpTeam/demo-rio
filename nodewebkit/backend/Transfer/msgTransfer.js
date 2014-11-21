@@ -10,7 +10,7 @@
  * @version:0.2.1
  **/
 
-var imchat = require("../IM/IMChatNoRSA.js");
+var im = require("../../lib/api/IM.js");
 var config = require("../config");
 var repo = require("../commonHandle/repo");
 var fs = require("fs");
@@ -57,7 +57,12 @@ var syncList = new Array();
  *    Message transfer server initialize.
  */
 exports.initServer = function(){
-  imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
+  //imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
+  im.RegisterApp(recieveMsgCb, "app1");
+
+  im.StartIMService(function(state) {
+    console.log(state);
+  },"");
 }
 
 function recieveMsgCb(msgobj){
@@ -103,14 +108,16 @@ function recieveMsgCb(msgobj){
  *    Message object.
  */
 function sendMsg(device,msgObj){
-  var account = device.account;
-  var ipset = {
-    IP:device.ip,
-    UID:device.device_id
-  };
   var sMsgStr = JSON.stringify(msgObj);
+  var imMsgObj = {
+    IP: device.ip,
+    UID: device.device_id,
+    Account: device.account,
+    Msg: sMsgStr,
+    App: "app1"
+  };
   console.log("sendMsg-------------------------"+sMsgStr);
-  imchat.sendMSGbyUIDNoRSA(ipset,account,sMsgStr,config.MSGPORT,sendMsgCb);
+  im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
 /**
@@ -119,11 +126,11 @@ exports.sendMsg=sendMsg;
  * @param msg
  *    Message string.
  */
-function sendMsgCb(msgObj){
+function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  //console.log("[Send message successfull] + Msg : " + msg.message);
+  console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
 }
 
 /**
@@ -330,7 +337,7 @@ function syncRefused(msgObj){
       var syncDevice = syncList.shift();
       syncList.push(syncDevice);
       iCurrentState = syncState.SYNC_IDLE;
-      setTimeout(serviceUp(syncList[0]),10000);
+      setTimeout(serviceUp(syncList[0]),100000);
       console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
       break;
     }
@@ -518,7 +525,7 @@ function syncStart(msgObj){
       //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
       //  pictures.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       //});
-      documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
+      //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
       break;
     }
