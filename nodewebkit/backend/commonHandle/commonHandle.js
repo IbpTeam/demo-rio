@@ -103,13 +103,13 @@ function createData(item, callback) {
           console.log(err);
           return;
         }
-        repo.repoAddsCommit(sDesRepoDir, [sDesFilePath], null, function() {
-          repo.getLatestCommit(sDesRepoDir, function(commitID) {
-            repo.repoAddsCommit(sRealRepoDir, [sFilePath], commitID, function() {
-              callback('success');
-            })
-          })
-        });
+        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
+          if (err) {
+            console.log(err);
+            return callback(null);
+          }
+          callback('success');
+        })
       })
     });
   });
@@ -186,14 +186,13 @@ function createDataAll(items, callback) {
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              repo.repoAddsCommit(sDesRepoDir, allDesPath, null, function() {
-                repo.getLatestCommit(sDesRepoDir, function(commitID) {
-                  repo.repoAddsCommit(sRealRepoDir, allItemPath, commitID, function() {
-                    console.log('create data all success!');
-                    callback('success');
-                  })
-                })
-              });
+              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  return callback(null);
+                }
+                callback('success');
+              })
             })
           }
           count++;
@@ -304,12 +303,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     }
     getAllDataByCateCb(items);
   }
-  if (cate == "Devices") {
-    commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
-  } else {
-    var conditions = ["is_delete = 0"];
-    commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
-  }
+  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
 }
 
 /** 
@@ -564,7 +558,7 @@ function renameDataByUri(category, sUri, sNewName, callback) {
         return callback(err, null);
       }
       var reg_path = new RegExp('/' + category + '/');
-      var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/')+'.md';
+      var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
       var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
       fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
         if (err) {
@@ -583,7 +577,7 @@ function renameDataByUri(category, sUri, sNewName, callback) {
           lastAccessTime: currentTime,
           lastModifyDev: config.uniqueID,
           lastAccessDev: config.uniqueID,
-          path:sNewPath
+          path: sNewPath
         }
         commonDAO.updateItem(oUpdataInfo, function(err) {
           if (err) {

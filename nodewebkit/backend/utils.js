@@ -6,6 +6,7 @@ var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
+var music = require("./data/music");
 var devices = require("./data/device");
 //@const
 var DATA_DIR = "data";
@@ -15,7 +16,7 @@ function parsePath(path) {
   var pathNew = '';
   for (var i = 0; i < pathNodes.length; i++) {
     if (pathNodes[i].indexOf(' ') != -1) {
-      pathNew += '"' + pathNodes[i] + '"/';
+      pathNew += "'" + pathNodes[i] + "'/";
     } else {
       pathNew += pathNodes[i] + '/';
     }
@@ -85,6 +86,12 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
+  }else{
+    return {
+      category: "other",
+      filename: itemFilename,
+      postfix: itemPostfix
+    }
   }
 }
 exports.getCategoryByPath = getCategoryByPath;
@@ -125,8 +132,13 @@ exports.getCategoryObject = function(category) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
-      return null;
+      return other;
   }
 }
 
@@ -159,8 +171,51 @@ exports.getCategoryObjectByUri = function(sUri) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
-      return null;
+      return other;
+  }
+}
+
+//get the category from Des
+exports.getCategoryObjectByDes = function(sDesName) {
+  switch (sDesName) {
+    case "contactDes":
+      {
+        return contacts;
+      }
+      break;
+    case "pictureDes":
+      {
+        return pictures;
+      }
+      break;
+    case "documentDes":
+      {
+        return documents;
+      }
+      break;
+    case "musicDes":
+      {
+        return music;
+      }
+      break;
+    case "videoDes":
+      {
+        return video;
+      }
+      break;
+    case "desktopDes":
+      {
+        return desktopConf;
+      }
+      break;
+    default:
+      return other;
   }
 }
 
@@ -210,13 +265,13 @@ exports.getFileNameByPath = function(sPath) {
 exports.getFileNameByPathShort = function(sPath) {
   var nameindex = sPath.lastIndexOf('/');
   var posindex = sPath.lastIndexOf('.');
-  return sPath.substring(nameindex + 1, posindex-1);
+  return sPath.substring(nameindex + 1, posindex);
 }
 
 //get file postfix from a path
 exports.getPostfixByPathShort = function(sPath) {
   var posindex = sPath.lastIndexOf('.');
-  return sPath.substring(posindex+1, sPath.length);
+  return sPath.substring(posindex + 1, sPath.length);
 }
 
 exports.renameExists = function(allFiles) {

@@ -424,12 +424,15 @@ function pasteFile(pasteFileCb, filename, category) {
   var postfix = path.extname(filename);
   name = path.basename(filename, postfix);
   var desPath = '/tmp/' + name + '_copy' + postfix;
-  cp.exec("cp " + filename + " " + desPath, function(error, stdout, stderr) {
+  filename = utils.parsePath(filename);
+  var desPathParse = utils.parsePath(desPath);
+  console.log("cp " + filename + " " + desPath);
+  cp.exec("cp " + filename + " " + desPathParse, function(error, stdout, stderr) {
     if (error !== null) {
       console.log('exec error: ' + error);
-      creatFileCb(false);
+      pasteFileCb(false);
     } else {
-      if (category == 'document' || category == 'music' || category == 'picture') {
+      if (category == 'document' || category == 'music' || category == 'picture' || category == 'video') {
         var cate = utils.getCategoryObject(category);
         cate.createData([desPath], function(err, result) {
           if (err != null) {
@@ -542,6 +545,32 @@ function setTagByUri(setTagByUriCb, oTags, oUri) {
   tagsHandle.setTagByUri(setTagByUriCb, oTags, oUri);
 }
 exports.setTagByUri = setTagByUri;
+
+/**
+ * @method setTagByUriMulti
+ *   set tags to multiple files by uri
+ *
+ * @param1 callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, return specific error info
+ *
+ *    @param: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2 oTags
+ *    array, an array of tags to be set
+ *
+ * @param3 oUri
+ *    array, an array of uri
+ *
+ */
+function setTagByUriMulti(setTagByUriMultiCb, oTags, oUri) {
+  console.log("Request handler 'setTagByUriMulti' was called.");
+  tagsHandle.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
+}
+exports.setTagByUriMulti = setTagByUriMulti;
 
 /**
  * @method getFilesByTag

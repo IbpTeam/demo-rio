@@ -243,11 +243,13 @@ exports.getFilesByTags = getFilesByTags;
 
 
 /**
- * @method getAllTags
- *   get all tags in db
+ * @method setTagByUri
+ *    set tags to a file by uri
  *
  * @param1 callback
- *    all result in array
+ *    @result, (result)
+ *    @param: result,
+ *        string, retieve 'commit' when success
  *
  * @param2 oTags
  *    array, an array of tags to be set
@@ -255,73 +257,104 @@ exports.getFilesByTags = getFilesByTags;
  * @param3 sUri
  *    string, a specific uri
  *
- *
  */
 function setTagByUri(callback, oTags, sUri) {
   var category = utils.getCategoryByUri(sUri);
 
   function findItemsCb(err, items) {
     if (err) {
-      console.log(err);
-      return;
+      return console.log(err);
     }
-    var tmpDBItem = [];
-    var tmpDesItem = [];
-    for (var k in items) {
-      var item = items[k];
-
-      if (!item.others) { //item has no tags 
-        var newTags = oTags.join(",");
-      } else { //item has tag(s)
-        item.others = item.others + ",";
-        var newTags = (item.others).concat(oTags.join(","));
-      }
-      tmpDBItem.push({
-        URI: item.URI,
-        others: newTags,
-        category: category
-      });
-      tmpDesItem.push({
-        path: item.path,
-        others: newTags,
-        category: category
-      });
+    var UpdateItem = [];
+    var item = items[0];
+    console.log(item)
+    if (!item.others) { //item has no tags 
+      var newTags = oTags.join(",");
+    } else { //item has tag(s)
+      item.others = item.others + ",";
+      var newTags = (item.others).concat(oTags.join(","));
     }
-    dataDes.updateItems(tmpDesItem, function(result) {
-      if (result === "success") {
-        commonDAO.updateItems(tmpDBItem, function(result) {
-          if (result === "commit") {
-            var files = [];
-            for (var k in tmpDesItem) {
-              var desFilePath;
-              if (tmpDesItem[k].category === "contact") {
-                desFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', tmpDesItem[k].name + '.md');
-              } else {
-                var filePath = item.path;
-                var re = new RegExp('/' + category + '/', "i");
-                desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
-              }
-              files.push(desFilePath);
-            }
-            var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-            repo.repoChsCommit(chPath, files, null, function() {
-              callback(result);
-            });
-          } else {
-            console.log("error in update data base error!");
-            return;
-          }
-        })
-      } else {
-        console.log("error in update des file!");
-        return;
+    UpdateItem = {
+      URI: item.URI,
+      path: item.path,
+      others: newTags,
+      category: category
+    };
+    console.log(item.path, UpdateItem)
+    var re = new RegExp('/' + category + '/', "i");
+    var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
+    dataDes.updateItem(desFilePath, UpdateItem, function(result) {
+      if (result !== "success") {
+        return console.log("error in update des file!");
       }
+      commonDAO.updateItem(UpdateItem, function(err) {
+        if (err) {
+          return console.log(err);
+        }
+        var chPath = config.RESOURCEPATH + '/' + category + 'Des';
+        repo.repoChsCommit(chPath, [desFilePath], null, function() {
+          console.log('set tags des git committed!');
+          callback('commit');
+        });
+      });
     });
   }
   var condition = ["URI = " + "'" + sUri + "'"];
   commonDAO.findItems(null, [category], condition, null, findItemsCb);
 }
 exports.setTagByUri = setTagByUri;
+
+/**
+ * @method setTagByUriMulti
+ *   set tags to multiple files by uri
+ *
+ * @param1 callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, return specific error info
+ *
+ *    @param: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2 oTags
+ *    array, an array of tags to be set
+ *
+ * @param3 oUri
+ *    array, an array of uri
+ *
+ */
+function setTagByUriMulti(callback, oTags, oUri) {
+  console.log('s1=====================')
+  if (oTags == []) {
+    console.log('Tags are not changed!')
+    return callback(null, 'success')
+  } else if (oUri == []) {
+    var _err = 'Error: empty URI input!';
+    console.log(_err);
+    return callback(_err, null)
+  }
+  var count = 0;
+  var lens = oUri.length;
+  for (var i = 0; i < lens; i++) {
+    var sUri = oUri[i];
+    (function(_sUri, _oTags) {
+      function setTagByUriCb(result) {
+        if (result !== 'commit') {
+          console.log(result, 'set tags error!');
+          return callback(result, null);
+        }
+        var isEnd = (count === lens - 1);
+        if (isEnd) {
+          callback(null, 'success');
+        }
+        count++;
+      }
+      setTagByUri(setTagByUriCb, _oTags, _sUri);
+    })(sUri, oTags);
+  }
+}
+exports.setTagByUriMulti = setTagByUriMulti;
 
 function rmTagUriSingle(callback, sTag, sUri) {
   var allFiles = [];
