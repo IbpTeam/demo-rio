@@ -60,7 +60,7 @@ exports.RegisterApp = RegisterApp;
 function StartIMService(StartCb,Flag) {
   try {
     IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
-      console.log("AppType :", AppType);
+      //console.log("AppType :", AppType);
       FuncObj.takeMsg(AppType, msgobj);
     });
     StartCb(true);

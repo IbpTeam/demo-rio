@@ -85,7 +85,7 @@ function createData(item, callback) {
   var sOriginPath = item.path;
   var sFileName = item.filename + '.' + item.postfix;
   var category = item.category;
-  var sRealRepoDir = utils.getRealRepoDir(category);
+  var sRealRepoDir = utils.getRepoDir(category);
   var sDesRepoDir = utils.getDesRepoDir(category);
   var sRealDir = utils.getRealDir(category);
   var sDesDir = utils.getDesDir(category);
@@ -167,7 +167,7 @@ function createDataAll(items, callback) {
       var sOriginPath = _item.path;
       var sFileName = _item.filename + '.' + _item.postfix;
       var category = _item.category;
-      var sRealRepoDir = utils.getRealRepoDir(category);
+      var sRealRepoDir = utils.getRepoDir(category);
       var sDesRepoDir = utils.getDesRepoDir(category);
       var sDesDir = utils.getDesDir(category);
       var sRealDir = utils.getRealDir(category);
@@ -239,17 +239,11 @@ exports.removeFile = function(category, item, callback) {
         callback("error");
         return;
       }
-      //TODO git commit
-      var aDesFiles = [sDesFullName];
-      var sDesDir = utils.getDesDir(category);
-      var aRealFiles = [sFullName];
-      var sRealDir = utils.getRealDir(category);
-      var sDesRepoDir = utils.getDesRepoDir(category);
-      repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
-        repo.getLatestCommit(sDesRepoDir, function(commitID) {
-          repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
-        })
-      });
+      repo.repoCommitBoth('rm',utils.getRepoDir(category), 
+                               utils.getDesRepoDir(category), 
+                               [path.join(utils.getRealDir(category),sFullName)], 
+                               [path.join(utils.getDesDir(category),sDesFullName)],
+                               callback);
     });
   });
 };
@@ -303,12 +297,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     }
     getAllDataByCateCb(items);
   }
-  if (cate == "Devices") {
-    commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
-  } else {
-    var conditions = ["is_delete = 0"];
-    commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
-  }
+  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
 }
 
 /** 
@@ -423,11 +412,11 @@ exports.updateDB = function(category, updateDBCb) {
 function pullRequest(category, deviceId, address, account, repoPath, desRepoPath, callback) {
   //First pull real file
   //Second pull des file
-  console.log("==============================" + repoPath);
-  console.log("==============================" + desRepoPath);
+  //console.log("==============================" + repoPath);
+  //console.log("==============================" + desRepoPath);
   repo.haveBranch(repoPath, deviceId, function(result) {
     if (result == false) {
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
+      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
       repo.addBranch(deviceId, address, account, repoPath, function(branchName) {
         if (branchName != deviceId) {
           console.log("addBranch error");
@@ -445,7 +434,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                       desFileNames.forEach(function(desFileName) {
                         aFilePaths.push(path.join(sDesPath, desFileName));
                       });
-                      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                       //TODO base on files, modify data in db
                       dataDes.readDesFiles(aFilePaths, function(desObjs) {
                         dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -462,7 +451,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                   desFileNames.forEach(function(desFileName) {
                     aFilePaths.push(path.join(sDesPath, desFileName));
                   });
-                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
                   dataDes.readDesFiles(aFilePaths, function(desObjs) {
                     dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -476,7 +465,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
         }
       });
     } else {
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
+      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
       repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
         repo.haveBranch(desRepoPath, deviceId, function(result) {
           if (result == false) {
@@ -490,7 +479,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                   desFileNames.forEach(function(desFileName) {
                     aFilePaths.push(path.join(sDesPath, desFileName));
                   });
-                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
                   dataDes.readDesFiles(aFilePaths, function(desObjs) {
                     dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -507,7 +496,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
               desFileNames.forEach(function(desFileName) {
                 aFilePaths.push(path.join(sDesPath, desFileName));
               });
-              console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+              //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
               //TODO base on files, modify data in db
               dataDes.readDesFiles(aFilePaths, function(desObjs) {
                 dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -529,7 +518,7 @@ function syncOnlineReq(cate) {
     ip: config.SERVERIP,
     path: utils.getDesRepoDir(cate),
     account: config.ACCOUNT,
-    deviceId: config.uniqueID,
+    device_id: config.uniqueID,
     category: cate
   };
   for (var index in device.devicesList) {

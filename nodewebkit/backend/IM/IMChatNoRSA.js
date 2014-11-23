@@ -47,17 +47,17 @@ function MD5(str, encoding) {
 function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
   var server = net.createServer(function(c) {
-    console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+    //console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
 
     c.on('data', function(msgStri) {
-      console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
+      //console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
       var msgStr = JSON.parse(msgStri);
       try {
         var decrypteds = msgStr[0].content;
         var msgObj = JSON.parse(decrypteds);
-        console.log('MSG type:' + msgObj.type);
+        //console.log('MSG type:' + msgObj.type);
       } catch (err) {
         console.log(err);
         return;
@@ -81,13 +81,13 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
         default:
           {
             console.log("this is in default switch on data");
-            //console.log(data);
+            console.log(data);
           }
       }
     });
 
     c.on('close', function() {
-      console.log('Remote ' + remoteAD + ' : ' + remotePT + ' disconnected!');
+      //console.log('Remote ' + remoteAD + ' : ' + remotePT + ' disconnected!');
     });
 
     c.on('error', function() {
@@ -145,7 +145,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   function innerrply() {
     id = setInterval(function(C, tmpenmsg) {
       if (count < 5) {
-        console.log("this is in resending " + tmpenmsg);
+        //console.log("this is in resending " + tmpenmsg);
         if (typeof tmpenmsg === 'object') {
           tmpenmsg = JSON.stringify(tmpenmsg);
         };
@@ -161,7 +161,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   switch (MSG[0].type) {
     case 'SentEnFirst':
       {
-        console.log("sending message ::: " + tmpenmsg);
+        //console.log("sending message ::: " + tmpenmsg);
         client.connect(PORT, IP, function() {
           client.write(tmpenmsg, function() {});
         });
@@ -178,21 +178,21 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.on('connect', innerrply);
 
   client.on('data', function(REPLY) {
-    console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
+    //console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
 
     var RPLY = JSON.parse(REPLY);
     switch (RPLY[0].type) {
       case 'Reply':
         {
           var decrply = RPLY[0].content;
-          console.log("message:" + decrply);
+          //console.log("message:" + decrply);
           var msg = JSON.parse(decrply);
           switch (msg.type) {
             case 'Reply':
               {
                 if (msg.message == MD5(pat.message)) {
                   var msgtp = pat;
-                  console.log('msg rply MD5 received: ' + msg.message);
+                  //console.log('msg rply MD5 received: ' + msg.message);
                   setTimeout(SentCallBack(msgtp.message), 0);
                   clearInterval(id);
                   client.end();
@@ -223,7 +223,7 @@ function senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK) {
 
 function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT,TOAPP, SENTCALLBACK) {
   if (typeof IPSET.UID == "undefined") {
-    console.log("receiver uuid null");
+    //console.log("receiver uuid null");
     /*
     here are some server msg send functions!
     */

@@ -6,6 +6,7 @@ var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
+var music = require("./data/music");
 var devices = require("./data/device");
 //@const
 var DATA_DIR = "data";
@@ -85,6 +86,12 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
+  }else{
+    return {
+      category: "other",
+      filename: itemFilename,
+      postfix: itemPostfix
+    }
   }
 }
 exports.getCategoryByPath = getCategoryByPath;
@@ -125,8 +132,13 @@ exports.getCategoryObject = function(category) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
-      return null;
+      return other;
   }
 }
 
@@ -159,37 +171,75 @@ exports.getCategoryObjectByUri = function(sUri) {
         return video;
       }
       break;
+    case "desktop":
+      {
+        return desktopConf;
+      }
+      break;
     default:
-      return null;
+      return other;
   }
 }
 
-//example: ~/.resources/.documentDes/data/$FILENAME
+//get the category from Des
+exports.getCategoryObjectByDes = function(sDesName) {
+  switch (sDesName) {
+    case "contactDes":
+      {
+        return contacts;
+      }
+      break;
+    case "pictureDes":
+      {
+        return pictures;
+      }
+      break;
+    case "documentDes":
+      {
+        return documents;
+      }
+      break;
+    case "musicDes":
+      {
+        return music;
+      }
+      break;
+    case "videoDes":
+      {
+        return video;
+      }
+      break;
+    case "desktopDes":
+      {
+        return desktopConf;
+      }
+      break;
+    default:
+      return other;
+  }
+}
+
+//example: ~/.resources/documentDes/data/$FILENAME
 exports.getDesPath = function(category, fullName) {
     var sDirName = category + "Des";
     var sDesName = fullName + ".md";
     return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
   }
-  //example: ~/.resources/.document/data
+  //example: ~/.resources/document/data
 exports.getRealDir = function(category) {
     return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
   }
-  //example: ~/.resources/.documentDes/data
+  //example: ~/.resources/documentDes/data
 exports.getDesDir = function(category) {
     var sDirName = category + "Des";
     return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
   }
-  //example: ~/.resources/.document
+  //example: ~/.resources/document
 exports.getRepoDir = function(category) {
     var sDirName = category;
     return path.join(process.env["HOME"], ".resources", sDirName);
   }
-  //example: ~/.resources/.documentDes
-exports.getDesRepoDir = function(category) {
-  var sDirName = category + "Des";
-  return path.join(process.env["HOME"], ".resources", sDirName);
-}
-
+  //example: ~/.resources/documentDes
 exports.getDesRepoDir = function(category) {
   var sDirName = category + "Des";
   return path.join(process.env["HOME"], ".resources", sDirName);
