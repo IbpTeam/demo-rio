@@ -41,56 +41,36 @@ var THEME_DES_PATH = pathModule.join(DES_DIR, 'Theme.conf.md');
 var WIGDET_PATH = pathModule.join(REAL_DIR, 'Widget.conf');
 var WIGDET_DES_PATH = pathModule.join(DES_DIR, 'Widget.conf.md');
 
-function newInit(initType) {
-  var initTheme = {
-    name: 'undefined',
-    active: 'undefined',
-    icon: 'undefined',
-    path: 'undefined',
-    id: 'undefined',
-    pos: {
-      x: 'undefined',
-      y: 'undefined'
-    }
-  }
-  var initWidget = {
-    id: 'undefined',
-    path: 'undefined',
-    position: {
-      x: 'undefined',
-      y: 'undefined'
-    }
-  }
-  if (initType === "theme") {
-    return initTheme;
-  } else if (initType === "widget") {
-    return initWidget;
-  }
-}
-
 function getnit(initType) {
   if (initType === "theme") {
-    var _icontheme = newInit(initType);
+    var _icontheme = {};
     _icontheme.name = 'Mint-X';
     _icontheme.active = false;
+    _icontheme.pos = {};
 
-    var _computer = newInit(initType);
+    var _computer = {};
     _computer.name = 'Computer';
     _computer.active = true;
+    _computer.icon = 'computer';
     _computer.path = '$HOME';
     _computer.id = 'computer';
+    _computer.idx = 0;
+    _computer.pos = {};
 
-    var _trash = newInit(initType);
+    var _trash = {};
     _trash.name = 'Trash';
     _trash.active = false;
+    _trash.pos = {};
 
-    var _network = newInit(initType);
-    _network.name = 'Network'
+    var _network = {};
+    _network.name = 'Network';
     _network.active = false;
+    _network.pos = {};
 
-    var _document = newInit(initType);
+    var _document = {};
     _document.name = 'Document';
     _document.active = false;
+    _document.pos = {};
 
     var result = {
       icontheme: _icontheme,
@@ -100,15 +80,88 @@ function getnit(initType) {
       document: _document
     }
   } else if (initType === "widget") {
-    var _clock = newInit(initType);
-    _clock.name = 'clock';
-    _clock.path = '$img/clock.png'
+    var _clock = {};
+    _clock.id = 'clock';
+    _clock.path = 'img/clock.png';
+    _clock.type = 'ClockPlugin';
     _clock.position = {
       x: 0,
       y: 0
     }
-    var result = {
-      clock: _clock
+
+    _launcher_app = {}
+    _launcher_app.id = "launcher-app";
+    _launcher_app.path = "";
+    _launcher_app.iconPath = "img/launcher.png";
+    _launcher_app.name = "launcher";
+    _launcher_app.type = "inside-app";
+    _launcher_app.idx = 0;
+
+    _login_app = {}
+    _login_app.id = "login-app";
+    _login_app.path = "";
+    _login_app.iconPath = "img/Login-icon.png";
+    _login_app.name = "Login";
+    _login_app.type = "inside-app";
+    _login_app.idx = 1;
+
+    _flash_app = {}
+    _flash_app.id = "flash-app";
+    _flash_app.path = "test/flash";
+    _flash_app.iconPath = "test/flash/img/video.png";
+    _flash_app.name = "flash";
+    _flash_app.type = "inside-app";
+    _flash_app.idx = 2;
+
+
+    _test_app = {}
+    _test_app.id = "test-app";
+    _test_app.path = "test/test-app";
+    _test_app.iconPath = "test/test-app/img/test-app2.png";
+    _test_app.name = "test-app";
+    _test_app.type = "inside-app";
+    _test_app.idx = -1;
+
+    _wiki_app = {}
+    _wiki_app.id = "wiki-app";
+    _wiki_app.path = "test/wiki-app";
+    _wiki_app.iconPath = "test/wiki-app/img/icon.jpg";
+    _wiki_app.name = "wiki-app";
+    _wiki_app.type = "inside-app";
+    _wiki_app.idx = -1;
+
+    var result = {}
+    result.layout = {
+      "type": "grid",
+      "num": 3,
+      "main": 0,
+      "widget": [{
+        "plugin": {
+          "clock": _clock
+        },
+        "dentry": {},
+        "insideApp": {
+          "launcher-app": _launcher_app,
+          "login-app": _login_app,
+          "flash-app": _flash_app,
+        }
+      }, {
+        "insideApp": {
+          "test-app": _test_app
+        },
+        "plugin": {},
+        "dentry": {}
+      }, {
+        "insideApp": {
+          "wiki-app": _wiki_app
+        },
+        "plugin": {},
+        "dentry": {}
+      }]
+    }
+    result.dock = {
+      "launcher-app": _launcher_app,
+      "login-app": _login_app
     }
   }
   return result;
@@ -166,15 +219,12 @@ function initDesktop(callback) {
                     console.log(err);
                     return;
                   }
-                  console.log("init /desktop success!");
                   var pathDock = path + "/dock";
                   fs_extra.ensureDir(pathDock, function(err) {
                     if (err) {
                       console.log("init dock config file error!");
                       console.log(err);
                       return;
-                    }
-                    console.log("init /dock success!");
                     var pathApp = path + "/applications";
                     fs_extra.ensureDir(pathApp, function(err) {
                       if (err) {
@@ -182,21 +232,17 @@ function initDesktop(callback) {
                         console.log(err);
                         return;
                       }
-                      console.log("init /applications success!");
                       buildLocalDesktopFile(function() {
-                        console.log("build local desktop file success!");
                         buildAppMethodInfo('defaults.list', function(err, result) {
                           if (err) {
                             console.log(err);
                             return;
                           }
-                          console.log("init defaults.list success!");
                           buildAppMethodInfo('mimeinfo.cache', function(err, result) {
                             if (err) {
                               console.log(err);
                               return;
                             }
-                            console.log("init mimeinfo.cache success!");
                             console.log(result);
                             console.log('build local desktop file success');
                             callback("success");
@@ -529,6 +575,12 @@ function readDesktopFile(callback, sFileName) {
           var _err = "readDesktopFile : parse desktop file error!";
           return callback(err, null);
         }
+        getIconPath(attr['[Desktop Entry]']['Icon'], 48, function(err, result) {
+          if (err) {
+            return console.log(err, attr['[Desktop Entry]']['Name'], attr['[Desktop Entry]']['Icon'])
+          }
+          console.log(result);
+        })
         console.log("readDesktopFile success!");
         callback(null, attr);
       }
@@ -633,9 +685,7 @@ function parseDesktopFile(callback, sPath) {
               for (var j = 0; j < lines.length - 1; ++j) {
                 if (lines[j] && !re_comment.test(lines[j])) {
                   try {
-                    console.log(lines[j])
                     var tmp = lines[j].split('=');
-                    console.log(tmp)
                     attr[tmp[0]] = tmp[1].replace(re_rn, "");
                   } catch (err_inner) {
                     var _err = new Error()
@@ -2342,4 +2392,3 @@ function getAllVideo(callback) {
   })
 }
 exports.getAllVideo = getAllVideo;
-
