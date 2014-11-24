@@ -11,7 +11,6 @@ function deviceStateCb(signal, obj){
   port = obj.port;
   txt = obj.txt;
   flags  = obj.flags;
-  //console.log(obj);
   switch(signal){
     case 'ItemNew':
       console.log('A new device is add, obj: ', obj);
@@ -23,9 +22,9 @@ function deviceStateCb(signal, obj){
 }
 
 function devicePublishCb(){
-  var name = 'demo-rio';
+  var name = 'xifei';
   var port = '80';
-  var txtarray = ['demo-rio', 'hello'];
+  var txtarray = ['In test_device.js', 'hello, all.'];
   mdns.entryGroupCommit(name,  port, txtarray)
 }
 
@@ -44,8 +43,8 @@ function showDeviceListCb(args){
     console.log(obj.address + ':' + obj.port + ' - ' + '"' + obj.name + '" (' + txt + ')');
   }  
 }
-mdns.addDeviceListener(deviceStateCb);
-//mdns.setShowDeviceListCb(showDeviceListCb);
+//mdns.addDeviceListener(deviceStateCb);
+mdns.addDeviceListenerToObj(deviceStateCb);
 mdns.createServer(devicePublishCb);
 setTimeout(function(){mdns.showDeviceList(showDeviceListCb)}, 2000);
 
