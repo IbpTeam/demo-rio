@@ -124,6 +124,7 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
+  console.log(VidList)
 
   documents.createData(DocList, function(err, result) {
     if (err) {
@@ -325,6 +326,61 @@ function openDataByUri(openDataByUriCb, uri) {
 }
 exports.openDataByUri = openDataByUri;
 
+/**
+ * @method openDataByPath
+ *   打开path对应的数据
+ *
+ * @param1: sPath
+ *   string，要打开数据的FullPath
+ *
+ * @param2: callback
+ *   回调函数
+ *   @result
+ *     object: 显示数据或结果
+ *        结构如下：
+ *        {
+ *            openmethod: 'html',
+ *            format:     'audio',
+ *            title:      '文件浏览',
+ *            content:    item.path
+ *        }
+ *        其中具体说明如下：
+ *        openmethod: 打开方式，支持 html, alert两种
+ *          如果是alert，则只有content属性，为alert需要输出的结果
+ *          如果是html则具有format, title, content三种属性
+ *        title: 是返回结果的标题，如果显示则可以用这个为标题
+ *        format和content: 分别表示结果的格式和内容。
+ *          format:audio 音频格式，content是具体的音频引用路径
+ *          format:div   表示结果是一个div封装的字符串，可以直接显示在界面中
+ *          format:txtfile 表示结果是一个txt文件，可以通过load进行加载
+ *          format:other  其他结果都默认是一个div或html格式的字符串，可直接显示
+ *
+ */
+function openDataByPath(openDataByPathCb, sPath) {
+  console.log("Request handler 'openDataByPath' was called.");
+  var category = utils.getCategoryByPath(sPath).category;
+  var cate = utils.getCategoryObject(category);
+  var sCondition = ["path = '" + sPath + "'"];
+  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return openDataByPathCb(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sPath + ' not found in db!';
+      console.log(_err);
+      return openDataByPathCb(_err, null);
+    }
+    var sUri = result[0].URI;
+    var sFullName = result[0].filename + result[0].postfix;
+
+    function openDataByUriCb(result) {
+      openDataByPathCb(null, result);
+    }
+    cate.openDataByUri(openDataByUriCb, sUri);
+  })
+}
+exports.openDataByPath = openDataByPath;
+
 //API updateItemValue:修改数据某一个属性
 //返回类型：
 //成功返回success;
@@ -521,6 +577,23 @@ function getTagsByUri(getTagsByUriCb, sUri) {
   tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
 }
 exports.getTagsByUri = getTagsByUri;
+
+/**
+ * @method getTagsByUris
+ *   get tags with specifc uris
+ *
+ * @param1 callback
+ *    all result in array
+ *
+ * @param2 oUris
+ *    array, an array of uris, uris should in the same category
+ *
+ */
+function getTagsByUris(getTagsByUrisCb, oUris) {
+  console.log("Request handler 'getTagsByUris' was called.");
+  tagsHandle.getTagsByUris(getTagsByUrisCb, oUris);
+}
+exports.getTagsByUris = getTagsByUris;
 
 /**
  * @method : setTagByUri
@@ -932,6 +1005,144 @@ function unlinkApp(unlinkAppCb, sDir) {
   desktopConf.unlinkApp(sDir, unlinkAppCb);
 }
 exports.unlinkApp = unlinkApp;
+
+/** 
+ * @Method: moveToDesktopSingle
+ *    To drag a file from any where to desktop.
+ *
+ * @param2: sFilePath
+ *    string, a target file path, should be a full path.
+ *            example: '/home/xiquan/somedir/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
+  console.log("Request handler 'moveToDesktopSingle' was called.");
+  desktopConf.moveToDesktopSingle(sFilePath, moveToDesktopSingleCb);
+}
+exports.moveToDesktopSingle = moveToDesktopSingle;
+
+/** 
+ * @Method: moveToDesktop
+ *    To drag multiple files from any where to desktop.
+ *
+ * @param2: oFilePath
+ *    string, array of file path, should be a full path.
+ *            example: ['/home/xiquan/somedir/somefile.txt'].
+ *
+ * @param1: moveToDesktopCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function moveToDesktop(moveToDesktopCb, oFilePath) {
+  console.log("Request handler 'moveToDesktop' was called.");
+  desktopConf.moveToDesktop(oFilePath, moveToDesktopCb);
+}
+exports.moveToDesktop = moveToDesktop;
+
+/** 
+ * @Method: removeFileFromDB
+ *   To remove a file from desktop. This action will remove this file from data
+ *   frame also.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: removeFileCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDB(removeFileFromDBCb, sFilePath) {
+  console.log("Request handler 'removeFileFromDB' was called.");
+  desktopConf.removeFileFromDB(sFilePath, removeFileFromDBCb);
+}
+exports.removeFileFromDB = removeFileFromDB;
+
+/** 
+ * @Method: removeFileFromDesk
+ *   To remove a file from desktop. This action will only remove this file from
+ *   desktop.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDesk(removeFileFromDeskCb,sFilePath) {
+  console.log("Request handler 'removeFileFromDesk' was called.");
+  desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
+}
+exports.removeFileFromDesk = removeFileFromDesk;
+
+/** 
+ * @Method: getFilesFromDesk
+ *   To get all files on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of files on desktop.
+ *
+ **/
+function getFilesFromDesk(getFilesFromDeskCb) {
+  console.log("Request handler 'getFilesFromDesk' was called.");
+  desktopConf.getFilesFromDesk(getFilesFromDeskCb);
+}
+exports.getFilesFromDesk = getFilesFromDesk;
+
+/** 
+ * @Method: getAllVideo
+ *   To get all vidoe files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getAllVideo(getAllVideoCb) {
+  console.log("Request handler 'getAllVideo' was called.");
+  desktopConf.getAllVideo(getAllVideoCb);
+}
+exports.getAllVideo = getAllVideo;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();

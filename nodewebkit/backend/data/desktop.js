@@ -16,8 +16,10 @@ var os = require('os');
 var config = require("../config");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
+var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
 var desFilesHandle = require("../commonHandle/desFilesHandle");
+var tagsHandle = require("../commonHandle/tagsHandle");
 var utils = require('../utils');
 var util = require('util');
 var events = require('events');
@@ -596,7 +598,6 @@ function parseDesktopFile(callback, sPath) {
       } else {
         var re_head = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
-        var re_comment = /#/g;
         var desktopHeads = [];
         var oAllDesktop = {};
         data = data.replace(re_head, function() {
@@ -615,17 +616,13 @@ function parseDesktopFile(callback, sPath) {
             var attr = {};
 
             for (var j = 0; j < lines.length - 1; ++j) {
-              if (lines[j] !== "" && !re_comment.test(lines[j])) {
+              if (lines[j] && !re_comment.test(lines[j])) {
+                console.log(lines[j])
                 var tmp = lines[j].split('=');
-                try {
-                  attr[tmp[0]] = tmp[1].replace(re_rn, "");
-                  for (var k = 2; k < tmp.length; k++) {
-                    attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
-                  }
-                } catch (e) {
-                  console.log(e);
-                  console.log(lines[j])
-                  return;
+                console.log(tmp)
+                attr[tmp[0]] = tmp[1].replace(re_rn, "");
+                for (var k = 2; k < tmp.length; k++) {
+                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
                 }
               }
             }
@@ -1170,76 +1167,71 @@ function writeDesktopFile(callback, sFileName, oEntries) {
     function findDesktopFileCb(err, result_find) {
       if (err) {
         console.log("find desktop file err!", err);
-        callback(err, null);
-      } else {
-        var sPath = result_find;
+        return callback(err, null);
+      }
+      var sPath = result_find;
 
-        function parseDesktopFileCb(err, attr) {
-          if (err) {
-            console.log(err);
-            var _err = "writeDesktopFile : parse desktop file error!";
-            callback(_err, null);
+      function parseDesktopFileCb(err, attr) {
+        if (err) {
+          console.log(err);
+          var _err = "writeDesktopFile : parse desktop file error!";
+          return callback(_err, null);
+        }
+        var isModify = false;
+        for (var entry in oEntries) {
+          if (oEntries[entry]) {
+            for (var element in oEntries[entry]) {
+              if (attr[entry][element] !== oEntries[entry][element]) {
+                isModify = true;
+              }
+              attr[entry][element] = oEntries[entry][element];
+            }
           } else {
-            var isModify = false;
-            for (var entry in oEntries) {
-              if (oEntries[entry]) {
-                for (var element in oEntries[entry]) {
-                  if (attr[entry][element] !== oEntries[entry][element]) {
-                    isModify = true;
-                  }
-                  attr[entry][element] = oEntries[entry][element];
-                }
-              } else {
-                console.log("entry content empty!");
-                var _err = "writeDesktopFile : entry content empty!";
-                callback(_err, null);
-              }
-            }
-            if (!isModify) {
-              var _result = "Data Not Change!";
-              return callback(null, _result);
-            }
-
-            function deParseDesktopFileCb(err, result_deparse) {
-              if (err) {
-                console.log(err);
-                var _err = "writeDesktopFile : deparse desktop file error!";
-                callback(_err, null);
-              } else {
-                var sWritePath = result_find;
-                console.log(sWritePath);
-                fs.writeFile(sWritePath, result_deparse, function(err) {
-                  if (err) {
-                    console.log(err);
-                    var _err = "writeDesktopFile : write desktop file error!";
-                    callback(_err, null);
-                  } else {
-                    var op = 'modify';
-                    var re = new RegExp('/desktop/');
-                    var desFilePath = sWritePath.replace(re, '/desktopDes/') + '.md';
-                    updateDesFile(op, desFilePath, function() {
-                      if (err) {
-                        console.log('update ' + sFileName + ' des file error!\n', err);
-                        callback(err, null);
-                      } else {
-                        resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
-                          if (err) {
-                            return callback(err, null);
-                          }
-                          console.log("write file success!");
-                          callback(null, "success");
-                        })
-                      }
-                    });
-                  }
-                });
-              }
-            }
-            deParseDesktopFile(deParseDesktopFileCb, attr);
+            console.log("entry content empty!");
+            var _err = "writeDesktopFile : entry content empty!";
+            return callback(_err, null);
           }
         }
-        parseDesktopFile(parseDesktopFileCb, sPath);
+        if (!isModify) {
+          var _result = "Data Not Change!";
+          return callback(null, _result);
+        }
+
+        function deParseDesktopFileCb(err, result_deparse) {
+          if (err) {
+            console.log(err);
+            var _err = "writeDesktopFile : deparse desktop file error!";
+            return callback(_err, null);
+          }
+          var sWritePath = result_find;
+          console.log(sWritePath);
+          fs.writeFile(sWritePath, result_deparse, function(err) {
+            if (err) {
+              console.log(err);
+              var _err = "writeDesktopFile : write desktop file error!";
+              return callback(_err, null);
+            }
+            var op = 'modify';
+            var re = new RegExp('/desktop/');
+            var desFilePath = sWritePath.replace(re, '/desktopDes/') + '.md';
+            updateDesFile(op, desFilePath, function() {
+              if (err) {
+                console.log('update ' + sFileName + ' des file error!\n', err);
+                return callback(err, null);
+              }
+              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
+                if (err) {
+                  return callback(err, null);
+                }
+                console.log("write file success!");
+                callback(null, "success");
+              })
+            });
+          });
+        }
+        deParseDesktopFile(deParseDesktopFileCb, attr);
       }
+      parseDesktopFile(parseDesktopFileCb, sPath);
     }
     findDesktopFile(findDesktopFileCb, sFileName)
   } else {
@@ -1697,6 +1689,7 @@ exports.shellExec = shellExec;
 /** 
  * @Method: moveFile
  *    To move a file or dir from oldPath to newPath.
+ *    Path is limited under /desktop.
  *    !!!The dir CAN have content and contend would be move to new dir as well.
  *    !!!Notice that if you are moving a dir, the newPath has to be a none exist
  *    !!!new dir, otherwise comes error.
@@ -1714,26 +1707,25 @@ exports.shellExec = shellExec;
  *
  * @param2: oldPath
  *    string, a dir under user path
- *    exmple: var oldPath = '/.resources/DesktopConf/Theme.conf'
+ *    exmple: var oldPath = '/test.txt'
  *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/Theme.conf')
  *
  * @param3: newPath
  *    string, a dir under user path
- *    exmple: var newPath = '/.resources/DesktopConf/BadTheme.conf'
+ *    exmple: var newPath = '/testDir/test.txt'
  *    (compare with a full path: '/home/xiquan/.resources/DesktopConf/BadTheme.conf')
  *
  **/
 function moveFile(callback, oldPath, newPath) {
-  var oldFullpath = configPath + oldPath;
-  var newFullpath = configPath + newPath;
-  console.log(oldFullpath, newFullpath);
+  var oldFullpath = pathModule.join(REAL_DIR, 'desktop', oldPath);
+  var newFullpath = pathModule.join(REAL_DIR, 'desktop', newPath);
   fs_extra.move(oldFullpath, newFullpath, function(err) {
     if (err) {
       console.log(err);
       var _err = 'moveFile : move error';
       callback(_err, null);
     } else {
-      console.log('move file success!');
+      console.log('move ', oldPath, ' to ', newPath);
       callback(null, 'success');
     }
   })
@@ -1887,10 +1879,10 @@ function linkAppToDesktop(sApp, sType, callback) {
     return callback(_err, null);
   }
   var sSrc = pathModule.join(REAL_APP_DIR, sApp);
-  var sDir = pathModule.join(REAL_DIR, sType, sApp);
-  fs.symlink(sSrc, sDir, function(err) {
+  var sDes = pathModule.join(REAL_DIR, sType, sApp);
+  fs.symlink(sSrc, sDes, function(err) {
     if (err) {
-      console.log(err, sSrc, sDir)
+      console.log(err, sSrc, sDes)
       return callback(err, null);
     }
     callback(null, 'success');
@@ -1928,13 +1920,387 @@ function unlinkApp(sDir, callback) {
 }
 exports.unlinkApp = unlinkApp;
 
-/*TODO: to be continue ...*/
-// function dragToDesktop(oFiles, callback) {
+/** 
+ * @Method: moveToDesktop
+ *    To drag a file from any where to desktop.
+ *
+ * @param2: sFilePath
+ *    string, a target file path, should be a full path.
+ *            example: '/home/xiquan/somedir/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        array, the file info of target after load into local db.
+ *        example:
+ *        var fileInfo = [sFilePath, stats.ino];
+ *
+ **/
+function moveToDesktopSingle(sFilePath, callback) {
+  if (!sFilePath || sFilePath == '') {
+    var _err = 'Error: bad sFilePath!';
+    console.log(_err);
+    return callback(_err, null);
+  }
+  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+  var category = utils.getCategoryByPath(sFilePath).category;
+  if (reg_isLocal.test(sFilePath)) { //target file is from local
+    var sCondition = ["path = '" + sFilePath + "'"];
+    commonDAO.findItems(null, [category], sCondition, null, function(result) {
+      if (result === "error") {
+        var _err = "Error: find " + sFilePath + " in db error!"
+        return callback(_err, null);
+      }
+      var item = result[0];
+      var oTags = result.others.split(',');
+      if (utils.isExist('$desktop$', oTags)) {
+        console.log('Oh,Sorry, ' + sFilePath + ' Exists on desktop!');
+        return callback(null, 'exist');
+      }
 
-// }
-// exports.dragToDesktop = dragToDesktop;
+      function setTagsCb(result) {
+        if (result != 'commit') {
+          var _err = 'Error: set tags error!';
+          console.log(_err);
+          return callback(_err, null);
+        }
+        fs.stat(sFilePath, function(err, stats) {
+          if (err) {
+            console.log(sFilePath, err);
+            return callback(err, null);
+          }
+          var fileInfo = [sFilePath, stats.ino];
+          callback(null, fileInfo);
+        })
+      }
+      var sUri = item.URI;
+      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+    })
+  } else { //target file is from out of our data frame
+    utils.isNameExists(sFilePath, function(err, result) {
+      if (err) {
+        console.log('isNameExists error!');
+        return callback(err, null);
+      }
+      if (result) { //target's name is aready exist in db
+        /*TODO: To be continue: when name exists, we need rename function */
+        // var _err = result + ': File Name Exists! Please Change it!';
+        // console.log(_err);
+        // return callback(_err, null);
+        console.log('target name is aready exist in db', result);
+        var data = new Date();
+        var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
+        var sNewName = surfix + result;
+        var sNewFilePath = pathModule.join(pathModule.dirname(sFilePath), sNewName);
+        fs_extra.copy(sFilePath, sNewFilePath, function(err) {
+          if (err) {
+            console.log(err, 'copy file', sFilePath, ' error!');
+            return callback(err, null);
+          }
+          doCreateData(sNewFilePath, category, function(err, result) {
+            if (err) {
+              console.log(err, 'create data error!', sNewFilePath);
+              return callback(err, null);
+            }
+            exec('rm ' + sNewFilePath, function(err, stdout, stderr) {
+              if (err) {
+                console.log(err, stdout, stderr);
+                return callback(err, null);
+              }
+              fs.stat(sFilePath, function(err, stats) {
+                if (err) {
+                  console.log(sFilePath, err);
+                  return callback(err, null);
+                }
+                var fileInfo = [sFilePath, stats.ino];
+                console.log('drag', sNewFilePath, ' success!');
+                callback(null, fileInfo);
+              })
+            })
+          });
+        })
+      } else { //target's name is unique
+        console.log('target name is unique');
+        doCreateData(sFilePath, category, function(err, result) {
+          if (err) {
+            console.log(err, 'create data error!', sFilePath);
+            return callback(err, null);
+          }
+          callback(null, result);
+        })
+      }
+    })
+  }
+}
+exports.moveToDesktopSingle = moveToDesktopSingle;
 
-// function newFile() {
+/*TODO: sqlite bug, not complete*/
+/** 
+ * @Method: moveToDesktop
+ *    To drag multiple files from any where to desktop.
+ *
+ * @param2: oFilePath
+ *    string, array of file path, should be a full path.
+ *            example: ['/home/xiquan/somedir/somefile.txt'].
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function moveToDesktop(oFilePath, callback) {
+  var count = 0;
+  var lens = oFilePath.length;
+  var resultFiles = [];
+  for (var i = 0; i < lens; i++) {
+    var item = oFilePath[i];
+    (function(_filePath) {
+      moveToDesktopSingle(_filePath, function(err, result) {
+        if (err) {
+          console.log(err);
+          return callback(err, null);
+        }
+        resultFiles.push(result);
+        var isEnd = (count === lens - 1);
+        if (isEnd) {
+          console.log('drag files success!');
+          callback(null, resultFiles);
+        }
+        count++;
+      })
+    })(item);
+  };
+}
+exports.moveToDesktop = moveToDesktop;
 
-// }
-// exports.newFile = newFile;
+function doCreateData(sFilePath, category, callback) {
+  var cate = utils.getCategoryObject(category);
+  cate.createData(sFilePath, function(err, result, resultFile) {
+    if (err) {
+      console.log(err, resultFile, result);
+      return callback(err, null);
+    }
+    var sCondition = ["path = '" + resultFile + "'"];
+    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+      if (err) {
+        var _err = "Error: find " + sFilePath + " in db error!";
+        return callback(_err, null);
+      }
+      var item = result[0];
+
+      function setTagsCb(result) {
+        if (result != 'commit') {
+          var _err = 'Error: set tags error!';
+          console.log(_err);
+          return callback(_err, null);
+        }
+        callback(null, resultFile);
+      }
+      var sUri = item.URI;
+      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+    })
+  });
+}
+
+/** 
+ * @Method: removeFileFromDB
+ *   To remove a file from desktop. This action will remove this file from data
+ *   frame also.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDB(sFilePath, callback) {
+  var category = utils.getCategoryByPath(sFilePath).category;
+  var cate = utils.getCategoryObject(category);
+  var sCondition = ["path = '" + sFilePath + "'"];
+  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sFilePath + ' not found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var sUri = result[0].URI;
+    var sFullName = result[0].filename + result[0].postfix;
+    cate.removeByUri(sUri, function(err, result) {
+      if (err) {
+        console.log('removeByUri error', err);
+        return callback(err, null);
+      }
+      var dataDir = utils.getRealDir(category);
+      var desDataDir = pathModule.join(utils.getDesDir(category), sFullName + '.md');
+      fs_extra.ensureDir(dataDir, function(err) {
+        if (err) {
+          console.log(err, 'ensureDir error!');
+          return callback(err, null);
+        }
+        fs_extra.ensureDir(desDataDir, function(err) {
+          if (err) {
+            console.log(err, 'ensureDir error!');
+            return callback(err, null);
+          }
+        })
+        console.log('remove file success!');
+        callback(null, 'success');
+      })
+    })
+  })
+}
+exports.removeFileFromDB = removeFileFromDB;
+
+/** 
+ * @Method: removeFileFromDesk
+ *   To remove a file from desktop. This action will only remove this file from
+ *   desktop.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDesk(sFilePath, callback) {
+  var category = utils.getCategoryByPath(sFilePath).category;
+  var sCondition = ["path = '" + sFilePath + "'"];
+  commonDAO.findItems(['uri'], [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sFilePath + ' not found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var sUri = result[0].URI;
+
+    function rmTagsByUriCb(result) {
+      if (result !== 'commit') {
+        var _err = 'rmTagsByUri error!';
+        console.log(_err);
+        return callback(_err, null);
+      }
+      callback(null, 'success');
+    }
+    tagsHandle.rmTagsByUri(rmTagsByUriCb, ['$desktop$'], sUri)
+  })
+}
+exports.removeFileFromDesk = removeFileFromDesk;
+
+
+/** 
+ * @Method: getFilesFromDesk
+ *   To get all files on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getFilesFromDesk(callback) {
+  function getFilesByTagsCb(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    console.log('get all files on desktop:\n', result);
+    var sPath = result[0].path;
+    fs.stat(sPath, function(err, stat) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      var sInode = stat.ino;
+      var sInfo = [sPath, sInode];
+      callback(null, sInfo);
+    })
+  }
+  var oTags = ['$desktop'];
+  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+}
+exports.getFilesFromDesk = getFilesFromDesk;
+
+/** 
+ * @Method: getAllVideo
+ *   To get all vidoe files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getAllVideo(callback) {
+  commonDAO.findItems(null, ['video'], null, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'no videos found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var oInfoResult = {};
+    var count = 0;
+    var lens = result.length;
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      (function(_item) {
+        var sPath = _item.path;
+        fs.stat(sPath, function(err, stat) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var sInode = stat.ino;
+          oInfoResult[sInode] = sPath;
+          var isEnd = (count == lens - 1);
+          if (isEnd) {
+            callback(null, oInfoResult);
+          }
+          count++;
+        })
+      })(item)
+    }
+  })
+}
+exports.getAllVideo = getAllVideo;
