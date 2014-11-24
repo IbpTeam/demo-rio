@@ -424,45 +424,45 @@
     });
   }
 
-  function dragToDesktopSingleCb(err, result) {
+  function moveToDesktopSingleCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win, err);
     } else {
-      win.document.write("test API dragToDesktopSingle()");
+      win.document.write("test API moveToDesktopSingle()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_dragToDesktopSingle(dragToDesktopSingleCb) {
+  function test_moveToDesktopSingle(moveToDesktopSingleCb) {
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = '/home/xiquan/testFile/small_image.jpg';
-      data.dragToDesktopSingle(dragToDesktopSingleCb,sFilePath);
+      data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
     });
   }
 
-  function dragToDesktopCb(err, result) {
+  function moveToDesktopCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win, err);
     } else {
-      win.document.write("test API dragToDesktop()");
+      win.document.write("test API moveToDesktop()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_dragToDesktop(dragToDesktopCb) {
+  function test_moveToDesktop(moveToDesktopCb) {
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = ['/home/xiquan/testFile/small_image.jpg',
                        '/home/xiquan/testFile/testJSON.txt',
                        '/home/xiquan/testFile/testJSON1.txt',
                        '/home/xiquan/testFile/test_1.mp3'
                        ];
-      data.dragToDesktop(dragToDesktopCb,sFilePath);
+      data.moveToDesktop(moveToDesktopCb,sFilePath);
     });
   }
 
@@ -1066,8 +1066,8 @@
 </div>
 </div>
 
-<h2 onclick="show('dragToDesktopSingle')">dragToDesktopSingle(dragToDesktopSingleCb,sFilePath)<span><a class="mark" href="#test_dragToDesktopSingle" id="test_dragToDesktopSingle" onclick="test_dragToDesktopSingle(dragToDesktopSingleCb)">test</a></span></h2>
-<div id="dragToDesktopSingle" style="display:none;">
+<h2 onclick="show('moveToDesktopSingle')">moveToDesktopSingle(moveToDesktopSingleCb,sFilePath)<span><a class="mark" href="#test_moveToDesktopSingle" id="test_moveToDesktopSingle" onclick="test_moveToDesktopSingle(moveToDesktopSingleCb)">test</a></span></h2>
+<div id="moveToDesktopSingle" style="display:none;">
 <div style="color:#930000">
   <pre>
 
@@ -1075,30 +1075,30 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function dragToDesktopSingleCb(err, result) {
+  function moveToDesktopSingleCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win, err);
     } else {
-      win.document.write("test API dragToDesktopSingle()");
+      win.document.write("test API moveToDesktopSingle()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_dragToDesktopSingle(dragToDesktopSingleCb) {
+  function test_moveToDesktopSingle(moveToDesktopSingleCb) {
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = '/home/xiquan/testFile/testJSON.txt';
-      data.dragToDesktopSingle(dragToDesktopSingleCb,sFilePath);
+      data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
     });
   }
 </pre>
 </div>
 </div>
 
-<h2 onclick="show('dragToDesktop')">dragToDesktop(dragToDesktopCb,sFilePath)<span><a class="mark" href="#test_dragToDesktop" id="test_dragToDesktop" onclick="test_dragToDesktop(dragToDesktopCb)">test</a></span></h2>
-<div id="dragToDesktop" style="display:none;">
+<h2 onclick="show('moveToDesktop')">moveToDesktop(moveToDesktopCb,sFilePath)<span><a class="mark" href="#test_moveToDesktop" id="test_moveToDesktop" onclick="test_moveToDesktop(moveToDesktopCb)">test</a></span></h2>
+<div id="moveToDesktop" style="display:none;">
 <div style="color:#930000">
   <pre>
 
@@ -1106,22 +1106,22 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function dragToDesktopCb(err, result) {
+  function moveToDesktopCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win, err);
     } else {
-      win.document.write("test API dragToDesktop()");
+      win.document.write("test API moveToDesktop()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_dragToDesktop(dragToDesktopCb) {
+  function test_moveToDesktop(moveToDesktopCb) {
     WDC.requireAPI(['data'], function(data) {
       var sFilePath = '/home/xiquan/testFile/testJSON.txt';
-      data.dragToDesktop(dragToDesktopCb,sFilePath);
+      data.moveToDesktop(moveToDesktopCb,sFilePath);
     });
   }
 </pre>

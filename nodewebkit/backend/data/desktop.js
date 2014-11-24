@@ -598,7 +598,6 @@ function parseDesktopFile(callback, sPath) {
       } else {
         var re_head = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
-        var re_comment = new RegExp('#');
         var desktopHeads = [];
         var oAllDesktop = {};
         data = data.replace(re_head, function() {
@@ -1922,7 +1921,7 @@ function unlinkApp(sDir, callback) {
 exports.unlinkApp = unlinkApp;
 
 /** 
- * @Method: dragToDesktop
+ * @Method: moveToDesktop
  *    To drag a file from any where to desktop.
  *
  * @param2: sFilePath
@@ -1936,10 +1935,12 @@ exports.unlinkApp = unlinkApp;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        string, the path of target after load into local db.
+ *        array, the file info of target after load into local db.
+ *        example:
+ *        var fileInfo = [sFilePath, stats.ino];
  *
  **/
-function dragToDesktopSingle(sFilePath, callback) {
+function moveToDesktopSingle(sFilePath, callback) {
   if (!sFilePath || sFilePath == '') {
     var _err = 'Error: bad sFilePath!';
     console.log(_err);
@@ -1967,7 +1968,14 @@ function dragToDesktopSingle(sFilePath, callback) {
           console.log(_err);
           return callback(_err, null);
         }
-        callback(null, sFilePath);
+        fs.stat(sFilePath, function(err, stats) {
+          if (err) {
+            console.log(sFilePath, err);
+            return callback(err, null);
+          }
+          var fileInfo = [sFilePath, stats.ino];
+          callback(null, fileInfo);
+        })
       }
       var sUri = item.URI;
       tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
@@ -2003,8 +2011,15 @@ function dragToDesktopSingle(sFilePath, callback) {
                 console.log(err, stdout, stderr);
                 return callback(err, null);
               }
-              console.log('drag', sNewFilePath, ' success!');
-              callback(null, result);
+              fs.stat(sFilePath, function(err, stats) {
+                if (err) {
+                  console.log(sFilePath, err);
+                  return callback(err, null);
+                }
+                var fileInfo = [sFilePath, stats.ino];
+                console.log('drag', sNewFilePath, ' success!');
+                callback(null, fileInfo);
+              })
             })
           });
         })
@@ -2021,11 +2036,11 @@ function dragToDesktopSingle(sFilePath, callback) {
     })
   }
 }
-exports.dragToDesktopSingle = dragToDesktopSingle;
+exports.moveToDesktopSingle = moveToDesktopSingle;
 
 /*TODO: sqlite bug, not complete*/
 /** 
- * @Method: dragToDesktopCb
+ * @Method: moveToDesktop
  *    To drag multiple files from any where to desktop.
  *
  * @param2: oFilePath
@@ -2042,14 +2057,14 @@ exports.dragToDesktopSingle = dragToDesktopSingle;
  *        string, the path of target after load into local db.
  *
  **/
-function dragToDesktop(oFilePath, callback) {
+function moveToDesktop(oFilePath, callback) {
   var count = 0;
   var lens = oFilePath.length;
   var resultFiles = [];
   for (var i = 0; i < lens; i++) {
     var item = oFilePath[i];
     (function(_filePath) {
-      dragToDesktopSingle(_filePath, function(err, result) {
+      moveToDesktopSingle(_filePath, function(err, result) {
         if (err) {
           console.log(err);
           return callback(err, null);
@@ -2065,7 +2080,7 @@ function dragToDesktop(oFilePath, callback) {
     })(item);
   };
 }
-exports.dragToDesktop = dragToDesktop;
+exports.moveToDesktop = moveToDesktop;
 
 function doCreateData(sFilePath, category, callback) {
   var cate = utils.getCategoryObject(category);
@@ -2231,7 +2246,7 @@ function getFilesFromDesk(callback) {
         return callback(err, null);
       }
       var sInode = stat.ino;
-      var sInfo = [sPath, sInode];;
+      var sInfo = [sPath, sInode];
       callback(null, sInfo);
     })
   }

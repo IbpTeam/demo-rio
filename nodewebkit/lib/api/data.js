@@ -1007,7 +1007,7 @@ function unlinkApp(unlinkAppCb, sDir) {
 exports.unlinkApp = unlinkApp;
 
 /** 
- * @Method: dragToDesktopSingle
+ * @Method: moveToDesktopSingle
  *    To drag a file from any where to desktop.
  *
  * @param2: sFilePath
@@ -1024,21 +1024,21 @@ exports.unlinkApp = unlinkApp;
  *        string, the path of target after load into local db.
  *
  **/
-function dragToDesktopSingle(dragToDesktopSingleCb, sFilePath) {
-  console.log("Request handler 'dragToDesktopSingle' was called.");
-  desktopConf.dragToDesktopSingle(sFilePath, dragToDesktopSingleCb);
+function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
+  console.log("Request handler 'moveToDesktopSingle' was called.");
+  desktopConf.moveToDesktopSingle(sFilePath, moveToDesktopSingleCb);
 }
-exports.dragToDesktopSingle = dragToDesktopSingle;
+exports.moveToDesktopSingle = moveToDesktopSingle;
 
 /** 
- * @Method: dragToDesktop
+ * @Method: moveToDesktop
  *    To drag multiple files from any where to desktop.
  *
  * @param2: oFilePath
  *    string, array of file path, should be a full path.
  *            example: ['/home/xiquan/somedir/somefile.txt'].
  *
- * @param1: dragToDesktopCb
+ * @param1: moveToDesktopCb
  *    @result, (_err,result)
  *
  *    @param: _err,
@@ -1048,11 +1048,11 @@ exports.dragToDesktopSingle = dragToDesktopSingle;
  *        string, the path of target after load into local db.
  *
  **/
-function dragToDesktop(dragToDesktopCb, oFilePath) {
-  console.log("Request handler 'dragToDesktop' was called.");
-  desktopConf.dragToDesktop(oFilePath, dragToDesktopCb);
+function moveToDesktop(moveToDesktopCb, oFilePath) {
+  console.log("Request handler 'moveToDesktop' was called.");
+  desktopConf.moveToDesktop(oFilePath, moveToDesktopCb);
 }
-exports.dragToDesktop = dragToDesktop;
+exports.moveToDesktop = moveToDesktop;
 
 /** 
  * @Method: removeFileFromDB
