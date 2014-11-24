@@ -527,7 +527,7 @@ function readDesktopFile(callback, sFileName) {
         if (err) {
           console.log(err);
           var _err = "readDesktopFile : parse desktop file error!";
-          return callback(_err, null);
+          return callback(err, null);
         }
         console.log("readDesktopFile success!");
         callback(null, attr);
@@ -596,45 +596,77 @@ function parseDesktopFile(callback, sPath) {
         var _err = "parseDesktopFile : read desktop file error";
         callback(_err, null);
       } else {
-        var re_head = /[\[]{1}[a-z, ,A-Z]*\]{1}\n|[\[]{1}[a-z, ,A-Z]*\]{1}\r/g; //match all string like [***]
+        var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
         var re_comment = new RegExp('#');
         var desktopHeads = [];
         var oAllDesktop = {};
-        data = data.replace(re_head, function() {
-          var headEntry = (RegExp.lastMatch).toString();
-          headEntry = headEntry.replace(re_rn, "");
-          desktopHeads.push(headEntry); //once get a match, strore it
-          return "$";
-        })
-        data = data.split('$');
-        if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | re_comment.test(data[0])) {
-          data.shift(); //the first element is a "", remove it
-        }
-        if (desktopHeads.length === data.length) {
-          for (var i = 0; i < data.length; i++) {
-            var lines = data[i].split('\n');
-            var attr = {};
-
-            for (var j = 0; j < lines.length - 1; ++j) {
-              if (lines[j] && !re_comment.test(lines[j])) {
-                console.log(lines[j])
-                var tmp = lines[j].split('=');
-                console.log(tmp)
-                attr[tmp[0]] = tmp[1].replace(re_rn, "");
-                for (var k = 2; k < tmp.length; k++) {
-                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
+        try {
+          try {
+            data = data.replace(re_head, function() {
+              var headEntry = (RegExp.lastMatch).toString();
+              headEntry = headEntry.replace(re_rn, "");
+              desktopHeads.push(headEntry); //once get a match, strore it
+              return "$";
+            })
+            data = data.split('$');
+            if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | re_comment.test(data[0])) {
+              data.shift(); //the first element is a "", remove it
+            }
+          } catch (err_inner) {
+            _err.name = 'headEntry';
+            _err.message = headEntry;
+            var _err = new Error('headEntry');
+            throw _err;
+          }
+          if (desktopHeads.length === data.length) {
+            for (var i = 0; i < data.length; i++) {
+              try {
+                var lines = data[i].split('\n');
+              } catch (err_inner) {
+                _err.name = 'headContent';
+                _err.message = data[i];
+                var _err = new Error('headContent')
+                throw _err;
+              }
+              var attr = {};
+              for (var j = 0; j < lines.length - 1; ++j) {
+                if (lines[j] && !re_comment.test(lines[j])) {
+                  try {
+                    console.log(lines[j])
+                    var tmp = lines[j].split('=');
+                    console.log(tmp)
+                    attr[tmp[0]] = tmp[1].replace(re_rn, "");
+                  } catch (err_inner) {
+                    var _err = new Error()
+                    _err.name = 'contentSplit';
+                    _err.message = tmp;
+                    throw _err;
+                  }
+                  for (var k = 2; k < tmp.length; k++) {
+                    try {
+                      attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
+                    } catch (err_inner) {
+                      var _err = new Error('contentAddition');
+                      _err.name = 'contentAddition';
+                      _err.message = tmp;
+                      throw _err;
+                    }
+                  }
                 }
               }
+              oAllDesktop[desktopHeads[i]] = attr;
             }
-            oAllDesktop[desktopHeads[i]] = attr;
+          } else {
+            console.log(sPath, "desktop file entries not match!");
+            var _err = "parseDesktopFile : desktop file entries not match!";
+            callback(_err, null);
           }
-        } else {
-          console.log(sPath, "desktop file entries not match!");
-          var _err = "parseDesktopFile : desktop file entries not match!";
-          callback(_err, null);
+          console.log("Get desktop file success!");
+        } catch (err_outer) {
+          console.length(err_outer)
+          return callback(err_outer, null)
         }
-        console.log("Get desktop file success!");
         callback(null, oAllDesktop);
       }
     });
@@ -1285,6 +1317,11 @@ function getAllDesktopFile(callback) {
       for (var i = 0; i < lens; i++) {
         var item = stdout[i];
         if (item !== '') {
+          readDesktopFile(function(err, result) {
+            if (err) {
+              console.log(err, item)
+            }
+          }, item);
           (function(_item) {
             var _dir = pathModule.join(REAL_APP_DIR, _item);
             fs.stat(_dir, function(err, stat) {
@@ -2305,3 +2342,96 @@ function getAllVideo(callback) {
   })
 }
 exports.getAllVideo = getAllVideo;
+
+function getIconPath(iconName_, size_, callback) {
+  //get theme config file
+  //get the name of current icon-theme
+  //1. search $HOME/.icons/icon-theme_name/subdir(get from index.theme)
+  //2. if not found, search $XDG_DATA_DIRS/icons/icon-theme_name
+  //   /subdir(get from index.theme)
+  //3. if not found, search /usr/share/pixmaps/subdir(get from index.theme)
+  //4. if not found, change name to current theme's parents' recursively 
+  //   and repeat from step 1 to 4
+  //5. if not found, return default icon file path(hicolor)
+  //
+  if (typeof callback !== "function")
+    throw "Bad type of callback!!";
+
+  function readConfCb() {
+
+  }
+  readConf(readConfCb, 'Theme.conf');
+
+  var iconTheme = _global.get('theme').getIconTheme();
+
+  _this.getIconPathWithTheme(iconName_, size_, iconTheme, function(err_, iconPath_) {
+    if (err_) {
+      _this.getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
+        if (err_) {
+          callback(this, 'Not found');
+        } else {
+          callback(null, iconPath_);
+        }
+      });
+    } else {
+      callback(null, iconPath_);
+    }
+  });
+}
+
+function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
+  if (typeof callback != 'function')
+    throw 'Bad type of function';
+
+  var _this = this;
+  var findIcon = function(index_) {
+    if (index_ == _this._iconSearchPath.length) {
+      callback('Not found');
+      return;
+    }
+    var _path = _this._iconSearchPath[index_];
+    if (index_ < _this._iconSearchPath.length - 1) _path += themeName_;
+    fs.exists(_path, function(exists_) {
+      if (exists_) {
+        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _this._iconSearchPath.length - 1) ? size_ : '') + '.*/' + iconName_ + '\.(svg|png|xpm)$\"';
+        exec(tmp, function(err, stdout, stderr) {
+          if (stdout == '') {
+            fs.readFile(_path + '/index.theme', 'utf-8', function(err, data) {
+              var _parents = [];
+              if (err) {
+                console.log(err);
+              } else {
+                var lines = data.split('\n');
+                for (var i = 0; i < lines.length; ++i) {
+                  if (lines[i].substr(0, 7) == "Inherits") {
+                    attr = lines[i].split('=');
+                    _parents = attr[1].split(',');
+                  }
+                }
+              }
+              //recursive try to find from parents
+              var findFromParent = function(index__) {
+                if (index__ == _parents.length) return;
+                _this.getIconPathWithTheme(iconName_, size_, _parents[index__], function(err_, iconPath_) {
+                  if (err_) {
+                    findFromParent(index__ + 1);
+                  } else {
+                    callback(null, iconPath_);
+                  }
+                });
+              };
+              findFromParent(0);
+              //if not fonud
+              findIcon(index_ + 1);
+            });
+          } else {
+            callback(null, stdout.split('\n'));
+          }
+        });
+      } else {
+        findIcon(index_ + 1);
+      }
+    });
+  };
+  findIcon(0);
+}
