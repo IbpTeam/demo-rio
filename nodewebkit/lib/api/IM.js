@@ -3,17 +3,6 @@ var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var net = require('net');
 
 var Port = 7777;
-/*
-*getLocalData
-*/
-function getLocalData(getLocalDataCb){
-  var localJson={};
-  localJson['account']=IMNoRsa.LOCALACCOUNT;
-  localJson['UID']=IMNoRsa.LOCALUUID;
- 
-  getLocalDataCb(localJson);
-}
-exports.getLocalData = getLocalData;
 
 /**
  * @method RegisterApp
