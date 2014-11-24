@@ -75,7 +75,7 @@ function createData(items, callback) {
     fs.stat(items, function(err, stat) {
       if (err) {
         console.log(err);
-        return;
+        return callback(err,null);
       }
       var mtime = stat.mtime;
       var ctime = stat.ctime;
@@ -105,13 +105,13 @@ function createData(items, callback) {
           lastModifyDev: config.uniqueID,
           lastAccessDev: config.uniqueID
         };
-        commonHandle.createData(itemInfo, function(result) {
+        commonHandle.createData(itemInfo, function(result, resultFile) {
           if (result === 'success') {
-            callback(null, result);
+            callback(null, result, resultFile);
           } else {
             var _err = 'createData: commonHandle createData error!';
             console.log('createData error!');
-            callback(_err, null);
+            callback(_err, null, null);
           }
         })
       })

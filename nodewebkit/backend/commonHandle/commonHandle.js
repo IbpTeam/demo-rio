@@ -83,7 +83,7 @@ function copyFile(oldPath, newPath, callback) {
  */
 function createData(item, callback) {
   var sOriginPath = item.path;
-  var sFileName = item.filename + '.' + item.postfix;
+  var sFileName = utils.renameExists([item.filename + '.' + item.postfix])[0];
   var category = item.category;
   var sRealRepoDir = utils.getRepoDir(category);
   var sDesRepoDir = utils.getDesRepoDir(category);
@@ -108,7 +108,7 @@ function createData(item, callback) {
             console.log(err);
             return callback(null);
           }
-          callback('success');
+          callback('success', sFilePath);
         })
       })
     });
@@ -239,11 +239,12 @@ exports.removeFile = function(category, item, callback) {
         callback("error");
         return;
       }
-      repo.repoCommitBoth('rm',utils.getRepoDir(category), 
-                               utils.getDesRepoDir(category), 
-                               [path.join(utils.getRealDir(category),sFullName)], 
-                               [path.join(utils.getDesDir(category),sDesFullName)],
-                               callback);
+      repo.repoCommitBoth('rm', 
+                          utils.getRepoDir(category),
+                          utils.getDesRepoDir(category), 
+                          [path.join(utils.getRealDir(category), sFullName)], 
+                          [path.join(utils.getDesDir(category), sDesFullName)],
+                          callback);
     });
   });
 };
