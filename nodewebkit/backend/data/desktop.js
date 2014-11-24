@@ -225,6 +225,7 @@ function initDesktop(callback) {
                       console.log("init dock config file error!");
                       console.log(err);
                       return;
+                    }
                     var pathApp = path + "/applications";
                     fs_extra.ensureDir(pathApp, function(err) {
                       if (err) {
