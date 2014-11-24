@@ -195,6 +195,39 @@ function addListener(ListenerCb) {
 }
 exports.addListener = addListener;
 
+function removeListener(ListenerCb){
+  mdns.removeDeviceListener(function(signal, obj) {
+    if (obj == null || obj.txt == null) {
+      return;
+    }
+    if (obj.txt[0] == "demo-rio") {
+      switch (signal) {
+        case 'ItemNew':
+          {
+            var UpCbPara = {
+              flag: "up",
+              info: obj
+            };
+            console.log("this is in addListener function");
+            ListenerCb(UpCbPara);
+          }
+          break;
+        case 'ItemRemove':
+          {
+            var DownCbPara = {
+              flag: "down",
+              info: obj
+            };
+            console.log("this is in addListener function");
+            ListenerCb(DownCbPara);
+          }
+          break;
+      }
+    }
+  });
+}
+exports.removeListener = removeListener;
+
 /**
  * @method startMdnsService
  *  开启设备发现服务，同时广播本机的信息

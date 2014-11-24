@@ -1,13 +1,18 @@
 var device = require('../../nodewebkit/lib/api/device_service');
-
-device.addListener(function(para) {
+/*
+function Listenercb(para) {
   if (para.flag === "up") {
     console.log("device up", para.info.host, para.info.address);
   };
   if (para.flag === "down") {
     console.log("device down", para.info.host, para.info.address);
   };
-});
+}
+
+device.addListener(Listenercb);
+
+device.removeListener(Listenercb);
+*/
 
 
 device.addListenerByAccount(function(para) {
