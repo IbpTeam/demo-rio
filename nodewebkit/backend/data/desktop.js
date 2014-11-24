@@ -414,11 +414,9 @@ function readConf(callback, sFileName) {
     if (sFileName === 'Theme.conf') {
       var sFileDir = THEME_PATH;
       var sDesFileDir = THEME_DES_PATH;
-      console.log('reading Theme.conf!');
     } else if (sFileName === 'Widget.conf') {
       var sFileDir = WIGDET_PATH;
       var sDesFileDir = WIGDET_DES_PATH;
-      console.log('reading Widget.conf!');
     } else {
       var _err = 'Error: Not a .conf file!';
       console.log(_err)
@@ -471,11 +469,9 @@ function writeConf(callback, sFileName, oContent) {
     if (sFileName === 'Theme.conf') {
       var sFileDir = THEME_PATH;
       var sDesFileDir = THEME_DES_PATH;
-      console.log('writing Theme.conf!');
     } else if (sFileName === 'Widget.conf') {
       var sFileDir = WIGDET_PATH;
       var sDesFileDir = WIGDET_DES_PATH;
-      console.log('writing Widget.conf!');
     } else {
       var _err = 'Error: Bad .conf file!';
       console.log(_err)
@@ -582,7 +578,6 @@ function readDesktopFile(callback, sFileName) {
           }
           console.log(result);
         })
-        console.log("readDesktopFile success!");
         callback(null, attr);
       }
       var sPath = result;
@@ -713,7 +708,6 @@ function parseDesktopFile(callback, sPath) {
             var _err = "parseDesktopFile : desktop file entries not match!";
             callback(_err, null);
           }
-          console.log("Get desktop file success!");
         } catch (err_outer) {
           console.log(err_outer)
           return callback(err_outer, null)
@@ -844,7 +838,6 @@ function findDesktopFile(callback, filename) {
           }
           var desktopFilePath = result[0];
           var sNewFilePath = pathModule.join(sAppPath, sFileName);
-          console.log("find desktop file: ", desktopFilePath);
           fs_extra.copy(desktopFilePath, sNewFilePath, function(err) {
             if (err) {
               console.log('copy file error!\n', err);
@@ -852,7 +845,6 @@ function findDesktopFile(callback, filename) {
             }
             filename = filename.replace(/.desktop/, '');
             buildDesFile(filename, 'desktop', sNewFilePath, function() {
-              console.log('find ' + sFileName + ' success!');
               return callback(null, sNewFilePath);
             });
           });
@@ -988,7 +980,6 @@ function buildAppMethodInfo(targetFile, callback) {
           deParseListFile(listContent, filepath, function() {
             var isEnd = (count === lens - 1);
             if (isEnd) {
-              console.log(result);
               var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
               var sListContent = JSON.stringify(listContent, null, 4);
               fs.writeFile(outPutPath, sListContent, function(err) {
@@ -1122,7 +1113,6 @@ function findAllDesktopFiles(callback) {
     var sBoundary = "'/usr/share/applications|/usr/local/share/applications'";
     var sLimits = ' | egrep ' + sBoundary
     var sCommand = 'locate ' + sTarget + sLimits;
-    console.log('runnnnnnnnnnnnnnn: ' + sCommand)
     var optional = {
       maxBuffer: 1000 * 1024
     };
@@ -1307,7 +1297,6 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                 if (err) {
                   return callback(err, null);
                 }
-                console.log("write file success!");
                 callback(null, "success");
               })
             });
@@ -1354,7 +1343,6 @@ function getAllDesktopFile(callback) {
     var sBoundary = '.desktop';
     var sLimits = ' | grep ' + sBoundary;
     var sCommand = 'ls ' + sTarget + sLimits;
-    console.log('runnnnnnnnnnnnnnn: ' + sCommand)
     exec(sCommand, function(err, stdout, stderr) {
       if (err) {
         console.log(stderr);
@@ -1368,11 +1356,6 @@ function getAllDesktopFile(callback) {
       for (var i = 0; i < lens; i++) {
         var item = stdout[i];
         if (item !== '') {
-          readDesktopFile(function(err, result) {
-            if (err) {
-              console.log(err, item)
-            }
-          }, item);
           (function(_item) {
             var _dir = pathModule.join(REAL_APP_DIR, _item);
             fs.stat(_dir, function(err, stat) {
@@ -1726,7 +1709,6 @@ function CreateWatcher(callback, watchDir) {
       console.log(err);
       callback(err, null);
     } else {
-      console.log('create Watcher success!');
       callback(null, _watcher);
     }
   });
@@ -1858,7 +1840,6 @@ function copyFile(callback, oldPath, newPath) {
       var _err = 'copyFile : copy error';
       callback(_err, null);
     } else {
-      console.log('copy file success!');
       callback(null, 'success');
     }
   })
@@ -1915,7 +1896,6 @@ function renameDesktopFile(callback, oldName, newName) {
               console.log(err);
               return callback(err, null);
             }
-            console.log('rename desktop file success!');
             callback(null, result);
           })
         }
@@ -2106,7 +2086,6 @@ function moveToDesktopSingle(sFilePath, callback) {
                   return callback(err, null);
                 }
                 var fileInfo = [sFilePath, stats.ino];
-                console.log('drag', sNewFilePath, ' success!');
                 callback(null, fileInfo);
               })
             })
@@ -2161,7 +2140,6 @@ function moveToDesktop(oFilePath, callback) {
         resultFiles.push(result);
         var isEnd = (count === lens - 1);
         if (isEnd) {
-          console.log('drag files success!');
           callback(null, resultFiles);
         }
         count++;
@@ -2252,7 +2230,6 @@ function removeFileFromDB(sFilePath, callback) {
             return callback(err, null);
           }
         })
-        console.log('remove file success!');
         callback(null, 'success');
       })
     })
