@@ -664,7 +664,7 @@ function parseDesktopFile(callback, sPath) {
           }
           console.log("Get desktop file success!");
         } catch (err_outer) {
-          console.length(err_outer)
+          console.log(err_outer)
           return callback(err_outer, null)
         }
         callback(null, oAllDesktop);
@@ -2343,95 +2343,3 @@ function getAllVideo(callback) {
 }
 exports.getAllVideo = getAllVideo;
 
-function getIconPath(iconName_, size_, callback) {
-  //get theme config file
-  //get the name of current icon-theme
-  //1. search $HOME/.icons/icon-theme_name/subdir(get from index.theme)
-  //2. if not found, search $XDG_DATA_DIRS/icons/icon-theme_name
-  //   /subdir(get from index.theme)
-  //3. if not found, search /usr/share/pixmaps/subdir(get from index.theme)
-  //4. if not found, change name to current theme's parents' recursively 
-  //   and repeat from step 1 to 4
-  //5. if not found, return default icon file path(hicolor)
-  //
-  if (typeof callback !== "function")
-    throw "Bad type of callback!!";
-
-  function readConfCb() {
-
-  }
-  readConf(readConfCb, 'Theme.conf');
-
-  var iconTheme = _global.get('theme').getIconTheme();
-
-  _this.getIconPathWithTheme(iconName_, size_, iconTheme, function(err_, iconPath_) {
-    if (err_) {
-      _this.getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
-        if (err_) {
-          callback(this, 'Not found');
-        } else {
-          callback(null, iconPath_);
-        }
-      });
-    } else {
-      callback(null, iconPath_);
-    }
-  });
-}
-
-function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
-  if (typeof callback != 'function')
-    throw 'Bad type of function';
-
-  var _this = this;
-  var findIcon = function(index_) {
-    if (index_ == _this._iconSearchPath.length) {
-      callback('Not found');
-      return;
-    }
-    var _path = _this._iconSearchPath[index_];
-    if (index_ < _this._iconSearchPath.length - 1) _path += themeName_;
-    fs.exists(_path, function(exists_) {
-      if (exists_) {
-        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _this._iconSearchPath.length - 1) ? size_ : '') + '.*/' + iconName_ + '\.(svg|png|xpm)$\"';
-        exec(tmp, function(err, stdout, stderr) {
-          if (stdout == '') {
-            fs.readFile(_path + '/index.theme', 'utf-8', function(err, data) {
-              var _parents = [];
-              if (err) {
-                console.log(err);
-              } else {
-                var lines = data.split('\n');
-                for (var i = 0; i < lines.length; ++i) {
-                  if (lines[i].substr(0, 7) == "Inherits") {
-                    attr = lines[i].split('=');
-                    _parents = attr[1].split(',');
-                  }
-                }
-              }
-              //recursive try to find from parents
-              var findFromParent = function(index__) {
-                if (index__ == _parents.length) return;
-                _this.getIconPathWithTheme(iconName_, size_, _parents[index__], function(err_, iconPath_) {
-                  if (err_) {
-                    findFromParent(index__ + 1);
-                  } else {
-                    callback(null, iconPath_);
-                  }
-                });
-              };
-              findFromParent(0);
-              //if not fonud
-              findIcon(index_ + 1);
-            });
-          } else {
-            callback(null, stdout.split('\n'));
-          }
-        });
-      } else {
-        findIcon(index_ + 1);
-      }
-    });
-  };
-  findIcon(0);
-}
