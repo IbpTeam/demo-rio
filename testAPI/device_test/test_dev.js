@@ -1,16 +1,21 @@
 var device = require('../../nodewebkit/lib/api/device_service');
 
-device.addListener(function(para) {
+function Listenercb(para) {
   if (para.flag === "up") {
     console.log("device up", para.info.host, para.info.address);
   };
   if (para.flag === "down") {
     console.log("device down", para.info.host, para.info.address);
   };
-});
+}
+
+var listenerNum = device.addListener(Listenercb);
+
+//device.removeListener(listenerNum);
 
 
-device.addListenerByAccount(function(para) {
+
+var listenerAccNum =  device.addListenerByAccount(function(para) {
   if (para.flag === "up") {
     console.log("device up", para.info.host, para.info.address);
   };
@@ -19,6 +24,9 @@ device.addListenerByAccount(function(para) {
   };
 }, "USER1");
 
+//device.removeListener(listenerAccNum);
+
+console.log("listen Number :",listenerNum," Account Listener Number:  ",listenerAccNum);
 
 device.startMdnsService(function(state) {
   if (state === true) {
