@@ -41,6 +41,12 @@ var msgType = {
   TYPE_REFUSED:"syncRefused"
 };
 
+// @Enum message type
+var syncMethod = {
+  METHOD_AUTO:"autoMethod",
+  METHOD_ONLINE:"onlineMethod"
+};
+
 // @const
 var SSH_DIR = ".ssh";
 var PRI_KEY = "rio_rsa";
@@ -67,7 +73,7 @@ exports.initServer = function(){
 
 function recieveMsgCb(msgobj){
   var msg = msgobj['MsgObj'];
-  console.log("Receive message : " + msg);
+  console.log("Receive message : " + msg.message);
   var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
@@ -81,6 +87,7 @@ function recieveMsgCb(msgobj){
     case msgType.TYPE_START: {
       syncStart(oMessage);
     }
+    break;
     case msgType.TYPE_COMPLETE: {
       syncComplete(oMessage);
     }
@@ -116,10 +123,11 @@ function sendMsg(device,msgObj){
     Msg: sMsgStr,
     App: "app1"
   };
-  console.log("sendMsg-------------------------"+sMsgStr);
+  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
   im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
+
 /**
  * @method sendMsgCb
  *    Received from remote when message arrived.
@@ -130,7 +138,29 @@ function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
+  //console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
+}
+
+/**
+ * @method checkSyncList
+ *    Check sync list and call specific function.
+ */
+function checkSyncList(){
+  if(syncList.length > 0){
+    switch(syncList[0].syncMethod){
+      case syncMethod.METHOD_AUTO:{
+        serviceUp(syncList[0]);
+      }
+      break;
+      case syncMethod.METHOD_ONLINE:{
+        syncOnline(syncList[0]);
+      }
+      break;
+      default:{
+
+      }
+    }
+  }
 }
 
 /**
@@ -280,7 +310,6 @@ function getPubKey(callback){
  */
 function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
-    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+config.uniqueID);
     return;
   }
   switch(iCurrentState){
@@ -288,7 +317,7 @@ function serviceUp(device){
       iCurrentState = syncState.SYNC_REQUEST;
       getPubKey(function(pubKeyStr){
         syncList.unshift(device);
-        requestMsg = {
+        var requestMsg = {
           type:msgType.TYPE_REQUEST,
           ip:config.SERVERIP,
           path:RESOURCES_PATH,
@@ -298,23 +327,30 @@ function serviceUp(device){
         };
         sendMsg(device,requestMsg);
       });
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
     }
+    break;
     case syncState.SYNC_START:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
     }
+    break;
     case syncState.SYNC_COMPLETE:{
+      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
-      break;
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -330,28 +366,31 @@ function syncRefused(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_REQUEST:{
       var syncDevice = syncList.shift();
       syncList.push(syncDevice);
       iCurrentState = syncState.SYNC_IDLE;
-      setTimeout(serviceUp(syncList[0]),100000);
+      setTimeout(serviceUp(syncList[0]),10000000);
       console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_START:{
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_COMPLETE:{
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -376,7 +415,7 @@ function syncRequest(msgObj){
         setPubKey(msgObj.pubKey,function(){
           repo.getReposStatus(function(repoArr){
             syncList.unshift(device);
-            responseMsg = {
+            var responseMsg = {
               type:msgType.TYPE_RESPONSE,
               ip:config.SERVERIP,
               resourcePath:RESOURCES_PATH,
@@ -389,43 +428,46 @@ function syncRequest(msgObj){
           });
         });
       });
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
-      refusedMsg = {
-        type:msgType.TYPE_REFUSED,
-        ip:config.SERVERIP,
-        deviceId:config.uniqueID
-      };
-      sendMsg(device,responseMsg);
-      break;
-    }
-    case syncState.SYNC_RESPONSE:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
       sendMsg(device,refusedMsg);
-      break;
     }
+    break;
+    case syncState.SYNC_RESPONSE:{
+      var refusedMsg = {
+        type:msgType.TYPE_REFUSED,
+        ip:config.SERVERIP,
+        deviceId:config.uniqueID
+      };
+      sendMsg(device,refusedMsg);
+    }
+    break;
     case syncState.SYNC_START:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
-      sendMsg(device,responseMsg);
-      break;
+      sendMsg(device,refusedMsg);
     }
+    break;
     case syncState.SYNC_COMPLETE:{
-      refusedMsg = {
+      var refusedMsg = {
         type:msgType.TYPE_REFUSED,
         ip:config.SERVERIP,
         deviceId:config.uniqueID
       };
-      sendMsg(device,responseMsg);
-      break;
+      sendMsg(device,refusedMsg);
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -445,18 +487,18 @@ function syncResponse(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_REQUEST:{
       if(syncList[0].device_id != msgObj.deviceId){
-      console.log("SYNC ERROR: current sync device is wrong!")
+      console.log("SYNC ERROR: current sync device is wrong!" + iCurrentState)
       }
       else{
         iCurrentState = syncState.SYNC_RESPONSE;
         setPubKey(msgObj.pubKey,function(){
           repo.getReposStatus(function(repoArr){
-            responseMsg = {
+            var responseMsg = {
               type:msgType.TYPE_START,
               ip:config.SERVERIP,
               resourcePath:RESOURCES_PATH,
@@ -469,19 +511,22 @@ function syncResponse(msgObj){
           });
         });
       }
-      break;
     }
+    break;
     case syncState.SYNC_RESPONSE:{
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_START:{
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_COMPLETE:{
-      console.log("SYNC ERROR: current state is not request!");
-      break;
+      console.log("SYNC ERROR: current state is not request!" + iCurrentState);
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -501,47 +546,49 @@ function syncStart(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       //Todo send error msg to reset remote state
-      console.log("SYNC ERROR: current state is not response!");
-      break;
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_REQUEST:{
-      console.log("SYNC ERROR: current state is not response!");
-      break;
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_RESPONSE:{
       //Start to sync
       iCurrentState = syncState.SYNC_START;
       var aHotRepos = msgObj.repositories;
       var iRepoNum = 0;
-      aHotRepos.forEach(function(hotRepo){
-        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+hotRepo);
-        utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
-          iRepoNum++;
-          if(iRepoNum == aHotRepos.length){
-            mergeCompleteCallback(msgObj.deviceId,msgObj.ip,msgObj.account);
-          }
+      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+aHotRepos.length);
+      if(aHotRepos.length > 0){
+        aHotRepos.forEach(function(hotRepo){
+          utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+            iRepoNum++;
+            if(iRepoNum == aHotRepos.length){
+              mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
+            }
+          });
         });
-      });
-      //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
-      //  pictures.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
-      //});
-      //documents.pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
-      //repo.pullFromOtherRepo(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,mergeCompleteCallback);
-      break;
+      }else{
+        mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
+      }
     }
+    break;
     case syncState.SYNC_START:{
-      console.log("SYNC ERROR: current state is not response!");
-      break;
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
     }
+    break;
     case syncState.SYNC_COMPLETE:{
-      console.log("SYNC ERROR: current state is not response!");
-      break;
+      console.log("SYNC ERROR: current state is not response!" + iCurrentState);
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
 
 /**
- * @method mergeCompleteCallback
+ * @method mergeComplete
  *    Called when git merge completed.
  * @param deviceId
  *    Remote device id.
@@ -550,7 +597,7 @@ function syncStart(msgObj){
  * @param deviceIp
  *    Remote device ip.
  */
-function mergeCompleteCallback(deviceId,deviceIp,deviceAccount){
+function mergeComplete(deviceId,deviceIp,deviceAccount){
   var device = {
     device_id:deviceId,
     ip:deviceIp,
@@ -578,16 +625,16 @@ function syncComplete(msgObj){
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       console.log("SYNC completed!");
-      break;
     }
+    break;
     case syncState.SYNC_REQUEST:{
-      console.log("SYNC ERROR: current sync device is start/complete!")
-      break;
+      console.log("SYNC ERROR: current sync device is start/complete!" + iCurrentState)
     }
+    break;
     case syncState.SYNC_START:{
-      console.log("Remote device sync completed...wait for us");
-      break;
+      console.log("Remote device sync completed...wait for us" + iCurrentState);
     }
+    break;
     case syncState.SYNC_COMPLETE:{
       var device = {
         device_id:msgObj.deviceId,
@@ -606,10 +653,11 @@ function syncComplete(msgObj){
       //Todo check sync list, if length>0, do sync.
       //if syncList.length>0, get device info ,and call serviceup
       iCurrentState = syncState.SYNC_IDLE;
-      if(syncList.length > 0){
-        serviceUp(syncList[0]);
-      }
-      break;
+      checkSyncList();
+    }
+    break;
+    default:{
+      console.log("This is default.");
     }
   }
 }
@@ -619,11 +667,11 @@ function syncOnline(msgObj) {
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   if(iCurrentState == syncState.SYNC_IDLE){
-    if(repo.haveBranch(msgObj.path,msgObj.deviceId)==false){
+    if(repo.haveBranch(msgObj.path,msgObj.device_id)==false){
       console.log("Unknown device!!!!!!!!!!!");
       return;
     }
-    repo.pullFromOtherRepo(msgObj.path,msgObj.deviceId,function(result){
+    repo.pullFromOtherRepo(msgObj.path,msgObj.device_id,function(result){
       console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
       var aFilePaths = new Array();
 
@@ -636,15 +684,18 @@ function syncOnline(msgObj) {
       //TODO base on files, modify data in db
       dataDes.readDesFiles(aFilePaths,function(desObjs){
         dataDes.writeDesObjs2Db(desObjs,function(status){
-          //callback(msgObj.deviceId,msgObj.ip,msgObj.account);
+          //callback(msgObj.device_id,msgObj.ip,msgObj.account);
         });
       });
     });
   }else{
     var device = {
-      device_id:msgObj.deviceId,
+      device_id:msgObj.device_id,
       ip:msgObj.ip,
-      account:msgObj.account
+      account:msgObj.account,
+      path:msgObj.path,
+      syncMethod:syncMethod.METHOD_ONLINE,
+      category:msgObj.category
     };
     syncList.push(device);
     console.log("8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
