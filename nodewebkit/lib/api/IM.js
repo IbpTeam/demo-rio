@@ -3,7 +3,6 @@ var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var net = require('net');
 
 var Port = 7777;
-
 /**
  * @method RegisterApp
  *  在本机消息接收端口上添加新应用监听回调函数，本方法意在将多个
