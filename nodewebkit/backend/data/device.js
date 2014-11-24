@@ -123,7 +123,7 @@ function listenDeviceCallback(deviceObj){
   if(deviceObj.flag === "up"){
     console.log("device up:", device);
     addDevice(device);
-    //msgTransfer.serviceUp(device);
+    msgTransfer.serviceUp(device);
   }
   if(deviceObj.flag === "down"){
     console.log("device down:", device);  

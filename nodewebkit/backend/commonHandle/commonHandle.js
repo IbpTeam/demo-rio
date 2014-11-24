@@ -413,11 +413,11 @@ exports.updateDB = function(category, updateDBCb) {
 function pullRequest(category, deviceId, address, account, repoPath, desRepoPath, callback) {
   //First pull real file
   //Second pull des file
-  console.log("==============================" + repoPath);
-  console.log("==============================" + desRepoPath);
+  //console.log("==============================" + repoPath);
+  //console.log("==============================" + desRepoPath);
   repo.haveBranch(repoPath, deviceId, function(result) {
     if (result == false) {
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
+      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
       repo.addBranch(deviceId, address, account, repoPath, function(branchName) {
         if (branchName != deviceId) {
           console.log("addBranch error");
@@ -435,7 +435,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                       desFileNames.forEach(function(desFileName) {
                         aFilePaths.push(path.join(sDesPath, desFileName));
                       });
-                      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                       //TODO base on files, modify data in db
                       dataDes.readDesFiles(aFilePaths, function(desObjs) {
                         dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -452,7 +452,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                   desFileNames.forEach(function(desFileName) {
                     aFilePaths.push(path.join(sDesPath, desFileName));
                   });
-                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
                   dataDes.readDesFiles(aFilePaths, function(desObjs) {
                     dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -466,7 +466,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
         }
       });
     } else {
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
+      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
       repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
         repo.haveBranch(desRepoPath, deviceId, function(result) {
           if (result == false) {
@@ -480,7 +480,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                   desFileNames.forEach(function(desFileName) {
                     aFilePaths.push(path.join(sDesPath, desFileName));
                   });
-                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
                   dataDes.readDesFiles(aFilePaths, function(desObjs) {
                     dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -497,7 +497,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
               desFileNames.forEach(function(desFileName) {
                 aFilePaths.push(path.join(sDesPath, desFileName));
               });
-              console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+              //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
               //TODO base on files, modify data in db
               dataDes.readDesFiles(aFilePaths, function(desObjs) {
                 dataDes.writeDesObjs2Db(desObjs, function(status) {
@@ -519,7 +519,7 @@ function syncOnlineReq(cate) {
     ip: config.SERVERIP,
     path: utils.getDesRepoDir(cate),
     account: config.ACCOUNT,
-    deviceId: config.uniqueID,
+    device_id: config.uniqueID,
     category: cate
   };
   for (var index in device.devicesList) {
