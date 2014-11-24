@@ -85,7 +85,7 @@ function createData(item, callback) {
   var sOriginPath = item.path;
   var sFileName = item.filename + '.' + item.postfix;
   var category = item.category;
-  var sRealRepoDir = utils.getRealRepoDir(category);
+  var sRealRepoDir = utils.getRepoDir(category);
   var sDesRepoDir = utils.getDesRepoDir(category);
   var sRealDir = utils.getRealDir(category);
   var sDesDir = utils.getDesDir(category);
@@ -103,13 +103,13 @@ function createData(item, callback) {
           console.log(err);
           return;
         }
-        repo.repoAddsCommit(sDesRepoDir, [sDesFilePath], null, function() {
-          repo.getLatestCommit(sDesRepoDir, function(commitID) {
-            repo.repoAddsCommit(sRealRepoDir, [sFilePath], commitID, function() {
-              callback('success');
-            })
-          })
-        });
+        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
+          if (err) {
+            console.log(err);
+            return callback(null);
+          }
+          callback('success');
+        })
       })
     });
   });
@@ -167,7 +167,7 @@ function createDataAll(items, callback) {
       var sOriginPath = _item.path;
       var sFileName = _item.filename + '.' + _item.postfix;
       var category = _item.category;
-      var sRealRepoDir = utils.getRealRepoDir(category);
+      var sRealRepoDir = utils.getRepoDir(category);
       var sDesRepoDir = utils.getDesRepoDir(category);
       var sDesDir = utils.getDesDir(category);
       var sRealDir = utils.getRealDir(category);
@@ -186,14 +186,13 @@ function createDataAll(items, callback) {
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              repo.repoAddsCommit(sDesRepoDir, allDesPath, null, function() {
-                repo.getLatestCommit(sDesRepoDir, function(commitID) {
-                  repo.repoAddsCommit(sRealRepoDir, allItemPath, commitID, function() {
-                    console.log('create data all success!');
-                    callback('success');
-                  })
-                })
-              });
+              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  return callback(null);
+                }
+                callback('success');
+              })
             })
           }
           count++;
@@ -206,7 +205,7 @@ exports.createDataAll = createDataAll;
 
 exports.getItemByUri = function(category, uri, callback) {
   var conditions = ["URI = " + "'" + uri + "'"];
-  commonDAO.findItems(null, category, conditions, null, function(err,result) {
+  commonDAO.findItems(null, category, conditions, null, function(err, result) {
     if (err) {
       console.log(err);
       return;
@@ -240,17 +239,11 @@ exports.removeFile = function(category, item, callback) {
         callback("error");
         return;
       }
-      //TODO git commit
-      var aDesFiles = [sDesFullName];
-      var sDesDir = utils.getDesDir(category);
-      var aRealFiles = [sFullName];
-      var sRealDir = utils.getRealDir(category);
-      var sDesRepoDir = utils.getDesRepoDir(category);
-      repo.repoRmsCommit(sDesDir, aDesFiles, null, function() {
-        repo.getLatestCommit(sDesRepoDir, function(commitID) {
-          repo.repoRmsCommit(sRealDir, aRealFiles, commitID, callback);
-        })
-      });
+      repo.repoCommitBoth('rm',utils.getRepoDir(category), 
+                               utils.getDesRepoDir(category), 
+                               [path.join(utils.getRealDir(category),sFullName)], 
+                               [path.join(utils.getDesDir(category),sDesFullName)],
+                               callback);
     });
   });
 };
@@ -304,12 +297,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     }
     getAllDataByCateCb(items);
   }
-  if (cate == "Devices") {
-    commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
-  } else {
-    var conditions = ["is_delete = 0"];
-    commonDAO.findItems(null, cate, conditions, null, getAllByCaterotyCb);
-  }
+  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
 }
 
 /** 
@@ -421,56 +409,53 @@ exports.updateDB = function(category, updateDBCb) {
  * @param callback
  *    Callback.
  */
-function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,callback){
+function pullRequest(category, deviceId, address, account, repoPath, desRepoPath, callback) {
   //First pull real file
   //Second pull des file
-  console.log("=============================="+repoPath);
-  console.log("=============================="+desRepoPath);
-  repo.haveBranch(repoPath,deviceId,function(result){
-    if(result==false){
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
-      repo.addBranch(deviceId,address,account,repoPath,function(branchName){
-        if(branchName!=deviceId){
+  //console.log("==============================" + repoPath);
+  //console.log("==============================" + desRepoPath);
+  repo.haveBranch(repoPath, deviceId, function(result) {
+    if (result == false) {
+      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
+      repo.addBranch(deviceId, address, account, repoPath, function(branchName) {
+        if (branchName != deviceId) {
           console.log("addBranch error");
-        }
-        else{
-          repo.pullFromOtherRepo(repoPath,deviceId,function(realFileNames){
-            repo.haveBranch(desRepoPath,deviceId,function(result){
-              if(result==false){
-                repo.addBranch(deviceId,address,account,desRepoPath,function(branchName){
-                  if(branchName!=deviceId){
-                   console.log("addBranch error");
-                  }
-                  else{
-                    repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+        } else {
+          repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
+            repo.haveBranch(desRepoPath, deviceId, function(result) {
+              if (result == false) {
+                repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
+                  if (branchName != deviceId) {
+                    console.log("addBranch error");
+                  } else {
+                    repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
                       var aFilePaths = new Array();
                       var sDesPath = utils.getDesRepoDir(category);
-                      desFileNames.forEach(function(desFileName){
-                        aFilePaths.push(path.join(sDesPath,desFileName));
+                      desFileNames.forEach(function(desFileName) {
+                        aFilePaths.push(path.join(sDesPath, desFileName));
                       });
-                      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                       //TODO base on files, modify data in db
-                      dataDes.readDesFiles(aFilePaths,function(desObjs){
-                        dataDes.writeDesObjs2Db(desObjs,function(status){
-                          callback(deviceId,address,account);
+                      dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                        dataDes.writeDesObjs2Db(desObjs, function(status) {
+                          callback(deviceId, address, account);
                         });
                       });
                     });
                   }
                 });
-              }
-              else{
-                repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+              } else {
+                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
                   var aFilePaths = new Array();
                   var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName){
-                     aFilePaths.push(path.join(sDesPath,desFileName));
-                   });
-                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  desFileNames.forEach(function(desFileName) {
+                    aFilePaths.push(path.join(sDesPath, desFileName));
+                  });
+                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
-                  dataDes.readDesFiles(aFilePaths,function(desObjs){
-                    dataDes.writeDesObjs2Db(desObjs,function(status){
-                      callback(deviceId,address,account);
+                  dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                    dataDes.writeDesObjs2Db(desObjs, function(status) {
+                      callback(deviceId, address, account);
                     });
                   });
                 });
@@ -479,46 +464,43 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
           });
         }
       });
-    }
-    else{
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
-      repo.pullFromOtherRepo(repoPath,deviceId,function(realFileNames){
-        repo.haveBranch(desRepoPath,deviceId,function(result){
-          if(result==false){
-            repo.addBranch(deviceId,address,account,desRepoPath,function(branchName){
-              if(branchName!=deviceId){
+    } else {
+      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
+      repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
+        repo.haveBranch(desRepoPath, deviceId, function(result) {
+          if (result == false) {
+            repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
+              if (branchName != deviceId) {
                 console.log("addBranch error");
-              }
-              else{
-                repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+              } else {
+                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
                   var aFilePaths = new Array();
                   var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName){
-                    aFilePaths.push(path.join(sDesPath,desFileName));
+                  desFileNames.forEach(function(desFileName) {
+                    aFilePaths.push(path.join(sDesPath, desFileName));
                   });
-                  console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
-                  dataDes.readDesFiles(aFilePaths,function(desObjs){
-                    dataDes.writeDesObjs2Db(desObjs,function(status){
-                      callback(deviceId,address,account);
+                  dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                    dataDes.writeDesObjs2Db(desObjs, function(status) {
+                      callback(deviceId, address, account);
                     });
                   });
                 });
               }
             });
-          }
-          else{
-            repo.pullFromOtherRepo(desRepoPath,deviceId,function(desFileNames){
+          } else {
+            repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
               var aFilePaths = new Array();
               var sDesPath = utils.getDesRepoDir(category);
-              desFileNames.forEach(function(desFileName){
-                aFilePaths.push(path.join(sDesPath,desFileName));
+              desFileNames.forEach(function(desFileName) {
+                aFilePaths.push(path.join(sDesPath, desFileName));
               });
-              console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+              //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
               //TODO base on files, modify data in db
-              dataDes.readDesFiles(aFilePaths,function(desObjs){
-                dataDes.writeDesObjs2Db(desObjs,function(status){
-                  callback(deviceId,address,account);
+              dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                dataDes.writeDesObjs2Db(desObjs, function(status) {
+                  callback(deviceId, address, account);
                 });
               });
             });
@@ -526,7 +508,7 @@ function pullRequest(category,deviceId,address,account,repoPath,desRepoPath,call
         });
       });
     }
-  }); 
+  });
 }
 exports.pullRequest = pullRequest;
 
@@ -536,8 +518,8 @@ function syncOnlineReq(cate) {
     ip: config.SERVERIP,
     path: utils.getDesRepoDir(cate),
     account: config.ACCOUNT,
-    deviceId: config.uniqueID,
-    category:cate
+    device_id: config.uniqueID,
+    category: cate
   };
   for (var index in device.devicesList) {
     if (device.devicesList[index].online == true) {
@@ -548,3 +530,66 @@ function syncOnlineReq(cate) {
   }
 }
 exports.syncOnlineReq = syncOnlineReq;
+
+
+function renameDataByUri(category, sUri, sNewName, callback) {
+  var sCondition = "URI = '" + sUri + "'";
+  commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    var item = result[0];
+    var sOriginPath = item.path;
+    var sOriginName = path.basename(sOriginPath);
+    var sNewPath = path.dirname(sOriginPath) + '/' + sNewName;
+    if (sNewName === sOriginName) {
+      return callback(null, 'success');
+    }
+    fs_extra.move(sOriginPath, sNewPath, function(err) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      var reg_path = new RegExp('/' + category + '/');
+      var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
+      var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
+      fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
+        if (err) {
+          console.log(err);
+          return callback(err, null);
+        }
+        var currentTime = (new Date());
+        console.log(item);
+        var sUri = item.URI;
+        var oUpdataInfo = {
+          URI: sUri,
+          category: category,
+          filename: utils.getFileNameByPathShort(sNewPath),
+          postfix: utils.getPostfixByPathShort(sNewPath),
+          lastModifyTime: currentTime,
+          lastAccessTime: currentTime,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID,
+          path: sNewPath
+        }
+        commonDAO.updateItem(oUpdataInfo, function(err) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
+            if (result === "success") {
+              var sRepoPath = utils.getRepoDir(category);
+              var sRepoDesPath = utils.getDesRepoDir(category);
+              repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
+                callback(null, result);
+              })
+            }
+          })
+        })
+      })
+    })
+  })
+}
+exports.renameDataByUri = renameDataByUri;

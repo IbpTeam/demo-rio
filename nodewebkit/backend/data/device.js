@@ -1,7 +1,7 @@
 var commonDAO = require("../commonHandle/CommonDAO");
 var msgTransfer = require("../Transfer/msgTransfer");
 var config = require("../config");
-var mdns = require('../../lib/api/device.js');
+var ds = require("../../lib/api/device_service");
 
 var devicesList=new Array();
 exports.devicesList = devicesList;
@@ -106,44 +106,39 @@ function rmDevice(device){
 }
 exports.addDevice = addDevice;
 
+/**
+ * @method listenDeviceCallback
+ *    Callback for device linstener.
+ * @param callback
+ *    This callback.
+ */
+function listenDeviceCallback(deviceObj){ 
+  var device={
+    device_id:deviceObj.info.txt[2],
+    name:deviceObj.info.host,
+    resourcePath:config.RESOURCEPATH,
+    ip:deviceObj.info.address,
+    account:deviceObj.info.txt[1]
+  };
+  if(deviceObj.flag === "up"){
+    console.log("device up:", device);
+    addDevice(device);
+    msgTransfer.serviceUp(device);
+  }
+  if(deviceObj.flag === "down"){
+    console.log("device down:", device);  
+    rmDevice(device);
+  }
+}
+
 function startDeviceDiscoveryService(){
-  console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$start Device Discovery Service ");
   getDeviceList();
-  mdns.addDeviceListener(function (signal, args){
-    if(args==null || args.txt==null){
-      return;
-    }
-    if(args.txt[0]=="demo-rio"){
-      var device={
-        device_id:args.txt[1],
-        name:args.txt[2],
-        resourcePath:args.txt[3],
-        ip:args.txt[4],
-        account:args.txt[5]
-      };
-      switch(signal){
-        case 'ItemNew':{
-          addDevice(device);
-          msgTransfer.serviceUp(device);
-        }       
-        break;
-        case 'ItemRemove':{
-          //socket.emit('mdnsDown', args);
-          console.log(args);  
-          rmDevice(device);        
-        }
-        break;
-      }
-    }
-  });
-  mdns.createServer(function(){
-    var name = config.SERVERNAME;
-    var port = config.MDNSPORT;
-    var txtarray = ["demo-rio",config.uniqueID,config.SERVERNAME,config.RESOURCEPATH,config.SERVERIP,config.ACCOUNT];
-/*      console.log("************************************");
-      console.log(txtarray);
-            console.log("************************************");*/
-    mdns.entryGroupCommit(name,  port, txtarray);
+  ds.addListenerByAccount(listenDeviceCallback, config.ACCOUNT);
+  //Start device service
+  ds.startMdnsService(function(state) {
+    if (state === true) {
+      console.log('start MDNS service successful!');
+    };
   });
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;

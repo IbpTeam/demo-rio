@@ -264,7 +264,7 @@ function openDataByUri(openDataByUriCb, uri) {
           case 'ogg':
             source = {
               openmethod: 'html',
-              format: 'audio',
+              format: 'video',
               title: '文件浏览',
               content: item.path
             }
@@ -400,7 +400,7 @@ exports.pullRequest = pullRequest;
  **/
 function getGitLog(callback) {
   console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
-  resourceRepo.getGitLog(REAL_REPO_DIR, callback);
+  resourceRepo.getGitLog(DES_REPO_DIR, callback);
 }
 exports.getGitLog = getGitLog;
 
@@ -430,16 +430,16 @@ function repoReset(commitID, callback) {
     if (err) {
       callback(err, null);
     } else {
-      var desCommitID = oGitLog[commitID].content.relateCommit;
-      if (desCommitID) {
-        resourceRepo.repoReset(REAL_REPO_DIR, commitID, function(err, result) {
+      var dataCommitID = oGitLog[commitID].content.relateCommit;
+      if (dataCommitID) {
+        resourceRepo.repoReset(DES_REPO_DIR, commitID, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
           } else {
-            resourceRepo.repoReset(DES_REPO_DIR, desCommitID, function(err, result) {
+            resourceRepo.repoReset(REAL_REPO_DIR, dataCommitID, function(err, result) {
               if (err) {
                 console.log(err);
                 callback({
@@ -504,3 +504,13 @@ function repoResetFile(commitID, file, callback) {
   })
 }
 exports.repoResetFile = repoResetFile;
+
+function rename(sUri, sNewName, callback) {
+  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    callback(null, result);
+  })
+}
+exports.rename = rename;

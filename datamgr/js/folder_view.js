@@ -130,7 +130,11 @@ function cb_get_data_source_file(data_json){
       switch(format){
         case 'audio':
           file_content = $('<audio controls></audio>');
-          file_content.html('<source src=\"' + content + '\"" type="audio/ogg">');
+          file_content.html('<source src=\"' + content + '\"" type="audio/mpeg">');
+          break;
+        case 'video':
+          file_content = $('<video width="400" height="300" controls></video>');
+          file_content.html('<source src=\"' + content + '\"" type="video/ogg">');
           break;
         case 'div':
           file_content = content;
@@ -214,30 +218,34 @@ function gen_add_tags_dialog(data_uri){
 function gen_delete_tags_dialog(data_uri){
   console.log("gen_delete_tags_dialog!", data_uri);
   DataAPI.getTagsByUri(function(tags){
-    var file_propery='<form>';
-    for(var i=0; i<tags.length; i++){
-      file_propery += '<input name="tags" value="'+tags[i]+'" type="checkbox" size="60" aligin="right" />';
-      file_propery += tags[i]+'</br>';
-    }
-    file_propery += '</form></br>';
-    file_propery += '<button type="button" class="btn btn-success" id="deletetag_button" data-dismiss="modal">Delete</button>';
-    var tags_to_delete = [];
-    gen_popup_dialog('Delete tags', file_propery);
-    $('#deletetag_button').on('click', function(){
-       var webtags = document.forms[0].tags;
-       for (var i=0; i<webtags.length; ++i){
-         if(webtags[i].checked){
-           tags_to_delete.push(webtags[i].value);
+    if(tags.length > 0 && tags[0] != ""){
+      var file_propery='<form>';
+      for(var i=0; i<tags.length; i++){
+        file_propery += '<input name="tags" value="'+tags[i]+'" type="checkbox" size="60" aligin="right" />';
+        file_propery += tags[i]+'</br>';
+      }
+      file_propery += '</form></br>';
+      file_propery += '<button type="button" class="btn btn-success" id="deletetag_button" data-dismiss="modal">Delete</button>';
+      var tags_to_delete = [];
+      gen_popup_dialog('Delete tags', file_propery);
+      $('#deletetag_button').on('click', function(){
+         var webtags = document.getElementsByName("tags");
+         for (var i=0; i<webtags.length; ++i){
+           if(webtags[i].checked){
+             tags_to_delete.push(webtags[i].value);
+           }
          }
-       }
-      DataAPI.rmTagsByUri(function(result){
-        if(result == 'commit'){
-          window.alert("Delete tags successfully!");
-        }else{
-          window.alert("Delete tags failed!");
-        }
-      }, tags_to_delete, data_uri);
-    });
+         DataAPI.rmTagsByUri(function(result){
+           if(result == 'commit'){
+             window.alert("Delete tags successfully!");
+           }else{
+             window.alert("Delete tags failed!");
+           }
+         }, tags_to_delete, data_uri);
+      });
+    }else{
+      window.alert("There is no tag to delete!");
+    }
   }, data_uri);
 }
 
@@ -261,8 +269,8 @@ function Folder(jquery_element) {
       $(popup_menu).on('mouseup', function(e){
         switch($(e.target).text()){
           case 'New Document':
-            var data = new Date();
-            var filename = 'NewFile_' + data.toLocaleString().replace(' ', '_') + '.txt';
+            var name = 'NewFile';
+            var filename = name + '.txt';
             DataAPI.createFile(function(result){
               if(result == 'success'){
                 global_self.open(global_dir);
@@ -370,19 +378,14 @@ function Folder(jquery_element) {
                     'height': 25,
                     'oldtext': file_json['props'].name,
                     'callback': function(newtext){
-                      var new_file_json = {
-                        URI: file_json['URI'],
-                        path: file_json['path'],
-                        filename: newtext,
-                      };
-                      DataAPI.updateDataValue(function(result){
+                      DataAPI.renameDataByUri(get_category(), file_json['URI'], newtext+'.'+file_json['postfix'], function(err, result){
                         if(result == 'success'){
-                          global_self.open(global_dir);
+                          $("#"+file_json['props'].name).html(newtext);
                         }
                         else{
                           window.alert("Rename failed!");
                         }
-                      }, [new_file_json]);
+                      });
                     }
                   }
                   inputer.show(options);
@@ -411,13 +414,23 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(function(){
-                    global_self.open(global_dir);
+                  DataAPI.rmDataByUri(function(result){
+                    if(result == "success"){
+                      var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+                      $("#"+id).parent().remove();
+                    }else{
+                      window.alert("Delete file failed!");
+                    }
                   },file_json['URI']);
                 break;
                 case 'contact':
-                  DataAPI.rmDataByUri(function(){
-                    global_self.open(global_dir);
+                  DataAPI.rmDataByUri(function(result){
+                    if(result == "success"){
+                      var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+                      $("#"+id).parent().remove();
+                    }else{
+                      window.alert("Delete file failed!");
+                    }
                   },file_json['URI']);
                 break;
               }
@@ -633,7 +646,9 @@ Folder.prototype.set_icon = function(postfix){
     case 'wps':
       return 'word';
     case 'ogg':
-      return 'Music';
+      return 'Videos';
+    case 'mp3':
+      return 'Music'
     case 'jpg':
       return 'Pictures';
     case 'png':
@@ -1068,6 +1083,9 @@ Folder.prototype.open = function(dir) {
     break;
   case 'root/Devices':
     DataAPI.getAllDataByCate(this.get_callback_data, 'Devices');
+    break;
+  case 'root/Other':
+    DataAPI.getAllDataByCate(this.get_callback_data, 'Other');
     break;
   default:
     window.alert('Path ' + global_dir + ' does not exist.');

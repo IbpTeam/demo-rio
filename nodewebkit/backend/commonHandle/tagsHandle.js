@@ -107,12 +107,14 @@ function getAllTagsByCategory(callback, category) {
         var sTag = oItem.others[j];
         var sUri = oItem.URI;
         var sFilename = oItem.filename;
+        var sPostfix = oItem.postfix;
+        var sPath = oItem.path;
         if (sTag != null && sTag != "") {
           if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push([sUri, sFilename]);
+            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
           } else {
             TagFile.tagFiles[sTag] = [
-              [sUri, sFilename]
+              [sUri, sFilename, sPostfix, sPath]
             ];
             TagFile.tags.push(sTag);
           }
@@ -122,7 +124,7 @@ function getAllTagsByCategory(callback, category) {
     callback(TagFile);
   }
   var name = (category[0] === 'contact') ? 'name' : 'filename';
-  commonDAO.findItems(['others', name, 'uri'], category, null, null, findItemsCb);
+  commonDAO.findItems(['others', name, 'uri', 'postfix', 'path'], category, null, null, findItemsCb);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
@@ -190,6 +192,68 @@ function getTagsByUri(callback, sUri) {
 }
 exports.getTagsByUri = getTagsByUri;
 
+/**
+ * @method getTagsByUris
+ *   get tags with specifc uris
+ *
+ * @param1 callback
+ *    all result in array
+ *
+ * @param2 oUris
+ *    array, an array of uris, uris should in the same category
+ *
+ */
+function getTagsByUris(callback, oUris) {
+  if(oUris.length == 0 || oUris[0] == ""){
+    callback("error");
+  }
+  var sTableName = utils.getCategoryByUri(oUris[0]);
+  var condition = 'uri in (';
+  for (var i=0; i<oUris.length-1; i++){
+    condition += '"' + oUris[i] + '", ';
+  }
+  condition += '"' + oUris[oUris.length-1] + '")';
+  var column = ["distinct others"];
+
+  var TagFile = {
+    tags: [],
+    tagFiles: {}
+  };
+
+  function findItemsCb(err, items) {
+    console.log(items)
+    if (err) {
+      console.log(err);
+      return;
+    }
+    for (var k in items) {
+      items[k].others = (items[k].others).split(",");
+      var oItem = items[k];
+      for (var j in oItem.others) {
+        var sTag = oItem.others[j];
+        var sUri = oItem.URI;
+        var sFilename = oItem.filename;
+        var sPostfix = oItem.postfix;
+        var sPath = oItem.path;
+        if (sTag != null && sTag != "") {
+          if (TagFile.tagFiles.hasOwnProperty(sTag)) {
+            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
+          } else {
+            TagFile.tagFiles[sTag] = [
+              [sUri, sFilename, sPostfix, sPath]
+            ];
+            TagFile.tags.push(sTag);
+          }
+        }
+      }
+    }
+    callback(TagFile);
+  }
+  var name = (sTableName === 'contact') ? 'name' : 'filename';
+  commonDAO.findItems(['others', name, 'uri', 'postfix', 'path'], sTableName, [condition], null, findItemsCb);
+}
+exports.getTagsByUris = getTagsByUris;
+
 
 /**
  * @method getFilesByTags
@@ -243,11 +307,13 @@ exports.getFilesByTags = getFilesByTags;
 
 
 /**
- * @method getAllTags
- *   get all tags in db
+ * @method setTagByUri
+ *    set tags to a file by uri
  *
  * @param1 callback
- *    all result in array
+ *    @result, (result)
+ *    @param: result,
+ *        string, retieve 'commit' when success
  *
  * @param2 oTags
  *    array, an array of tags to be set
@@ -255,73 +321,104 @@ exports.getFilesByTags = getFilesByTags;
  * @param3 sUri
  *    string, a specific uri
  *
- *
  */
 function setTagByUri(callback, oTags, sUri) {
   var category = utils.getCategoryByUri(sUri);
 
   function findItemsCb(err, items) {
     if (err) {
-      console.log(err);
-      return;
+      return console.log(err);
     }
-    var tmpDBItem = [];
-    var tmpDesItem = [];
-    for (var k in items) {
-      var item = items[k];
-
-      if (!item.others) { //item has no tags 
-        var newTags = oTags.join(",");
-      } else { //item has tag(s)
-        item.others = item.others + ",";
-        var newTags = (item.others).concat(oTags.join(","));
-      }
-      tmpDBItem.push({
-        URI: item.URI,
-        others: newTags,
-        category: category
-      });
-      tmpDesItem.push({
-        path: item.path,
-        others: newTags,
-        category: category
-      });
+    var UpdateItem = [];
+    var item = items[0];
+    console.log(item)
+    if (!item.others) { //item has no tags 
+      var newTags = oTags.join(",");
+    } else { //item has tag(s)
+      item.others = item.others + ",";
+      var newTags = (item.others).concat(oTags.join(","));
     }
-    dataDes.updateItems(tmpDesItem, function(result) {
-      if (result === "success") {
-        commonDAO.updateItems(tmpDBItem, function(result) {
-          if (result === "commit") {
-            var files = [];
-            for (var k in tmpDesItem) {
-              var desFilePath;
-              if (tmpDesItem[k].category === "contact") {
-                desFilePath = pathModule.join(config.RESOURCEPATH, 'contactDes', 'data', tmpDesItem[k].name + '.md');
-              } else {
-                var filePath = item.path;
-                var re = new RegExp('/' + category + '/', "i");
-                desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
-              }
-              files.push(desFilePath);
-            }
-            var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-            repo.repoChsCommit(chPath, files, null, function() {
-              callback(result);
-            });
-          } else {
-            console.log("error in update data base error!");
-            return;
-          }
-        })
-      } else {
-        console.log("error in update des file!");
-        return;
+    UpdateItem = {
+      URI: item.URI,
+      path: item.path,
+      others: newTags,
+      category: category
+    };
+    console.log(item.path, UpdateItem)
+    var re = new RegExp('/' + category + '/', "i");
+    var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
+    dataDes.updateItem(desFilePath, UpdateItem, function(result) {
+      if (result !== "success") {
+        return console.log("error in update des file!");
       }
+      commonDAO.updateItem(UpdateItem, function(err) {
+        if (err) {
+          return console.log(err);
+        }
+        var chPath = config.RESOURCEPATH + '/' + category + 'Des';
+        repo.repoChsCommit(chPath, [desFilePath], null, function() {
+          console.log('set tags des git committed!');
+          callback('commit');
+        });
+      });
     });
   }
   var condition = ["URI = " + "'" + sUri + "'"];
   commonDAO.findItems(null, [category], condition, null, findItemsCb);
 }
 exports.setTagByUri = setTagByUri;
+
+/**
+ * @method setTagByUriMulti
+ *   set tags to multiple files by uri
+ *
+ * @param1 callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, return specific error info
+ *
+ *    @param: result,
+ *        string, retieve 'success' when success
+ *
+ * @param2 oTags
+ *    array, an array of tags to be set
+ *
+ * @param3 oUri
+ *    array, an array of uri
+ *
+ */
+function setTagByUriMulti(callback, oTags, oUri) {
+  console.log('s1=====================')
+  if (oTags == []) {
+    console.log('Tags are not changed!')
+    return callback(null, 'success')
+  } else if (oUri == []) {
+    var _err = 'Error: empty URI input!';
+    console.log(_err);
+    return callback(_err, null)
+  }
+  var count = 0;
+  var lens = oUri.length;
+  for (var i = 0; i < lens; i++) {
+    var sUri = oUri[i];
+    (function(_sUri, _oTags) {
+      function setTagByUriCb(result) {
+        if (result !== 'commit') {
+          console.log(result, 'set tags error!');
+          return callback(result, null);
+        }
+        var isEnd = (count === lens - 1);
+        if (isEnd) {
+          callback(null, 'success');
+        }
+        count++;
+      }
+      setTagByUri(setTagByUriCb, _oTags, _sUri);
+    })(sUri, oTags);
+  }
+}
+exports.setTagByUriMulti = setTagByUriMulti;
 
 function rmTagUriSingle(callback, sTag, sUri) {
   var allFiles = [];
