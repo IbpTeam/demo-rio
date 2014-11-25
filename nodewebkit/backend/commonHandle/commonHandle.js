@@ -522,13 +522,25 @@ function syncOnlineReq(cate) {
     device_id: config.uniqueID,
     category: cate
   };
-  for (var index in device.devicesList) {
+  /*for (var index in device.devicesList) {
     if (device.devicesList[index].online == true) {
       if (device.devicesList[index].ip != config.SERVERIP) {
         transfer.sendMsg(device.devicesList[index], msgObj);
       }
     }
-  }
+  }*/
+  device.getDeviceList(function(deviceList){
+    for(var index in deviceList){
+      if(deviceList[index].address != config.SERVERIP){
+        var deviceObj = {
+          ip:deviceList[index].address,
+          device_id:deviceList[index].txt[2],
+          account:deviceList[index].txt[1]
+        };
+        transfer.sendMsg(device.devicesList[index], msgObj);
+      }
+    }
+  });
 }
 exports.syncOnlineReq = syncOnlineReq;
 
