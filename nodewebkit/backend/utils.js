@@ -307,14 +307,13 @@ exports.isNameExists = function(sFilePath, callback) {
   var tables = [category];
   var conditions = ["postfix = '" + sPostfix + "'", "filename = '" + sFileName + "'"];
   commonDAO.findItems(columns, tables, conditions, null, function(err, result) {
-    if (err) {
+    if (err) {//something wrong
       console.log('find ' + sFilePath + ' error!');
       return callback(err, null);
-    } else if (result == [] || result == '' || !result) {
+    } else if (result == [] || result == '' || !result) {//target name not exists
       return callback(null, null);
     }
-    console.log(result, '=================')
-    var sName = result[0].filename + '.' + result[0].postfix;
+    var sName = result[0].filename + '.' + result[0].postfix;//target name exists
     callback(null, sName);
   })
 }

@@ -2053,8 +2053,8 @@ function moveToDesktopSingle(sFilePath, callback) {
   var category = utils.getCategoryByPath(sFilePath).category;
   if (reg_isLocal.test(sFilePath)) { //target file is from local
     var sCondition = ["path = '" + sFilePath + "'"];
-    commonDAO.findItems(null, [category], sCondition, null, function(result) {
-      if (result === "error") {
+    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+      if (err) {
         var _err = "Error: find " + sFilePath + " in db error!"
         return callback(_err, null);
       }
@@ -2578,3 +2578,119 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
   findIcon(0);
 }
 
+/** 
+ * @Method: createFile
+ *   To create a txt file on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, file info of the new file, as [filePath, stats.ino].
+ *
+ **/
+function createFile(callback) {
+  var date = new Date();
+  var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
+  var desPath = '/tmp/' + filename;
+  exec("touch " + desPath, function(err, stdout, stderr) {
+    if (err) {
+      console.log(err, stdout, stderr);
+      return callback(err);
+    }
+    var cate = utils.getCategoryObject('document');
+    cate.createData(desPath, function(err, result, resultFile) {
+      if (err) {
+        console.log(err, stdout, stderr);
+        return callback(err);
+      }
+      exec("rm " + desPath, function(err, stdout, stderr) {
+        if (err) {
+          console.log(err, stdout, stderr);
+          return callback(err);
+        }
+        console.log(resultFile)
+        var sCondition = ["path = '" + resultFile + "'"];
+        commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
+          if (err) {
+            var _err = "Error: find " + resultFile + " in db error!";
+            return callback(_err, null);
+          } else if (result == '' || result == []) {
+            var _err = "Error: not find " + resultFile + " in db!";
+            return callback(_err, null);
+          }
+
+          function setTagsCb(result) {
+            if (result != 'commit') {
+              var _err = 'Error: set tags error!';
+              return callback(_err, null);
+            }
+            fs.stat(resultFile, function(err, stats) {
+              if (err) {
+                return callback(err, null);
+              }
+              var result = [resultFile, stats.ino];
+              callback(null, result);
+            })
+          }
+          var sUri = result[0].URI;
+          tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+        });
+      });
+    });
+  });
+}
+exports.createFile = createFile;
+
+/** 
+ * @Method: rename
+ *   To rename a file on desktop. Front end needs to control that the postfix c-
+ *   not be change.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, would return 'EXIST' when new file name exists in db; otherwi-
+ *                se, return 'success'.
+ *
+ **/
+function rename(oldName, newName, callback) {
+  if (newName === oldName) {
+    return callback(null, 'success');
+  }
+  var category = utils.getCategoryByPath('test/' + oldName).category;
+  var oldPath = pathModule.join(utils.getRealDir(category), oldName);
+  var newPath = pathModule.join(utils.getRealDir(category), newName);
+  utils.isNameExists(newPath, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    } else if (result) {
+      return callback(null, 'EXIST');
+    }
+    var sCondition = ["path = '" + oldPath + "'"];
+    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+      if (err) {
+        var _err = "Error: find " + oldPath + " in db error!";
+        return callback(_err, null);
+      } else if (result == '' || result == []) {
+        var _err = "Error: not find " + oldPath + " in db!";
+        return callback(_err, null);
+      }
+      var sUri = result[0].URI;
+      commonHandle.renameDataByUri(category, sUri, newName, function(err, result) {
+        if (err) {
+          return callback(err, null);
+        }
+        callback(null, result);
+      });
+    });
+  });
+}
+exports.rename = rename;
