@@ -2370,3 +2370,175 @@ function getAllVideo(callback) {
   })
 }
 exports.getAllVideo = getAllVideo;
+
+/** 
+ * @Method: getAllMusic
+ *   To get all music files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, of all music file info, as {inode:itemPath}
+ *
+ **/
+function getAllMusic(callback) {
+  commonDAO.findItems(null, ['Music'], null, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'no Musics found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var oInfoResult = {};
+    var count = 0;
+    var lens = result.length;
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      (function(_item) {
+        var sPath = _item.path;
+        fs.stat(sPath, function(err, stat) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var sInode = stat.ino;
+          oInfoResult[sInode] = sPath;
+          var isEnd = (count == lens - 1);
+          if (isEnd) {
+            callback(null, oInfoResult);
+          }
+          count++;
+        })
+      })(item)
+    }
+  })
+}
+exports.getAllMusic = getAllMusic;
+
+/*TODO: To be continue...*/
+/** 
+ * @Method: getIconPath
+ *   To get icon path.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getIconPath(iconName_, size_, callback) {
+  //get theme config file
+  //get the name of current icon-theme
+  //1. search $HOME/.icons/icon-theme_name/subdir(get from index.theme)
+  //2. if not found, search $XDG_DATA_DIRS/icons/icon-theme_name
+  //   /subdir(get from index.theme)
+  //3. if not found, search /usr/share/pixmaps/subdir(get from index.theme)
+  //4. if not found, change name to current theme's parents' recursively 
+  //   and repeat from step 1 to 4
+  //5. if not found, return default icon file path(hicolor)
+  //
+  if (typeof callback !== "function")
+    throw "Bad type of callback!!";
+
+  function readConfCb(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    var iconTheme = result['icontheme']['name'];
+
+    getIconPathWithTheme(iconName_, size_, iconTheme, function(err_, iconPath_) {
+      if (err_) {
+        getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
+          if (err_) {
+            callback('Not found');
+          } else {
+            callback(null, iconPath_);
+          }
+        });
+      } else {
+        callback(null, iconPath_);
+      }
+    });
+  }
+  readConf(readConfCb, 'Theme.conf');
+}
+
+function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
+  if (typeof callback != 'function')
+    throw 'Bad type of function';
+  var HOME_DIR_ICON = pathModule.join(utils.getHomeDir(), "/.local/share/icons/");
+  var XDG_DATA_DIRS = utils.getXdgDataDirs();
+  var _iconSearchPath = [];
+  _iconSearchPath.push(HOME_DIR_ICON);
+  for (var i = 0; i < XDG_DATA_DIRS.length; i++) {
+    var item = pathModule.join(XDG_DATA_DIRS[i], "/icons/");
+    _iconSearchPath.push(item);
+  }
+  _iconSearchPath.push("/usr/share/pixmaps")
+
+  var findIcon = function(index_) {
+    if (index_ == _iconSearchPath.length) {
+      callback('Not found');
+      return;
+    }
+    var _path = _iconSearchPath[index_];
+    if (index_ < _iconSearchPath.length - 1) _path += themeName_;
+    fs.exists(_path, function(exists_) {
+      if (exists_) {
+        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _iconSearchPath.length - 1) ? size_ : '') + '.*/' + iconName_ + '\.(svg|png|xpm)$\"';
+        exec(tmp, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err, stdout, stderr);
+            return;
+          }
+          if (stdout == '') {
+            fs.readFile(_path + '/index.theme', 'utf-8', function(err, data) {
+              var _parents = [];
+              if (err) {
+                //console.log(err);
+              } else {
+                var lines = data.split('\n');
+                for (var i = 0; i < lines.length; ++i) {
+                  if (lines[i].substr(0, 7) == "Inherits") {
+                    attr = lines[i].split('=');
+                    _parents = attr[1].split(',');
+                  }
+                }
+              }
+              //recursive try to find from parents
+              var findFromParent = function(index__) {
+                if (index__ == _parents.length) return;
+                getIconPathWithTheme(iconName_, size_, _parents[index__], function(err_, iconPath_) {
+                  if (err_) {
+                    findFromParent(index__ + 1);
+                  } else {
+                    callback(null, iconPath_);
+                  }
+                });
+              };
+              findFromParent(0);
+              //if not fonud
+              findIcon(index_ + 1);
+            });
+          } else {
+            callback(null, stdout.split('\n'));
+          }
+        });
+      } else {
+        findIcon(index_ + 1);
+      }
+    });
+  };
+  findIcon(0);
+}

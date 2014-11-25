@@ -343,7 +343,14 @@ exports.findFilesFromSystem = function(targe, callback) {
       console.log(_err);
       return callback(_err, null);
     }
-    result = stdout.split('\n');
+    var result = [];
+    var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+    list = stdout.split('\n');
+    for(var i=0;i<list.length;i++){
+      if(!reg_isLocal.test(list[i])){
+        result.push(list[i]);
+      }
+    }
     console.log('result: \n', result);
     callback(null, result);
   });

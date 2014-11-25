@@ -504,21 +504,22 @@
     });
   }
 
-  function getAllVideoCb(err, result) {
+  function getAllMediaCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win, err);
     } else {
-      win.document.write("test API getAllVideo()");
+      win.document.write("test API getAllMedia()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_getAllVideo(getAllVideoCb) {
+  function test_getAllMedia(getAllMediaCb) {
     WDC.requireAPI(['data'], function(data) {
-      data.getAllVideo(getAllVideoCb);
+      data.getAllVideo(getAllMediaCb);
+      data.getAllMusic(getAllMediaCb);
     });
   }
 
@@ -1220,8 +1221,8 @@
 </div>
 </div>
 
-<h2 onclick="show('getAllVideo')">getAllVideo(getAllVideoCb)<span><a class="mark" href="#test_getAllVideo" id="test_getAllVideo" onclick="test_getAllVideo(getAllVideoCb)">test</a></span></h2>
-<div id="getAllVideo" style="display:none;">
+<h2 onclick="show('getAllMedia')">getAllMedia(getAllMediaCb)<span><a class="mark" href="#test_getAllMedia" id="test_getAllMedia" onclick="test_getAllMedia(getAllMediaCb)">test</a></span></h2>
+<div id="getAllMedia" style="display:none;">
 <div style="color:#930000">
   <pre>
 
@@ -1229,21 +1230,21 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  function getAllVideoCb(err, result) {
+  function getAllMediaCb(err, result) {
     var win = window.open('');
     if (err) {
       print(win, err);
     } else {
-      win.document.write("test API getAllVideo()");
+      win.document.write("test API getAllMedia()");
       win.document.write("<br/>");
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result)
     };
   }
-  function test_getAllVideo(getAllVideoCb) {
+  function test_getAllMedia(getAllMediaCb) {
     WDC.requireAPI(['data'], function(data) {
-      data.getAllVideo(getAllVideoCb);
+      data.getAllVideo(getAllMediaCb);
     });
   }
 </pre>

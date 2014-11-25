@@ -1144,6 +1144,26 @@ function getAllVideo(getAllVideoCb) {
 }
 exports.getAllVideo = getAllVideo;
 
+/** 
+ * @Method: getAllMusic
+ *   To get all music files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, of all music file info, as {inode:itemPath}
+ *
+ **/
+function getAllMusic(getAllMusicCb) {
+  console.log("Request handler 'getAllMusic' was called.");
+  desktopConf.getAllMusic(getAllMusicCb);
+}
+exports.getAllMusic = getAllMusic;
+
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
