@@ -641,7 +641,8 @@ function parseDesktopFile(callback, sPath) {
         var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
         var re_comment = new RegExp('#');
-        var re_e = /=/g;
+        var re_letter = /\w/i;
+        var re_eq = new RegExp('=');
         var desktopHeads = [];
         var oAllDesktop = {};
         try {
@@ -653,34 +654,40 @@ function parseDesktopFile(callback, sPath) {
               return "$";
             })
             data = data.split('$');
-            if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | re_comment.test(data[0])) {
-              data.shift(); //the first element is a "", remove it
+            if (re_comment.test(data[0]) || !re_letter.test(data[0])) {
+              data.shift(); //the first element is a "" or has #, remove it
             }
           } catch (err_inner) {
+            console.log(err_inner);
             var _err = new Error();
             _err.name = 'headEntry';
             _err.message = headEntry;
-
             throw _err;
           }
           if (desktopHeads.length === data.length) {
             for (var i = 0; i < data.length; i++) {
+              if (!re_letter.test(data[i])) {
+                continue;
+              }
               try {
                 var lines = data[i].split('\n');
               } catch (err_inner) {
+                console.log(err_inner);
                 var _err = new Error();
                 _err.name = 'headContent';
                 _err.message = data[i];
                 throw _err;
               }
               var attr = {};
-              for (var j = 0; j < lines.length - 1; ++j) {
-                if (lines[j] && re_e.test(lines[j]) && !re_comment.test(lines[j])) {
+              for (var j = 0; j < lines.length; ++j) {
+                if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
+                  continue;
+                } else {
                   try {
-                    var test = lines[j];
                     var tmp = lines[j].split('=');
                     attr[tmp[0]] = tmp[1].replace(re_rn, "");
                   } catch (err_inner) {
+                    console.log(err_inner);
                     var _err = new Error();
                     _err.name = 'contentSplit';
                     _err.message = tmp;
@@ -691,6 +698,7 @@ function parseDesktopFile(callback, sPath) {
                     try {
                       attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
                     } catch (err_inner) {
+                      console.log(err_inner);
                       var _err = new Error();
                       _err.name = 'contentAddition';
                       _err.message = tmp;
@@ -707,7 +715,7 @@ function parseDesktopFile(callback, sPath) {
             callback(_err, null);
           }
         } catch (err_outer) {
-          console.log(err_outer)
+          console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
         callback(null, oAllDesktop);
@@ -848,7 +856,6 @@ function findDesktopFile(callback, filename) {
           });
         });
       } else {
-        console.log('find ' + sFileName + ' success!');
         var result = stdout.split('\n');
         return callback(null, result[0]);
       }
