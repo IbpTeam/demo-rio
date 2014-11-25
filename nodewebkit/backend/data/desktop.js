@@ -662,9 +662,10 @@ function parseDesktopFile(callback, sPath) {
               data.shift(); //the first element is a "", remove it
             }
           } catch (err_inner) {
+            var _err = new Error();
             _err.name = 'headEntry';
             _err.message = headEntry;
-            var _err = new Error('headEntry');
+
             throw _err;
           }
           if (desktopHeads.length === data.length) {
@@ -672,9 +673,9 @@ function parseDesktopFile(callback, sPath) {
               try {
                 var lines = data[i].split('\n');
               } catch (err_inner) {
+                var _err = new Error();
                 _err.name = 'headContent';
                 _err.message = data[i];
-                var _err = new Error('headContent')
                 throw _err;
               }
               var attr = {};
@@ -693,7 +694,7 @@ function parseDesktopFile(callback, sPath) {
                     try {
                       attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
                     } catch (err_inner) {
-                      var _err = new Error('contentAddition');
+                      var _err = new Error();
                       _err.name = 'contentAddition';
                       _err.message = tmp;
                       throw _err;
@@ -887,30 +888,69 @@ function deParseListFile(output, filepath, callback) {
     data_.shift();
     for (var i = 0; i < data_.length; i++) {
       var item = data_[i];
-      if (item !== '') {
-        item = item.split('/');
-        var entry_fir = item[0];
-        var content_fir = item[1];
-        content_fir = content_fir.split('=');
-        var entry_sec = content_fir[0];
-        var content_sec = content_fir[1];
-        content_sec = content_sec.split(';');
-        if (content_sec[content_sec.length - 1] == '') {
-          content_sec.pop();
-        }
-        if (!output[entry_fir]) {
-          output[entry_fir] = {};
-          output[entry_fir][entry_sec] = content_sec;
-        } else if (!output[entry_fir][entry_sec]) {
-          output[entry_fir][entry_sec] = content_sec;
-        } else {
-          for (var j = 0; j < content_sec.length; j++) {
-            var content_sec_ = content_sec[j];
-            if (!utils.isExist(content_sec_, output[entry_fir][entry_sec])) {
-              output[entry_fir][entry_sec].push(content_sec_);
+      try {
+        if (item !== '') {
+          try {
+            item = item.split('/');
+          } catch (err_inner) {
+            var _err = new Error();
+            _err.name = 'dataEntry';
+            _err.message = item;
+            throw _err;
+            return;
+          }
+          var entry_fir = item[0];
+          var content_fir = item[1];
+          console.log(content_fir)
+          try {
+            content_fir = content_fir.split('=');
+          } catch (_err) {
+            var _err = new Error();
+            _err.name = 'content_fir';
+            _err.message = content_fir;
+            console.log(_err)
+            throw _err;
+            return;
+          }
+          var entry_sec = content_fir[0];
+          var content_sec = content_fir[1];
+          try {
+            content_sec = content_sec.split(';');
+          } catch (_err) {
+            var _err = new Error();
+            _err.name = 'content_sec';
+            _err.message = content_sec;
+            throw _err;
+            return;
+          }
+          try {
+            if (content_sec[content_sec.length - 1] == '') {
+              content_sec.pop();
+            }
+          } catch (_err) {
+            var _err = new Error();
+            _err.name = 'content_sec'
+            _err.message = content_sec;
+            throw _err;
+            return;
+          }
+          if (!output[entry_fir]) {
+            output[entry_fir] = {};
+            output[entry_fir][entry_sec] = content_sec;
+          } else if (!output[entry_fir][entry_sec]) {
+            output[entry_fir][entry_sec] = content_sec;
+          } else {
+            for (var j = 0; j < content_sec.length; j++) {
+              var content_sec_ = content_sec[j];
+              if (!utils.isExist(content_sec_, output[entry_fir][entry_sec])) {
+                output[entry_fir][entry_sec].push(content_sec_);
+              }
             }
           }
         }
+      } catch (err_outer) {
+        console.log(err_outer);
+        return callback(err_outer, null);
       }
     }
     callback();
