@@ -373,7 +373,9 @@ function syncRefused(msgObj){
       var syncDevice = syncList.shift();
       syncList.push(syncDevice);
       iCurrentState = syncState.SYNC_IDLE;
-      setTimeout(serviceUp(syncList[0]),10000000);
+      setTimeout(function(){
+        serviceUp(syncList[0]);
+      },10000);
       console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
     }
     break;
@@ -671,6 +673,7 @@ function syncOnline(msgObj) {
       console.log("Unknown device!!!!!!!!!!!");
       return;
     }
+    iCurrentState = syncState.SYNC_START;
     repo.pullFromOtherRepo(msgObj.path,msgObj.device_id,function(result){
       console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
       var aFilePaths = new Array();
@@ -680,13 +683,13 @@ function syncOnline(msgObj) {
       var baseName="hyz.pdf.md";//path.basename(msgObj.path);
       var sDesPath=utils.getDesDir(msgObj.category);
       aFilePaths.push(path.join(sDesPath,baseName));
-      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+      console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + result);
       //TODO base on files, modify data in db
-      dataDes.readDesFiles(aFilePaths,function(desObjs){
-        dataDes.writeDesObjs2Db(desObjs,function(status){
+      //dataDes.readDesFiles(aFilePaths,function(desObjs){
+        //dataDes.writeDesObjs2Db(desObjs,function(status){
           //callback(msgObj.device_id,msgObj.ip,msgObj.account);
-        });
-      });
+        //});
+      //});
     });
   }else{
     var device = {
