@@ -373,7 +373,9 @@ function syncRefused(msgObj){
       var syncDevice = syncList.shift();
       syncList.push(syncDevice);
       iCurrentState = syncState.SYNC_IDLE;
-      setTimeout(serviceUp(syncList[0]),10000000);
+      setTimeout(function(){
+        serviceUp(syncList[0]);
+      },10000);
       console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
     }
     break;

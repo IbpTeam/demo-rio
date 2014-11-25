@@ -537,7 +537,8 @@ function syncOnlineReq(cate) {
           device_id:deviceList[index].txt[2],
           account:deviceList[index].txt[1]
         };
-        transfer.sendMsg(device.devicesList[index], msgObj);
+        console.log("000000000000000000000"+deviceObj);
+        transfer.sendMsg(deviceObj, msgObj);
       }
     }
   });
