@@ -2507,6 +2507,7 @@ function getIconPath(iconName_, size_, callback) {
   }
   readConf(readConfCb, 'Theme.conf');
 }
+exports.getIconPath = getIconPath;
 
 function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
   if (typeof callback != 'function')
@@ -2576,3 +2577,4 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
   };
   findIcon(0);
 }
+
