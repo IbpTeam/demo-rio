@@ -36,7 +36,7 @@ function getUserList(UserListCb) {
 }
 exports.getUserList = getUserList;
 
-/**
+/*
  * @method getDeviceByAccount
  *  获取当前局域网内某一账户下的所有设备列表
  *
@@ -92,10 +92,12 @@ exports.getDeviceByAccount = getDeviceByAccount;
  *  flags: 29 } }
  * @param Account
  *  string，表示待监听的用户账户
+ * @return ID
+ * 返回标识刚添加的回调函数的ID
  *
  */
 function addListenerByAccount(ListenerCb, Account) {
-  mdns.addDeviceListener(function(signal, obj) {
+  var tmpnum = mdns.addDeviceListenerToObj(function(signal, obj) {
     if (obj == null || obj.txt == null) {
       return;
     }
@@ -133,8 +135,11 @@ function addListenerByAccount(ListenerCb, Account) {
       }
     }
   });
+  return tmpnum;
 }
 exports.addListenerByAccount = addListenerByAccount;
+
+
 
 /**
  * @method addListener
@@ -160,10 +165,13 @@ exports.addListenerByAccount = addListenerByAccount;
  *  port: 8885,
  *  txt: [ 'demo-rio', 'USER1', '0ace23c24390ca960a7edfe26b7aaa47' ],
  *  flags: 29 } }
+ * 
+ * @return ID
+ * 返回刚添加的回调函数的ID
  *
  */
 function addListener(ListenerCb) {
-  mdns.addDeviceListener(function(signal, obj) {
+  var tmpnum = mdns.addDeviceListenerToObj(function(signal, obj) {
     if (obj == null || obj.txt == null) {
       return;
     }
@@ -192,8 +200,22 @@ function addListener(ListenerCb) {
       }
     }
   });
+  return tmpnum;
 }
 exports.addListener = addListener;
+
+/**
+ * @method removeListener
+ *  删除注册的设备上下线监听回调函数
+ *
+ * @param CbId
+ *   待删除的设备ID
+ *
+ */
+function removeListener(CbId){
+  mdns.removeDeviceListenerFromObj(CbId);
+}
+exports.removeListener = removeListener;
 
 /**
  * @method startMdnsService
