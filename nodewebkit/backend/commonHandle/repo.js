@@ -96,7 +96,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
       console.log("Git rm error", error,stdout, stderr);
     } else {
       //console.log("Git rm success");
-      callback();
+      callback(error, 'success');
     }
   });
 }
