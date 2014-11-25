@@ -537,7 +537,8 @@
   }
   function test_createFileOnDesk(createFileOnDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      data.createFileOnDesk(createFileOnDeskCb);
+      var sContent = 'testttttttttttttttttttttt';
+      data.createFileOnDesk(createFileOnDeskCb,sContent);
     });
   }
 

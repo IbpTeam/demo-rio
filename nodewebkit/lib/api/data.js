@@ -1177,10 +1177,13 @@ exports.getAllMusic = getAllMusic;
  *    @param: result,
  *        object, file info of the new file, as [filePath, stats.ino].
  *
+ *  @param2: sContent
+ *        string, content to init.
+ *
  **/
-function createFileOnDesk(createFileOnDeskCb) {
+function createFileOnDesk(createFileOnDeskCb, sContent) {
   console.log("Request handler 'createFileOnDesk' was called.");
-  desktopConf.createFile(createFileOnDeskCb);
+  desktopConf.createFile(sContent, createFileOnDeskCb);
 }
 exports.createFileOnDesk = createFileOnDesk;
 

@@ -2592,7 +2592,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  *        object, file info of the new file, as [filePath, stats.ino].
  *
  **/
-function createFile(callback) {
+function createFile(sContent, callback) {
   var date = new Date();
   var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
@@ -2601,43 +2601,51 @@ function createFile(callback) {
       console.log(err, stdout, stderr);
       return callback(err);
     }
-    var cate = utils.getCategoryObject('document');
-    cate.createData(desPath, function(err, result, resultFile) {
+    if (sContent == '' || sContent == null) {
+      sContent = '';
+    }
+    fs.writeFile(desPath, sContent, function(err) {
       if (err) {
-        console.log(err, stdout, stderr);
         return callback(err);
       }
-      exec("rm " + desPath, function(err, stdout, stderr) {
+      var cate = utils.getCategoryObject('document');
+      cate.createData(desPath, function(err, result, resultFile) {
         if (err) {
           console.log(err, stdout, stderr);
           return callback(err);
         }
-        console.log(resultFile)
-        var sCondition = ["path = '" + resultFile + "'"];
-        commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
+        exec("rm " + desPath, function(err, stdout, stderr) {
           if (err) {
-            var _err = "Error: find " + resultFile + " in db error!";
-            return callback(_err, null);
-          } else if (result == '' || result == []) {
-            var _err = "Error: not find " + resultFile + " in db!";
-            return callback(_err, null);
+            console.log(err, stdout, stderr);
+            return callback(err);
           }
-
-          function setTagsCb(result) {
-            if (result != 'commit') {
-              var _err = 'Error: set tags error!';
+          console.log(resultFile)
+          var sCondition = ["path = '" + resultFile + "'"];
+          commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
+            if (err) {
+              var _err = "Error: find " + resultFile + " in db error!";
+              return callback(_err, null);
+            } else if (result == '' || result == []) {
+              var _err = "Error: not find " + resultFile + " in db!";
               return callback(_err, null);
             }
-            fs.stat(resultFile, function(err, stats) {
-              if (err) {
-                return callback(err, null);
+
+            function setTagsCb(result) {
+              if (result != 'commit') {
+                var _err = 'Error: set tags error!';
+                return callback(_err, null);
               }
-              var result = [resultFile, stats.ino];
-              callback(null, result);
-            })
-          }
-          var sUri = result[0].URI;
-          tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+              fs.stat(resultFile, function(err, stats) {
+                if (err) {
+                  return callback(err, null);
+                }
+                var result = [resultFile, stats.ino];
+                callback(null, result);
+              })
+            }
+            var sUri = result[0].URI;
+            tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+          });
         });
       });
     });
@@ -2650,7 +2658,13 @@ exports.createFile = createFile;
  *   To rename a file on desktop. Front end needs to control that the postfix c-
  *   not be change.
  *
- * @param1: callback
+ * @param1: oldName
+ *    @string, origin name of the file, as 'good_file.txt'
+ *
+ * @param2: newName
+ *    @string, new name of the file, as 'bad_file.txt'
+ *
+ * @param3: callback
  *    @result, (_err,result)
  *
  *    @param: _err,
