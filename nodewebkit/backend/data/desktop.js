@@ -572,12 +572,6 @@ function readDesktopFile(callback, sFileName) {
           var _err = "readDesktopFile : parse desktop file error!";
           return callback(err, null);
         }
-        getIconPath(attr['[Desktop Entry]']['Icon'], 48, function(err, result) {
-          if (err) {
-            return console.log(err, attr['[Desktop Entry]']['Name'], attr['[Desktop Entry]']['Icon'])
-          }
-          console.log(result);
-        })
         callback(null, attr);
       }
       var sPath = result;
@@ -647,6 +641,7 @@ function parseDesktopFile(callback, sPath) {
         var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
         var re_comment = new RegExp('#');
+        var re_e = /=/g;
         var desktopHeads = [];
         var oAllDesktop = {};
         try {
@@ -680,14 +675,16 @@ function parseDesktopFile(callback, sPath) {
               }
               var attr = {};
               for (var j = 0; j < lines.length - 1; ++j) {
-                if (lines[j] && !re_comment.test(lines[j])) {
+                if (lines[j] && re_e.test(lines[j]) && !re_comment.test(lines[j])) {
                   try {
+                    var test = lines[j];
                     var tmp = lines[j].split('=');
                     attr[tmp[0]] = tmp[1].replace(re_rn, "");
                   } catch (err_inner) {
-                    var _err = new Error()
+                    var _err = new Error();
                     _err.name = 'contentSplit';
                     _err.message = tmp;
+                    console.log(test)
                     throw _err;
                   }
                   for (var k = 2; k < tmp.length; k++) {
@@ -897,11 +894,9 @@ function deParseListFile(output, filepath, callback) {
             _err.name = 'dataEntry';
             _err.message = item;
             throw _err;
-            return;
           }
           var entry_fir = item[0];
           var content_fir = item[1];
-          console.log(content_fir)
           try {
             content_fir = content_fir.split('=');
           } catch (_err) {
@@ -910,7 +905,6 @@ function deParseListFile(output, filepath, callback) {
             _err.message = content_fir;
             console.log(_err)
             throw _err;
-            return;
           }
           var entry_sec = content_fir[0];
           var content_sec = content_fir[1];
@@ -921,7 +915,6 @@ function deParseListFile(output, filepath, callback) {
             _err.name = 'content_sec';
             _err.message = content_sec;
             throw _err;
-            return;
           }
           try {
             if (content_sec[content_sec.length - 1] == '') {
@@ -932,7 +925,6 @@ function deParseListFile(output, filepath, callback) {
             _err.name = 'content_sec'
             _err.message = content_sec;
             throw _err;
-            return;
           }
           if (!output[entry_fir]) {
             output[entry_fir] = {};
@@ -949,8 +941,7 @@ function deParseListFile(output, filepath, callback) {
           }
         }
       } catch (err_outer) {
-        console.log(err_outer);
-        return callback(err_outer, null);
+        return callback(err_outer);
       }
     }
     callback();
@@ -1017,7 +1008,10 @@ function buildAppMethodInfo(targetFile, callback) {
       var item = result[i];
       if (!reg.test(item)) {
         (function(listContent, filepath) {
-          deParseListFile(listContent, filepath, function() {
+          deParseListFile(listContent, filepath, function(err) {
+            if (err) {
+              return callback(err, null);
+            }
             var isEnd = (count === lens - 1);
             if (isEnd) {
               var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
@@ -1315,7 +1309,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
           if (err) {
             console.log(err);
             var _err = "writeDesktopFile : deparse desktop file error!";
-            return callback(_err, null);
+            return callback(err, null);
           }
           var sWritePath = result_find;
           console.log(sWritePath);
@@ -1323,7 +1317,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
             if (err) {
               console.log(err);
               var _err = "writeDesktopFile : write desktop file error!";
-              return callback(_err, null);
+              return callback(err, null);
             }
             var op = 'modify';
             var re = new RegExp('/desktop/');

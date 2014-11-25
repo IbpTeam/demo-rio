@@ -8,7 +8,7 @@ var video = require("./data/video");
 var music = require("./data/music");
 var music = require("./data/music");
 var devices = require("./data/device");
-var other =require('./data/other')
+var other = require('./data/other')
 var commonDAO = require("./commonHandle/CommonDAO");
 //@const
 var DATA_DIR = "data";
@@ -251,6 +251,14 @@ exports.getRealRepoDir = function(category) {
   return path.join(process.env["HOME"], ".resources", category);
 }
 
+exports.getHomeDir = function() {
+  return process.env["HOME"];
+}
+
+exports.getXdgDataDirs = function() {
+  return process.env["XDG_DATA_DIRS"].split(':');
+}
+
 
 //get file name with postfix from a path
 exports.getFileNameByPath = function(sPath) {
@@ -346,8 +354,8 @@ exports.findFilesFromSystem = function(targe, callback) {
     var result = [];
     var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
     list = stdout.split('\n');
-    for(var i=0;i<list.length;i++){
-      if(!reg_isLocal.test(list[i])){
+    for (var i = 0; i < list.length; i++) {
+      if (!reg_isLocal.test(list[i])) {
         result.push(list[i]);
       }
     }
