@@ -132,7 +132,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   var comstr = 'cd ' + repoPath + ' && git commit -m ';
   var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
   var deviceInfo = '"device":"' + config.uniqueID + '"';
-  var opInfo = '"op":"reset"';
+  var opInfo = '"op":"revert"';
   var fileInfo = '"file":["' + file + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = +commitLog + "'";
@@ -349,7 +349,7 @@ exports.getGitLog = function(repoPath, callback) {
 
 exports.repoReset = function(repoPath, commitID, callback) {
   var exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + ' --hard';
+  var comstr = 'cd ' + repoPath + ' && git revert ' + commitID + ' -n';
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
@@ -357,7 +357,9 @@ exports.repoReset = function(repoPath, commitID, callback) {
       callback({
         'repo': err
       }, null);
-    } else {
+    } 
+    else {
+      repoResetCommit(repoPath, file, commitID, callback)
       //console.log('success', stdout);
       callback(null, 'success');
     }
