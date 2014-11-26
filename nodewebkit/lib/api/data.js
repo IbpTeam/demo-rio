@@ -1188,7 +1188,7 @@ function createFileOnDesk(createFileOnDeskCb, sContent) {
 exports.createFileOnDesk = createFileOnDesk;
 
 /** 
- * @Method: rename
+ * @Method: renameFileOnDesk
  *   To rename a file on desktop. Front end needs to control that the postfix c-
  *   not be change.
  *
