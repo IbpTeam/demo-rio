@@ -2454,8 +2454,8 @@ exports.getAllVideo = getAllVideo;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        object, of all music file info, as {inode:itemPath}
- *
+ *        object, of all music file info as{inode:oFileInfo}.
+ *                more detail in document.
  **/
 function getAllMusic(callback) {
   commonDAO.findItems(null, ['Music'], null, null, function(err, result) {
@@ -2480,9 +2480,10 @@ function getAllMusic(callback) {
             return callback(err, null);
           }
           var sInode = stat.ino;
-          oInfoResult[sInode] = sPath;
+          oInfoResult[sInode] = _item;
           var isEnd = (count == lens - 1);
           if (isEnd) {
+            console.log(oInfoResult)
             callback(null, oInfoResult);
           }
           count++;
