@@ -669,22 +669,22 @@ function syncOnline(msgObj) {
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   if(iCurrentState == syncState.SYNC_IDLE){
-    repo.haveBranch((msgObj.path,msgObj.device_id,function(isHaveBranch){
-      if(isHaveBranch==false){
+    repo.haveBranch(msgObj.path,msgObj.device_id,function(isHaveBranch){
+      if(isHaveBranch == false){
         console.log("Unknown device!!!!!!!!!!!");
         return;
       }
       iCurrentState = syncState.SYNC_START;
       repo.pullFromOtherRepo(msgObj.path,msgObj.device_id,function(result){
         console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
-        var aFilePaths = new Array();
+        //var aFilePaths = new Array();
 
 
      //var cate= utils.getCategoryByPath(msgObj.path);
-        var baseName="hyz.pdf.md";//path.basename(msgObj.path);
-        var sDesPath=utils.getDesDir(msgObj.category);
-        aFilePaths.push(path.join(sDesPath,baseName));
-        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + result);
+        //var baseName="hyz.pdf.md";//path.basename(msgObj.path);
+        //var sDesPath=utils.getDesDir(msgObj.category);
+        //aFilePaths.push(path.join(sDesPath,baseName));
+        //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + result);
       //TODO base on files, modify data in db
       //dataDes.readDesFiles(aFilePaths,function(desObjs){
         //dataDes.writeDesObjs2Db(desObjs,function(status){
