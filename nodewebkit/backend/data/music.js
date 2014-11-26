@@ -97,13 +97,13 @@ function createData(items, callback) {
           lastModifyDev: config.uniqueID,
           lastAccessDev: config.uniqueID
         };
-        commonHandle.createData(itemInfo, function(result) {
+        commonHandle.createData(itemInfo, function(result, resultFile) {
           if (result === 'success') {
-            callback(null, result);
+            callback(null, result, resultFile);
           } else {
             var _err = 'createData: commonHandle createData error!';
             console.log('createData error!');
-            callback(_err, null);
+            callback(_err, null, null);
           }
         })
       })

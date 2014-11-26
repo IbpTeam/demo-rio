@@ -91,11 +91,12 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
   comstr = comstr + " && git commit -m '" + commitLog + "'";
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
+        console.log(stdout)
     if (error) {
-      console.log("Git rm error", error, stderr);
+      console.log("Git rm error", error,stdout, stderr);
     } else {
       //console.log("Git rm success");
-      callback();
+      callback('success');
     }
   });
 }
@@ -120,7 +121,7 @@ function repoChsCommit(repoPath, files, commitID, callback) {
       console.log("Git change error", error, stdout);
     } else {
       //console.log("Git change success");
-      callback();
+      callback('success');
     }
   });
 }
@@ -142,7 +143,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
       console.log("Git change error", error, stdout);
     } else {
       console.log("Git change success");
-      callback();
+      callback('success');
     }
   });
 }
@@ -430,7 +431,7 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
   repoCommit(realPath, oFiles,null , function() {
     getLatestCommit(realPath, function(commitID) {
       repoCommit(desPath, oDesFiles, commitID, function() {
-        callback(null, 'success');
+        callback('success');
       });
     })
   })

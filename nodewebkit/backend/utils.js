@@ -8,6 +8,8 @@ var video = require("./data/video");
 var music = require("./data/music");
 var music = require("./data/music");
 var devices = require("./data/device");
+var other =require('./data/other')
+var commonDAO = require("./commonHandle/CommonDAO");
 //@const
 var DATA_DIR = "data";
 
@@ -86,7 +88,7 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
-  }else{
+  } else {
     return {
       category: "other",
       filename: itemFilename,
@@ -287,6 +289,26 @@ exports.renameExists = function(allFiles) {
     }
   }
   return allFiles;
+}
+
+exports.isNameExists = function(sFilePath, callback) {
+  var category = getCategoryByPath(sFilePath).category;
+  var sFileName = getCategoryByPath(sFilePath).filename;
+  var sPostfix = getCategoryByPath(sFilePath).postfix;
+  var columns = ['filename', 'postfix'];
+  var tables = [category];
+  var conditions = ["postfix = '" + sPostfix + "'", "filename = '" + sFileName + "'"];
+  commonDAO.findItems(columns, tables, conditions, null, function(err, result) {
+    if (err) {
+      console.log('find ' + sFilePath + ' error!');
+      return callback(err, null);
+    } else if (result == [] || result == '' || !result) {
+      return callback(null, null);
+    }
+    console.log(result, '=================')
+    var sName = result[0].filename + '.' + result[0].postfix;
+    callback(null, sName);
+  })
 }
 
 exports.getRecent = function(items, num) {
