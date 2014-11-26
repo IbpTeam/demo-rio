@@ -1098,7 +1098,7 @@ exports.removeFileFromDB = removeFileFromDB;
  *        string, retrieve 'success' when success.
  *
  **/
-function removeFileFromDesk(removeFileFromDeskCb,sFilePath) {
+function removeFileFromDesk(removeFileFromDeskCb, sFilePath) {
   console.log("Request handler 'removeFileFromDesk' was called.");
   desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
 }
@@ -1143,6 +1143,71 @@ function getAllVideo(getAllVideoCb) {
   desktopConf.getAllVideo(getAllVideoCb);
 }
 exports.getAllVideo = getAllVideo;
+
+/** 
+ * @Method: getAllMusic
+ *   To get all music files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, of all music file info, as {inode:itemPath}
+ *
+ **/
+function getAllMusic(getAllMusicCb) {
+  console.log("Request handler 'getAllMusic' was called.");
+  desktopConf.getAllMusic(getAllMusicCb);
+}
+exports.getAllMusic = getAllMusic;
+
+/** 
+ * @Method: createFileOnDesk
+ *   To create a txt file on desktop.
+ *
+ * @param1: createFileOnDeskCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, file info of the new file, as [filePath, stats.ino].
+ *
+ *  @param2: sContent
+ *        string, content to init.
+ *
+ **/
+function createFileOnDesk(createFileOnDeskCb, sContent) {
+  console.log("Request handler 'createFileOnDesk' was called.");
+  desktopConf.createFile(sContent, createFileOnDeskCb);
+}
+exports.createFileOnDesk = createFileOnDesk;
+
+/** 
+ * @Method: rename
+ *   To rename a file on desktop. Front end needs to control that the postfix c-
+ *   not be change.
+ *
+ * @param1: renameFileOnDeskCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, would return 'EXIST' when new file name exists in db; otherwi-
+ *                se, return 'success'.
+ *
+ **/
+function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
+  console.log("Request handler 'renameFileOnDesk' was called.");
+  desktopConf.rename(oldName, newName, renameFileOnDeskCb);
+}
+exports.renameFileOnDesk = renameFileOnDesk;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
@@ -1327,6 +1392,7 @@ exports.repoResetFile = repoResetFile;
  *        string, contain specific error
  *
  *    @param2: result,
+ 
  *        string, retieve 'success' when success
  *
  **/
