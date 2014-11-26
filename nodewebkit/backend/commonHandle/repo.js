@@ -71,7 +71,7 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
       console.log(error, stderr, stdout)
     } else {
       //console.log("Git add success");
-      callback(null,'success');
+      callback('success');
     }
   });
 }
@@ -96,7 +96,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
       console.log("Git rm error", error,stdout, stderr);
     } else {
       //console.log("Git rm success");
-      callback(null,'success');
+      callback('success');
     }
   });
 }
@@ -121,7 +121,7 @@ function repoChsCommit(repoPath, files, commitID, callback) {
       console.log("Git change error", error, stdout);
     } else {
       //console.log("Git change success");
-      callback(error,'success');
+      callback('success');
     }
   });
 }
@@ -132,7 +132,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   var comstr = 'cd ' + repoPath + ' && git commit -m ';
   var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
   var deviceInfo = '"device":"' + config.uniqueID + '"';
-  var opInfo = '"op":"revert"';
+  var opInfo = '"op":"reset"';
   var fileInfo = '"file":["' + file + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = +commitLog + "'";
@@ -349,7 +349,7 @@ exports.getGitLog = function(repoPath, callback) {
 
 exports.repoReset = function(repoPath, commitID, callback) {
   var exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git revert ' + commitID + ' -n';
+  var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + ' --hard';
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
@@ -357,9 +357,7 @@ exports.repoReset = function(repoPath, commitID, callback) {
       callback({
         'repo': err
       }, null);
-    } 
-    else {
-      repoResetCommit(repoPath, file, commitID, callback)
+    } else {
       //console.log('success', stdout);
       callback(null, 'success');
     }
@@ -433,7 +431,7 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
   repoCommit(realPath, oFiles,null , function() {
     getLatestCommit(realPath, function(commitID) {
       repoCommit(desPath, oDesFiles, commitID, function() {
-        callback(null,'success');
+        callback('success');
       });
     })
   })
@@ -512,7 +510,7 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
           return
         }
         console.log("Git change success");
-        callback(null, 'success');
+        callback();
       });
     })
   })
