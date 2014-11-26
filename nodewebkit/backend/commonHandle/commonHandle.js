@@ -103,9 +103,9 @@ function createData(item, callback) {
           console.log(err);
           return;
         }
-        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
-          if (err) {
-            console.log(err);
+        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(result) {
+          if (result !== 'success') {
+            console.log(result);
             return callback(null);
           }
           callback('success', sFilePath);
@@ -186,8 +186,8 @@ function createDataAll(items, callback) {
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
-                if (err) {
+              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(result) {
+                if (result !== 'success') {
                   console.log(err);
                   return callback(null);
                 }

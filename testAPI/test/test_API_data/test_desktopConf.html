@@ -503,6 +503,25 @@
     });
   }
 
+
+  function getFilesFromDeskCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getFilesFromDesk()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_getFilesFromDesk(getFilesFromDeskCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.getFilesFromDesk(getFilesFromDeskCb);
+    });
+  }
+
   function getAllMediaCb(err, result) {
     var win = window.open('');
     if (err) {

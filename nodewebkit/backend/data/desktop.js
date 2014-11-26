@@ -211,7 +211,11 @@ function initDesktop(callback) {
             buildDesFile('Widget', 'conf', pathWidget, function() {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
-              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err, result) {
+              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(result) {
+                if(result !== 'success'){
+                  console.log('git commit error');
+                  return;
+                }
                 var pathDesk = path + "/desktop";
                 fs_extra.ensureDir(pathDesk, function(err) {
                   if (err) {
@@ -354,9 +358,9 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
+              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(result) {
+                if (result !== 'success') {
+                  return callback(result, null);
                 }
                 callback(null, 'success');
               })
@@ -2467,14 +2471,20 @@ exports.getAllMusic = getAllMusic;
  * @Method: getIconPath
  *   To get icon path.
  *
- * @param1: callback
+ * @param1: iconName_ 
+ *    string, a short icon path.
+ *
+ * @param2: size_
+ *    num, size of icon
+ *
+ * @param3: callback
  *    @result, (_err,result)
  *
  *    @param: _err,
  *        string, contain specific error info.
  *
  *    @param: result,
- *        object, array of file info, as [filePath,inode]
+ *        object, array of icon path.
  *
  **/
 function getIconPath(iconName_, size_, callback) {
