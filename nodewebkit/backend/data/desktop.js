@@ -641,7 +641,8 @@ function parseDesktopFile(callback, sPath) {
         var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
         var re_comment = new RegExp('#');
-        var re_e = /=/g;
+        var re_letter = /\w/i;
+        var re_eq = new RegExp('=');
         var desktopHeads = [];
         var oAllDesktop = {};
         try {
@@ -653,34 +654,40 @@ function parseDesktopFile(callback, sPath) {
               return "$";
             })
             data = data.split('$');
-            if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | re_comment.test(data[0])) {
-              data.shift(); //the first element is a "", remove it
+            if (re_comment.test(data[0]) || !re_letter.test(data[0])) {
+              data.shift(); //the first element is a "" or has #, remove it
             }
           } catch (err_inner) {
+            console.log(err_inner);
             var _err = new Error();
             _err.name = 'headEntry';
             _err.message = headEntry;
-
             throw _err;
           }
           if (desktopHeads.length === data.length) {
             for (var i = 0; i < data.length; i++) {
+              if (!re_letter.test(data[i])) {
+                continue;
+              }
               try {
                 var lines = data[i].split('\n');
               } catch (err_inner) {
+                console.log(err_inner);
                 var _err = new Error();
                 _err.name = 'headContent';
                 _err.message = data[i];
                 throw _err;
               }
               var attr = {};
-              for (var j = 0; j < lines.length - 1; ++j) {
-                if (lines[j] && re_e.test(lines[j]) && !re_comment.test(lines[j])) {
+              for (var j = 0; j < lines.length; ++j) {
+                if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
+                  continue;
+                } else {
                   try {
-                    var test = lines[j];
                     var tmp = lines[j].split('=');
                     attr[tmp[0]] = tmp[1].replace(re_rn, "");
                   } catch (err_inner) {
+                    console.log(err_inner);
                     var _err = new Error();
                     _err.name = 'contentSplit';
                     _err.message = tmp;
@@ -691,6 +698,7 @@ function parseDesktopFile(callback, sPath) {
                     try {
                       attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
                     } catch (err_inner) {
+                      console.log(err_inner);
                       var _err = new Error();
                       _err.name = 'contentAddition';
                       _err.message = tmp;
@@ -707,7 +715,7 @@ function parseDesktopFile(callback, sPath) {
             callback(_err, null);
           }
         } catch (err_outer) {
-          console.log(err_outer)
+          console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
         callback(null, oAllDesktop);
@@ -848,7 +856,6 @@ function findDesktopFile(callback, filename) {
           });
         });
       } else {
-        console.log('find ' + sFileName + ' success!');
         var result = stdout.split('\n');
         return callback(null, result[0]);
       }
@@ -2592,7 +2599,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  *        object, file info of the new file, as [filePath, stats.ino].
  *
  **/
-function createFile(callback) {
+function createFile(sContent, callback) {
   var date = new Date();
   var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
@@ -2601,43 +2608,51 @@ function createFile(callback) {
       console.log(err, stdout, stderr);
       return callback(err);
     }
-    var cate = utils.getCategoryObject('document');
-    cate.createData(desPath, function(err, result, resultFile) {
+    if (sContent == '' || sContent == null) {
+      sContent = '';
+    }
+    fs.writeFile(desPath, sContent, function(err) {
       if (err) {
-        console.log(err, stdout, stderr);
         return callback(err);
       }
-      exec("rm " + desPath, function(err, stdout, stderr) {
+      var cate = utils.getCategoryObject('document');
+      cate.createData(desPath, function(err, result, resultFile) {
         if (err) {
           console.log(err, stdout, stderr);
           return callback(err);
         }
-        console.log(resultFile)
-        var sCondition = ["path = '" + resultFile + "'"];
-        commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
+        exec("rm " + desPath, function(err, stdout, stderr) {
           if (err) {
-            var _err = "Error: find " + resultFile + " in db error!";
-            return callback(_err, null);
-          } else if (result == '' || result == []) {
-            var _err = "Error: not find " + resultFile + " in db!";
-            return callback(_err, null);
+            console.log(err, stdout, stderr);
+            return callback(err);
           }
-
-          function setTagsCb(result) {
-            if (result != 'commit') {
-              var _err = 'Error: set tags error!';
+          console.log(resultFile)
+          var sCondition = ["path = '" + resultFile + "'"];
+          commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
+            if (err) {
+              var _err = "Error: find " + resultFile + " in db error!";
+              return callback(_err, null);
+            } else if (result == '' || result == []) {
+              var _err = "Error: not find " + resultFile + " in db!";
               return callback(_err, null);
             }
-            fs.stat(resultFile, function(err, stats) {
-              if (err) {
-                return callback(err, null);
+
+            function setTagsCb(result) {
+              if (result != 'commit') {
+                var _err = 'Error: set tags error!';
+                return callback(_err, null);
               }
-              var result = [resultFile, stats.ino];
-              callback(null, result);
-            })
-          }
-          var sUri = result[0].URI;
-          tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+              fs.stat(resultFile, function(err, stats) {
+                if (err) {
+                  return callback(err, null);
+                }
+                var result = [resultFile, stats.ino];
+                callback(null, result);
+              })
+            }
+            var sUri = result[0].URI;
+            tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+          });
         });
       });
     });
@@ -2650,7 +2665,13 @@ exports.createFile = createFile;
  *   To rename a file on desktop. Front end needs to control that the postfix c-
  *   not be change.
  *
- * @param1: callback
+ * @param1: oldName
+ *    @string, origin name of the file, as 'good_file.txt'
+ *
+ * @param2: newName
+ *    @string, new name of the file, as 'bad_file.txt'
+ *
+ * @param3: callback
  *    @result, (_err,result)
  *
  *    @param: _err,
