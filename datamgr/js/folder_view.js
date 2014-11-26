@@ -414,7 +414,7 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(function(result){
+                  DataAPI.rmDataByUri(function(err, result){
                     if(result == "success"){
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
@@ -424,7 +424,7 @@ function Folder(jquery_element) {
                   },file_json['URI']);
                 break;
                 case 'contact':
-                  DataAPI.rmDataByUri(function(result){
+                  DataAPI.rmDataByUri(function(err, result){
                     if(result == "success"){
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();

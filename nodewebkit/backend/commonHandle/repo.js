@@ -512,7 +512,7 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
           return
         }
         console.log("Git change success");
-        callback();
+        callback(null, 'success');
       });
     })
   })
