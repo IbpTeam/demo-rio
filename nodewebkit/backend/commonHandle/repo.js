@@ -71,7 +71,7 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
       console.log(error, stderr, stdout)
     } else {
       //console.log("Git add success");
-      callback('success');
+      callback(null,'success');
     }
   });
 }
@@ -96,7 +96,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
       console.log("Git rm error", error,stdout, stderr);
     } else {
       //console.log("Git rm success");
-      callback('success');
+      callback(null,'success');
     }
   });
 }
@@ -121,7 +121,7 @@ function repoChsCommit(repoPath, files, commitID, callback) {
       console.log("Git change error", error, stdout);
     } else {
       //console.log("Git change success");
-      callback('success');
+      callback(error,'success');
     }
   });
 }
@@ -132,7 +132,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
   var comstr = 'cd ' + repoPath + ' && git commit -m ';
   var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
   var deviceInfo = '"device":"' + config.uniqueID + '"';
-  var opInfo = '"op":"reset"';
+  var opInfo = '"op":"revert"';
   var fileInfo = '"file":["' + file + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = +commitLog + "'";
@@ -349,7 +349,7 @@ exports.getGitLog = function(repoPath, callback) {
 
 exports.repoReset = function(repoPath, commitID, callback) {
   var exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath + ' && git reset ' + commitID + ' --hard';
+  var comstr = 'cd ' + repoPath + ' && git revert ' + commitID + ' -n';
   //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
@@ -357,7 +357,9 @@ exports.repoReset = function(repoPath, commitID, callback) {
       callback({
         'repo': err
       }, null);
-    } else {
+    } 
+    else {
+      repoResetCommit(repoPath, file, commitID, callback)
       //console.log('success', stdout);
       callback(null, 'success');
     }
@@ -431,7 +433,7 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
   repoCommit(realPath, oFiles,null , function() {
     getLatestCommit(realPath, function(commitID) {
       repoCommit(desPath, oDesFiles, commitID, function() {
-        callback('success');
+        callback(null,'success');
       });
     })
   })
@@ -483,13 +485,15 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
   var sDesOrigin = sOrigin.replace(/\/data\//, 'Des/data/') + '.md';
   var sDesNew = sNew.replace(/\/data\//, 'Des/data/') + '.md';
   var deComstr = 'cd ' + desRepoPath;
-  var deviceInfo = '"device":"' + config.uniqueID + '"';
+  var desDeviceInfo = '"device":"' + config.uniqueID + '"';
   deComstr = deComstr + ' && git rm "' + sDesOrigin + '"' + ' && git add "' + sDesNew + '"';
   var opInfo = '"op":"rename"';
-  var fileInfo = '"file":["' + sDesOrigin + '","' + sDesNew + '"]';
-  var commitLog = '{' + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
+  var deviceInfo = '"file":["' + sDesOrigin + '","' + sDesNew + '"]';
+  var desCommitLog = '{' + desDeviceInfo + ',' + opInfo + ',' + deviceInfo + '}';
+  deComstr = deComstr + " && git commit -m '" + desCommitLog + "'";
   exec(deComstr, function(error, stdout, stderr) {
     if (error) {
+      console.log("run:",'\n',deComstr);
       console.log(error);
       return;
     }
@@ -501,9 +505,9 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
       var relateCommit = '"relateCommit": "' + relateCommitId + '",';
       var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
       comstr = comstr + " && git commit -m '" + commitLog + "'";
-      //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
       exec(comstr, function(error, stdout, stderr) {
         if (error) {
+          console.log("run:",'\n',comstr);
           console.log("Git change error", error, stdout);
           return
         }
