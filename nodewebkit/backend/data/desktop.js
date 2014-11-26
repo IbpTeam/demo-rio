@@ -212,7 +212,7 @@ function initDesktop(callback) {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
               resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(result) {
-                if(result !== 'success'){
+                if (result !== 'success') {
                   console.log('git commit error');
                   return;
                 }
@@ -2125,12 +2125,12 @@ function moveToDesktopSingle(sFilePath, callback) {
                 console.log(err, stdout, stderr);
                 return callback(err, null);
               }
-              fs.stat(sFilePath, function(err, stats) {
+              fs.stat(result, function(err, stats) {
                 if (err) {
                   console.log(sFilePath, err);
                   return callback(err, null);
                 }
-                var fileInfo = [sFilePath, stats.ino];
+                var fileInfo = [result, stats.ino];
                 callback(null, fileInfo);
               })
             })
@@ -2340,7 +2340,11 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        object, array of file info, as [filePath,inode]
+ *        object, array of file info,
+ *                as [{filePath: '/home/xiquan/a.txt',
+ *                     inode:    '1902384109',
+ *                     tags:     '$desktop$aa$bb$'
+ *                   }]
  *
  **/
 function getFilesFromDesk(callback) {
@@ -2349,19 +2353,42 @@ function getFilesFromDesk(callback) {
       console.log(err);
       return callback(err, null);
     }
-    console.log('get all files on desktop:\n', result);
-    var sPath = result[0].path;
-    fs.stat(sPath, function(err, stat) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      var sInode = stat.ino;
-      var sInfo = [sPath, sInode];
-      callback(null, sInfo);
-    })
+    var oInfo = [];
+    var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
+    var count = 0;
+    var lens = result.length;
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      (function(_item) {
+        var sPath = _item.path;
+        fs.stat(sPath, function(err, stat) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var oTags = item.others.split(',');
+          for (var j = 0; j < oTags.length; j++) {
+            if (reg_desktop.test(oTags[j])) {
+              var sTag = oTags[j];
+              break;
+            }
+          }
+          var tmpInfo = {
+            filepath: sPath,
+            inode: stat.ino,
+            tags: sTag
+          }
+          oInfo.push(tmpInfo);
+          var isEnd = (count === lens - 1);
+          if (isEnd) {
+            callback(null, oInfo);
+          }
+          count++;
+        })
+      })(item)
+    }
   }
-  var oTags = ['$desktop'];
+  var oTags = ['$desktop$'];
   tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesFromDesk = getFilesFromDesk;
@@ -2471,7 +2498,7 @@ exports.getAllMusic = getAllMusic;
  * @Method: getIconPath
  *   To get icon path.
  *
- * @param1: iconName_ 
+ * @param1: iconName_
  *    string, a short icon path.
  *
  * @param2: size_
