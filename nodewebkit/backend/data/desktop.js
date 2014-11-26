@@ -2471,14 +2471,20 @@ exports.getAllMusic = getAllMusic;
  * @Method: getIconPath
  *   To get icon path.
  *
- * @param1: callback
+ * @param1: iconName_ 
+ *    string, a short icon path.
+ *
+ * @param2: size_
+ *    num, size of icon
+ *
+ * @param3: callback
  *    @result, (_err,result)
  *
  *    @param: _err,
  *        string, contain specific error info.
  *
  *    @param: result,
- *        object, array of file info, as [filePath,inode]
+ *        object, array of icon path.
  *
  **/
 function getIconPath(iconName_, size_, callback) {

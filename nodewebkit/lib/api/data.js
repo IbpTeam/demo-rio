@@ -317,6 +317,7 @@ function openDataByUri(openDataByUriCb, uri) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
+
       result.content = "成功打开文件" + result.content;
       setTimeout(openDataByUriCb(result), 0);
     } else {
@@ -1208,6 +1209,32 @@ function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
   desktopConf.rename(oldName, newName, renameFileOnDeskCb);
 }
 exports.renameFileOnDesk = renameFileOnDesk;
+
+/** 
+ * @Method: getIconPath
+ *   To get icon path.
+ *
+ * @param1: iconName_ 
+ *    string, a short icon path.
+ *
+ * @param2: size_
+ *    num, size of icon
+ *
+ * @param3: getIconPathCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of icon path.
+ *
+ **/
+function getIconPath(iconName, size, getIconPathCb) {
+  console.log("Request handler 'getIconPath' was called.");
+  desktopConf.getIconPath(iconName, size, getIconPathCb);
+}
+exports.getIconPath = getIconPath;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
