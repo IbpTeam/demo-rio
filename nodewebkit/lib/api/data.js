@@ -1214,10 +1214,10 @@ exports.renameFileOnDesk = renameFileOnDesk;
  * @Method: getIconPath
  *   To get icon path.
  *
- * @param1: iconName_ 
+ * @param1: iconName
  *    string, a short icon path.
  *
- * @param2: size_
+ * @param2: size
  *    num, size of icon
  *
  * @param3: getIconPathCb
@@ -1230,7 +1230,7 @@ exports.renameFileOnDesk = renameFileOnDesk;
  *        object, array of icon path.
  *
  **/
-function getIconPath(iconName, size, getIconPathCb) {
+function getIconPath(getIconPathCb, iconName, size) {
   console.log("Request handler 'getIconPath' was called.");
   desktopConf.getIconPath(iconName, size, getIconPathCb);
 }
