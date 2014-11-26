@@ -205,8 +205,8 @@ exports.haveBranch = function(resourcesPath, branch, callback) {
     var branchList = getBranchList(stdout);
     for (var index in branchList) {
       //Reg trim
-      var branchName = branchList[index].replace(/(^\s*)|(\s*$)/g, "");
-      if (branchName == branch) {
+      var branchName = branchList[index].match(/rio.+rio/g);
+      if (branchName.length > 0 && branchName[0] == branch) {
         //console.log("have branch : " + branch);
         callback(true);
       }
