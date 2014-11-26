@@ -430,6 +430,7 @@ exports.getGitLog = getGitLog;
  *
  **/
 function repoReset(commitID, callback) {
+  console.log("revert conmmitId = "+commitID);
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
