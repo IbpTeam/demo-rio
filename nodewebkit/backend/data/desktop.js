@@ -2540,7 +2540,11 @@ function getIconPath(iconName_, size_, callback) {
       if (err_) {
         getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
           if (err_) {
-            callback('Not found');
+            exec('locate ' + iconName_ + ' | grep -E \"\.(png|svg)$\"'
+              , function(err, stdout, stderr) {
+                if(err || stdout == '') return callback('Not found');
+                return callback(null, stdout.replace(/\n$/, '').split('\n').reverse());
+              });
           } else {
             callback(null, iconPath_);
           }
@@ -2569,8 +2573,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
 
   var findIcon = function(index_) {
     if (index_ == _iconSearchPath.length) {
-      callback('Not found');
-      return;
+      return callback('Not found');
     }
     var _path = _iconSearchPath[index_];
     if (index_ < _iconSearchPath.length - 1) _path += themeName_;
