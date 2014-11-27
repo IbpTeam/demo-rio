@@ -2569,7 +2569,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
 
   var findIcon = function(index_) {
     if (index_ == _iconSearchPath.length) {
-      return exec('locate ' + iconName_ + ' | grep -E (png|svg)$'
+      return exec('locate ' + iconName_ + ' | grep -E \"(png|svg)$\"'
           , function(err, stdout, stderr) {
             if(err || stdout == '') return callback('Not found');
             return callback(null, stdout.replace(/\n$/, '').split('\n'));
