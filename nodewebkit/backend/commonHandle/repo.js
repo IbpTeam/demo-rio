@@ -42,11 +42,17 @@ var index=0;
  *    Repository path.
  */
 function syncOnlineReq(repoPath) {
-  console.log("99999999999999999999999999999999999999999"+repoPath);
-  var sDirName = path.dirname(repoPath);
-  var sBaseName = path.basename(sDirName);
+  var tempPath = null;
+  var sBaseName = path.basename(repoPath);
+  if (sBaseName == "data") {
+    tempPath = path.dirname(repoPath);
+  }else{
+    tempPath = repoPath;
+  }
+  console.log("99999999999999999999999999999999999999999"+tempPath);
+  var sBaseName = path.basename(tempPath);
+  console.log("99999999999999999999999999999999999999999"+sBaseName);
   var sCateName = sBaseName.split("Des");
-  console.log("99999999999999999999999999999999999999999"+sCateName[0]);
   if(sCateName.length < 2){
     return;
   }
