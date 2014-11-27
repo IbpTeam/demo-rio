@@ -16,18 +16,17 @@
       /**
        * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
        */
-      //var test = require('./extension');
+      var test = require('./extension');
       function onStart(params) {
-        console.log("onStart():" + params);
+        console.log("====================onStart():" + params);
         $('#params').text("程序参数是:" + params);
         WDC.requireAPI(['data'], function(data) {
-          //test.init('params',params);
-            // $('#test').append($('<iframe>', {
-            //     id: "iframeViewer",
-            //     src: "ext/viewerPDF/web/viewer.html?file=" + params,
-            //     "nwdisable": "",
-            //     "nwfaketop": ""
-            // }));
+            $('#applist').append($('<iframe>', {
+                id: "iframeViewer",
+                src: "web/viewer.html?file=" + params,
+                "nwdisable": "",
+                "nwfaketop": ""
+            }));
         })
       }
     </script>
@@ -35,12 +34,15 @@
   </head>
   <body> 
     <p>
-      app_viewerPDF
+      这是一个示例应用程序
     </p>
-    <p>
-    <div id="params"></div>
-    </p>
-
-    <div id="test"></div>
+    <div>
+      <p>
+        <div id="params">正在加载程序。。。</div>
+      </p>
+      <p>
+        <div id="applist"></div>
+      </p>
+    <div>
   </body>
 </html>

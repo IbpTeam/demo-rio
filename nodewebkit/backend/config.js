@@ -45,7 +45,7 @@ var AppList=[
   {
     id:"app_viewerPDF",
     name:"viewerPDF",
-    win:true,
+    win:null,
     win2:null,
     path:"demo-rio/viewerPDF/index.html"
   }
