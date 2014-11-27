@@ -5,6 +5,7 @@ var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
 var device = require("../data/device");
+var transfer = require('../Transfer/msgTransfer');
 
 var repos=[
   {name:"contactDes",status:"empty"},
