@@ -8,6 +8,8 @@ var video = require("./data/video");
 var music = require("./data/music");
 var music = require("./data/music");
 var devices = require("./data/device");
+var other = require('./data/other')
+var commonDAO = require("./commonHandle/CommonDAO");
 //@const
 var DATA_DIR = "data";
 
@@ -86,7 +88,7 @@ function getCategoryByPath(path) {
       filename: itemFilename,
       postfix: itemPostfix
     };
-  }else{
+  } else {
     return {
       category: "other",
       filename: itemFilename,
@@ -249,6 +251,14 @@ exports.getRealRepoDir = function(category) {
   return path.join(process.env["HOME"], ".resources", category);
 }
 
+exports.getHomeDir = function() {
+  return process.env["HOME"];
+}
+
+exports.getXdgDataDirs = function() {
+  return process.env["XDG_DATA_DIRS"].split(':');
+}
+
 
 //get file name with postfix from a path
 exports.getFileNameByPath = function(sPath) {
@@ -289,6 +299,25 @@ exports.renameExists = function(allFiles) {
   return allFiles;
 }
 
+exports.isNameExists = function(sFilePath, callback) {
+  var category = getCategoryByPath(sFilePath).category;
+  var sFileName = getCategoryByPath(sFilePath).filename;
+  var sPostfix = getCategoryByPath(sFilePath).postfix;
+  var columns = ['filename', 'postfix'];
+  var tables = [category];
+  var conditions = ["postfix = '" + sPostfix + "'", "filename = '" + sFileName + "'"];
+  commonDAO.findItems(columns, tables, conditions, null, function(err, result) {
+    if (err) {//something wrong
+      console.log('find ' + sFilePath + ' error!');
+      return callback(err, null);
+    } else if (result == [] || result == '' || !result) {//target name not exists
+      return callback(null, null);
+    }
+    var sName = result[0].filename + '.' + result[0].postfix;//target name exists
+    callback(null, sName);
+  })
+}
+
 exports.getRecent = function(items, num) {
   var Data = {};
   var DataSort = [];
@@ -321,7 +350,14 @@ exports.findFilesFromSystem = function(targe, callback) {
       console.log(_err);
       return callback(_err, null);
     }
-    result = stdout.split('\n');
+    var result = [];
+    var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+    list = stdout.split('\n');
+    for (var i = 0; i < list.length; i++) {
+      if (!reg_isLocal.test(list[i])) {
+        result.push(list[i]);
+      }
+    }
     console.log('result: \n', result);
     callback(null, result);
   });

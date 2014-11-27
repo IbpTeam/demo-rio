@@ -97,13 +97,13 @@ function createData(items, callback) {
           lastModifyDev: config.uniqueID,
           lastAccessDev: config.uniqueID
         };
-        commonHandle.createData(itemInfo, function(result) {
+        commonHandle.createData(itemInfo, function(result, resultFile) {
           if (result === 'success') {
-            callback(null, result);
+            callback(null, result, resultFile);
           } else {
             var _err = 'createData: commonHandle createData error!';
             console.log('createData error!');
-            callback(_err, null);
+            callback(_err, null, null);
           }
         })
       })
@@ -448,68 +448,32 @@ function repoReset(commitID, callback) {
     } else {
       var dataCommitID = oGitLog[commitID].content.relateCommit;
       if (dataCommitID) {
-        resourceRepo.repoReset(DES_REPO_DIR, commitID, function(err, result) {
+        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
-          } else {
-            resourceRepo.repoReset(REAL_REPO_DIR, dataCommitID, function(err, result) {
-              if (err) {
-                console.log(err);
-                callback({
-                  'document': err
-                }, null);
-              } else {
-                console.log('reset success!')
-                callback(null, result)
-              }
-            })
-          }
-        })
-      } else {
-        var _err = 'related des commit id error!';
-        console.log(_err);
-        callback({
-          'document': _err
-        }, null);
-      }
-    }
-  })
-}
-exports.repoReset = repoReset;
-
-function repoResetFile(commitID, file, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var desCommitID = oGitLog[commitID].content.relateCommit;
-      if (desCommitID) {
-        resourceRepo.repoResetFile(DES_REPO_DIR, file, desCommitID, null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } else {
-            getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoResetFile(REAL_REPO_DIR, file, commitID, relateCommitID, function(err, result) {
+          } 
+          else {
+            resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
+              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback({
                     'document': err
                   }, null);
-                } else {
+                } 
+                else {
                   console.log('reset success!')
                   callback(null, result)
                 }
-              })
-            })
+              });
+            });
           }
         })
-      } else {
+      } 
+      else {
         var _err = 'related des commit id error!';
         console.log(_err);
         callback({
@@ -517,9 +481,9 @@ function repoResetFile(commitID, file, callback) {
         }, null);
       }
     }
-  })
+  });
 }
-exports.repoResetFile = repoResetFile;
+exports.repoReset = repoReset;
 
 function rename(sUri, sNewName, callback) {
   commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {

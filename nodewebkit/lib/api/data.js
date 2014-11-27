@@ -124,6 +124,7 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
+  console.log(VidList)
 
   documents.createData(DocList, function(err, result) {
     if (err) {
@@ -316,6 +317,7 @@ function openDataByUri(openDataByUriCb, uri) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
+
       result.content = "成功打开文件" + result.content;
       setTimeout(openDataByUriCb(result), 0);
     } else {
@@ -324,6 +326,61 @@ function openDataByUri(openDataByUriCb, uri) {
   }, uri);
 }
 exports.openDataByUri = openDataByUri;
+
+/**
+ * @method openDataByPath
+ *   打开path对应的数据
+ *
+ * @param1: sPath
+ *   string，要打开数据的FullPath
+ *
+ * @param2: callback
+ *   回调函数
+ *   @result
+ *     object: 显示数据或结果
+ *        结构如下：
+ *        {
+ *            openmethod: 'html',
+ *            format:     'audio',
+ *            title:      '文件浏览',
+ *            content:    item.path
+ *        }
+ *        其中具体说明如下：
+ *        openmethod: 打开方式，支持 html, alert两种
+ *          如果是alert，则只有content属性，为alert需要输出的结果
+ *          如果是html则具有format, title, content三种属性
+ *        title: 是返回结果的标题，如果显示则可以用这个为标题
+ *        format和content: 分别表示结果的格式和内容。
+ *          format:audio 音频格式，content是具体的音频引用路径
+ *          format:div   表示结果是一个div封装的字符串，可以直接显示在界面中
+ *          format:txtfile 表示结果是一个txt文件，可以通过load进行加载
+ *          format:other  其他结果都默认是一个div或html格式的字符串，可直接显示
+ *
+ */
+function openDataByPath(openDataByPathCb, sPath) {
+  console.log("Request handler 'openDataByPath' was called.");
+  var category = utils.getCategoryByPath(sPath).category;
+  var cate = utils.getCategoryObject(category);
+  var sCondition = ["path = '" + sPath + "'"];
+  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return openDataByPathCb(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'file ' + sPath + ' not found in db!';
+      console.log(_err);
+      return openDataByPathCb(_err, null);
+    }
+    var sUri = result[0].URI;
+    var sFullName = result[0].filename + result[0].postfix;
+
+    function openDataByUriCb(result) {
+      openDataByPathCb(null, result);
+    }
+    cate.openDataByUri(openDataByUriCb, sUri);
+  })
+}
+exports.openDataByPath = openDataByPath;
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
@@ -950,6 +1007,235 @@ function unlinkApp(unlinkAppCb, sDir) {
 }
 exports.unlinkApp = unlinkApp;
 
+/** 
+ * @Method: moveToDesktopSingle
+ *    To drag a file from any where to desktop.
+ *
+ * @param2: sFilePath
+ *    string, a target file path, should be a full path.
+ *            example: '/home/xiquan/somedir/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
+  console.log("Request handler 'moveToDesktopSingle' was called.");
+  desktopConf.moveToDesktopSingle(sFilePath, moveToDesktopSingleCb);
+}
+exports.moveToDesktopSingle = moveToDesktopSingle;
+
+/** 
+ * @Method: moveToDesktop
+ *    To drag multiple files from any where to desktop.
+ *
+ * @param2: oFilePath
+ *    string, array of file path, should be a full path.
+ *            example: ['/home/xiquan/somedir/somefile.txt'].
+ *
+ * @param1: moveToDesktopCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, the path of target after load into local db.
+ *
+ **/
+function moveToDesktop(moveToDesktopCb, oFilePath) {
+  console.log("Request handler 'moveToDesktop' was called.");
+  desktopConf.moveToDesktop(oFilePath, moveToDesktopCb);
+}
+exports.moveToDesktop = moveToDesktop;
+
+/** 
+ * @Method: removeFileFromDB
+ *   To remove a file from desktop. This action will remove this file from data
+ *   frame also.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: removeFileCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDB(removeFileFromDBCb, sFilePath) {
+  console.log("Request handler 'removeFileFromDB' was called.");
+  desktopConf.removeFileFromDB(sFilePath, removeFileFromDBCb);
+}
+exports.removeFileFromDB = removeFileFromDB;
+
+/** 
+ * @Method: removeFileFromDesk
+ *   To remove a file from desktop. This action will only remove this file from
+ *   desktop.
+ *
+ * @param2: sFilePath
+ *    string, file path, should be a full path in local.
+ *            example: '/home/xiquan/.resource/document/data/somefile.txt'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, retrieve 'success' when success.
+ *
+ **/
+function removeFileFromDesk(removeFileFromDeskCb, sFilePath) {
+  console.log("Request handler 'removeFileFromDesk' was called.");
+  desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
+}
+exports.removeFileFromDesk = removeFileFromDesk;
+
+/** 
+ * @Method: getFilesFromDesk
+ *   To get all files on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of files on desktop.
+ *
+ **/
+function getFilesFromDesk(getFilesFromDeskCb) {
+  console.log("Request handler 'getFilesFromDesk' was called.");
+  desktopConf.getFilesFromDesk(getFilesFromDeskCb);
+}
+exports.getFilesFromDesk = getFilesFromDesk;
+
+/** 
+ * @Method: getAllVideo
+ *   To get all vidoe files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of file info, as [filePath,inode]
+ *
+ **/
+function getAllVideo(getAllVideoCb) {
+  console.log("Request handler 'getAllVideo' was called.");
+  desktopConf.getAllVideo(getAllVideoCb);
+}
+exports.getAllVideo = getAllVideo;
+
+/** 
+ * @Method: getAllMusic
+ *   To get all music files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, of all music file info, as {inode:itemPath}
+ *
+ **/
+function getAllMusic(getAllMusicCb) {
+  console.log("Request handler 'getAllMusic' was called.");
+  desktopConf.getAllMusic(getAllMusicCb);
+}
+exports.getAllMusic = getAllMusic;
+
+/** 
+ * @Method: createFileOnDesk
+ *   To create a txt file on desktop.
+ *
+ * @param1: createFileOnDeskCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, file info of the new file, as [filePath, stats.ino].
+ *
+ *  @param2: sContent
+ *        string, content to init.
+ *
+ **/
+function createFileOnDesk(createFileOnDeskCb, sContent) {
+  console.log("Request handler 'createFileOnDesk' was called.");
+  desktopConf.createFile(sContent, createFileOnDeskCb);
+}
+exports.createFileOnDesk = createFileOnDesk;
+
+/** 
+ * @Method: renameFileOnDesk
+ *   To rename a file on desktop. Front end needs to control that the postfix c-
+ *   not be change.
+ *
+ * @param1: renameFileOnDeskCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, would return 'EXIST' when new file name exists in db; otherwi-
+ *                se, return 'success'.
+ *
+ **/
+function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
+  console.log("Request handler 'renameFileOnDesk' was called.");
+  desktopConf.rename(oldName, newName, renameFileOnDeskCb);
+}
+exports.renameFileOnDesk = renameFileOnDesk;
+
+/** 
+ * @Method: getIconPath
+ *   To get icon path.
+ *
+ * @param1: iconName
+ *    string, a short icon path.
+ *
+ * @param2: size
+ *    num, size of icon
+ *
+ * @param3: getIconPathCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of icon path.
+ *
+ **/
+function getIconPath(getIconPathCb, iconName, size) {
+  console.log("Request handler 'getIconPath' was called.");
+  desktopConf.getIconPath(iconName, size, getIconPathCb);
+}
+exports.getIconPath = getIconPath;
+
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
@@ -1133,6 +1419,7 @@ exports.repoResetFile = repoResetFile;
  *        string, contain specific error
  *
  *    @param2: result,
+ 
  *        string, retieve 'success' when success
  *
  **/
