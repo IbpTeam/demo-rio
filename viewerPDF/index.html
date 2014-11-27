@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>app_viewerPDF</title>
+  
+    <link rel="stylesheet" type="text/css" href="css/demoUI.css"/>
+    <link rel="stylesheet" type="text/css" href="css/demoUItheme.css"/>
+    <link rel="stylesheet" type="text/css" href="css/demoUIFont.css"/>
+    
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/require.js"></script>
+    <script type="text/javascript" src="lib/api.js"></script>
+    <script type="text/javascript" src="lib/demoUI.js"></script>
+    <script>
+      /**
+       * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
+       */
+      //var test = require('./extension');
+      function onStart(params) {
+        console.log("onStart():" + params);
+        $('#params').text("程序参数是:" + params);
+        WDC.requireAPI(['data'], function(data) {
+          //test.init('params',params);
+            // $('#test').append($('<iframe>', {
+            //     id: "iframeViewer",
+            //     src: "ext/viewerPDF/web/viewer.html?file=" + params,
+            //     "nwdisable": "",
+            //     "nwfaketop": ""
+            // }));
+        })
+      }
+    </script>
+
+  </head>
+  <body> 
+    <p>
+      app_viewerPDF
+    </p>
+    <p>
+    <div id="params"></div>
+    </p>
+
+    <div id="test"></div>
+  </body>
+</html>
