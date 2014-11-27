@@ -513,39 +513,6 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
 }
 exports.pullRequest = pullRequest;
 
-function syncOnlineReq(cate) {
-  var msgObj = {
-    type: "syncOnline",
-    ip: config.SERVERIP,
-    path: utils.getDesRepoDir(cate),
-    account: config.ACCOUNT,
-    device_id: config.uniqueID,
-    category: cate
-  };
-  /*for (var index in device.devicesList) {
-    if (device.devicesList[index].online == true) {
-      if (device.devicesList[index].ip != config.SERVERIP) {
-        transfer.sendMsg(device.devicesList[index], msgObj);
-      }
-    }
-  }*/
-  device.getDeviceList(function(deviceList){
-    for(var index in deviceList){
-      if(deviceList[index].address != config.SERVERIP){
-        var deviceObj = {
-          ip:deviceList[index].address,
-          device_id:deviceList[index].txt[2],
-          account:deviceList[index].txt[1]
-        };
-        console.log("000000000000000000000"+deviceObj);
-        transfer.sendMsg(deviceObj, msgObj);
-      }
-    }
-  });
-}
-exports.syncOnlineReq = syncOnlineReq;
-
-
 function renameDataByUri(category, sUri, sNewName, callback) {
   var sCondition = "URI = '" + sUri + "'";
   commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {

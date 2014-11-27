@@ -305,7 +305,7 @@ function getPubKey(callback){
 
 /**
  * @method serviceUp
- *    Service up callback.
+ *    Service up.
  * @param device
  *    Device object,include device id,name,ip and so on.
  */
@@ -358,7 +358,7 @@ exports.serviceUp = serviceUp;
 
 /**
  * @method syncRefused
- *    Sync refused callback.
+ *    Sync refused.
  * @param msgObj
  *    Message object.
  */
@@ -399,7 +399,7 @@ function syncRefused(msgObj){
 
 /**
  * @method syncRequest
- *    Sync request callback.
+ *    Sync request.
  * @param msgObj
  *    Message object.
  */
@@ -476,7 +476,7 @@ function syncRequest(msgObj){
 
 /**
  * @method syncResponse
- *    Sync response callback.
+ *    Sync response.
  * @param msgObj
  *    Message object.
  */
@@ -535,7 +535,7 @@ function syncResponse(msgObj){
 
 /**
  * @method syncStart
- *    Sync start callback.
+ *    Sync start.
  * @param msgObj
  *    Message object.
  */
@@ -617,7 +617,7 @@ function mergeComplete(deviceId,deviceIp,deviceAccount){
 
 /**
  * @method syncComplete
- *    Sync complete callback.
+ *    Sync complete.
  * @param msgObj
  *    Message object.
  * @param remoteAddress
@@ -664,10 +664,16 @@ function syncComplete(msgObj){
   }
 }
 
+/**
+ * @method syncOnline
+ *    Sync online.
+ * @param msgObj
+ *    Message object.
+ */
 function syncOnline(msgObj) {
-  console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-  console.log(msgObj);
-  console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  //console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  //console.log(msgObj);
+  //console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   var device = {
     device_id:msgObj.device_id,
     ip:msgObj.ip,

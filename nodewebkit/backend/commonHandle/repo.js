@@ -33,6 +33,49 @@ var desRepos=[
 var num=desRepos.length;
 var index=0;
 
+/**
+ * @method syncOnlineReq
+ *    Send sync online request.
+ * @param repoPath
+ *    Repository path.
+ */
+function syncOnlineReq(repoPath) {
+  var basename = path.dirname(repoPath);
+  var cateName = basename.split("Des");
+  if(cateName.length < 2){
+    return;
+  }
+  var msgObj = {
+    type: "syncOnline",
+    ip: config.SERVERIP,
+    path: repoPath,
+    account: config.ACCOUNT,
+    device_id: config.uniqueID,
+    category: cateName[0]
+  };
+  /*for (var index in device.devicesList) {
+    if (device.devicesList[index].online == true) {
+      if (device.devicesList[index].ip != config.SERVERIP) {
+        transfer.sendMsg(device.devicesList[index], msgObj);
+      }
+    }
+  }*/
+  device.getDeviceList(function(deviceList){
+    for(var index in deviceList){
+      if(deviceList[index].address != config.SERVERIP){
+        var deviceObj = {
+          ip:deviceList[index].address,
+          device_id:deviceList[index].txt[2],
+          account:deviceList[index].txt[1]
+        };
+        //console.log("000000000000000000000"+deviceObj);
+        transfer.sendMsg(deviceObj, msgObj);
+      }
+    }
+  });
+}
+exports.syncOnlineReq = syncOnlineReq;
+
 exports.repoInit = function(repoPath, callback) {
   git.Repo.init(repoPath, false, function(initReporError, repo) {
     if (initReporError)
@@ -64,7 +107,7 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
   var fileInfo = '"file":["' + files.join('","') + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git add error");
@@ -72,6 +115,7 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
     } else {
       //console.log("Git add success");
       callback('success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -97,6 +141,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
     } else {
       //console.log("Git rm success");
       callback('success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -122,6 +167,7 @@ function repoChsCommit(repoPath, files, commitID, callback) {
     } else {
       //console.log("Git change success");
       callback('success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -144,6 +190,7 @@ exports.repoResetCommit = function(repoPath, file, commitID, callback) {
     } else {
       console.log("Git change success");
       callback('success');
+      syncOnlineReq(repoPath);
     }
   });
 }
