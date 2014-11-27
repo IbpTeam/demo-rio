@@ -147,13 +147,14 @@ function sendMsgCb(msg){
  */
 function checkSyncList(){
   if(syncList.length > 0){
-    switch(syncList[0].syncMethod){
+    var oDeviceItem = syncList.shift();
+    switch(oDeviceItem.syncMethod){
       case syncMethod.METHOD_AUTO:{
-        serviceUp(syncList[0]);
+        serviceUp(oDeviceItem);
       }
       break;
       case syncMethod.METHOD_ONLINE:{
-        syncOnline(syncList[0]);
+        syncOnline(oDeviceItem);
       }
       break;
       default:{
@@ -312,6 +313,9 @@ function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
     return;
   }
+  if(device.syncMethod == undefined){
+    device.syncMethod = syncMethod.METHOD_AUTO;
+  }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
       iCurrentState = syncState.SYNC_REQUEST;
@@ -330,22 +334,18 @@ function serviceUp(device){
     }
     break;
     case syncState.SYNC_REQUEST:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
     case syncState.SYNC_RESPONSE:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
     case syncState.SYNC_START:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
     case syncState.SYNC_COMPLETE:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
@@ -668,13 +668,24 @@ function syncOnline(msgObj) {
   console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
   console.log(msgObj);
   console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  var device = {
+    device_id:msgObj.device_id,
+    ip:msgObj.ip,
+    account:msgObj.account,
+    path:msgObj.path,
+    syncMethod:syncMethod.METHOD_ONLINE,
+    category:msgObj.category
+  };
   if(iCurrentState == syncState.SYNC_IDLE){
+    iCurrentState = syncState.SYNC_START;
+    syncList.unshift(device);
     repo.haveBranch(msgObj.path,msgObj.device_id,function(isHaveBranch){
       if(isHaveBranch == false){
         console.log("Unknown device!!!!!!!!!!!");
+        iCurrentState = syncState.SYNC_IDLE;
+        syncList.shift();
         return;
       }
-      iCurrentState = syncState.SYNC_START;
       repo.pullFromOtherRepo(msgObj.path,msgObj.device_id, function(desFileNames){
         var aFilePaths = new Array();
         var sDesPath = utils.getDesRepoDir(msgObj.category);
@@ -685,21 +696,16 @@ function syncOnline(msgObj) {
         //TODO base on files, modify data in db
         dataDes.readDesFiles(aFilePaths, function(desObjs) {
           dataDes.writeDesObjs2Db(desObjs, function(status) {
-            callback(msgObj.device_id,msgObj.ip,msgObj.account);
+            //callback(msgObj.device_id,msgObj.ip,msgObj.account);
+            console.log("Sync online success!" + status);
+            iCurrentState = syncState.SYNC_IDLE;
+            syncList.shift();
+            checkSyncList();
           });
         });
       });
     });
   }else{
-    var device = {
-      device_id:msgObj.device_id,
-      ip:msgObj.ip,
-      account:msgObj.account,
-      path:msgObj.path,
-      syncMethod:syncMethod.METHOD_ONLINE,
-      category:msgObj.category
-    };
     syncList.push(device);
-    console.log("8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
   }
 }

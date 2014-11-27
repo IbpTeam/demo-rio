@@ -202,11 +202,11 @@ exports.haveBranch = function(resourcesPath, branch, callback) {
   //console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
     var branchList = getBranchList(stdout);
-    console.log(branchList.length);
+    //console.log(branchList.length);
     for (var index in branchList) {
       //Reg trim
       var branchName = branchList[index].match(/rio.+rio/g);
-      console.log("have branch :=======" + branchName);
+      //console.log("have branch :=======" + branchName);
       if (branchName != null && branchName.length > 0 && branchName[0] == branch) {
         callback(true);
         return;
