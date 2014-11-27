@@ -675,22 +675,19 @@ function syncOnline(msgObj) {
         return;
       }
       iCurrentState = syncState.SYNC_START;
-      repo.pullFromOtherRepo(msgObj.path,msgObj.device_id,function(result){
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
-        //var aFilePaths = new Array();
-
-
-     //var cate= utils.getCategoryByPath(msgObj.path);
-        //var baseName="hyz.pdf.md";//path.basename(msgObj.path);
-        //var sDesPath=utils.getDesDir(msgObj.category);
-        //aFilePaths.push(path.join(sDesPath,baseName));
-        //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + result);
-      //TODO base on files, modify data in db
-      //dataDes.readDesFiles(aFilePaths,function(desObjs){
-        //dataDes.writeDesObjs2Db(desObjs,function(status){
-          //callback(msgObj.device_id,msgObj.ip,msgObj.account);
-        //});
-      //});
+      repo.pullFromOtherRepo(msgObj.path,msgObj.device_id, function(desFileNames){
+        var aFilePaths = new Array();
+        var sDesPath = utils.getDesRepoDir(msgObj.category);
+        desFileNames.forEach(function(desFileName) {
+          aFilePaths.push(path.join(sDesPath, desFileName));
+        });
+        //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+        //TODO base on files, modify data in db
+        dataDes.readDesFiles(aFilePaths, function(desObjs) {
+          dataDes.writeDesObjs2Db(desObjs, function(status) {
+            callback(msgObj.device_id,msgObj.ip,msgObj.account);
+          });
+        });
       });
     });
   }else{
