@@ -46,7 +46,7 @@ function syncOnlineReq(repoPath) {
   var sDirName = path.dirname(repoPath);
   var sBaseName = path.basename(sDirName);
   var sCateName = sBaseName.split("Des");
-  console.log("99999999999999999999999999999999999999999"+cateName[0]);
+  console.log("99999999999999999999999999999999999999999"+sCateName[0]);
   if(sCateName.length < 2){
     return;
   }
