@@ -42,9 +42,12 @@ var index=0;
  *    Repository path.
  */
 function syncOnlineReq(repoPath) {
-  var basename = path.dirname(repoPath);
-  var cateName = basename.split("Des");
-  if(cateName.length < 2){
+  console.log("99999999999999999999999999999999999999999"+repoPath);
+  var sDirName = path.dirname(repoPath);
+  var sBaseName = path.basename(sDirName);
+  var sCateName = sBaseName.split("Des");
+  console.log("99999999999999999999999999999999999999999"+cateName[0]);
+  if(sCateName.length < 2){
     return;
   }
   var msgObj = {
@@ -53,7 +56,7 @@ function syncOnlineReq(repoPath) {
     path: repoPath,
     account: config.ACCOUNT,
     device_id: config.uniqueID,
-    category: cateName[0]
+    category: sCateName[0]
   };
   /*for (var index in device.devicesList) {
     if (device.devicesList[index].online == true) {

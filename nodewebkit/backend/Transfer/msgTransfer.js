@@ -698,7 +698,7 @@ function syncOnline(msgObj) {
         desFileNames.forEach(function(desFileName) {
           aFilePaths.push(path.join(sDesPath, desFileName));
         });
-        //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
         //TODO base on files, modify data in db
         dataDes.readDesFiles(aFilePaths, function(desObjs) {
           dataDes.writeDesObjs2Db(desObjs, function(status) {
