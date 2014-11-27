@@ -758,7 +758,7 @@ Folder.prototype.show_history = function(){
         if(count == commitIds.length - 1){
           file_property += '<input type=button class="btn active" name="null" value="Confirm Recover"/>';
         }else{
-          file_property += '<input type=button class="btn active" name='+commitIds[count + 1]+' value="Confirm Recover"/>';
+          file_property += '<input type=button class="btn active" name='+commitIds[count]+' value="Confirm Recover"/>';
           count ++;
         }
       }

@@ -186,7 +186,7 @@ function createDataAll(items, callback) {
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(result) {
+              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err,result) {
                 if (result !== 'success') {
                   console.log(err);
                   return callback(null);
