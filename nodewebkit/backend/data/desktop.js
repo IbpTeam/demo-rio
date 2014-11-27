@@ -2474,7 +2474,7 @@ function getAllMusic(callback) {
       var item = result[i];
       (function(_item) {
         var sPath = _item.path;
-        fs.stat(sPath, function(err, stat)  {
+        fs.stat(sPath, function(err, stat) {
           if (err) {
             console.log(err);
             return callback(err, null);
@@ -2576,7 +2576,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
     if (index_ < _iconSearchPath.length - 1) _path += themeName_;
     fs.exists(_path, function(exists_) {
       if (exists_) {
-        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _iconSearchPath.length - 1) ? size_ : '') + '.*/' + iconName_ + '\.(svg|png)$\"';
+        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _iconSearchPath.length - 1) ? size_ : '') + './(./)*' + iconName_ + '.(svg|png)$\"';
         exec(tmp, function(err, stdout, stderr) {
           if (err) {
             console.log(err, stdout, stderr);
