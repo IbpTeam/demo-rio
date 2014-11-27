@@ -10,8 +10,6 @@ var CURUSER = process.env['USER'];
 var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
 var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
-var keySizeBits = 1024;
-var size = 65537;
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;
@@ -47,12 +45,12 @@ function MD5(str, encoding) {
 function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
   var server = net.createServer(function(c) {
-    //console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+    console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
 
     c.on('data', function(msgStri) {
-      //console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
+      console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
       var msgStr = JSON.parse(msgStri);
       try {
         var decrypteds = msgStr[0].content;
@@ -161,7 +159,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   switch (MSG[0].type) {
     case 'SentEnFirst':
       {
-        //console.log("sending message ::: " + tmpenmsg);
+        console.log("sending message ::: " + tmpenmsg);
         client.connect(PORT, IP, function() {
           client.write(tmpenmsg, function() {});
         });

@@ -1,5 +1,5 @@
 var fileTransferClient = require('./fileTransferClient');
-var transferFile = require('./transferFile');
+var transferFile = require('./fileTransfer');
 var state = '1';
 
 function processFileRequest(msgObj, callback) {
@@ -36,7 +36,7 @@ function processFileRequest(msgObj, callback) {
     case 0x0002:
       { //收到接收文件端的传输文件进度      
         console.log('ininitransferFileProcessing ' + JSON.stringify(msgObj));
-        transferFile.transferProcessing(msgObj);
+        //transferFile.transferProcessing(msgObj);
       }
       break;
     case 0x0003:
