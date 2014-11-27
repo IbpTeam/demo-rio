@@ -9,8 +9,8 @@ var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
 var SSHPATH = path.join(USERCONFIGPATH,"key");
 var uniqueID = require(USERCONFIGPATH + '/uniqueID.js')
 
-var prikeypath = path.join(SSHPATH, "priKey.pem");
-var pubkeypath = path.join(SSHPATH, "pubKey.pem");
+var prikeypath = path.join(SSHPATH, "rio_rsa");
+var pubkeypath = path.join(SSHPATH, "rio_rsa.pem");
 var serverkeypath = path.join(SSHPATH, "serverKey.pem");
 
 var keyPair = rsaKey.initSelfRSAKeys(prikeypath, pubkeypath);
