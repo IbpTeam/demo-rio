@@ -6,8 +6,8 @@ var ds = require("../../lib/api/device_service");
 var devicesList=new Array();
 exports.devicesList = devicesList;
 
-function getDeviceList(){
-  commonDAO.findItems(null,["devices"],null,null,function(err,items){
+function getDeviceList(callback){
+  /*commonDAO.findItems(null,["devices"],null,null,function(err,items){
     if(err){
       console.log(err);  
     }
@@ -23,7 +23,15 @@ function getDeviceList(){
       }  
       console.log("---------------------------------------------------------");
     }
-  });
+  });*/
+  ds.getDeviceByAccount(function(deviceList){
+    console.log("----------------------devicesList:-----------------------");
+    for (var i in deviceList) {  
+      console.log(deviceList[i]);
+    }  
+    console.log("---------------------------------------------------------");
+    callback(deviceList);
+  },config.ACCOUNT);
 }
 exports.getDeviceList = getDeviceList;
 
@@ -132,7 +140,7 @@ function listenDeviceCallback(deviceObj){
 }
 
 function startDeviceDiscoveryService(){
-  getDeviceList();
+  //getDeviceList();
   ds.addListenerByAccount(listenDeviceCallback, config.ACCOUNT);
   //Start device service
   ds.startMdnsService(function(state) {

@@ -186,7 +186,7 @@ function createDataAll(items, callback) {
           var isEnd = (count === lens - 1);
           if (isEnd) {
             commonDAO.createItems(allItems, function() {
-              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(result) {
+              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err,result) {
                 if (result !== 'success') {
                   console.log(err);
                   return callback(null);
@@ -522,13 +522,26 @@ function syncOnlineReq(cate) {
     device_id: config.uniqueID,
     category: cate
   };
-  for (var index in device.devicesList) {
+  /*for (var index in device.devicesList) {
     if (device.devicesList[index].online == true) {
       if (device.devicesList[index].ip != config.SERVERIP) {
         transfer.sendMsg(device.devicesList[index], msgObj);
       }
     }
-  }
+  }*/
+  device.getDeviceList(function(deviceList){
+    for(var index in deviceList){
+      if(deviceList[index].address != config.SERVERIP){
+        var deviceObj = {
+          ip:deviceList[index].address,
+          device_id:deviceList[index].txt[2],
+          account:deviceList[index].txt[1]
+        };
+        console.log("000000000000000000000"+deviceObj);
+        transfer.sendMsg(deviceObj, msgObj);
+      }
+    }
+  });
 }
 exports.syncOnlineReq = syncOnlineReq;
 
