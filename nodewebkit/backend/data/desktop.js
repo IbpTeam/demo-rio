@@ -2474,7 +2474,7 @@ function getAllMusic(callback) {
       var item = result[i];
       (function(_item) {
         var sPath = _item.path;
-        fs.stat(sPath, function(err, stat) {
+        fs.stat(sPath, function(err, stat)  {
           if (err) {
             console.log(err);
             return callback(err, null);
