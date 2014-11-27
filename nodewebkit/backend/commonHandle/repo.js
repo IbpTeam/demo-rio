@@ -188,11 +188,11 @@ exports.getLatestCommit = getLatestCommit;
 
 function getBranchList(stdout) {
   var line = stdout.split("\n");
-  for (var index in line) {
-    if (line[index].indexOf('|') == -1) {
-      line.pop(line[index]);
-    }
-  }
+  //for (var index in line) {
+    //if (line[index].indexOf('|') == -1) {
+      //line.pop(line[index]);
+    //}
+  //}
   //console.log("###################################" + line);
   return line;
 }
@@ -204,12 +204,15 @@ exports.haveBranch = function(resourcesPath, branch, callback) {
   var cmd = 'cd ' + sLocalResourcesPath + '&& git branch';
   //console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
-    //console.log(stdout + stderr);
     var branchList = getBranchList(stdout);
+    console.log(branchList.length);
     for (var index in branchList) {
-      if (branchList[index] == branch) {
-        //console.log("have branch : " + branch);
+      //Reg trim
+      var branchName = branchList[index].match(/rio.+rio/g);
+      console.log("have branch :=======" + branchName);
+      if (branchName != null && branchName.length > 0 && branchName[0] == branch) {
         callback(true);
+        return;
       }
     }
     //console.log("have no branch : " + branch);
