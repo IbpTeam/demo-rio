@@ -4,6 +4,7 @@ var config = require("../config");
 var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
+var device = require("../data/device");
 
 var repos=[
   {name:"contactDes",status:"empty"},
