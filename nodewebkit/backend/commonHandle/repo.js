@@ -59,7 +59,7 @@ function syncOnlineReq(repoPath) {
   var msgObj = {
     type: "syncOnline",
     ip: config.SERVERIP,
-    path: repoPath,
+    path: tempPath,
     account: config.ACCOUNT,
     device_id: config.uniqueID,
     category: sCateName[0]
