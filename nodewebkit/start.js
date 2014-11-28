@@ -23,6 +23,7 @@ var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
+var cryptoApp= require('./lib/api/crypto_app');
 //var process = require('process');
 
 var handle = {}
@@ -45,6 +46,12 @@ function startApp(){
   if (startonce === true){
     return;
   }
+  cryptoApp.generateKeypairCtn(function(done) {
+    if (done)
+      console.log('create rsa keypair success!');
+    else
+      console.log('create rsa keypair failed!!!');
+  });
   startonce = true;
   config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();

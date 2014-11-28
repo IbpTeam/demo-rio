@@ -2125,12 +2125,12 @@ function moveToDesktopSingle(sFilePath, callback) {
                 console.log(err, stdout, stderr);
                 return callback(err, null);
               }
-              fs.stat(sFilePath, function(err, stats) {
+              fs.stat(result, function(err, stats) {
                 if (err) {
                   console.log(sFilePath, err);
                   return callback(err, null);
                 }
-                var fileInfo = [sFilePath, stats.ino];
+                var fileInfo = [result, stats.ino];
                 callback(null, fileInfo);
               })
             })
@@ -2340,7 +2340,11 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        object, array of file info, as [filePath,inode]
+ *        object, array of file info,
+ *                as [{filePath: '/home/xiquan/a.txt',
+ *                     inode:    '1902384109',
+ *                     tags:     '$desktop$aa$bb$'
+ *                   }]
  *
  **/
 function getFilesFromDesk(callback) {
@@ -2349,19 +2353,42 @@ function getFilesFromDesk(callback) {
       console.log(err);
       return callback(err, null);
     }
-    console.log('get all files on desktop:\n', result);
-    var sPath = result[0].path;
-    fs.stat(sPath, function(err, stat) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      var sInode = stat.ino;
-      var sInfo = [sPath, sInode];
-      callback(null, sInfo);
-    })
+    var oInfo = [];
+    var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
+    var count = 0;
+    var lens = result.length;
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      (function(_item) {
+        var sPath = _item.path;
+        fs.stat(sPath, function(err, stat) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var oTags = item.others.split(',');
+          for (var j = 0; j < oTags.length; j++) {
+            if (reg_desktop.test(oTags[j])) {
+              var sTag = oTags[j];
+              break;
+            }
+          }
+          var tmpInfo = {
+            filepath: sPath,
+            inode: stat.ino,
+            tags: sTag
+          }
+          oInfo.push(tmpInfo);
+          var isEnd = (count === lens - 1);
+          if (isEnd) {
+            callback(null, oInfo);
+          }
+          count++;
+        })
+      })(item)
+    }
   }
-  var oTags = ['$desktop'];
+  var oTags = ['$desktop$'];
   tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesFromDesk = getFilesFromDesk;
@@ -2427,8 +2454,8 @@ exports.getAllVideo = getAllVideo;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        object, of all music file info, as {inode:itemPath}
- *
+ *        object, of all music file info as{inode:oFileInfo}.
+ *                more detail in document.
  **/
 function getAllMusic(callback) {
   commonDAO.findItems(null, ['Music'], null, null, function(err, result) {
@@ -2453,9 +2480,10 @@ function getAllMusic(callback) {
             return callback(err, null);
           }
           var sInode = stat.ino;
-          oInfoResult[sInode] = sPath;
+          oInfoResult[sInode] = _item;
           var isEnd = (count == lens - 1);
           if (isEnd) {
+            console.log(oInfoResult)
             callback(null, oInfoResult);
           }
           count++;
@@ -2471,7 +2499,7 @@ exports.getAllMusic = getAllMusic;
  * @Method: getIconPath
  *   To get icon path.
  *
- * @param1: iconName_ 
+ * @param1: iconName_
  *    string, a short icon path.
  *
  * @param2: size_
@@ -2512,7 +2540,11 @@ function getIconPath(iconName_, size_, callback) {
       if (err_) {
         getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
           if (err_) {
-            callback('Not found');
+            exec('locate ' + iconName_ + ' | grep -E \"\.(png|svg)$\"'
+              , function(err, stdout, stderr) {
+                if(err || stdout == '') return callback('Not found');
+                return callback(null, stdout.replace(/\n$/, '').split('\n').reverse());
+              });
           } else {
             callback(null, iconPath_);
           }
@@ -2541,14 +2573,13 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
 
   var findIcon = function(index_) {
     if (index_ == _iconSearchPath.length) {
-      callback('Not found');
-      return;
+      return callback('Not found');
     }
     var _path = _iconSearchPath[index_];
     if (index_ < _iconSearchPath.length - 1) _path += themeName_;
     fs.exists(_path, function(exists_) {
       if (exists_) {
-        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _iconSearchPath.length - 1) ? size_ : '') + '.*/' + iconName_ + '\.(svg|png|xpm)$\"';
+        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _iconSearchPath.length - 1) ? size_ : '') + '.*/(.*/)*' + iconName_ + '\.(svg|png)$\"';
         exec(tmp, function(err, stdout, stderr) {
           if (err) {
             console.log(err, stdout, stderr);
