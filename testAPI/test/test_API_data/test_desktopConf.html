@@ -600,6 +600,24 @@
     });
   }
 
+  function deviceInfoCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API deviceInfo()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_deviceInfo(deviceInfoCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.deviceInfo(deviceInfoCb);
+    });
+  }
+
   </script>
 
 <h2 onclick="show('initDesktop')">initDesktop(initDesktopCb)<span><a class="mark" href="#test_initDesktop" id="test_initDesktop" onclick="test_initDesktop(initDesktopCb)">test</a></span></h2>
@@ -1416,6 +1434,36 @@
       var sFilePath = '/home/xiquan/.resources/document/testJSON.txt';
       var sTags = '$desktop$aa$bb$';
       data.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('deviceInfo')">deviceInfo(deviceInfoCb)<span><a class="mark" href="#test_deviceInfo" id="test_deviceInfo" onclick="test_deviceInfo(deviceInfoCb)">test</a></span></h2>
+<div id="deviceInfo" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function deviceInfoCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API deviceInfo()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_deviceInfo(deviceInfoCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.deviceInfo(deviceInfoCb);
     });
   }
 </pre>

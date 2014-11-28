@@ -1480,6 +1480,6 @@ exports.renameDataByUri = renameDataByUri;
  **/
 function deviceInfo(deviceInfoCb) {
   console.log("Request handler 'renameDataByUri' was called.");
-  device.deviceInfo(deviceInfoCb);
+  devices.deviceInfo(deviceInfoCb);
 }
 exports.deviceInfo = deviceInfo;
