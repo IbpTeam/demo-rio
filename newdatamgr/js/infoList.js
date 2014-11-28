@@ -2,10 +2,21 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = 'all';
-    this._btmTitle = 'Recent Contact';
-    this._info = {};
-    this._btmInfo = {};
+    this._title = ['contact','picture','video','document','music'];
+    this._bkgColor = ['rgba(100, 0, 0, 0.5)','rgba(0, 50, 0, 0.5)','rgba(0, 0, 50, 0.5)','rgba(200, 200, 200, 0.5)','rgba(50, 50, 50, 0.5)'];
+    this._btmTitle = ['Recent Contact', 'New Import', 'New Import','New Import','New Import'];
+    this._index = -1;
+    this._info = {
+      'Falimy': 8,
+      'Friend': 30,
+      'Co-workers': 10,
+      'Other': 8
+    };
+    this._btmInfo = {
+	'New file1' : 'today',
+	'New File2' : 'today',
+	'New File3' : 'today'
+    };
     this._infoList = $('<div>',{
       'id':'info-list'
     });
@@ -22,8 +33,7 @@ var InfoList = Class.extend({
     });
     this._infoList.append(this._infoContent);
     this._add = $('<a>',{
-      'class':'il__a',
-      'text': '+'
+      'class':'il__add icon-plus'
     })
     this._infoContent.append(this._add);
     this._infoBottom = $('<nav>',{
@@ -40,14 +50,22 @@ var InfoList = Class.extend({
     this._infoBottom.append(this._edit);
   },
 
+  setIndex:function(index_){
+    if(typeof index_ === 'number' && index_ > 0 && index_ < 7){
+      this._index = index_-2;
+    }
+  },
+
   setTitle:function(){
+    if (this._index < 0  || this._index > 4) return 0;
+    this._infoList.css('background-color', this._bkgColor[this._index]);
     var _p = this._titleForm.children('p');
     if (_p.length > 0) {
       _p.remove();
     };
     _p = $('<p>',{
       'id':'title-text',
-      'text': this._title
+      'text': this._title[this._index]
     });
     this._titleForm.append(_p);
     var $span = this._infoBtmTitle.children('span');
@@ -59,7 +77,7 @@ var InfoList = Class.extend({
     });
     var _title = $('<span>', {
       'class': 'bil_title',
-      'text': this._btmTitle
+      'text': this._btmTitle[this._index]
     })
     this._infoBtmTitle.append(_icon);
     this._infoBtmTitle.append(_title);
@@ -105,10 +123,22 @@ var InfoList = Class.extend({
     if (this._btmInfo) {
       for(var key in this._btmInfo){
         var _a = $('<a>',{
-          'class':'bil__a'
+          'class':'bil__a',
+          'text': key
         });
         this._edit.before(_a);
       }
+    };
+  },
+
+  removeContent:function(){
+    var _list = this._infoContent.children('.il__a');
+    if (_list.length !== 0) {
+      _list.remove();
+    };
+    var _blist = this._infoBottom.children('.bil__a');
+    if (_blist.length !== 0) {
+      _blist.remove();
     };
   },
 
