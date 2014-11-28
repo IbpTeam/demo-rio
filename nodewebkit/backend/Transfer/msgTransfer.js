@@ -694,13 +694,6 @@ function syncOnlineReq(repoPath) {
     device_id: config.uniqueID,
     category: sCateName[0]
   };
-  /*for (var index in device.devicesList) {
-    if (device.devicesList[index].online == true) {
-      if (device.devicesList[index].ip != config.SERVERIP) {
-        transfer.sendMsg(device.devicesList[index], msgObj);
-      }
-    }
-  }*/
   device.getDeviceList(function(deviceList){
     for(var index in deviceList){
       if(deviceList[index].address != config.SERVERIP){
