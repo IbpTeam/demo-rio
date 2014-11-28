@@ -1,4 +1,5 @@
 nodewebkit/node_modules/*
 *.swp
-newdatamgr/node_modules
+newdatamgr/node_modules/*grunt*
 newdatamgr/css/datamgr.css
+!newdatamgr/node_modules/demo-rio
