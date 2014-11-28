@@ -3137,6 +3137,7 @@ var PDFView = {
       function getDocumentError(message, exception) {
         var loadingErrorMessage = mozL10n.get('loading_error', null,
           'An error occurred while loading the PDF.');
+        console.log('An error occurred while loading the PDF.');
 
         if (exception && exception.name === 'InvalidPDFException') {
           // change error message also for other builds
@@ -3175,6 +3176,7 @@ var PDFView = {
     downloadManager.onerror = function (err) {
       // This error won't really be helpful because it's likely the
       // fallback won't work either (or is already open).
+      console.log('PDF failed to download.');
       PDFView.error('PDF failed to download.');
     };
 
@@ -3190,6 +3192,7 @@ var PDFView = {
 
     this.pdfDocument.getData().then(
       function getDataSuccess(data) {
+        console.log('getDataSuccess');
         var blob = PDFJS.createBlob(data, 'application/pdf');
         downloadManager.download(blob, url, filename);
       },
