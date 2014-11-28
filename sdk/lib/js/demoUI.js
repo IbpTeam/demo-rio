@@ -1,4 +1,4 @@
-/*! ui-lib - v0.0.1 - 2014-11-06
+/*! ui-lib - v0.0.1 - 2014-11-05
 * Copyright (c) 2014 */
 function Class() {}
 
