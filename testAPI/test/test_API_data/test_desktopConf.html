@@ -580,6 +580,26 @@
     });
   }
 
+  function setRelativeTagByPathCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API setRelativeTagByPath()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_setRelativeTagByPath(setRelativeTagByPathCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/.resources/document/data/testJSON.txt';
+      var sTags = '$desktop$aa$bb$';
+      data.setRelativeTagByPath(setRelativeTagByPathCb,sFilePath, sTags);
+    });
+  }
+
   </script>
 
 <h2 onclick="show('initDesktop')">initDesktop(initDesktopCb)<span><a class="mark" href="#test_initDesktop" id="test_initDesktop" onclick="test_initDesktop(initDesktopCb)">test</a></span></h2>
@@ -1364,6 +1384,38 @@
       var oldName = 'small_image.jpg';
       var newName = 'test_rename.jpg';
       data.renameFileOnDesk(renameFileOnDeskCb, oldName, newName);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('setRelativeTagByPath')">setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags)<span><a class="mark" href="#test_setRelativeTagByPath" id="test_setRelativeTagByPath" onclick="test_setRelativeTagByPath(setRelativeTagByPathCb)">test</a></span></h2>
+<div id="setRelativeTagByPath" style="display:none;">
+<div style="color:#930000">
+  <pre>
+
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function setRelativeTagByPathCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API setRelativeTagByPath()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_setRelativeTagByPath(setRelativeTagByPathCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var sFilePath = '/home/xiquan/.resources/document/testJSON.txt';
+      var sTags = '$desktop$aa$bb$';
+      data.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
     });
   }
 </pre>
