@@ -64,49 +64,38 @@ function getTagsFromString(str) {
         var line2 = str.split(",");
         for (var index2 in line2) {
           if(line2[index2].lastIndexOf("MPEG")>=0){
-            //console.log(line2[index2]);
             tags.format=(line2[index2].substring(line2[index2].lastIndexOf("MPEG"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
           }
           else if(line2[index2].lastIndexOf("bps")>=0){
-            //console.log(line2[index2]);
             tags.bit_rate=(line2[index2].substring(0,line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g,'');
           }
           else if(line2[index2].lastIndexOf("Hz")>=0){
-            //console.log(line2[index2]);
             tags.frequency=(line2[index2].substring(0,line2[index2].lastIndexOf("Hz"))).replace(/(^\s*)|(\s*$)/g,'');
           }
           else if(line2[index2].lastIndexOf("seconds")>=0){
-            //console.log(line2[index2]);
             tags.track=(line2[index2].substring(0,line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g,'');
           }
         }
       }
       else if(line1[index1].indexOf("TDRC=")>=0){
-        //console.log(line1[index1]);
         tags.TDRC=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
       else if(line1[index1].indexOf("APIC=")>=0){
-        //console.log(line1[index1]);
         tags.APIC=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
       else if(line1[index1].indexOf("TALB=")>=0){
-        //console.log(line1[index1]);
         tags.TALB=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
       else if(line1[index1].indexOf("TPE1=")>=0){
-        //console.log(line1[index1]);
         tags.TPE1=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
       else if(line1[index1].indexOf("TIT2=")>=0){
-        //console.log(line1[index1]);
         tags.TIT2=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
       else if(line1[index1].indexOf("TXXX=")>=0){
-        //console.log(line1[index1]);
         tags.TXXX=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
       else if(line1[index1].indexOf("COMM=")>=0){
-        //console.log(line1[index1]);
         tags.COMM=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
       }
     }
