@@ -370,7 +370,6 @@ function openDataByUri(openDataByUriCb, uri) {
           commonDAO.updateItems(updateItems, function(result) {
             console.log(result);
             openDataByUriCb(source);
-            commonHandle.syncOnlineReq(CATEGORY_NAME);
           });
         });
       });

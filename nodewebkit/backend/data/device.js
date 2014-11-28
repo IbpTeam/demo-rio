@@ -150,3 +150,22 @@ function startDeviceDiscoveryService(){
   });
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
+
+
+function deviceInfo(callback) {
+  try {
+    var oInfo = {
+      resources_path: config.RESOURCEPATH,
+      server_ip: config.SERVERIP,
+      server_name: config.SERVERNAME,
+      local_account: config.ACCOUNT,
+      local_id: config.uniqueID
+    }
+  } catch (e) {
+    if (e) {
+      return callback(e, null);
+    }
+  }
+  callback(null, oInfo);
+}
+exports.deviceInfo = deviceInfo;

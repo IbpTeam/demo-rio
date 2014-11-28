@@ -14,7 +14,8 @@ var mimeTypes = {
      "css": "text/css",
      "txt": "text/plain",
      "mp3": "audio/mpeg3",
-     "ogg": "audio/mpeg"
+     "ogg": "audio/mpeg",
+     "svg": "image/svg+xml"
 };
 
 function getRemoteAPIFile(handle, modulename, response){
@@ -124,6 +125,9 @@ function getRealFile(pathname, response){
             case 'js':
               content_type = mimeTypes[suffix];
               break;
+            case 'svg':
+              content_type = mimeTypes[suffix];
+              break;
             default:
               content_type = 'text/html';
               break;
@@ -159,6 +163,7 @@ function route(handle, pathname, response, postData) {
     var wsclient = response;
     var message = postData;
     wsclient.send("I have got your message whose length is " + postData.length);
+    // TODO: Handle message
     return;
   }else if ( pathname == '/callapi' ) {
     //This is for remote call api in internet browser.

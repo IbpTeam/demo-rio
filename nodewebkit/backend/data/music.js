@@ -30,12 +30,96 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 
+
 //@const
 var CATEGORY_NAME = "music";
 var DES_NAME = "musicDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
+
+
+
+function getTagsFromString(str) {
+  var tags={
+    format:null,
+    bit_rate:null,
+    frequency:null,
+    track:null,
+    TDRC:null,
+    APIC:null,
+    TALB:null,
+    TPE1:null,
+    TIT2:null,
+    TXXX:null,
+    COMM:null
+  };
+  var line1 = str.split("\n");
+  for (var index1 in line1) {
+    if (line1[index1] == "") {
+      line1.pop(line1[index1]);
+    }
+    else{
+      if(line1[index1].lastIndexOf("- ")>=0){
+        var line2 = str.split(",");
+        for (var index2 in line2) {
+          if(line2[index2].lastIndexOf("MPEG")>=0){
+            tags.format=(line2[index2].substring(line2[index2].lastIndexOf("MPEG"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
+          }
+          else if(line2[index2].lastIndexOf("bps")>=0){
+            tags.bit_rate=(line2[index2].substring(0,line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g,'');
+          }
+          else if(line2[index2].lastIndexOf("Hz")>=0){
+            tags.frequency=(line2[index2].substring(0,line2[index2].lastIndexOf("Hz"))).replace(/(^\s*)|(\s*$)/g,'');
+          }
+          else if(line2[index2].lastIndexOf("seconds")>=0){
+            tags.track=(line2[index2].substring(0,line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g,'');
+          }
+        }
+      }
+      else if(line1[index1].indexOf("TDRC=")>=0){
+        tags.TDRC=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("APIC=")>=0){
+        tags.APIC=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("TALB=")>=0){
+        tags.TALB=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("TPE1=")>=0){
+        tags.TPE1=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("TIT2=")>=0){
+        tags.TIT2=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("TXXX=")>=0){
+        tags.TXXX=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("COMM=")>=0){
+        tags.COMM=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+    }
+  }
+  return tags;
+}
+
+function readId3FromMp3(path, callback) {
+  console.log(path);
+  var cp = require('child_process');
+  var cmd = 'mutagen-inspect ' + '"'+path+'"';
+  console.log(cmd);
+  cp.exec(cmd, function(error, stdout, stderr) {
+    if(error){
+      console.log(error);
+      callback(error);
+    }
+    else{
+      //console.log(stdout);
+      callback(error,getTagsFromString(stdout));
+    }
+  });
+}
+exports.readId3FromMp3 = readId3FromMp3;
 
 /**
  * @method createData
@@ -77,37 +161,52 @@ function createData(items, callback) {
       var someTags = tagsHandle.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
-        var itemInfo = {
-          id: null,
-          URI: uri + "#" + category,
-          category: category,
-          is_delete: 0,
-          others: someTags.join(","),
-          filename: itemFilename,
-          postfix: itemPostfix,
-          size: size,
-          path: items,
-          album: '流行',
-          composerName: "Xiquan",
-          actorName: "Xiquan",
-          createTime: ctime,
-          lastModifyTime: mtime,
-          lastAccessTime: ctime,
-          createDev: config.uniqueID,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID
-        };
-        commonHandle.createData(itemInfo, function(result, resultFile) {
-          if (result === 'success') {
-            callback(null, result, resultFile);
-          } else {
-            var _err = 'createData: commonHandle createData error!';
-            console.log('createData error!');
-            callback(_err, null, null);
-          }
-        })
-      })
-    })
+        readId3FromMp3(items,function(err,tags){
+          console.log("read mp3 "+items);
+          console.log(err);
+          console.log(tags);
+          var itemInfo = {
+            id: null,
+            URI: uri + "#" + category,
+            category: category,
+            is_delete: 0,
+            others: someTags.join(","),
+            filename: itemFilename,
+            postfix: itemPostfix,
+            size: size,
+            path: items,
+            format:tags.format,
+            bit_rate:tags.bit_rate,
+            frequency:tags.frequency,
+            track:tags.track,
+            TDRC:tags.TDRC,
+            APIC:tags.APIC,
+            TALB:tags.TALB,
+            TPE1:tags.TPE1,
+            TIT2:tags.TIT2,
+            TXXX:tags.TXXX,
+            COMM:tags.COMM,
+            createTime: ctime,
+            lastModifyTime: mtime,
+            lastAccessTime: ctime,
+            createDev: config.uniqueID,
+            lastModifyDev: config.uniqueID,
+            lastAccessDev: config.uniqueID
+          };
+          console.log(itemInfo);
+          commonHandle.createData(itemInfo, function(result, resultFile) {
+            if (result === 'success') {
+              callback(null, result, resultFile);
+            } 
+            else {
+              var _err = 'createData: commonHandle createData error!';
+              console.log('createData error!');
+              callback(_err, null, null);
+            }
+          });
+        });
+      });
+    });
   } else if (typeof items == 'object') {
     if (!items.length) {
       console.log('create data input error!');
@@ -136,47 +235,63 @@ function createData(items, callback) {
               var someTags = tagsHandle.getTagsByPath(_item);
               var resourcesPath = config.RESOURCEPATH + '/' + category;
               uniqueID.getFileUid(function(uri) {
-                var itemInfo = {
-                  id: null,
-                  URI: uri + "#" + category,
-                  category: category,
-                  is_delete: 0,
-                  others: someTags.join(","),
-                  filename: itemFilename,
-                  postfix: itemPostfix,
-                  size: size,
-                  path: _item,
-                  album: '流行',
-                  composerName: "Xiquan",
-                  actorName: "Xiquan",
-                  createTime: ctime,
-                  lastModifyTime: mtime,
-                  lastAccessTime: ctime,
-                  createDev: config.uniqueID,
-                  lastModifyDev: config.uniqueID,
-                  lastAccessDev: config.uniqueID
-                };
-                itemInfoAll.push(itemInfo);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(result) {
-                    if (result === 'success') {
-                      callback(null, result);
-                    } else {
-                      var _err = 'createData: commonHandle createData all error!';
-                      console.log('createData error!');
-                      callback(_err, null);
-                    }
-                  })
-                }
-                count++;
-              })
+                readId3FromMp3(_item,function(err,tags){
+                  console.log("read mp3 "+_item);
+                  console.log(err);
+                  console.log(tags);
+                  var itemInfo = {
+                    id: null,
+                    URI: uri + "#" + category,
+                    category: category,
+                    is_delete: 0,
+                    others: someTags.join(","),
+                    filename: itemFilename,
+                    postfix: itemPostfix,
+                    size: size,
+                    path: _item,
+                    format:tags.format,
+                    bit_rate:tags.bit_rate,
+                    frequency:tags.frequency,
+                    track:tags.track,
+                    TDRC:tags.TDRC,
+                    APIC:tags.APIC,
+                    TALB:tags.TALB,
+                    TPE1:tags.TPE1,
+                    TIT2:tags.TIT2,
+                    TXXX:tags.TXXX,
+                    COMM:tags.COMM,
+                    createTime: ctime,
+                    lastModifyTime: mtime,
+                    lastAccessTime: ctime,
+                    createDev: config.uniqueID,
+                    lastModifyDev: config.uniqueID,
+                    lastAccessDev: config.uniqueID
+                  };
+                  console.log(itemInfo);
+                  itemInfoAll.push(itemInfo);
+                  var isEnd = (count === lens - 1);
+                  if (isEnd) {
+                    commonHandle.createDataAll(itemInfoAll, function(result) {
+                      if (result === 'success') {
+                        callback(null, result);
+                      } 
+                      else {
+                        var _err = 'createData: commonHandle createData all error!';
+                        console.log('createData error!');
+                        callback(_err, null);
+                      }
+                    });
+                  }
+                  count++;
+                });
+              });
             }
-          })
+          });
         })(item)
       }
     }
-  } else {
+  } 
+  else {
     console.log('input error: items is undefined!');
     var _err = 'createData: input error';
     callback(_err, null);
@@ -360,6 +475,11 @@ function openDataByUri(openDataByUriCb, uri) {
           condition.push("URI='" + item.URI + "'");
           updateItems.conditions = condition;
           updateItems.push(updateItem);
+          readId3FromMp3(item.path,function(err,tags){
+                  console.log("read mp3 "+item);
+                  console.log(err);
+                  console.log(tags);
+                });
           commonDAO.updateItems(updateItems, function(result) {
             console.log(result);
             openDataByUriCb(source);
@@ -369,6 +489,7 @@ function openDataByUri(openDataByUriCb, uri) {
     }
   }
   getByUri(uri, getItemByUriCb);
+
 }
 exports.openDataByUri = openDataByUri;
 
@@ -494,3 +615,4 @@ function rename(sUri, sNewName, callback) {
   })
 }
 exports.rename = rename;
+

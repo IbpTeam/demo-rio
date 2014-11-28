@@ -211,8 +211,8 @@ function initDesktop(callback) {
             buildDesFile('Widget', 'conf', pathWidget, function() {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
-              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(result) {
-                if (result !== 'success') {
+              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err,result) {
+                if (err) {
                   console.log('git commit error');
                   return;
                 }
@@ -358,9 +358,9 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(result) {
-                if (result !== 'success') {
-                  return callback(result, null);
+              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err,result) {
+                if (err) {
+                  return callback(err, null);
                 }
                 callback(null, 'success');
               })
@@ -2540,7 +2540,11 @@ function getIconPath(iconName_, size_, callback) {
       if (err_) {
         getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
           if (err_) {
-            callback('Not found');
+            exec('locate ' + iconName_ + ' | grep -E \"\.(png|svg)$\"'
+              , function(err, stdout, stderr) {
+                if(err || stdout == '') return callback('Not found');
+                return callback(null, stdout.replace(/\n$/, '').split('\n').reverse());
+              });
           } else {
             callback(null, iconPath_);
           }
@@ -2569,8 +2573,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
 
   var findIcon = function(index_) {
     if (index_ == _iconSearchPath.length) {
-      callback('Not found');
-      return;
+      return callback('Not found');
     }
     var _path = _iconSearchPath[index_];
     if (index_ < _iconSearchPath.length - 1) _path += themeName_;
