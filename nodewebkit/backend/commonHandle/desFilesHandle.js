@@ -16,7 +16,7 @@ var fs_extra = require('fs-extra');
 var path = require("path");
 var filesHandle = require("../filesHandle");
 var commonDAO = require("./CommonDAO");
-
+var utils = require('../utils');
 
 // @const
 var TAG_PATH = ".tags"; //Directory .tags,include attribute and tags
@@ -183,7 +183,10 @@ function readDesFile(categoryName,filePath,callback){
         }
         break;
         default:{
-          var conditionStr = "path='" + filePath + "'";
+          var baseName = path.basename(filePath);
+          var contactName = baseName.split(".md");
+          var sRealPath = utils.getRealPath(categoryName,contactName[0]);
+          var conditionStr = "path='" + sRealPath + "'";
           conditionsArr.push(conditionStr);
         }
       }
