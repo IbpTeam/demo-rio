@@ -176,15 +176,6 @@ function createData(items, callback) {
           console.log("read mp3 "+items);
           console.log(err);
           console.log(tags);
-       /*   console.log("tags.artist = "+tags.artist);
-          console.log("tags.title = "+tags.title);
-          console.log("tags.album = "+tags.album);
-          console.log("tags.year = "+tags.year);
-          console.log("tags.v1 = ");
-          console.log(tags.v1);
-          console.log("tags.v2 = ");
-          console.log(tags.v2);*/
-
           var itemInfo = {
             id: null,
             URI: uri + "#" + category,
@@ -259,14 +250,6 @@ function createData(items, callback) {
                   console.log("read mp3 "+_item);
                   console.log(err);
                   console.log(tags);
-             /*     console.log("tags.artist = "+tags.artist);
-                  console.log("tags.title = "+tags.title);
-                  console.log("tags.album = "+tags.album);
-                  console.log("tags.year = "+tags.year);
-                  console.log("tags.v1 = ");
-                  console.log(tags.v1);
-                  console.log("tags.v2 = ");
-                  console.log(tags.v2);*/
                   var itemInfo = {
                     id: null,
                     URI: uri + "#" + category,
