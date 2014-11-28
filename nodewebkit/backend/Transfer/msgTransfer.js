@@ -147,13 +147,14 @@ function sendMsgCb(msg){
  */
 function checkSyncList(){
   if(syncList.length > 0){
-    switch(syncList[0].syncMethod){
+    var oDeviceItem = syncList.shift();
+    switch(oDeviceItem.syncMethod){
       case syncMethod.METHOD_AUTO:{
-        serviceUp(syncList[0]);
+        serviceUp(oDeviceItem);
       }
       break;
       case syncMethod.METHOD_ONLINE:{
-        syncOnline(syncList[0]);
+        syncOnline(oDeviceItem);
       }
       break;
       default:{
@@ -304,13 +305,16 @@ function getPubKey(callback){
 
 /**
  * @method serviceUp
- *    Service up callback.
+ *    Service up.
  * @param device
  *    Device object,include device id,name,ip and so on.
  */
 function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
     return;
+  }
+  if(device.syncMethod == undefined){
+    device.syncMethod = syncMethod.METHOD_AUTO;
   }
   switch(iCurrentState){
     case syncState.SYNC_IDLE:{
@@ -330,22 +334,18 @@ function serviceUp(device){
     }
     break;
     case syncState.SYNC_REQUEST:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
     case syncState.SYNC_RESPONSE:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
     case syncState.SYNC_START:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
     case syncState.SYNC_COMPLETE:{
-      device.syncMethod = syncMethod.METHOD_AUTO,
       syncList.push(device);
     }
     break;
@@ -358,7 +358,7 @@ exports.serviceUp = serviceUp;
 
 /**
  * @method syncRefused
- *    Sync refused callback.
+ *    Sync refused.
  * @param msgObj
  *    Message object.
  */
@@ -399,7 +399,7 @@ function syncRefused(msgObj){
 
 /**
  * @method syncRequest
- *    Sync request callback.
+ *    Sync request.
  * @param msgObj
  *    Message object.
  */
@@ -476,7 +476,7 @@ function syncRequest(msgObj){
 
 /**
  * @method syncResponse
- *    Sync response callback.
+ *    Sync response.
  * @param msgObj
  *    Message object.
  */
@@ -535,7 +535,7 @@ function syncResponse(msgObj){
 
 /**
  * @method syncStart
- *    Sync start callback.
+ *    Sync start.
  * @param msgObj
  *    Message object.
  */
@@ -617,7 +617,7 @@ function mergeComplete(deviceId,deviceIp,deviceAccount){
 
 /**
  * @method syncComplete
- *    Sync complete callback.
+ *    Sync complete.
  * @param msgObj
  *    Message object.
  * @param remoteAddress
@@ -664,45 +664,54 @@ function syncComplete(msgObj){
   }
 }
 
+/**
+ * @method syncOnline
+ *    Sync online.
+ * @param msgObj
+ *    Message object.
+ */
 function syncOnline(msgObj) {
-  console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-  console.log(msgObj);
-  console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  //console.log("receive message:::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  //console.log(msgObj);
+  //console.log("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  var device = {
+    device_id:msgObj.device_id,
+    ip:msgObj.ip,
+    account:msgObj.account,
+    path:msgObj.path,
+    syncMethod:syncMethod.METHOD_ONLINE,
+    category:msgObj.category
+  };
   if(iCurrentState == syncState.SYNC_IDLE){
+    iCurrentState = syncState.SYNC_START;
+    syncList.unshift(device);
     repo.haveBranch(msgObj.path,msgObj.device_id,function(isHaveBranch){
       if(isHaveBranch == false){
         console.log("Unknown device!!!!!!!!!!!");
+        iCurrentState = syncState.SYNC_IDLE;
+        syncList.shift();
         return;
       }
-      iCurrentState = syncState.SYNC_START;
-      repo.pullFromOtherRepo(msgObj.path,msgObj.device_id,function(result){
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"+result);
-        //var aFilePaths = new Array();
-
-
-     //var cate= utils.getCategoryByPath(msgObj.path);
-        //var baseName="hyz.pdf.md";//path.basename(msgObj.path);
-        //var sDesPath=utils.getDesDir(msgObj.category);
-        //aFilePaths.push(path.join(sDesPath,baseName));
-        //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + result);
-      //TODO base on files, modify data in db
-      //dataDes.readDesFiles(aFilePaths,function(desObjs){
-        //dataDes.writeDesObjs2Db(desObjs,function(status){
-          //callback(msgObj.device_id,msgObj.ip,msgObj.account);
-        //});
-      //});
+      repo.pullFromOtherRepo(msgObj.path,msgObj.device_id, function(desFileNames){
+        var aFilePaths = new Array();
+        var sDesPath = utils.getDesRepoDir(msgObj.category);
+        desFileNames.forEach(function(desFileName) {
+          aFilePaths.push(path.join(sDesPath, desFileName));
+        });
+        console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
+        //TODO base on files, modify data in db
+        dataDes.readDesFiles(msgObj.category,aFilePaths, function(desObjs) {
+          dataDes.writeDesObjs2Db(desObjs, function(status) {
+            //callback(msgObj.device_id,msgObj.ip,msgObj.account);
+            console.log("Sync online success!" + status);
+            iCurrentState = syncState.SYNC_IDLE;
+            syncList.shift();
+            checkSyncList();
+          });
+        });
       });
     });
   }else{
-    var device = {
-      device_id:msgObj.device_id,
-      ip:msgObj.ip,
-      account:msgObj.account,
-      path:msgObj.path,
-      syncMethod:syncMethod.METHOD_ONLINE,
-      category:msgObj.category
-    };
     syncList.push(device);
-    console.log("8888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888");
   }
 }

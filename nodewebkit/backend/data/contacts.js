@@ -356,7 +356,7 @@ function pullRequest(deviceId,address,account,resourcesPath,callback){
     });
     console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
     //TODO base on files, modify data in db
-    dataDes.readDesFiles(aFilePaths,function(desObjs){
+    dataDes.readDesFiles(CATEGORY_NAME,aFilePaths,function(desObjs){
       dataDes.writeDesObjs2Db(desObjs,function(status){
         callback(deviceId,address,account);
       });
