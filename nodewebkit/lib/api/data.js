@@ -1236,6 +1236,30 @@ function getIconPath(getIconPathCb, iconName, size) {
 }
 exports.getIconPath = getIconPath;
 
+/**
+ * @method setRelativeTag
+ *   To set a relative tag for a file in order to keep relative relationship of
+ *   files on desktop.
+ *
+ * @param1 setRelativeTagByPathCb
+ *    string, the target path of data
+ *
+ * @param2 sFilePath
+ *    string, a full path of a file.
+ *
+ * @param3 sTags
+ *    string, a modified system tag as that could show a relative dir.
+ *            as: '$desktop$my_funcy_dir$funcy_as_well$'
+ *
+ 
+ *
+ */
+function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
+  console.log("Request handler 'setRelativeTagByPath' was called.");
+  tagsHandle.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+}
+exports.setRelativeTagByPath = setRelativeTagByPath;
+
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
 }
@@ -1429,3 +1453,4 @@ function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
   cate.rename(sUri, sNewName, renameDataByUriCb);
 }
 exports.renameDataByUri = renameDataByUri;
+

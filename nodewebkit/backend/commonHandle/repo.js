@@ -4,6 +4,8 @@ var config = require("../config");
 var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
+var device = require("../data/device");
+var transfer = require('../Transfer/msgTransfer');
 
 var repos=[
   {name:"contactDes",status:"empty"},
@@ -32,6 +34,58 @@ var desRepos=[
 
 var num=desRepos.length;
 var index=0;
+
+/**
+ * @method syncOnlineReq
+ *    Send sync online request.
+ * @param repoPath
+ *    Repository path.
+ */
+function syncOnlineReq(repoPath) {
+  var tempPath = null;
+  var sBaseName = path.basename(repoPath);
+  if (sBaseName == "data") {
+    tempPath = path.dirname(repoPath);
+  }else{
+    tempPath = repoPath;
+  }
+  console.log("99999999999999999999999999999999999999999"+tempPath);
+  var sBaseName = path.basename(tempPath);
+  console.log("99999999999999999999999999999999999999999"+sBaseName);
+  var sCateName = sBaseName.split("Des");
+  if(sCateName.length < 2){
+    return;
+  }
+  var msgObj = {
+    type: "syncOnline",
+    ip: config.SERVERIP,
+    path: tempPath,
+    account: config.ACCOUNT,
+    device_id: config.uniqueID,
+    category: sCateName[0]
+  };
+  /*for (var index in device.devicesList) {
+    if (device.devicesList[index].online == true) {
+      if (device.devicesList[index].ip != config.SERVERIP) {
+        transfer.sendMsg(device.devicesList[index], msgObj);
+      }
+    }
+  }*/
+  device.getDeviceList(function(deviceList){
+    for(var index in deviceList){
+      if(deviceList[index].address != config.SERVERIP){
+        var deviceObj = {
+          ip:deviceList[index].address,
+          device_id:deviceList[index].txt[2],
+          account:deviceList[index].txt[1]
+        };
+        //console.log("000000000000000000000"+deviceObj);
+        transfer.sendMsg(deviceObj, msgObj);
+      }
+    }
+  });
+}
+exports.syncOnlineReq = syncOnlineReq;
 
 exports.repoInit = function(repoPath, callback) {
   git.Repo.init(repoPath, false, function(initReporError, repo) {
@@ -64,7 +118,7 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
   var fileInfo = '"file":["' + files.join('","') + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git add error");
@@ -72,6 +126,7 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
     } else {
       //console.log("Git add success");
       callback(null,'success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -97,6 +152,7 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
     } else {
       //console.log("Git rm success");
       callback(null,'success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -122,6 +178,7 @@ function repoChsCommit(repoPath, files, commitID, callback) {
     } else {
       //console.log("Git change success");
       callback(null,'success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -146,6 +203,7 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
     } else {
       console.log("Git change success");
       callback(null,'success');
+      syncOnlineReq(repoPath);
     }
   });
 }
@@ -205,11 +263,11 @@ exports.haveBranch = function(resourcesPath, branch, callback) {
   //console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
     var branchList = getBranchList(stdout);
-    console.log(branchList.length);
+    //console.log(branchList.length);
     for (var index in branchList) {
       //Reg trim
       var branchName = branchList[index].match(/rio.+rio/g);
-      console.log("have branch :=======" + branchName);
+      //console.log("have branch :=======" + branchName);
       if (branchName != null && branchName.length > 0 && branchName[0] == branch) {
         callback(true);
         return;
@@ -433,7 +491,7 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
     console.log(_err);
     return callback(_err, null);
   }
-  console.log('repoCommit= '+repoCommit);
+  console.log('repoCommit= '+op);
   repoCommit(realPath, oFiles,null , function() {
     getLatestCommit(realPath, function(commitID) {
       repoCommit(desPath, oDesFiles, commitID, function() {
