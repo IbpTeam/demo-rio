@@ -211,7 +211,11 @@ function initDesktop(callback) {
             buildDesFile('Widget', 'conf', pathWidget, function() {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
-              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err, result) {
+              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(result) {
+                if(result !== 'success'){
+                  console.log('git commit error');
+                  return;
+                }
                 var pathDesk = path + "/desktop";
                 fs_extra.ensureDir(pathDesk, function(err) {
                   if (err) {
@@ -354,9 +358,9 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
+              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(result) {
+                if (result !== 'success') {
+                  return callback(result, null);
                 }
                 callback(null, 'success');
               })
@@ -572,12 +576,6 @@ function readDesktopFile(callback, sFileName) {
           var _err = "readDesktopFile : parse desktop file error!";
           return callback(err, null);
         }
-        getIconPath(attr['[Desktop Entry]']['Icon'], 48, function(err, result) {
-          if (err) {
-            return console.log(err, attr['[Desktop Entry]']['Name'], attr['[Desktop Entry]']['Icon'])
-          }
-          console.log(result);
-        })
         callback(null, attr);
       }
       var sPath = result;
@@ -647,6 +645,8 @@ function parseDesktopFile(callback, sPath) {
         var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
         var re_rn = /\n|\r|\r\n/g
         var re_comment = new RegExp('#');
+        var re_letter = /\w/i;
+        var re_eq = new RegExp('=');
         var desktopHeads = [];
         var oAllDesktop = {};
         try {
@@ -658,42 +658,52 @@ function parseDesktopFile(callback, sPath) {
               return "$";
             })
             data = data.split('$');
-            if (data[0] === "" | data[0] === "\r" | data[0] === "\n" | re_comment.test(data[0])) {
-              data.shift(); //the first element is a "", remove it
+            if (re_comment.test(data[0]) || !re_letter.test(data[0])) {
+              data.shift(); //the first element is a "" or has #, remove it
             }
           } catch (err_inner) {
+            console.log(err_inner);
+            var _err = new Error();
             _err.name = 'headEntry';
             _err.message = headEntry;
-            var _err = new Error('headEntry');
             throw _err;
           }
           if (desktopHeads.length === data.length) {
             for (var i = 0; i < data.length; i++) {
+              if (!re_letter.test(data[i])) {
+                continue;
+              }
               try {
                 var lines = data[i].split('\n');
               } catch (err_inner) {
+                console.log(err_inner);
+                var _err = new Error();
                 _err.name = 'headContent';
                 _err.message = data[i];
-                var _err = new Error('headContent')
                 throw _err;
               }
               var attr = {};
-              for (var j = 0; j < lines.length - 1; ++j) {
-                if (lines[j] && !re_comment.test(lines[j])) {
+              for (var j = 0; j < lines.length; ++j) {
+                if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
+                  continue;
+                } else {
                   try {
                     var tmp = lines[j].split('=');
                     attr[tmp[0]] = tmp[1].replace(re_rn, "");
                   } catch (err_inner) {
-                    var _err = new Error()
+                    console.log(err_inner);
+                    var _err = new Error();
                     _err.name = 'contentSplit';
                     _err.message = tmp;
+                    console.log(test)
                     throw _err;
                   }
                   for (var k = 2; k < tmp.length; k++) {
                     try {
                       attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
                     } catch (err_inner) {
-                      var _err = new Error('contentAddition');
+                      console.log(err_inner);
+                      var _err = new Error();
                       _err.name = 'contentAddition';
                       _err.message = tmp;
                       throw _err;
@@ -709,7 +719,7 @@ function parseDesktopFile(callback, sPath) {
             callback(_err, null);
           }
         } catch (err_outer) {
-          console.log(err_outer)
+          console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
         callback(null, oAllDesktop);
@@ -850,7 +860,6 @@ function findDesktopFile(callback, filename) {
           });
         });
       } else {
-        console.log('find ' + sFileName + ' success!');
         var result = stdout.split('\n');
         return callback(null, result[0]);
       }
@@ -887,30 +896,63 @@ function deParseListFile(output, filepath, callback) {
     data_.shift();
     for (var i = 0; i < data_.length; i++) {
       var item = data_[i];
-      if (item !== '') {
-        item = item.split('/');
-        var entry_fir = item[0];
-        var content_fir = item[1];
-        content_fir = content_fir.split('=');
-        var entry_sec = content_fir[0];
-        var content_sec = content_fir[1];
-        content_sec = content_sec.split(';');
-        if (content_sec[content_sec.length - 1] == '') {
-          content_sec.pop();
-        }
-        if (!output[entry_fir]) {
-          output[entry_fir] = {};
-          output[entry_fir][entry_sec] = content_sec;
-        } else if (!output[entry_fir][entry_sec]) {
-          output[entry_fir][entry_sec] = content_sec;
-        } else {
-          for (var j = 0; j < content_sec.length; j++) {
-            var content_sec_ = content_sec[j];
-            if (!utils.isExist(content_sec_, output[entry_fir][entry_sec])) {
-              output[entry_fir][entry_sec].push(content_sec_);
+      try {
+        if (item !== '') {
+          try {
+            item = item.split('/');
+          } catch (err_inner) {
+            var _err = new Error();
+            _err.name = 'dataEntry';
+            _err.message = item;
+            throw _err;
+          }
+          var entry_fir = item[0];
+          var content_fir = item[1];
+          try {
+            content_fir = content_fir.split('=');
+          } catch (_err) {
+            var _err = new Error();
+            _err.name = 'content_fir';
+            _err.message = content_fir;
+            console.log(_err)
+            throw _err;
+          }
+          var entry_sec = content_fir[0];
+          var content_sec = content_fir[1];
+          try {
+            content_sec = content_sec.split(';');
+          } catch (_err) {
+            var _err = new Error();
+            _err.name = 'content_sec';
+            _err.message = content_sec;
+            throw _err;
+          }
+          try {
+            if (content_sec[content_sec.length - 1] == '') {
+              content_sec.pop();
+            }
+          } catch (_err) {
+            var _err = new Error();
+            _err.name = 'content_sec'
+            _err.message = content_sec;
+            throw _err;
+          }
+          if (!output[entry_fir]) {
+            output[entry_fir] = {};
+            output[entry_fir][entry_sec] = content_sec;
+          } else if (!output[entry_fir][entry_sec]) {
+            output[entry_fir][entry_sec] = content_sec;
+          } else {
+            for (var j = 0; j < content_sec.length; j++) {
+              var content_sec_ = content_sec[j];
+              if (!utils.isExist(content_sec_, output[entry_fir][entry_sec])) {
+                output[entry_fir][entry_sec].push(content_sec_);
+              }
             }
           }
         }
+      } catch (err_outer) {
+        return callback(err_outer);
       }
     }
     callback();
@@ -977,7 +1019,10 @@ function buildAppMethodInfo(targetFile, callback) {
       var item = result[i];
       if (!reg.test(item)) {
         (function(listContent, filepath) {
-          deParseListFile(listContent, filepath, function() {
+          deParseListFile(listContent, filepath, function(err) {
+            if (err) {
+              return callback(err, null);
+            }
             var isEnd = (count === lens - 1);
             if (isEnd) {
               var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
@@ -1275,7 +1320,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
           if (err) {
             console.log(err);
             var _err = "writeDesktopFile : deparse desktop file error!";
-            return callback(_err, null);
+            return callback(err, null);
           }
           var sWritePath = result_find;
           console.log(sWritePath);
@@ -1283,7 +1328,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
             if (err) {
               console.log(err);
               var _err = "writeDesktopFile : write desktop file error!";
-              return callback(_err, null);
+              return callback(err, null);
             }
             var op = 'modify';
             var re = new RegExp('/desktop/');
@@ -2019,8 +2064,8 @@ function moveToDesktopSingle(sFilePath, callback) {
   var category = utils.getCategoryByPath(sFilePath).category;
   if (reg_isLocal.test(sFilePath)) { //target file is from local
     var sCondition = ["path = '" + sFilePath + "'"];
-    commonDAO.findItems(null, [category], sCondition, null, function(result) {
-      if (result === "error") {
+    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+      if (err) {
         var _err = "Error: find " + sFilePath + " in db error!"
         return callback(_err, null);
       }
@@ -2370,3 +2415,313 @@ function getAllVideo(callback) {
   })
 }
 exports.getAllVideo = getAllVideo;
+
+/** 
+ * @Method: getAllMusic
+ *   To get all music files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, of all music file info, as {inode:itemPath}
+ *
+ **/
+function getAllMusic(callback) {
+  commonDAO.findItems(null, ['Music'], null, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result == [] || result == '') {
+      var _err = 'no Musics found in db!';
+      console.log(_err);
+      return callback(_err, null);
+    }
+    var oInfoResult = {};
+    var count = 0;
+    var lens = result.length;
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      (function(_item) {
+        var sPath = _item.path;
+        fs.stat(sPath, function(err, stat) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
+          var sInode = stat.ino;
+          oInfoResult[sInode] = sPath;
+          var isEnd = (count == lens - 1);
+          if (isEnd) {
+            callback(null, oInfoResult);
+          }
+          count++;
+        })
+      })(item)
+    }
+  })
+}
+exports.getAllMusic = getAllMusic;
+
+/*TODO: To be continue...*/
+/** 
+ * @Method: getIconPath
+ *   To get icon path.
+ *
+ * @param1: iconName_ 
+ *    string, a short icon path.
+ *
+ * @param2: size_
+ *    num, size of icon
+ *
+ * @param3: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of icon path.
+ *
+ **/
+function getIconPath(iconName_, size_, callback) {
+  //get theme config file
+  //get the name of current icon-theme
+  //1. search $HOME/.icons/icon-theme_name/subdir(get from index.theme)
+  //2. if not found, search $XDG_DATA_DIRS/icons/icon-theme_name
+  //   /subdir(get from index.theme)
+  //3. if not found, search /usr/share/pixmaps/subdir(get from index.theme)
+  //4. if not found, change name to current theme's parents' recursively 
+  //   and repeat from step 1 to 4
+  //5. if not found, return default icon file path(hicolor)
+  //
+  if (typeof callback !== "function")
+    throw "Bad type of callback!!";
+
+  function readConfCb(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    }
+    var iconTheme = result['icontheme']['name'];
+
+    getIconPathWithTheme(iconName_, size_, iconTheme, function(err_, iconPath_) {
+      if (err_) {
+        getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
+          if (err_) {
+            callback('Not found');
+          } else {
+            callback(null, iconPath_);
+          }
+        });
+      } else {
+        callback(null, iconPath_);
+      }
+    });
+  }
+  readConf(readConfCb, 'Theme.conf');
+}
+exports.getIconPath = getIconPath;
+
+function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
+  if (typeof callback != 'function')
+    throw 'Bad type of function';
+  var HOME_DIR_ICON = pathModule.join(utils.getHomeDir(), "/.local/share/icons/");
+  var XDG_DATA_DIRS = utils.getXdgDataDirs();
+  var _iconSearchPath = [];
+  _iconSearchPath.push(HOME_DIR_ICON);
+  for (var i = 0; i < XDG_DATA_DIRS.length; i++) {
+    var item = pathModule.join(XDG_DATA_DIRS[i], "/icons/");
+    _iconSearchPath.push(item);
+  }
+  _iconSearchPath.push("/usr/share/pixmaps")
+
+  var findIcon = function(index_) {
+    if (index_ == _iconSearchPath.length) {
+      callback('Not found');
+      return;
+    }
+    var _path = _iconSearchPath[index_];
+    if (index_ < _iconSearchPath.length - 1) _path += themeName_;
+    fs.exists(_path, function(exists_) {
+      if (exists_) {
+        var tmp = 'find ' + _path + ' -regextype \"posix-egrep\" -regex \".*' + ((index_ < _iconSearchPath.length - 1) ? size_ : '') + '.*/' + iconName_ + '\.(svg|png|xpm)$\"';
+        exec(tmp, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err, stdout, stderr);
+            return;
+          }
+          if (stdout == '') {
+            fs.readFile(_path + '/index.theme', 'utf-8', function(err, data) {
+              var _parents = [];
+              if (err) {
+                //console.log(err);
+              } else {
+                var lines = data.split('\n');
+                for (var i = 0; i < lines.length; ++i) {
+                  if (lines[i].substr(0, 7) == "Inherits") {
+                    attr = lines[i].split('=');
+                    _parents = attr[1].split(',');
+                  }
+                }
+              }
+              //recursive try to find from parents
+              var findFromParent = function(index__) {
+                if (index__ == _parents.length) return;
+                getIconPathWithTheme(iconName_, size_, _parents[index__], function(err_, iconPath_) {
+                  if (err_) {
+                    findFromParent(index__ + 1);
+                  } else {
+                    callback(null, iconPath_);
+                  }
+                });
+              };
+              findFromParent(0);
+              //if not fonud
+              findIcon(index_ + 1);
+            });
+          } else {
+            callback(null, stdout.split('\n'));
+          }
+        });
+      } else {
+        findIcon(index_ + 1);
+      }
+    });
+  };
+  findIcon(0);
+}
+
+/** 
+ * @Method: createFile
+ *   To create a txt file on desktop.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, file info of the new file, as [filePath, stats.ino].
+ *
+ **/
+function createFile(sContent, callback) {
+  var date = new Date();
+  var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
+  var desPath = '/tmp/' + filename;
+  exec("touch " + desPath, function(err, stdout, stderr) {
+    if (err) {
+      console.log(err, stdout, stderr);
+      return callback(err);
+    }
+    if (sContent == '' || sContent == null) {
+      sContent = '';
+    }
+    fs.writeFile(desPath, sContent, function(err) {
+      if (err) {
+        return callback(err);
+      }
+      var cate = utils.getCategoryObject('document');
+      cate.createData(desPath, function(err, result, resultFile) {
+        if (err) {
+          console.log(err, stdout, stderr);
+          return callback(err);
+        }
+        exec("rm " + desPath, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err, stdout, stderr);
+            return callback(err);
+          }
+          console.log(resultFile)
+          var sCondition = ["path = '" + resultFile + "'"];
+          commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
+            if (err) {
+              var _err = "Error: find " + resultFile + " in db error!";
+              return callback(_err, null);
+            } else if (result == '' || result == []) {
+              var _err = "Error: not find " + resultFile + " in db!";
+              return callback(_err, null);
+            }
+
+            function setTagsCb(result) {
+              if (result != 'commit') {
+                var _err = 'Error: set tags error!';
+                return callback(_err, null);
+              }
+              fs.stat(resultFile, function(err, stats) {
+                if (err) {
+                  return callback(err, null);
+                }
+                var result = [resultFile, stats.ino];
+                callback(null, result);
+              })
+            }
+            var sUri = result[0].URI;
+            tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+          });
+        });
+      });
+    });
+  });
+}
+exports.createFile = createFile;
+
+/** 
+ * @Method: rename
+ *   To rename a file on desktop. Front end needs to control that the postfix c-
+ *   not be change.
+ *
+ * @param1: oldName
+ *    @string, origin name of the file, as 'good_file.txt'
+ *
+ * @param2: newName
+ *    @string, new name of the file, as 'bad_file.txt'
+ *
+ * @param3: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, would return 'EXIST' when new file name exists in db; otherwi-
+ *                se, return 'success'.
+ *
+ **/
+function rename(oldName, newName, callback) {
+  if (newName === oldName) {
+    return callback(null, 'success');
+  }
+  var category = utils.getCategoryByPath('test/' + oldName).category;
+  var oldPath = pathModule.join(utils.getRealDir(category), oldName);
+  var newPath = pathModule.join(utils.getRealDir(category), newName);
+  utils.isNameExists(newPath, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    } else if (result) {
+      return callback(null, 'EXIST');
+    }
+    var sCondition = ["path = '" + oldPath + "'"];
+    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+      if (err) {
+        var _err = "Error: find " + oldPath + " in db error!";
+        return callback(_err, null);
+      } else if (result == '' || result == []) {
+        var _err = "Error: not find " + oldPath + " in db!";
+        return callback(_err, null);
+      }
+      var sUri = result[0].URI;
+      commonHandle.renameDataByUri(category, sUri, newName, function(err, result) {
+        if (err) {
+          return callback(err, null);
+        }
+        callback(null, result);
+      });
+    });
+  });
+}
+exports.rename = rename;

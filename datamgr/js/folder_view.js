@@ -414,7 +414,7 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(function(result){
+                  DataAPI.rmDataByUri(function(err, result){
                     if(result == "success"){
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
@@ -424,7 +424,7 @@ function Folder(jquery_element) {
                   },file_json['URI']);
                 break;
                 case 'contact':
-                  DataAPI.rmDataByUri(function(result){
+                  DataAPI.rmDataByUri(function(err, result){
                     if(result == "success"){
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
@@ -758,7 +758,7 @@ Folder.prototype.show_history = function(){
         if(count == commitIds.length - 1){
           file_property += '<input type=button class="btn active" name="null" value="Confirm Recover"/>';
         }else{
-          file_property += '<input type=button class="btn active" name='+commitIds[count + 1]+' value="Confirm Recover"/>';
+          file_property += '<input type=button class="btn active" name='+commitIds[count]+' value="Confirm Recover"/>';
           count ++;
         }
       }
