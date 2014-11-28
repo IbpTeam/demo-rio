@@ -99,7 +99,13 @@ name, phone, sex, age, email, photoPath
 function addContact(Item, sItemDesPath, isContactEnd, callback) {
   function getFileUidCb(uri) {
     var category = CATEGORY_NAME;
+    console.log(JSON.stringify(Item));
     var currentTime = (new Date());
+    var phone2 = Item["商务电话"] == undefined ? "" : Item["商务电话"];
+    var phone3 = Item["商务电话 2"] == undefined ? "" : Item["商务电话 2"];
+    var phone4 = Item["住宅电话"] == undefined ? "" : Item["住宅电话"];
+    var phone5 = Item["住宅电话 2"] == undefined ? "" : Item["住宅电话 2"];
+    var email2 = Item["电子邮件 2 地址"] == undefined ? "" : Item["电子邮件 2 地址"];
     var oNewItem = {
       id: null,
       URI: uri + "#" + category,
@@ -107,9 +113,14 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
       is_delete: 0,
       name: Item["姓"] + Item["名"],
       phone: Item["移动电话"],
+      phone2: phone2,
+      phone3: phone3,
+      phone4: phone4,
+      phone5: phone5,
       sex: Item["性别"],
       age: "",
       email: Item["电子邮件地址"],
+      email2: email2,
       id: "",
       photoPath: "",
       createTime: currentTime,
@@ -141,7 +152,6 @@ function removeByUri(uri, callback) {
   getByUri(uri, function(items) {
     //Remove des file
     var sDesFullPath = utils.getDesPath(CATEGORY_NAME,items[0].name);
-    console.log("000000000000000000000000000000000"+sDesFullPath);
     fs.unlink(sDesFullPath,function(err){
       if(err){
         console.log(err);

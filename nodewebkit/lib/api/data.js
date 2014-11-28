@@ -317,6 +317,7 @@ function openDataByUri(openDataByUriCb, uri) {
     if (result.format === "html5ppt") {
       console.log("open html5ppt:" + result.content);
       window.open(result.content);
+
       result.content = "成功打开文件" + result.content;
       setTimeout(openDataByUriCb(result), 0);
     } else {
@@ -1098,7 +1099,7 @@ exports.removeFileFromDB = removeFileFromDB;
  *        string, retrieve 'success' when success.
  *
  **/
-function removeFileFromDesk(removeFileFromDeskCb,sFilePath) {
+function removeFileFromDesk(removeFileFromDeskCb, sFilePath) {
   console.log("Request handler 'removeFileFromDesk' was called.");
   desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
 }
@@ -1143,6 +1144,97 @@ function getAllVideo(getAllVideoCb) {
   desktopConf.getAllVideo(getAllVideoCb);
 }
 exports.getAllVideo = getAllVideo;
+
+/** 
+ * @Method: getAllMusic
+ *   To get all music files.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, of all music file info, as {inode:itemPath}
+ *
+ **/
+function getAllMusic(getAllMusicCb) {
+  console.log("Request handler 'getAllMusic' was called.");
+  desktopConf.getAllMusic(getAllMusicCb);
+}
+exports.getAllMusic = getAllMusic;
+
+/** 
+ * @Method: createFileOnDesk
+ *   To create a txt file on desktop.
+ *
+ * @param1: createFileOnDeskCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, file info of the new file, as [filePath, stats.ino].
+ *
+ *  @param2: sContent
+ *        string, content to init.
+ *
+ **/
+function createFileOnDesk(createFileOnDeskCb, sContent) {
+  console.log("Request handler 'createFileOnDesk' was called.");
+  desktopConf.createFile(sContent, createFileOnDeskCb);
+}
+exports.createFileOnDesk = createFileOnDesk;
+
+/** 
+ * @Method: renameFileOnDesk
+ *   To rename a file on desktop. Front end needs to control that the postfix c-
+ *   not be change.
+ *
+ * @param1: renameFileOnDeskCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        string, would return 'EXIST' when new file name exists in db; otherwi-
+ *                se, return 'success'.
+ *
+ **/
+function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
+  console.log("Request handler 'renameFileOnDesk' was called.");
+  desktopConf.rename(oldName, newName, renameFileOnDeskCb);
+}
+exports.renameFileOnDesk = renameFileOnDesk;
+
+/** 
+ * @Method: getIconPath
+ *   To get icon path.
+ *
+ * @param1: iconName
+ *    string, a short icon path.
+ *
+ * @param2: size
+ *    num, size of icon
+ *
+ * @param3: getIconPathCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of icon path.
+ *
+ **/
+function getIconPath(getIconPathCb, iconName, size) {
+  console.log("Request handler 'getIconPath' was called.");
+  desktopConf.getIconPath(iconName, size, getIconPathCb);
+}
+exports.getIconPath = getIconPath;
 
 function pullFromOtherRepoTest() {
   repo.pullFromOtherRepoTest();
@@ -1327,6 +1419,7 @@ exports.repoResetFile = repoResetFile;
  *        string, contain specific error
  *
  *    @param2: result,
+ 
  *        string, retieve 'success' when success
  *
  **/
