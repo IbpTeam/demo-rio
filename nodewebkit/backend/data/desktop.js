@@ -211,8 +211,8 @@ function initDesktop(callback) {
             buildDesFile('Widget', 'conf', pathWidget, function() {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
-              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(result) {
-                if(result !== 'success'){
+              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err,result) {
+                if(err){
                   console.log('git commit error');
                   return;
                 }
