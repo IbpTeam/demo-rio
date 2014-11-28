@@ -437,7 +437,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                       });
                       //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                       //TODO base on files, modify data in db
-                      dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                      dataDes.readDesFiles(category,aFilePaths, function(desObjs) {
                         dataDes.writeDesObjs2Db(desObjs, function(status) {
                           callback(deviceId, address, account);
                         });
@@ -454,7 +454,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                   });
                   //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
-                  dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                  dataDes.readDesFiles(category,aFilePaths, function(desObjs) {
                     dataDes.writeDesObjs2Db(desObjs, function(status) {
                       callback(deviceId, address, account);
                     });
@@ -482,7 +482,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
                   });
                   //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
                   //TODO base on files, modify data in db
-                  dataDes.readDesFiles(aFilePaths, function(desObjs) {
+                  dataDes.readDesFiles(category,aFilePaths, function(desObjs) {
                     dataDes.writeDesObjs2Db(desObjs, function(status) {
                       callback(deviceId, address, account);
                     });
@@ -499,7 +499,7 @@ function pullRequest(category, deviceId, address, account, repoPath, desRepoPath
               });
               //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
               //TODO base on files, modify data in db
-              dataDes.readDesFiles(aFilePaths, function(desObjs) {
+              dataDes.readDesFiles(category,aFilePaths, function(desObjs) {
                 dataDes.writeDesObjs2Db(desObjs, function(status) {
                   callback(deviceId, address, account);
                 });

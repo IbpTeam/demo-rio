@@ -700,7 +700,7 @@ function syncOnline(msgObj) {
         });
         console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
         //TODO base on files, modify data in db
-        dataDes.readDesFiles(aFilePaths, function(desObjs) {
+        dataDes.readDesFiles(msgObj.category,aFilePaths, function(desObjs) {
           dataDes.writeDesObjs2Db(desObjs, function(status) {
             //callback(msgObj.device_id,msgObj.ip,msgObj.account);
             console.log("Sync online success!" + status);

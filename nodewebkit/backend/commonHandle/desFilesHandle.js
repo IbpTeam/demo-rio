@@ -137,16 +137,18 @@ function sortObj(Item,callback){
 /** 
  * @Method: readDesFiles
  *    Read describe file and generate desObj.
+ * @param: categoryName
+ *    Category name.
  * @param: filePaths
  *    An array of describe file path.
  * @param: callback
  *    Callback return all describe object.
  **/
-function readDesFiles(filePaths,callback){
+function readDesFiles(categoryName,filePaths,callback){
   var aDesObj = new Array();
   var iFileNum = 0;
   filePaths.forEach(function(filePath){
-    readDesFile(filePath,function(fileObj){
+    readDesFile(categoryName,filePath,function(fileObj){
       iFileNum++;
       if(fileObj != null)
         aDesObj.push(fileObj);
@@ -160,20 +162,53 @@ exports.readDesFiles = readDesFiles;
 /** 
  * @Method: readDesFile
  *    Read describe file and generate desObj.
+ * @param: categoryName
+ *    Category name.
  * @param: filePath
  *    Describe file path.
  * @param: callback
  *    Callback return all describe object.
  **/
-function readDesFile(filePath,callback){
-  fs.readFile(filePath,'utf8',function(err,data){
-    if(err){
-      console.log("read file error!");
-      console.log(err);
-      callback(null);
-      return;
+function readDesFile(categoryName,filePath,callback){
+  fs.exists(filePath,function(isFileExist){
+    if (!isFileExist){
+      //delete data from database
+      var conditionsArr = new Array();
+      switch(categoryName){
+        case "contact":{
+          var baseName = path.basename(filePath);
+          var contactName = baseName.split(".md");
+          var conditionStr = "name='" + contactName[0] + "'";
+          conditionsArr.push(conditionStr);
+        }
+        break;
+        default:{
+          var conditionStr = "path='" + filePath + "'";
+          conditionsArr.push(conditionStr);
+        }
+      }
+      var oDeleteItem = {
+        category:categoryName,
+        conditions:conditionsArr
+      };
+      commonDAO.deleteItem(oDeleteItem,function(err){
+        if(err){
+          callback(err);
+        }else{
+          callback("done");
+        }
+      });
+    }else{
+      fs.readFile(filePath,'utf8',function(err,data){
+        if(err){
+          console.log("read file error!");
+          console.log(err);
+          callback(null);
+          return;
+        }
+        callback(JSON.parse(data));
+      });
     }
-    callback(JSON.parse(data));
   });
 }
 exports.readDesFile = readDesFile;
