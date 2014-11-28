@@ -1453,3 +1453,33 @@ function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
   cate.rename(sUri, sNewName, renameDataByUriCb);
 }
 exports.renameDataByUri = renameDataByUri;
+
+/** 
+ * @Method: deviceInfo
+ *    To get device info.
+ *
+ * @param: renameDataByUriCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *
+ *        object, device info
+ *
+ *        example:
+ *         {
+ *          "resources_path":"/home/xiquan/.resources",
+ *          "server_ip":"192.168.161.65",
+ *          "server_name":"xiquan-B75MU3B",
+ *          "local_account":"xiquan",
+ *          "local_id":"26578"
+ *         }
+ *
+ **/
+function deviceInfo(deviceInfoCb) {
+  console.log("Request handler 'renameDataByUri' was called.");
+  device.deviceInfo(deviceInfoCb);
+}
+exports.deviceInfo = deviceInfo;
