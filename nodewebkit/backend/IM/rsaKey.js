@@ -3,7 +3,6 @@ var fs = require('fs');
 var cp = require("child_process");
 
 function initSelfRSAKeys(priKeyPath) {
-  console.log('no selfPubKey now!!!');
   var keyPair;
   var exists = fs.existsSync(priKeyPath);
   if (exists) {
@@ -19,7 +18,6 @@ function initSelfRSAKeys(priKeyPath) {
 exports.initSelfRSAKeys = initSelfRSAKeys;
 
 function loadServerKey(serverKeyPath) {
-  console.log('no serverPubKey now!!!');
   var serverKeyPair;
   var exists = fs.existsSync(serverKeyPath);
   if (exists) {
