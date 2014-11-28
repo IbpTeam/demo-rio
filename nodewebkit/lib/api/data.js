@@ -1429,3 +1429,4 @@ function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
   cate.rename(sUri, sNewName, renameDataByUriCb);
 }
 exports.renameDataByUri = renameDataByUri;
+
