@@ -1,2 +1,4 @@
 nodewebkit/node_modules/*
 *.swp
+newdatamgr/node_modules
+newdatamgr/css/datamgr.css
