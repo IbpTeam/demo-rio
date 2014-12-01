@@ -3,45 +3,28 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>app_viewerPDF</title>
-  
-    <link rel="stylesheet" type="text/css" href="css/demoUI.css"/>
-    <link rel="stylesheet" type="text/css" href="css/demoUItheme.css"/>
-    <link rel="stylesheet" type="text/css" href="css/demoUIFont.css"/>
     
     <script type="text/javascript" src="lib/jquery.js"></script>
-    <script type="text/javascript" src="lib/require.js"></script>
     <script type="text/javascript" src="lib/api.js"></script>
-    <script type="text/javascript" src="lib/demoUI.js"></script>
     <script>
-      /**
-       * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
-       */
-
+      window.requireNode = window.require;
+      window.require = undefined;
       function onStart(params) {
+        console.log("App 'PDFviewer' was called");
         console.log("onStart():" + params);
-        // $('#params').text("程序参数是:" + params);
         WDC.requireAPI(['data'], function(data) {
-          console.log("Initalization Browser PDF Viewer...");
-          $('#test').append($('<iframe>', {
-            id: "iframeViewer",
-            src: "web/viewer.html?file="+ params,
-            width: "1000",
-            height: "1000",
-            scrolling: "auto"
-          }));
-          $(window.parent.document).find("#main").load(function() {
-            var main = $(window.parent.document).find("#main");
-            var thisheight = $(document).height() + 30;
-            var thiswidth = $(document).width() + 30;
-            main.height(thisheight);
-            main.width(thiswidth);
-          });
+          require(['extension'], function(viewer) {
+          viewer.init(params, "viewer", true);
+          window.require = window.requireNode;
+          })
         })
       }
     </script>
 
   </head>
   <body> 
-    <div id="test"></div>
+    <script type="text/javascript" src="lib/require.js"></script>
+    <div id="viewer"></div>
   </body>
+
 </html>
