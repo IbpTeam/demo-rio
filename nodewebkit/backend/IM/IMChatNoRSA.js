@@ -159,7 +159,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   switch (MSG[0].type) {
     case 'SentEnFirst':
       {
-        console.log("sending message ::: " + tmpenmsg);
+        //console.log("sending message ::: " + tmpenmsg);
         client.connect(PORT, IP, function() {
           client.write(tmpenmsg, function() {});
         });
