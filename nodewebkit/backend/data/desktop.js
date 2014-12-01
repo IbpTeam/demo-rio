@@ -358,9 +358,9 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(result) {
-                if (result !== 'success') {
-                  return callback(result, null);
+              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err,result) {
+                if (err) {
+                  return callback(err, null);
                 }
                 callback(null, 'success');
               })
