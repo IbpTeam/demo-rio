@@ -100,42 +100,49 @@ var InfoList = Class.extend({
   },
 
   setContent:function(){
-    if(this._info){
-      for(var key in this._info){
-        var _a = $('<a>',{
-          'class':'il__a',
-          'href':'#'
-        });
-        var _text = $('<span>',{
-          'class':'il__title',
-          'text': key
-        });
-        var _num = $('<span>',{
-          'class':'il__num',
-          'text': this._info[key]
-        });
-        _a.append(_text);
-        _a.append(_num);
-        this._add.before(_a);
+	var _this = this;
+    DataAPI.getAllTagsByCategory(function(result){
+      _this.removeTags();
+      _this._info = result;
+      if(_this._info['tags'].length > 0){
+        for(var key = 0; key < _this._info['tags'].length; key ++){
+          var _a = $('<a>',{
+            'class':'il__a',
+            'href':'#'
+          });
+          var _text = $('<span>',{
+            'class':'il__title',
+            'text': _this._info['tags'][key]
+          });
+          var _num = $('<span>',{
+            'class':'il__num',
+            'text': _this._info['tagFiles'][_this._info['tags'][key]].length
+          });
+          _a.append(_text);
+          _a.append(_num);
+          _this._add.before(_a);
+        }
       }
-    }
-
-    if (this._btmInfo) {
-      for(var key in this._btmInfo){
+    }, _this._title[_this._index]);
+    if (_this._btmInfo) {
+      for(var key in _this._btmInfo){
         var _a = $('<a>',{
           'class':'bil__a',
           'text': key
         });
-        this._edit.before(_a);
+        _this._edit.before(_a);
       }
-    };
+    }
   },
 
-  removeContent:function(){
+  removeTags:function(){
     var _list = this._infoContent.children('.il__a');
     if (_list.length !== 0) {
       _list.remove();
     };
+  },  
+
+  removeRecent:function(){
     var _blist = this._infoBottom.children('.bil__a');
     if (_blist.length !== 0) {
       _blist.remove();
