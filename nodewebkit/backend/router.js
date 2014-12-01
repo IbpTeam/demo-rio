@@ -144,6 +144,96 @@ function getRealFile(pathname, response){
   });
 }
 
+// used for web socket server to store ws client
+var eventList = [];
+/**
+ * This is the function to handle web socket message
+ * param:
+ * client: WebSocket client object.
+ * msg(string): {
+ *  'Action': ('on'|'off'|'notify'),
+ *  'Event': a string to describe the event type,
+ *  'Data': a json object,
+ *  'Status': ('ok'|'error')
+ * }.
+ */
+function handleWSMsg(client, msg) {
+  try {
+    var jMsg = JSON.parse(msg);
+  } catch(e) {
+    return client.send('{\"Error\":\"' + e + '\"}');
+  }
+  switch(jMsg.Action) {
+    case 'on':
+      // register a client object to a event presented by jMsg.Event
+      if(typeof eventList[jMsg.Event] === 'undefined') {
+        eventList[jMsg.Event] = [];
+      }
+      eventList[jMsg.Event].push(client);
+      client.send(JSON.stringify({
+        'Status': 'ok',
+        'Data': 'register success',
+        'Event': jMsg.Event
+      }));
+      break;
+    case 'off':
+      // remove a client object from a event presented by jMsg.Event
+      if(typeof eventList[jMsg.Event] !== 'undefined') {
+        removeWSListener(eventList[jMsg.Event], client);
+      }
+      break;
+    case 'notify':
+      // send a notify message to client objects registed to jMsg.Event
+      if(typeof eventList[jMsg.Event] !== 'undefined') {
+        for(var i = 0; i < eventList[jMsg.Event].length; ++i) {
+          eventList[jMsg.Event][i].send(msg);
+        }
+      }
+      break;
+    default:
+      // client.send('{\"Error\":\"Unknown Action type.\"}');
+      break;
+  }
+}
+
+function removeWSListener(list, client) {
+  for(var i = 0; i < list.length; ++i) {
+    if(client == list[i]) {
+      list.splice(i, 1);
+      break;
+    }
+  }
+}
+
+function removeWSListeners(client) {
+  for(var key in eventList) {
+    removeWSListener(eventList[key], client);
+  }
+}
+
+exports.removeWSListeners = removeWSListeners;
+
+/**
+ * This is the function to notify web sockets which has registered in web socket server
+ * param:
+ * msg(object): {
+ *  'Action': 'notify',
+ *  'Event': a string to describe the event type,
+ *  'Data': a json object,
+ *  'Status': ('ok'|'error')
+ * }.
+ */
+function wsNotify(msg) {
+  if(typeof msg.Action === 'undefined' || msg.Action != 'notify')
+    return console.log('Bad notify');
+  try {
+    handleWSMsg(null, JSON.stringify(msg));
+  } catch(e) {
+    console.log(e);
+  }
+}
+exports.wsNotify = wsNotify;
+
 /**
  * This is the key function of http router
  * param:
@@ -163,7 +253,8 @@ function route(handle, pathname, response, postData) {
     var wsclient = response;
     var message = postData;
     wsclient.send("I have got your message whose length is " + postData.length);
-    // TODO: Handle message
+    // Handle message
+    handleWSMsg(wsclient, message);
     return;
   }else if ( pathname == '/callapi' ) {
     //This is for remote call api in internet browser.
