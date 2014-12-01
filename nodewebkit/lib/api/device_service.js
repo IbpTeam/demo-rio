@@ -201,6 +201,11 @@ function addListener(ListenerCb) {
             };
             console.log("this is in addListener function");
             ListenerCb(DownCbPara);
+            router.wsNotify({
+              'Action': 'notify',
+              'Event': 'device',
+              'Data': DownCbPara
+            });
           }
           break;
       }

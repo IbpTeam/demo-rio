@@ -154,7 +154,7 @@ var eventList = [];
  *  'Action': ('on'|'off'|'notify'),
  *  'Event': a string to describe the event type,
  *  'Data': a json object,
- *  'Error': a string to describe the error occured
+ *  'Status': ('ok'|'error')
  * }.
  */
 function handleWSMsg(client, msg) {
@@ -170,6 +170,11 @@ function handleWSMsg(client, msg) {
         eventList[jMsg.Event] = [];
       }
       eventList[jMsg.Event].push(client);
+      client.send(JSON.stringify({
+        'Status': 'ok',
+        'Data': 'register success',
+        'Event': jMsg.Event
+      }));
       break;
     case 'off':
       // remove a client object from a event presented by jMsg.Event
@@ -215,14 +220,19 @@ exports.removeWSListeners = removeWSListeners;
  *  'Action': 'notify',
  *  'Event': a string to describe the event type,
  *  'Data': a json object,
- *  'Error': a string to describe the error occured
+ *  'Status': ('ok'|'error')
  * }.
  */
 function wsNotify(msg) {
   if(typeof msg.Action === 'undefined' || msg.Action != 'notify')
     return console.log('Bad notify');
-  handleWSMsg(null, JSON.stringify(msg));
+  try {
+    handleWSMsg(null, JSON.stringify(msg));
+  } catch(e) {
+    console.log(e);
+  }
 }
+exports.wsNotify = wsNotify;
 
 /**
  * This is the key function of http router
