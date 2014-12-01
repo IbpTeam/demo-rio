@@ -7,23 +7,6 @@ var devicesList=new Array();
 exports.devicesList = devicesList;
 
 function getDeviceList(callback){
-  /*commonDAO.findItems(null,["devices"],null,null,function(err,items){
-    if(err){
-      console.log(err);  
-    }
-    else{
-      items.forEach(function(item){
-        item.online=false;
-        item.sync=false;
-        devicesList[item.device_id]=item;
-      });
-      console.log("----------------------devicesList:-----------------------");
-      for (var i in devicesList) {  
-        console.log(devicesList[i]);
-      }  
-      console.log("---------------------------------------------------------");
-    }
-  });*/
   ds.getDeviceByAccount(function(deviceList){
     console.log("----------------------devicesList:-----------------------");
     for (var i in deviceList) {  
