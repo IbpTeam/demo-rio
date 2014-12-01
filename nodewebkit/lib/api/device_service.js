@@ -1,5 +1,6 @@
 var mdns = require('./device.js');
 var config = require('../../backend/config.js');
+var router = require('../../backend/router.js');
 var path = require('path');
 var HOME_DIR = "/home";
 var DEMO_RIO = ".demo-rio";
@@ -185,6 +186,11 @@ function addListener(ListenerCb) {
             };
             console.log("this is in addListener function");
             ListenerCb(UpCbPara);
+            router.wsNotify({
+              'Action': 'notify',
+              'Event': 'device',
+              'Data': UpCbPara
+            });
           }
           break;
         case 'ItemRemove':
@@ -195,6 +201,11 @@ function addListener(ListenerCb) {
             };
             console.log("this is in addListener function");
             ListenerCb(DownCbPara);
+            router.wsNotify({
+              'Action': 'notify',
+              'Event': 'device',
+              'Data': DownCbPara
+            });
           }
           break;
       }

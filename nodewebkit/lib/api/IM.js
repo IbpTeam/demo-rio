@@ -1,5 +1,6 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
+var IMRsa = require("../../backend/IM/IMChat.js");
 var net = require('net');
 
 var Port = 7777;
@@ -49,10 +50,15 @@ exports.RegisterApp = RegisterApp;
  */
 function StartIMService(StartCb,Flag) {
   try {
-    IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
-      //console.log("AppType :", AppType);
+    if (Flag === "true") {
+      IMRsa.initIMServer(Port, function(AppType,msgobj){
+        FuncObj.takeMsg(AppType,msgobj);
+      });
+    }else{
+      IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
       FuncObj.takeMsg(AppType, msgobj);
     });
+    } 
     StartCb(true);
   } catch (err) {
     console.log(err);
@@ -76,6 +82,7 @@ exports.StartIMService = StartIMService;
  *  MsgObj.Account表示接收方的帐号
  *  MsgObj.Msg表示要发送给指定应用的消息
  *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
   IP: "192.168.1.100",
@@ -83,6 +90,7 @@ exports.StartIMService = StartIMService;
   Account: "USER2",
   Msg: "Hi  this is in IMSender test",
   App: "app1"
+  rsaflag: "true"
 };
  *
  */
@@ -94,6 +102,11 @@ function SendAppMsg(SentCallBack, MsgObj) {
   };
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
-  IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+  if (MsgObj.rsaflag === "true") {
+    IMRsa.sendMSGbyUID(ipset,MsgObj.Account,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+  }else{
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+  }
 }
 exports.SendAppMsg = SendAppMsg;
+

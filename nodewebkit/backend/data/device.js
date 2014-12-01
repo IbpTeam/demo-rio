@@ -7,23 +7,6 @@ var devicesList=new Array();
 exports.devicesList = devicesList;
 
 function getDeviceList(callback){
-  /*commonDAO.findItems(null,["devices"],null,null,function(err,items){
-    if(err){
-      console.log(err);  
-    }
-    else{
-      items.forEach(function(item){
-        item.online=false;
-        item.sync=false;
-        devicesList[item.device_id]=item;
-      });
-      console.log("----------------------devicesList:-----------------------");
-      for (var i in devicesList) {  
-        console.log(devicesList[i]);
-      }  
-      console.log("---------------------------------------------------------");
-    }
-  });*/
   ds.getDeviceByAccount(function(deviceList){
     console.log("----------------------devicesList:-----------------------");
     for (var i in deviceList) {  
@@ -150,3 +133,22 @@ function startDeviceDiscoveryService(){
   });
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;
+
+
+function deviceInfo(callback) {
+  try {
+    var oInfo = {
+      resources_path: config.RESOURCEPATH,
+      server_ip: config.SERVERIP,
+      server_name: config.SERVERNAME,
+      local_account: config.ACCOUNT,
+      local_id: config.uniqueID
+    }
+  } catch (e) {
+    if (e) {
+      return callback(e, null);
+    }
+  }
+  callback(null, oInfo);
+}
+exports.deviceInfo = deviceInfo;
