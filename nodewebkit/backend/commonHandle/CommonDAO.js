@@ -195,11 +195,11 @@ exports.createItem = function(item,callback){
   for(var key in oTempItem){
     sKeyStr = sKeyStr + "," + key;
     if(typeof oTempItem[key] == 'string')
-      oTempItem[key] = oTempItem[key].replace("'","''");
+      oTempItem[key] = oTempItem[key].replace(/'/g,"''");
     sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
   }
   sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
-  //console.log("INSERT Prepare SQL is : "+sSqlStr);
+ // console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
@@ -245,12 +245,12 @@ exports.createItems = function(items,callback){
     for(var key in oTempItem){
       sKeyStr = sKeyStr + "," + key;
       if(typeof oTempItem[key] == 'string')
-        oTempItem[key] = oTempItem[key].replace("'","''");
+        oTempItem[key] = oTempItem[key].replace(/'/g,"''");
       sValueStr = sValueStr + ",'" + oTempItem[key] + "'";
     }
     sSqlStr = sSqlStr + sKeyStr + sValueStr + ");";
   });
- // console.log("INSERT Prepare SQL is : "+sSqlStr);
+  //console.log("INSERT Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
@@ -405,7 +405,7 @@ exports.updateItem = function(item,callback){
   delete oTempItem.URI;
   for(var key in oTempItem){
     if(typeof oTempItem[key] == 'string')
-      oTempItem[key] = oTempItem[key].replace("'","''");
+      oTempItem[key] = oTempItem[key].replace(/'/g,"''");
     sSqlStr = sSqlStr + key + "='" + oTempItem[key] + "',";
   }
   sSqlStr = sSqlStr.substring(0,sSqlStr.length-1);
@@ -469,7 +469,7 @@ exports.updateItems = function(items,callback){
     delete oTempItem.URI;
     for(var key in oTempItem){
       if(typeof oTempItem[key] == 'string')
-        oTempItem[key] = oTempItem[key].replace("'","''");
+        oTempItem[key] = oTempItem[key].replace(/'/g,"''");
       sSqlStr = sSqlStr + key + "='" + oTempItem[key] + "',";
     }
     sSqlStr = sSqlStr.substring(0,sSqlStr.length-1);

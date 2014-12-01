@@ -2,10 +2,11 @@ var IM = require('../../nodewebkit/lib/api/IM.js');
 
 var msgobj = {
   IP: "192.168.1.100",
-  UID: "2312324323dsfseferfgdghf",
-  Account: "USER2",
+  UID: "0ace23c24390ca960a7edfe26b7aaa47",
+  Account: "rtty123",
   Msg: "Hi  this is in IMSender test",
-  App: "app1"
+  App: "app1",
+  rsaflag:  "true"
 };
 
 IM.SendAppMsg(function(msg) {
