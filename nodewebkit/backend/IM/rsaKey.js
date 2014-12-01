@@ -36,34 +36,53 @@ function loadServerKey(serverKeyPath) {
 exports.loadServerKey = loadServerKey;
 
 function generateKeypair(priKeyPath, pubKeyPath, pemKeyPath, generateKeypairCb) {
-  var exists = fs.existsSync(priKeyPath);
-  if (exists) {
-    fs.unlinkSync(priKeyPath);
-  }
-  exists = fs.existsSync(pubKeyPath);
-  if (exists) {
-    fs.unlinkSync(pubKeyPath);
-  }
-  exists = fs.existsSync(pemKeyPath);
-  if (exists) {
-    fs.unlinkSync(pemKeyPath);
-  }
-  var sCommandStr = "ssh-keygen -t rsa -b 1024 -P '' -f '" + priKeyPath + "'";
-  cp.exec(sCommandStr, function(err, stdout, stderr) {
-    if (err) {
-      console.log(err);
-      generateKeypairCb(false);
-    } else {
-      sCommandStr = "ssh-keygen -e -m 'PKCS8' -f '" + pubKeyPath + "'" + " > '" + pemKeyPath + "'";
-      cp.exec(sCommandStr, function(err, stdout, stderr) {
-        if (err) {
-          console.log(err);
-          generateKeypairCb(false);
-        } else {
-          generateKeypairCb(true);
-        }
-      });
+  var existsPri = fs.existsSync(priKeyPath);
+  var existsPub = fs.existsSync(pubKeyPath);
+  var existsPubPem = fs.existsSync(pemKeyPath);
+  if (existsPri && existsPub && existsPubPem)
+    generateKeypairCb(true);
+  else {
+    if (existsPri) {
+      fs.unlinkSync(priKeyPath);
     }
-  });
+    exists = fs.existsSync(pubKeyPath);
+    if (existsPub) {
+      fs.unlinkSync(pubKeyPath);
+    }
+    exists = fs.existsSync(pemKeyPath);
+    if (existsPubPem) {
+      fs.unlinkSync(pemKeyPath);
+    }
+    var sCommandStr = "ssh-keygen -t rsa -b 1024 -P '' -f '" + priKeyPath + "'";
+    cp.exec(sCommandStr, function(err, stdout, stderr) {
+      if (err) {
+        console.log(err);
+        generateKeypairCb(false);
+      } else {
+        sCommandStr = "ssh-keygen -e -m 'PKCS8' -f '" + pubKeyPath + "'" + " > '" + pemKeyPath + "'";
+        cp.exec(sCommandStr, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err);
+            generateKeypairCb(false);
+          } else {
+            generateKeypairCb(true);
+          }
+        });
+      }
+    });
+  }
 }
 exports.generateKeypair = generateKeypair;
+function initServerPubKey(serverPubKeyPath, initServerPubKeyCb) {
+  var exists = fs.existsSync(serverPubKeyPath);
+  if (exists) {
+    initServerPubKeyCb(true);
+  } else {
+    var curDir=__dirname;
+    var serverPubKey = fs.readFileSync(curDir+'/serverKey.pem').toString('utf-8');
+    fs.writeFile(serverPubKeyPath, serverPubKey, 'utf8', function(err) {
+      initServerPubKeyCb(!err);
+    });
+  }
+}
+exports.initServerPubKey = initServerPubKey;

@@ -31,3 +31,10 @@ cryptoApp.generateRsaKeypair(function(done) {
   else
     console.log('create rsa keypair failed!!!');
 }, parse);
+//在默认路径下初始化服务器端公钥信息
+cryptoApp.initServerPubKey(function(done) {
+  if (done)
+    console.log('init server pubkey success!');
+  else
+    console.log('init server pubkey failed!!!');
+ });

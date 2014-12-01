@@ -19,7 +19,7 @@ function sendFileTransferRequest(sendFileTransferRequestCb, MsgObj) {
   });
  }
 exports.sendFileTransferRequest = sendFileTransferRequest;
-/*
+
 function sendFileTransferRefuse(sendFileTransferRefuseCb, MsgObj) {
   MsgObj['state']='0';
   sendFileTransferRefuseCb(MsgObj);
@@ -30,7 +30,7 @@ function sendFileTransferAccept(sendFileTransferAcceptCb, MsgObj) {
   sendFileTransferAcceptCb(MsgObj);
  }
 exports.sendFileTransferAccept = sendFileTransferAccept;
-*/
+
 function sendFileTransferStart(sendFileTransferStartCb, msgObj,path) {
   fileTransferServer.transferFile(fileServer, function(err, msg, server) { //发送端初始化传输信息
     if (err) { //发送端初始化传输信息失败-----有点问题请稍候重发----界面显示  

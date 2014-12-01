@@ -52,6 +52,12 @@ function startApp(){
     else
       console.log('create rsa keypair failed!!!');
   });
+  cryptoApp.initServerPubKey(function(done) {
+  if (done)
+    console.log('init server pubkey success!');
+  else
+    console.log('init server pubkey failed!!!');
+ });
   startonce = true;
   config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();

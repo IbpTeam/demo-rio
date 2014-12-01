@@ -45,12 +45,12 @@ function MD5(str, encoding) {
 function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
   var server = net.createServer(function(c) {
-    console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
+    //console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
 
     c.on('data', function(msgStri) {
-      console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
+      //console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
       var msgStr = JSON.parse(msgStri);
       try {
         var decrypteds = msgStr[0].content;
