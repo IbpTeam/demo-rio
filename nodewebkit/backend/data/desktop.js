@@ -212,7 +212,7 @@ function initDesktop(callback) {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
               resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err,result) {
-                if(err){
+                if (err) {
                   console.log('git commit error');
                   return;
                 }
