@@ -54,10 +54,19 @@ function start(route, handle) {
     });
     client.on('disconnect',function(){
       console.log('websocket has disconnected:%s', client);
+      // remove all listeners of this client
+      removeWSListeners(client);
     });
   });
+  wsServerInstance = wsServer;
   config.riolog("Server has started.");
 }
 
 exports.start = start;
 
+var wsServerInstance = null;
+function getWSServer() {
+  return wsServerInstance;
+}
+
+exports.getWSServer = getWSServer;
