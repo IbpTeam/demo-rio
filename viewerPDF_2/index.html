@@ -24,13 +24,6 @@
       /**
        * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
        */
-  var pdfDoc = null,
-    pageNum = 1,
-    pageRendering = false,
-    pageNumPending = null,
-    scale = 0.8,
-    canvas = document.getElementById('the-canvas'),
-    ctx = canvas.getContext('2d');
 
   function onStart(params) {
     console.log("onStart():" + params);
