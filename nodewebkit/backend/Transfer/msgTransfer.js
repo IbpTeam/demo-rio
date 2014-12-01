@@ -21,6 +21,7 @@ var pictures = require("../data/picture");
 var commonHandle = require('../commonHandle/commonHandle');
 var utils = require('../utils');
 var dataDes = require('../commonHandle/desFilesHandle');
+var device = require("../data/device");
 
 
 // @Enum sync state
@@ -663,6 +664,51 @@ function syncComplete(msgObj){
     }
   }
 }
+
+/**
+ * @method syncOnlineReq
+ *    Send sync online request.
+ * @param repoPath
+ *    Repository path.
+ */
+function syncOnlineReq(repoPath) {
+  var tempPath = null;
+  var sBaseName = path.basename(repoPath);
+  if (sBaseName == "data") {
+    tempPath = path.dirname(repoPath);
+  }else{
+    tempPath = repoPath;
+  }
+  //console.log("99999999999999999999999999999999999999999"+tempPath);
+  var sBaseName = path.basename(tempPath);
+  //console.log("99999999999999999999999999999999999999999"+sBaseName);
+  var sCateName = sBaseName.split("Des");
+  if(sCateName.length < 2){
+    return;
+  }
+  var msgObj = {
+    type: "syncOnline",
+    ip: config.SERVERIP,
+    path: tempPath,
+    account: config.ACCOUNT,
+    device_id: config.uniqueID,
+    category: sCateName[0]
+  };
+  device.getDeviceList(function(deviceList){
+    for(var index in deviceList){
+      if(deviceList[index].address != config.SERVERIP){
+        var deviceObj = {
+          ip:deviceList[index].address,
+          device_id:deviceList[index].txt[2],
+          account:deviceList[index].txt[1]
+        };
+        //console.log("000000000000000000000"+deviceObj);
+        sendMsg(deviceObj, msgObj);
+      }
+    }
+  });
+}
+exports.syncOnlineReq = syncOnlineReq;
 
 /**
  * @method syncOnline

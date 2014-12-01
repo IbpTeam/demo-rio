@@ -4,7 +4,6 @@ var config = require("../config");
 var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
-var device = require("../data/device");
 var transfer = require('../Transfer/msgTransfer');
 
 var repos=[
@@ -35,66 +34,14 @@ var desRepos=[
 var num=desRepos.length;
 var index=0;
 
-/**
- * @method syncOnlineReq
- *    Send sync online request.
- * @param repoPath
- *    Repository path.
- */
-function syncOnlineReq(repoPath) {
-  var tempPath = null;
-  var sBaseName = path.basename(repoPath);
-  if (sBaseName == "data") {
-    tempPath = path.dirname(repoPath);
-  }else{
-    tempPath = repoPath;
-  }
-  console.log("99999999999999999999999999999999999999999"+tempPath);
-  var sBaseName = path.basename(tempPath);
-  console.log("99999999999999999999999999999999999999999"+sBaseName);
-  var sCateName = sBaseName.split("Des");
-  if(sCateName.length < 2){
-    return;
-  }
-  var msgObj = {
-    type: "syncOnline",
-    ip: config.SERVERIP,
-    path: tempPath,
-    account: config.ACCOUNT,
-    device_id: config.uniqueID,
-    category: sCateName[0]
-  };
-  /*for (var index in device.devicesList) {
-    if (device.devicesList[index].online == true) {
-      if (device.devicesList[index].ip != config.SERVERIP) {
-        transfer.sendMsg(device.devicesList[index], msgObj);
-      }
-    }
-  }*/
-  device.getDeviceList(function(deviceList){
-    for(var index in deviceList){
-      if(deviceList[index].address != config.SERVERIP){
-        var deviceObj = {
-          ip:deviceList[index].address,
-          device_id:deviceList[index].txt[2],
-          account:deviceList[index].txt[1]
-        };
-        //console.log("000000000000000000000"+deviceObj);
-        transfer.sendMsg(deviceObj, msgObj);
-      }
-    }
-  });
-}
-exports.syncOnlineReq = syncOnlineReq;
-
 exports.repoInit = function(repoPath, callback) {
   git.Repo.init(repoPath, false, function(initReporError, repo) {
     if (initReporError)
       throw initReporError;
-    //console.log("Repo init : " + repo);
+    console.log("Repo init : " + repo);
     var exec = require('child_process').exec;
     var comstr = 'cd ' + repoPath + ' && git add . && git commit -m "On device ' + config.SERVERNAME + ' #Init resource#"';
-    //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
     exec(comstr, function(error, stdout, stderr) {
       if (error) {
         callback("Git init error");
@@ -124,9 +71,9 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
       console.log("Git add error");
       console.log(error, stderr, stdout)
     } else {
-      //console.log("Git add success");
+      console.log("Git add success");
       callback(null,'success');
-      syncOnlineReq(repoPath);
+      transfer.syncOnlineReq(repoPath);
     }
   });
 }
@@ -144,15 +91,15 @@ function repoRmsCommit(repoPath, files, commitID, callback) {
   var fileInfo = '"file":["' + files.join('","') + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
         console.log(stdout)
     if (error) {
       console.log("Git rm error", error,stdout, stderr);
     } else {
-      //console.log("Git rm success");
+      console.log("Git rm success");
       callback(null,'success');
-      syncOnlineReq(repoPath);
+      transfer.syncOnlineReq(repoPath);
     }
   });
 }
@@ -170,15 +117,15 @@ function repoChsCommit(repoPath, files, commitID, callback) {
   var fileInfo = '"file":["' + files.join('","') + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
-  //console.log(files);
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
+  console.log(files);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git change error", error, stdout);
     } else {
-      //console.log("Git change success");
+      console.log("Git change success");
       callback(null,'success');
-      syncOnlineReq(repoPath);
+      transfer.syncOnlineReq(repoPath);
     }
   });
 }
@@ -195,7 +142,7 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   var fileInfo = '"file":["' + file + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
-  //console.log(file);
+  console.log(file);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
@@ -203,37 +150,37 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
     } else {
       console.log("Git change success");
       callback(null,'success');
-      syncOnlineReq(repoPath);
+      transfer.syncOnlineReq(repoPath);
     }
   });
 }
 exports.repoResetCommit=repoResetCommit;
 
 function getLatestCommit(repoPath, callback) {
-  //console.log("getLatestCommit " + repoPath);
+  console.log("getLatestCommit " + repoPath);
   //open a git repo
   git.Repo.open(path.resolve(repoPath + '/.git'), function(openReporError, repo) {
     if (openReporError)
       throw openReporError;
-    //console.log("Repo open : " + repo);
+    console.log("Repo open : " + repo);
     //add the file to the index...
     repo.openIndex(function(openIndexError, index) {
       if (openIndexError)
         throw openIndexError;
-      //console.log("Repo index : " + index);
+      console.log("Repo index : " + index);
       index.read(function(readError) {
         if (readError)
           throw readError;
-        //console.log("Repo read : success");
+        console.log("Repo read : success");
         index.writeTree(function(writeTreeError, oid) {
           if (writeTreeError)
             throw writeTreeError;
-          //console.log("Repo writeTree : success");
+          console.log("Repo writeTree : success");
           //get HEAD 
           git.Reference.oidForName(repo, 'HEAD', function(oidForName, head) {
             if (oidForName)
               throw oidForName;
-            //console.log("Repo oidForName : " + oidForName);
+            console.log("Repo oidForName : " + oidForName);
             //get latest commit (will be the parent commit)
             callback(head);
           });
@@ -251,7 +198,7 @@ function getBranchList(stdout) {
       //line.pop(line[index]);
     //}
   //}
-  //console.log("###################################" + line);
+  console.log("###################################" + line);
   return line;
 }
 
@@ -260,45 +207,45 @@ exports.haveBranch = function(resourcesPath, branch, callback) {
   var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
   var cp = require('child_process');
   var cmd = 'cd ' + sLocalResourcesPath + '&& git branch';
-  //console.log(cmd);
+  console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
     var branchList = getBranchList(stdout);
-    //console.log(branchList.length);
+    console.log(branchList.length);
     for (var index in branchList) {
       //Reg trim
       var branchName = branchList[index].match(/rio.+rio/g);
-      //console.log("have branch :=======" + branchName);
+      console.log("have branch :=======" + branchName);
       if (branchName != null && branchName.length > 0 && branchName[0] == branch) {
         callback(true);
         return;
       }
     }
-    //console.log("have no branch : " + branch);
+    console.log("have no branch : " + branch);
     callback(false);
   });
 }
 
 exports.addBranch = function(deviceId, address, account, resourcesPath, callback) {
-  //console.log("add branch : " + deviceId);
+  console.log("add branch : " + deviceId);
   var sBaseName = path.basename(resourcesPath);
   var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
   var cp = require('child_process');
   var cmd = 'cd ' + sLocalResourcesPath + '&& git remote add ' + deviceId + ' ' + account + '@' + address + ':' + resourcesPath;
-  //console.log(cmd);
+  console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
-    //console.log(stdout + stderr);
+    console.log(stdout + stderr);
     var cmd = 'cd ' + sLocalResourcesPath + '&& git fetch ' + deviceId;
-    //console.log(cmd);
+    console.log(cmd);
     cp.exec(cmd, function(error, stdout, stderr) {
-      //console.log(stdout + stderr);
+      console.log(stdout + stderr);
       var cmd = 'cd ' + sLocalResourcesPath + '&& git checkout -b ' + deviceId + ' ' + deviceId + '/master';
-      //console.log(cmd);
+      console.log(cmd);
       cp.exec(cmd, function(error, stdout, stderr) {
-        //console.log(stdout + stderr);
+        console.log(stdout + stderr);
         var cmd = 'cd ' + sLocalResourcesPath + '&& git checkout master';
-        //console.log(cmd);
+        console.log(cmd);
         cp.exec(cmd, function(error, stdout, stderr) {
-          //console.log(stdout + stderr);
+          console.log(stdout + stderr);
           callback(deviceId);
         });
       });
@@ -321,28 +268,28 @@ exports.pullFromOtherRepo = function(resourcesPath, branch, callback) {
   var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
   var cp = require('child_process');
   var cmd = 'cd ' + sLocalResourcesPath + '&& git checkout ' + branch;
-  //console.log(cmd);
+  console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
-    //console.log(stdout + stderr);
+    console.log(stdout + stderr);
     var cmd = 'cd ' + sLocalResourcesPath + '&& git pull';
-    //console.log(cmd);
+    console.log(cmd);
     cp.exec(cmd, function(error, stdout, stderr) {
-      //console.log(stdout + stderr);
+      console.log(stdout + stderr);
       var cmd = 'cd ' + sLocalResourcesPath + '&& git checkout master';
-      //console.log(cmd);
+      console.log(cmd);
       cp.exec(cmd, function(error, stdout, stderr) {
-        //console.log(stdout + stderr);
+        console.log(stdout + stderr);
         var cmd = 'cd ' + sLocalResourcesPath + '&& git diff --name-only ' + branch;
-        //console.log(cmd);
+        console.log(cmd);
         cp.exec(cmd, function(error, stdout, stderr) {
-          //console.log(stdout + stderr);
+          console.log(stdout + stderr);
           var fileList = getPullFileList(stdout);
-          //console.log("fileList:");
-          //console.log(fileList);
+          console.log("fileList:");
+          console.log(fileList);
           var cmd = 'cd ' + sLocalResourcesPath + '&& git merge ' + branch;
-          //console.log(cmd);
+          console.log(cmd);
           cp.exec(cmd, function(error, stdout, stderr) {
-            //console.log(stdout + stderr);
+            console.log(stdout + stderr);
             callback(fileList);
           });
         });
@@ -372,7 +319,7 @@ exports.pullFromOtherRepo = function(resourcesPath, branch, callback) {
 function getGitLog(repoPath, callback) {
   var exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git log';
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
       console.log(err, stderr);
@@ -416,7 +363,7 @@ exports.getGitLog=getGitLog;
 exports.repoReset = function(repoPath, commitID,relateCommit, callback) {
   var exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git revert ' + commitID + ' -n';
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
     if (err) {
       console.log(err, stderr);
@@ -437,7 +384,7 @@ exports.repoReset = function(repoPath, commitID,relateCommit, callback) {
               callback(error,'failed');
             }
           });
-          //console.log('success', stdout);
+          console.log('success', stdout);
         }
         else{
           console.log("Get git log error!");
@@ -504,16 +451,16 @@ exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, call
 function isEmptyRepo(repoPath,completeCb){
   var exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath + ' && git show ';
-  //console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
   exec(comstr, function(err, stdout, stderr) {
-    ////console.log(stdout+stderr);
+    //console.log(stdout+stderr);
     if(err){
       if(stdout.indexOf("fatal: bad default revision")>=0){
-        //console.log("empty repo: "+desRepos[index].name);
+        console.log("empty repo: "+desRepos[index].name);
       }
     }
     else{
-      //console.log("hot repo: "+desRepos[index].name);
+      console.log("hot repo: "+desRepos[index].name);
       desRepos[index].status="hot";
     }
     index++;
@@ -531,7 +478,7 @@ function getReposStatus (callback) {
   isEmptyRepo(path.join(config.RESOURCEPATH,desRepos[index].name),function(){
     var aRepoArr = new Array();
     for(var arrIndex in desRepos){
-      //console.log(desRepos[arrIndex]);
+      console.log(desRepos[arrIndex]);
       if(desRepos[arrIndex].status != "empty"){
         aRepoArr.push(desRepos[arrIndex].name);
       }
