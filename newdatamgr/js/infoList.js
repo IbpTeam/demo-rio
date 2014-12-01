@@ -99,7 +99,7 @@ var InfoList = Class.extend({
     }
   },
 
-  setContent:function(category){
+  setContent:function(){
 	var _this = this;
     DataAPI.getAllTagsByCategory(function(result){
       _this.removeTags();
