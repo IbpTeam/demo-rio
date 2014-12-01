@@ -4,6 +4,13 @@
    @author Peiwen Lu (P233)
    https://github.com/P233/3-Jekyll
 \*---------------------------------*/
+var DataAPI;
+var AppAPI;
+WDC.requireAPI(['data', 'app'], function(data, app){
+  console.log("data:" +  data + " app:" + app);
+  DataAPI=data;
+  AppAPI=app;
+});
 
 // Detect window size, if less than 1280px add class 'mobile' to sidebar therefore it will be auto hide when trigger the pjax request in small screen devices.
 if ($(window).width() <= 1280) {
@@ -16,7 +23,7 @@ if ($(window).width() <= 1280) {
     infoList.attach($('#sidebar'));
     infoList.setTitle();
     infoList._infoList.hide();
-var sidebar    = $('#sidebar'),
+    var sidebar    = $('#sidebar'),
     container  = $('#container'),
     content    = $('#content');
     search.attach($('#searchDiv'));
@@ -27,7 +34,8 @@ var clickHandler = function(k) {
     $(this).addClass('active').siblings().removeClass('active');
     if(k == 1){
       infoList._infoList.hide();
-      infoList.removeContent();
+      infoList.removeTags();
+      infoList.removeRecent();
       container.removeClass('move-right');
     } else {
       infoList.setIndex(k);
@@ -43,4 +51,3 @@ var clickHandler = function(k) {
 for (var i = 1; i <= 6; i++) {
   $('#js-label' + i).on('click', clickHandler(i));
 }
-
