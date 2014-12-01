@@ -11,7 +11,7 @@ if ($(window).width() <= 1280) {
 }
 
 // Variables
-    var leftTags = ['contact','picture','video','document','music'];
+    search = Search.create();
     infoList = InfoList.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
@@ -19,6 +19,7 @@ if ($(window).width() <= 1280) {
 var sidebar    = $('#sidebar'),
     container  = $('#container'),
     content    = $('#content');
+    search.attach($('#searchDiv'));
 
 // infoList switcher
 var clickHandler = function(k) {
@@ -26,9 +27,11 @@ var clickHandler = function(k) {
     $(this).addClass('active').siblings().removeClass('active');
     if(k == 1){
       infoList._infoList.hide();
+      infoList.removeContent();
       container.removeClass('move-right');
     } else {
-      infoList._title = leftTags[k-2];
+      infoList.setIndex(k);
+      infoList.setContent();
       infoList.setTitle();
       infoList._infoList.show();
       infoList.loadData();
