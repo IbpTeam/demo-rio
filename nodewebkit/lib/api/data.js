@@ -1,5 +1,4 @@
 var commonDAO = require("../../backend/commonHandle/CommonDAO");
-var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
@@ -465,12 +464,6 @@ function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb) {
   getServerAddress(getServerAddressCb);
 }
 exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
-
-function pullFromOtherRepo() {
-  console.log("Request handler 'pullFromOtherRepo' was called.");
-  filesHandle.firstSync();
-}
-exports.pullFromOtherRepo = pullFromOtherRepo;
 
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
