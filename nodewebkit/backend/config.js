@@ -48,13 +48,6 @@ var AppList=[
     win:null,
     win2:null,
     path:"demo-rio/viewerPDF/index.html"
-  },
-  {
-    id:"app_viewerPDF2",
-    name:"viewerPDF2",
-    win:null,
-    win2:null,
-    path:"demo-rio/viewerPDF_2/viewer.html"
   }
 ];
 exports.AppList = AppList;
