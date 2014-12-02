@@ -18,17 +18,17 @@ if ($(window).width() <= 1280) {
 }
 
 // Variables
-    mainDoc = MainDocView.create();
-    search = Search.create();
-    infoList = InfoList.create();
-    infoList.attach($('#sidebar'));
-    infoList.setTitle();
-    infoList._infoList.hide();
-    var sidebar    = $('#sidebar'),
-    container  = $('#container'),
-    content    = $('#contentDiv');
-    search.attach($('#searchDiv'));
-    mainDoc.attach(content);
+  mainDoc = MainDocView.create();
+  search = Search.create();
+  infoList = InfoList.create();
+  infoList.attach($('#sidebar'));
+  infoList.setTitle();
+  infoList._infoList.hide();
+  var sidebar    = $('#sidebar'),
+  container  = $('#container'),
+  content    = $('#contentDiv');
+  search.attach($('#searchDiv'));
+  mainDoc.attach(content);
 
 // infoList switcher
 var clickHandler = function(k) {
