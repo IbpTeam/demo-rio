@@ -251,14 +251,6 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
-          case 'pdf':
-            source = {
-              openmethod: 'html',
-              format: 'pdf',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
           case 'txt':
             source = {
               openmethod: 'html',
@@ -314,8 +306,6 @@ function openDataByUri(openDataByUriCb, uri) {
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
             switch (item.postfix) {
-              case 'pdf':
-                break;
               case 'ppt':
                 s_command = "wpp \"" + item.path + "\"";
                 supportedKeySent = true;
