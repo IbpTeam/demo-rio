@@ -103,8 +103,8 @@ function createData(item, callback) {
           console.log(err);
           return;
         }
-        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(result) {
-          if (result !== 'success') {
+        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err,result) {
+          if (err) {
             console.log(result);
             return callback(null);
           }
