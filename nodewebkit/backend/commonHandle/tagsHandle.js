@@ -344,7 +344,6 @@ function setTagByUri(callback, oTags, sUri) {
       others: newTags,
       category: category
     };
-    console.log(item.path, UpdateItem);
     var re = new RegExp('/' + category + '/', "i");
     var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
     dataDes.updateItem(desFilePath, UpdateItem, function(result) {
@@ -356,8 +355,6 @@ function setTagByUri(callback, oTags, sUri) {
           return console.log(err);
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        console.log("item.category = "+item.category);
-        console.log("item.path = "+item.path);
         repo.repoCommit(chPath, [desFilePath], null,"ch", function() {
           console.log('set tags des git committed!');
           callback('commit');

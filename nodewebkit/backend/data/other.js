@@ -459,7 +459,6 @@ function repoReset(commitID, callback) {
         })
       } 
       else {
-        console.log("!!!!!!!!!!!!!!!!!!!!repoReset "+DES_REPO_DIR+" commitId : "+commitID);
         resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
           if (err) {
             console.log(err);

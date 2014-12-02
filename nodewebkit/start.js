@@ -99,24 +99,27 @@ function initializeApp(sFullPath) {
     config.ACCOUNT  = require(sUniqueIDPath).Account;
     setSysUid(deviceID, sUniqueIDPath, function() {
       device.startDeviceDiscoveryService();
-      fs.exists(sNetLinkStatusPath, function(netlinkExists) {
+      /***************
+      /*Temporary delete 
+      ****************/
+      /*fs.exists(sNetLinkStatusPath, function(netlinkExists) {
         if (!netlinkExists) {
           cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
             util.log("touch .netlinkstatus");
             config.NETLINKSTATUSPATH = sNetLinkStatusPath;
             cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
               util.log(sNetLinkStatusPath);
-              //filesHandle.monitorNetlink(sNetLinkStatusPath);
+              filesHandle.monitorNetlink(sNetLinkStatusPath);
               });
           });
         } else {
           config.NETLINKSTATUSPATH = sNetLinkStatusPath;
           cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
             util.log(sNetLinkStatusPath);
-            //filesHandle.monitorNetlink(sNetLinkStatusPath);
+            filesHandle.monitorNetlink(sNetLinkStatusPath);
           });
         }
-      });
+      });*/
     });
   });
 }

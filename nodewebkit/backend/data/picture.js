@@ -430,16 +430,12 @@ exports.getGitLog = getGitLog;
  *
  **/
 function repoReset(commitID, callback) {
-  console.log("revert conmmitId = "+commitID);
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
     } else {
       var dataCommitID = oGitLog[commitID].content.relateCommit;
-              console.log("!!!!!!!!!!!!!!!!!!relateCommit = "+dataCommitID)
-
       if (dataCommitID!="null") {
-               console.log("dataCommitID not  null"); 
         resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
           if (err) {
             console.log(err);
@@ -466,7 +462,6 @@ function repoReset(commitID, callback) {
         })
       } 
       else {
-        console.log("!!!!!!!!!!!!!!!!!!!!repoReset "+DES_REPO_DIR+" commitId : "+commitID);
         resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
           if (err) {
             console.log(err);
@@ -479,11 +474,6 @@ function repoReset(commitID, callback) {
             callback(null, result)
           }
         });
-        /*var _err = 'related des commit id error!';
-        console.log(_err);
-        callback({
-          'document': _err
-        }, null);*/
       }
     }
   });

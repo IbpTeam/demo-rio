@@ -356,8 +356,6 @@ exports.updateDB = function(category, updateDBCb) {
         var isEnd = (count === lens - 1);
         (function(_fileItem, _isEnd) {
           fs.readFile(_fileItem, 'utf8', function(err, data) {
-           console.log( _fileItem);
-            console.log(data);
             var oFileInfo = JSON.parse(data);
             console.log('$$$$$$$$$$$$$$', oFileInfo)
             allFileInfo.push(oFileInfo);
