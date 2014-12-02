@@ -29,7 +29,14 @@
 
 
     <script>
-
+    /** 
+     * @Method: pdf viewer
+     *    To view a pdf file.
+     *
+     * @param: params
+     *    string, the full path of a pdf file.
+     *
+     **/
     function onStart(params) {
       console.log("onStart():" + params);
       WDC.requireAPI(['data'], function(data) {
@@ -37,7 +44,7 @@
         var fs = require('fs');
         var path = require('path');
         var _name = path.basename(params);
-          initViewer(params);
+        initViewer(params);
       })
     }
 
