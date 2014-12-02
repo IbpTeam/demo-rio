@@ -1,5 +1,4 @@
-//
-//
+//搜索框部分的窗口实现。
 var Search = Class.extend({
   init:function(){
     this._Container = $('<div>',{

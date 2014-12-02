@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>app_viewerPDF</title>
+
+  <link rel="stylesheet" type="text/css" href="css/demoUI.css"/>
+  <link rel="stylesheet" type="text/css" href="css/demoUItheme.css"/>
+  <link rel="stylesheet" type="text/css" href="css/demoUIFont.css"/>
+
+  <script type="text/javascript" src="lib/jquery.js"></script>
+  <script type="text/javascript" src="lib/require.js"></script>
+  <script type="text/javascript" src="lib/api.js"></script>
+  <script type="text/javascript" src="lib/demoUI.js"></script>
+  <script type="text/javascript" src="js/pdf.js"></script>
+
+  <body> 
+    <div>
+    </iframe>
+    <button id="prev" onClick="goPrevious()">Previous</button>
+    <button id="next" onClick="goNext()">Next</button>
+    <button id="zoom in" onClick="zoomIn()">zoom in</button>
+    <button id="zoom out" onClick="zoomOut()">zoom out</button>
+    &nbsp; &nbsp;
+    <span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+
+    </div>
+    <canvas id="the-canvas" style="border:1px  solid black"></canvas>
+
+
+    <script>
+    /** 
+     * @Method: pdf viewer
+     *    To view a pdf file.
+     *
+     * @param: params
+     *    string, the full path of a pdf file.
+     *
+     **/
+    function onStart(params) {
+      console.log("onStart():" + params);
+      WDC.requireAPI(['data'], function(data) {
+        console.log("Initalization Browser PDF Viewer...");
+        var fs = require('fs');
+        var path = require('path');
+        var _name = path.basename(params);
+        initViewer(params);
+      })
+    }
+
+    PDFJS.disableWorker = true;
+
+    var pdfDoc = null,
+      pageNum = 1,
+      scale = 1,
+      canvas = document.getElementById('the-canvas'),
+      ctx = canvas.getContext('2d');
+
+    function renderPage(num) {
+      // Using promise to fetch the page
+      pdfDoc.getPage(num).then(function(page) {
+        var viewport = page.getViewport(scale);
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page into canvas context
+        var renderContext = {
+          canvasContext: ctx,
+          viewport: viewport
+        };
+        page.render(renderContext);
+      });
+
+      // Update page counters
+      document.getElementById('page_num').textContent = pageNum;
+      document.getElementById('page_count').textContent = pdfDoc.numPages;
+    }
+
+    function goPrevious() {
+      if (pageNum <= 1)
+        return;
+      pageNum--;
+      renderPage(pageNum);
+    }
+
+    function goNext() {
+      if (pageNum >= pdfDoc.numPages)
+        return;
+      pageNum++;
+      renderPage(pageNum);
+    }
+
+    function zoomIn(){
+      scale += 0.2;
+      renderPage(pageNum);
+    }
+
+    function zoomOut(){
+      scale -= 0.2;
+      renderPage(pageNum);
+    }
+
+    function initViewer(url) {
+      PDFJS.getDocument(url).then(function getPdfHelloWorld(_pdfDoc) {
+        pdfDoc = _pdfDoc;
+        renderPage(pageNum);
+      });
+    }
+
+    </script>
+
+  </head>
+</body>
+</html>

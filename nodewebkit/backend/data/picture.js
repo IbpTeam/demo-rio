@@ -348,7 +348,7 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, function() {
+        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"ch", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
@@ -430,13 +430,12 @@ exports.getGitLog = getGitLog;
  *
  **/
 function repoReset(commitID, callback) {
-  console.log("revert conmmitId = "+commitID);
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
     } else {
       var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID) {
+      if (dataCommitID!="null") {
         resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
           if (err) {
             console.log(err);
@@ -463,11 +462,18 @@ function repoReset(commitID, callback) {
         })
       } 
       else {
-        var _err = 'related des commit id error!';
-        console.log(_err);
-        callback({
-          'document': _err
-        }, null);
+        resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
+          if (err) {
+            console.log(err);
+            callback({
+              'document': err
+            }, null);
+          } 
+          else {
+            console.log('reset success!')
+            callback(null, result)
+          }
+        });
       }
     }
   });
