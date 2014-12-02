@@ -13,7 +13,6 @@
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
-var filesHandle = require("./backend/filesHandle");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
 var device = require("./backend/data/device");
@@ -78,7 +77,6 @@ function initializeApp(sFullPath) {
   var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
   var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
-  filesHandle.isPulledFile = false;
   console.log("UniqueID Path is : " + sUniqueIDPath);
     /*
      * TODO: desktop config part is not working now, will fix it later
@@ -108,14 +106,14 @@ function initializeApp(sFullPath) {
             config.NETLINKSTATUSPATH = sNetLinkStatusPath;
             cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
               util.log(sNetLinkStatusPath);
-              filesHandle.monitorNetlink(sNetLinkStatusPath);
+              //filesHandle.monitorNetlink(sNetLinkStatusPath);
               });
           });
         } else {
           config.NETLINKSTATUSPATH = sNetLinkStatusPath;
           cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
             util.log(sNetLinkStatusPath);
-            filesHandle.monitorNetlink(sNetLinkStatusPath);
+            //filesHandle.monitorNetlink(sNetLinkStatusPath);
           });
         }
       });
