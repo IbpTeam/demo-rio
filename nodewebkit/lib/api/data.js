@@ -1,5 +1,4 @@
 var commonDAO = require("../../backend/commonHandle/CommonDAO");
-var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
@@ -465,12 +464,6 @@ function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb) {
   getServerAddress(getServerAddressCb);
 }
 exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
-
-function pullFromOtherRepo() {
-  console.log("Request handler 'pullFromOtherRepo' was called.");
-  filesHandle.firstSync();
-}
-exports.pullFromOtherRepo = pullFromOtherRepo;
 
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
@@ -1454,3 +1447,32 @@ function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
 }
 exports.renameDataByUri = renameDataByUri;
 
+/** 
+ * @Method: deviceInfo
+ *    To get device info.
+ *
+ * @param: renameDataByUriCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *
+ *        object, device info
+ *
+ *        example:
+ *         {
+ *          "resources_path":"/home/xiquan/.resources",
+ *          "server_ip":"192.168.161.65",
+ *          "server_name":"xiquan-B75MU3B",
+ *          "local_account":"xiquan",
+ *          "local_id":"26578"
+ *         }
+ *
+ **/
+function deviceInfo(deviceInfoCb) {
+  console.log("Request handler 'renameDataByUri' was called.");
+  devices.deviceInfo(deviceInfoCb);
+}
+exports.deviceInfo = deviceInfo;
