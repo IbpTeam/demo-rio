@@ -18,6 +18,8 @@ if ($(window).width() <= 1280) {
 }
 
 // Variables
+  mainVideo = MainVideoView.create();
+  mainPic = MainPicView.create();
   mainDoc = MainDocView.create();
   search = Search.create();
   infoList = InfoList.create();
@@ -29,6 +31,8 @@ if ($(window).width() <= 1280) {
   content    = $('#contentDiv');
   search.attach($('#searchDiv'));
   mainDoc.attach(content);
+  mainPic.attach(content);
+  mainVideo.attach(content);
 
 // infoList switcher
 var clickHandler = function(k) {
@@ -39,14 +43,18 @@ var clickHandler = function(k) {
       infoList.removeTags();
       infoList.removeRecent();
       container.removeClass('move-right');
-      mainDoc._DocContainer.show();
+      mainDoc._docContainer.show();
+      mainPic._picContainer.show();
+      mainVideo._videoContainer.show();
     } else {
       infoList.setIndex(k);
       infoList.setContent();
       infoList.setTitle();
       infoList._infoList.show();
       infoList.loadData();
-      mainDoc._DocContainer.hide();
+      mainDoc._docContainer.hide();
+      mainPic._picContainer.hide();
+      mainVideo._videoContainer.hide();
       container.addClass('move-right');
     }
   }

@@ -14,6 +14,13 @@
     }
 }
 
+.select(@sel) {
+  -webkit-user-select: @sel;
+  -moz-user-select: @sel;
+  -o-user-select:@sel;
+  user-select:@sel;
+}
+
 * {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -320,18 +327,114 @@ a {
     }
   }
   #contentDiv{
+    .select(none);
     top: 80px;
     position: absolute;
     bottom: 0px;
     left: 0px;
     width: 100%;
     border: 1px solid #f00;
+    #video-container{
+      position: absolute;
+      bottom: 40px;
+      height: 260px;
+      left: 40px;
+      right:650px;
+      border: 1px solid #999;
+      > div{
+        border-radius: 6px;
+        border:1px solid #f00;
+        position: absolute;
+        top:20px;
+        bottom: 20px;
+        background: rgba(255, 255, 255, 0.5);
+        &.video-content{
+          left: 30px;
+          right: 30px;
+        }
+        .banner{
+          overflow: hidden;
+          height: 100%;
+          border-radius:6px; 
+        }
+      }
+      a{
+        position: absolute;
+        top: 120px;
+        font-size: 20px;
+        cursor: pointer;
+        &:hover{
+          font-weight: bold;
+        }
+        &.video-middle-btn{
+          left:49%;
+        }
+        &.video-left-btn{
+          left: 5px;
+        }
+        &.video-right-btn{
+          right: 5px;
+        }
+      }
+    }
+    #pic-container{
+      position: absolute;
+      top: 20px;
+      right: 40px;
+      width: 270px;
+      height: 270px;
+      border: 1px solid #ccc;
+      .pic-content{
+        margin-top: 20px;
+        margin-left: 15px;
+        position: relative;
+        width: 240px;
+        height: 250px;
+        border: 1px solid #ccc;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-box-pack: center;
+        -webkit-box-align: center;
+        .pic-img{
+          width: 240px;
+          height: 200px;
+          z-index: 98;
+        }
+        .pic-btm-content{
+          width: 80%;
+          height:20px;
+          margin-top: 2px;
+          border: 1px solid #0f0;
+          font-weight: normal;
+          color: #999;
+          .pic-text{
+            .select(none);
+            font-size: 16px;
+          }
+          .pic-btn{
+            margin-left: 3px;
+            font-size: 18px;
+            &:hover{
+              font-weight: bold;
+            }
+            &.selected{
+              color:rgba(255, 0, 0, 0.5);
+            }
+          }
+          .pic-date{
+            .select(none);
+            float: right;
+            font-size: 14px;
+          }
+        }
+      }
+    }
     #doc-container{
       position: absolute;
       top: 20px;
       left: 40px;
       right:350px;
-      bottom: 200px;
+      bottom: 350px;
       border: 1px solid #ccc;
       #doc-title-content{
         position: relative;
@@ -369,6 +472,7 @@ a {
             font-weight: normal;
           }
         }
+
       }
       #doc-content{
         position: absolute;
