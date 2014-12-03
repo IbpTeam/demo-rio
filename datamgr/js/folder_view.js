@@ -346,7 +346,14 @@ function Folder(jquery_element) {
                   self.emit('navigate', file_json);
                 break;
                 case 'file':
-                  DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+                  if(file_json.postfix == 'pdf'){
+                    function cb_view_pdf(){
+                      console.log('open pdf file with viewerPDF...');
+                    }                  
+                    AppAPI.startAppByName(cb_view_pdf, "viewerPDF", file_json.path);
+                  }else{
+                    DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+                  }
                 break;
                 case 'other':
                   get_all_data_file(file_json);
@@ -497,7 +504,14 @@ function Folder(jquery_element) {
         break;
       case 'file':
         if(file_json.URI.indexOf('#') != -1){
-          DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+          if(file_json.postfix == 'pdf'){
+          function cb_view_pdf(){
+            console.log('open pdf file with viewerPDF...');
+          }
+            AppAPI.startAppByName(cb_view_pdf, "viewerPDF", file_json.path);
+          }else{
+            DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+          }
         }
         break;
       case 'device':
@@ -1011,7 +1025,14 @@ Folder.prototype.gen_view_table = function(files){
         global_self.emit('navigate', file_json);
         break;
       case 'file':
-        DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+        if(file_json.postfix == 'pdf'){
+          function cb_view_pdf(){
+            console.log('open pdf file with viewerPDF...');
+          }
+          AppAPI.startAppByName(cb_view_pdf, "viewerPDF", file_json.path);
+        }else{      
+          DataAPI.openDataByUri(cb_get_data_source_file, file_json.URI);
+        }
         break;
       }
     });

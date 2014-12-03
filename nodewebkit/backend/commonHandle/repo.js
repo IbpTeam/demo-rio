@@ -40,7 +40,6 @@ exports.repoInit = function(repoPath, callback) {
     console.log("Repo init : " + repo);
     var exec = require('child_process').exec;
     var comstr = 'cd ' + repoPath + ' && git add . && git commit -m "On device ' + config.SERVERNAME + ' #Init resource#"';
-    console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
     exec(comstr, function(error, stdout, stderr) {
       if (error) {
         callback("Git init error");
@@ -68,7 +67,6 @@ function repoCommit(repoPath, files, commitID, op, callback) {
   var fileInfo = '"file":["' + files.join('","') + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
-  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git add error");
@@ -484,7 +482,6 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
           console.log("Git change error", error, stdout);
           return
         }
-        console.log("Git change success");
         callback(null, 'success');
       });
     })
