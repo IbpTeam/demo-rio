@@ -92,17 +92,9 @@ exports.sendFileTransferAccept = sendFileTransferAccept;
 function sendFileTransferStart(sendFileTransferStartCb, msgObj,path) {
   fileTransferServer.transferFile(fileServer, function(err, msg, server) { //发送端初始化传输信息
     if (err) { //发送端初始化传输信息失败-----有点问题请稍候重发----界面显示  
-      // client.fileTransferError(rstObj.file,msg,function(){        
-      console.log('transfer------error--transferFile------' + msg);
-      //   });        
       fileTransfer.fileTransferStart(true, '', '', msgObj, function(err, rstObj) {
         serverAndMapHandler();
         sendFileTransferStartCb(err,rstObj);
-        /*if(err||rstObj.state==='1'){//接收端 初始化接收信息失败 或 接收端回复信息出错 ---------界面显示     
-      serverAndMapHandler();          
-    }else{//显示正在传输文件---------界面显示     
-      console.log('transfer------ing--------'+JSON.stringify(rstObj));                    
-    } */
       });
     } else {
       fileServer = server;
@@ -111,11 +103,9 @@ function sendFileTransferStart(sendFileTransferStartCb, msgObj,path) {
         //发送端初始化传输信息成功     并发送 “接收端可以进行接受” 的信息
         fileTransfer.fileTransferStart(false, fileServer.address().port, msgObj, function(err, rstObj) {
           if (err || rstObj.state === '0') { //接收端 初始化接收信息失败 或 接收端回复信息出错 ---------界面显示
-            console.log('-------fileTransferStart  error ---' + JSON.stringify(rstObj));
             serverAndMapHandler(rstObj.key);
             sendFileTransferStartCb(true,rstObj);
           } else { //显示正在传输文件---------界面显示
-            console.log('transfer------ing----fileTransferStart   after----' + JSON.stringify(rstObj));
             sendFileTransferStartCb(err,rstObj);
           }
         });
@@ -156,9 +146,7 @@ exports.sendFileTransferStart = sendFileTransferStart;
  *   启动程序参数，待接收文件的保存路径，例如“/media/yff/backup/test.txt”
  */
 function transferFileProcess(transferFileCb, msgObj, outputPath) {
-  console.log(JSON.stringify(msgObj));
-  fileTransferClient.transferFile(msgObj,outputPath,function(err, rst) { //传输文件        
-    console.log('----ooooo-----------oooooooooo--------');
+  fileTransferClient.transferFile(msgObj,outputPath,function(err, rst) { //传输文件    
     if (err) { //传输文件失败------------界面显示      
       msgObj['state'] = '0';
       msgObj['option']=0x0002;

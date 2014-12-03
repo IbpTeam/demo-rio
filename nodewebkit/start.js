@@ -22,7 +22,7 @@ var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
-var cryptoApp= require('./lib/api/crypto_app');
+var cryptoApp= require('./backend/crypto_app');
 //var process = require('process');
 
 var handle = {}

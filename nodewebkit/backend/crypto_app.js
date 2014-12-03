@@ -1,4 +1,4 @@
-var rsaKey = require('../../backend/IM/rsaKey');
+var rsaKey = require('./IM/rsaKey');
 var cryptoConf = require('./cryptoConf');
 var fs = require('fs');
 var path = require('path');
