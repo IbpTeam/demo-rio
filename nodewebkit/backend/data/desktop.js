@@ -90,8 +90,8 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = pathModule.join(utils.getHomeDir(),'WORK_DIRECTORY','app/demo-rio/datamgr');//change 'WORK_DIRECTORY' into local.
-    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(),'WORK_DIRECTORY','/app/demo-rio/datamgr/icons/datamgr.png');
+    _datamgr_app.path = pathModule.join(utils.getHomeDir(),'dde','app/demo-rio/datamgr');//change 'WORK_DIRECTORY' into local.
+    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(),'dde','/app/demo-rio/datamgr/icons/datamgr.png');
     _datamgr_app.name = "Data Manager";
     _datamgr_app.type = "inside-app";
 
