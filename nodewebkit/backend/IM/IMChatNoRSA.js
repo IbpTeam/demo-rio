@@ -10,8 +10,6 @@ var CURUSER = process.env['USER'];
 var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
 var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
 
-var keySizeBits = 1024;
-var size = 65537;
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;

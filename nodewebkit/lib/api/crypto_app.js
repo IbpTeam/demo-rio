@@ -4,6 +4,21 @@ var fs = require('fs');
 var path = require('path');
 
 /**
+ * @method initServerPubKey
+ *  在默认路径下初始化服务器端公钥信息
+ *
+ * @param1 callback function
+ *   回调函数
+ *   @cbparam1
+ *      boolean, 返回操作成功与否，成功则返回true,失败则返回false
+ */
+function initServerPubKey(initServerPubKeyCb) {
+  rsaKey.initServerPubKey(cryptoConf.serverkeypath, function(done) {
+    initServerPubKeyCb(done);
+  });
+}
+exports.initServerPubKey = initServerPubKey;
+/**
  * @method generateRsaKeypair
  *  根据路径生成数据同步以及即时通信公私钥信息
  *
