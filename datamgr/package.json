@@ -1,6 +1,6 @@
 {
   "name": "DataManager",
-  "main": "file-explorer.html",
+  "main": "index.html",
   "description": "Simple file explorer.",
   "version": "0.0.5",
   "window": {
