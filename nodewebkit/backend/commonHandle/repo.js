@@ -373,7 +373,6 @@ function getGitLog(repoPath, callback) {
         commitLog[logItem[0]] = tmplogItem;
       }
     }
-    console.log(commitLog);
     callback(null, commitLog);
   })
 }
