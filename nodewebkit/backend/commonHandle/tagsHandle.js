@@ -221,7 +221,6 @@ function getTagsByUris(callback, oUris) {
   };
 
   function findItemsCb(err, items) {
-    console.log(items)
     if (err) {
       console.log(err);
       return;
@@ -344,7 +343,6 @@ function setTagByUri(callback, oTags, sUri) {
       others: newTags,
       category: category
     };
-    console.log(item.path, UpdateItem)
     var re = new RegExp('/' + category + '/', "i");
     var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
     dataDes.updateItem(desFilePath, UpdateItem, function(result) {
@@ -356,7 +354,7 @@ function setTagByUri(callback, oTags, sUri) {
           return console.log(err);
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        repo.repoChsCommit(chPath, [desFilePath], null, function() {
+        repo.repoCommit(chPath, [desFilePath], null,"ch", function() {
           console.log('set tags des git committed!');
           callback('commit');
         });
@@ -464,7 +462,7 @@ function rmTagsByUri(callback, oTags, sUri) {
             return callback(result);
           }
           var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-          repo.repoChsCommit(desPath, files, null, function() {
+          repo.repoCommit(desPath, files, null,"ch", function() {
             console.log("rm tags: ", oTags, " success!");
             callback(result);
           });
@@ -540,7 +538,7 @@ function rmTagsAll(callback, oTags) {
                 files.push(desFilePath);
               }
               var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-              repo.repoChsCommit(desPath, files, null, function() {
+              repo.repoCommit(desPath, files, null,"ch", function() {
                 callback(result);
               });
             } else {
@@ -657,7 +655,7 @@ function setRelativeTagByPath(sFilePath, sTags, callback) {
           return callback(err, null);
         }
         var chPath = utils.getDesRepoDir(category);
-        repo.repoChsCommit(chPath, [desFilePath], null, function(result) {
+        repo.repoCommit(chPath, [desFilePath], null,"ch", function(result) {
           if (result !== 'success') {
             var _err = 'git ch commit error!';
             return callback(_err, null);

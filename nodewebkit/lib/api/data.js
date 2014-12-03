@@ -1,5 +1,4 @@
 var commonDAO = require("../../backend/commonHandle/CommonDAO");
-var filesHandle = require("../../backend/filesHandle");
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
@@ -124,7 +123,6 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
-  console.log(VidList)
 
   documents.createData(DocList, function(err, result) {
     if (err) {
@@ -404,14 +402,12 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
       console.log(err_doc);
       return;
     }
-    console.log(result_doc);
     allItems = allItems.concat(result_doc);
     pictures.getRecentAccessData(num, function(err_pic, result_pic) {
       if (err_pic) {
         console.log(err_pic);
         return;
       }
-      console.log(result_pic);
       allItems = allItems.concat(result_pic);
       music.getRecentAccessData(num, function(err_mus, result_mus) {
         if (err_mus) {
@@ -465,12 +461,6 @@ function getDeviceDiscoveryService(getDeviceDiscoveryServiceCb) {
   getServerAddress(getServerAddressCb);
 }
 exports.getDeviceDiscoveryService = getDeviceDiscoveryService;
-
-function pullFromOtherRepo() {
-  console.log("Request handler 'pullFromOtherRepo' was called.");
-  filesHandle.firstSync();
-}
-exports.pullFromOtherRepo = pullFromOtherRepo;
 
 //API pasteFile:粘贴一个数据文件
 //参数：要添加的数据的json描述和目的路径
