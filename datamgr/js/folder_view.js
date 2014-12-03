@@ -668,7 +668,9 @@ Folder.prototype.set_icon = function(postfix){
     case 'png':
       return 'Pictures';
     case 'html5ppt':
-      return 'html5ppt'
+      return 'html5ppt';
+    case 'pdf':
+      return 'pdf';
     default:
       return 'Documents';
   }
@@ -767,8 +769,12 @@ Folder.prototype.show_history = function(){
       for(var i in result){
         file_property += '<li class="divider">--------------------</li>';
         file_property += '<p>'+result[i]['Author']+' '+result[i]['content']['op']+' data on '+result[i]['Date'];
-        file_property += ' using device '+result[i]['content']['device']+'</p>';
-        file_property += '<input type=button class="btn active" id='+result[i]['commitID']+' value="More Detail"/>';        
+        file_property += ' using device '+result[i]['content']['device']+'. Details:</p>';
+        for(var j=0; j<result[i]['content']['file'].length; j++){
+          var filename = result[i]['content']['file'][j];
+          filename = filename.substring(filename.lastIndexOf('/')+1, filename.lastIndexOf('.md'));
+          file_property += '<p>' + filename + '</p>';
+        }        
         if(count == commitIds.length - 1){
           file_property += '<input type=button class="btn active" name="null" value="Confirm Recover"/>';
         }else{
@@ -778,14 +784,6 @@ Folder.prototype.show_history = function(){
       }
       var history_win = Window.create('operation_history', 'Operation History', {left:100, top:100, height: 500, width: 500, resize: true});
       history_win._windowContent.append(file_property);
-      $('input[value="More Detail"]').on('click', function(){
-        var detail_win = Window.create('operation_details', 'Operation Details', {left:150, top:150, height: 500, width: 430, resize: true});
-        var details = '';
-        for(var i=0; i<result[this.id]['content']['file'].length; i++){
-          details += '<p>' + result[this.id]['content']['file'][i] + '</p>';
-        }
-        detail_win._windowContent.append(details);
-      });
       $('input[value="Confirm Recover"]').on('click', function(){
         if(this.name == 'null'){
           window.alert("You are already in the first version, so you can not do recovery operation.");
