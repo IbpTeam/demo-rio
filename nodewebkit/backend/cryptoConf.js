@@ -9,18 +9,25 @@ var path = require('path');
  */
 var HOME_DIR = "/home";
 var DEMO_RIO = ".demo-rio";
+var SSH_DIR = ".ssh";
 var CURUSER = process.env['USER'];
 var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
-var SSHPATH = path.join(USERCONFIGPATH,"key");
-var SSHUSERPATH = path.join(SSHPATH,"users");
+var SSHPATH = path.join(USERCONFIGPATH, "key");
+var SSHUSERPATH = path.join(SSHPATH, "users");
+var SSHPATH_msg = path.join(HOME_DIR, CURUSER, SSH_DIR);
 
 var prikeypath = path.join(SSHPATH, "rio_rsa");
-var pubkeypath_msg = path.join(SSHPATH, "rio_rsa.pub");//use in msgTransfer
-var pubkeypath_im = path.join(SSHPATH, "rio_rsa.pem");//use in imchat
-var serverkeypath = path.join(SSHPATH, "serverKey.pem");//公钥服务器公钥路径
+var pubkeypath_msg = path.join(SSHPATH, "rio_rsa.pub"); //use in msgTransfer
+var pubkeypath_im = path.join(SSHPATH, "rio_rsa.pem"); //use in imchat
+var serverkeypath = path.join(SSHPATH, "serverKey.pem"); //公钥服务器公钥路径
+var sshPriKeyPath = path.join(SSHPATH_msg, "rio_rsa");
+var sshPubKeyPath = path.join(SSHPATH_msg, "rio_rsa.pub");
 
-exports.prikeypath=prikeypath;
-exports.pubkeypath_msg=pubkeypath_msg;
-exports.pubkeypath_im=pubkeypath_im;
+exports.prikeypath = prikeypath;
+exports.pubkeypath_msg = pubkeypath_msg;
+exports.pubkeypath_im = pubkeypath_im;
 exports.serverkeypath = serverkeypath;
-exports.SSHUSERPATH=SSHUSERPATH;
+exports.SSHUSERPATH = SSHUSERPATH;
+exports.sshPriKeyPath = sshPriKeyPath;
+exports.sshPubKeyPath = sshPubKeyPath;
+exports.SSHPATH_msg = SSHPATH_msg;
