@@ -246,6 +246,8 @@ function getTagsByUris(callback, oUris) {
         }
       }
     }
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    console.log(TagFile);
     callback(TagFile);
   }
   var name = (sTableName === 'contact') ? 'name' : 'filename';

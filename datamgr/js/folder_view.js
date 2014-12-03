@@ -694,7 +694,7 @@ Folder.prototype.get_callback_data = function(data_json){
         break;
       case 'contact':
         data_json[i]['props'] = {};
-        //data_json[i]['img'] = data_json[i]['photoPath'];
+        data_json[i]['props']['img'] = data_json[i]['photoPath'];
         data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
         data_json[i]['props']['name'] = data_json[i]['name'];
         data_json[i]['props']['type'] = 'contact';
