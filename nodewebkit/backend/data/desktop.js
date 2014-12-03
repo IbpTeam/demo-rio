@@ -229,35 +229,32 @@ function initDesktop(callback) {
             fs.open(pathTheme, 'r', function(err) {
               if (err) {
                 fs_extra.outputFileSync(pathTheme, sItemTheme);
-                sRealDir.push(pathTheme);
-                sDesDir.push(sThemeDesDir);
-              }
-              fs.open(pathWidget, 'r', function(err) {
-                if (err) {
-                  fs_extra.outputFileSync(pathWidget, sItemWidget);
-                  sRealDir.push(pathTheme);
-                  sDesDir.push(sWidgetDesDir);
-                  resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err, result) {
-                    if (err) {
-                      return callback(err, null);
-                    }
+                fs_extra.outputFileSync(pathWidget, sItemWidget);
+                buildDesFile('Theme', 'conf', pathTheme, function() {
+                  buildDesFile('Widget', 'conf', pathWidget, function() {
+                    resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, [pathTheme, pathWidget], [sThemeDesDir, sWidgetDesDir], function(err, result) {
+                      if (err) {
+                        console.log(err)
+                        return callback(err, null);
+                      }
+                    })
                   })
-                }
-                buildLocalDesktopFile(function() {
-                  buildAppMethodInfo('defaults.list', function(err, result) {
+                })
+              }
+              buildLocalDesktopFile(function() {
+                buildAppMethodInfo('defaults.list', function(err, result) {
+                  if (err) {
+                    console.log(err);
+                    return;
+                  }
+                  buildAppMethodInfo('mimeinfo.cache', function(err, result) {
                     if (err) {
                       console.log(err);
                       return;
                     }
-                    buildAppMethodInfo('mimeinfo.cache', function(err, result) {
-                      if (err) {
-                        console.log(err);
-                        return;
-                      }
-                      console.log(result);
-                      console.log('build local desktop file success');
-                      callback(null, "success");
-                    })
+                    console.log(result);
+                    console.log('build local desktop file success');
+                    callback(null, "success");
                   })
                 })
               })
@@ -1201,30 +1198,31 @@ function buildLocalDesktopFile(callback) {
           var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
           fs.open(_sFileOriginPath, 'r', function(err) {
             if (err) {
-              fs_extra.copy(_sFileOriginPath, newPath, function(err) {
-                if (err) {
-                  console.log('pass file ', sFileName);
-                  count++;
-                } else {
-                  oRealFiles.push(newPath);
-                  oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
-                  buildDesFile(sFileName, 'desktop', newPath, function() {
-                    var isEnd = (count === lens - 1);
-                    if (isEnd) {
-                      /*TODO: some desktop files are links, so git won't touch them. Needs to be done */
-                      // resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, oRealFiles, oDesFiles, function(err, result) {
-                      //   if (err) {
-                      //     console.log('git commit error!');
-                      //     return;
-                      //   }
-                      callback();
-                      //})
-                    }
-                    count++;
-                  })
-                }
-              })
+              console.log('pass', _sFileOriginPath)
             }
+            fs_extra.copy(_sFileOriginPath, newPath, function(err) {
+              if (err) {
+                console.log('pass file ', sFileName);
+                count++;
+              } else {
+                oRealFiles.push(newPath);
+                oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
+                buildDesFile(sFileName, 'desktop', newPath, function() {
+                  var isEnd = (count === lens - 1);
+                  if (isEnd) {
+                    /*TODO: some desktop files are links, so git won't touch them. Needs to be done */
+                    // resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, oRealFiles, oDesFiles, function(err, result) {
+                    //   if (err) {
+                    //     console.log('git commit error!');
+                    //     return;
+                    //   }
+                    callback();
+                    //})
+                  }
+                  count++;
+                })
+              }
+            })
             var isEnd = (count === lens - 1);
             if (isEnd) {
               callback();
