@@ -1,12 +1,18 @@
 var ShowFiles = Class.extend({
+
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     this._index = 0;
     var global_self;
     var global_dir;
     var file_arch_json = {};
+    var currentFiles = {};
     var copied_filepath = '';
+    var choice = $('<div id = "choice"></div>');
+    //var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
     $("#contentDiv").empty();
+    $("#contentDiv").append(choice);
+    //this.showContent.empty();
   },
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
@@ -22,18 +28,26 @@ var ShowFiles = Class.extend({
     if (this._index == 1){
       //所请求的是图片，显示图片
       DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
+      //global_self.showFilesNormal(global_self.currentFiles);
+      //global_self.showFilesList(currentFiles);
     }
     else if(this._index == 2){
       //所请求的是视频，显示视频
       DataAPI.getAllDataByCate(this.getCallBackData,'Video');
+      //global_self.showFilesNormal(global_self.currentFiles);
+      //global_self.showFilesList(currentFiles);
     }
     else if(this._index ==3){
       //所请求的是图片，显示文档
       DataAPI.getAllDataByCate(this.getCallBackData,'Document');
+      //global_self.showFilesNormal(global_self.currentFiles);
+      //global_self.showFilesList(currentFiles);
     }
     else if(this._index ==4){
       //所请求的是图片，显示音乐
       DataAPI.getAllDataByCate(this.getCallBackData,'Music');
+      //global_self.showFilesNormal(global_self.currentFiles);
+      //global_self.showFilesList(currentFiles);
     }
   },
 
@@ -111,30 +125,9 @@ var ShowFiles = Class.extend({
           break;
       }
     }
-    global_self.showFilesList(data_json);
-  },
-
-  //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
-  showFilesListtest:function(files){
-    var table = $('<table cellspacing="0" width="100%"></table>');
-    var thead = $('<thead></thead>');
-    var tbody = $('<tbody></tbody>');
-    var theadtr = $('<tr></tr>');
-    theadtr.append('<th>Name</th>');
-    theadtr.append('<th>Date Modified</th>');
-    theadtr.append('<th>Size</th>');
-    theadtr.append('<th>Date Added</th>');
-    thead.append(theadtr);
-    var tbodytr = $('<tr></tr>');
-    var th = '<th>Start date</th>';
-    for(var i =0;i<4;i++){
-      tbodytr.append(th)
-    }
-    tbody.append(tbodytr);
-    table.append(thead);
-    table.append(tbody);
-    //document.getElementById("contentDiv").innerHTML = table; 
-    $('#contentDiv').append(table);
+    //global_self.showFilesList(data_json);
+    //global_self.currentFiles = data_json;
+    global_self.showFilesNormal(data_json);
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
@@ -148,7 +141,7 @@ var ShowFiles = Class.extend({
     return theadMessage;
   },
 
-  //此函数用来列表显示.
+  //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
   showFilesList:function(files){
     if(!files.length){
       return '';
@@ -183,49 +176,54 @@ var ShowFiles = Class.extend({
     }
     table.append(thead);
     table.append(tbody);
-    $('#contentDiv').append(table);
+    var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
+    showContent.append(table);
+    $('#contentDiv').append(showContent);
   },
 
+  //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesNormal:function(files){
-    var results = [];   
-    //var PictureAndVideoStyleEnd = ' </div> <div class="description">this is a picture</div></div>';
+    var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');   
     for(var i =0;i<files.length;i++){
       var file = files[i];
-      var PictureAndVideoStyleBegin = '<div class="outContainer" data-path="'+file['props'].path +'"> <div class="Holder">';
+      var outContainer = $('<div class="outContainer" data-path="'+file['props'].path +'"></div>)');
+      var Holder = $('<div class = "Holder"></div>');
       //用来定义最后描述的名字.
       if(file['props'].name.indexOf(' ') != -1 ||
          file['props'].name.indexOf('\'' != -1)){
         var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-        //results.push('<div class="name" id="'+ id +'">' + file['props'].name + '</div>');
-        var PictureAndVideoStyleEnd = ' </div> <div class="description">'+file['props'].name+'</div></div>';
+        var description = $('<div class="description">'+file['props'].name+'</div>');
       }else{
-      //results.push('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>');
-        var PictureAndVideoStyleEnd = ' </div> <div class="description">'+file['props'].name+'</div></div>';
+        var description = $('<div class="description">'+file['props'].name+'</div>');
       } 
       if(file['props'].img){
-        results.push(PictureAndVideoStyleBegin);
-        results.push('<img src="' + file['props'].img + '"></img>');
-        results.push(PictureAndVideoStyleEnd);
+        Holder.append($('<img src="' + file['props'].img + '"></img>'));
+        outContainer.append(Holder);
+        outContainer.append(description);
+        showContent.append(outContainer);
       }
       else if(file['props'].video){
-        results.push(PictureAndVideoStyleBegin);
-        results.push('<video src="' + file['props'].video + '"></video>');
-        results.push(PictureAndVideoStyleEnd);
+        Holder.append($('<video src="' + file['props'].video + '"></video>'));
+        outContainer.append(Holder);
+        outContainer.append(description);
+        showContent.append(outContainer);
       }
       else {
-        results.push('<div class="file" data-path="' + file['props'].path + '"><div class="icon">');
-        results.push('<img src="icons/' + file['props'].icon + '.png"></img>');
+        var fileContainer = $('<div class="fileContainer" data-path="' + file['props'].path + '"></div>');
+        var iconContainer = $('<div class="iconContainer"></div>');
+        iconContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+        fileContainer.append(iconContainer);
         if(file['props'].name.indexOf(' ') != -1 ||
            file['props'].name.indexOf('\'' != -1)){
           var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-          results.push('</div><div class="name" id="'+ id +'">' + file['props'].name + '</div></div>');
+          fileContainer.append($('<div class="name" id="'+ id +'">' + file['props'].name + '</div>'));
         }else{
-          results.push('</div><div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div></div>');
+          fileContainer.append($('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>'));
         }
-        //results.push('/<div>');
+        showContent.append(fileContainer);
       }
     }
-    document.getElementById("contentDiv").innerHTML = results.join("\n");
+    $('#contentDiv').append(showContent);
   },
 
   //根据后缀名设置文档类型.
