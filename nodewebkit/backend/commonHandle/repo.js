@@ -1,7 +1,6 @@
 var path = require('path');
 var git = require("nodegit");
 var config = require("../config");
-var filesHandle = require("../filesHandle");
 var events = require('events');
 var utils = require('../utils');
 var transfer = require('../Transfer/msgTransfer');
@@ -52,16 +51,20 @@ exports.repoInit = function(repoPath, callback) {
   });
 }
 
-function repoAddsCommit(repoPath, files, commitID, callback) {
+function repoCommit(repoPath, files, commitID, op, callback) {
   var exec = require('child_process').exec;
   var comstr = 'cd ' + repoPath;
   for (var k in files) {
-    comstr = comstr + ' && git add "' + files[k] + '"';
+    if(op=="rm"){
+      comstr = comstr + ' && git rm "' + files[k] + '"';
+    }
+    else if(op=="add" ||op=="ch" ||op=="load" ){
+      comstr = comstr + ' && git add "' + files[k] + '"';
+    }
   }
-
-  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
+  var relateCommit = '"relateCommit": "' + commitID + '",';
   var deviceInfo = '"device":"' + config.uniqueID + '"';
-  var opInfo = '"op":"add"';
+  var opInfo = '"op":"'+op+'"';
   var fileInfo = '"file":["' + files.join('","') + '"]';
   var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
@@ -69,74 +72,24 @@ function repoAddsCommit(repoPath, files, commitID, callback) {
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
       console.log("Git add error");
-      console.log(error, stderr, stdout)
-    } else {
+      console.log(error, stderr, stdout);
+      callback(null,'error');
+    } 
+    else {
       console.log("Git add success");
       callback(null,'success');
       transfer.syncOnlineReq(repoPath);
     }
   });
 }
-exports.repoAddsCommit = repoAddsCommit;
-
-function repoRmsCommit(repoPath, files, commitID, callback) {
-  var exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath;
-  for (var k in files) {
-    comstr = comstr + ' && git rm "' + files[k] + '"';
-  }
-  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
-  var deviceInfo = '"device":"' + config.uniqueID + '"';
-  var opInfo = '"op":"rm"';
-  var fileInfo = '"file":["' + files.join('","') + '"]';
-  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
-  comstr = comstr + " && git commit -m '" + commitLog + "'";
-  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
-  exec(comstr, function(error, stdout, stderr) {
-        console.log(stdout)
-    if (error) {
-      console.log("Git rm error", error,stdout, stderr);
-    } else {
-      console.log("Git rm success");
-      callback(null,'success');
-      transfer.syncOnlineReq(repoPath);
-    }
-  });
-}
-exports.repoRmsCommit = repoRmsCommit;
-
-function repoChsCommit(repoPath, files, commitID, callback) {
-  var exec = require('child_process').exec;
-  var comstr = 'cd ' + repoPath;
-  for (var k in files) {
-    comstr = comstr + ' && git add "' + files[k] + '"';
-  }
-  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
-  var deviceInfo = '"device":"' + config.uniqueID + '"';
-  var opInfo = '"op":"ch"';
-  var fileInfo = '"file":["' + files.join('","') + '"]';
-  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
-  comstr = comstr + " && git commit -m '" + commitLog + "'";
-  console.log(files);
-  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
-  exec(comstr, function(error, stdout, stderr) {
-    if (error) {
-      console.log("Git change error", error, stdout);
-    } else {
-      console.log("Git change success");
-      callback(null,'success');
-      transfer.syncOnlineReq(repoPath);
-    }
-  });
-}
-exports.repoChsCommit = repoChsCommit;
+exports.repoCommit = repoCommit;
 
 function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   var exec = require('child_process').exec;
-  if(oriOp=="rm"){
+  if(oriOp=="rm" ||oriOp=="ch"){
     var comstr = 'cd ' + repoPath + ' && git add '+file[0];
   }
-  var relateCommit = (commitID) ? ('"relateCommit": "' + commitID + '",') : ("");
+  var relateCommit = '"relateCommit": "' + commitID + '",';
   var deviceInfo = '"device":"' + config.uniqueID + '"';
   var opInfo = '"op":"revert"';
   var fileInfo = '"file":["' + file + '"]';
@@ -155,6 +108,47 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   });
 }
 exports.repoResetCommit=repoResetCommit;
+
+/** 
+ * @Method: repoCommitBoth
+ *    To get git log in a specific git repo
+ *
+ * @param1: op
+ *    string, only 3 choices: 'add', 'rm', 'ch'.
+ *
+ * @param2: realPath
+ *    string, a category repo path,
+ *            usually as :'/home/xiquan/.resource/document'
+ *
+ * @param3: desPath
+ *    string, a category repo path,
+ *            usually as : '/home/xiquan/.resource/documentDes'
+ *
+ * @param4: oFiles
+ *    array, a array of file path
+ *
+ * @param5: oDesFiles
+ *    array, a array of des file path
+ *
+ * @param6: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        objcet, retrieve 'success' when success
+ *
+ **/
+exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
+  repoCommit(realPath, oFiles,null ,op, function() {
+    getLatestCommit(realPath, function(commitID) {
+      repoCommit(desPath, oDesFiles, commitID,op, function() {
+        callback(null,'success');
+      });
+    })
+  })
+}
 
 function getLatestCommit(repoPath, callback) {
   console.log("getLatestCommit " + repoPath);
@@ -190,6 +184,31 @@ function getLatestCommit(repoPath, callback) {
   });
 }
 exports.getLatestCommit = getLatestCommit;
+
+function getLatestCommitForOneFile(repoPath,filePath, callback) {
+  var exec = require('child_process').exec;
+  var comstr = 'cd ' + repoPath + ' && git log '+filePath;
+  console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn" + comstr);
+  exec(comstr, function(err, stdout, stderr) {
+    if (err) {
+      console.log(err, stderr);
+      return callback({
+        'repo': err
+      }, null);
+    }
+    var commitId=null;
+    var tmpLog = stdout.split('\n');
+    for (var i = 0; i < tmpLog.length; i++) {
+      if(tmpLog[i].indexOf("commit ")==0){
+        commitId=tmpLog[i].substring(tmpLog[i].indexOf(" ")+1,tmpLog[i].length);
+        break;
+      }
+    }
+    console.log(commitId);
+    callback(null, commitId);
+  })
+}
+exports.getLatestCommitForOneFile=getLatestCommitForOneFile;
 
 function getBranchList(stdout) {
   var line = stdout.split("\n");
@@ -392,60 +411,6 @@ exports.repoReset = function(repoPath, commitID,relateCommit, callback) {
       });
     }
   });
-}
-
-/** 
- * @Method: repoCommitBoth
- *    To get git log in a specific git repo
- *
- * @param1: op
- *    string, only 3 choices: 'add', 'rm', 'ch'.
- *
- * @param2: realPath
- *    string, a category repo path,
- *            usually as :'/home/xiquan/.resource/document'
- *
- * @param3: desPath
- *    string, a category repo path,
- *            usually as : '/home/xiquan/.resource/documentDes'
- *
- * @param4: oFiles
- *    array, a array of file path
- *
- * @param5: oDesFiles
- *    array, a array of des file path
- *
- * @param6: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        objcet, retrieve 'success' when success
- *
- **/
-exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
-  console.log('op= '+op);
-  if (op == 'add') {
-    var repoCommit = repoAddsCommit;
-  } else if (op == 'rm') {
-    var repoCommit = repoRmsCommit;
-  } else if (op == 'ch') {
-    var repoCommit = repoChsCommit;
-  } else {
-    var _err = 'Error: bad op choice!';
-    console.log(_err);
-    return callback(_err, null);
-  }
-  console.log('repoCommit= '+op);
-  repoCommit(realPath, oFiles,null , function() {
-    getLatestCommit(realPath, function(commitID) {
-      repoCommit(desPath, oDesFiles, commitID, function() {
-        callback(null,'success');
-      });
-    })
-  })
 }
 
 function isEmptyRepo(repoPath,completeCb){
