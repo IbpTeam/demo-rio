@@ -49,7 +49,7 @@ function getnit(initType) {
     _icontheme.pos = {};
 
     var _computer = {};
-    _computer.name = 'Computer';
+    _computer.name = '我的电脑';
     _computer.active = true;
     _computer.icon = 'computer';
     _computer.path = '$HOME';
@@ -92,7 +92,7 @@ function getnit(initType) {
     _datamgr_app.id = "datamgr-app";
     _datamgr_app.path = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
     _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', '/app/demo-rio/datamgr/icons/datamgr.png');
-    _datamgr_app.name = "Data Manager";
+    _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
 
@@ -100,7 +100,7 @@ function getnit(initType) {
     _launcher_app.id = "launcher-app";
     _launcher_app.path = "";
     _launcher_app.iconPath = "img/launcher.png";
-    _launcher_app.name = "launcher";
+    _launcher_app.name = "应用启动器";
     _launcher_app.type = "inside-app";
     _launcher_app.idx = 0;
 
@@ -108,7 +108,7 @@ function getnit(initType) {
     _login_app.id = "login-app";
     _login_app.path = "";
     _login_app.iconPath = "img/Login-icon.png";
-    _login_app.name = "Login";
+    _login_app.name = "登录";
     _login_app.type = "inside-app";
     _login_app.idx = 1;
 
@@ -116,7 +116,7 @@ function getnit(initType) {
     _flash_app.id = "flash-app";
     _flash_app.path = "test/flash";
     _flash_app.iconPath = "test/flash/img/video.png";
-    _flash_app.name = "flash";
+    _flash_app.name = "视频播放器";
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
@@ -125,7 +125,7 @@ function getnit(initType) {
     _test_app.id = "test-app";
     _test_app.path = "test/test-app";
     _test_app.iconPath = "test/test-app/img/test-app2.png";
-    _test_app.name = "test-app";
+    _test_app.name = "新浪NBA";
     _test_app.type = "inside-app";
     _test_app.idx = -1;
 
@@ -133,7 +133,7 @@ function getnit(initType) {
     _wiki_app.id = "wiki-app";
     _wiki_app.path = "test/wiki-app";
     _wiki_app.iconPath = "test/wiki-app/img/icon.jpg";
-    _wiki_app.name = "wiki-app";
+    _wiki_app.name = "维基百科";
     _wiki_app.type = "inside-app";
     _wiki_app.idx = -1;
 
