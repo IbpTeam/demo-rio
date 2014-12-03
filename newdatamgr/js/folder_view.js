@@ -3,15 +3,16 @@ var ShowFiles = Class.extend({
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     this._index = 0;
-    var global_self;
-    var global_dir;
-    var file_arch_json = {};
-    var currentFiles = {};
-    var copied_filepath = '';
-    var choice = $('<div id = "choice"></div>');
+    this.global_self;
+    this.global_dir;
+    this.file_arch_json = {};
+    this.getFiles = {};
+    this.copied_filepath = '';
+    this.showNormal = false;
+    this.choice = $('<div id = "choice"></div>');
     //var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
     $("#contentDiv").empty();
-    $("#contentDiv").append(choice);
+    $("#contentDiv").append(this.choice);
     //this.showContent.empty();
   },
   
@@ -27,33 +28,48 @@ var ShowFiles = Class.extend({
     global_self = this;
     if (this._index == 1){
       //所请求的是图片，显示图片
-      DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
-      //global_self.showFilesNormal(global_self.currentFiles);
-      //global_self.showFilesList(currentFiles);
+      if(!this.getFiles[this._index]){
+        DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
+      }
+      else {
+        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+      }
     }
     else if(this._index == 2){
       //所请求的是视频，显示视频
-      DataAPI.getAllDataByCate(this.getCallBackData,'Video');
-      //global_self.showFilesNormal(global_self.currentFiles);
-      //global_self.showFilesList(currentFiles);
+      //DataAPI.getAllDataByCate(this.getCallBackData,'Video');
+      if(!this.getFiles[this._index]){
+        DataAPI.getAllDataByCate(this.getCallBackData,'Video');
+      }
+      else {
+        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+      }
     }
     else if(this._index ==3){
       //所请求的是图片，显示文档
-      DataAPI.getAllDataByCate(this.getCallBackData,'Document');
-      //global_self.showFilesNormal(global_self.currentFiles);
-      //global_self.showFilesList(currentFiles);
+      //DataAPI.getAllDataByCate(this.getCallBackData,'Document');
+      if(!this.getFiles[this._index]){
+        DataAPI.getAllDataByCate(this.getCallBackData,'Document');
+      }
+      else {
+        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+      }
     }
     else if(this._index ==4){
       //所请求的是图片，显示音乐
-      DataAPI.getAllDataByCate(this.getCallBackData,'Music');
-      //global_self.showFilesNormal(global_self.currentFiles);
-      //global_self.showFilesList(currentFiles);
+      //DataAPI.getAllDataByCate(this.getCallBackData,'Music');
+      if(!this.getFiles[this._index]){
+        DataAPI.getAllDataByCate(this.getCallBackData,'Music');
+      }
+      else {
+        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+      }
     }
   },
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
   getCallBackData:function(data_json){
-    console.log('data from server: this is a begin ---------------', data_json);
+    console.log('data from server: ', data_json);
     var category = '';
     for(var i=0; i<data_json.length; i++){
       if(data_json[i].hasOwnProperty('type')){
@@ -126,8 +142,14 @@ var ShowFiles = Class.extend({
       }
     }
     //global_self.showFilesList(data_json);
-    //global_self.currentFiles = data_json;
-    global_self.showFilesNormal(data_json);
+    global_self.getFiles[global_self._index] = data_json;
+    if(global_self.showNormal){
+      global_self.showFilesNormal(data_json);    
+    }
+    else {
+      global_self.showFilesList(data_json);
+    }
+
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
