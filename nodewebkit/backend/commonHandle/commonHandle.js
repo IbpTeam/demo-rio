@@ -330,9 +330,6 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     }
     var DataByNum = utils.getRecent(items, num);
     getRecentAccessDataCb(null, DataByNum);
-    for (var k in DataByNum) {
-      console.log(DataByNum[k].lastAccessTime);
-    }
   }
   var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
@@ -350,17 +347,19 @@ exports.updateDB = function(category, updateDBCb) {
       var allFileInfo = [];
       var count = 0;
       var lens = files.length;
-      console.log(files);
       for (var i = 0; i < lens; i++) {
         var fileItem = path.join(utils.getDesDir(category), files[i]);
         var isEnd = (count === lens - 1);
         (function(_fileItem, _isEnd) {
           fs.readFile(_fileItem, 'utf8', function(err, data) {
-            var oFileInfo = JSON.parse(data);
-            console.log('$$$$$$$$$$$$$$', oFileInfo)
+            try{
+              var oFileInfo = JSON.parse(data);
+            }catch(e){
+              console.log(data)
+              throw e;
+            }
             allFileInfo.push(oFileInfo);
             if (_isEnd) {
-              console.log(allFileInfo)
               var items = [{
                 category: category
               }];
