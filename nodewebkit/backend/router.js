@@ -151,7 +151,7 @@ var eventList = [];
  * param:
  * client: WebSocket client object.
  * msg(string): {
- *  'Action': ('on'|'off'|'notify'),
+ *  'Action': ('on'|'off'|'notify'|'ping'),
  *  'Event': a string to describe the event type,
  *  'Data': a json object,
  *  'Status': ('ok'|'error')
@@ -189,6 +189,13 @@ function handleWSMsg(client, msg) {
           eventList[jMsg.Event][i].send(msg);
         }
       }
+      break;
+    case 'ping':
+      client.send(JSON.stringify({
+        'Status': 'ok',
+        'Event': 'pong',
+        'Action': 'pong'
+      }));
       break;
     default:
       // client.send('{\"Error\":\"Unknown Action type.\"}');

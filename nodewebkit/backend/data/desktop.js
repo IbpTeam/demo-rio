@@ -421,6 +421,9 @@ function readConf(callback, sFileName) {
     } else if (sFileName === 'Widget.conf') {
       var sFileDir = WIGDET_PATH;
       var sDesFileDir = WIGDET_DES_PATH;
+    } else if (sFileName === 'Default.conf') {
+      var sFileDir = '/webde/Default.conf';
+      var sDesFileDir = null;
     } else {
       var _err = 'Error: Not a .conf file!';
       console.log(_err)
