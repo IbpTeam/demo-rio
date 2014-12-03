@@ -221,7 +221,6 @@ function getTagsByUris(callback, oUris) {
   };
 
   function findItemsCb(err, items) {
-    console.log(items)
     if (err) {
       console.log(err);
       return;

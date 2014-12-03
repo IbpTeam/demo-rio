@@ -123,7 +123,6 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
-  console.log(VidList)
 
   documents.createData(DocList, function(err, result) {
     if (err) {
@@ -403,14 +402,12 @@ function getRecentAccessData(getRecentAccessDataCb, num) {
       console.log(err_doc);
       return;
     }
-    console.log(result_doc);
     allItems = allItems.concat(result_doc);
     pictures.getRecentAccessData(num, function(err_pic, result_pic) {
       if (err_pic) {
         console.log(err_pic);
         return;
       }
-      console.log(result_pic);
       allItems = allItems.concat(result_pic);
       music.getRecentAccessData(num, function(err_mus, result_mus) {
         if (err_mus) {
