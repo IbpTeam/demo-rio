@@ -21,18 +21,14 @@ var ShowFiles = Class.extend({
     global_self = this;
     if (this._index == 1){
       //所请求的是图片，显示图片
-      //this.showFilesNormal(this.getPictureFiles());
       DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
-
     }
     else if(this._index == 2){
       //所请求的是视频，显示视频
-      //this.showFilesNormal(this.getVideoFiles());
       DataAPI.getAllDataByCate(this.getCallBackData,'Video');
     }
     else if(this._index ==3){
       //所请求的是图片，显示文档
-      //this.showFilesListtest(this.getPictureFiles);
       DataAPI.getAllDataByCate(this.getCallBackData,'Document');
     }
     else if(this._index ==4){
@@ -40,8 +36,6 @@ var ShowFiles = Class.extend({
       DataAPI.getAllDataByCate(this.getCallBackData,'Music');
     }
   },
-
-  
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
   getCallBackData:function(data_json){
@@ -117,57 +111,7 @@ var ShowFiles = Class.extend({
           break;
       }
     }
-    //global_self.showFilesNormalOld(data_json);
-    //global_self.showFilesList(data_json);
-    global_self.showFilesNormalMyself(data_json);
-  },
-
-  //此函数用来得到所有的图片文件，因为还没有结合API，所以先用此函数代替。
-  getPictureFiles:function(){
-    var picture = new Array();
-    picture[0] = '<img src= "../../../resources/pictures/boy.jpg"></img>';
-    picture[1] = '<img src= "../../../resources/pictures/boy.jpg"</img>';
-    picture[2] = '<img src= "../../../resources/pictures/cat.jpg"</img>';
-    picture[3] = '<img src= "../../../resources/pictures/city1.jpg"</img>';
-    picture[4] = '<img src= "../../../resources/pictures/city2.jpg"</img>';
-    picture[5] = '<img src= "../../../resources/pictures/city3.jpg"</img>';
-    picture[6] = '<img src= "../../../resources/pictures/city4.jpg"</img>';
-    picture[7] = '<img src= "../../../resources/pictures/city5.jpg"</img>';
-    picture[8] = '<img src= "../../../resources/pictures/girl1.jpg"</img>';
-    picture[9] = '<img src= "../../../resources/pictures/girl2.jpg"</img>';
-    picture[10] = '<img src= "../../../resources/pictures/girl3.jpg"</img>';
-    picture[11] = '<img src= "../../../resources/pictures/Penguins.jpg"</img>';
-    picture[12] = '<img src= "../../../resources/pictures/vessel1.jpg"</img>';
-    picture[13] = '<img src= "../../../resources/pictures/vessel2.jpg"</img>';
-    picture[14] = '<img src= "../../../resources/pictures/vessel2_copy.jpg"</img>';
-
-    return picture;
-  },
-
-  //此函数用来得到所有的视频文件，因为还没有结合API，所以先用此函数代替。
-  getVideoFiles:function(){
-    var video = new Array();
-    video[0] = '<video src="../../../resources/video/movie.ogg" controls="controls"> </video>';
-    video[1] = '<video src="../../../resources/video/movie.ogg" controls="controls"> </video>';
-    video[2] = '<video src="../../../resources/video/mov_bbb.ogg" controls="controls"> </video>';
-    video[3] = '<video src="../../../resources/video/火力全开.ogg" controls="controls"> </video>';
-    video[4] = '<video src="../../../resources/video/我的歌声里.ogg" controls="controls"> </video>';
-    video[5] = '<video src="../../../resources/video/因为有你.ogg" controls="controls"> </video>';
-
-    return video;
-  },
-
-  //此函数作用是按照方框来显示所有的文件,文件包括图片，音乐，视频，和文档。
-  showFilesNormal:function(files){
-    var result = [];
-    var PictureStyleBegin = '<div class="outContainer"> <div class="Holder">';
-    var PictureStyleEnd = ' </div> <div class="description">this is a picture</div></div>';
-    for(var i=0;i<files.length;i++){
-      result.push(PictureStyleBegin);
-      result.push(files[i]);
-      result.push(PictureStyleEnd);
-    }
-    document.getElementById("contentDiv").innerHTML = result.join(" ");
+    global_self.showFilesList(data_json);
   },
 
   //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
@@ -242,12 +186,12 @@ var ShowFiles = Class.extend({
     $('#contentDiv').append(table);
   },
 
-  showFilesNormalMyself:function(files){
-    var results = [];
-    var PictureAndVideoStyleBegin = '<div class="outContainer"> <div class="Holder">';
+  showFilesNormal:function(files){
+    var results = [];   
     //var PictureAndVideoStyleEnd = ' </div> <div class="description">this is a picture</div></div>';
     for(var i =0;i<files.length;i++){
       var file = files[i];
+      var PictureAndVideoStyleBegin = '<div class="outContainer" data-path="'+file['props'].path +'"> <div class="Holder">';
       //用来定义最后描述的名字.
       if(file['props'].name.indexOf(' ') != -1 ||
          file['props'].name.indexOf('\'' != -1)){
@@ -269,42 +213,21 @@ var ShowFiles = Class.extend({
         results.push(PictureAndVideoStyleEnd);
       }
       else {
-        results.push('<div class="file" data-path="' + file['props'].path + '">');
-        results.push('<div class="icon"> <img src="icons/' + file['props'].icon + '.png"></div>');
+        results.push('<div class="file" data-path="' + file['props'].path + '"><div class="icon">');
+        results.push('<img src="icons/' + file['props'].icon + '.png"></img>');
         if(file['props'].name.indexOf(' ') != -1 ||
            file['props'].name.indexOf('\'' != -1)){
           var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-          results.push('<div class="name" id="'+ id +'">' + file['props'].name + '</div>');
+          results.push('</div><div class="name" id="'+ id +'">' + file['props'].name + '</div></div>');
         }else{
-          results.push('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>');
+          results.push('</div><div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div></div>');
         }
-        results.push('/<div>');
+        //results.push('/<div>');
       }
     }
     document.getElementById("contentDiv").innerHTML = results.join("\n");
   },
 
-  showFilesNormalOld:function(files){
-    var results = [];
-  for(var i=0; i<files.length; i++){
-  var file = files[i];
-    results.push('<div class="file" data-path="' + file['props'].path + '">');
-    if(file['props'].img){
-        results.push('<div class="icon"> <img src="' + file['props'].img + '"></div>');
-    }else{
-        results.push('<div class="icon"> <img src="icons/' + file['props'].icon + '.png"></div>');
-    }
-    if(file['props'].name.indexOf(' ') != -1 ||
-       file['props'].name.indexOf('\'' != -1)){
-      var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-      results.push('<div class="name" id="'+ id +'">' + file['props'].name + '</div>');
-    }else{
-      results.push('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>');
-    } 
-    results.push('</div>');
-  }
-  document.getElementById("contentDiv").innerHTML = results.join("\n");
-  },
   //根据后缀名设置文档类型.
   setIcon:function(postfix_){
     switch(postfix_){
