@@ -293,15 +293,15 @@ exports.renameExists = function(allFiles) {
   var k = 0;
   for (var i = 0; i < allFiles.length; i++) {
     var item = allFiles[i];
-    var fileName = item.filename;
-    if (!fileNameBase.hasOwnProperty(item.filename)) {
-      fileNameBase[item.filename] = true;
+    var fileName = item.filename+'.'+item.postfix;
+    if (!fileNameBase.hasOwnProperty(fileName)) {
+      fileNameBase[fileName] = true;
     } else {
       while (fileNameBase.hasOwnProperty(fileName)) {
         k++;
-        fileName = fileName + '(' + k + ')';
+        fileName = item.filename+ '(' + k + ').'+item.postfix;
       }
-      allFiles[i].filename = fileName;
+      allFiles[i].filename = item.filename+ '(' + k + ')';
       k = 0;
     }
   }

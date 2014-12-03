@@ -88,8 +88,15 @@ function getnit(initType) {
       x: 0,
       y: 0
     }
+    var _datamgr_app = {}
+    _datamgr_app.id = "datamgr-app";
+    _datamgr_app.path = pathModule.join(utils.getHomeDir(),'WORK_DIRECTORY','app/demo-rio/datamgr');//change 'WORK_DIRECTORY' into local.
+    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(),'WORK_DIRECTORY','/app/demo-rio/datamgr/icons/datamgr.png');
+    _datamgr_app.name = "Data Manager";
+    _datamgr_app.type = "inside-app";
 
-    _launcher_app = {}
+
+    var _launcher_app = {}
     _launcher_app.id = "launcher-app";
     _launcher_app.path = "";
     _launcher_app.iconPath = "img/launcher.png";
@@ -97,7 +104,7 @@ function getnit(initType) {
     _launcher_app.type = "inside-app";
     _launcher_app.idx = 0;
 
-    _login_app = {}
+    var _login_app = {}
     _login_app.id = "login-app";
     _login_app.path = "";
     _login_app.iconPath = "img/Login-icon.png";
@@ -105,7 +112,7 @@ function getnit(initType) {
     _login_app.type = "inside-app";
     _login_app.idx = 1;
 
-    _flash_app = {}
+    var _flash_app = {}
     _flash_app.id = "flash-app";
     _flash_app.path = "test/flash";
     _flash_app.iconPath = "test/flash/img/video.png";
@@ -114,7 +121,7 @@ function getnit(initType) {
     _flash_app.idx = 2;
 
 
-    _test_app = {}
+    var _test_app = {}
     _test_app.id = "test-app";
     _test_app.path = "test/test-app";
     _test_app.iconPath = "test/test-app/img/test-app2.png";
@@ -122,7 +129,7 @@ function getnit(initType) {
     _test_app.type = "inside-app";
     _test_app.idx = -1;
 
-    _wiki_app = {}
+    var _wiki_app = {}
     _wiki_app.id = "wiki-app";
     _wiki_app.path = "test/wiki-app";
     _wiki_app.iconPath = "test/wiki-app/img/icon.jpg";
@@ -141,6 +148,7 @@ function getnit(initType) {
         },
         "dentry": {},
         "insideApp": {
+          "datamgr-app": _datamgr_app,
           "launcher-app": _launcher_app,
           "login-app": _login_app,
           "flash-app": _flash_app,
@@ -211,7 +219,7 @@ function initDesktop(callback) {
             buildDesFile('Widget', 'conf', pathWidget, function() {
               var sRealDir = [pathTheme, pathWidget];
               var sDesDir = [sThemeDesDir, sWidgetDesDir];
-              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err,result) {
+              resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, sRealDir, sDesDir, function(err, result) {
                 if (err) {
                   console.log('git commit error');
                   return;
@@ -358,7 +366,7 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err,result) {
+              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
                 if (err) {
                   return callback(err, null);
                 }
@@ -421,6 +429,9 @@ function readConf(callback, sFileName) {
     } else if (sFileName === 'Widget.conf') {
       var sFileDir = WIGDET_PATH;
       var sDesFileDir = WIGDET_DES_PATH;
+    } else if (sFileName === 'Default.conf') {
+      var sFileDir = '/webde/Default.conf';
+      var sDesFileDir = null;
     } else {
       var _err = 'Error: Not a .conf file!';
       console.log(_err)
@@ -2143,7 +2154,14 @@ function moveToDesktopSingle(sFilePath, callback) {
             console.log(err, 'create data error!', sFilePath);
             return callback(err, null);
           }
-          callback(null, result);
+          fs.stat(sFilePath, function(err, stats) {
+            if (err) {
+              console.log(sFilePath, err);
+              return callback(err, null);
+            }
+            var fileInfo = [sFilePath, stats.ino];
+            callback(null, fileInfo);
+          })
         })
       }
     })
@@ -2540,11 +2558,10 @@ function getIconPath(iconName_, size_, callback) {
       if (err_) {
         getIconPathWithTheme(iconName_, size_, "hicolor", function(err_, iconPath_) {
           if (err_) {
-            exec('locate ' + iconName_ + ' | grep -E \"\.(png|svg)$\"'
-              , function(err, stdout, stderr) {
-                if(err || stdout == '') return callback('Not found');
-                return callback(null, stdout.replace(/\n$/, '').split('\n').reverse());
-              });
+            exec('locate ' + iconName_ + ' | grep -E \"\.(png|svg)$\"', function(err, stdout, stderr) {
+              if (err || stdout == '') return callback('Not found');
+              return callback(null, stdout.replace(/\n$/, '').split('\n').reverse());
+            });
           } else {
             callback(null, iconPath_);
           }

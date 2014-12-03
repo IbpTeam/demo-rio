@@ -4,14 +4,9 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title>app_viewerPDF</title>
 
-  <link rel="stylesheet" type="text/css" href="css/demoUI.css"/>
-  <link rel="stylesheet" type="text/css" href="css/demoUItheme.css"/>
-  <link rel="stylesheet" type="text/css" href="css/demoUIFont.css"/>
-
   <script type="text/javascript" src="lib/jquery.js"></script>
   <script type="text/javascript" src="lib/require.js"></script>
   <script type="text/javascript" src="lib/api.js"></script>
-  <script type="text/javascript" src="lib/demoUI.js"></script>
   <script type="text/javascript" src="js/pdf.js"></script>
 
   <body> 
@@ -91,12 +86,12 @@
     }
 
     function zoomIn(){
-      scale += 0.2;
+      scale += 0.1;
       renderPage(pageNum);
     }
 
     function zoomOut(){
-      scale -= 0.2;
+      scale -= 0.1;
       renderPage(pageNum);
     }
 
