@@ -154,6 +154,11 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
+    if(this._index >0 && this._index <5){
+      showfiles = ShowFiles.create();  
+      showfiles.setIndex(this._index);
+      showfiles.showFile();
+    }
 
   }
 })
