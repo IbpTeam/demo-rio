@@ -154,6 +154,13 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
-
+    if(this._index == 0){
+      contact = Contact.create();
+      contact.attach($('#contentDiv'));
+      contact.setContactsList();
+      contact._ContactContainer.show();
+    } else {
+      contact._ContactContainer.hide();
+    }
   }
 })
