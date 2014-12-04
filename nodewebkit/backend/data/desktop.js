@@ -1227,36 +1227,30 @@ function buildLocalDesktopFile(callback) {
           var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
           fs.open(_sFileOriginPath, 'r', function(err) {
             if (err) {
-              console.log('pass', _sFileOriginPath)
-            }
-            fs_extra.copy(_sFileOriginPath, newPath, function(err) {
-              if (err) {
-                console.log('pass desktop file...', sFileName);
-                count++;
-              } else {
-                oRealFiles.push(newPath);
-                oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
-                buildDesFile(sFileName, 'desktop', newPath, function() {
-                  var isEnd = (count === lens - 1);
-                  if (isEnd) {
-                    /*TODO: some desktop files are links, so git won't touch them. Needs to be done */
-                    // resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, oRealFiles, oDesFiles, function(err, result) {
-                    //   if (err) {
-                    //     console.log('git commit error!');
-                    //     return;
-                    //   }
-                    callback();
-                    //})
-                  }
-                  count++;
-                })
+              console.log('pass desktop file...', _sFileOriginPath)
+              var isEnd = (count === lens - 1);
+              if (isEnd) {
+                callback();
               }
-            })
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
-              callback();
+              count++;
+            } else {
+              fs_extra.copy(_sFileOriginPath, newPath, function(err) {
+                if (err) {
+                  console.log('pass desktop file...', sFileName);
+                  count++;
+                } else {
+                  oRealFiles.push(newPath);
+                  oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
+                  buildDesFile(sFileName, 'desktop', newPath, function() {
+                    var isEnd = (count === lens - 1);
+                    if (isEnd) {
+                      callback();
+                    }
+                    count++;
+                  })
+                }
+              })
             }
-            count++;
           })
         } else {
           count++;
