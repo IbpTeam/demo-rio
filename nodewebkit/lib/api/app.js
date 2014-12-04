@@ -137,3 +137,7 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
   });
 }
 exports.sendKeyToApp = sendKeyToApp;
+
+// TODO: impliment this to API
+exports.installApp = function(){};
+exports.unInstallApp = function(){};
