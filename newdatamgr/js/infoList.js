@@ -155,6 +155,7 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
+<<<<<<< HEAD
     if(this._index >0 && this._index <5){
       if(this._isFirstRequset){
         showfiles = ShowFiles.create();  
@@ -169,5 +170,13 @@ var InfoList = Class.extend({
       $("#contentDiv").children().hide();
     }
 
+=======
+    if(this._index == 0){
+      contact = Contact.create();
+      contact.attach($('#contentDiv'));
+      contact.setContactsList();
+      contact._ContactContainer.show();
+    }
+>>>>>>> 3e857b76979c535859b1b689bdc2ad895156d9c5
   }
 })

@@ -3,42 +3,42 @@ var ShowFiles = Class.extend({
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     this._index = 0;
-    this.global_self;
-    this.global_dir;
-    this.file_arch_json = {};
-    this.getFiles = {};
-    this.copied_filepath = '';
-    this.showNormal = true;
+    this._globalSelf;
+    this._globalDir;
+    this._fileArchJson = {};
+    this._getFiles = {};
+    this._copiedFilepath = '';
+    this._showNormal = true;
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
-    this.choice = $('<div id = "choice"></div>');
-    this.showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
-    //var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
+    this._choice = $('<div id = "choice"></div>');
+    this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
+    //var _showContent = $('<div id = "_showContent" style= "overflow:auto"></div>');
     //$("#contentDiv").empty();
-    $("#contentDiv").append(this.choice);
-    $("#contentDiv").append(this.showContent);   
-    //this.showContent.empty();
-    this.setChoice();
-    global_self = this;
+    $("#contentDiv").append(this._choice);
+    $("#contentDiv").append(this._showContent);   
+    //this._showContent.empty();
+    this.set_Choice();
+    _globalSelf = this;
   },
 
   //此函数用来设置选择界面看按照哪种方式显示
-  setChoice:function(){
+  set_Choice:function(){
     var showlistButton = $('<button id = "showlistButton"> showlistButton </button>');
-    var shownormalButton = $('<button id = "shownormalButton"> shownormalButton</button>');
+    var _shownormalButton = $('<button id = "_shownormalButton"> _shownormalButton</button>');
     var sortbyButton = $('<button id = "sortbyButton">sortby </button>');
-    this.choice.append(showlistButton);
-    this.choice.append(shownormalButton);
-    this.choice.append(sortbyButton);
+    this._choice.append(showlistButton);
+    this._choice.append(_shownormalButton);
+    this._choice.append(sortbyButton);
     showlistButton.click(function(){
       console.log("this is show list ++++++++++++");
-      global_self.showNormal = false;
-      global_self.showFile();
+      _globalSelf._showNormal = false;
+      _globalSelf.showFile();
     });
-    shownormalButton.click(function(){
+    _shownormalButton.click(function(){
       console.log("this is show normal ++++++++++++");
-      global_self.showNormal = true;
-      global_self.showFile();
+      _globalSelf._showNormal = true;
+      _globalSelf.showFile();
     })
   },
   
@@ -52,23 +52,23 @@ var ShowFiles = Class.extend({
 
   //此函数就是外面调用函数的接口，在初始化函数和index之后，直接调用此函数就会显示.
   showFile:function(){
-    //global_self = this;
-    global_self.choice.show();
-    global_self.showContent.show();
-    global_self.showContent.children().hide();
+    //_globalSelf = this;
+    _globalSelf._choice.show();
+    _globalSelf._showContent.show();
+    _globalSelf._showContent.children().hide();
     if (this._index == 1){
       //所请求的是图片，显示图片
-      if(!this.getFiles[this._index]){
+      if(!this._getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
       }
       else {
-        //this.showFilesNormal(global_self.getFiles[global_self._index]);
-        if(this.showNormal){
+        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
+        if(this._showNormal){
           if($("#pictureContent").length>0){
             $("#pictureContent").show();
           }
           else {
-            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
           }
         }
         else {
@@ -77,7 +77,7 @@ var ShowFiles = Class.extend({
             $("#pictureContentList").show();
           }
           else {
-            global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
           }
         }
       }
@@ -85,17 +85,17 @@ var ShowFiles = Class.extend({
     else if(this._index == 2){
       //所请求的是视频，显示视频
       //DataAPI.getAllDataByCate(this.getCallBackData,'Video');
-      if(!this.getFiles[this._index]){
+      if(!this._getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Video');
       }
       else {
-        //this.showFilesNormal(global_self.getFiles[global_self._index]);
-        if(this.showNormal){
+        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
+        if(this._showNormal){
           if($("#videoContent").length>0){
             $("#videoContent").show();
           }
           else {
-            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
           }
         }
         else {
@@ -103,7 +103,7 @@ var ShowFiles = Class.extend({
             $("#videoContentList").show();
           }
           else {
-          global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+          _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
           }
         }
       }
@@ -111,17 +111,17 @@ var ShowFiles = Class.extend({
     else if(this._index ==3){
       //所请求的是文档，显示文档
       //DataAPI.getAllDataByCate(this.getCallBackData,'Document');
-      if(!this.getFiles[this._index]){
+      if(!this._getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Document');
       }
       else {
-        //this.showFilesNormal(global_self.getFiles[global_self._index]);
-        if(this.showNormal){
+        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
+        if(this._showNormal){
           if($("#documentContent").length>0){
             $("#documentContent").show();
           }
           else {
-            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
           }
         }
         else {
@@ -129,24 +129,24 @@ var ShowFiles = Class.extend({
             $("#documentContentList").show();
           }
           else {
-            global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
           }
         }
       }
     }
     else if(this._index ==4){
       //所请求的是音乐，显示音乐
-      if(!this.getFiles[this._index]){
+      if(!this._getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Music');
       }
       else {
-        //this.showFilesNormal(global_self.getFiles[global_self._index]);
-        if(this.showNormal){
+        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
+        if(this._showNormal){
           if($("#musicContent").length>0){
             $("#musicContent").show();
           }
           else {
-            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
           }
         }
         else {
@@ -154,7 +154,7 @@ var ShowFiles = Class.extend({
             $("#musicContentList").show();
           }
           else {
-          global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+          _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
           }
         }
       }
@@ -195,7 +195,7 @@ var ShowFiles = Class.extend({
           data_json[i]['props']['path'] = 'root/Picture/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
           data_json[i]['props']['name'] = data_json[i]['filename'];      
           data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = global_self.setIcon(data_json[i]['postfix']);;
+          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);;
           break;
         case 'video':
           data_json[i]['props'] = {};
@@ -203,53 +203,53 @@ var ShowFiles = Class.extend({
           data_json[i]['props']['path'] = 'root/Video/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
           data_json[i]['props']['name'] = data_json[i]['filename'];          
           data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = global_self.setIcon(data_json[i]['postfix']);
+          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
           break;
         case 'document':
           data_json[i]['props'] = {};
           data_json[i]['props']['path'] = 'root/Document/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
           data_json[i]['props']['name'] = data_json[i]['filename'];   
           data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = global_self.setIcon(data_json[i]['postfix']);
+          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
           break;
         case 'music':
           data_json[i]['props'] = {};
           data_json[i]['props']['path'] = 'root/Music/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
           data_json[i]['props']['name'] = data_json[i]['filename'];           
           data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = global_self.setIcon(data_json[i]['postfix']);
+          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
           break;
         case 'devices':
           data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['name']+'.device';
+          data_json[i]['props']['path'] = _globalDir+'/'+data_json[i]['name']+'.device';
           data_json[i]['props']['name'] = data_json[i]['name'];           
           data_json[i]['props']['type'] = 'device';
           data_json[i]['props']['icon'] = 'Devices';
           break;
         default:
           data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = global_dir+'/'+data_json[i]['filename'];
+          data_json[i]['props']['path'] = _globalDir+'/'+data_json[i]['filename'];
           data_json[i]['props']['name'] = data_json[i]['filename'];           
           data_json[i]['props']['type'] = 'other';
-          data_json[i]['props']['icon'] = global_self.setIcon(data_json[i]['postfix']);
+          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
           break;
       }
     }
-    //global_self.showFilesList(data_json);
-    global_self.getFiles[global_self._index] = data_json;
-    // if(global_self.showNormal){
-    //   global_self.showFilesNormal(data_json);    
+    //_globalSelf.showFilesList(data_json);
+    _globalSelf._getFiles[_globalSelf._index] = data_json;
+    // if(_globalSelf._showNormal){
+    //   _globalSelf.showFilesNormal(data_json);    
     // }
     // else {
-    //   global_self.showFilesList(data_json);
+    //   _globalSelf.showFilesList(data_json);
     // }
-    if(global_self.showNormal){
-      //global_self.showContent.children().hide();
-      global_self.showContent.append(global_self.showFilesNormal(data_json).attr('id',global_self._contentIds[global_self._index]));   
+    if(_globalSelf._showNormal){
+      //_globalSelf._showContent.children().hide();
+      _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));   
     }
     else {
-      //global_self.showContent.children().hide();
-      global_self.showContent.append(global_self.showFilesList(data_json).attr('id',global_self._contentIdsList[global_self._index]));
+      //_globalSelf._showContent.children().hide();
+      _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
     }
 
   },

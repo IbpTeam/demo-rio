@@ -1,48 +1,48 @@
 var MainDocView = Class.extend({
   init:function(){
-    this._DocContainer = $('<div>',{
+    this._docContainer = $('<div>',{
       'id': 'doc-container'
     })
-    this._DocTitleContent = $('<div>',{
+    this._docTitleContent = $('<div>',{
       'id': 'doc-title-content'
     });
-    this._DocContent = $('<div>',{
+    this._docContent = $('<div>',{
       'id': 'doc-content'
     });
-    this._DocContainer.append(this._DocTitleContent);
-    this._DocContainer.append(this._DocContent);
+    this._docContainer.append(this._docTitleContent);
+    this._docContainer.append(this._docContent);
     //input title ui
-    this._DocTitleTag = $('<div>',{
+    this._docTitleTag = $('<div>',{
       'id': 'doc-title-tag'
     })
-    this._DocTitleContent.append(this._DocTitleTag);
-    this._DocTitleText = $('<span>',{
+    this._docTitleContent.append(this._docTitleTag);
+    this._docTitleText = $('<span>',{
       'id': 'doc-title-text',
-      'text': 'Document'
+      'text': 'document'
     })
-    this._DocTitleContent.append(this._DocTitleText);
-    this._DocSelectDiv = $('<div>',{
+    this._docTitleContent.append(this._docTitleText);
+    this._docSelectDiv = $('<div>',{
       'id': 'doc-select-div'
     })
-    this._DocTitleContent.append(this._DocSelectDiv);
-    this._DocSelectWord = $('<input>',{
+    this._docTitleContent.append(this._docSelectDiv);
+    this._docSelectWord = $('<input>',{
       'class': 'doc-select',
       'type': 'checkbox'
     })
-    this._DocSelectDiv.append(this._DocSelectWord);
-    this._DocSelectDiv.append('<span class="select-text">Word</span>');
-    this._DocSelectExcel = $('<input>',{
+    this._docSelectDiv.append(this._docSelectWord);
+    this._docSelectDiv.append('<span class="select-text">Word</span>');
+    this._docSelectExcel = $('<input>',{
       'class' : 'doc-select',
       'type': 'checkbox'
     });
-    this._DocSelectDiv.append(this._DocSelectExcel);
-    this._DocSelectDiv.append('<span class="select-text">Excel</span>');
-    this._DocSelectPpt = $('<input>',{
+    this._docSelectDiv.append(this._docSelectExcel);
+    this._docSelectDiv.append('<span class="select-text">Excel</span>');
+    this._docSelectPpt = $('<input>',{
       'class': 'doc-select',
       'type': 'checkbox'
     })
-    this._DocSelectDiv.append(this._DocSelectPpt);
-    this._DocSelectDiv.append('<span class="select-text">PowerPoint</span>');
+    this._docSelectDiv.append(this._docSelectPpt);
+    this._docSelectDiv.append('<span class="select-text">PowerPoint</span>');
 
     this.iconpath = {};
     this.setIcon();
@@ -89,10 +89,16 @@ var MainDocView = Class.extend({
     });
     _fileView.html('<img draggable="false" src='
       + this.iconpath[file_.type]+' /><P>' + file_.name + '</P>');
-    this._DocContent.append(_fileView);
+    this._docContent.append(_fileView);
   },
   attach:function($parent_){
-    $parent_.append(this._DocContainer);
+    $parent_.append(this._docContainer);
+  },
+  hide:function(){
+    this._docContainer.hide();
+  },
+  show:function(){
+    this._docContainer.show();
   }
 
 });
