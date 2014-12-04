@@ -33,7 +33,7 @@ var AppList=[
     name:"datamgr",
     win:null,
     win2:null,
-    path:"demo-rio/datamgr/file-explorer.html"
+    path:"demo-rio/datamgr/index.html"
   },
   {
     id:"app_example",

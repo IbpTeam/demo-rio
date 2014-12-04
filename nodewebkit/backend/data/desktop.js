@@ -90,8 +90,8 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
-    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', '/app/demo-rio/datamgr/icons/datamgr.png');
+    _datamgr_app.path = pathModule.join(utils.getHomeDir(), 'dde', 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(), 'dde', '/app/demo-rio/datamgr/icons/datamgr.png');
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
@@ -137,6 +137,12 @@ function getnit(initType) {
     _wiki_app.type = "inside-app";
     _wiki_app.idx = -1;
 
+    var _firefox ={}
+    _firefox.id = "id-8390123",
+    _firefox.path = "firefox.desktop",
+    _firefox.type = "app",
+    _firefox.idx = "2"
+
     var result = {}
     result.layout = {
       "type": "grid",
@@ -169,7 +175,8 @@ function getnit(initType) {
     }
     result.dock = {
       "launcher-app": _launcher_app,
-      "login-app": _login_app
+      "login-app": _login_app,
+      "id-8390123":_firefox,
     }
   }
   return result;
