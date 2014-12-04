@@ -1,0 +1,47 @@
+#container{
+  #contentDiv{
+    #video-container{
+      position: absolute;
+      bottom: 40px;
+      height: 260px;
+      left: 40px;
+      right:650px;
+      border: 1px solid #999;
+      > div{
+        border-radius: 6px;
+        border:1px solid #f00;
+        position: absolute;
+        top:20px;
+        bottom: 20px;
+        background: rgba(255, 255, 255, 0.5);
+        &.video-content{
+          left: 30px;
+          right: 30px;
+        }
+        .banner{
+          overflow: hidden;
+          height: 100%;
+          border-radius:6px; 
+        }
+      }
+      a{
+        position: absolute;
+        top: 120px;
+        font-size: 20px;
+        cursor: pointer;
+        &:hover{
+          font-weight: bold;
+        }
+        &.video-middle-btn{
+          left:49%;
+        }
+        &.video-left-btn{
+          left: 5px;
+        }
+        &.video-right-btn{
+          right: 5px;
+        }
+      }
+    }
+  }
+}

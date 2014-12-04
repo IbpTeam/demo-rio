@@ -18,7 +18,8 @@ if ($(window).width() <= 1280) {
 }
 
 // Variables
-  mainDoc = MainDocView.create();
+  
+  homePage = HomePage.create();
   search = Search.create();
   infoList = InfoList.create();
   infoList.attach($('#sidebar'));
@@ -28,25 +29,26 @@ if ($(window).width() <= 1280) {
   container  = $('#container'),
   content    = $('#contentDiv');
   search.attach($('#searchDiv'));
-  mainDoc.attach(content);
+  homePage.attach(content);
 
 // infoList switcher
 var clickHandler = function(k) {
   return function() {
     $(this).addClass('active').siblings().removeClass('active');
+    content.children('div').hide();
     if(k == 1){
       infoList._infoList.hide();
       infoList.removeTags();
       infoList.removeRecent();
       container.removeClass('move-right');
-      mainDoc._DocContainer.show();
+      homePage.show();
     } else {
       infoList.setIndex(k);
       infoList.setContent();
       infoList.setTitle();
       infoList._infoList.show();
       infoList.loadData();
-      mainDoc._DocContainer.hide();
+      homePage.hide();
       container.addClass('move-right');
     }
   }

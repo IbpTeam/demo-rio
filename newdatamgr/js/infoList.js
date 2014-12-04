@@ -159,8 +159,6 @@ var InfoList = Class.extend({
       contact.attach($('#contentDiv'));
       contact.setContactsList();
       contact._ContactContainer.show();
-    } else {
-      contact._ContactContainer.hide();
     }
   }
 })
