@@ -163,10 +163,13 @@ var InfoList = Class.extend({
         this._isFirstRequset = false;
       }
       else {
-        showfiles = ShowFiles.create();  
+        //showfiles = ShowFiles.create();  
         showfiles.setIndex(this._index);
         showfiles.showFile();
       }
+    }
+    else {
+      $("#contentDiv").children().hide();
     }
 
   }

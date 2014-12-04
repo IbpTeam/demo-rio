@@ -8,11 +8,14 @@ var ShowFiles = Class.extend({
     this.file_arch_json = {};
     this.getFiles = {};
     this.copied_filepath = '';
-    this.showNormal = false;
+    this.showNormal = true;
+    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent'];
     this.choice = $('<div id = "choice"></div>');
+    this.showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
     //var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
-    $("#contentDiv").empty();
+    //$("#contentDiv").empty();
     $("#contentDiv").append(this.choice);
+    $("#contentDiv").append(this.showContent);   
     //this.showContent.empty();
   },
   
@@ -26,13 +29,17 @@ var ShowFiles = Class.extend({
   //此函数就是外面调用函数的接口，在初始化函数和index之后，直接调用此函数就会显示.
   showFile:function(){
     global_self = this;
+    global_self.choice.show();
+    global_self.showContent.show();
     if (this._index == 1){
       //所请求的是图片，显示图片
       if(!this.getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
       }
       else {
-        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+        //this.showFilesNormal(global_self.getFiles[global_self._index]);
+        $("#pictureContent").siblings().hide();
+        $("#pictureContent").show();       
       }
     }
     else if(this._index == 2){
@@ -42,27 +49,32 @@ var ShowFiles = Class.extend({
         DataAPI.getAllDataByCate(this.getCallBackData,'Video');
       }
       else {
-        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+        //this.showFilesNormal(global_self.getFiles[global_self._index]); 
+        $("#videoContent").siblings().hide();
+        $("#videoContent").show();     
       }
     }
     else if(this._index ==3){
-      //所请求的是图片，显示文档
+      //所请求的是文档，显示文档
       //DataAPI.getAllDataByCate(this.getCallBackData,'Document');
       if(!this.getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Document');
       }
       else {
-        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+        //this.showFilesNormal(global_self.getFiles[global_self._index]);
+        $("#documentContent").siblings().hide(); 
+        $("#documentContent").show();      
       }
     }
     else if(this._index ==4){
-      //所请求的是图片，显示音乐
-      //DataAPI.getAllDataByCate(this.getCallBackData,'Music');
+      //所请求的是音乐，显示音乐
       if(!this.getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Music');
       }
       else {
-        this.showFilesNormal(global_self.getFiles[global_self._index]);       
+        //this.showFilesNormal(global_self.getFiles[global_self._index]);  
+        $("#musicContent").siblings().hide();  
+        $("#musicContent").show();   
       }
     }
   },
@@ -143,11 +155,19 @@ var ShowFiles = Class.extend({
     }
     //global_self.showFilesList(data_json);
     global_self.getFiles[global_self._index] = data_json;
+    // if(global_self.showNormal){
+    //   global_self.showFilesNormal(data_json);    
+    // }
+    // else {
+    //   global_self.showFilesList(data_json);
+    // }
     if(global_self.showNormal){
-      global_self.showFilesNormal(data_json);    
+      global_self.showContent.children().hide();
+      global_self.showContent.append(global_self.showFilesNormal(data_json).attr('id',global_self._contentIds[global_self._index]));   
     }
     else {
-      global_self.showFilesList(data_json);
+      global_self.showContent.children().hide();
+      global_self.showContent.append(global_self.showFilesList(data_json).attr('id',global_self._contentIds[global_self._index]));
     }
 
   },
@@ -198,14 +218,15 @@ var ShowFiles = Class.extend({
     }
     table.append(thead);
     table.append(tbody);
-    var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
-    showContent.append(table);
-    $('#contentDiv').append(showContent);
+    var returnContent = $('<div style= "overflow:auto"></div>');
+    returnContent.append(table);
+    //$('#contentDiv').append(returnContent);
+    return returnContent;
   },
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesNormal:function(files){
-    var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');   
+    var returnContent = $('<div style= "overflow:auto"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
       var outContainer = $('<div class="outContainer" data-path="'+file['props'].path +'"></div>)');
@@ -222,13 +243,13 @@ var ShowFiles = Class.extend({
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
         outContainer.append(Holder);
         outContainer.append(description);
-        showContent.append(outContainer);
+        returnContent.append(outContainer);
       }
       else if(file['props'].video){
         Holder.append($('<video src="' + file['props'].video + '"></video>'));
         outContainer.append(Holder);
         outContainer.append(description);
-        showContent.append(outContainer);
+        returnContent.append(outContainer);
       }
       else {
         var fileContainer = $('<div class="fileContainer" data-path="' + file['props'].path + '"></div>');
@@ -242,10 +263,11 @@ var ShowFiles = Class.extend({
         }else{
           fileContainer.append($('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>'));
         }
-        showContent.append(fileContainer);
+        returnContent.append(fileContainer);
       }
     }
-    $('#contentDiv').append(showContent);
+    //$('#contentDiv').append(returnContent);
+    return returnContent;
   },
 
   //根据后缀名设置文档类型.
