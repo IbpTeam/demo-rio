@@ -93,6 +93,12 @@ var MainDocView = Class.extend({
   },
   attach:function($parent_){
     $parent_.append(this._docContainer);
+  },
+  hide:function(){
+    this._docContainer.hide();
+  },
+  show:function(){
+    this._docContainer.show();
   }
 
 });

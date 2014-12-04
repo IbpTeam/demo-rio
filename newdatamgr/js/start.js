@@ -18,6 +18,7 @@ if ($(window).width() <= 1280) {
 }
 
 // Variables
+  
   homePage = HomePage.create();
   search = Search.create();
   infoList = InfoList.create();
@@ -34,6 +35,7 @@ if ($(window).width() <= 1280) {
 var clickHandler = function(k) {
   return function() {
     $(this).addClass('active').siblings().removeClass('active');
+    content.children('div').hide();
     if(k == 1){
       infoList._infoList.hide();
       infoList.removeTags();

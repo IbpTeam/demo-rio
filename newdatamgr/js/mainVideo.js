@@ -93,6 +93,12 @@ var MainVideoView = Class.extend({
       });
     }
     this.bindEvent();
+  },
+  hide:function(){
+    this._videoContainer.hide();
+  },
+  show:function(){
+    this._videoContainer.show();
   }
 
 });

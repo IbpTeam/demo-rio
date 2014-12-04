@@ -65,6 +65,12 @@ var MainPicView = Class.extend({
     }else{
       this._picContainer.children('div').remove();
     }
+  },
+  hide:function(){
+    this._picContainer.hide();
+  },
+  show:function(){
+    this._picContainer.show();
   }
 
 });
