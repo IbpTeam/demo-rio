@@ -155,7 +155,6 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
-<<<<<<< HEAD
     if(this._index >0 && this._index <5){
       if(this._isFirstRequset){
         showfiles = ShowFiles.create();  
@@ -166,17 +165,13 @@ var InfoList = Class.extend({
         showfiles.setIndex(this._index);
       }
     }
-    else {
-      $("#contentDiv").children().hide();
-    }
-
-=======
     if(this._index == 0){
+      //学姐现在添加这一行是为了，当点击联系人时，我的图片的所有的div都隐藏一下。
+      $("#contentDiv").children().hide();
       contact = Contact.create();
       contact.attach($('#contentDiv'));
       contact.setContactsList();
       contact._ContactContainer.show();
     }
->>>>>>> 3e857b76979c535859b1b689bdc2ad895156d9c5
   }
 })
