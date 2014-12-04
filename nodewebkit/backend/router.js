@@ -169,7 +169,11 @@ function handleWSMsg(client, msg) {
       if(typeof eventList[jMsg.Event] === 'undefined') {
         eventList[jMsg.Event] = [];
       }
-      eventList[jMsg.Event].push(client);
+      var i;
+      for(i = 0; i < eventList[jMsg.Event].length; ++i) {
+        if(eventList[jMsg.Event][i] == client) break;
+      }
+      if(i == eventList[jMsg.Event].length) eventList[jMsg.Event].push(client);
       client.send(JSON.stringify({
         'Status': 'ok',
         'Data': 'register success',
