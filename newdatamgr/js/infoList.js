@@ -48,6 +48,7 @@ var InfoList = Class.extend({
       'class': 'il__edit icon-edit'
     });
     this._infoBottom.append(this._edit);
+    this._isFirstRequset = true;
   },
 
   setIndex:function(index_){
@@ -154,7 +155,19 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
+    if(this._index >0 && this._index <5){
+      if(this._isFirstRequset){
+        showfiles = ShowFiles.create();  
+        showfiles.setIndex(this._index);
+        this._isFirstRequset = false;
+      }
+      else {
+        showfiles.setIndex(this._index);
+      }
+    }
     if(this._index == 0){
+      //学姐现在添加这一行是为了，当点击联系人时，我的图片的所有的div都隐藏一下。
+      $("#contentDiv").children().hide();
       contact = Contact.create();
       contact.attach($('#contentDiv'));
       contact.setContactsList();
