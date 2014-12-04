@@ -24,18 +24,22 @@ var Contact = Class.extend({
         }
       }
       for(var i in family_name_json){
-        var _p = $('<p>', {
-          'class':'p-family',
+        var _ul = $('<ul>', {
+          'class':'ul-family'
+        });
+        var _first = $('<li>',{
+          'class': 'ul-first',
           'text': i
         });
+        _ul.append(_first);
         for(var j = 0; j < family_name_json[i].length; j ++){
-          var _name = $('<p>', {
-            'class':'p-name',
+          var _name = $('<li>', {
+            'class':'a-name',
             'text': family_name_json[i][j]
           });
-          _p.append(_name);
+          _ul.append(_name);
         }
-        _this._contactsList.append(_p);
+        _this._contactsList.append(_ul);
       }
     }, 'Contact');
   },
