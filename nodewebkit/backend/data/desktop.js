@@ -90,11 +90,10 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
-    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', '/app/demo-rio/datamgr/icons/datamgr.png');
+    _datamgr_app.path = pathModule.join(config.PROJECTPATH, 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.iconPath = pathModule.join(config.PROJECTPATH, '/app/demo-rio/datamgr/icons/datamgr.png');
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
-
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
