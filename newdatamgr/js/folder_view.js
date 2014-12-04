@@ -10,6 +10,7 @@ var ShowFiles = Class.extend({
     this.copied_filepath = '';
     this.showNormal = true;
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent'];
+    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
     this.choice = $('<div id = "choice"></div>');
     this.showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
     //var showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
@@ -17,6 +18,28 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this.choice);
     $("#contentDiv").append(this.showContent);   
     //this.showContent.empty();
+    this.setChoice();
+    global_self = this;
+  },
+
+  //此函数用来设置选择界面看按照哪种方式显示
+  setChoice:function(){
+    var showlistButton = $('<button id = "showlistButton"> showlistButton </button>');
+    var shownormalButton = $('<button id = "shownormalButton"> shownormalButton</button>');
+    var sortbyButton = $('<button id = "sortbyButton">sortby </button>');
+    this.choice.append(showlistButton);
+    this.choice.append(shownormalButton);
+    this.choice.append(sortbyButton);
+    showlistButton.click(function(){
+      console.log("this is show list ++++++++++++");
+      global_self.showNormal = false;
+      global_self.showFile();
+    });
+    shownormalButton.click(function(){
+      console.log("this is show normal ++++++++++++");
+      global_self.showNormal = true;
+      global_self.showFile();
+    })
   },
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
@@ -24,13 +47,15 @@ var ShowFiles = Class.extend({
     if (typeof index_ === 'number' && index_ >0 && index_ <5) {
       this._index = index_;
     }
+    this.showFile();
   },
 
   //此函数就是外面调用函数的接口，在初始化函数和index之后，直接调用此函数就会显示.
   showFile:function(){
-    global_self = this;
+    //global_self = this;
     global_self.choice.show();
     global_self.showContent.show();
+    global_self.showContent.children().hide();
     if (this._index == 1){
       //所请求的是图片，显示图片
       if(!this.getFiles[this._index]){
@@ -38,8 +63,23 @@ var ShowFiles = Class.extend({
       }
       else {
         //this.showFilesNormal(global_self.getFiles[global_self._index]);
-        $("#pictureContent").siblings().hide();
-        $("#pictureContent").show();       
+        if(this.showNormal){
+          if($("#pictureContent").length>0){
+            $("#pictureContent").show();
+          }
+          else {
+            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+          }
+        }
+        else {
+          if ($("#pictureContentList").length>0){
+            console.log('has ???????????????????');
+            $("#pictureContentList").show();
+          }
+          else {
+            global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+          }
+        }
       }
     }
     else if(this._index == 2){
@@ -49,9 +89,23 @@ var ShowFiles = Class.extend({
         DataAPI.getAllDataByCate(this.getCallBackData,'Video');
       }
       else {
-        //this.showFilesNormal(global_self.getFiles[global_self._index]); 
-        $("#videoContent").siblings().hide();
-        $("#videoContent").show();     
+        //this.showFilesNormal(global_self.getFiles[global_self._index]);
+        if(this.showNormal){
+          if($("#videoContent").length>0){
+            $("#videoContent").show();
+          }
+          else {
+            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+          }
+        }
+        else {
+          if ($("#videoContentList").length>0){
+            $("#videoContentList").show();
+          }
+          else {
+          global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+          }
+        }
       }
     }
     else if(this._index ==3){
@@ -62,8 +116,22 @@ var ShowFiles = Class.extend({
       }
       else {
         //this.showFilesNormal(global_self.getFiles[global_self._index]);
-        $("#documentContent").siblings().hide(); 
-        $("#documentContent").show();      
+        if(this.showNormal){
+          if($("#documentContent").length>0){
+            $("#documentContent").show();
+          }
+          else {
+            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+          }
+        }
+        else {
+          if ($("#documentContentList").length>0){
+            $("#documentContentList").show();
+          }
+          else {
+            global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+          }
+        }
       }
     }
     else if(this._index ==4){
@@ -72,9 +140,23 @@ var ShowFiles = Class.extend({
         DataAPI.getAllDataByCate(this.getCallBackData,'Music');
       }
       else {
-        //this.showFilesNormal(global_self.getFiles[global_self._index]);  
-        $("#musicContent").siblings().hide();  
-        $("#musicContent").show();   
+        //this.showFilesNormal(global_self.getFiles[global_self._index]);
+        if(this.showNormal){
+          if($("#musicContent").length>0){
+            $("#musicContent").show();
+          }
+          else {
+            global_self.showContent.append(global_self.showFilesNormal(global_self.getFiles[global_self._index]).attr('id',global_self._contentIds[global_self._index]));
+          }
+        }
+        else {
+          if ($("#musicContentList").length>0){
+            $("#musicContentList").show();
+          }
+          else {
+          global_self.showContent.append(global_self.showFilesList(global_self.getFiles[global_self._index]).attr('id',global_self._contentIdsList[global_self._index])); 
+          }
+        }
       }
     }
   },
@@ -162,12 +244,12 @@ var ShowFiles = Class.extend({
     //   global_self.showFilesList(data_json);
     // }
     if(global_self.showNormal){
-      global_self.showContent.children().hide();
+      //global_self.showContent.children().hide();
       global_self.showContent.append(global_self.showFilesNormal(data_json).attr('id',global_self._contentIds[global_self._index]));   
     }
     else {
-      global_self.showContent.children().hide();
-      global_self.showContent.append(global_self.showFilesList(data_json).attr('id',global_self._contentIds[global_self._index]));
+      //global_self.showContent.children().hide();
+      global_self.showContent.append(global_self.showFilesList(data_json).attr('id',global_self._contentIdsList[global_self._index]));
     }
 
   },
