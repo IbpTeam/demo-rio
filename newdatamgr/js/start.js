@@ -18,9 +18,7 @@ if ($(window).width() <= 1280) {
 }
 
 // Variables
-  mainVideo = MainVideoView.create();
-  mainPic = MainPicView.create();
-  mainDoc = MainDocView.create();
+  homePage = HomePage.create();
   search = Search.create();
   infoList = InfoList.create();
   infoList.attach($('#sidebar'));
@@ -30,9 +28,7 @@ if ($(window).width() <= 1280) {
   container  = $('#container'),
   content    = $('#contentDiv');
   search.attach($('#searchDiv'));
-  mainDoc.attach(content);
-  mainPic.attach(content);
-  mainVideo.attach(content);
+  homePage.attach(content);
 
 // infoList switcher
 var clickHandler = function(k) {
@@ -43,18 +39,14 @@ var clickHandler = function(k) {
       infoList.removeTags();
       infoList.removeRecent();
       container.removeClass('move-right');
-      mainDoc._docContainer.show();
-      mainPic._picContainer.show();
-      mainVideo._videoContainer.show();
+      homePage.show();
     } else {
       infoList.setIndex(k);
       infoList.setContent();
       infoList.setTitle();
       infoList._infoList.show();
       infoList.loadData();
-      mainDoc._docContainer.hide();
-      mainPic._picContainer.hide();
-      mainVideo._videoContainer.hide();
+      homePage.hide();
       container.addClass('move-right');
     }
   }
