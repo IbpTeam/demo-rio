@@ -123,7 +123,7 @@ function getAllTagsByCategory(callback, category) {
     }
     callback(TagFile);
   }
-  var fields = (category === 'contact') ? ['others', 'name', 'uri']: ['others', 'filename', 'uri', 'postfix', 'path'];
+  var fields = (category === 'contact') ? ['others', 'name', 'uri'] : ['others', 'filename', 'uri', 'postfix', 'path'];
   commonDAO.findItems(fields, category, null, null, findItemsCb);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
@@ -295,8 +295,14 @@ function getFilesByTags(callback, oTags) {
             console.log(err);
             return callback(err, null);
           }
-          allFiles = allFiles.concat(resultVideo);
-          callback(null, allFiles);
+          commonDAO.findItems(null, ['contact'], sCondition, null, function(err, resultContact) {
+            if (err) {
+              console.log(err);
+              return callback(err, null);
+            }
+            allFiles = allFiles.concat(resultContact);
+            callback(null, allFiles);
+          })
         })
       })
     })
@@ -337,6 +343,9 @@ function setTagByUri(callback, oTags, sUri) {
       item.others = item.others + ",";
       var newTags = (item.others).concat(oTags.join(","));
     }
+    // if (category == 'contact') {
+    //   item.path = pathModule.join(utils.getDesDir(category), item.name, '.md');
+    // }
     UpdateItem = {
       URI: item.URI,
       path: item.path,
@@ -344,17 +353,24 @@ function setTagByUri(callback, oTags, sUri) {
       category: category
     };
     var re = new RegExp('/' + category + '/', "i");
-    var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
+    if (category == 'contact') {
+      desFilePath = pathModule.join(utils.getDesDir(category), item.name + '.md');
+    } else {
+      var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
+    }
     dataDes.updateItem(desFilePath, UpdateItem, function(result) {
       if (result !== "success") {
         return console.log("error in update des file!");
+      }
+      if (category == 'contact') {
+        delete UpdateItem.path;
       }
       commonDAO.updateItem(UpdateItem, function(err) {
         if (err) {
           return console.log(err);
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        repo.repoCommit(chPath, [desFilePath], null,"ch", function() {
+        repo.repoCommit(chPath, [desFilePath], null, "ch", function() {
           console.log('set tags des git committed!');
           callback('commit');
         });
@@ -462,7 +478,7 @@ function rmTagsByUri(callback, oTags, sUri) {
             return callback(result);
           }
           var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-          repo.repoCommit(desPath, files, null,"ch", function() {
+          repo.repoCommit(desPath, files, null, "ch", function() {
             console.log("rm tags: ", oTags, " success!");
             callback(result);
           });
@@ -538,7 +554,7 @@ function rmTagsAll(callback, oTags) {
                 files.push(desFilePath);
               }
               var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-              repo.repoCommit(desPath, files, null,"ch", function() {
+              repo.repoCommit(desPath, files, null, "ch", function() {
                 callback(result);
               });
             } else {
@@ -560,11 +576,15 @@ function buildDeleteItems(allFiles, result) {
     var category = utils.getCategoryByUri(sUri);
     for (var k in result) {
       var newItem = {
-        path: result[k].path,
         category: category,
         URI: result[k].URI,
         others: result[k].others
       };
+      if (category == 'contact') {
+        newItem.name = result[k].name;
+      } else {
+        newItem.path = result[k].path;
+      }
       allFiles.push(newItem);
     }
   }
@@ -655,7 +675,7 @@ function setRelativeTagByPath(sFilePath, sTags, callback) {
           return callback(err, null);
         }
         var chPath = utils.getDesRepoDir(category);
-        repo.repoCommit(chPath, [desFilePath], null,"ch", function(result) {
+        repo.repoCommit(chPath, [desFilePath], null, "ch", function(result) {
           if (result !== 'success') {
             var _err = 'git ch commit error!';
             return callback(_err, null);
