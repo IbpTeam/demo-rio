@@ -166,8 +166,6 @@ var InfoList = Class.extend({
       }
     }
     if(this._index == 0){
-      //学姐现在添加这一行是为了，当点击联系人时，我的图片的所有的div都隐藏一下。
-      $("#contentDiv").children().hide();
       contact = Contact.create();
       contact.attach($('#contentDiv'));
       contact.setContactsList();

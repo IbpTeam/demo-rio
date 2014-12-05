@@ -334,16 +334,16 @@ var ShowFiles = Class.extend({
         returnContent.append(outContainer);
       }
       else {
-        var fileContainer = $('<div class="fileContainer" data-path="' + file['props'].path + '"></div>');
-        var iconContainer = $('<div class="iconContainer"></div>');
-        iconContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
-        fileContainer.append(iconContainer);
+        var fileContainer = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
+        //var iconContainer = $('<div class="iconContainer"></div>');
+        fileContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+        //fileContainer.append(iconContainer);
         if(file['props'].name.indexOf(' ') != -1 ||
            file['props'].name.indexOf('\'' != -1)){
           var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-          fileContainer.append($('<div class="name" id="'+ id +'">' + file['props'].name + '</div>'));
+          fileContainer.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
         }else{
-          fileContainer.append($('<div class="name" id="'+ file['props'].name +'">' + file['props'].name + '</div>'));
+          fileContainer.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
         }
         returnContent.append(fileContainer);
       }
