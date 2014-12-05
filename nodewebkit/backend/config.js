@@ -20,6 +20,14 @@ APPBASEPATH = path.join(__dirname,"../../..");
 exports.APPBASEPATH = APPBASEPATH;
 
 /**
+ * Project Path
+ * Default Project Base path is /repo dir，we use __dirname to locate it
+ */
+var PROJECTPATH;
+PROJECTPATH = path.join(__dirname,"../../../..");
+exports.PROJECTPATH = PROJECTPATH;
+
+/**
  * AppList 用于存放所有已安装程序列表，目前暂时支持默认自带的程序，如数据管理器
  * 音乐播放器等
  * 每一个APP对象包括以下属性：
@@ -41,6 +49,13 @@ var AppList=[
     win:null,
     win2:null,
     path:"demo-rio/appExample/index.html"
+  },
+  {
+    id:"app_viewerPDF",
+    name:"viewerPDF",
+    win:null,
+    win2:null,
+    path:"demo-rio/viewerPDF/index.html"
   }
 ];
 exports.AppList = AppList;

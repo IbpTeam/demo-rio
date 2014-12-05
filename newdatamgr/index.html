@@ -8,6 +8,7 @@
     <meta name="description" content="">
     <link rel="stylesheet" type="text/css" href="./lib/css/demoUI.css">
     <link rel="stylesheet" type="text/css" href="./lib/css/demoUItheme.css">
+    <link rel="stylesheet" type="text/css" href="./lib/css/demoUIFont.css">
     <link rel="stylesheet" type="text/css" href="./css/demoUIFont.css">
     <link rel="stylesheet" type="text/css" href="./css/datamgr.css">
     <script src="./lib/jquery.js"></script>
@@ -16,7 +17,13 @@
     <script type="text/javascript" src="./lib/js/demoUI.js"></script>
     <script type="text/javascript" src='./js/infoList.js'></script>
     <script type="text/javascript" src='./js/search.js'></script>
-    <script type="text/javascript" src="js/folderView.js"></script>
+    <script type="text/javascript" src='./js/folderview.js'></script>
+    <script type="text/javascript" src='./js/mainDoc.js'></script>
+    <script type="text/javascript" src='./js/mainPic.js'></script>
+    <script type="text/javascript" src='./js/mainVideo.js'></script>
+    <script type="text/javascript" src='./js/mainMusic.js'></script>
+    <script type="text/javascript" src='./js/home.js'></script>
+    <script type="text/javascript" src="js/contact.js"></script>
     <script>
       /**
        * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
@@ -29,15 +36,17 @@
   <body>
     <aside id="sidebar">
       <nav id="tags">
-        <a href="" id="avatar"></a>
+        <div id="black_bj" class="black_bj">
+          <a href="" id="avatar"></a>
+        </div>
 
         <ul id="tags__ul">
-          <li id="js-label1" class="tags__li tags-btn active" data='all'><a class='new-button icon-home' id='icon-home'></a></li>
-          <li id="js-label2" class="tags__li tags-btn" data='contact'><a class='new-button icon-user' id='icon-user'></a></li>
-          <li id="js-label3" class="tags__li tags-btn" data='picture'><a class='new-button icon-picture' id='icon-picture'></a></li>
-          <li id="js-label4" class="tags__li tags-btn" data='video'><a class='new-button icon-facetime-video' id='icon-facetime-video'></a></li>
-          <li id="js-label5" class="tags__li tags-btn" data='document'><a class='new-button icon-file-alt' id='icon-file-alt'></a></li>
-          <li id="js-label6" class="tags__li tags-btn" data='music'><a class='new-button icon-music' id='icon-music'></a></li>
+          <li id="js-label1" class="tags__li tags-btn active" data='all'><a class='new-button icon-icon-home' id='icon-icon-home'></a></li>
+          <li id="js-label2" class="tags__li tags-btn" data='contact'><a class='new-button icon-icon-user' id='icon-icon-user'></a></li>
+          <li id="js-label3" class="tags__li tags-btn" data='picture'><a class='new-button icon-icon-pictures' id='icon-icon-picture'></a></li>
+          <li id="js-label4" class="tags__li tags-btn" data='video'><a class='new-button icon-icon-facetime-video' id='icon-icon-facetime-video'></a></li>
+          <li id="js-label5" class="tags__li tags-btn" data='document'><a class='new-button icon-icon-file-alt' id='icon-icon-file-alt'></a></li>
+          <li id="js-label6" class="tags__li tags-btn" data='music'><a class='new-button icon-icon-music' id='icon-icon-music'></a></li>
         </ul>
 
         <div id="tags__bottom">
@@ -53,7 +62,6 @@
       <div id="contentDiv">
       </div>
     </div>
-
     <script src="./js/start.js"></script>
   </body>
 </html>

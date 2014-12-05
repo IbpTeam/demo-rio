@@ -166,7 +166,7 @@ function removeByUri(uri, callback) {
           //Git commit
           var aDesFiles = [sDesFullPath];
           var sDesDir = utils.getDesDir(CATEGORY_NAME);
-          repo.repoRmsCommit(sDesDir,aDesFiles,null,callback);
+          repo.repoCommit(sDesDir,aDesFiles,null,"rm",callback);
         });
       }
     });
@@ -221,7 +221,7 @@ function initContacts(loadContactsCb, resourcePath) {
     }
 
     function isEndCallback(_oDesFiles) {
-      repo.repoAddsCommit(contactsPath, _oDesFiles, null, loadContactsCb);
+      repo.repoCommit(contactsPath, _oDesFiles, null,"add", loadContactsCb);
     }
     for (var k = 0; k < oContacts.length; k++) {
       var isContactEnd = (k == (oContacts.length - 1));
@@ -257,7 +257,7 @@ function updateDataValue(item, callback) {
           callback(_err);
         } else {
           console.log('update contact success!');
-          repo.repoChsCommit(DES_REPO_DIR, [desFilePath], null, function() {
+          repo.repoCommit(DES_REPO_DIR, [desFilePath], null,"ch", function() {
             callback('success')
           })
         }
@@ -314,21 +314,22 @@ function repoReset(commitID, callback) {
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
-    } else {
-      repo.repoReset(DES_REPO_DIR, commitID, function(err, result) {
+    } 
+    else {
+      repo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
         if (err) {
           console.log(err);
-          var _err = {
+          callback({
             'document': err
-          }
-          callback(_err, null);
-        } else {
-          console.log('reset success!');
+          }, null);
+        } 
+        else {
+          console.log('reset success!')
           callback(null, result)
         }
-      })
+      });
     }
-  })
+  });
 }
 exports.repoReset = repoReset;
 

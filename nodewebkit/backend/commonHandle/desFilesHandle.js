@@ -14,7 +14,6 @@ var uniqueID = require("../uniqueID");
 var fs = require('fs');
 var fs_extra = require('fs-extra');
 var path = require("path");
-var filesHandle = require("../filesHandle");
 var commonDAO = require("./CommonDAO");
 var utils = require('../utils');
 

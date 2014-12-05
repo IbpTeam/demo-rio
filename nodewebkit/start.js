@@ -13,7 +13,6 @@
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
-var filesHandle = require("./backend/filesHandle");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
 var device = require("./backend/data/device");
@@ -23,6 +22,7 @@ var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
+var cryptoApp= require('./backend/crypto_app');
 //var process = require('process');
 
 var handle = {}
@@ -45,6 +45,18 @@ function startApp(){
   if (startonce === true){
     return;
   }
+  cryptoApp.generateKeypairCtn(function(done) {
+    if (done)
+      console.log('create rsa keypair success!');
+    else
+      console.log('create rsa keypair failed!!!');
+  });
+  cryptoApp.initServerPubKey(function(done) {
+  if (done)
+    console.log('init server pubkey success!');
+  else
+    console.log('init server pubkey failed!!!');
+ });
   startonce = true;
   config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();
@@ -78,7 +90,6 @@ function initializeApp(sFullPath) {
   var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
   var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
-  filesHandle.isPulledFile = false;
   console.log("UniqueID Path is : " + sUniqueIDPath);
     /*
      * TODO: desktop config part is not working now, will fix it later
@@ -101,7 +112,10 @@ function initializeApp(sFullPath) {
     config.ACCOUNT  = require(sUniqueIDPath).Account;
     setSysUid(deviceID, sUniqueIDPath, function() {
       device.startDeviceDiscoveryService();
-      fs.exists(sNetLinkStatusPath, function(netlinkExists) {
+      /***************
+      /*Temporary delete 
+      ****************/
+      /*fs.exists(sNetLinkStatusPath, function(netlinkExists) {
         if (!netlinkExists) {
           cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
             util.log("touch .netlinkstatus");
@@ -118,7 +132,7 @@ function initializeApp(sFullPath) {
             filesHandle.monitorNetlink(sNetLinkStatusPath);
           });
         }
-      });
+      });*/
     });
   });
 }

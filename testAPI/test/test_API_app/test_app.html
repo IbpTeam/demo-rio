@@ -72,7 +72,8 @@
 
   function startAppByName(startAppByNameCb){
     WDC.requireAPI(['app'], function(app){
-      app.startAppByName(startAppByNameCb, "example", null);
+      var _url = '/home/xiquan/Documents/books/SEP/JavaScript设计模式.pdf';
+      app.startAppByName(startAppByNameCb, "viewerPDF", _url);
     });
   }
   </script>

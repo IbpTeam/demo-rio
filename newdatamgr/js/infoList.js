@@ -48,6 +48,7 @@ var InfoList = Class.extend({
       'class': 'il__edit icon-edit'
     });
     this._infoBottom.append(this._edit);
+    this._isFirstRequset = true;
   },
 
   setIndex:function(index_){
@@ -154,6 +155,21 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
-
+    if(this._index >0 && this._index <5){
+      if(this._isFirstRequset){
+        showfiles = ShowFiles.create();  
+        showfiles.setIndex(this._index);
+        this._isFirstRequset = false;
+      }
+      else {
+        showfiles.setIndex(this._index);
+      }
+    }
+    if(this._index == 0){
+      contact = Contact.create();
+      contact.attach($('#contentDiv'));
+      contact.setContactsList();
+      contact._ContactContainer.show();
+    }
   }
 })

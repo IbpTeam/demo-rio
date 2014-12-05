@@ -75,7 +75,7 @@ function createData(items, callback) {
     fs.stat(items, function(err, stat) {
       if (err) {
         console.log(err);
-        return callback(err,null);
+        return callback(err, null);
       }
       var mtime = stat.mtime;
       var ctime = stat.ctime;
@@ -251,6 +251,14 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
+          case 'pdf':
+            source = {
+              openmethod: 'pdf',
+              format: 'pdffile',
+              title: '文件浏览',
+              content: item.path
+            }
+            break;          
           case 'txt':
             source = {
               openmethod: 'html',
@@ -306,6 +314,8 @@ function openDataByUri(openDataByUriCb, uri) {
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
             switch (item.postfix) {
+              case 'pdf':
+                break;
               case 'ppt':
                 s_command = "wpp \"" + item.path + "\"";
                 supportedKeySent = true;
@@ -350,7 +360,7 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoChsCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, function() {
+        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "ch", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
@@ -443,24 +453,22 @@ function repoReset(commitID, callback) {
       callback(err, null);
     } else {
       var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID) {
-        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
+      if (dataCommitID != "null") {
+        resourceRepo.repoReset(REAL_REPO_DIR, dataCommitID, null, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
-          } 
-          else {
+          } else {
             resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
+              resourceRepo.repoReset(DES_REPO_DIR, commitID, relateCommitID, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback({
                     'document': err
                   }, null);
-                } 
-                else {
+                } else {
                   console.log('reset success!')
                   callback(null, result)
                 }
@@ -468,13 +476,18 @@ function repoReset(commitID, callback) {
             });
           }
         })
-      } 
-      else {
-        var _err = 'related des commit id error!';
-        console.log(_err);
-        callback({
-          'document': _err
-        }, null);
+      } else {
+        resourceRepo.repoReset(DES_REPO_DIR, commitID, null, function(err, result) {
+          if (err) {
+            console.log(err);
+            callback({
+              'document': err
+            }, null);
+          } else {
+            console.log('reset success!')
+            callback(null, result)
+          }
+        });
       }
     }
   });
