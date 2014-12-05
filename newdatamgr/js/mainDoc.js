@@ -49,7 +49,7 @@ var MainDocView = Class.extend({
     this.appendFile({
       'path': 'jsdkjfjslkaf',
       'type': 'Word',
-      'name': 'test.word'
+      'name': '测试用的word，送的佛教课jk.word'
     })
     this.appendFile({
       'path': 'sdfsdafsdf',
@@ -64,17 +64,17 @@ var MainDocView = Class.extend({
     this.appendFile({
       'path': 'jsdkjfjslkaf',
       'type': 'Word',
-      'name': 'test.word'
+      'name': 'fsadfsa.word'
     })
     this.appendFile({
       'path': 'sdfsdafsdf',
       'type': 'Excel',
-      'name': 'test.Excel'
+      'name': 'tesddsfasdf st.Excel'
     })
     this.appendFile({
       'path': 'jsdkjfjslkaf',
       'type': 'Powerpoint',
-      'name': '123446546985092hjsadhjkdf.ppt'
+      'name': '123446 546985092 hjsadhjkdf.ppt'
     })
   },
   setIcon:function(){
