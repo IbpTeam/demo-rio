@@ -97,9 +97,9 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error", error, stdout);
+      console.log("Git revert error", error, stdout);
     } else {
-      console.log("Git change success");
+      console.log("Git revert success");
       callback(null,'success');
       transfer.syncOnlineReq(repoPath);
     }
