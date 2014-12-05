@@ -343,9 +343,6 @@ function setTagByUri(callback, oTags, sUri) {
       item.others = item.others + ",";
       var newTags = (item.others).concat(oTags.join(","));
     }
-    // if (category == 'contact') {
-    //   item.path = pathModule.join(utils.getDesDir(category), item.name, '.md');
-    // }
     UpdateItem = {
       URI: item.URI,
       path: item.path,
@@ -354,7 +351,7 @@ function setTagByUri(callback, oTags, sUri) {
     };
     var re = new RegExp('/' + category + '/', "i");
     if (category == 'contact') {
-      desFilePath = pathModule.join(utils.getDesDir(category), item.name + '.md');
+      var desFilePath = pathModule.join(utils.getDesDir(category), item.name + '.md');
     } else {
       var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
     }
