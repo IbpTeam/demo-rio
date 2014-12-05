@@ -19,6 +19,16 @@ var APPBASEPATH;
 APPBASEPATH = path.join(__dirname,"../../..");
 exports.APPBASEPATH = APPBASEPATH;
 
+PROJECTPATH
+
+/**
+ * Project Path
+ * Default Project Base path is /repo dir，we use __dirname to locate it
+ */
+var PROJECTPATH;
+PROJECTPATH = path.join(__dirname,"../../../..");
+exports.PROJECTPATH = PROJECTPATH;
+
 /**
  * AppList 用于存放所有已安装程序列表，目前暂时支持默认自带的程序，如数据管理器
  * 音乐播放器等
