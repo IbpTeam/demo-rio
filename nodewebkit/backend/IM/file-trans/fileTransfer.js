@@ -8,8 +8,7 @@ function getLocalIP(){
   var IPv4;   
   for(var i=0;i<os.networkInterfaces().eth0.length;i++){      
     if(os.networkInterfaces().eth0[i].family=='IPv4'){        
-      IPv4=os.networkInterfaces().eth0[i].address;    
-      console.log('IPv4:'+IPv4);
+      IPv4=os.networkInterfaces().eth0[i].address; 
       return IPv4;     
     }  
   } 
@@ -26,11 +25,9 @@ function fileTransferInit(path,fileTransferInitCb){
       fileTransferInitCb(true,'file stat error');
       return false;     
     }else{
-     // size= file.size*2;
       size = file.size;
       var buf = path.split('/');
       var name = buf[buf.length - 1];
-      console.log('file.size' + size + ' ' + name);
       fileTransferRequest(name, size, fileTransferInitCb);
     }  
   }
@@ -44,7 +41,6 @@ function fileTransferRequest( name, length, callback) {
   msg['fileName'] = name;
   msg['fileSize'] = length;
   msg['msg'] = 'file-transfer do you want to accept ' + name;
-  console.log('fileTransferRequest---' + JSON.stringify(msg));
   callback(false,msg);
 }
 function fileTransferStart(err,filePort,msgObj,fileTransferStartCb){
@@ -54,15 +50,13 @@ function fileTransferStart(err,filePort,msgObj,fileTransferStartCb){
   if(err||IPv4===undefined){
     msg['state']='0';
     msg['msg']='file-transfer you can\'t file '+name; 
-    console.log('fileTransferStart'+JSON.stringify(msg));
     fileTransferStartCb(true,msg);
     return;
   }else{      
     msg['state'] = '1';
-    msg['ip'] = IPv4; //+':'+filePort+'/'+path;    
+    msg['ip'] = IPv4;   
     msg['filePort'] = filePort;
     msg['msg'] = 'file-transfer you can get ' + msg.fileName;
-    console.log('fileTransferStart' + JSON.stringify(msg));
     fileTransferStartCb(false,msg);
     return;
   }
@@ -74,9 +68,8 @@ function transferFileRatio(flag, msgObj, ratio, callback) {
   msg['type'] = 'file';
   msg['option'] = 0x0002;
   msg['ratio'] = ratio;
-  msg['state'] = flag; //err===true?'0':'1';
+  msg['state'] = flag; 
   msg['msg'] = 'file-transfer transferRatio of file ' + msgObj.key + '---' + ratio;
-  console.log('  transferFileRatio---' + JSON.stringify(msg));
   callback(msg);
 }
 exports.transferFileRatio = transferFileRatio;
@@ -86,7 +79,6 @@ exports.transferFileRatio = transferFileRatio;
 function transferFileCancel(msgObj, callback) {
   var msg = msgObj;
   msg['option'] = 0x0003;
-  console.log(' send  transferFileCancel---' + JSON.stringify(msgObj));
   callback(msg);
 }
 exports.transferFileCancel = transferFileCancel;
