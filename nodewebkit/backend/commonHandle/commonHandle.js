@@ -536,46 +536,57 @@ function renameDataByUri(category, sUri, sNewName, callback) {
     if (sNewName === sOriginName) {
       return callback(null, 'success');
     }
-    fs_extra.move(sOriginPath, sNewPath, function(err) {
+    utils.isNameExists(sOriginPath, function(err, result) {
       if (err) {
         console.log(err);
         return callback(err, null);
       }
-      var reg_path = new RegExp('/' + category + '/');
-      var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
-      var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
-      fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
+      if (result) {
+        var _err = 'new file name exists...';
+        console.log(_err);
+        return callback(_err, null);
+      }
+      fs_extra.move(sOriginPath, sNewPath, function(err) {
         if (err) {
           console.log(err);
           return callback(err, null);
         }
-        var currentTime = (new Date());
-        console.log(item);
-        var sUri = item.URI;
-        var oUpdataInfo = {
-          URI: sUri,
-          category: category,
-          filename: utils.getFileNameByPathShort(sNewPath),
-          postfix: utils.getPostfixByPathShort(sNewPath),
-          lastModifyTime: currentTime,
-          lastAccessTime: currentTime,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID,
-          path: sNewPath
-        }
-        commonDAO.updateItem(oUpdataInfo, function(err) {
+        var reg_path = new RegExp('/' + category + '/');
+        var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
+        var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
+        fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
           if (err) {
             console.log(err);
             return callback(err, null);
           }
-          dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
-            if (result === "success") {
-              var sRepoPath = utils.getRepoDir(category);
-              var sRepoDesPath = utils.getDesRepoDir(category);
-              repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
-                callback(null, result);
-              })
+          var currentTime = (new Date());
+          console.log(item);
+          var sUri = item.URI;
+          var oUpdataInfo = {
+            URI: sUri,
+            category: category,
+            filename: utils.getFileNameByPathShort(sNewPath),
+            postfix: utils.getPostfixByPathShort(sNewPath),
+            lastModifyTime: currentTime,
+            lastAccessTime: currentTime,
+            lastModifyDev: config.uniqueID,
+            lastAccessDev: config.uniqueID,
+            path: sNewPath
+          }
+          commonDAO.updateItem(oUpdataInfo, function(err) {
+            if (err) {
+              console.log(err);
+              return callback(err, null);
             }
+            dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
+              if (result === "success") {
+                var sRepoPath = utils.getRepoDir(category);
+                var sRepoDesPath = utils.getDesRepoDir(category);
+                repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
+                  callback(null, result);
+                })
+              }
+            })
           })
         })
       })
