@@ -7,8 +7,8 @@ var transfer = require('../Transfer/msgTransfer');
 
 var repos=[
   {name:"contactDes",status:"empty"},
-  {name:"desktop",status:"empty"},
-  {name:"desktopDes",status:"empty"},
+//  {name:"desktop",status:"empty"},
+//  {name:"desktopDes",status:"empty"},
   {name:"document",status:"empty"},
   {name:"documentDes",status:"empty"},
   {name:"music",status:"empty"},
@@ -22,7 +22,7 @@ var repos=[
 ];
 var desRepos=[
   {name:"contactDes",status:"empty"},
-  {name:"desktopDes",status:"empty"},
+ // {name:"desktopDes",status:"empty"},
   {name:"documentDes",status:"empty"},
   {name:"musicDes",status:"empty"},
   {name:"otherDes",status:"empty"},
@@ -97,9 +97,9 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
   exec(comstr, function(error, stdout, stderr) {
     if (error) {
-      console.log("Git change error", error, stdout);
+      console.log("Git revert error", error, stdout);
     } else {
-      console.log("Git change success");
+      console.log("Git revert success");
       callback(null,'success');
       transfer.syncOnlineReq(repoPath);
     }
