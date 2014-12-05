@@ -54,7 +54,7 @@ var Contact = Class.extend({
   },
 
   bindAction: function(){
-    $('.p-name').on('click', function(){
+    $('.a-name').on('click', function(){
       alert(this.id);
     });
   },
