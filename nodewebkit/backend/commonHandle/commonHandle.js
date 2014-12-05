@@ -542,7 +542,7 @@ function renameDataByUri(category, sUri, sNewName, callback) {
         return callback(err, null);
       }
       if (result) {
-        var _err = 'new file name exists...';
+        var _err = 'new file name ' + sNewName + ' exists...';
         console.log(_err);
         return callback(_err, null);
       }
