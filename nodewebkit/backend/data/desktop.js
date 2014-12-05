@@ -49,7 +49,7 @@ function getnit(initType) {
     _icontheme.pos = {};
 
     var _computer = {};
-    _computer.name = 'Computer';
+    _computer.name = '我的电脑';
     _computer.active = true;
     _computer.icon = 'computer';
     _computer.path = '$HOME';
@@ -90,17 +90,16 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
-    _datamgr_app.iconPath = pathModule.join(utils.getHomeDir(), 'WORK_DIRECTORY', '/app/demo-rio/datamgr/icons/datamgr.png');
-    _datamgr_app.name = "Data Manager";
+    _datamgr_app.path = pathModule.join(config.PROJECTPATH, 'app/demo-rio/datamgr'); //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.iconPath = pathModule.join(config.PROJECTPATH, '/app/demo-rio/datamgr/icons/datamgr.png');
+    _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
-
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
     _launcher_app.path = "";
     _launcher_app.iconPath = "img/launcher.png";
-    _launcher_app.name = "launcher";
+    _launcher_app.name = "应用启动器";
     _launcher_app.type = "inside-app";
     _launcher_app.idx = 0;
 
@@ -108,7 +107,7 @@ function getnit(initType) {
     _login_app.id = "login-app";
     _login_app.path = "";
     _login_app.iconPath = "img/Login-icon.png";
-    _login_app.name = "Login";
+    _login_app.name = "登录";
     _login_app.type = "inside-app";
     _login_app.idx = 1;
 
@@ -116,7 +115,7 @@ function getnit(initType) {
     _flash_app.id = "flash-app";
     _flash_app.path = "test/flash";
     _flash_app.iconPath = "test/flash/img/video.png";
-    _flash_app.name = "flash";
+    _flash_app.name = "视频播放器";
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
@@ -125,7 +124,7 @@ function getnit(initType) {
     _test_app.id = "test-app";
     _test_app.path = "test/test-app";
     _test_app.iconPath = "test/test-app/img/test-app2.png";
-    _test_app.name = "test-app";
+    _test_app.name = "新浪NBA";
     _test_app.type = "inside-app";
     _test_app.idx = -1;
 
@@ -133,7 +132,7 @@ function getnit(initType) {
     _wiki_app.id = "wiki-app";
     _wiki_app.path = "test/wiki-app";
     _wiki_app.iconPath = "test/wiki-app/img/icon.jpg";
-    _wiki_app.name = "wiki-app";
+    _wiki_app.name = "维基百科";
     _wiki_app.type = "inside-app";
     _wiki_app.idx = -1;
 
@@ -907,6 +906,7 @@ function deParseListFile(output, filepath, callback) {
             var _err = new Error();
             _err.name = 'dataEntry';
             _err.message = item;
+            _err.description = filepath;
             throw _err;
           }
           var entry_fir = item[0];
@@ -917,6 +917,7 @@ function deParseListFile(output, filepath, callback) {
             var _err = new Error();
             _err.name = 'content_fir';
             _err.message = content_fir;
+            _err.description = filepath;
             console.log(_err)
             throw _err;
           }
@@ -928,6 +929,7 @@ function deParseListFile(output, filepath, callback) {
             var _err = new Error();
             _err.name = 'content_sec';
             _err.message = content_sec;
+            _err.description = filepath;
             throw _err;
           }
           try {
@@ -938,6 +940,7 @@ function deParseListFile(output, filepath, callback) {
             var _err = new Error();
             _err.name = 'content_sec'
             _err.message = content_sec;
+            _err.description = filepath;
             throw _err;
           }
           if (!output[entry_fir]) {
@@ -1017,33 +1020,52 @@ function buildAppMethodInfo(targetFile, callback) {
     var result_ = {};
     var lens = result.length;
     var count = 0;
-    var reg = /\/.resources\//g;
+    var reg_rsc = new RegExp('/.resources/');
+    var reg_trash = new RegExp('/.local/share/Trash/');
     for (var i = 0; i < lens; i++) {
       var item = result[i];
-      if (!reg.test(item)) {
-        (function(listContent, filepath) {
-          deParseListFile(listContent, filepath, function(err) {
+      (function(listContent, filepath) {
+        if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
+          fs.open(filepath, 'r', function(err) {
             if (err) {
-              return callback(err, null);
+              console.log('pass .list or .cache file ...', filepath);
+              var isEnd = (count === lens - 1);
+              if (isEnd) {
+                var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
+                var sListContent = JSON.stringify(listContent, null, 4);
+                fs.writeFile(outPutPath, sListContent, function(err) {
+                  if (err) {
+                    console.log(err);
+                    return callback(err, null);
+                  }
+                  return callback(null, 'success');
+                })
+              }
+              count++;
             }
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
-              var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
-              var sListContent = JSON.stringify(listContent, null, 4);
-              fs.writeFile(outPutPath, sListContent, function(err) {
-                if (err) {
-                  console.log(err);
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
-            }
-            count++;
+            deParseListFile(listContent, filepath, function(err) {
+              if (err) {
+                return callback(err, null);
+              }
+              var isEnd = (count === lens - 1);
+              if (isEnd) {
+                var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
+                var sListContent = JSON.stringify(listContent, null, 4);
+                fs.writeFile(outPutPath, sListContent, function(err) {
+                  if (err) {
+                    console.log(err);
+                    return callback(err, null);
+                  }
+                  callback(null, 'success');
+                })
+              }
+              count++;
+            })
           })
-        })(result_, item);
-      } else {
-        count++;
-      }
+        } else {
+          count++;
+        }
+      })(result_, item);
     }
   })
 }
@@ -1196,41 +1218,38 @@ function buildLocalDesktopFile(callback) {
     for (var i = 0; i < lens; i++) {
       var sFileOriginPath = oFiles[i];
       (function(_sFileOriginPath) {
-        if (_sFileOriginPath !== '') {
+        var reg_rsc = new RegExp('/.resources/');
+        var reg_trash = new RegExp('/.local/share/Trash/');
+        //Check if file come from local or Trash box, redundant.
+        if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
           var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
           var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
           fs.open(_sFileOriginPath, 'r', function(err) {
             if (err) {
-              console.log('pass', _sFileOriginPath)
-            }
-            fs_extra.copy(_sFileOriginPath, newPath, function(err) {
-              if (err) {
-                console.log('pass file ', sFileName);
-                count++;
-              } else {
-                oRealFiles.push(newPath);
-                oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
-                buildDesFile(sFileName, 'desktop', newPath, function() {
-                  var isEnd = (count === lens - 1);
-                  if (isEnd) {
-                    /*TODO: some desktop files are links, so git won't touch them. Needs to be done */
-                    // resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, oRealFiles, oDesFiles, function(err, result) {
-                    //   if (err) {
-                    //     console.log('git commit error!');
-                    //     return;
-                    //   }
-                    callback();
-                    //})
-                  }
-                  count++;
-                })
+              console.log('pass desktop file...', _sFileOriginPath)
+              var isEnd = (count === lens - 1);
+              if (isEnd) {
+                callback();
               }
-            })
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
-              callback();
+              count++;
+            } else {
+              fs_extra.copy(_sFileOriginPath, newPath, function(err) {
+                if (err) {
+                  console.log('pass desktop file...', sFileName);
+                  count++;
+                } else {
+                  oRealFiles.push(newPath);
+                  oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
+                  buildDesFile(sFileName, 'desktop', newPath, function() {
+                    var isEnd = (count === lens - 1);
+                    if (isEnd) {
+                      callback();
+                    }
+                    count++;
+                  })
+                }
+              })
             }
-            count++;
           })
         } else {
           count++;
