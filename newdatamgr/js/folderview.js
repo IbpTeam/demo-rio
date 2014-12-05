@@ -13,11 +13,8 @@ var ShowFiles = Class.extend({
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
     this._choice = $('<div id = "choice"></div>');
     this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
-    //var _showContent = $('<div id = "_showContent" style= "overflow:auto"></div>');
-    //$("#contentDiv").empty();
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);   
-    //this._showContent.empty();
     this.set_Choice();
     _globalSelf = this;
   },
@@ -31,12 +28,10 @@ var ShowFiles = Class.extend({
     this._choice.append(_shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
-      console.log("this is show list ++++++++++++");
       _globalSelf._showNormal = false;
       _globalSelf.showFile();
     });
     _shownormalButton.click(function(){
-      console.log("this is show normal ++++++++++++");
       _globalSelf._showNormal = true;
       _globalSelf.showFile();
     })
@@ -52,7 +47,6 @@ var ShowFiles = Class.extend({
 
   //此函数就是外面调用函数的接口，在初始化函数和index之后，直接调用此函数就会显示.
   showFile:function(){
-    //_globalSelf = this;
     _globalSelf._choice.show();
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
@@ -62,7 +56,6 @@ var ShowFiles = Class.extend({
         DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
       }
       else {
-        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
         if(this._showNormal){
           if($("#pictureContent").length>0){
             $("#pictureContent").show();
@@ -73,7 +66,6 @@ var ShowFiles = Class.extend({
         }
         else {
           if ($("#pictureContentList").length>0){
-            console.log('has ???????????????????');
             $("#pictureContentList").show();
           }
           else {
@@ -84,12 +76,10 @@ var ShowFiles = Class.extend({
     }
     else if(this._index == 2){
       //所请求的是视频，显示视频
-      //DataAPI.getAllDataByCate(this.getCallBackData,'Video');
       if(!this._getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Video');
       }
       else {
-        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
         if(this._showNormal){
           if($("#videoContent").length>0){
             $("#videoContent").show();
@@ -110,12 +100,10 @@ var ShowFiles = Class.extend({
     }
     else if(this._index ==3){
       //所请求的是文档，显示文档
-      //DataAPI.getAllDataByCate(this.getCallBackData,'Document');
       if(!this._getFiles[this._index]){
         DataAPI.getAllDataByCate(this.getCallBackData,'Document');
       }
       else {
-        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
         if(this._showNormal){
           if($("#documentContent").length>0){
             $("#documentContent").show();
@@ -140,7 +128,6 @@ var ShowFiles = Class.extend({
         DataAPI.getAllDataByCate(this.getCallBackData,'Music');
       }
       else {
-        //this.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]);
         if(this._showNormal){
           if($("#musicContent").length>0){
             $("#musicContent").show();
@@ -235,20 +222,11 @@ var ShowFiles = Class.extend({
           break;
       }
     }
-    //_globalSelf.showFilesList(data_json);
     _globalSelf._getFiles[_globalSelf._index] = data_json;
-    // if(_globalSelf._showNormal){
-    //   _globalSelf.showFilesNormal(data_json);    
-    // }
-    // else {
-    //   _globalSelf.showFilesList(data_json);
-    // }
     if(_globalSelf._showNormal){
-      //_globalSelf._showContent.children().hide();
       _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));   
     }
     else {
-      //_globalSelf._showContent.children().hide();
       _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
     }
 
@@ -302,7 +280,6 @@ var ShowFiles = Class.extend({
     table.append(tbody);
     var returnContent = $('<div style= "overflow:auto"></div>');
     returnContent.append(table);
-    //$('#contentDiv').append(returnContent);
     return returnContent;
   },
 
@@ -335,9 +312,7 @@ var ShowFiles = Class.extend({
       }
       else {
         var fileContainer = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
-        //var iconContainer = $('<div class="iconContainer"></div>');
         fileContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
-        //fileContainer.append(iconContainer);
         if(file['props'].name.indexOf(' ') != -1 ||
            file['props'].name.indexOf('\'' != -1)){
           var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
@@ -348,7 +323,6 @@ var ShowFiles = Class.extend({
         returnContent.append(fileContainer);
       }
     }
-    //$('#contentDiv').append(returnContent);
     return returnContent;
   },
 
