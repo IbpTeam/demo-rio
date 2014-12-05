@@ -173,7 +173,7 @@ function createDataAll(items, callback) {
           var data = new Date();
           var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
           _item.filename = surfix + _item.filename;
-          console.log('file ' + result + ' exists, change it to ' + _item.filename + '.' + _item.postfix);
+          console.log('file ' + result + ' exists ...');
         }
         var sOriginPath = _item.path;
         var sFileName = _item.filename + '.' + _item.postfix;
