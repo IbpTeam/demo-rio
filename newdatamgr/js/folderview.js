@@ -13,14 +13,14 @@ var ShowFiles = Class.extend({
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
     this._choice = $('<div id = "choice"></div>');
     this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
-    $("#contentDiv").append(this._choice);
-    $("#contentDiv").append(this._showContent);   
+    $("#contentDiv").append(this._showContent);
     this.set_Choice();
-    _globalSelf = this;
+    _globalSelf = this 
   },
 
   //此函数用来设置选择界面看按照哪种方式显示
-  set_Choice:function(){
+  setChoice:function(){
+    $("#contentDiv").append(this._choice);
     var showlistButton = $('<button id = "showlistButton"> showlistButton </button>');
     var _shownormalButton = $('<button id = "_shownormalButton"> _shownormalButton</button>');
     var sortbyButton = $('<button id = "sortbyButton">sortby </button>');
@@ -53,7 +53,9 @@ var ShowFiles = Class.extend({
     if (this._index == 1){
       //所请求的是图片，显示图片
       if(!this._getFiles[this._index]){
+        console.log("there is no data ,so request to database +++++++++++++" + this._getFiles[this._index]);
         DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
+        console.log("i have received the data -------------------------" + this._getFiles[this._index]);
       }
       else {
         if(this._showNormal){
