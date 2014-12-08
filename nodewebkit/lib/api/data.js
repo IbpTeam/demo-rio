@@ -127,27 +127,27 @@ function loadResources(loadResourcesCb, path) {
   documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
-      callback(err, null);
+      loadResourcesCb(err, null);
     } else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
-          callback(err, null);
+          loadResourcesCb(err, null);
         } else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
-              callback(err, null);
+              loadResourcesCb(err, null);
             } else {
               video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
-                  callback(err, null);
+                  loadResourcesCb(err, null);
                 } else {
                   other.createData(OtherList, function(err, result) {
                     if (err) {
                       console.log(err);
-                      callback(err, null);
+                      loadResourcesCb(err, null);
                     } else {
                       console.log("load resources success!");
                       loadResourcesCb('success');
@@ -655,6 +655,8 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
   tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesByTags = getFilesByTags;
+
+
 
 
 /**

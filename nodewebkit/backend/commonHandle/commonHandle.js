@@ -108,7 +108,18 @@ function createData(item, callback) {
             console.log(result);
             return callback(null);
           }
-          callback('success', sFilePath);
+          if (item.others != '') {
+            var oTags = item.others.split(',');
+            tagsHandles.addInTAGS(oTags, item.URI, function(err) {
+              if (err) {
+                console.log(err);
+                return callback(err, null);
+              }
+
+            })
+          } else {
+            callback('success', sFilePath);
+          }
         })
       })
     });
@@ -194,19 +205,41 @@ function createDataAll(items, callback) {
             allItems.push(_item);
             allItemPath.push(sFilePath);
             allDesPath.push(sDesFilePath);
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
-              commonDAO.createItems(allItems, function() {
-                repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
-                  if (result !== 'success') {
-                    console.log(err);
-                    return callback(null);
-                  }
-                  callback('success');
-                })
+            if (_item.others != '') {
+              var oTags = _item.others.split(',');
+              tagsHandles.addInTAGS(oTags, _item.URI, function(err) {
+                if (err) {
+                  return callback(err, null);
+                }
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                  commonDAO.createItems(allItems, function() {
+                    repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
+                      if (result !== 'success') {
+                        console.log(err);
+                        return callback(null);
+                      }
+                      callback('success');
+                    })
+                  })
+                }
+                count++;
               })
+            } else {
+              var isEnd = (count === lens - 1);
+              if (isEnd) {
+                commonDAO.createItems(allItems, function() {
+                  repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
+                    if (result !== 'success') {
+                      console.log(err);
+                      return callback(null);
+                    }
+                    callback('success');
+                  })
+                })
+              }
+              count++;
             }
-            count++;
           });
         });
       })
