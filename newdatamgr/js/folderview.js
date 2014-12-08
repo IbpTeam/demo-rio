@@ -21,8 +21,8 @@ var ShowFiles = Class.extend({
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
     $("#contentDiv").append(this._choice);
-    var showlistButton = $('<button id = "showlistButton"> showlistButton </button>');
-    var _shownormalButton = $('<button id = "_shownormalButton"> _shownormalButton</button>');
+    var showlistButton = $('<button id = "showlist"> showlistButton </button>');
+    var _shownormalButton = $('<button id = "shownormal"> _shownormalButton</button>');
     var sortbyButton = $('<button id = "sortbyButton">sortby </button>');
     this._choice.append(showlistButton);
     this._choice.append(_shownormalButton);
@@ -53,9 +53,7 @@ var ShowFiles = Class.extend({
     if (this._index == 1){
       //所请求的是图片，显示图片
       if(!this._getFiles[this._index]){
-        console.log("there is no data ,so request to database +++++++++++++" + this._getFiles[this._index]);
         DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
-        console.log("i have received the data -------------------------" + this._getFiles[this._index]);
       }
       else {
         if(this._showNormal){
@@ -64,6 +62,7 @@ var ShowFiles = Class.extend({
           }
           else {
             _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+
           }
         }
         else {
@@ -71,7 +70,7 @@ var ShowFiles = Class.extend({
             $("#pictureContentList").show();
           }
           else {
-            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
+            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
           }
         }
       }
@@ -241,8 +240,19 @@ var ShowFiles = Class.extend({
     theadMessage.push('lastModifyTime');
     theadMessage.push('size');
     theadMessage.push('createTime');
+    // var theadMessage = {};
+    // theadMessage['filename'] = 'Name';
+    // theadMessage['lastModifyTime'] = 'Date Modified';
+    // theadMessage['size'] = 'Size';
+    // theadMessage['createTime'] = 'Date Added';
 
     return theadMessage;
+  },
+
+  //此函数用来转换时间
+  changeDate:function(changedate){
+    var date = new Date(changedate);
+    return date.toLocaleDateString() + date.toLocaleTimeString();
   },
 
   //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
@@ -254,7 +264,24 @@ var ShowFiles = Class.extend({
     function GenerateBodyTr(file,theadMessage){
       var bodytr = $('<tr></tr>');
       for(var i =0;i<theadMessage.length;i++){
-        bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
+        //bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
+        switch(i){
+          case 0:
+            bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
+            break;
+          case 1:
+            bodytr.append($('<th>'+_globalSelf.changeDate(file[theadMessage[i]])+ '</th>'));
+            break;
+          case 2:
+            bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
+            break;
+          case 3:
+            bodytr.append($('<th>'+_globalSelf.changeDate(file[theadMessage[i]]) + '</th>'));
+            break;
+          default:
+            window.alert('The theadMessage does not exist.');
+            break;
+        }
       }
       bodytr.mousedown(function(e){
         e.stopPropagation();
@@ -263,15 +290,19 @@ var ShowFiles = Class.extend({
       return bodytr;
     }
     //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容.
-    var table = $('<table cellspacing="0" width="100%"></table>');
+    var table = $('<table  class="table" cellspacing="0" width="100%"></table>');
     var thead = $('<thead></thead>');
     var tbody = $('<tbody></tbody>');
     //设置表头的信息
     var theadtr = $('<tr></tr>');
     var theadMessage = this.getShowMessage();
-    for(var i = 0;i<theadMessage.length;i++){
-      theadtr.append($('<th>'+ theadMessage[i] + '</th>'));
-    }
+    // for(var i = 0;i<theadMessage.length;i++){
+    //   theadtr.append($('<th>'+ theadMessage[i] + '</th>'));
+    // }
+    theadtr.append($('<th>Name</th>'));
+    theadtr.append($('<th>Date Modified</th>'));
+    theadtr.append($('<th>Size</th>'));
+    theadtr.append($('<th>Date Added</th>'));
     theadtr.addClass('theadtr');
     thead.append(theadtr);
     //设置表格内具体内容
@@ -280,13 +311,13 @@ var ShowFiles = Class.extend({
     }
     table.append(thead);
     table.append(tbody);
-    var returnContent = $('<div style= "overflow:auto"></div>');
+    var returnContent = $('<div class = "tableContainer" style= "overflow:auto"></div>');
     returnContent.append(table);
     return returnContent;
   },
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
-  showFilesNormal:function(files){
+  showFilesNormalByTime:function(files){
     var returnContent = $('<div style= "overflow:auto"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
@@ -328,6 +359,49 @@ var ShowFiles = Class.extend({
     return returnContent;
   },
 
+  //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
+  showFilesNormal:function(files){
+    var returnContent = $('<div style= "overflow:auto"></div>');
+    for(var i =0;i<files.length;i++){
+      var file = files[i];
+      var outContainer = $('<div class="outContainer" data-path="'+file['props'].path +'"></div>)');
+      var Holder = $('<div class = "Holder"></div>');
+      //用来定义最后描述的名字.
+      if(file['props'].name.indexOf(' ') != -1 ||
+         file['props'].name.indexOf('\'' != -1)){
+        var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+        var description = $('<div class="description">'+file['props'].name+'</div>');
+      }else{
+        var description = $('<div class="description">'+file['props'].name+'</div>');
+      } 
+      if(file['props'].img){
+        Holder.append($('<img src="' + file['props'].img + '"></img>'));
+        outContainer.append(Holder);
+        outContainer.append(description);
+        returnContent.append(outContainer);
+      }
+      else if(file['props'].video){
+        Holder.append($('<video src="' + file['props'].video + '"></video>'));
+        outContainer.append(Holder);
+        outContainer.append(description);
+        returnContent.append(outContainer);
+      }
+      else {
+        var fileContainer = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
+        fileContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+        if(file['props'].name.indexOf(' ') != -1 ||
+           file['props'].name.indexOf('\'' != -1)){
+          var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+          fileContainer.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
+        }else{
+          fileContainer.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
+        }
+        returnContent.append(fileContainer);
+      }
+    }
+    return returnContent;
+  },
+  
   //根据后缀名设置文档类型.
   setIcon:function(postfix_){
     switch(postfix_){

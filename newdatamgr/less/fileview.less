@@ -20,7 +20,14 @@
         margin:30px; 
         font-size:12px; 
         float:left;
-        vertical-align:center; 
+        vertical-align:center;
+        cursor: pointer; 
+        &:hover {
+          -webkit-filter: brightness(1.2);
+          -moz-filter: brightness(1.2);
+          -ms-filter: brightness(1.2);
+          filter: brightness(1.2);
+        }
         .Holder img{
           max-width:100%;
           max-height:100%;
@@ -48,6 +55,7 @@
         display:inline-block;
         text-align:center;
         vertical-align:top;
+        cursor: pointer;
         .iconContainer {
           margin:auto;
           margin-top:0;
@@ -59,6 +67,18 @@
         .name {
           width:80px;
           word-wrap:break-word;
+        }
+      }
+      .tableContainer{
+        .table tbody th{
+          font-weight:normal;
+        }
+        .table tr:hover {
+          color:#ffffff;
+          text-shadow:0 -1px 0 rgba(0,0,0,0.2);
+          background-color:#0088cc;
+          text-decoration:none;
+          cursor:pointer;
         }
       }
     }
