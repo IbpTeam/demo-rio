@@ -14,7 +14,7 @@ var ShowFiles = Class.extend({
     this._choice = $('<div id = "choice"></div>');
     this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
     $("#contentDiv").append(this._showContent);
-    this.set_Choice();
+    this.setChoice();
     _globalSelf = this 
   },
 
