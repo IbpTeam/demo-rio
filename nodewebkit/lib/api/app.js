@@ -173,57 +173,63 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
 }
 exports.sendKeyToApp = sendKeyToApp;
 
-// Register a HTML5 app to system
-// registerAppCB: function(err_)
-//    err_: error discription or null
-// appInfo_: {
-//  id: ${app id},
-//  name: ${app name},
-//  path: ${path of app},
-//  iconPath: ${icon path of app}
-// }
+/**
+** Register a HTML5 app to system
+** registerAppCB: function(err_)
+**    err_: error discription or null
+** appInfo_: {
+**  id: ${app id},
+**  name: ${app name},
+**  path: ${path of app},
+**  iconPath: ${icon path of app}
+** }
+**/
 exports.registerApp = function(registerAppCB, appInfo) {
   appManager.registerApp(appInfo, registerAppCB);
 };
 
-// Unregister a HTML5 app from system
-// unregisterAppCB: function(err_)
-//    err_: error discription or null
-// appID: id of app
+/**
+** Unregister a HTML5 app from system
+** unregisterAppCB: function(err_)
+**    err_: error discription or null
+** appID: id of app
+**/
 exports.unregisterApp = function(unregisterAppCB, appID) {
   appManager.unregisterApp(appID, unregisterAppCB);
 };
 
-// Get all registered HTML5 app
-// getRegisteredAppCB: function(err, appList)
-//    err: error discription or null
-//    appList: the list of app id
+/**
+** Get all registered HTML5 app
+** getRegisteredAppCB: function(err, appList)
+**    err: error discription or null
+**    appList: the list of app id
+**/
 exports.getRegisteredApp = function(getRegisteredAppCB) {
   getRegisteredAppCB(null, appManager.getRegisteredApp());
 }
 
-// Get registered app info by id
-// getRegisteredAppInfoCB: function(err, appInfo)
-//    err: error discription or null
-//    appInfo: {
-//      id: ${app id},
-//      name: ${app name},
-//      path: ${path of app},
-//      iconPath: ${icon path of app}
-//    }
-// appID: the id of app
+/**
+** Get registered app info by id
+** getRegisteredAppInfoCB: function(err, appInfo)
+**    err: error discription or null
+**    appInfo: {
+**      id: ${app id},
+**      name: ${app name},
+**      path: ${path of app},
+**      iconPath: ${icon path of app}
+**    }
+** appID: the id of app
+**/
 exports.getRegisteredAppInfo = function(getRegisteredAppInfoCB, appID) {
-  var info = appManager.getRegisteredAppInfo(appID);
-  if(info == null)
-    getRegisteredAppInfoCB('App not registered');
-  else 
-    getRegisteredAppInfoCB(null, info);
+  getRegisteredAppInfoCB(appID, getRegisteredAppInfoCB);
 }
 
-// Get all app base path
-// getRegisteredAppCB: function(err, basePath)
-//    err: error discription or null
-//    basePath: the base path of app
+/**
+** Get all app base path
+** getRegisteredAppCB: function(err, basePath)
+**    err: error discription or null
+**    basePath: the base path of app
+**/
 exports.getBasePath = function(getBasePathCB) {
   getBasePathCB(null, appManager.getBasePath());
 }
