@@ -8,7 +8,7 @@ function SideBar(jquery_element) {
   var self = this;
   self.filters.delegate('#search_submit', 'click', function(){
     var keyword = document.getElementById('search_input').value;
-    DataAPI.getFilesByTags(function(err,result){
+    DataAPI.getCategoryFilesByTag(function(err,result){
       self.emit('show_filter_result', result);
     }, [keyword]);
   });

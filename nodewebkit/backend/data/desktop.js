@@ -2301,20 +2301,25 @@ function removeFileFromDB(sFilePath, callback) {
         console.log('removeByUri error', err);
         return callback(err, null);
       }
-      var dataDir = utils.getRealDir(category);
-      var desDataDir = pathModule.join(utils.getDesDir(category), sFullName + '.md');
-      fs_extra.ensureDir(dataDir, function(err) {
+      tagsHandle.rmInTAGS(null, sUri, function(err) {
         if (err) {
-          console.log(err, 'ensureDir error!');
           return callback(err, null);
         }
-        fs_extra.ensureDir(desDataDir, function(err) {
+        var dataDir = utils.getRealDir(category);
+        var desDataDir = pathModule.join(utils.getDesDir(category), sFullName + '.md');
+        fs_extra.ensureDir(dataDir, function(err) {
           if (err) {
             console.log(err, 'ensureDir error!');
             return callback(err, null);
           }
+          fs_extra.ensureDir(desDataDir, function(err) {
+            if (err) {
+              console.log(err, 'ensureDir error!');
+              return callback(err, null);
+            }
+          })
+          callback(null, 'success');
         })
-        callback(null, 'success');
       })
     })
   })
