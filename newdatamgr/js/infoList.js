@@ -160,15 +160,9 @@ var InfoList = Class.extend({
         showfiles = ShowFiles.create();
         showfiles.setIndex(this._index);
         this._isFirstRequset = false;
-        // if(this._index ==1){
-        //   showfiles.setIndex(1);
-        // }
       }
       else {
         showfiles.setIndex(this._index);
-        // if(this._index ==1){
-        //   showfiles.setIndex(1);
-        // }
       }
     }
     if(this._index == 0){

@@ -23,19 +23,25 @@ var ShowFiles = Class.extend({
   setChoice:function(){
     $("#contentDiv").append(this._choice);
     var showlistButton = $('<button id = "showlist"> showlistButton </button>');
-    var _shownormalButton = $('<button id = "shownormal"> _shownormalButton</button>');
+    var shownormalButton = $('<button id = "shownormal">shownormalButton</button>');
     var sortbyButton = $('<button id = "sortbyButton">sortby </button>');
     this._choice.append(showlistButton);
-    this._choice.append(_shownormalButton);
+    this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
       _globalSelf._showNormal = false;
       _globalSelf.showFile();
     });
-    _shownormalButton.click(function(){
+    shownormalButton.click(function(){
       _globalSelf._showNormal = true;
       _globalSelf.showFile();
-    })
+    });
+    sortbyButton.click(function(){
+      _globalSelf._showContent.show();
+      _globalSelf._showContent.children().hide();
+      _globalSelf._showContent.append(_globalSelf.showFilesSortByTime(_globalSelf._getFiles[_globalSelf._index]));
+    });
+
   },
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
@@ -250,7 +256,6 @@ var ShowFiles = Class.extend({
     else {
       _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
     }
-
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
@@ -268,6 +273,14 @@ var ShowFiles = Class.extend({
   changeDate:function(changedate){
     var date = new Date(changedate);
     return date.toLocaleDateString() + date.toLocaleTimeString();
+  },
+
+  //此函数用来算时间差，然后按照时间排序
+  dateDifference:function(lastModifyTime){
+    var date = new Date(lastModifyTime);
+    var today = new Date();
+    var dateDifference = (today- date)/(60*60*1000);
+    return dateDifference;
   },
 
   //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
@@ -298,9 +311,9 @@ var ShowFiles = Class.extend({
             break;
         }
       }
-      bodytr.mousedown(function(e){
-        e.stopPropagation();
-      });
+      // bodytr.mousedown(function(e){
+      //   e.stopPropagation();
+      // });
 
       return bodytr;
     }
@@ -332,10 +345,15 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
-  showFilesNormalByTime:function(files){
+  showFilesSortByTime:function(files){
     var returnContent = $('<div style= "overflow:auto"></div>');
+    var today = $('<div  class = "sortByTime" >today</div>');
+    var previous7Days = $('<div class = "sortByTime" >previous7Days</div>');
+    var previous30Days = $('<div  class = "sortByTime" >previous30Days</div>');
+    var previousOneYear = $('<div class = "sortByTime" >previousOneYear</div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
+      var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
       var outContainer = $('<div class="outContainer" data-path="'+file['props'].path +'"></div>)');
       var Holder = $('<div class = "Holder"></div>');
       //用来定义最后描述的名字.
@@ -350,13 +368,38 @@ var ShowFiles = Class.extend({
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
         outContainer.append(Holder);
         outContainer.append(description);
-        returnContent.append(outContainer);
+        //returnContent.append(outContainer);
+        if(timeDifference >=0 && timeDifference <=24){
+          today.append(outContainer);
+        }
+        else if(timeDifference>24 && timeDifference <=24*7){
+          previous7Days.append(outContainer);
+        }
+        else if(timeDifference >24*7 && timeDifference <24*30){
+          previous30Days.append(outContainer);
+        }
+        else {
+          previousOneYear.append(outContainer);
+        }
+
       }
       else if(file['props'].video){
         Holder.append($('<video src="' + file['props'].video + '"></video>'));
         outContainer.append(Holder);
         outContainer.append(description);
-        returnContent.append(outContainer);
+        //returnContent.append(outContainer);
+        if(timeDifference >=0 && timeDifference <=24){
+          today.append(outContainer);
+        }
+        else if(timeDifference>24 && timeDifference <=24*7){
+          previous7Days.append(outContainer);
+        }
+        else if(timeDifference >24*7 && timeDifference <24*30){
+          previous30Days.append(outContainer);
+        }
+        else {
+          previousOneYear.append(outContainer);
+        }
       }
       else {
         var fileContainer = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
@@ -368,9 +411,25 @@ var ShowFiles = Class.extend({
         }else{
           fileContainer.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
         }
-        returnContent.append(fileContainer);
+        //returnContent.append(fileContainer);
+        if(timeDifference >=0 && timeDifference <=24){
+          today.append(fileContainer);
+        }
+        else if(timeDifference>24 && timeDifference <=24*7){
+          previous7Days.append(fileContainer);
+        }
+        else if(timeDifference >24*7 && timeDifference <24*30){
+          previous30Days.append(fileContainer);
+        }
+        else {
+          previousOneYear.append(fileContainer);
+        }
       }
     }
+    returnContent.append(today);
+    returnContent.append(previous7Days);
+    returnContent.append(previous30Days);
+    returnContent.append(previousOneYear);
     return returnContent;
   },
 

@@ -47,6 +47,47 @@
           }
         }
       }
+      .sortByTime {
+        height:250px;
+        border: 1px solid #ff0;
+        overflow-x:auto;
+        .outContainer {
+          width:200px;
+          height:200px; 
+          padding:auto; 
+          margin:30px; 
+          font-size:12px;
+          display:inline; 
+          float:left;
+          vertical-align:center;
+          cursor: pointer; 
+          &:hover {
+            -webkit-filter: brightness(1.2);
+            -moz-filter: brightness(1.2);
+            -ms-filter: brightness(1.2);
+            filter: brightness(1.2);
+          }
+          .Holder img{
+            max-width:100%;
+            max-height:100%;
+            background:#ccc;
+            display:block;
+          }
+          .Holder video{
+            max-width:100%;
+            max-height:100%;
+            background:#ccc;
+            display:block;
+          }
+          .description {
+            text-align:center;
+            font-weight:normal;
+            width:150px;
+            font-size:12px;
+            margin:10px 5px 10px 5px;
+          }
+        } 
+      }
       .outContainer {
         width:200px;
         height:200px; 
