@@ -400,7 +400,6 @@ exports.setTagByUri = setTagByUri;
  *
  */
 function setTagByUriMulti(callback, oTags, oUri) {
-  console.log('s1=====================')
   if (oTags == []) {
     console.log('Tags are not changed!')
     return callback(null, 'success')
@@ -644,7 +643,6 @@ function setRelativeTagByPath(sFilePath, sTags, callback) {
     }
     var item = result[0];
     var sOriginTag = item.others;
-    console.log(sOriginTag, '===========================')
     if (!reg_desktop.test(sOriginTag) || sOriginTag == '' || sOriginTag == null) {
       var _err = 'Not a File on Desktop!';
       return callback(_err, null);

@@ -371,8 +371,71 @@ a {
         width: 40px;
         height: 40px;
         right: 25px;
-        top:12px;
+        top:7px;
         font-size: 40px;
+      }
+      &:active{
+        color: #777;
+        width: 35px;
+        height: 35px;
+        right: 27.5px;
+        top:12px;
+        font-size: 35px;
+      }
+    }
+     .qrcode-container{
+      z-index:98;
+      position:absolute;
+      top: 68px;
+      right: 25px;
+      width:170px;
+      height:210px;
+      border: 1px solid #999;
+      border-radius:6px;
+      .qrcode-triangle{
+        position: absolute;
+        display:block;
+        width:0px;
+        height:0px;
+        right:10px;
+        border:11px;
+        overflow:hidden;
+        border-style: dashed dashed solid;
+        &.qrcode-down{
+          top:-22px;
+          border-color: transparent transparent #999;
+          z-index: 10;
+        }
+        &.qrcode-top{
+          top:-21px;
+          border-color: transparent transparent #fff;
+          z-index:11;
+        }
+      }
+      .qrcode-title{
+        position:absolute;
+        top: 0;
+        width:100%;
+        padding:5px 3px;
+        height: 40px;
+        font-size:20px;
+        font-weight: bold;
+        background-color:#fff;
+        border-bottom:1px solid #999;
+        border-radius:6px 6px 0 0;
+        text-align: center;
+      }
+      .qrcode-content{
+        position:absolute;
+        width: 100%;
+        top: 40px;
+        bottom: 0;
+        background-color:#fff;
+        border-radius:6px;
+        text-align: center;
+        canvas{
+          margin-top: 10px; 
+        }
       }
     }
   }
@@ -383,9 +446,10 @@ a {
     bottom: 0px;
     left: 0px;
     width: 100%;
-    border: 1px solid #f00;
+    border: 1px solid #f00; 
   }
 }
+
 
 //screen
 @media screen and (min-device-width: 1281px) {
