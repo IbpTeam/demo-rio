@@ -44,6 +44,74 @@ function sendIMMsg(sendIMMsgCb, ipset, toAccount, msg) {
 }
 exports.sendIMMsg = sendIMMsg;
 
+/**
+ * @method loadFile
+ *    To load one single file into datamgr.
+ *
+ * @param2: loadFileCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, specific error info.
+ *
+ *    @param2: result,
+ *        string, retrieve 'success' when success.
+ *
+ * @param1: sFilePath
+ *    string, a file path as, '/home/xiquan/mydir/myfile.txt'.
+ *
+ */
+function loadFile(loadFileCb, sFilePath) {
+  console.log("Request handler 'loadFile' was called.");
+  var sPosIndex = (sFilePath).lastIndexOf(".");
+  var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
+  var category = null;
+  if (sPos != 'csv' && sPos != 'CSV') {
+    if (sPos == 'none' ||
+      sPos == 'ppt' ||
+      sPos == 'pptx' ||
+      sPos == 'doc' ||
+      sPos == 'docx' ||
+      sPos == 'wps' ||
+      sPos == 'odt' ||
+      sPos == 'et' ||
+      sPos == 'txt' ||
+      sPos == 'xls' ||
+      sPos == 'xlsx' ||
+      sPos == 'ods' ||
+      sPos == 'zip' ||
+      sPos == 'sh' ||
+      sPos == 'gz' ||
+      sPos == 'html' ||
+      sPos == 'et' ||
+      sPos == 'odt' ||
+      sPos == 'pdf' ||
+      sPos == 'html5ppt') {
+      category = 'document';
+    } else if (sPos == 'jpg' || sPos == 'png') {
+      category = 'picture';
+    } else if (sPos == 'mp3') {
+      category = 'music';
+    } else if (sPos == 'ogg') {
+      category = 'video';
+    } else if (sPos == 'conf' || sPos == 'desktop') {
+      var _err = 'this is a desktop config file ...'
+      return loadFileCb(_err, null);
+    } else {
+      category = 'other';
+    }
+  }
+  var cate = utils.getCategoryObject(category);
+  cate.createData([sFilePath], function(err, result) {
+    if (err) {
+      console.log(err);
+      return loadFileCb(err, null);
+    }
+    loadFileCb(null,result);
+  })
+}
+exports.loadFile = loadFile;
+
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
