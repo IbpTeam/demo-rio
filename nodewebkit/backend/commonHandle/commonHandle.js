@@ -214,24 +214,22 @@ function createDataAll(items, callback) {
                   tag: oTags[i],
                   file_URI: _item.URI
                 }
-                allTagsInfo.push(oItem);
+                allItems.push(oItem);
               }
             }
             var isEnd = (count === lens - 1);
             if (isEnd) {
-              commonDAO.createItems(allItems, function() {
+              commonDAO.createItems(allItems, function(result) {
+                if (result === "rollback") {
+                  var _err = 'create tags info in data base rollback ...';
+                  return callback(_err, null);
+                }
                 repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
                   if (result !== 'success') {
                     console.log(err);
                     return callback(null);
                   }
-                  commonDAO.createItems(allTagsInfo, function(result) {
-                    if (result === "rollback") {
-                      var _err = 'create tags info in data base rollback ...';
-                      return callback(_err, null);
-                    }
-                    callback('success');
-                  })
+                  callback('success');
                 })
               })
             }
