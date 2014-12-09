@@ -214,8 +214,8 @@ function createDataAll(items, callback) {
                   tag: oTags[i],
                   file_URI: _item.URI
                 }
+                allTagsInfo.push(oItem);
               }
-              allTagsInfo.push(oItem);
             }
             var isEnd = (count === lens - 1);
             if (isEnd) {
