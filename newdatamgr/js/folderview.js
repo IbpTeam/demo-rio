@@ -9,6 +9,7 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._copiedFilepath = '';
     this._showNormal = true;
+    this._pictureContentReady = false;
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
     this._choice = $('<div id = "choice"></div>');
@@ -59,9 +60,9 @@ var ShowFiles = Class.extend({
         if(this._showNormal){
           if($("#pictureContent").length>0){
             $("#pictureContent").show();
-            // $('#pictureContent').BlocksIt({
-            //   numOfCol: 5,
-            // });
+            $('#pictureContent').BlocksIt({
+              numOfCol: 5,
+            });
           }
           else {
             _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
@@ -227,13 +228,20 @@ var ShowFiles = Class.extend({
     }
     _globalSelf._getFiles[_globalSelf._index] = data_json;
     if(_globalSelf._showNormal){
-      //_globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+      _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
       if(_globalSelf._index ==1){
-        var pictureContentDiv = _globalSelf.showFilesNormal(data_json).attr('id','pictureContent');
-        _globalSelf._showContent.append(pictureContentDiv);
-        // $('#pictureContent').BlocksIt({
-        //   numOfCol:5
-        // });      
+        $('#pictureContent').hide();
+        setTimeout(function(){
+          $('#pictureContent').show();
+          $('#pictureContent').BlocksIt({
+          numOfCol:5
+        });  
+        },500);
+        // $('#pictureContent').ready(function(){
+        //   $('#pictureContent').BlocksIt({
+        //     numOfCol:5
+        //   }); 
+        // });   
       }
       else {
          _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
@@ -252,11 +260,6 @@ var ShowFiles = Class.extend({
     theadMessage.push('lastModifyTime');
     theadMessage.push('size');
     theadMessage.push('createTime');
-    // var theadMessage = {};
-    // theadMessage['filename'] = 'Name';
-    // theadMessage['lastModifyTime'] = 'Date Modified';
-    // theadMessage['size'] = 'Size';
-    // theadMessage['createTime'] = 'Date Added';
 
     return theadMessage;
   },
@@ -411,6 +414,9 @@ var ShowFiles = Class.extend({
         returnContent.append(fileContainer);
       }
     }
+    // if(_globalSelf._index ==1){
+    //   _globalSelf._pictureContentReady = true;
+    // }
     return returnContent;
   },
   
