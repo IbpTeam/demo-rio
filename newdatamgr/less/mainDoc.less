@@ -5,7 +5,7 @@
       top: 20px;
       left: 40px;
       right:350px;
-      bottom: 350px;
+      bottom: 50%;
       border: 1px solid #ccc;
       #doc-title-content{
         position: relative;
@@ -58,9 +58,10 @@
 }
 
 .doc-icon {
-  width: 80px;
-  height: 80px;
-  margin: 15px 10px;
+  width: 100px;
+  height: 100px;
+  margin-left: 30px;
+  margin-top: 20px;
   outline: none;
   float: left;
   border :1px solid #55f;
@@ -78,21 +79,22 @@
   }
 
   img {
-    width: 80px * 0.625;
-    height: 80px * 0.625;
+    width: 100px * 0.625;
+    height: 100px * 0.625;
     //border: 1px solid black;
     z-index: 98;
   }
 
   p {
-    width: 80px;
-    height: 80px * 0.4;
+    width: 100px;
+    height: 100px * 0.4;
     margin: 2px 0px;
     font-size: small;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     z-index: 99;
+    border: 1px solid #000;
     
     &:hover {
       cursor: default;

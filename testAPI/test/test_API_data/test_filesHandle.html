@@ -161,18 +161,22 @@
     });        
   }
 
-  function getRecentAccessDataCb(result){
-    var win = window.open(''); 
-    win.document.write("test API getRecentAccessData()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
+  function getRecentAccessDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getRecentAccessData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
   }
   function test_getRecentAccessData(getRecentAccessDataCb){
     WDC.requireAPI(['data'], function(data){
       var num = 10;
-      data.getRecentAccessData(getRecentAccessDataCb,num);
+      data.getRecentAccessData(getRecentAccessDataCb,'document',num);
     });        
   }
 

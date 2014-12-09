@@ -1,13 +1,16 @@
 #contact-container{
-  padding: 10px;
   #contact-left{
-    width: 40%;
-    height: 450px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 300px;
+    bottom: 10px;
+    float: left;
     border: 1px solid #c0c0c0;
     overflow-x: hidden;
     overflow-y: auto;
     .ul-family{
-      padding: 0px;
+      padding-left: 10px;
       list-style-type: none;
       width: 100%;
       border-bottom: 1px solid #ee5455;
@@ -16,10 +19,67 @@
         font-size: 15px;
         font-weight: bold;  
       }
-      .a-name{
+      .li-name{
         padding: 4px;
+        padding-left: 40px;
         width:100%;
         color: #c0c0c0;
+        cursor: pointer;
+        &:hover{
+          color: #16ead3;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+  #contact-head{
+    float: right;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    left: 310px;
+    height: 200px;
+    border: 1px solid #ccc;
+    .div-headphoto{
+      position: absolute;
+      top: 20px;
+      bottom: 80px;
+      width: 100px;
+      left: 40%;
+      .img{
+        height: 100px;
+        width: 100px;
+      }
+    }
+    .div-name{
+      position: absolute;
+      bottom: 10px;
+      left: 30%;
+      font-size: 30px;
+      font-weight: bold;
+      color: #ccc;
+    }
+  }
+  #contact-detail{
+    float: right;
+    position: absolute;
+    top: 210px;
+    right: 10px;
+    left: 310px;
+    bottom: 10px;
+    border: 1px solid #ccc;
+    .ul-details{
+      padding-left: 30px;
+      padding-right: 30px;
+      .li-details{
+        color: #ccc;
+        padding-top: 10px;
+        .div-key{
+          float: left;
+        }
+        .div-value{
+          float: right;
+        }
       }
     }
   }
