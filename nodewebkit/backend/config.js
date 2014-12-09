@@ -20,8 +20,8 @@ APPBASEPATH = path.join(__dirname,"../../..");
 exports.APPBASEPATH = APPBASEPATH;
 
 /**
- * project Path
- * Default project Base path is /WORKDIRECTORY，we use __dirname to locate it
+ * Project Path
+ * Default Project Base path is /repo dir，we use __dirname to locate it
  */
 var PROJECTPATH;
 PROJECTPATH = path.join(__dirname,"../../../..");
