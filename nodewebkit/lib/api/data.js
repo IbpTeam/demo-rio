@@ -195,27 +195,27 @@ function loadResources(loadResourcesCb, path) {
   documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
-      callback(err, null);
+      loadResourcesCb(err, null);
     } else {
       pictures.createData(PicList, function(err, result) {
         if (err) {
           console.log(err);
-          callback(err, null);
+          loadResourcesCb(err, null);
         } else {
           music.createData(MusList, function(err, result) {
             if (err) {
               console.log(err);
-              callback(err, null);
+              loadResourcesCb(err, null);
             } else {
               video.createData(VidList, function(err, result) {
                 if (err) {
                   console.log(err);
-                  callback(err, null);
+                  loadResourcesCb(err, null);
                 } else {
                   other.createData(OtherList, function(err, result) {
                     if (err) {
                       console.log(err);
-                      callback(err, null);
+                      loadResourcesCb(err, null);
                     } else {
                       console.log("load resources success!");
                       loadResourcesCb('success');
@@ -700,6 +700,26 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
+/**
+ * @method getCategoryFilesByTags
+ *   get all files with specific tags
+ *
+ * @param1 getFilesCb
+ *    all result in array
+ *
+ * @param2 category
+ *    string, a category name.
+ *
+ * @param3 sTags
+ *    string, a tag name.
+ *
+ */
+function getCategoryFilesByTag(getFilesCb, category, sTag) {
+  console.log("Request handler 'getCategoryFilesByTag' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.getFilesByTag(sTag, getFilesCb);
+}
+exports.getCategoryFilesByTag = getCategoryFilesByTag;
 
 /**
  * @method rmTagsAll

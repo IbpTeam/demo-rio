@@ -479,7 +479,7 @@
   }
   function test_removeFileFromDB(removeFileFromDBCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
+      var sFilePath = '/home/xiquan/.resources/document/data/testJSON.txt';
       data.removeFileFromDB(removeFileFromDBCb,sFilePath);
     });
   }
@@ -498,7 +498,7 @@
   }
   function test_removeFileFromDesk(removeFileFromDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/picture/data/boy.jpg';
+      var sFilePath = '/home/xiquan/.resources/document/data/testJSON.txt';
       data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
     });
   }
