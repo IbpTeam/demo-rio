@@ -231,15 +231,16 @@ function getTagsByUris(callback, oUris) {
       for (var j in oItem.others) {
         var sTag = oItem.others[j];
         var sUri = oItem.URI;
-        var sFilename = oItem.filename;
+        var sFilename = oItem.filename || oItem.name;
         var sPostfix = oItem.postfix;
-        var sPath = oItem.path;
+        var sPath = oItem.path || oItem.photopath;
         if (sTag != null && sTag != "") {
+          var oContent = (sTableName === 'contact') ? [sUri, sFilename, sPath] : [sUri, sFilename, sPostfix, sPath];
           if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
+            TagFile.tagFiles[sTag].push(oContent);
           } else {
             TagFile.tagFiles[sTag] = [
-              [sUri, sFilename, sPostfix, sPath]
+              oContent
             ];
             TagFile.tags.push(sTag);
           }
@@ -248,8 +249,8 @@ function getTagsByUris(callback, oUris) {
     }
     callback(TagFile);
   }
-  var name = (sTableName === 'contact') ? 'name' : 'filename';
-  commonDAO.findItems(['others', name, 'uri', 'postfix', 'path'], sTableName, [condition], null, findItemsCb);
+  var column = (sTableName === 'contact') ? ['others', 'name', 'uri', 'photopath'] : ['others', 'filename', 'uri', 'postfix', 'path'];
+  commonDAO.findItems(column, sTableName, [condition], null, findItemsCb);
 }
 exports.getTagsByUris = getTagsByUris;
 
