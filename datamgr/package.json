@@ -4,7 +4,9 @@
   "description": "Simple file explorer.",
   "version": "0.0.5",
   "window": {
+    "icon": "",
     "toolbar": true,
+    "frame": false,
     "width": 660,
     "height": 500
   },

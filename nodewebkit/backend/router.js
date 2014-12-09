@@ -109,7 +109,7 @@ function getRealFile(pathname, response){
             response.writeHead(500, {
                 'Content-Type': 'text/plain'
             });
-            response.end(err);
+            response.end(err.message);
           } else {
             var content_type;
             var suffix = pathname.substring(pathname.lastIndexOf('.') + 1).toLowerCase();
@@ -288,9 +288,13 @@ function route(handle, pathname, response, postData) {
     handle[apiPathArr[0]][apiPathArr[1]].apply(null, args);
     return;
   }else if ( pathname.lastIndexOf("/callapp/", 0) === 0) {
-    //This is for remote open app in internet browser.
-    var sAppName=pathname.substring(9, pathname.indexOf('/', 10));
-    var sFilename=pathname.substring(9 + sAppName.length + 1, pathname.length);
+    // This is for remote open app in internet browser.
+    // request url: /callapp/ + appID + / + request file name
+    var url = pathname.replace(/^\//, '').split('/'),
+        sAppID = url[1],
+        sFilename = path.join.apply(this, url.slice(2));
+    // var sAppName=pathname.substring(9, pathname.indexOf('/', 10));
+    // var sFilename=pathname.substring(9 + sAppName.length + 1, pathname.length);
     /* var runapp=null; */
     // var app;
     // for(var i = 0; i < config.AppList.length; i++) {
@@ -301,9 +305,9 @@ function route(handle, pathname, response, postData) {
       // }
     /* } */
 
-    var runapp = appManager.getRegisteredAppInfoByAttr('name', sAppName);
-    if (runapp === null) {
-      console.log("Error no app " + sAppName);
+    var runapp = appManager.getRegistedInfo(sAppID);
+    if(runapp === null) {
+      console.log("Error no app " + sAppID);
       response.writeHead(404, {
         'Content-Type': 'text/plain'
       });
@@ -312,20 +316,19 @@ function route(handle, pathname, response, postData) {
       return;
     }
 
-    dirOfrunapp = runapp.path/* .substring(0, runapp.path.lastIndexOf('/')) */;
-    var realpath;
-    if ( sFilename === "index.html" ) {
+    if(sFilename === "index.html") {
       getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
-    } else if ( sFilename === "lib/api.js") {
-      getRealFile(path.join(config.APPBASEPATH, dirOfrunapp, "lib/api_remote.js"), response);
-    } else if ( sFilename.lastIndexOf("lib/api/", 0) === 0 && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
+    } else if(sFilename === "lib/api.js") {
+      getRealFile(path.join(config.APPBASEPATH, runapp.path, "lib/api_remote.js"), response);
+    } else if(sFilename.lastIndexOf("lib/api/", 0) === 0 
+        && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
       var modulename = sFilename.substring(8, sFilename.length - 3);
       getRemoteAPIFile(handle, modulename, response);
-    }else {
-      getRealFile(path.join(config.APPBASEPATH, dirOfrunapp, sFilename), response);
+    } else {
+      getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
     }
     return;
-  }else {
+  } else {
     //Use api_remote.js for /lib/api.js
     var realPath;
     if (pathname == "/lib/api.js") {

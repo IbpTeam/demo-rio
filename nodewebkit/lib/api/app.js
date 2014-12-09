@@ -94,32 +94,23 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
 exports.startAppByName=startAppByName;
 
 /**
- * @method startAppByID
+ * @method startApp
  *   根据应用ID打开应用
  *
- * @param1 callback function
+ * @param1 callback function(err, window)
  *   回调函数
  *   @cbparam1
- *      object, 返回app对象，失败则返回null
- *      {
- *        name:APP NAME,
- *        window:APP Window object
- *      }
- * @param2 sAppID string
- *   启动程序ID
- * @param3 oParamBag string
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      window: APP Window object
+ * @param2 appInfo object
+ *   启动程序Info对象，可以通过getRegisteredAppInfo获得
+ * @param3 params string
  *   启动程序参数，可以json格式封装
  */
-function startAppByID(startAppByIDCb, sAppID, sParams) {
-  var info = appManager.getRegisteredAppInfo(sAppID);
-  if(info) {
-    startAppByName(startAppByIDCb, info.name, sParams);
-  } else {
-    console.log('This app hasn\'t register yet');
-    startAppByIDCb(null);
-  }
+exports.startApp = function(startAppCB, appInfo, params) {
+  appManager.startApp(appInfo, params, startAppCB);
 };
-exports.startAppByID = startAppByID;
 
 /**
  * @method sendKeyToApp
@@ -221,7 +212,7 @@ exports.getRegisteredApp = function(getRegisteredAppCB) {
 ** appID: the id of app
 **/
 exports.getRegisteredAppInfo = function(getRegisteredAppInfoCB, appID) {
-  getRegisteredAppInfoCB(appID, getRegisteredAppInfoCB);
+  appManager.getRegisteredAppInfo(appID, getRegisteredAppInfoCB);
 }
 
 /**

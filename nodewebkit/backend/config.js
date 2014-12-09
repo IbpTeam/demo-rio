@@ -18,6 +18,11 @@ exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
 var APPBASEPATH;
 APPBASEPATH = path.join(__dirname,"../../..");
 exports.APPBASEPATH = APPBASEPATH;
+var APP_DATA_PATH = [
+  // TODO: make sure where to save
+  path.join(process.env["HOME"], '.resources/'),
+  '/usr/share/webde/App.list'
+];
 
 /**
  * Project Path
