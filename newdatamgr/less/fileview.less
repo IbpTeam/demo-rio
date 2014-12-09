@@ -13,6 +13,40 @@
       left: 0px;
       width: 100%;
       border: 1px solid #f00;
+      .returnContent {
+        .outContainerWaterFall {
+          width:188px; 
+          min-height:100px; 
+          padding: 15px; 
+          background:#fff; 
+          margin:8px; 
+          font-size:12px; 
+          float:left; 
+          cursor: pointer; 
+          box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4); 
+          -moz-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4); 
+          -webkit-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4);
+          -webkit-transition: top 1s ease, left 1s ease;
+          -moz-transition: top 1s ease, left 1s ease; 
+          -o-transition: top 1s ease, left 1s ease;
+          -ms-transition: top 1s ease, left 1s ease; 
+          &:hover {
+            -webkit-filter: brightness(1.2);
+            -moz-filter: brightness(1.2);
+            -ms-filter: brightness(1.2);
+            filter: brightness(1.2);
+          }
+          .HolderWaterFall img{
+            max-width:100%; 
+            background:#ccc; 
+            display:block; 
+          }
+          .descriptionWaterFall {
+            text-align:center; 
+            color:#777; 
+          }
+        }
+      }
       .outContainer {
         width:200px;
         height:200px; 

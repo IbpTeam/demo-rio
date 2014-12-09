@@ -42,7 +42,7 @@ var ShowFiles = Class.extend({
     if (typeof index_ === 'number' && index_ >0 && index_ <5) {
       this._index = index_;
     }
-    this.showFile();
+    _globalSelf.showFile();
   },
 
   //此函数就是外面调用函数的接口，在初始化函数和index之后，直接调用此函数就会显示.
@@ -59,10 +59,12 @@ var ShowFiles = Class.extend({
         if(this._showNormal){
           if($("#pictureContent").length>0){
             $("#pictureContent").show();
+            // $('#pictureContent').BlocksIt({
+            //   numOfCol: 5,
+            // });
           }
           else {
             _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-
           }
         }
         else {
@@ -225,7 +227,17 @@ var ShowFiles = Class.extend({
     }
     _globalSelf._getFiles[_globalSelf._index] = data_json;
     if(_globalSelf._showNormal){
-      _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));   
+      //_globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+      if(_globalSelf._index ==1){
+        var pictureContentDiv = _globalSelf.showFilesNormal(data_json).attr('id','pictureContent');
+        _globalSelf._showContent.append(pictureContentDiv);
+        // $('#pictureContent').BlocksIt({
+        //   numOfCol:5
+        // });      
+      }
+      else {
+         _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+      }
     }
     else {
       _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
@@ -361,18 +373,18 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
-    var returnContent = $('<div style= "overflow:auto"></div>');
+    var returnContent = $('<div class = "returnContent" style= "overflow:auto"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
-      var outContainer = $('<div class="outContainer" data-path="'+file['props'].path +'"></div>)');
-      var Holder = $('<div class = "Holder"></div>');
+      var outContainer = $('<div class="outContainerWaterFall" data-path="'+file['props'].path +'"></div>)');
+      var Holder = $('<div class = "HolderWaterFall"></div>');
       //用来定义最后描述的名字.
       if(file['props'].name.indexOf(' ') != -1 ||
          file['props'].name.indexOf('\'' != -1)){
         var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-        var description = $('<div class="description">'+file['props'].name+'</div>');
+        var description = $('<div class="descriptionWaterFall">'+file['props'].name+'</div>');
       }else{
-        var description = $('<div class="description">'+file['props'].name+'</div>');
+        var description = $('<div class="descriptionWaterFall">'+file['props'].name+'</div>');
       } 
       if(file['props'].img){
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
