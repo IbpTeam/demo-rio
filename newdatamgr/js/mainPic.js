@@ -9,6 +9,12 @@ var MainPicView = Class.extend({
       'date': ' 2014-10-31' 
     }
     this.setPicture(this._picData);
+    this._tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(0,120,240)'
+    });
+    this._tagView.setParent(this._picContainer);
+    this._tagView.addTags(['sea','heaven','success'])
   },
 
   attach:function($parent_){
