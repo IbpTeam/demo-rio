@@ -394,39 +394,15 @@ exports.updateDataValue = updateDataValue;
 //API getRecentAccessData:获得最近访问数据的信息
 //返回类型：
 //返回具体数据类型对象数组
-function getRecentAccessData(getRecentAccessDataCb, num) {
+function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  var allItems = [];
-  documents.getRecentAccessData(num, function(err_doc, result_doc) {
-    if (err_doc) {
-      console.log(err_doc);
-      return;
+  var cate = utils.getCategoryObject(category);
+  cate.getRecentAccessData(num, function(err, result) {
+    if (err) {
+      console.log(err);
+      return getRecentAccessDataCb(err, null);
     }
-    allItems = allItems.concat(result_doc);
-    pictures.getRecentAccessData(num, function(err_pic, result_pic) {
-      if (err_pic) {
-        console.log(err_pic);
-        return;
-      }
-      allItems = allItems.concat(result_pic);
-      music.getRecentAccessData(num, function(err_mus, result_mus) {
-        if (err_mus) {
-          console.log(err_mus);
-          return;
-        }
-        allItems = allItems.concat(result_mus);
-        video.getRecentAccessData(num, function(err_vid, result_vid) {
-          if (err_vid) {
-            console.log(err_vid);
-            return;
-          }
-          allItems = allItems.concat(result_vid);
-          var resultRecentAccess = utils.getRecent(allItems, num);
-          console.log('get recent success!');
-          getRecentAccessDataCb(resultRecentAccess);
-        })
-      })
-    })
+    getRecentAccessDataCb(null, result);
   })
 }
 exports.getRecentAccessData = getRecentAccessData;

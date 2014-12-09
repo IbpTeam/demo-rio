@@ -314,21 +314,22 @@ function repoReset(commitID, callback) {
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
-    } else {
-      repo.repoReset(DES_REPO_DIR, commitID, function(err, result) {
+    } 
+    else {
+      repo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
         if (err) {
           console.log(err);
-          var _err = {
+          callback({
             'document': err
-          }
-          callback(_err, null);
-        } else {
-          console.log('reset success!');
+          }, null);
+        } 
+        else {
+          console.log('reset success!')
           callback(null, result)
         }
-      })
+      });
     }
-  })
+  });
 }
 exports.repoReset = repoReset;
 
