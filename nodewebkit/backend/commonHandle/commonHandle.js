@@ -31,12 +31,34 @@ var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
 var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
+var chokidar = require('chokidar'); 
 
 var writeDbNum = 0;
 var dataPath;
 
+
+
 // @const
 var DATA_PATH = "data";
+
+function watcherStart(category,callback){
+  var dataPath=utils.getRealDir(category);
+  var cateModule=utils.getCategoryObject(category);
+  console.log("monitor "+dataPath);
+  cateModule.watcher = chokidar.watch(dataPath, {ignoreInitial: true});
+  cateModule.watcher.on('all', function(event, path) {
+    //console.log('Raw event info:', event, path);
+    callback(path,event);
+  });
+}
+exports.watcherStart = watcherStart;
+
+function watcherStop(category,callback){
+  var cateModule=utils.getCategoryObject(category);
+  cateModule.watcher.close();
+  callback();
+}
+exports.watcherStop = watcherStop;
 
 function copyFile(oldPath, newPath, callback) {
   fs_extra.copy(oldPath, newPath, function(err) {

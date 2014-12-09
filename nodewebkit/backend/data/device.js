@@ -8,11 +8,11 @@ exports.devicesList = devicesList;
 
 function getDeviceList(callback){
   ds.getDeviceByAccount(function(deviceList){
-    console.log("----------------------devicesList:-----------------------");
+//    console.log("----------------------devicesList:-----------------------");
     for (var i in deviceList) {  
-      console.log(deviceList[i]);
+//      console.log(deviceList[i]);
     }  
-    console.log("---------------------------------------------------------");
+//    console.log("---------------------------------------------------------");
     callback(deviceList);
   },config.ACCOUNT);
 }

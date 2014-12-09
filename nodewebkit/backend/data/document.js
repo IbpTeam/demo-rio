@@ -37,6 +37,9 @@ var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
+var watcher;
+exports.watcher=watcher;
+var watchFilesNum=0;
 
 /**
  * @method createData
@@ -167,7 +170,7 @@ function createData(items, callback) {
                 if (isEnd) {
                   commonHandle.createDataAll(itemInfoAll, function(result) {
                     if (result === 'success') {
-                      callback(null, result);
+                      callback(null, result); 
                     } else {
                       var _err = 'createData: commonHandle createData all error!';
                       console.log('createData error!');
@@ -228,6 +231,44 @@ function getByUri(uri, callback) {
   commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
 }
 exports.getByUri = getByUri;
+
+/**
+ * @method changeData
+ *    Change document by filePath.
+ * @param filePath
+ *    The document's filePath.
+ * @param callback
+ *    Callback
+ */
+function changeData(filePath,uri, callback) {
+  console.log("change data : "+filePath);
+  var currentTime = (new Date());
+  var re = new RegExp('/' + CATEGORY_NAME + '/');
+  var desFilePath = filePath.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
+  fs.stat(filePath, function(err, stat) {
+    var updateItem = {
+      URI:uri,
+      lastModifyTime : currentTime,
+      lastModifyDev : config.uniqueID,
+      size:stat.size
+    }
+    dataDes.updateItem(desFilePath, updateItem, function() {
+      //resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "ch", function() {
+      var sRealRepoDir=utils.getRepoDir(CATEGORY_NAME);
+      var sDesRepoDir=utils.getDesRepoDir(CATEGORY_NAME);
+      resourceRepo.repoCommitBoth('ch', sRealRepoDir, sDesRepoDir, [filePath], [desFilePath], function(err, result) {
+        updateItem.category = CATEGORY_NAME;
+        var updateItems = new Array();
+        updateItems.push(updateItem);
+        commonDAO.updateItems(updateItems, function(result) {
+          console.log(result);
+          callback(result);
+        });
+      });
+    });
+  });
+}
+exports.changeData = changeData;
 
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
@@ -344,7 +385,22 @@ function openDataByUri(openDataByUriCb, uri) {
                 s_command = "xdg-open \"" + item.path + "\"";
                 break;
             }
-            var child = exec(s_command, function(error, stdout, stderr) {});
+            var child = exec(s_command, function(error, stdout, stderr) {
+              console.log("xdg-open!!!!!!!!!!!!!!");
+              console.log(error);
+              console.log(stdout);
+              console.log(stderr);
+
+              if(watchFilesNum>0){
+                watchFilesNum--;              
+              }
+              console.log("watchFilesNum = "+watchFilesNum);
+              if(watchFilesNum==0){
+                commonHandle.watcherStop(CATEGORY_NAME,function(){
+                  console.log(CATEGORY_NAME+" watcher stoped!!");
+                });
+              }
+            });
             if (supportedKeySent === true) {
               source.windowname = s_windowname;
             }
@@ -363,13 +419,32 @@ function openDataByUri(openDataByUriCb, uri) {
         resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "ch", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
-          var condition = [];
-          condition.push("URI='" + item.URI + "'");
-          updateItems.conditions = condition;
           updateItems.push(updateItem);
           commonDAO.updateItems(updateItems, function(result) {
             console.log(result);
-            openDataByUriCb(source);
+            if(watchFilesNum==0){
+              console.log(CATEGORY_NAME+" watcher started!!");
+              watchFilesNum++;
+              console.log("watchFilesNum = "+watchFilesNum);
+              console.log("URI = "+uri);
+              openDataByUriCb(source);
+              commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
+                console.log(path+" : "+event);
+                if(event=='change'){
+                  var conditions = ["path = " + "'" + path + "'"];
+                  commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
+                    console.log(items);
+                    changeData(path,items[0].URI,function(result){
+                      console.log(result);
+                    });
+                  });
+                }
+              });
+            }
+            else{
+              watchFilesNum++;
+              console.log("watchFilesNum = "+watchFilesNum);
+            }
           });
         });
       });
