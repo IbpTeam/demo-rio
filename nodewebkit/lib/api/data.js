@@ -656,8 +656,26 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
-
-
+/**
+ * @method getCategoryFilesByTags
+ *   get all files with specific tags
+ *
+ * @param1 getFilesCb
+ *    all result in array
+ *
+ * @param2 category
+ *    string, a category name.
+ *
+ * @param3 sTags
+ *    string, a tag name.
+ *
+ */
+function getCategoryFilesByTag(getFilesCb, category, sTag) {
+  console.log("Request handler 'getCategoryFilesByTag' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.getFilesByTag(sTag, getFilesCb);
+}
+exports.getCategoryFilesByTag = getCategoryFilesByTag;
 
 /**
  * @method rmTagsAll
