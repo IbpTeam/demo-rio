@@ -47,6 +47,25 @@
     }
   }
 
+  function loadFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API loadFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_loadFile(loadFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = "/home/xiquan/testFile/small_image.jpg";
+      data.loadFile(loadFileCb, path);
+    });
+  }
+
   function loadResourcesCb(result){
     var win = window.open('');
     win.document.write("test API loadResources()");
@@ -237,33 +256,60 @@
 
   </script>
 
-<h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
-<div id="loadResources" style="display:none;">
+<h2 onclick="show('loadFile')">loadFile(loadFileCb,path)<span><a class="mark" href="#test_loadFile" id="test_loadFile" onclick="test_loadFile(loadFileCb)">test</a></span></h2>
+<div id="loadFile" style="display:none;">
+<div style="color:#930000">
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function loadFileCb(result){
+    var win = window.open('');
+    win.document.write("test API loadFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_loadFile(loadFileCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = "/home/xiquan/resources/test.txt";
+      data.loadFile(loadFileCb,path);
+    });
+  }       
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('getAllCate')">getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
+<div id="getAllCate" style="display:none;">
 <div style="color:#930000">
   <pre>
-    @method : loadResources 读取某个资源文件夹到数据库
-      @param1 : loadResourcesCb 回调函数
-        @result : string，success代表成功，其他代表失败原因
-    @param2 path : string，要加载资源的路径
+    @method : getAllCate 查询所有基本分类
+      @param1 : getAllCateCb 回调函数
+       @result : 
+          array[cate]: 分类数组
+            cate{
+               id;
+               type;
+               path;
+            }
   </pre>
 </div>
 <div style="color:#004B97">
   <pre>
     具体实现：<br>
-    function loadResourcesCb(result){
+    function getAllCateCb(array){
       var win = window.open('');
-      win.document.write("test API loadResources()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+result);
-      win.document.write("&lt;br/&gt;");
+      win.document.write("test API getAllCate()");
+      win.document.write(array);
     }
 
-    function test_loadResources(loadResourcesCb){
+    function test_getAllCate(getAllCateCb){
       WDC.requireAPI(['data'], function(data){
-        var path = "/home/xiquan/resources";
-        data.loadResources(loadResourcesCb,path);
+        data.getAllCate(getAllCateCb);
       });
-    }        
+    }      
 </pre>
 </div>
 </div>
