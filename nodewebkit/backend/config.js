@@ -59,6 +59,7 @@ var AppList=[
   }
 ];
 exports.AppList = AppList;
+exports.AppRegisterPath = '/webde/App.list'
 
 /**
  * Database Path

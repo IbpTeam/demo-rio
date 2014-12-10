@@ -4,6 +4,7 @@ var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
 var config = require('./config');
+var appManager = require('./app/appManager');
 
 var mimeTypes = {
      "html": "text/html",
@@ -169,7 +170,11 @@ function handleWSMsg(client, msg) {
       if(typeof eventList[jMsg.Event] === 'undefined') {
         eventList[jMsg.Event] = [];
       }
-      eventList[jMsg.Event].push(client);
+      var i;
+      for(i = 0; i < eventList[jMsg.Event].length; ++i) {
+        if(eventList[jMsg.Event][i] == client) break;
+      }
+      if(i == eventList[jMsg.Event].length) eventList[jMsg.Event].push(client);
       client.send(JSON.stringify({
         'Status': 'ok',
         'Data': 'register success',
@@ -286,16 +291,17 @@ function route(handle, pathname, response, postData) {
     //This is for remote open app in internet browser.
     var sAppName=pathname.substring(9, pathname.indexOf('/', 10));
     var sFilename=pathname.substring(9 + sAppName.length + 1, pathname.length);
-    var runapp=null;
-    var app;
-    for(var i = 0; i < config.AppList.length; i++) {
-      app = config.AppList[i];
-      if (app.name == sAppName) {
-        runapp=app;
-        break;
-      }
-    }
+    /* var runapp=null; */
+    // var app;
+    // for(var i = 0; i < config.AppList.length; i++) {
+      // app = config.AppList[i];
+      // if (app.name == sAppName) {
+        // runapp=app;
+        // break;
+      // }
+    /* } */
 
+    var runapp = appManager.getRegisteredAppInfoByAttr('name', sAppName);
     if (runapp === null) {
       console.log("Error no app " + sAppName);
       response.writeHead(404, {
@@ -306,10 +312,10 @@ function route(handle, pathname, response, postData) {
       return;
     }
 
-    dirOfrunapp=runapp.path.substring(0, runapp.path.lastIndexOf('/'));
+    dirOfrunapp = runapp.path/* .substring(0, runapp.path.lastIndexOf('/')) */;
     var realpath;
     if ( sFilename === "index.html" ) {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path), response);
+      getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
     } else if ( sFilename === "lib/api.js") {
       getRealFile(path.join(config.APPBASEPATH, dirOfrunapp, "lib/api_remote.js"), response);
     } else if ( sFilename.lastIndexOf("lib/api/", 0) === 0 && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
