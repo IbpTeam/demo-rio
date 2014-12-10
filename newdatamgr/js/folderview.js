@@ -242,16 +242,11 @@ var ShowFiles = Class.extend({
           $('#pictureContent').BlocksIt({
           numOfCol:5
         });  
-        },500);
-        // $('#pictureContent').ready(function(){
-        //   $('#pictureContent').BlocksIt({
-        //     numOfCol:5
-        //   }); 
-        // });   
+        },200); 
       }
-      else {
-         _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-      }
+      // else {
+      //   _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+      // }
     }
     else {
       _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
