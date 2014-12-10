@@ -265,20 +265,40 @@
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result);
+      // var canvas = document.getElementById("test_id3");
+      // var cxt = canvas.getContext("2d");
+      // var canvasWidth = canvas.width;
+      // var canvasHeight = canvas.height;
+      // var imageData = encode(result.v2.image.data);
+      // var bytes = new Uint8Array(result.v2.image.data);
+      var img = document.getElementById("test_img");
+      // var arrayBufferView = new Uint8Array(result.v2.image.data);
+      // var blob = new Blob([arrayBufferView], {
+      //   type: "image/jpeg"
+      // });
+      // var urlCreator = window.URL || window.webkitURL;
+      //var imageUrl = urlCreator.createObjectURL(blob);
+      //var img = document.querySelector("#photo");
+      //var obj = result.toString('base64');
+      img.src = 'data:image/jpeg;base64,' + result;//obj.toString();;
+
+
+      // cxt.putImageData(encode(bytes),10,10);
     }
   }
-  function test_getMusicPicData(getMusicPicDataCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/testFile/music/打错了.mp3';
-      data.getMusicPicData(getMusicPicDataCb,path);
-    });        
+
+  function test_getMusicPicData(getMusicPicDataCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = '/home/xiquan/testFile/music/咖啡.mp3';
+      data.getMusicPicData(getMusicPicDataCb, path);
+    });
   }
 
   </script>
 
 <h2 onclick="show('loadFile')">loadFile(loadFileCb,path)<span><a class="mark" href="#test_loadFile" id="test_loadFile" onclick="test_loadFile(loadFileCb)">test</a></span></h2>
 <div id="loadFile" style="display:none;">
-<div style="color:#930000">
+<div id="test" style="color:#930000">
 </div>
 <div style="color:#004B97">
   <pre>
@@ -726,8 +746,8 @@
 <h2 onclick="show('getMusicPicData')">getMusicPicData(getMusicPicDataCb,path)<span><a class="mark" href="#test_getMusicPicData" id="test_getMusicPicData" onclick="test_getMusicPicData(getMusicPicDataCb)">test</a></span></h2>
 <div id="getMusicPicData" style="display:none;">
 <div style="color:#930000">
-  <pre>
-  </pre>
+  <canvas id="test_id3" width="100" height="100"></canvas>
+  <img id="test_img"  />
 </div>
 <div style="color:#004B97">
   <pre>

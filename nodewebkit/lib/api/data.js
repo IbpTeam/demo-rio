@@ -1551,10 +1551,11 @@ exports.deviceInfo = deviceInfo;
  *
  *    @param2: result,
  *
- *        array, data in arrayBuffer.
+ *        array, data in an ArrayBuffer.
  *
  *  @param2: filePath
- *    string, a specific music file path.
+ *    string, a specific music file path.To access it, you may use a DataView or
+ *            typed array such as Uint8Array.
  *
  *
  **/

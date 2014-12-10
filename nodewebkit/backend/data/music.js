@@ -652,23 +652,43 @@ function getFilesByTag(sTag, callback) {
 }
 exports.getFilesByTag = getFilesByTag;
 
-
 function getMusicPicData(filePath, callback) {
   var id3 = require('id3js');
-  id3({
-    file: filePath,
-    type: id3.OPEN_LOCAL
-  }, function(err, tags) {
+  var mm = require('musicmetadata');
+  var parser = mm(fs.createReadStream('/home/xiquan/testFile/music/打错了.mp3'));
+
+  // listen for the metadata event
+  parser.on('picture', function(result) {
+    //console.log(result[0].data);
+    function hexToBase64(str) {
+      return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+    }
+    return callback(null, hexToBase64(result.pictrue));
+  });
+
+  parser.on('done', function(err) {
     if (err) {
       return callback(err, null);
     }
-    var picDataArray = tags.v2.image.data;
-    if (picDataArray) {
-      callback(null, picDataArray);
-    } else {
-      console.log('no pictrue in this file ...');
-      callback(null, null);
-    }
   });
+  // id3({
+  //   file: filePath,
+  //   type: id3.OPEN_LOCAL
+  // }, function(err, tags) {
+  //   if (err) {
+  //     return callback(err, null);
+  //   }
+
+  //   //console.log(tags)
+  //   var picDataArray = tags.v2.image.data;
+
+  //   console.log(new DataView(picDataArray));
+  //   if (picDataArray) {
+  //     callback(null, tags);
+  //   } else {
+  //     console.log('no pictrue in this file ...');
+  //     callback(null, null);
+  //   }
+  // });
 }
 exports.getMusicPicData = getMusicPicData;
