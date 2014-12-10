@@ -31,6 +31,7 @@ var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 
 
+
 //@const
 var CATEGORY_NAME = "music";
 var DES_NAME = "musicDes";
@@ -650,3 +651,24 @@ function getFilesByTag(sTag, callback) {
   tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
 }
 exports.getFilesByTag = getFilesByTag;
+
+
+function getMusicPicData(filePath, callback) {
+  var id3 = require('id3js');
+  id3({
+    file: filePath,
+    type: id3.OPEN_LOCAL
+  }, function(err, tags) {
+    if (err) {
+      return callback(err, null);
+    }
+    var picDataArray = tags.v2.image.data;
+    if (picDataArray) {
+      callback(null, picDataArray);
+    } else {
+      console.log('no pictrue in this file ...');
+      callback(null, null);
+    }
+  });
+}
+exports.getMusicPicData = getMusicPicData;

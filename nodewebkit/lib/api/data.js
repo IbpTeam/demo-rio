@@ -1537,3 +1537,29 @@ function deviceInfo(deviceInfoCb) {
   devices.deviceInfo(deviceInfoCb);
 }
 exports.deviceInfo = deviceInfo;
+
+
+/** 
+ * @Method: getMusicPicData
+ *    To get picture (like album's cover) of a music file.
+ *
+ * @param: getMusicPicDataCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *
+ *        array, data in arrayBuffer.
+ *
+ *  @param2: filePath
+ *    string, a specific music file path.
+ *
+ *
+ **/
+function getMusicPicData(getMusicPicDataCb, filePath) {
+  console.log("Request handler 'getMusicPicData' was called.");
+  music.getMusicPicData(filePath, getMusicPicDataCb);
+}
+exports.getMusicPicData = getMusicPicData;

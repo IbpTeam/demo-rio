@@ -234,16 +234,17 @@
     });        
   }
 
-  function renameDataByUriCb(err,result){
+  function getMusicPicDataCb(err, result) {
     var win = window.open('');
-    if(err){
-      print(win,err);
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
     }
-    win.document.write("test API renameDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
   }
   function test_renameDataByUri(renameDataByUriCb){
     WDC.requireAPI(['data'], function(data){
@@ -251,6 +252,25 @@
       var sNewName = 'test_rename_hahahahahah.txt';
       var category = 'document';
       data.renameDataByUri(category,sUri, sNewName,renameDataByUriCb);
+    });        
+  }
+
+  function getMusicPicDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getMusicPicData(getMusicPicDataCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = '/home/xiquan/testFile/music/打错了.mp3';
+      data.getMusicPicData(getMusicPicDataCb,path);
     });        
   }
 
@@ -697,6 +717,37 @@
       var sUri = test_uri;
       var sNewName = 'test_rename.txt';
       data.renameDataByUri(sUri, sNewName,renameDataByUriCb);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getMusicPicData')">getMusicPicData(getMusicPicDataCb,path)<span><a class="mark" href="#test_getMusicPicData" id="test_getMusicPicData" onclick="test_getMusicPicData(getMusicPicDataCb)">test</a></span></h2>
+<div id="getMusicPicData" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getMusicPicDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getMusicPicData(getMusicPicDataCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = '/home/xiquan/testFile/music/打错了.mp3';
+      data.getMusicPicData(getMusicPicDataCb,path);
     });        
   }
   </pre>
