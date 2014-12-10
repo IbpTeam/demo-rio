@@ -18,7 +18,7 @@ function readJSONFile(path_, callback_) {
   });
 }
 
-// load installed HTML5 apps from system
+// load registered HTML5 apps from system
 exports.loadAppList = function(callback_) {
   var cb_ = callback_ || function() {};
   if(os.type() == 'Linux') {
@@ -96,9 +96,10 @@ function save(local_, callback_) {
           }
         }
       }
-      var data = JSON.stringify(AppList);
-      fs.writeFile(p, d, function(err_) {
+      var data = JSON.stringify(d);
+      fs.writeFile(p, data, function(err_) {
         if(err_) return cb_(err_);
+        cb_(null);
       });
     } catch(e) {
       return cb_(err_);
@@ -111,7 +112,8 @@ exports.saveAppList = save;
 // appInfo_: {
 //  id: ${app id},
 //  path: ${path of app},
-//  local: ${true|false}(if false means try to register to global, need root authority)
+//  local: ${true|false} (if false means try to register to global, need root authority;
+//          default is true)
 // }
 // callback_: function(err_)
 //    err_: error discription or null
@@ -133,10 +135,11 @@ exports.registerApp = function(appInfo_, callback_) {
 exports.unregisterApp = function(appID_, callback_) {
   var cb_ = callback_ || function() {};
   if(!isRegistered(appID_)) return cb_('The app has not registered');
-  save(AppList[appID_].local, function(err_) {
+  var lo = AppList[appID_].local;
+  AppList[appID_] = null;
+  delete AppList[appID_];
+  save(lo, function(err_) {
     if(err_) return cb_('Failed to unregister from system: ' + err_);
-    AppList[appID_] = null;
-    delete AppList[appID_];
     return cb_(null);
   });
 }

@@ -170,9 +170,7 @@ exports.sendKeyToApp = sendKeyToApp;
 **    err_: error discription or null
 ** appInfo_: {
 **  id: ${app id},
-**  name: ${app name},
 **  path: ${path of app},
-**  iconPath: ${icon path of app}
 ** }
 **/
 exports.registerApp = function(registerAppCB, appInfo) {

@@ -20,9 +20,10 @@ APPBASEPATH = path.join(__dirname,"../../..");
 exports.APPBASEPATH = APPBASEPATH;
 var APP_DATA_PATH = [
   // TODO: make sure where to save
-  path.join(process.env["HOME"], '.resources/'),
+  path.join(process.env["HOME"], '.local/share/webde/App.list'),
   '/usr/share/webde/App.list'
 ];
+exports.APP_DATA_PATH = APP_DATA_PATH;
 
 /**
  * Project Path
