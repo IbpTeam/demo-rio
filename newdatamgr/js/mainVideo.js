@@ -48,6 +48,12 @@ var MainVideoView = Class.extend({
     this.addVideo(this._listVideo1);
     this.addVideo(this._listVideo2);
     this.addUnslider();
+    var _tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(204,51,51)'
+    });
+    _tagView.setParent(this._videoContent);
+    _tagView.addTags(['name','flower','water','light','home-school']);
   },
 
   bindEvent:function(){
