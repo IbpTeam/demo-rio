@@ -664,8 +664,12 @@ function getMusicPicData(filePath, callback) {
       return callback(err, null);
     }
     var parser = mm(fs.createReadStream(filePath));
-    parser.on('picture', function(result) {
-      return callback(null, (result[0].data).toString('base64'));
+    parser.on('metadata', function(result) {
+      if (result.picture != '') {
+        var picData = result.picture[0].data;
+        return callback(null, (picData).toString('base64'));
+      }
+      callback(null, null);
     });
     parser.on('done', function(err) {
       if (err) {
