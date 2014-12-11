@@ -31,6 +31,7 @@ var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 
 
+
 //@const
 var CATEGORY_NAME = "music";
 var DES_NAME = "musicDes";
@@ -650,3 +651,17 @@ function getFilesByTag(sTag, callback) {
   tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
 }
 exports.getFilesByTag = getFilesByTag;
+
+function getMusicPicData(filePath, callback) {
+  var mm = require('musicmetadata');
+  var parser = mm(fs.createReadStream(filePath));
+  parser.on('picture', function(result) {
+    return callback(null, (result[0].data).toString('base64'));
+  });
+  parser.on('done', function(err) {
+    if (err) {
+      return callback(err, null);
+    }
+  });
+}
+exports.getMusicPicData = getMusicPicData;

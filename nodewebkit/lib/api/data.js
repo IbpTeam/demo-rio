@@ -1537,3 +1537,32 @@ function deviceInfo(deviceInfoCb) {
   devices.deviceInfo(deviceInfoCb);
 }
 exports.deviceInfo = deviceInfo;
+
+
+/** 
+ * @Method: getMusicPicData
+ *    To get picture (like album's cover) of a music file.
+ *
+ * @param: getMusicPicDataCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, data is returned in binary encoded with base64. You could acc-
+ *                ess the picture like: 
+ *                var img = document.getElementById("test_img");
+ *                img.src = 'data:image/jpeg;base64,' + result;
+ *
+ *  @param2: filePath
+ *    string, a specific music file path.To access it, you may use a DataView or
+ *            typed array such as Uint8Array.
+ *
+ *
+ **/
+function getMusicPicData(getMusicPicDataCb, filePath) {
+  console.log("Request handler 'getMusicPicData' was called.");
+  music.getMusicPicData(filePath, getMusicPicDataCb);
+}
+exports.getMusicPicData = getMusicPicData;
