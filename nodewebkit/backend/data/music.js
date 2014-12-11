@@ -31,6 +31,7 @@ var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 
 
+
 //@const
 var CATEGORY_NAME = "music";
 var DES_NAME = "musicDes";
@@ -623,3 +624,49 @@ function rename(sUri, sNewName, callback) {
 }
 exports.rename = rename;
 
+/** 
+ * @Method: getFilesByTag
+ *    To get files with specific tag.
+ *
+ * @param2: sTag
+ *    string, a tag name, as 'document'.
+ *
+ * @param1: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, file info object in array
+ *
+ **/
+function getFilesByTag(sTag, callback) {
+  function getFilesCb(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    callback(null, result);
+  }
+  tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
+}
+exports.getFilesByTag = getFilesByTag;
+
+function getMusicPicData(filePath, callback) {
+  var mm = require('musicmetadata');
+  fs.open(filePath, 'r', function(err) {
+    if (err) {
+      return callback(err, null);
+    }
+    var parser = mm(fs.createReadStream(filePath));
+    parser.on('picture', function(result) {
+      return callback(null, (result[0].data).toString('base64'));
+    });
+    parser.on('done', function(err) {
+      if (err) {
+        return callback(err, null);
+      }
+    });
+  })
+}
+exports.getMusicPicData = getMusicPicData;

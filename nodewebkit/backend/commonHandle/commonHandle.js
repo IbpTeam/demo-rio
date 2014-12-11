@@ -130,7 +130,18 @@ function createData(item, callback) {
             console.log(result);
             return callback(null);
           }
-          callback('success', sFilePath);
+          if (item.others != '') {
+            var oTags = item.others.split(',');
+            tagsHandles.addInTAGS(oTags, item.URI, function(err) {
+              if (err) {
+                console.log(err);
+                return callback(err, null);
+              }
+
+            })
+          } else {
+            callback('success', sFilePath);
+          }
         })
       })
     });
@@ -182,6 +193,7 @@ function createDataAll(items, callback) {
   var allItems = [];
   var allItemPath = [];
   var allDesPath = [];
+  var allTagsInfo = [];
   var itemsRename = utils.renameExists(items);
   for (var i = 0; i < itemsRename.length; i++) {
     var item = itemsRename[i];
@@ -216,9 +228,24 @@ function createDataAll(items, callback) {
             allItems.push(_item);
             allItemPath.push(sFilePath);
             allDesPath.push(sDesFilePath);
+            if (_item.others) {
+              var oTags = _item.others.split(',');
+              for (var i = 0; i < oTags.length; i++) {
+                var oItem = {
+                  category: 'tags',
+                  tag: oTags[i],
+                  file_URI: _item.URI
+                }
+                allItems.push(oItem);
+              }
+            }
             var isEnd = (count === lens - 1);
             if (isEnd) {
-              commonDAO.createItems(allItems, function() {
+              commonDAO.createItems(allItems, function(result) {
+                if (result === "rollback") {
+                  var _err = 'create tags info in data base rollback ...';
+                  return callback(_err, null);
+                }
                 repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
                   if (result !== 'success') {
                     console.log(err);

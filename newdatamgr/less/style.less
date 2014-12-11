@@ -22,7 +22,8 @@
   font: 100 16px/1.5 Avenir, sans-serif;
   -webkit-font-smoothing: subpixel-antialiased;
   -webkit-text-size-adjust: none;
-  overflow: hidden; }
+  overflow: hidden;
+  font-family: Verdana,Arial; }
 
 a {
   color: inherit;
@@ -100,6 +101,7 @@ a {
               top:12px; 
               color: #cae7ef;
               cursor: default;
+              font-size: 0.7em;
             }
           }
           .icon-icon-home{
@@ -112,6 +114,7 @@ a {
               top:12px; 
               color: #fff;
               cursor: default;
+              font-size: 0.7em;
             }
           }
           .icon-icon-file-alt{
@@ -124,6 +127,7 @@ a {
               top:12px; 
               color: #f2eeda;
               cursor: default;
+              font-size: 0.7em;
             }
           }
           .icon-icon-pictures{
@@ -136,6 +140,7 @@ a {
               top:12px; 
               color: #c3e5e0;
               cursor: default;
+              font-size: 0.7em;
             }
           }
           .icon-icon-music{
@@ -146,8 +151,9 @@ a {
               position: absolute;
               right: 0px;
               top:12px; 
-              color: #f7dfdf;
+              color: #ffe1e1;
               cursor: default;
+              font-size: 0.7em;
             }
           }
           .icon-icon-facetime-video{
@@ -160,6 +166,7 @@ a {
               top:12px; 
               color: #d0e2d0;
               cursor: default;
+              font-size: 0.7em;
             }
           }
 
@@ -205,9 +212,9 @@ a {
 }
 
 #info-list{
-  width: 200px;
+  width: 164px;
   height: 100%;
-  background: rgba(250, 250, 250, 0.95);
+  background: rgba(250, 0, 0, 0.95);
   border-right: 1px solid #e5e8ec;
   float: left;
   position: relative;
@@ -216,94 +223,115 @@ a {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+  color: #2e3d44;
+  transition:background-color 0.8s ease 0s;
 
   #title-form {
     width: 100%;
-    height: 65px;
-    border-bottom: 1px solid #e5e8ec;
+    //height: 45px;
+    //border-bottom: 1px solid #e5e8ec;
     text-align: center;
     #title-text{
-        font-size:30px;
-        font-weight: 4px;
-        margin-top: 15px;
+        font-size:20px;
+        font-weight: bold;
+        margin-top: 20px;
+        letter-spacing: 1.2px;
     }
   }
 
+   #title-form-bottom{
+        width: 100%;
+        font-size:14px;
+        font-weight: bold;
+        padding: 4px 10px;
+        letter-spacing: 0.7px;
+        position: absolute;
+        bottom: 160px;
+        left: 10px;
+        //.bil_title{
+        //  margin-left: 6px;
+        //}
+   }
+
   #il__container{
-    padding-top: 7px;
-    padding-bottom: 10px;
+    //padding-top: 0px;
+    //padding-bottom: 10px;
     color: #64717f;
     text-shadow: -1px 1px 0 rgba(125, 139, 153, 0.1);
     position: absolute;
-    top: 80px;
-    border: 1px solid #cccccc;
+    top: 70px;
+    //border: 1px solid #cccccc;
     bottom: 220px;
     left: 0;
-    right: -1px;
+    //right: -1px;
     .scroll;
     &.contact{
       background: rgba(50, 0, 0, 0.5);
     }
 
     .il__a{
-        margin: 4px 12px;
-        padding: 4px 8px 3px;
+        margin: 4px 15px;
+        padding: 1px 8px 1px;
         border-radius: 4px;
         display: block; 
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        font-size: 12px;
+        transition:background-color 0.6s ease 0s;
         &:hover{
-          background: rgba(242, 242, 242, 0.5);
+          background-color: rgba(255, 255, 255, 0.8);
         }
         &.active{
           color:#29a284;
-          background: rgba(242, 242, 242, 0.5);
+          background-color: rgba(242, 242, 242, 0.5);
           box-shadow: -1px 1px rgba(229, 232, 236, 0.9); 
         }
         .il__title{
           margin: 0;
           padding-top: 0;
           font-size: 1em;
+          color: black;
         }
         .il__num{
-          color: #9aa4af;
-          font-size: 14px;
-          float: right;
+          font-size: 12px;
+          margin-left: 7px;
+          //float: right;
         }
     }
     .il__add{
-      margin: 4px 12px;
-      padding: 4px;
-      border-radius: 4px;
+      margin: 4px 15px;
+      padding: 0px 7px 6px;
+      width: 20px;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255,0.3);
+      transition:background-color 0.3s ease 0s;
+      color: f48989;
       &:hover{
-        background: rgba(242, 242, 242, 0.5)
+        background-color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
       }
     }
   }
 
   #il__bottom{
-    width:200px;
+    width:164px;
     position: absolute;
     left: 0;
     bottom: 10px;
-    text-align: center;
-    max-height: 200px;
+    //text-align: center;
+    height: 150px;
     .scroll;
-    .title-form{
-        width: 100%;
-        font-size:16px;
-        font-weight: 4px;
-        padding: 4px 10px;
-        .bil_title{
-          margin-left: 4px;
-        }
-    }
     .bil__a{
       margin: 4px 12px;
       padding: 4px 8px 3px;
-      border-radius: 4px;
+      border-radius: 50px;
       display: block; 
-      font-size: 1em;
+      font-size: 0.75em;
+      font-weight: normal;
+      transition:background-color 0.3s ease 0s;
       &:hover{
-        background: rgba(242, 242, 242, 0.5);
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
       }
     }
   }
@@ -311,32 +339,34 @@ a {
 
 #container{
   margin-left: 70px;
-  border: 1px solid #00f;
+  border: 1px solid rgba(0,0,0,0);
+  background-color: #edefef;
   position: relative;
   width: auto;
   height: 100%;
   &.move-right{
-    margin-left: 270px;
+    margin-left: 220px;
   }
   #searchDiv{
     position: relative;
     width: 100%;
     height: 80px;
-    border: 1px solid #0f0;
+    border: 1px solid rgba(0,0,0,0);
     #search-container{
       margin-left: 40px;
       margin-top:  25px;
-      margin-right: 90px;
+      margin-right: 60px;
       margin-bottom: 25px;
       height: 30px;
       position: relative;
       #search-input{
         position: absolute;
-        border: 1px solid #ccc;
+        border: 1px solid #dddddd;
+        background-color: #f2f2f2;
         color: #999;
         border-radius: 15px;
         padding-left: 15px;
-        font-size: 1em;
+        font-size: 0.8em;
         height: 100%;
         left: 0px;
         top: 0px;
@@ -344,14 +374,14 @@ a {
       }
       #search-button{
         position:absolute;
-        right: 15px;
-        font-size:1em;
+        right: 10px;
+        font-size:1.1em;
         color: #999;
-        top: 3px;
+        top: 1px;
         &:hover{
-          right:14px;
-          top: 2px;
-          font-size: 1.2em;
+          //right:14px;
+          //top: 2px;
+          //font-size: 1.2em;
           color: #555;
           cursor: pointer;
         }
@@ -361,18 +391,74 @@ a {
       float: right;
       color: #999;
       position: absolute;
-      top: 17px;
-      right: 30px;
+      top: 12px;
+      right: 10px;
       width: 30px;
       height:30px;
       font-size: 30px;
       &:hover{
         color: #555;
-        width: 40px;
+        right: 10px;
+        cursor: pointer;
+      }
+      &:active{
+        color: #777;
+      }
+    }
+     .qrcode-container{
+      z-index:98;
+      position:absolute;
+      top: 68px;
+      right: 25px;
+      width:170px;
+      height:210px;
+      border: 1px solid #999;
+      border-radius:6px;
+      .qrcode-triangle{
+        position: absolute;
+        display:block;
+        width:0px;
+        height:0px;
+        right:10px;
+        border:11px;
+        overflow:hidden;
+        border-style: dashed dashed solid;
+        &.qrcode-down{
+          top:-22px;
+          border-color: transparent transparent #999;
+          z-index: 10;
+        }
+        &.qrcode-top{
+          top:-21px;
+          border-color: transparent transparent #fff;
+          z-index:11;
+        }
+      }
+      .qrcode-title{
+        position:absolute;
+        top: 0;
+        width:100%;
+        padding:5px 3px;
         height: 40px;
-        right: 25px;
-        top:12px;
-        font-size: 40px;
+        font-size:20px;
+        font-weight: bold;
+        background-color:#fff;
+        border-bottom:1px solid #999;
+        border-radius:6px 6px 0 0;
+        text-align: center;
+        line-height: 40px;
+      }
+      .qrcode-content{
+        position:absolute;
+        width: 100%;
+        top: 40px;
+        bottom: 0;
+        background-color:#fff;
+        border-radius:6px;
+        text-align: center;
+        canvas{
+          margin-top: 10px; 
+        }
       }
     }
   }

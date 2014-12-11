@@ -52,6 +52,17 @@ var MainMusicView = Class.extend({
     this.addVideo(this._musicList2);
     this.addVideo(this._musicList);
     this.addUnslider();
+    var _tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(51,153,102)',
+      positions:{
+        top:160,
+        direction:'up',
+        step: 30
+      }
+    });
+    _tagView.setParent(this._musicContent);
+    _tagView.addTags(['heaven','flower','water']);
   },
   addVideo:function(video_){
     var _li = $('<li>',{
