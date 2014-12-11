@@ -45,4 +45,8 @@ WDC.requireAPI(['data', 'app'], function(data, app){
   for (var i = 1; i <= 6; i++) {
     $('#js-label' + i).on('click', clickHandler(i));
   }
+
+  $('#avatar').click(function(){
+    
+  })
 });

@@ -74,7 +74,7 @@ exports.initServer = function(){
 
 function recieveMsgCb(msgobj){
   var msg = msgobj['MsgObj'];
-  console.log("Receive message : " + msg.message);
+//  console.log("Receive message : " + msg.message);
   var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
@@ -124,7 +124,7 @@ function sendMsg(device,msgObj){
     Msg: sMsgStr,
     App: "app1"
   };
-  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
+//  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
   im.SendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
@@ -377,7 +377,7 @@ function syncRefused(msgObj){
       setTimeout(function(){
         serviceUp(syncList[0]);
       },10000);
-      console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
+ //     console.log("SYNC Refused: sync refused by " + msgObj.deviceId + " from " + msgObj.ip);
     }
     break;
     case syncState.SYNC_RESPONSE:{
