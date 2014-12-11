@@ -1555,6 +1555,9 @@ exports.deviceInfo = deviceInfo;
  *                var img = document.getElementById("test_img");
  *                img.src = 'data:image/jpeg;base64,' + result;
  *
+ *                You should notice that if the target file contains no pciture,
+ *                then the result would be null.
+ *
  *  @param2: filePath
  *    string, a specific music file path.To access it, you may use a DataView or
  *            typed array such as Uint8Array.
