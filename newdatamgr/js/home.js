@@ -1,8 +1,8 @@
 var HomePage = Class.extend({
   init:function(){
-    this._doc = MainVideoView.create();
+    this._video = MainVideoView.create();
     this._pic = MainPicView.create();
-    this._video = MainDocView.create();
+    this._doc = MainDocView.create();
     this._music = MainMusicView.create();
     this._contact = undefined;
     this._isShow = undefined;
