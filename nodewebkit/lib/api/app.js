@@ -232,6 +232,7 @@ exports.getBasePath = function(getBasePathCB) {
 **    appID: id of app
 **/
 exports.addListener = function(addListenerCB, listener) {
+  appManager.addListener(listener, addListenerCB);
 }
 
 /**
@@ -243,4 +244,5 @@ exports.addListener = function(addListenerCB, listener) {
 **    appID: id of app
 **/
 exports.removeListner = function(removeListnerCB, listener) {
+  appManager.addListener(listener, removeListnerCB);
 }

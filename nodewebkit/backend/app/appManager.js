@@ -3,7 +3,8 @@ var fs = require('fs'),
     path = require("path"),
     config = require('../config'),
     utils = require('../utils'),
-    AppList = {};
+    AppList = {},
+    listeners = [];
 
 function readJSONFile(path_, callback_) {
   var cb_ = callback_ || function() {};
@@ -96,7 +97,7 @@ function save(local_, callback_) {
           }
         }
       }
-      var data = JSON.stringify(d);
+      var data = JSON.stringify(d, null, 2);
       fs.writeFile(p, data, function(err_) {
         if(err_) return cb_(err_);
         cb_(null);
@@ -301,5 +302,18 @@ function pathValidate(path_, callback_) {
     if(!exist) return cb_('package.json not found');
     return cb_(null);
   });
+}
+
+function emit() {
+  for(var i = 0; i < listeners.length; ++i) {
+  }
+}
+
+exports.addListener = function(listener_, callback_) {
+  var cb = callback_ || function() {};
+}
+
+exports.removeListner = function(listener_, callback_) {
+  var cb = callback_ || function() {};
 }
 
