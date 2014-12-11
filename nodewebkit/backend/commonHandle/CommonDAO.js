@@ -454,8 +454,10 @@ exports.updateItems = function(items,callback){
     var sItemUri = oTempItem.URI;
     var aConditions = new Array();
     if(oTempItem.conditions == undefined){
+  console.log("undefined");
       sCondStr = sCondStr + " and URI='" + sItemUri + "'";
     }else{
+        console.log("defined");
       aConditions = oTempItem.conditions;
       delete oTempItem.conditions;
       aConditions.forEach(function(condition){
