@@ -654,14 +654,19 @@ exports.getFilesByTag = getFilesByTag;
 
 function getMusicPicData(filePath, callback) {
   var mm = require('musicmetadata');
-  var parser = mm(fs.createReadStream(filePath));
-  parser.on('picture', function(result) {
-    return callback(null, (result[0].data).toString('base64'));
-  });
-  parser.on('done', function(err) {
+  fs.open(filePath, 'r', function(err) {
     if (err) {
       return callback(err, null);
     }
-  });
+    var parser = mm(fs.createReadStream(filePath));
+    parser.on('picture', function(result) {
+      return callback(null, (result[0].data).toString('base64'));
+    });
+    parser.on('done', function(err) {
+      if (err) {
+        return callback(err, null);
+      }
+    });
+  })
 }
 exports.getMusicPicData = getMusicPicData;
