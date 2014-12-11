@@ -119,6 +119,7 @@ exports.startApp = function(startAppCB, appInfo, params) {
       p_ = params || null;
   try {
     var win = createWindow(appInfo);
+    // TODO: if this app is genarate from a URL, do something
     win.appendHtml("/callapp/" + appInfo.id + '/' + appInfo.main
       + (p_ === null ? "" : ("?" + p_)));
     cb_(null, win);
@@ -128,23 +129,37 @@ exports.startApp = function(startAppCB, appInfo, params) {
 }
 
 /**
-** add listener for app register or unregister
-** addListenerCB: function(err)
-**    err: error discription or null
-** listener: function(event, appID)
-**    event: (register|unregister)
-**    appID: id of app
-**/
-exports.addListener = function(addListenerCB, listener) {
+ * @remote
+ * add listener for app register or unregister
+ * addListenerCB: function(err)
+ *    err: error discription or null
+ * listener: function(event, appID)
+ *    event: (register|unregister)
+ *    appID: id of app
+ * ws: the web socket client object which has connected with server
+ */
+exports.addListener = function(addListenerCB, listener, ws) {
+  var msg = {
+    'Action': 'on',
+    'Event': 'app'
+  };
+  ws.send(JSON.stringify(msg))
 }
 
 /**
-** remove listener for app register or unregister
-** removeListenerCB: function(err)
-**    err: error discription or null
-** listener: function(event, appID)
-**    event: (register|unregister)
-**    appID: id of app
-**/
-exports.removeListner = function(removeListnerCB, listener) {
+ * @remote
+ * remove listener for app register or unregister
+ * removeListenerCB: function(err)
+ *    err: error discription or null
+ * listener: function(event, appID)
+ *    event: (register|unregister)
+ *    appID: id of app
+ * ws: the web socket client object which has connected with server
+ */
+exports.removeListner = function(removeListnerCB, listener, ws) {
+  var msg = {
+    'Action': 'off',
+    'Event': 'app'
+  };
+  ws.send(JSON.stringify(msg))
 }

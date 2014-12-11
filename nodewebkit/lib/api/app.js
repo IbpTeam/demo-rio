@@ -246,3 +246,5 @@ exports.addListener = function(addListenerCB, listener) {
 exports.removeListner = function(removeListnerCB, listener) {
   appManager.addListener(listener, removeListnerCB);
 }
+
+// TODO: genarate an HTML5 App by a URL

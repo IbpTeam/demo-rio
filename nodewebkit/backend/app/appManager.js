@@ -23,7 +23,7 @@ function readJSONFile(path_, callback_) {
 exports.loadAppList = function(callback_) {
   var cb_ = callback_ || function() {};
   if(os.type() == 'Linux') {
-    // TODO: initialize this list from local to global
+    // initialize this list from local to global
     utils.series([
       {
         fn: function(pera_, callback_) {
@@ -63,7 +63,6 @@ exports.loadAppList = function(callback_) {
   }
 }
 
-// TODO: differentiate local or global
 // local_: boolean, save to local or global
 // callback_: function(err_)
 //    err_: error description or null
@@ -75,7 +74,7 @@ function save(local_, callback_) {
     try {
       var p, d = {};
       if(lo_) {
-        // TODO: save to local app list
+        // save to local app list
         p = config.APP_DATA_PATH[0];
         for(var key in AppList) {
           if(AppList[key].local) {
@@ -86,7 +85,7 @@ function save(local_, callback_) {
           }
         }
       } else {
-        // TODO: save to global app list
+        // save to global app list
         p = config.APP_DATA_PATH[1];
         for(var key in AppList) {
           if(!AppList[key].local) {
@@ -125,7 +124,12 @@ exports.registerApp = function(appInfo_, callback_) {
     if(err_) return cb_(err_);
     AppList[appInfo_.id] = appInfo_;
     save(appInfo_.local, function(err_) {
-      if(err_) return cb_('Failed to register to system: ' + err_);
+      if(err_) {
+        AppList[appInfo_.id] = null;
+        delete AppList[appInfo_.id];
+        return cb_('Failed to register to system: ' + err_);
+      }
+      emit('register', appInfo_.id);
       return cb_(null);
     });
   });
@@ -139,11 +143,16 @@ exports.registerApp = function(appInfo_, callback_) {
 exports.unregisterApp = function(appID_, callback_) {
   var cb_ = callback_ || function() {};
   if(!isRegistered(appID_)) return cb_('The app has not registered');
-  var lo = AppList[appID_].local;
+  var tmp = AppList[appID_];
   AppList[appID_] = null;
   delete AppList[appID_];
-  save(lo, function(err_) {
-    if(err_) return cb_('Failed to unregister from system: ' + err_);
+  save(tmp.local, function(err_) {
+    if(err_) {
+      AppList[appID_] = tmp;
+      return cb_('Failed to unregister from system: ' + err_);
+    }
+    tmp = null;
+    emit('unregister', appID_);
     return cb_(null);
   });
 }
@@ -286,6 +295,7 @@ exports.startApp = function(appInfo_, params_, callback_) {
       p_ = params_ || null;
   try {
     var win = createWindow(appInfo_);
+    // TODO: if this app is genarate from a URL, do something
     win.appendHtml(path.join(config.APPBASEPATH, appInfo_.path, appInfo_.main)
       + (p_ === null ? "" : ("?" + p_)));
     cb_(null, win);
@@ -304,16 +314,27 @@ function pathValidate(path_, callback_) {
   });
 }
 
-function emit() {
+function emit(event_, appID_) {
   for(var i = 0; i < listeners.length; ++i) {
+    listeners[i].call(event_, appID_);
   }
 }
 
 exports.addListener = function(listener_, callback_) {
-  var cb = callback_ || function() {};
+  var cb_ = callback_ || function() {};
+  if(typeof listener_ !== 'function') return cb_('listener must be a function');
+  listeners.push(listener_);
+  cb_(null);
 }
 
 exports.removeListner = function(listener_, callback_) {
-  var cb = callback_ || function() {};
+  var cb_ = callback_ || function() {};
+  for(var i = 0; i < listeners.length; ++i) {
+    if(listener_ == listeners[i]) {
+      listeners.splice(i, 1);
+      cb_(null);
+    }
+  }
+  cb_('listener not regiestered');
 }
 
