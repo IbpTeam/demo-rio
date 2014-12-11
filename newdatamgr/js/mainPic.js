@@ -14,6 +14,12 @@ var MainPicView = Class.extend({
         }
         _this.setPicture(_this._picData);
       }
+      _this._tagView = TagView.create({
+        position: 'listview',
+        background_color: 'rgb(0,120,240)'
+      });
+      _this._tagView.setParent(_this._picContainer);
+      _this._tagView.addTags(['sea','heaven','success']);
     }, 'picture', 1);
   },
 

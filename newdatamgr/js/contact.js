@@ -17,6 +17,8 @@ var Contact = Class.extend({
       'id': 'contact-detail'
     });
     this._ContactContainer.append(this._contactDetails);
+    this._tagView = TagView.create();
+    this._tagView.setParent(this._contactHead);
   },
 
   setContactsList:function(){
@@ -92,9 +94,10 @@ var Contact = Class.extend({
       'class': 'div-name',
       'text': contact_['name']
     });
-    var _tags = ['Family', 'mather', 'Friends'];
+    var _tags = ['Family', 'School', 'Friends'];
     this._contactHead.append(_photoDiv);
     this._contactHead.append(_nameDiv);
+    this._tagView.addTags(_tags);
   },
 
   setDetails: function(contact_){

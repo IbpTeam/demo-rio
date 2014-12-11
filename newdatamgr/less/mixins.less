@@ -20,3 +20,16 @@
   user-select:@sel;
 }
 
+.rotate(@rotate){
+  -moz-transform:rotate(@rotate); 
+  -webkit-transform:rotate(@rotate);
+  transform:rotate(@rotate);
+}
+
+.transition(...){
+    -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -ms-transition: @arguments;
+  -o-transition: @arguments;
+  transition: @arguments;
+}

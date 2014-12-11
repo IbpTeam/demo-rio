@@ -4,19 +4,12 @@ var InfoList = Class.extend({
   init:function(){
     this._title = ['Contacts','Images','Videos','Documents','Music'];
     this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)'];
-    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent watch','Recent Import','Recent Plays'];
+
+    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays'];
+
     this._index = -1;
-    this._info = {
-      'Falimy': 8,
-      'Friend': 30,
-      'Co-workers': 10,
-      'Other': 8
-    };
-    this._btmInfo = {
-	'New file1' : 'today',
-	'New File2' : 'today',
-	'New File3' : 'today'
-    };
+    this._info = {};
+    this._btmInfo = {};
     this._infoList = $('<div>',{
       'id':'info-list'
     });
@@ -101,11 +94,26 @@ var InfoList = Class.extend({
     }
   },
 
+  getCategoryName:function(index_){
+    switch(index_){
+      case 0:
+        return 'contact';
+      case 1:
+        return 'picture';
+      case 2:
+        return 'video';
+      case 3:
+        return 'document';
+      case 4:
+        return 'music';
+    }
+  },
+
   setContent:function(){
 	var _this = this;
-    DataAPI.getAllTagsByCategory(function(result){
+    DataAPI.getAllTagsByCategory(function(result_){
       _this.removeTags();
-      _this._info = result;
+      _this._info = result_;
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
           var _a = $('<a>',{
@@ -125,17 +133,23 @@ var InfoList = Class.extend({
           _this._add.before(_a);
         }
       }
-    }, _this._title[_this._index]);
-    if (_this._btmInfo) {
-      for(var key in _this._btmInfo){
-        var _a = $('<a>',{
-          'class':'bil__a',
-          'text': key
-        });
-        //_this._edit.before(_a);
-        _this._infoBottom.append(_a);
+    }, _this.getCategoryName(_this._index));
+    DataAPI.getRecentAccessData(function(err_, result_){
+      if(result_ != null){
+        _this.removeRecent();
+        _this._btmInfo = result_;
+        if (_this._btmInfo) {
+          for(var i = 0; i < _this._btmInfo.length; i ++){
+            var _a = $('<a>',{
+              'class':'bil__a',
+              'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename']
+            });
+            //_this._edit.before(_a);
+            _this._infoBottom.append(_a);
+          }
+        }
       }
-    }
+    }, _this.getCategoryName(_this._index), 10);
   },
 
   removeTags:function(){
