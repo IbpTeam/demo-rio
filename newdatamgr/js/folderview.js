@@ -5,8 +5,8 @@ var ShowFiles = Class.extend({
     this._index = 0;
     this._globalSelf;
     this._globalDir;
-    this._fileArchJson = {};
     this._getFiles = {};
+    this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = true;
     this._pictureContentReady = false;
@@ -41,7 +41,6 @@ var ShowFiles = Class.extend({
       _globalSelf._showContent.children().hide();
       _globalSelf._showContent.append(_globalSelf.showFilesSortByTime(_globalSelf._getFiles[_globalSelf._index]));
     });
-
   },
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
@@ -234,6 +233,7 @@ var ShowFiles = Class.extend({
     }
     _globalSelf._getFiles[_globalSelf._index] = data_json;
     if(_globalSelf._showNormal){
+      _globalSelf._imgReady = data_json.length;
       _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
       if(_globalSelf._index ==1){
         $('#pictureContent').hide();
@@ -242,15 +242,175 @@ var ShowFiles = Class.extend({
           $('#pictureContent').BlocksIt({
           numOfCol:5
         });  
-        },200); 
+        },200);
+          // while(true){
+          //   if (_globalSelf._imgReady == 0) {
+          //     break;
+          //   }
+          //   else {
+          //     continue;
+          //   }
+          // }
+          //$('#pictureContent').show();
+          // $('#pictureContent').BlocksIt({
+          //   numOfCol:5
+          // });
       }
-      // else {
-      //   _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-      // }
     }
     else {
       _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
     }
+  },
+
+  //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
+  findFileByPath:function(filePath){
+    var all = _globalSelf._getFiles[_globalSelf._index];
+    var file = false;
+    if(all.length){
+      for(var i =0;i<all.length;i++){
+        if(all[i]['path'] && all[i]['path'].indexOf(filePath) != -1){
+          file = all[i];
+          break;
+        }
+        if(all[i]['props'].path == filePath){
+          file = all[i];
+          break;
+        }
+      }
+    }
+    return file;
+  },
+
+  //此函数用来产生一个和用户交互的界面
+  genPopupDialog:function(title, message, data_json){
+    $("#popup_dialog").remove();
+    var header_btn = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
+    var header_title = $('<h4 class="modal-title"></h4>');
+    header_title.text(title);
+    var header = $('<div class="modal-header"></div>');
+    header.append(header_btn).append(header_title);
+  
+    var body = $('<div class="modal-body"></div>');
+    body.html(message);
+  
+    var footer = $('<div class="modal-footer"></div>');
+    var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
+    footer.append(footer_btn);
+  
+    var content = $('<div class="modal-content"></div>');
+    content.append(header);
+    content.append(body);
+    content.append(footer);
+  
+    var dialog = $('<div class="modal-dialog"></div>');
+    dialog.append(content);
+    var div = $('<div id="popup_dialog" class="modal fade" data-backdrop="false"></div>');
+    div.append(dialog);
+    $('body').append(div);
+    $("#popup_dialog").modal('show');
+    $('#popup_dialog').on('hidden.bs.modal', function(){
+      $(this).remove();
+    });
+    $('#edit_button').on('click', function(){
+      if(data_json != null){
+        $(this).removeData('bs.modal');
+        _globalSelf.genEditDialog(data_json);
+      }
+      else{
+        window.alert("You can not edit this file.");
+      }
+    });
+  },
+
+  //产生一个可以编辑的对话框
+  genEditDialog:function(data_json){
+    console.log("gen edit dialog!", data_json);
+    var file_propery='<form>';
+    for(var key in data_json){
+      if(key == 'props' || key == 'URI'){
+        continue;
+      }
+      file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
+    }
+    file_propery += '</form></br>';
+    file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
+    _globalSelf.genPopupDialog('Edit', file_propery);
+    $('#save_button').on('click', function(){
+      var new_json = {};
+      for(var key in data_json){
+        if(key == 'props' || key == 'URI'){
+          continue;
+        }
+        var new_value = document.getElementById(key).value;
+        new_json[key] = new_value;
+      }
+      new_json['category'] = get_category();
+      new_json['URI'] = data_json['URI'];
+      DataAPI.updateDataValue(function(result){
+        if(result == 'success'){
+          window.alert("Saved successfully!");
+        }
+        else{
+          window.alert("Saved failed!");
+        }
+      }, [new_json]);
+    });
+  },
+
+  //此函数用来通过json格式找到数据库中的源文件
+  cbGetDataSourceFile:function(data_json){
+    console.log('get data source file', data_json);
+    if(!data_json['openmethod'] || !data_json['content']){
+      window.alert('openmethod or content not found.');
+      return false;
+    }
+
+    var method = data_json['openmethod'];
+    var content = data_json['content'];
+    switch(method){
+      case 'alert':
+        window.alert(content);
+        break;
+      case 'html':
+        var file_content;
+        var format = data_json['format'];
+        switch(format){
+          case 'audio':
+            file_content = $('<audio controls></audio>');
+            file_content.html('<source src=\"' + content + '\"" type="audio/mpeg">');
+            break;
+          case 'video':
+            file_content = $('<video width="400" height="300" controls></video>');
+            file_content.html('<source src=\"' + content + '\"" type="video/ogg">');
+            break;
+          case 'div':
+            file_content = content;
+            break;
+          case 'txtfile':
+            file_content = $("<p></p>").load(content);
+            break;
+          default:
+            file_content = content;
+            break;
+        }
+
+        var title = data_json['title'];
+        if (!data_json['windowname']){
+          _globalSelf.genPopupDialog(title, file_content);
+        }
+        else{
+          _globalSelf.genPopupDialog("窗口控制", "<div>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+            </div>");
+        }
+        break;
+      default:
+        break;
+    }
+    return; 
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
@@ -262,6 +422,42 @@ var ShowFiles = Class.extend({
     theadMessage.push('createTime');
 
     return theadMessage;
+  },
+
+  //此函数用来绑定一些单击双击事件
+  addClickEvent:function(jQueryElement,whichClass){
+    //一个JQuery元素代表的是一系列文件
+    this.files = jQueryElement;
+    var self = this;
+    this.files.delegate(whichClass,'mousedown',function(e){
+      switch(e.which){
+        case 1:
+          $(this).addClass('selected').siblings().removeClass('selected');
+          break;
+        case 3:
+          console.log('this is right once---------------');
+          break;  
+      }
+      e.stopPropagation();
+    });
+    this.files.delegate(whichClass,'dblclick',function(e){
+      var file = _globalSelf.findFileByPath($(this).attr('data-path'));
+      if(!file){
+        window.alert('the file is not found !');
+        return false;
+      }
+      if(file.URI.indexOf('#') != -1){
+        if(file.postfix == 'pdf'){
+          function cbViewPdf(){
+            console.log('open pdf with viewer PDF');
+          }
+          AppAPI.startAppByName(cbViewPdf, "viewerPDF", file.path);
+        }
+        else {
+          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+        }
+      }
+    });
   },
 
   //此函数用来转换时间
@@ -285,7 +481,7 @@ var ShowFiles = Class.extend({
     }
     //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
     function GenerateBodyTr(file,theadMessage){
-      var bodytr = $('<tr></tr>');
+      var bodytr = $('<tr class = "bodytr"></tr>');
       for(var i =0;i<theadMessage.length;i++){
         //bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
         switch(i){
@@ -306,10 +502,6 @@ var ShowFiles = Class.extend({
             break;
         }
       }
-      // bodytr.mousedown(function(e){
-      //   e.stopPropagation();
-      // });
-
       return bodytr;
     }
     //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容.
@@ -319,9 +511,6 @@ var ShowFiles = Class.extend({
     //设置表头的信息
     var theadtr = $('<tr></tr>');
     var theadMessage = this.getShowMessage();
-    // for(var i = 0;i<theadMessage.length;i++){
-    //   theadtr.append($('<th>'+ theadMessage[i] + '</th>'));
-    // }
     theadtr.append($('<th>Name</th>'));
     theadtr.append($('<th>Date Modified</th>'));
     theadtr.append($('<th>Size</th>'));
@@ -336,6 +525,7 @@ var ShowFiles = Class.extend({
     table.append(tbody);
     var returnContent = $('<div class = "tableContainer" style= "overflow:auto"></div>');
     returnContent.append(table);
+    _globalSelf.addClickEvent(returnContent,'.bodytr');
     return returnContent;
   },
 
@@ -361,6 +551,9 @@ var ShowFiles = Class.extend({
       } 
       if(file['props'].img){
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
+        // Holder[0].onload(function(){
+        //   _globalSelf._imgReady --;
+        // });
         outContainer.append(Holder);
         outContainer.append(description);
         //returnContent.append(outContainer);
@@ -425,6 +618,8 @@ var ShowFiles = Class.extend({
     returnContent.append(previous7Days);
     returnContent.append(previous30Days);
     returnContent.append(previousOneYear);
+    _globalSelf.addClickEvent(returnContent,'.outContainer');
+    _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
 
@@ -445,6 +640,12 @@ var ShowFiles = Class.extend({
       } 
       if(file['props'].img){
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
+        // Holder[0].onload = function(){
+        //   _globalSelf._imgReady = _globalSelf._imgReady - 1;
+        //   outContainer.append(Holder);
+        //   outContainer.append(description);
+        //   returnContent.append(outContainer);
+        // };
         outContainer.append(Holder);
         outContainer.append(description);
         returnContent.append(outContainer);
@@ -468,9 +669,8 @@ var ShowFiles = Class.extend({
         returnContent.append(fileContainer);
       }
     }
-    // if(_globalSelf._index ==1){
-    //   _globalSelf._pictureContentReady = true;
-    // }
+    _globalSelf.addClickEvent(returnContent,'.outContainerWaterFall');
+    _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
   

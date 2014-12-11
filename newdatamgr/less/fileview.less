@@ -14,11 +14,13 @@
       width: 100%;
       border: 1px solid #f00;
       .returnContent {
+        .selected {
+          background-color:#08c;
+        }
         .outContainerWaterFall {
           width:188px; 
           min-height:100px; 
           padding: 15px; 
-          background:#fff; 
           margin:8px; 
           font-size:12px; 
           float:left; 
@@ -52,10 +54,16 @@
           }
         }
       }
+      .selected {
+        background-color:#08c;
+      }
       .sortByTime {
         height:250px;
         border: 1px solid #ff0;
         overflow-x:auto;
+        .selected {
+          background-color:#08c;
+        }
         .outContainer {
           width:200px;
           height:200px; 
@@ -156,7 +164,7 @@
         .table tr:hover {
           color:#ffffff;
           text-shadow:0 -1px 0 rgba(0,0,0,0.2);
-          background-color:#0088cc;
+          background-color:#08c;
           text-decoration:none;
           cursor:pointer;
         }
