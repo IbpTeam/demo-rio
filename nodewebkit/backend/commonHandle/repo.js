@@ -57,7 +57,7 @@ function repoCommit(repoPath, files, commitID, op, callback) {
     if(op=="rm"){
       comstr = comstr + ' && git rm "' + files[k] + '"';
     }
-    else if(op=="add" ||op=="ch" ||op=="load" ){
+    else if(op=="add" ||op=="ch" ||op=="load"||op=="open" ){
       comstr = comstr + ' && git add "' + files[k] + '"';
     }
   }
@@ -84,7 +84,7 @@ exports.repoCommit = repoCommit;
 
 function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   var exec = require('child_process').exec;
-  if(oriOp=="rm" ||oriOp=="ch"){
+  if(oriOp=="rm" ||oriOp=="ch"||oriOp=="open"){
     var comstr = 'cd ' + repoPath + ' && git add '+file[0];
   }
   var relateCommit = '"relateCommit": "' + commitID + '",';
