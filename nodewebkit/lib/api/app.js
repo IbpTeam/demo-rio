@@ -1,4 +1,5 @@
 var config = require('../../backend/config');
+var appManager = require('../../backend/app/appManager');
 var path = require("path");
 
 /**
@@ -49,23 +50,25 @@ exports.getAppList=getAppList;
 function startAppByName(startAppByNameCb, sAppName, sParams){
   console.log("Request handler 'startAppByName' was called. sAppName:" +sAppName + " oParamBag:" + sParams);
   try{
-    var runapp=null;
-    var app;
-    for(var i = 0; i < config.AppList.length; i++) {
-      app = config.AppList[i];
-      if (app.name == sAppName) {
-        runapp=app;
-        break;
-      }
-    }
+    // changed
+    /* var runapp=null; */
+    /* var app; */
+    /* for(var i = 0; i < config.AppList.length; i++) { */
+      // app = config.AppList[i];
+      // if (app.name == sAppName) {
+        // runapp=app;
+        // break;
+      // }
+    /* } */
 
+    var runapp = appManager.getRegisteredAppInfoByAttr('name', sAppName);
     if (runapp === null) {
       console.log("Error no app " + sAppName);
       setTimeout(startAppByNameCb(null), 0);
       return;
     }
 
-    var twin=window.Window.create(runapp.id, runapp.name, {
+    var twin=window.Window.create(runapp.id + '-window', runapp.name, {
       left:200,
       top:200,
       height: 500,
@@ -75,16 +78,39 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
       contentDiv: false,
       iframe: true
     });
-    twin.appendHtml(path.join(config.APPBASEPATH, runapp.path) + (sParams===null?"":("?"+sParams)));
+    twin.appendHtml(path.join(config.APPBASEPATH, runapp.path, '/index.html')
+        + (sParams === null ? "" : ("?" + sParams)));
     app.win=twin;
-    setTimeout(startAppByNameCb(twin), 0);
-  }catch(e){
+    setTimeout(startAppByNameCb({
+      name: sAppName,
+      window: twin
+    }), 0);
+  } catch(e) {
     console.log("Error happened:" + e.message);
     setTimeout(startAppByNameCb(null), 0);
     return;
   }
 };
 exports.startAppByName=startAppByName;
+
+/**
+ * @method startApp
+ *   根据应用ID打开应用
+ *
+ * @param1 callback function(err, window)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      window: APP Window object
+ * @param2 appInfo object
+ *   启动程序Info对象，可以通过getRegisteredAppInfo获得
+ * @param3 params string
+ *   启动程序参数，可以json格式封装
+ */
+exports.startApp = function(startAppCB, appInfo, params) {
+  appManager.startApp(appInfo, params, startAppCB);
+};
 
 /**
  * @method sendKeyToApp
@@ -137,3 +163,64 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
   });
 }
 exports.sendKeyToApp = sendKeyToApp;
+
+/**
+** Register a HTML5 app to system
+** registerAppCB: function(err_)
+**    err_: error discription or null
+** appInfo_: {
+**  id: ${app id},
+**  path: ${path of app},
+** }
+**/
+exports.registerApp = function(registerAppCB, appInfo) {
+  appManager.registerApp(appInfo, registerAppCB);
+};
+
+/**
+** Unregister a HTML5 app from system
+** unregisterAppCB: function(err_)
+**    err_: error discription or null
+** appID: id of app
+**/
+exports.unregisterApp = function(unregisterAppCB, appID) {
+  appManager.unregisterApp(appID, unregisterAppCB);
+};
+
+/**
+** Get all registered HTML5 app
+** getRegisteredAppCB: function(err, appList)
+**    err: error discription or null
+**    appList: the list of app id
+**/
+exports.getRegisteredApp = function(getRegisteredAppCB) {
+  getRegisteredAppCB(null, appManager.getRegisteredApp());
+}
+
+/**
+** Get registered app info by id
+** getRegisteredAppInfoCB: function(err, appInfo)
+**    err: error discription or null
+**    appInfo: {
+**      id: ${app id},
+**      name: ${app name},
+**      path: ${path of app},
+**      iconPath: ${icon path of app}
+**    }
+** appID: the id of app
+**/
+exports.getRegisteredAppInfo = function(getRegisteredAppInfoCB, appID) {
+  appManager.getRegisteredAppInfo(appID, getRegisteredAppInfoCB);
+}
+
+/**
+** Get all app base path
+** getRegisteredAppCB: function(err, basePath)
+**    err: error discription or null
+**    basePath: the base path of app
+**/
+exports.getBasePath = function(getBasePathCB) {
+  getBasePathCB(null, appManager.getBasePath());
+}
+
+// TODO: add a interface to on and off listener
