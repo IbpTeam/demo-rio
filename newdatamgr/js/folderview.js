@@ -63,7 +63,7 @@ var ShowFiles = Class.extend({
       }
       else {
         if(this._showNormal){
-          if($("#pictureContent").length>0){
+          if($("#pictureContent").children('div').length>0){
             $("#pictureContent").show();
             $('#pictureContent').BlocksIt({
               numOfCol: 5,
@@ -74,7 +74,7 @@ var ShowFiles = Class.extend({
           }
         }
         else {
-          if ($("#pictureContentList").length>0){
+          if ($("#pictureContentList").children('table').length>0){
             $("#pictureContentList").show();
           }
           else {
@@ -90,7 +90,7 @@ var ShowFiles = Class.extend({
       }
       else {
         if(this._showNormal){
-          if($("#videoContent").length>0){
+          if($("#videoContent").children('div').length>0){
             $("#videoContent").show();
           }
           else {
@@ -98,7 +98,7 @@ var ShowFiles = Class.extend({
           }
         }
         else {
-          if ($("#videoContentList").length>0){
+          if ($("#videoContentList").children('table').length>0){
             $("#videoContentList").show();
           }
           else {
@@ -114,7 +114,7 @@ var ShowFiles = Class.extend({
       }
       else {
         if(this._showNormal){
-          if($("#documentContent").length>0){
+          if($("#documentContent").children('div').length>0){
             $("#documentContent").show();
           }
           else {
@@ -122,7 +122,7 @@ var ShowFiles = Class.extend({
           }
         }
         else {
-          if ($("#documentContentList").length>0){
+          if ($("#documentContentList").children('table').length>0){
             $("#documentContentList").show();
           }
           else {
@@ -138,7 +138,7 @@ var ShowFiles = Class.extend({
       }
       else {
         if(this._showNormal){
-          if($("#musicContent").length>0){
+          if($("#musicContent").children('div').length>0){
             $("#musicContent").show();
           }
           else {
@@ -146,7 +146,8 @@ var ShowFiles = Class.extend({
           }
         }
         else {
-          if ($("#musicContentList").length>0){
+
+          if ($("#musicContentList").children('table').length>0){
             $("#musicContentList").show();
           }
           else {
@@ -235,27 +236,6 @@ var ShowFiles = Class.extend({
     if(_globalSelf._showNormal){
       _globalSelf._imgReady = data_json.length;
       _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-      if(_globalSelf._index ==1){
-        $('#pictureContent').hide();
-        setTimeout(function(){
-          $('#pictureContent').show();
-          $('#pictureContent').BlocksIt({
-          numOfCol:5
-        });  
-        },200);
-          // while(true){
-          //   if (_globalSelf._imgReady == 0) {
-          //     break;
-          //   }
-          //   else {
-          //     continue;
-          //   }
-          // }
-          //$('#pictureContent').show();
-          // $('#pictureContent').BlocksIt({
-          //   numOfCol:5
-          // });
-      }
     }
     else {
       _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
@@ -532,10 +512,10 @@ var ShowFiles = Class.extend({
   //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesSortByTime:function(files){
     var returnContent = $('<div style= "overflow:auto"></div>');
-    var today = $('<div  class = "sortByTime" >today</div>');
-    var previous7Days = $('<div class = "sortByTime" >previous7Days</div>');
-    var previous30Days = $('<div  class = "sortByTime" >previous30Days</div>');
-    var previousOneYear = $('<div class = "sortByTime" >previousOneYear</div>');
+    var today = $('<div  class = "sortByTime" ></div>');
+    var previous7Days = $('<div class = "sortByTime" ></div>');
+    var previous30Days = $('<div  class = "sortByTime" ></div>');
+    var previousOneYear = $('<div class = "sortByTime" ></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
       var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
@@ -551,12 +531,8 @@ var ShowFiles = Class.extend({
       } 
       if(file['props'].img){
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
-        // Holder[0].onload(function(){
-        //   _globalSelf._imgReady --;
-        // });
         outContainer.append(Holder);
         outContainer.append(description);
-        //returnContent.append(outContainer);
         if(timeDifference >=0 && timeDifference <=24){
           today.append(outContainer);
         }
@@ -599,7 +575,6 @@ var ShowFiles = Class.extend({
         }else{
           fileContainer.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
         }
-        //returnContent.append(fileContainer);
         if(timeDifference >=0 && timeDifference <=24){
           today.append(fileContainer);
         }
@@ -613,6 +588,18 @@ var ShowFiles = Class.extend({
           previousOneYear.append(fileContainer);
         }
       }
+    }
+    if(today.children('div').length ==0){
+      today.hide();
+    }
+    if(previous7Days.children('div').length ==0){
+      previous7Days.hide();
+    }
+    if(previous30Days.children('div').length ==0){
+      previous30Days.hide();
+    }
+    if(previousOneYear.children('div').length ==0){
+      previousOneYear.hide();
     }
     returnContent.append(today);
     returnContent.append(previous7Days);
@@ -640,15 +627,19 @@ var ShowFiles = Class.extend({
       } 
       if(file['props'].img){
         Holder.append($('<img src="' + file['props'].img + '"></img>'));
-        // Holder[0].onload = function(){
-        //   _globalSelf._imgReady = _globalSelf._imgReady - 1;
-        //   outContainer.append(Holder);
-        //   outContainer.append(description);
-        //   returnContent.append(outContainer);
-        // };
         outContainer.append(Holder);
         outContainer.append(description);
         returnContent.append(outContainer);
+        returnContent.hide();
+        Holder.children('img')[0].onload = function(){
+          _globalSelf._imgReady = _globalSelf._imgReady - 1;
+          if(_globalSelf._imgReady ==0){
+            returnContent.show();
+            $('#pictureContent').BlocksIt({
+              numOfCol:5
+            });
+          }
+        };
       }
       else if(file['props'].video){
         Holder.append($('<video src="' + file['props'].video + '"></video>'));
