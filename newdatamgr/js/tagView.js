@@ -1,14 +1,16 @@
 var TagView = Class.extend({
   init:function(options_){
     this._options = {
-      direction: 'left',
+      direction: 'down',
       position: 'random',  //listView
       background_color: 'rgb(255,0,0)',
       opacity: 0.9,
+      opacity_step:0.2,
       color: 'rgb(255,255,255)',
-      maxNum: 6,
+      max: 6,
+      animate: true,
       random_positions: [{left:25,top:20},{left:60,top:60},{left:20,top:50},{left:18,top:130},{left:70,top:30},{left:65,top:90}],
-      positions: {top:10,direction:'down',step:30}
+      positions: {top:10,step:30}
     }
     if (options_) {
       for(var key in options_){
@@ -19,7 +21,7 @@ var TagView = Class.extend({
     this._tagList = [];
     this._parent = undefined;
     if (this._options.position === 'random') {
-      this._positionIndex = Math.ceil(Math.random()*_this._options.maxNum);
+      this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     };
     this._index = 0;
   },
@@ -28,7 +30,7 @@ var TagView = Class.extend({
    * @type {[type]}
    */
   addTag:function(tag_){
-    if(this._index === this._options.maxNum){
+    if(this._index === this._options.max){
       return 0;
     }
     var _tagContainer = $('<div>',{
@@ -39,6 +41,7 @@ var TagView = Class.extend({
     });
     var _tagSpan = $('<div>',{
       'class': 'tag-text',
+      'opacity': 1,
       'text': tag_
     })
     var _tagTriangle = $('<div>',{
@@ -46,14 +49,14 @@ var TagView = Class.extend({
     })
     _tagBackground.css({
       'background-color': this._options.background_color,
-      'opacity': this._options.opacity - this._index*0.2
+      'opacity': this._options.opacity - this._index*this._options.opacity_step
     });
     _tagSpan.css({
       'color': this._options.color,
     });
     _tagTriangle.css({
       'background-color': this._options.background_color,
-      'opacity': this._options.opacity - this._index*0.2
+      'opacity': this._options.opacity - this._index*this._options.opacity_step
     });
     _tagContainer.append(_tagBackground);
     _tagContainer.append(_tagSpan);
@@ -66,13 +69,65 @@ var TagView = Class.extend({
     this._index += 1;
   },
   /**
+   * [hideTags description]
+   * @callback_ {[call back function when finish animate]}
+   */
+  removeTags:function(callback_){
+    var _this = this;
+    var _tags = this._parent.children('.tag-container');
+    if (!this._options.animate) {
+      _tags.remove();
+      if (callback_) {
+        callback_();
+      };
+    };
+    var _tagLeng = _tags.length;
+      if (this._options.direction === 'down') {
+        _tags.animate({top:_this._options.positions.top},500,function(){
+          _tags.remove();
+          _tagLeng--;
+          if (callback_&&_tagLeng === 0) {
+            callback_();
+          };
+        })
+      }else {
+        _tags.animate({bottom:_this._options.positions.bottom},500,function(){
+          _tags.remove();
+          _tagLeng--;
+          if (callback_&&_tagLeng === 0) {
+            callback_();
+          };
+        })
+      }
+  },
+  /**
+   * [showTags show Tags]
+   * @type {[type]}
+   */
+  showTags:function(){
+    var _this = this;
+    if (this._options.position === 'random') {
+      return 0;
+    };
+    for (var i = this._tagList.length - 1; i >= 0; i--) {
+      if (this._options.direction === 'down') {
+        this._tagList[i].animate({top:_this._options.positions.top+ i*_this._options.positions.step},500);
+      }else {
+        this._tagList[i].animate({bottom:_this._options.positions.bottom+i*_this._options.positions.step},500);
+      }
+    };
+  },
+  /**
    * [addTags add mul-tags by addTag function]
    * @type {[type]}
    */
-  addTags:function(arrTags_){
+  addTags:function(arrTags_, callback_){
     for (var i = 0; i < arrTags_.length; i++) {
       this.addTag(arrTags_[i]);
     };
+    if(this._options.animate){
+      this.showTags(callback_);
+    }
   },
   /**
    * [removeTagByText remove a tag by tag content]
@@ -103,13 +158,13 @@ var TagView = Class.extend({
       return 0;
     };
     this._positionIndex = this._positionIndex + 1;
-    if (this._positionIndex === this._options.maxNum) {
+    if (this._positionIndex === this._options.max) {
       this._positionIndex = 0;
     };
     if (this._parent && this._options.position === 'random') {
       for (var i = 0; i < this._tagList.length; i++) {
         var _index = this._positionIndex + i;
-        _index = (_index > this._options.maxNum -1) ?  _index - this._options.maxNum : _index; 
+        _index = (_index > this._options.max -1) ?  _index - this._options.max : _index; 
         var _position = this._options.random_positions[_index];
         $(this._tagList[i]).animate({
           left: _position.left +'%',
@@ -133,6 +188,21 @@ var TagView = Class.extend({
     };
   },
   /**
+   * [refresh refresh init taglist and index]
+   * @type {[type]}
+   */
+  refresh:function(callback_){
+    var _this = this;
+    this.removeTags(function(){
+      _this._tagList = [];
+      callback_();
+    });
+    this._index = 0;
+    if (this._options.position === 'random') {
+      this._positionIndex = Math.ceil(Math.random()*_this._options.max);
+    };
+  },
+  /**
    * [setPosition set tag position]
    * @type {[type]}
    */
@@ -140,7 +210,7 @@ var TagView = Class.extend({
     var _position = undefined;
     if (this._options.position === 'random') {
       var _index = this._positionIndex + this._index;
-      _index = (_index > this._options.maxNum -1) ?  _index - this._options.maxNum : _index;
+      _index = (_index > this._options.max -1) ?  _index - this._options.max : _index;
       _position = this._options.random_positions[_index];     
       if (_position.left > 50) {
         $obj_.children('div').addClass('left-triangle');
@@ -154,16 +224,27 @@ var TagView = Class.extend({
     } else {
       _position = {}
       _position['right'] = this._options.positions.right;
-      if (this._options.positions.direction === 'down') {
-        _position['top'] = this._options.positions.top + this._index * this._options.positions.step;
-      } else if (this._options.positions.direction === 'up'){
-        _position['top'] = this._options.positions.top - this._index * this._options.positions.step;
+      if (this._options.direction === 'down') {
+        if (this._options.animate) {
+          _position['top'] = this._options.positions.top;
+        }else{
+          _position['top'] = this._options.positions.top + this._index * this._options.positions.step;
+        };
+        $obj_.css({
+          top: _position.top + 'px'
+        });
+      } else if (this._options.direction === 'up'){
+        if (this._options.animate) {
+        _position['bottom'] = this._options.positions.bottom;
+        }else{
+          _position['bottom'] = this._options.positions.bottom + this._index * this._options.positions.step;
+        }
+        $obj_.css({
+          bottom: _position.bottom + 'px'
+        });
       }
       $obj_.children('div').addClass('left-triangle');
       $obj_.addClass('rotate');
-      $obj_.css({
-        top: _position.top + 'px'
-      });
     }
   }
 });

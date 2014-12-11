@@ -2,7 +2,8 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = ['Contacts','Images','Videos','Documents','Music'];
+    this._title = ['Contacts','Images','Videos','Documents','Musics'];
+    this._category = ['contact','picture','video','document','music'];
     this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)'];
     this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent watch','New Import','New Plays'];
     this._index = -1;
@@ -44,11 +45,6 @@ var InfoList = Class.extend({
       'id':'il__bottom'
     });
     this._infoList.append(this._infoBottom);
-
-    //this._edit = $('<a>',{
-    //  'class': 'il__edit icon-edit'
-    //});
-    //this._infoBottom.append(this._edit);
     this._isFirstRequset = true;
   },
 
@@ -74,9 +70,6 @@ var InfoList = Class.extend({
     if ($span.length > 0) {
       $span.remove();
     };
-    //var _icon = $('<span>',{
-    // 'class': 'icon-time title-icon'
-    //});
     var _title = $('<span>', {
       'class': 'bil_title',
       'text': this._btmTitle[this._index]
@@ -103,8 +96,8 @@ var InfoList = Class.extend({
 
   setContent:function(){
 	var _this = this;
-    DataAPI.getAllTagsByCategory(function(result){
       _this.removeTags();
+    DataAPI.getAllTagsByCategory(function(result){
       _this._info = result;
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
@@ -125,7 +118,7 @@ var InfoList = Class.extend({
           _this._add.before(_a);
         }
       }
-    }, _this._title[_this._index]);
+    }, _this._category[_this._index]);
     if (_this._btmInfo) {
       for(var key in _this._btmInfo){
         var _a = $('<a>',{
