@@ -4,7 +4,7 @@ var InfoList = Class.extend({
   init:function(){
     this._title = ['Contacts','Images','Videos','Documents','Music'];
     this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)'];
-    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent watch','New Import','New Plays'];
+    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent watch','Recent Import','Recent Plays'];
     this._index = -1;
     this._info = {
       'Falimy': 8,

@@ -77,9 +77,14 @@
 }
 
 .regular-checkbox:checked + label:after {
-  content:"";
+  font-family: 'icomoon';
+  content:"\e60d";
+  font-size: 1.2em;
   position: absolute;
+  top:-1px;
+  left:1px;
 }
+
 /*
 .black_bj:after{
   font-family: 'icomoon';
