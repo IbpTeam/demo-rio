@@ -265,25 +265,8 @@
       win.document.write("callback result: ");
       win.document.write("<br/>");
       print(win, result);
-      // var canvas = document.getElementById("test_id3");
-      // var cxt = canvas.getContext("2d");
-      // var canvasWidth = canvas.width;
-      // var canvasHeight = canvas.height;
-      // var imageData = encode(result.v2.image.data);
-      // var bytes = new Uint8Array(result.v2.image.data);
       var img = document.getElementById("test_img");
-      // var arrayBufferView = new Uint8Array(result.v2.image.data);
-      // var blob = new Blob([arrayBufferView], {
-      //   type: "image/jpeg"
-      // });
-      // var urlCreator = window.URL || window.webkitURL;
-      //var imageUrl = urlCreator.createObjectURL(blob);
-      //var img = document.querySelector("#photo");
-      //var obj = result.toString('base64');
-      img.src = 'data:image/jpeg;base64,' + result;//obj.toString();;
-
-
-      // cxt.putImageData(encode(bytes),10,10);
+      img.src = 'data:image/jpeg;base64,' + result;
     }
   }
 

@@ -1550,8 +1550,10 @@ exports.deviceInfo = deviceInfo;
  *        string, contain specific error
  *
  *    @param2: result,
- *
- *        array, data in an ArrayBuffer.
+ *        string, data is returned in binary encoded with base64. You could acc-
+ *                ess the picture like: 
+ *                var img = document.getElementById("test_img");
+ *                img.src = 'data:image/jpeg;base64,' + result;
  *
  *  @param2: filePath
  *    string, a specific music file path.To access it, you may use a DataView or
