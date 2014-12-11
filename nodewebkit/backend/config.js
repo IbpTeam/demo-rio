@@ -21,7 +21,7 @@ exports.APPBASEPATH = APPBASEPATH;
 var APP_DATA_PATH = [
   // TODO: make sure where to save
   path.join(process.env["HOME"], '.local/share/webde/App.list'),
-  '/usr/share/webde/App.list'
+  __dirname + '/app/App.list'
 ];
 exports.APP_DATA_PATH = APP_DATA_PATH;
 
@@ -41,31 +41,32 @@ exports.PROJECTPATH = PROJECTPATH;
  *   win:窗口对象，如果为null则处于未打开状态
  *   path:程序的启动路径，应该是html文件，可以是相对repo/app路径
  */
-var AppList=[
-  {
-    id:"app1",
-    name:"datamgr",
-    win:null,
-    win2:null,
-    path:"demo-rio/datamgr/file-explorer.html"
-  },
-  {
-    id:"app_example",
-    name:"example",
-    win:null,
-    win2:null,
-    path:"demo-rio/appExample/index.html"
-  },
-  {
-    id:"app_viewerPDF",
-    name:"viewerPDF",
-    win:null,
-    win2:null,
-    path:"demo-rio/viewerPDF/index.html"
-  }
-];
-exports.AppList = AppList;
-exports.AppRegisterPath = '/webde/App.list'
+// TODO: delete these codes when new added stable
+/* var AppList=[ */
+  // {
+    // id:"app1",
+    // name:"datamgr",
+    // win:null,
+    // win2:null,
+    // path:"demo-rio/datamgr/file-explorer.html"
+  // },
+  // {
+    // id:"app_example",
+    // name:"example",
+    // win:null,
+    // win2:null,
+    // path:"demo-rio/appExample/index.html"
+  // },
+  // {
+    // id:"app_viewerPDF",
+    // name:"viewerPDF",
+    // win:null,
+    // win2:null,
+    // path:"demo-rio/viewerPDF/index.html"
+  // }
+// ];
+// exports.AppList = AppList;
+/* exports.AppRegisterPath = '/webde/App.list' */
 
 /**
  * Database Path

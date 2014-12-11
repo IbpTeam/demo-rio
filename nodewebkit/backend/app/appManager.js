@@ -290,3 +290,5 @@ exports.startApp = function(appInfo_, params_, callback_) {
   }
 }
 
+// TODO: add path validate
+

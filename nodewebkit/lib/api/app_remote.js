@@ -126,3 +126,5 @@ exports.startApp = function(startAppCB, appInfo, params) {
     return cb_(e);
   }
 }
+
+// TODO: add a interface to on and off listener

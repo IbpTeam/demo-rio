@@ -222,3 +222,5 @@ exports.getRegisteredAppInfo = function(getRegisteredAppInfoCB, appID) {
 exports.getBasePath = function(getBasePathCB) {
   getBasePathCB(null, appManager.getBasePath());
 }
+
+// TODO: add a interface to on and off listener
