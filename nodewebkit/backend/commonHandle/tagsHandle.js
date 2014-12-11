@@ -231,15 +231,16 @@ function getTagsByUris(callback, oUris) {
       for (var j in oItem.others) {
         var sTag = oItem.others[j];
         var sUri = oItem.URI;
-        var sFilename = oItem.filename;
+        var sFilename = oItem.filename || oItem.name;
         var sPostfix = oItem.postfix;
-        var sPath = oItem.path;
+        var sPath = oItem.path || oItem.photopath;
         if (sTag != null && sTag != "") {
+          var oContent = (sTableName === 'contact') ? [sUri, sFilename, sPath] : [sUri, sFilename, sPostfix, sPath];
           if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
+            TagFile.tagFiles[sTag].push(oContent);
           } else {
             TagFile.tagFiles[sTag] = [
-              [sUri, sFilename, sPostfix, sPath]
+              oContent
             ];
             TagFile.tags.push(sTag);
           }
@@ -248,8 +249,8 @@ function getTagsByUris(callback, oUris) {
     }
     callback(TagFile);
   }
-  var name = (sTableName === 'contact') ? 'name' : 'filename';
-  commonDAO.findItems(['others', name, 'uri', 'postfix', 'path'], sTableName, [condition], null, findItemsCb);
+  var column = (sTableName === 'contact') ? ['others', 'name', 'uri', 'photopath'] : ['others', 'filename', 'uri', 'postfix', 'path'];
+  commonDAO.findItems(column, sTableName, [condition], null, findItemsCb);
 }
 exports.getTagsByUris = getTagsByUris;
 
@@ -310,6 +311,49 @@ function getFilesByTags(callback, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
+function getFilesByTagsInCategory(callback, category, sTag) {
+  var condition = ["tag='" + sTag + "'"];
+  commonDAO.findItems(null, ['tags'], condition, null, function(err, result) {
+    if (err) {
+      console.log(err);
+      return callback(err, null);
+    } else if (result = undefined) {
+      var _err = 'not found in data base ...';
+      return callback(_err, null);
+    } else if (result.length > 1) {
+      var _err = 'tag in data base is not unique ...';
+      return callback(_err, null);
+    }
+    try {
+      var oUris = result[0].file_URI.split(',');
+    } catch (e) {
+      var _err = result[0] + ': bad file_URI ...';
+      return callback(_err, null);
+    }
+    var oCondition = [];
+    var reg_cate = new RegExp(category, 'g');
+    for (var j = 0; j < oUris.length; j++) {
+      if (reg_cate.test(oUris[j])) {
+        var tmpCondition = "uri='" + oUris[j] + "'";
+        oCondition.push(tmpCondition);
+      }
+    }
+    var sCondition = oCondition.join('or');
+    commonDAO.findItems(null, category, [sCondition], null, function(err, result) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      } else if (result = undefined) {
+        var _err = 'not found in data base ...';
+        return callback(_err, null);
+      }
+      callback(null, result);
+    })
+  });
+}
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
+
+
 
 /**
  * @method setTagByUri
@@ -368,8 +412,13 @@ function setTagByUri(callback, oTags, sUri) {
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
         repo.repoCommit(chPath, [desFilePath], null, "ch", function() {
-          console.log('set tags des git committed!');
-          callback('commit');
+          addInTAGS(oTags, sUri, function(err) {
+            if (err) {
+              return callback(err, null);
+            }
+            console.log('set tags des git committed!');
+            callback('commit');
+          })
         });
       });
     });
@@ -475,8 +524,13 @@ function rmTagsByUri(callback, oTags, sUri) {
           }
           var desPath = config.RESOURCEPATH + '/' + category + 'Des';
           repo.repoCommit(desPath, files, null, "ch", function() {
-            console.log("rm tags: ", oTags, " success!");
-            callback(result);
+            rmInTAGS(oTags, sUri, function(err) {
+              if (err) {
+                return callback(err);
+              }
+              console.log("rm tags: ", oTags, " success!");
+              callback(result);
+            })
           });
         })
       } else {
@@ -683,3 +737,84 @@ function setRelativeTagByPath(sFilePath, sTags, callback) {
   });
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
+
+
+/**
+ * @method rmInTAGS
+ *   To remove tags in 'tags' list.
+ *
+ * @param1 oTags
+ *    array, array of tags.
+ *
+ * @param2 sUri
+ *    string, a valid uri.
+ *
+ * @param3 callback
+ *    @result, (_err)
+ *
+ *    @param: _err,
+ *        string, if err, return specific error; otherwise return null.
+ *
+ */
+function rmInTAGS(oTags, sUri, callback) {
+  var sCondition = ["file_URI='" + sUri + "'"];
+  if (oTags) {
+    var tmpCondition = [];
+    for (var tag in oTags) {
+      var str = "tag='" + oTags[tag] + "'";
+      tmpCondition.push(str);
+    }
+    tmpCondition[0] = "(" + tmpCondition[0];
+    tmpCondition[tmpCondition.length - 1] = tmpCondition[tmpCondition.length - 1] + ")";
+    sCondition.push(tmpCondition.join('or'));
+  }
+  var oItem = {
+    category: 'tags',
+    conditions: sCondition
+  }
+  commonDAO.deleteItem(oItem, function(result) {
+    if (result === "rollback") {
+      var _err = 'create item in data base rollback ...';
+      return callback(_err);
+    }
+    callback(null);
+  })
+}
+exports.rmInTAGS = rmInTAGS;
+
+/**
+ * @method addInTAGS
+ *   To remove tags in 'tags' list.
+ *
+ * @param1 oTags
+ *    array, array of tags.
+ *
+ * @param2 sUri
+ *    string, a valid uri.
+ *
+ * @param3 callback
+ *    @result, (_err)
+ *
+ *    @param: _err,
+ *        string, if err, return specific error; otherwise return null.
+ *
+ */
+function addInTAGS(oTags, sUri, callback) {
+  var oItems = [];
+  for (var tag in oTags) {
+    var oItem = {
+      category: 'tags',
+      tag: oTags[tag],
+      file_URI: sUri
+    }
+    oItems.push(oItem);
+  }
+  commonDAO.createItems(oItems, function(result) {
+    if (result === "rollback") {
+      var _err = 'create item in data base rollback ...';
+      return callback(_err);
+    }
+    callback(null);
+  })
+}
+exports.addInTAGS = addInTAGS;
