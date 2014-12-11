@@ -82,7 +82,7 @@ function repoCommit(repoPath, files, commitID, op, callback) {
 }
 exports.repoCommit = repoCommit;
 
-function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
+function repoResetCommit (repoPath, file, commitID,oriOp,revertedCommitID, callback) {
   var exec = require('child_process').exec;
   if(oriOp=="rm" ||oriOp=="ch"||oriOp=="open"){
     var comstr = 'cd ' + repoPath + ' && git add '+file[0];
@@ -90,8 +90,9 @@ function repoResetCommit (repoPath, file, commitID,oriOp, callback) {
   var relateCommit = '"relateCommit": "' + commitID + '",';
   var deviceInfo = '"device":"' + config.uniqueID + '"';
   var opInfo = '"op":"revert"';
+  var cidInfo = '"revertedCommitID":"'+revertedCommitID+'"';
   var fileInfo = '"file":["' + file + '"]';
-  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' + fileInfo + '}';
+  var commitLog = '{' + relateCommit + deviceInfo + ',' + opInfo + ',' +cidInfo+','+ fileInfo + '}';
   comstr = comstr + " && git commit -m '" + commitLog + "'";
   console.log(file);
   console.log("runnnnnnnnnnnnnnnnnnnnnnnnnn:\n" + comstr);
@@ -391,7 +392,7 @@ exports.repoReset = function(repoPath, commitID,relateCommit, callback) {
       getGitLog(repoPath,function(result,gitLogs){
         if(result==null){
           var file=gitLogs[commitID].content.file;
-          repoResetCommit(repoPath, file, relateCommit,gitLogs[commitID].content.op, function(err,result){
+          repoResetCommit(repoPath, file, relateCommit,gitLogs[commitID].content.op,commitID, function(err,result){
             if(err==null){
               callback(null, 'success'); 
             }

@@ -523,6 +523,12 @@ exports.getGitLog = getGitLog;
  *
  **/
 function repoReset(commitID, callback) {
+  if(watchFilesNum>0){
+    callback({
+      'document': "Please close all document datas"
+    }, null);
+    return;
+  }
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
@@ -545,7 +551,7 @@ function repoReset(commitID, callback) {
                   }, null);
                 } else {
                   console.log('reset success!')
-                  callback(null, result)
+                  callback(null, result);
                 }
               });
             });
@@ -560,7 +566,7 @@ function repoReset(commitID, callback) {
             }, null);
           } else {
             console.log('reset success!')
-            callback(null, result)
+            callback(null, result);
           }
         });
       }
