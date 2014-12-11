@@ -379,3 +379,11 @@ exports.isExist = function(entry, array) {
   }
   return false;
 }
+
+exports.readId3 = function(entry, array) {
+  for (var i = 0; i < array.length; i++) {
+    if (entry === array[i])
+      return true;
+  }
+  return false;
+}

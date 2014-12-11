@@ -30,6 +30,70 @@ var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
+function getTagsFromString(str) {
+  console.log(str)
+  var tags={};
+  var line1 = str.split("\n");
+  for (var index1 in line1) {
+    if (line1[index1] == "") {
+      line1.pop(line1[index1]);
+    }
+    else{
+      if(line1[index1].lastIndexOf("- ")>=0){
+        var line2 = str.split(",");
+        for (var index2 in line2) {
+          if(line2[index2].lastIndexOf("MPEG")>=0){
+            tags.format=(line2[index2].substring(line2[index2].lastIndexOf("MPEG"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
+          }
+          else if(line2[index2].lastIndexOf("Ogg")>=0){
+            tags.format=(line2[index2].substring(line2[index2].lastIndexOf("Ogg"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
+          }
+          else if(line2[index2].lastIndexOf("bps")>=0){
+            tags.bit_rate=(line2[index2].substring(0,line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g,'');
+          }
+          else if(line2[index2].lastIndexOf("seconds")>=0){
+            tags.track=(line2[index2].substring(0,line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g,'');
+          }
+        }
+      }
+      else if(line1[index1].indexOf("major_brand=")>=0){
+        tags.major_brand=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("minor_version=")>=0){
+        tags.minor_version=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("compatible_brands=")>=0){
+        tags.compatible_brands=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("creation_time=")>=0){
+        tags.creation_time=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+      else if(line1[index1].indexOf("encoder=")>=0){
+        tags.encoder=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      }
+    }
+  }
+  return tags;
+}
+
+
+function readId3FromVideo(path, callback) {
+  console.log(path);
+  var cp = require('child_process');
+  var cmd = 'mutagen-inspect ' + '"' + path + '"';
+  console.log(cmd);
+  cp.exec(cmd, function(error, stdout, stderr) {
+    if (error) {
+      console.log(error);
+      callback(error);
+    } else {
+      console.log(stdout)
+      callback(error, getTagsFromString(stdout));
+    }
+  });
+}
+exports.readId3FromVideo = readId3FromVideo;
+
 /**
  * @method createData
  *    To create des file, dataBase resocrd and git commit for all data input. T-
@@ -217,6 +281,9 @@ exports.getByUri = getByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
+  readId3FromVideo('/home/xiquan/testFile/music/因为有你.ogg',function(err,result){
+    console.log(result);
+  })
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
