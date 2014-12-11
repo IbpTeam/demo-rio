@@ -243,17 +243,17 @@ exports.sendFileTransferStart = sendFileTransferStart;
           fileSize: "1024",
           msg: "I want to get the file"
         };
- * @param3 outputPath
- *   启动程序参数，待接收文件的保存路径，例如“/media/yff/backup/test.txt”
  */
-function transferFileProcess(transferFileCb, msgObj, outputPath) {
-  fileTransferClient.transferFile(msgObj,outputPath,function(err, rst) { //传输文件    
+function transferFileProcess(transferFileCb, msgObj) {
+  fileTransferClient.transferFileProcess(msgObj,function(err, rst) { //传输文件    
     if (err) { //传输文件失败------------界面显示      
-      msgObj['state'] = '0';
+      msgObj['state'] = 0;
       msgObj['option']=0x0002;
       msgObj['ratio']=0;
       msgObj['msg'] = 'transfering error:' + rst;
-    } 
+    }else{
+      msgObj=rst;
+    }
     transferFileCb(err,msgObj);
   });
 }
