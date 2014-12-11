@@ -654,6 +654,11 @@ exports.getFilesByTag = getFilesByTag;
 
 function getMusicPicData(filePath, callback) {
   var mm = require('musicmetadata');
+  var category = utils.getCategoryByPath(filePath).category;
+  if (category !== 'music') {
+    var _err = 'BAD TYPE: not a music file ...';
+    return callback(_err, null);
+  }
   fs.open(filePath, 'r', function(err) {
     if (err) {
       return callback(err, null);
