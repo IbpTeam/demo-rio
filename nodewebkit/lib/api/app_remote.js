@@ -133,9 +133,11 @@ exports.startApp = function(startAppCB, appInfo, params) {
  * add listener for app register or unregister
  * addListenerCB: function(err)
  *    err: error discription or null
- * listener: function(event, appID)
- *    event: (register|unregister)
- *    appID: id of app
+ * listener: function(data)
+ *    data: {
+ *      event: (register|unregister)
+ *      appID: id of app
+ *    }
  * ws: the web socket client object which has connected with server
  */
 exports.addListener = function(addListenerCB, listener, ws) {
@@ -151,9 +153,11 @@ exports.addListener = function(addListenerCB, listener, ws) {
  * remove listener for app register or unregister
  * removeListenerCB: function(err)
  *    err: error discription or null
- * listener: function(event, appID)
- *    event: (register|unregister)
- *    appID: id of app
+ * listener: function(data)
+ *    data: {
+ *      event: (register|unregister)
+ *      appID: id of app
+ *    }
  * ws: the web socket client object which has connected with server
  */
 exports.removeListner = function(removeListnerCB, listener, ws) {
@@ -163,3 +167,4 @@ exports.removeListner = function(removeListnerCB, listener, ws) {
   };
   ws.send(JSON.stringify(msg))
 }
+

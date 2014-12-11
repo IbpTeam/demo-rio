@@ -3,6 +3,7 @@ var fs = require('fs'),
     path = require("path"),
     config = require('../config'),
     utils = require('../utils'),
+    router = require('../router'),
     AppList = {},
     listeners = [];
 
@@ -117,7 +118,7 @@ exports.saveAppList = save;
 // }
 // callback_: function(err_)
 //    err_: error discription or null
-exports.registerApp = function(appInfo_, callback_) {
+function registerApp(appInfo_, callback_) {
   var cb_ = callback_ || function() {};
   if(isRegistered(appInfo_.id)) return cb_('This ID has been registered already');
   pathValidate(appInfo_.path, function(err_) {
@@ -130,10 +131,19 @@ exports.registerApp = function(appInfo_, callback_) {
         return cb_('Failed to register to system: ' + err_);
       }
       emit('register', appInfo_.id);
+      router.wsNotify({
+        'Action': 'notify',
+        'Event': 'app',
+        'Data': {
+          'event': 'register',
+          'appID': appInfo_.id
+        }
+      });
       return cb_(null);
     });
   });
 }
+exports.registerApp = registerApp;
 
 // Unregister a HTML5 app from system
 // appID: id of app
@@ -153,6 +163,14 @@ exports.unregisterApp = function(appID_, callback_) {
     }
     tmp = null;
     emit('unregister', appID_);
+    router.wsNotify({
+      'Action': 'notify',
+      'Event': 'app',
+      'Data': {
+        'event': 'unregister',
+        'appID': appID_
+      }
+    });
     return cb_(null);
   });
 }
@@ -308,7 +326,7 @@ exports.startApp = function(appInfo_, params_, callback_) {
 function pathValidate(path_, callback_) {
   var cb_ = callback_ || function() {};
   if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
-  fs.exists(path_ + '/package.json', function(exist) {
+  fs.exists(config.APPBASEPATH + '/' + path_ + '/package.json', function(exist) {
     if(!exist) return cb_('package.json not found');
     return cb_(null);
   });
@@ -316,7 +334,10 @@ function pathValidate(path_, callback_) {
 
 function emit(event_, appID_) {
   for(var i = 0; i < listeners.length; ++i) {
-    listeners[i].call(event_, appID_);
+    listeners[i].call(this, {
+      event: event_,
+      appID: appID_
+    });
   }
 }
 
