@@ -120,10 +120,13 @@ exports.saveAppList = save;
 exports.registerApp = function(appInfo_, callback_) {
   var cb_ = callback_ || function() {};
   if(isRegistered(appInfo_.id)) return cb_('This ID has been registered already');
-  AppList[appInfo_.id] = appInfo_;
-  save(appInfo_.local, function(err_) {
-    if(err_) return cb_('Failed to register to system: ' + err_);
-    return cb_(null);
+  pathValidate(appInfo_.path, function(err_) {
+    if(err_) return cb_(err_);
+    AppList[appInfo_.id] = appInfo_;
+    save(appInfo_.local, function(err_) {
+      if(err_) return cb_('Failed to register to system: ' + err_);
+      return cb_(null);
+    });
   });
 }
 
@@ -290,5 +293,13 @@ exports.startApp = function(appInfo_, params_, callback_) {
   }
 }
 
-// TODO: add path validate
+// path validate
+function pathValidate(path_, callback_) {
+  var cb_ = callback_ || function() {};
+  if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
+  fs.exists(path_ + '/package.json', function(exist) {
+    if(!exist) return cb_('package.json not found');
+    return cb_(null);
+  });
+}
 

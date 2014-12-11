@@ -127,4 +127,24 @@ exports.startApp = function(startAppCB, appInfo, params) {
   }
 }
 
-// TODO: add a interface to on and off listener
+/**
+** add listener for app register or unregister
+** addListenerCB: function(err)
+**    err: error discription or null
+** listener: function(event, appID)
+**    event: (register|unregister)
+**    appID: id of app
+**/
+exports.addListener = function(addListenerCB, listener) {
+}
+
+/**
+** remove listener for app register or unregister
+** removeListenerCB: function(err)
+**    err: error discription or null
+** listener: function(event, appID)
+**    event: (register|unregister)
+**    appID: id of app
+**/
+exports.removeListner = function(removeListnerCB, listener) {
+}
