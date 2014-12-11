@@ -33,12 +33,24 @@ var MainPicView = Class.extend({
         'class':'pic-content'
       });
       this._picContainer.append(_picContent);
+      var _picContentBack_1 = $('<div>',{
+        'class':'pic-content-bj-01'
+      })
+      this._picContainer.append(_picContentBack_1);
+      var _picContentBack_2 = $('<div>',{
+        'class':'pic-content-bj-02'
+      })
+      this._picContainer.append(_picContentBack_2);    
+      var _picSize = $('<div>',{
+        'class':'pic-size'
+      })
+      _picContent.append(_picSize);
       var _picImg = $('<img>',{
         'class':'pic-img',
         'draggable': false,
         'src': pic_.path
       });
-      _picContent.append(_picImg);
+      _picSize.append(_picImg);
       _picBtmContent = $('<div>',{
         'class': 'pic-btm-content'
       });
@@ -48,7 +60,7 @@ var MainPicView = Class.extend({
         'text': pic_.text
       });
       _picBtmContent.append(_picText);
-      _picBtn = $('<a>',{
+      /*_picBtn = $('<a>',{
         'class': 'pic-btn icon-heart-empty'
       });
       _picBtmContent.append(_picBtn);
@@ -62,7 +74,7 @@ var MainPicView = Class.extend({
           _picBtn.removeClass('icon-heart-empty');
           _picBtn.addClass('icon-heart');
         }
-      })
+      })*/
       _picDate = $('<span>',{
         'class': 'pic-date',
         'text': pic_.date
