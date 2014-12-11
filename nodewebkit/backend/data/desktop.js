@@ -2190,14 +2190,117 @@ function moveToDesktopSingle(sFilePath, callback) {
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
+function moveToDeskTopDir(sPath, callback) {
+  var DocList = [];
+  var MusList = [];
+  var VidList = [];
+  var PicList = [];
+  var DskList = [];
+  var OtherList = [];
+
+  function walk(path) {
+    var dirList = fs.readdirSync(path);
+    dirList.forEach(function(item) {
+      if (fs.statSync(path + '/' + item).isDirectory()) {
+        if (item != '.git' && item != '.des' && item != 'contacts') {
+          if (item == 'html5ppt') {
+            /*var html5pptList = fs.readdirSync(path + '/' + item);
+            for (var i = 0; i < html5pptList.length; i++) {
+              var filename = item + '/' + html5pptList[i] + '.html5ppt';
+              fileList.push(path + '/' + filename);
+            }*/
+          } else {
+            walk(path + '/' + item);
+          }
+        }
+      } else {
+        var sPosIndex = (item).lastIndexOf(".");
+        var sPos = item.slice(sPosIndex + 1, item.length);
+        if (sPos != 'csv' && sPos != 'CSV') {
+          if (sPos == 'none' ||
+            sPos == 'ppt' ||
+            sPos == 'pptx' ||
+            sPos == 'doc' ||
+            sPos == 'docx' ||
+            sPos == 'wps' ||
+            sPos == 'odt' ||
+            sPos == 'et' ||
+            sPos == 'txt' ||
+            sPos == 'xls' ||
+            sPos == 'xlsx' ||
+            sPos == 'ods' ||
+            sPos == 'zip' ||
+            sPos == 'sh' ||
+            sPos == 'gz' ||
+            sPos == 'html' ||
+            sPos == 'et' ||
+            sPos == 'odt' ||
+            sPos == 'pdf' ||
+            sPos == 'html5ppt') {
+            DocList.push(path + '/' + item);
+          } else if (sPos == 'jpg' || sPos == 'png') {
+            PicList.push(path + '/' + item);
+          } else if (sPos == 'mp3') {
+            MusList.push(path + '/' + item);
+          } else if (sPos == 'ogg') {
+            VidList.push(path + '/' + item);
+          } else if (sPos == 'conf' || sPos == 'desktop') {
+            DskList.push(path + '/' + item);
+          } else {
+            OtherList.push(path + '/' + item);
+          }
+        }
+      }
+    });
+  }
+  walk(path);
+
+  documents.createData(DocList, function(err, result) {
+    if (err) {
+      console.log(err);
+      callback(err, null);
+    } else {
+      pictures.createData(PicList, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err, null);
+        } else {
+          music.createData(MusList, function(err, result) {
+            if (err) {
+              console.log(err);
+              callback(err, null);
+            } else {
+              video.createData(VidList, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  callback(err, null);
+                } else {
+                  other.createData(OtherList, function(err, result) {
+                    if (err) {
+                      console.log(err);
+                      callback(err, null);
+                    } else {
+                      console.log("load resources success!");
+                      loadResourcesCb('success');
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
 /*TODO: sqlite bug, not complete*/
 /** 
  * @Method: moveToDesktop
- *    To drag multiple files from any where to desktop.
+ *    To single file or dir from any where to desktop.
  *
- * @param2: oFilePath
- *    string, array of file path, should be a full path.
- *            example: ['/home/xiquan/somedir/somefile.txt'].
+ * @param2: sPath
+ *    string, a file/dir path.
  *
  * @param1: callback
  *    @result, (_err,result)
@@ -2206,30 +2309,22 @@ exports.moveToDesktopSingle = moveToDesktopSingle;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        string, the path of target after load into local db.
+ *        object, the files' info loaded into local db.
  *
  **/
-function moveToDesktop(oFilePath, callback) {
-  var count = 0;
-  var lens = oFilePath.length;
-  var resultFiles = [];
-  for (var i = 0; i < lens; i++) {
-    var item = oFilePath[i];
-    (function(_filePath) {
-      moveToDesktopSingle(_filePath, function(err, result) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        resultFiles.push(result);
-        var isEnd = (count === lens - 1);
-        if (isEnd) {
-          callback(null, resultFiles);
-        }
-        count++;
-      })
-    })(item);
-  };
+function moveToDesktop(sPath, callback) {
+  if (fs.statSync(sPath).isDirectory()) {
+    console.log('move dir ' + sPath + 'to desktop ...');
+    moveToDeskTopDir(sPath, callback);
+  } else {
+    console.log('move file ' + sPath + 'to desktop ...');
+    fs.open(sPath, 'r', function(err) {
+      if (err) {
+        return callback(err, null);
+      }
+      moveToDesktopSingle(sPath, callback)
+    })
+  }
 }
 exports.moveToDesktop = moveToDesktop;
 
