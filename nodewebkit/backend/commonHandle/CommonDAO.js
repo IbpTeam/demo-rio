@@ -447,7 +447,6 @@ exports.updateItem = function(item,callback){
  *    Retrive "rollback" when error
  */
 exports.updateItems = function(items,callback){
-  console.log(items);
   var sCondStr = " where 1=1";
   var sSqlStr = BEGIN_TRANS;
   items.forEach(function(item){

@@ -386,11 +386,6 @@ function openDataByUri(openDataByUriCb, uri) {
                 break;
             }
             var child = exec(s_command, function(error, stdout, stderr) {
-              console.log("xdg-open!!!!!!!!!!!!!!");
-              console.log(error);
-              console.log(stdout);
-              console.log(stderr);
-
               if(watchFilesNum>0){
                 watchFilesNum--;              
               }
@@ -426,7 +421,6 @@ function openDataByUri(openDataByUriCb, uri) {
               console.log(CATEGORY_NAME+" watcher started!!");
               watchFilesNum++;
               console.log("watchFilesNum = "+watchFilesNum);
-              console.log("URI = "+uri);
               openDataByUriCb(source);
               commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
                 console.log(path+" : "+event);
