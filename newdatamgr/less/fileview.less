@@ -13,6 +13,99 @@
       left: 0px;
       width: 100%;
       border: 1px solid #f00;
+      .returnContent {
+        .selected {
+          background-color:#08c;
+        }
+        .outContainerWaterFall {
+          width:188px; 
+          min-height:100px; 
+          padding: 15px; 
+          margin:8px; 
+          font-size:12px; 
+          float:left; 
+          cursor: pointer; 
+          box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4); 
+          -moz-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4); 
+          -webkit-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4);
+          -webkit-transition: top 1s ease, left 1s ease;
+          -moz-transition: top 1s ease, left 1s ease; 
+          -o-transition: top 1s ease, left 1s ease;
+          -ms-transition: top 1s ease, left 1s ease; 
+          &:hover {
+            -webkit-filter: brightness(1.2);
+            -moz-filter: brightness(1.2);
+            -ms-filter: brightness(1.2);
+            filter: brightness(1.2);
+          }
+          .HolderWaterFall img{
+            max-width:100%; 
+            background:#ccc; 
+            display:block; 
+          }
+          .HolderWaterFall video{
+            max-width:100%; 
+            background:#ccc; 
+            display:block; 
+          }
+          .descriptionWaterFall {
+            text-align:center; 
+            color:#777; 
+          }
+        }
+      }
+      .selected {
+        background-color:#08c;
+      }
+      .sortByTime {
+        height:250px;
+        border: 1px solid #ff0;
+        overflow-x:auto;
+        .selected {
+          background-color:#08c;
+        }
+        .outContainer {
+          width:200px;
+          height:200px; 
+          padding:auto; 
+          margin:30px; 
+          font-size:12px;
+          display:inline; 
+          float:left;
+          vertical-align:center;
+          cursor: pointer; 
+          &:hover {
+            -webkit-filter: brightness(1.2);
+            -moz-filter: brightness(1.2);
+            -ms-filter: brightness(1.2);
+            filter: brightness(1.2);
+          }
+          .Holder img{
+            max-width:100%;
+            max-height:100%;
+            background:#ccc;
+            display:block;
+          }
+          .Holder video{
+            max-width:100%;
+            max-height:100%;
+            background:#ccc;
+            display:block;
+          }
+          .description {
+            text-align:center;
+            font-weight:normal;
+            width:150px;
+            font-size:12px;
+            margin:10px 5px 10px 5px;
+          }
+        } 
+      }
+      .test{
+        width: 1px;
+        height: 30px;
+        background-color: red;
+      }
       .outContainer {
         width:200px;
         height:200px; 
@@ -20,7 +113,14 @@
         margin:30px; 
         font-size:12px; 
         float:left;
-        vertical-align:center; 
+        vertical-align:center;
+        cursor: pointer; 
+        &:hover {
+          -webkit-filter: brightness(1.2);
+          -moz-filter: brightness(1.2);
+          -ms-filter: brightness(1.2);
+          filter: brightness(1.2);
+        }
         .Holder img{
           max-width:100%;
           max-height:100%;
@@ -48,6 +148,7 @@
         display:inline-block;
         text-align:center;
         vertical-align:top;
+        cursor: pointer;
         .iconContainer {
           margin:auto;
           margin-top:0;
@@ -59,6 +160,18 @@
         .name {
           width:80px;
           word-wrap:break-word;
+        }
+      }
+      .tableContainer{
+        .table tbody th{
+          font-weight:normal;
+        }
+        .table tr:hover {
+          color:#ffffff;
+          text-shadow:0 -1px 0 rgba(0,0,0,0.2);
+          background-color:#08c;
+          text-decoration:none;
+          cursor:pointer;
         }
       }
     }
