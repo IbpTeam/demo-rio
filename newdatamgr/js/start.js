@@ -1,27 +1,13 @@
 
 var main = function(params_){
-  //formit params to json
-  var params2json = function(params_){
-    var _result = {};
-    if (!params_) {
-      return null;
-    };
-    var _params = params_.split('&');
-    for (var i = 0; i < _params.length; i++) {
-       var _param = _params[i].split('=');
-       if (_param.length === 2) {
-          _result[_param[0]] = _param[1];
-       };
-     };
-     return _result; 
-  }
-
   WDC.requireAPI(['data', 'app'], function(data, app){
     console.log("data:" +  data + " app:" + app);
     DataAPI=data;
     AppAPI=app;
-
-    var _params = params2json(params_);
+    var _params = undefined;
+    if (params_) {
+      _params = eval('(' + params_ + ')');   
+    };
     homePage = HomePage.create();
     search = Search.create();
     infoList = InfoList.create();

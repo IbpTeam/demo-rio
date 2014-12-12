@@ -80,6 +80,7 @@ var TagView = Class.extend({
       if (callback_) {
         callback_();
       };
+      return ;
     };
     var _tagLeng = _tags.length;
       if (this._options.direction === 'down') {
@@ -194,10 +195,10 @@ var TagView = Class.extend({
   refresh:function(callback_){
     var _this = this;
     this.removeTags(function(){
+      _this._index = 0;
       _this._tagList = [];
       callback_();
     });
-    this._index = 0;
     if (this._options.position === 'random') {
       this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     };
