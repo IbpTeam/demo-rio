@@ -543,28 +543,38 @@ exports.pasteFile = pasteFile;
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因
+//if catefory is 'contact', then the input 'filename',should be an object that 
+//includes all contact info.
 function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var desPath = '/tmp/' + filename;
-  cp.exec("touch " + desPath, function(error, stdout, stderr) {
-    if (error !== null) {
-      console.log('exec error: ' + error);
-      creatFileCb(false);
-    } else {
-      if (category == 'document' || category == 'music' || category == 'picture') {
-        var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result) {
-          if (err != null) {
-            createFileCb(false);
-          } else {
-            cp.exec("rm " + desPath, function(error, stdout, stderr) {
-              createFileCb(result);
-            });
-          }
-        });
-      }
+  if (category === 'contact') {
+    if (typeof filename != 'object') {
+      var _err = 'bad contact input data ...';
+      return callback(_err, null);
     }
-  });
+    contacts.createData(filename, createFileCb);
+  } else {
+    var desPath = '/tmp/' + filename;
+    cp.exec("touch " + desPath, function(error, stdout, stderr) {
+      if (error !== null) {
+        console.log('exec error: ' + error);
+        creatFileCb(false);
+      } else {
+        if (category == 'document' || category == 'music' || category == 'picture') {
+          var cate = utils.getCategoryObject(category);
+          cate.createData([desPath], function(err, result) {
+            if (err != null) {
+              createFileCb(false);
+            } else {
+              cp.exec("rm " + desPath, function(error, stdout, stderr) {
+                createFileCb(result);
+              });
+            }
+          });
+        }
+      }
+    });
+  }
 }
 exports.createFile = createFile;
 

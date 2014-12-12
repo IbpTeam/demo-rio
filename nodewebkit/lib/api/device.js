@@ -165,8 +165,9 @@ exports.entryGroupReset = entryGroupReset;
  */
 function createServer(devicePublishCb){
   bus.getInterface('org.freedesktop.Avahi', '/', 'org.freedesktop.Avahi.Server', function(err, iface) {
-  if (err != null){
+  if ((err != null) || (undefined === iface)){
     console.log(err);
+    return;
   }
   server = iface;
 

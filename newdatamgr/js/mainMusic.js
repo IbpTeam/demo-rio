@@ -58,6 +58,7 @@ var MainMusicView = Class.extend({
     this._tagView = TagView.create({
       position: 'listview',
       direction:'up',
+      max:3,
       background_color: 'rgb(51,153,102)',
       positions:{
         bottom:10,
