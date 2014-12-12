@@ -492,6 +492,51 @@ a {
 
 
 //screen
+@media screen and (min-device-width: 1220px) {
+  #contentDiv{
+    div{
+      &#pic-container{
+        top:auto;
+        left: 29.6%;
+      }
+      &#doc-container{
+        .transition(right 1s cubic-bezier(0.55,0.46,0.83,0.12));
+        right: 63px;
+      }
+      &#contacts-container{
+        .transition(height 1s);
+        top:auto;
+        height:210px;
+      }
+      &#music-container{
+        right: 30%;
+      }
+    }
+  }
+}
+//screen
+@media screen and (max-width: 1219px) {
+  #contentDiv{
+    div{
+      &#pic-container{
+        top: 20px;        
+        left:auto;
+      }
+      &#doc-container{
+         .transition(right 1s cubic-bezier(0,0.98,0,0.94));
+        right:350px;
+      }
+      &#contacts-container{
+        .transition(top 1s);
+        top:320px;
+        height:auto;
+      }
+      &#music-container{
+        right: 350px;
+      }
+    }
+  }
+}
 @media screen and (min-device-width: 1281px) {
   #sidebar {
     -webkit-transition: margin-left 0.5s cubic-bezier(0.77, 0, 0.175, 1);
