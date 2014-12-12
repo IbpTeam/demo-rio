@@ -9,6 +9,7 @@ WDC.requireAPI(['data', 'app'], function(data, app){
 
   homePage = HomePage.create();
   search = Search.create();
+  usrInfo = UsrInfoView.create();
   infoList = InfoList.create();
   infoList.attach($('#sidebar'));
   infoList.setTitle();
@@ -16,6 +17,10 @@ WDC.requireAPI(['data', 'app'], function(data, app){
   var sidebar    = $('#sidebar'),
   container  = $('#container'),
   content    = $('#contentDiv');
+  usrInfo.attach(container);
+  usrInfo.hide();
+  usrInfo.setUsrInfo();
+  usrInfo.setUsrExtra('load');
   search.attach($('#searchDiv'));
   homePage.attach(content);
 
@@ -45,4 +50,9 @@ WDC.requireAPI(['data', 'app'], function(data, app){
   for (var i = 1; i <= 6; i++) {
     $('#js-label' + i).on('click', clickHandler(i));
   }
+
+  //add click func to usr info
+  $('#avatar').on('click',function(){
+    usrInfo.showUsrInfo();
+  });
 });

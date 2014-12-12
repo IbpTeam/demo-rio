@@ -1,0 +1,171 @@
+#usrInfo-container{
+  position: relative;
+  width: 424px;
+  height: 344px;
+  background-color: #2d3c43;
+  border: 12px solid rgba(247, 247, 247, 0.8);
+
+  #closeDiv{
+    position: relative;
+    margin-top:2%;
+    margin-left:96%;
+    width: 12px;
+    height: 12px;
+    border-radius:6px;
+    background-color:#f55252;
+  }
+
+  #closeDiv:hover{
+    background-color:#ff2222;
+    cursor:pointer;
+  }
+
+  #closeDiv:active{
+    background-color:#ff2222;
+  }
+
+  #usrInfoDiv{
+    position: relative;
+    height:55%;
+    width:90%;
+    margin-left:5%;
+
+    #usrHeadShow{
+      float:left;
+      height:100%;
+      width:40%;
+
+      #usrPhotoDiv{
+        position: relative;
+        height:70%;
+        width:90%;
+        margin-left:auto;
+        margin-right:auto;
+        text-align:center;
+        #headPhotoImg{
+          heigth:100px;
+          width:100px;
+        }
+      }
+
+      #usrEditDiv{
+        position:relative;
+        cursor:pointer;
+        height:25px;
+        width:80px;
+        margin-left:auto;
+        margin-right:auto;
+        border-style:inset;
+        border-radius:10px;
+        border:1px solid #b9b9b9;
+        text-align:center;
+        font-size:14px;
+        font-weight:bold;
+        color:#b9b9b9;
+        &:hover{
+          background-color:#47555c;
+        }
+      }
+
+    }
+
+    #usrInfoShow{
+      float:left;
+      height:100%;
+      width:60%;
+
+      #usrInfoUl{
+        font-size:14px;
+        font-weight:bold;
+        color:#b9b9b9;
+        padding-left:20px;
+
+        .usrInfo-ul{
+          height:30px;
+        }
+      }
+    }
+  }
+  
+  #usrExtraDiv{
+    position: relative;
+    height:35%;
+    width:90%;
+    margin-left:5%;
+    margin-top:10px;
+    border-top-style:inset;
+
+    #extraLoadDiv{
+      position: relative;
+      height:40%;
+      width:80%;
+      margin:9% auto auto;
+      border-radius:6px;
+
+      #loadContactBg{
+        float:left;
+        width:35%;
+        height:100%;
+        border-radius:6px 0 0 6px;
+        background-color:#f57676;
+        text-align:center;
+
+        #loadContactDiv{
+          margin-top:9px;
+
+          #contactCheckBox{
+            vertical-align:middle;
+            height:20px;
+            width:20px;
+          }
+
+          #contactLabel{
+            vertical-align:middle;
+            font-size:14px;
+            font-weight:bold;
+            color:#ffffff;
+          }
+        }
+      }
+
+      #loadDataBg{
+        float:left;
+        width:25%;
+        height:100%;
+        background-color:#70c3c7;
+        text-align:center;
+
+        #loadDataDiv{
+          margin-top:9px;
+
+          #dataCheckBox{
+            vertical-align:middle;
+            height:20px;
+            width:20px;
+          }
+
+          #dataLabel{
+            vertical-align:middle;
+            font-size:14px;
+            font-weight:bold;
+            color:#ffffff;
+          }
+        }
+      }
+
+      #uploadDiv{
+        float:left;
+        width:40%;
+        height:100%;
+        border-radius:0 6px 6px 0;
+        background-color:#dadde6;
+        text-align:center;
+      }
+    }
+  }
+}
+
+.iw-modalOverlay{
+  background: #edefef;
+  opacity: .5;
+}
