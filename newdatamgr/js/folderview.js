@@ -401,10 +401,10 @@ var ShowFiles = Class.extend({
         }
         else{
           _globalSelf.genPopupDialog("窗口控制", "<div>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
             </div>");
         }
         break;
@@ -434,7 +434,7 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-          console.log('this is left once' + $(this).text())
+          console.log('this is left once' + $(this).attr('id'));
           break;
         case 3:
           console.log('this is right once---------------');
@@ -443,7 +443,14 @@ var ShowFiles = Class.extend({
       e.stopPropagation();
     });
     this.files.delegate(whichClass,'dblclick',function(e){
-      var file = _globalSelf.findFileByPath($(this).attr('data-path'));
+      console.log($(this).attr('data-path'));
+      if($(this).attr('data-path')){
+        var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
+      }
+      else{
+        console.log($(this).attr('data-path'));
+        var file = _globalSelf.findFileByPath($(this).attr('id'));
+      }
       if(!file){
         window.alert('the file is not found !');
         return false;
@@ -460,6 +467,12 @@ var ShowFiles = Class.extend({
         }
       }
     });
+  },
+
+  //此函数是用来播放PPT时，向桌面发送按键
+  sendKeyToWindow:function(windowname,key){
+    console.log("sendkey " + key + " To Window " + windowname);
+    AppAPI.sendKeyToApp(function(){}, windowname, key);
   },
 
   //此函数用来转换时间
@@ -483,7 +496,7 @@ var ShowFiles = Class.extend({
     }
     //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
     function GenerateBodyTr(file,theadMessage){
-      var bodytr = $('<tr class = "bodytr"></tr>');
+      var bodytr = $('<tr id="'+file['path']+'" class= "bodytr"></tr>');
       for(var i =0;i<theadMessage.length;i++){
         //bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
         switch(i){
