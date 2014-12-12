@@ -21,18 +21,23 @@ var ShowFiles = Class.extend({
 
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
-    $("#contentDiv").append(this._choice);
-    var showlistButton = $('<button id = "showlist"> showlistButton </button>');
-    var shownormalButton = $('<button id = "shownormal">shownormalButton</button>');
-    var sortbyButton = $('<button id = "sortbyButton">sortby </button>');
+    var showlistButton = $('<div id = "showlistButton" class="showlistButton"> </div>');
+    //var linebetweenButton = &('<div id = "linebetweenButton"> </div>');
+    var _shownormalButton = $('<div id = "_shownormalButton" class="_shownormalButton _shownormalButtonFocus"> </div>');
+    var sortbyButton = $('<div id = "sortbyButton">sortby </div>');
     this._choice.append(showlistButton);
-    this._choice.append(shownormalButton);
+    //this._choice.append(linebetweenButton);
+    this._choice.append(_shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
+      _shownormalButton.removeClass('_shownormalButtonFocus');
+      showlistButton.addClass('showlistButtonFocus');
       _globalSelf._showNormal = false;
       _globalSelf.showFile();
     });
-    shownormalButton.click(function(){
+    _shownormalButton.click(function(){
+      showlistButton.removeClass('showlistButtonFocus');
+      _shownormalButton.addClass('_shownormalButtonFocus');
       _globalSelf._showNormal = true;
       _globalSelf.showFile();
     });
