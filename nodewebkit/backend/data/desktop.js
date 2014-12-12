@@ -26,7 +26,16 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
+var contacts = require("./contacts");
+var documents = require("./document");
+var other = require("./other");
+var pictures = require("./picture");
+var video = require("./video");
+var music = require("./music");
+var other = require("./other");
+
 var configPath = config.RESOURCEPATH + "/desktop";
+
 
 var CATEGORY_NAME = "desktop";
 var DES_NAME = "desktopDes";
@@ -1870,7 +1879,7 @@ function moveFile(callback, oldPath, newPath) {
   fs_extra.move(oldFullpath, newFullpath, function(err) {
     if (err) {
       console.log(err);
-      var _err = 'moveFile : move error';
+      var _err = 'move ' + oldFullpath + ' error';
       callback(_err, null);
     } else {
       console.log('move ', oldPath, ' to ', newPath);
@@ -2147,7 +2156,7 @@ function moveToDesktopSingle(sFilePath, callback) {
             console.log(err, 'copy file', sFilePath, ' error!');
             return callback(err, null);
           }
-          doCreateData(sNewFilePath, category, function(err, result) {
+          doCreateData(sNewFilePath, category, ['$desktop$'], function(err, result) {
             if (err) {
               console.log(err, 'create data error!', sNewFilePath);
               return callback(err, null);
@@ -2170,7 +2179,7 @@ function moveToDesktopSingle(sFilePath, callback) {
         })
       } else { //target's name is unique
         console.log('target name is unique');
-        doCreateData(sFilePath, category, function(err, result) {
+        doCreateData(sFilePath, category, ['$desktop$'], function(err, result) {
           if (err) {
             console.log(err, 'create data error!', sFilePath);
             return callback(err, null);
@@ -2190,7 +2199,9 @@ function moveToDesktopSingle(sFilePath, callback) {
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
+
 function moveToDeskTopDir(sPath, callback) {
+  var FileList = [];
   var DocList = [];
   var MusList = [];
   var VidList = [];
@@ -2200,22 +2211,29 @@ function moveToDeskTopDir(sPath, callback) {
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
-    dirList.forEach(function(item) {
-      if (fs.statSync(path + '/' + item).isDirectory()) {
-        if (item != '.git' && item != '.des' && item != 'contacts') {
-          if (item == 'html5ppt') {
-            /*var html5pptList = fs.readdirSync(path + '/' + item);
+    for (var i = 0; i < dirList.length; i++) {
+      var _item = dirList[i];
+      if (fs.lstatSync(path + '/' + _item).isDirectory()) {
+        if (_item != '.git' && _item != '.des' && _item != 'contacts') {
+          if (_item == 'html5ppt') {
+            /*TODO: deal with html5ppt*/
+            /*var html5pptList = fs.readdirSync(path + '/' + _item);
             for (var i = 0; i < html5pptList.length; i++) {
-              var filename = item + '/' + html5pptList[i] + '.html5ppt';
+              var filename = _item + '/' + html5pptList[i] + '.html5ppt';
               fileList.push(path + '/' + filename);
             }*/
           } else {
-            walk(path + '/' + item);
+            walk(path + '/' + _item);
           }
         }
-      } else {
-        var sPosIndex = (item).lastIndexOf(".");
-        var sPos = item.slice(sPosIndex + 1, item.length);
+      } else if (fs.lstatSync(path + '/' + _item).isFile()) {
+        var sPosIndex = _item.lastIndexOf(".");
+        var sPos = _item.slice(sPosIndex + 1, _item.length);
+        var reg_root = new RegExp(path);
+        var sFilePath = pathModule.join(path, _item);
+        var sRelatePath = sPath.replace(reg_root, '$desktop');
+        var sTag = sRelatePath.replace(/\//g, '$') + '$';
+        var inode = fs.statSync(path + '/' + _item).ino;
         if (sPos != 'csv' && sPos != 'CSV') {
           if (sPos == 'none' ||
             sPos == 'ppt' ||
@@ -2237,24 +2255,64 @@ function moveToDeskTopDir(sPath, callback) {
             sPos == 'odt' ||
             sPos == 'pdf' ||
             sPos == 'html5ppt') {
-            DocList.push(path + '/' + item);
+            var tmp = {};
+            tmp.category = 'document';
+            tmp.path = sFilePath;
+            tmp.tag = sTag;
+            tmp.filename = _item;
+            tmp.inode = inode;
+            FileList.push(tmp);
+            DocList.push(path + '/' + _item);
           } else if (sPos == 'jpg' || sPos == 'png') {
-            PicList.push(path + '/' + item);
+            var tmp = {};
+            tmp.category = 'picture';
+            tmp.path = sFilePath;
+            tmp.tag = sTag;
+            tmp.filename = _item;
+            tmp.inode = inode;
+            FileList.push(tmp);
+            PicList.push(path + '/' + _item);
           } else if (sPos == 'mp3') {
-            MusList.push(path + '/' + item);
+            var tmp = {};
+            tmp.category = 'music';
+            tmp.path = sFilePath;
+            tmp.tag = sTag;
+            tmp.filename = _item;
+            tmp.inode = inode;
+            FileList.push(tmp);
+            MusList.push(path + '/' + _item);
           } else if (sPos == 'ogg') {
-            VidList.push(path + '/' + item);
+            var tmp = {};
+            tmp.category = 'video';
+            tmp.path = sFilePath;
+            tmp.tag = sTag;
+            tmp.filename = _item;
+            tmp.inode = inode;
+            FileList.push(tmp);
+            VidList.push(path + '/' + _item);
           } else if (sPos == 'conf' || sPos == 'desktop') {
-            DskList.push(path + '/' + item);
+            /*TODO: don't deal with decktop config file now*/
           } else {
-            OtherList.push(path + '/' + item);
+            var tmp = {};
+            tmp.category = 'other';
+            tmp.path = sFilePath;
+            tmp.tag = sTag;
+            tmp.filename = _item;
+            tmp.inode = inode;
+            FileList.push(tmp);
+            OtherList.push(path + '/' + _item);
           }
         }
+      } else if (fs.lstatSync(path + '/' + _item).isSymbolicLink()) {
+        /*TODO: deal with symbolic*/
       }
-    });
+    }
   }
-  walk(path);
-
+  walk(sPath);
+  var fileInfo = [];
+  var existFile = [];
+  var lens = FileList.length;
+  var count = 0;
   documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
@@ -2280,8 +2338,27 @@ function moveToDeskTopDir(sPath, callback) {
                       console.log(err);
                       callback(err, null);
                     } else {
-                      console.log("load resources success!");
-                      loadResourcesCb('success');
+                      var updateItems = [];
+                      var lens = FileList.length;
+                      var count = 0;
+                      for (var i = 0; i < lens; i++) {
+                        var item = FileList[i];
+                        (function(_item) {
+                          var filepath = pathModule.join(utils.getRealDir(_item.category), _item.filename)
+                          tagsHandle.setTagByUri(function(err) {
+                            if (err !== 'commit') {
+                              count++;
+                              return callback(err, null);
+                            }
+                            var isEnd = (count === lens - 1);
+                            if (isEnd) {
+                              console.log("load resources success!");
+                              callback(null, FileList);
+                            }
+                            count++;
+                          }, [_item.tag], filepath)
+                        })(item)
+                      }
                     }
                   });
                 }
@@ -2316,7 +2393,7 @@ function moveToDesktop(sPath, callback) {
   if (fs.statSync(sPath).isDirectory()) {
     console.log('move dir ' + sPath + 'to desktop ...');
     moveToDeskTopDir(sPath, callback);
-  } else {
+  } else if (fs.statSync(sPath).isFile()) {
     console.log('move file ' + sPath + 'to desktop ...');
     fs.open(sPath, 'r', function(err) {
       if (err) {
@@ -2324,11 +2401,14 @@ function moveToDesktop(sPath, callback) {
       }
       moveToDesktopSingle(sPath, callback)
     })
+  } else {
+    var _err = 'bad input type ...';
+    callback(_err, null);
   }
 }
 exports.moveToDesktop = moveToDesktop;
 
-function doCreateData(sFilePath, category, callback) {
+function doCreateData(sFilePath, category, oTags, callback) {
   var cate = utils.getCategoryObject(category);
   cate.createData(sFilePath, function(err, result, resultFile) {
     if (err) {
@@ -2352,7 +2432,7 @@ function doCreateData(sFilePath, category, callback) {
         callback(null, resultFile);
       }
       var sUri = item.URI;
-      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+      tagsHandle.setTagByUri(setTagsCb, oTags, sUri);
     })
   });
 }
@@ -2487,6 +2567,11 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *
  **/
 function getFilesFromDesk(callback) {
+  moveToDeskTopDir('/home/xiquan/testFile', function(data) {
+    console.log(data)
+
+  })
+
   function getFilesByTagsCb(err, result) {
     if (err) {
       console.log(err);

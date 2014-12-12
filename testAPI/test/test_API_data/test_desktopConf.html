@@ -456,11 +456,7 @@
   }
   function test_moveToDesktop(moveToDesktopCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = ['/home/xiquan/testFile/small_image.jpg',
-                       '/home/xiquan/testFile/testJSON.txt',
-                       '/home/xiquan/testFile/testJSON1.txt',
-                       '/home/xiquan/testFile/test_1.mp3'
-                       ];
+      var sFilePath = '/home/xiquan/testFile/test';
       data.moveToDesktop(moveToDesktopCb,sFilePath);
     });
   }

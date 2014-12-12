@@ -372,7 +372,18 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *
  */
 function setTagByUri(callback, oTags, sUri) {
-  var category = utils.getCategoryByUri(sUri);
+  var reg_uri = new RegExp('#', 'g');
+  var reg_path = new RegExp('/', 'g');
+  if (reg_uri.test(sUri)) {
+    var condition = ["URI = " + "'" + sUri + "'"];
+    var category = utils.getCategoryByUri(sUri);
+  } else if (reg_path.test(sUri)) {
+    var condition = ["path = " + "'" + sUri + "'"];
+    var category = utils.getCategoryByPath(sUri).category;
+  } else {
+    var _err = 'bad sUri type ...';
+    return callback(_err, null);
+  }
 
   function findItemsCb(err, items) {
     if (err) {
@@ -423,7 +434,6 @@ function setTagByUri(callback, oTags, sUri) {
       });
     });
   }
-  var condition = ["URI = " + "'" + sUri + "'"];
   commonDAO.findItems(null, [category], condition, null, findItemsCb);
 }
 exports.setTagByUri = setTagByUri;
@@ -670,7 +680,7 @@ function doDeleteTags(oAllFiles, oTags) {
  *   files on desktop.
  *
  * @param1 sFilePath
- *    string, a full path of a file.
+ *    string, a full path of a file in data base.
  *
  * @param2 sTags
  *    string, a modified system tag as that could show a relative dir.
