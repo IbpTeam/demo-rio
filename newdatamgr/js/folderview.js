@@ -14,6 +14,7 @@ var ShowFiles = Class.extend({
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
     this._choice = $('<div id = "choice"></div>');
     this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
+    $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
     this.setChoice();
     _globalSelf = this 
@@ -23,21 +24,21 @@ var ShowFiles = Class.extend({
   setChoice:function(){
     var showlistButton = $('<div id = "showlistButton" class="showlistButton"> </div>');
     //var linebetweenButton = &('<div id = "linebetweenButton"> </div>');
-    var _shownormalButton = $('<div id = "_shownormalButton" class="_shownormalButton _shownormalButtonFocus"> </div>');
+    var shownormalButton = $('<div id = "shownormalButton" class="shownormalButton shownormalButtonFocus"> </div>');
     var sortbyButton = $('<div id = "sortbyButton">sortby </div>');
     this._choice.append(showlistButton);
     //this._choice.append(linebetweenButton);
-    this._choice.append(_shownormalButton);
+    this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
-      _shownormalButton.removeClass('_shownormalButtonFocus');
+      shownormalButton.removeClass('shownormalButtonFocus');
       showlistButton.addClass('showlistButtonFocus');
       _globalSelf._showNormal = false;
       _globalSelf.showFile();
     });
-    _shownormalButton.click(function(){
+    shownormalButton.click(function(){
       showlistButton.removeClass('showlistButtonFocus');
-      _shownormalButton.addClass('_shownormalButtonFocus');
+      shownormalButton.addClass('shownormalButtonFocus');
       _globalSelf._showNormal = true;
       _globalSelf.showFile();
     });
