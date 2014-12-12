@@ -14,14 +14,6 @@ var MainContactView = Class.extend({
       'id':'contacts-list-content'
     });
     this._ContactsContent.append(this._contactslistContent);
-    this._json = {
-      'name': 'date',
-      'john': 'date1',
-      'johrn': 'date2',
-      'jodhn': 'date3',
-      'joshn': 'date4',
-      'Tom': '20min'
-    }
     this._ContactsContainer.append(this._ContactsContent);
     //input title ui
     this._ContactsTitleTag = $('<div>',{
@@ -44,7 +36,6 @@ var MainContactView = Class.extend({
   setContent:function(){
     var _this = this;
     DataAPI.getAllDataByCate(function(contact_json_){
-
        _this._contacts = contact_json_;
       var names_json = {};
       for(var i = 0; i < _this._contacts.length; i ++){
@@ -74,12 +65,15 @@ var MainContactView = Class.extend({
        }
     },'contact');
   },
+
   attach:function($parent_){
     $parent_.append(this._ContactsContainer);
   },
+
   show:function(){
     this._ContactsContainer.show();
   },
+  
   hide:function(){
     this._ContactsContainer.hide();
   }
