@@ -543,28 +543,38 @@ exports.pasteFile = pasteFile;
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因
+//if catefory is 'contact', then the input 'filename',should be an object that 
+//includes all contact info.
 function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var desPath = '/tmp/' + filename;
-  cp.exec("touch " + desPath, function(error, stdout, stderr) {
-    if (error !== null) {
-      console.log('exec error: ' + error);
-      creatFileCb(false);
-    } else {
-      if (category == 'document' || category == 'music' || category == 'picture') {
-        var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result) {
-          if (err != null) {
-            createFileCb(false);
-          } else {
-            cp.exec("rm " + desPath, function(error, stdout, stderr) {
-              createFileCb(result);
-            });
-          }
-        });
-      }
+  if (category === 'contact') {
+    if (typeof filename != 'object') {
+      var _err = 'bad contact input data ...';
+      return callback(_err, null);
     }
-  });
+    contacts.createData(filename, createFileCb);
+  } else {
+    var desPath = '/tmp/' + filename;
+    cp.exec("touch " + desPath, function(error, stdout, stderr) {
+      if (error !== null) {
+        console.log('exec error: ' + error);
+        creatFileCb(false);
+      } else {
+        if (category == 'document' || category == 'music' || category == 'picture') {
+          var cate = utils.getCategoryObject(category);
+          cate.createData([desPath], function(err, result) {
+            if (err != null) {
+              createFileCb(false);
+            } else {
+              cp.exec("rm " + desPath, function(error, stdout, stderr) {
+                createFileCb(result);
+              });
+            }
+          });
+        }
+      }
+    });
+  }
 }
 exports.createFile = createFile;
 
@@ -1537,3 +1547,35 @@ function deviceInfo(deviceInfoCb) {
   devices.deviceInfo(deviceInfoCb);
 }
 exports.deviceInfo = deviceInfo;
+
+
+/** 
+ * @Method: getMusicPicData
+ *    To get picture (like album's cover) of a music file.
+ *
+ * @param: getMusicPicDataCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, data is returned in binary encoded with base64. You could acc-
+ *                ess the picture like: 
+ *                var img = document.getElementById("test_img");
+ *                img.src = 'data:image/jpeg;base64,' + result;
+ *
+ *                You should notice that if the target file contains no pciture,
+ *                then the result would be null.
+ *
+ *  @param2: filePath
+ *    string, a specific music file path.To access it, you may use a DataView or
+ *            typed array such as Uint8Array.
+ *
+ *
+ **/
+function getMusicPicData(getMusicPicDataCb, filePath) {
+  console.log("Request handler 'getMusicPicData' was called.");
+  music.getMusicPicData(filePath, getMusicPicDataCb);
+}
+exports.getMusicPicData = getMusicPicData;

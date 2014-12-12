@@ -234,16 +234,17 @@
     });        
   }
 
-  function renameDataByUriCb(err,result){
+  function renameDataByUriCb(err, result) {
     var win = window.open('');
-    if(err){
-      print(win,err);
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
     }
-    win.document.write("test API renameDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
   }
   function test_renameDataByUri(renameDataByUriCb){
     WDC.requireAPI(['data'], function(data){
@@ -252,6 +253,54 @@
       var category = 'document';
       data.renameDataByUri(category,sUri, sNewName,renameDataByUriCb);
     });        
+  }
+
+  function getMusicPicDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+      var img = document.getElementById("test_img");
+      img.src = 'data:image/jpeg;base64,' + result;
+    }
+  }
+
+  function test_getMusicPicData(getMusicPicDataCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = '/home/xiquan/testFile/music/咖啡.mp3';
+      data.getMusicPicData(getMusicPicDataCb, path);
+    });
+  }
+
+  function createFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API createFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+
+  function test_createFile(createFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var dataInfo = {
+        name:'hahahahahahah',
+        phone:'110',
+        email:'hahah@163.com',
+        sex:'phd',
+        others:'good,bad,or,the,queen'
+      };
+      data.createFile(createFileCb, dataInfo, 'contact');
+    });
   }
 
   </script>
@@ -698,6 +747,73 @@
       var sNewName = 'test_rename.txt';
       data.renameDataByUri(sUri, sNewName,renameDataByUriCb);
     });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getMusicPicData')">getMusicPicData(getMusicPicDataCb,path)<span><a class="mark" href="#test_getMusicPicData" id="test_getMusicPicData" onclick="test_getMusicPicData(getMusicPicDataCb)">test</a></span></h2>
+<div id="getMusicPicData" style="display:none;">
+<div style="color:#930000">
+  <canvas id="test_id3" width="100" height="100"></canvas>
+  <img id="test_img"  />
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getMusicPicDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getMusicPicData(getMusicPicDataCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = '/home/xiquan/testFile/music/打错了.mp3';
+      data.getMusicPicData(getMusicPicDataCb,path);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+
+
+<h2 onclick="show('createFile')">createFile(createFileCb, data, cate)<span><a class="mark" href="#test_createFile" id="test_createFile" onclick="test_createFile(createFileCb)">test</a></span></h2>
+<div id="createFile" style="display:none;">
+<div style="color:#930000">
+  <canvas id="test_id3" width="100" height="100"></canvas>
+  <img id="test_img"  />
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function createFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API createFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+
+  function test_createFile(createFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var data = {
+        name:'hahahahahahah'
+      };
+      data.createFile(createFileCb, data, 'contact');
+    });
   }
   </pre>
 </div>

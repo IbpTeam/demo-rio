@@ -23,6 +23,7 @@ var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
 var cryptoApp= require('./backend/crypto_app');
+var appManager = require('./backend/app/appManager');
 //var process = require('process');
 
 var handle = {}
@@ -135,6 +136,8 @@ function initializeApp(sFullPath) {
       });*/
     });
   });
+  // init HTML5 app manager
+  appManager.loadAppList();
 }
 
 /** 
