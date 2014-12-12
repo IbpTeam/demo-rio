@@ -2237,6 +2237,12 @@ function moveToDeskTopDir(sPath, callback) {
         var sRelatePath = path.replace(reg_root, '$desktop');
         var sTag = sRelatePath.replace(/\//g, '$') + '$';
         var inode = fs.statSync(path + '/' + _item).ino;
+        var tmp = {};
+        tmp.path = sFilePath;
+        tmp.tag = sTag;
+        tmp.filename = _item;
+        tmp.inode = inode;
+        FileList.push(tmp);
         if (sPos != 'csv' && sPos != 'CSV') {
           if (sPos == 'none' ||
             sPos == 'ppt' ||
@@ -2258,50 +2264,25 @@ function moveToDeskTopDir(sPath, callback) {
             sPos == 'odt' ||
             sPos == 'pdf' ||
             sPos == 'html5ppt') {
-            var tmp = {};
             tmp.category = 'document';
-            tmp.path = sFilePath;
-            tmp.tag = sTag;
-            tmp.filename = _item;
-            tmp.inode = inode;
             FileList.push(tmp);
             DocList.push(path + '/' + _item);
           } else if (sPos == 'jpg' || sPos == 'png') {
-            var tmp = {};
             tmp.category = 'picture';
-            tmp.path = sFilePath;
-            tmp.tag = sTag;
-            tmp.filename = _item;
-            tmp.inode = inode;
             FileList.push(tmp);
             PicList.push(path + '/' + _item);
           } else if (sPos == 'mp3') {
-            var tmp = {};
             tmp.category = 'music';
-            tmp.path = sFilePath;
-            tmp.tag = sTag;
-            tmp.filename = _item;
-            tmp.inode = inode;
             FileList.push(tmp);
             MusList.push(path + '/' + _item);
           } else if (sPos == 'ogg') {
-            var tmp = {};
             tmp.category = 'video';
-            tmp.path = sFilePath;
-            tmp.tag = sTag;
-            tmp.filename = _item;
-            tmp.inode = inode;
             FileList.push(tmp);
             VidList.push(path + '/' + _item);
           } else if (sPos == 'conf' || sPos == 'desktop') {
             /*TODO: don't deal with decktop config file now*/
           } else {
-            var tmp = {};
             tmp.category = 'other';
-            tmp.path = sFilePath;
-            tmp.tag = sTag;
-            tmp.filename = _item;
-            tmp.inode = inode;
             FileList.push(tmp);
             OtherList.push(path + '/' + _item);
           }
@@ -2356,6 +2337,7 @@ function moveToDeskTopDir(sPath, callback) {
                             var isEnd = (count === lens - 1);
                             if (isEnd) {
                               console.log("load resources success!");
+                              console.log(FileList)
                               callback(null, FileList);
                             }
                             count++;
@@ -2570,10 +2552,6 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *
  **/
 function getFilesFromDesk(callback) {
-  moveToDeskTopDir('/home/xiquan/testFile', function(data) {
-    console.log(data)
-
-  })
 
   function getFilesByTagsCb(err, result) {
     if (err) {
