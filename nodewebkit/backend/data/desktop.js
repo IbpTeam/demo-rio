@@ -2208,7 +2208,8 @@ function moveToDeskTopDir(sPath, callback) {
   var PicList = [];
   var DskList = [];
   var OtherList = [];
-
+  //walk the dir then gather info as {file:dir} to make desktop tags. Push all 
+  //this info into FileList in json.
   function walk(path) {
     var dirList = fs.readdirSync(path);
     for (var i = 0; i < dirList.length; i++) {
@@ -2234,6 +2235,7 @@ function moveToDeskTopDir(sPath, callback) {
         var rootPath = sPath.substring(0, sDirIndex);
         var reg_root = new RegExp(rootPath);
         var sFilePath = pathModule.join(path, _item);
+        //sRelatePath is the path based on sPath
         var sRelatePath = path.replace(reg_root, '$desktop');
         var sTag = sRelatePath.replace(/\//g, '$') + '$';
         var inode = fs.statSync(path + '/' + _item).ino;
@@ -2293,6 +2295,8 @@ function moveToDeskTopDir(sPath, callback) {
     }
   }
   walk(sPath);
+
+  //load all files and then tag all file with desktop tags
   var fileInfo = [];
   var existFile = [];
   var lens = FileList.length;
