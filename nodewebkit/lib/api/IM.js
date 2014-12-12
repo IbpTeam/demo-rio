@@ -136,16 +136,15 @@ exports.SendAppMsg = SendAppMsg;
  *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
- *  MsgObj.ipSet 表示接收方的IP以及UID集合
+ *  MsgObj.toAccList 表示接收方的IP以及UID集合
  *  MsgObj.Account表示接收方的帐号
  *  MsgObj.Msg表示要发送给指定应用的消息
  *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-  ipSet: "192.168.1.100",
-  UID: "2312324323dsfseferfgdghf",
-  Account: "USER2",
+  toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+  Account: "fyf",
   Msg: "Hi  this is in IMSender test",
   App: "app1"
   rsaflag: "true"
@@ -153,16 +152,19 @@ exports.SendAppMsg = SendAppMsg;
  *
  */
 function SendAppMsgByAccount(SentCallBack, MsgObj) {
-  var ipSetItem = {};
-  for (var ipSetItemKey in MsgObj.ipSet) {
-    ipSetItem = MsgObj.ipSet[ipSetItemKey];
-    if (!net.isIP(ipSetItem.IP)) {
-      console.log('Input IP Format Error!:::', ipSetItem.IP);
+  var accSetItem = {};
+  var ipset={};
+  for (var accSetItemKey in MsgObj.toAccList) {
+    accSetItem = MsgObj.toAccList[accSetItemKey];
+    if (!net.isIP(accSetItem.toIP)) {
+      console.log('Input IP Format Error!:::', accSetItem.toIP);
     } else {
+      ipset["IP"] = accSetItem.toIP;
+      ipset["UID"] = accSetItem.toUID;
       if (MsgObj.rsaflag === "true") {
-        IMRsa.sendMSGbyUID(ipSetItem, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
-      } else {
-        IMNoRsa.sendMSGbyUIDNoRSA(ipSetItem, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+        IMRsa.sendMSGbyUID(ipset,accSetItem.toAccount,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+      }else{
+        IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
       }
     }
   }
