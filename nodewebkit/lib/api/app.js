@@ -250,9 +250,12 @@ exports.removeListner = function(removeListnerCB, listener) {
 }
 
 /**
- * TODO: generate and register an HTML5 App by a URL
+ * generate and register an HTML5 App by a URL
  * generateAppByURLCB: function(err)
  *    err: error discription or null
+ * url: URL of a website
  */
-exports.generateAppByURL = function(generateAppByURLCB) {}
+exports.generateAppByURL = function(generateAppByURLCB, url) {
+  appManager.generateAppByURL(url, generateAppByURLCB);
+}
 
