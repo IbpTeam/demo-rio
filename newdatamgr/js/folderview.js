@@ -165,86 +165,85 @@ var ShowFiles = Class.extend({
   },
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
-  getCallBackData:function(data_json){
-    console.log('data from server: ', data_json);
+  getCallBackData:function(files){
     var category = '';
-    for(var i=0; i<data_json.length; i++){
-      if(data_json[i].hasOwnProperty('type')){
+    for(var i=0; i<files.length; i++){
+      if(files[i].hasOwnProperty('type')){
         category = 'root';
-      }else if(data_json[i].hasOwnProperty('URI') && data_json[i]['URI'].lastIndexOf('#') != -1){
-        category = data_json[i]['URI'].substring(data_json[i]['URI'].lastIndexOf('#')+1, data_json[i]['URI'].length);
-      }else if(data_json[i].hasOwnProperty('device_id')){
+      }else if(files[i].hasOwnProperty('URI') && files[i]['URI'].lastIndexOf('#') != -1){
+        category = files[i]['URI'].substring(files[i]['URI'].lastIndexOf('#')+1, files[i]['URI'].length);
+      }else if(files[i].hasOwnProperty('device_id')){
         category = 'devices';
       }
       switch(category){
         case 'root':
-          data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = 'root/'+data_json[i]['type'];
-          data_json[i]['props']['name'] = data_json[i]['type'];
-          data_json[i]['props']['type'] = 'folder';
-          data_json[i]['props']['icon'] = 'folder';          
+          files[i]['props'] = {};
+          files[i]['props']['path'] = 'root/'+files[i]['type'];
+          files[i]['props']['name'] = files[i]['type'];
+          files[i]['props']['type'] = 'folder';
+          files[i]['props']['icon'] = 'folder';          
           break;
         case 'contact':
-          data_json[i]['props'] = {};
-          //data_json[i]['img'] = data_json[i]['photoPath'];
-          data_json[i]['props']['path'] = 'root/Contact/'+data_json[i]['name']+'.contacts';
-          data_json[i]['props']['name'] = data_json[i]['name'];
-          data_json[i]['props']['type'] = 'contact';
-          data_json[i]['props']['icon'] = 'Contacts';
+          files[i]['props'] = {};
+          //files[i]['img'] = files[i]['photoPath'];
+          files[i]['props']['path'] = 'root/Contact/'+files[i]['name']+'.contacts';
+          files[i]['props']['name'] = files[i]['name'];
+          files[i]['props']['type'] = 'contact';
+          files[i]['props']['icon'] = 'Contacts';
           break;
         case 'picture':
-          data_json[i]['props'] = {};
-          data_json[i]['props']['img'] = data_json[i]['path'];
-          data_json[i]['props']['path'] = 'root/Picture/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-          data_json[i]['props']['name'] = data_json[i]['filename'];      
-          data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);;
+          files[i]['props'] = {};
+          files[i]['props']['img'] = files[i]['path'];
+          files[i]['props']['path'] = 'root/Picture/'+files[i]['filename']+'.'+files[i]['postfix'];
+          files[i]['props']['name'] = files[i]['filename'];      
+          files[i]['props']['type'] = 'file';
+          files[i]['props']['icon'] = _globalSelf.setIcon(files[i]['postfix']);;
           break;
         case 'video':
-          data_json[i]['props'] = {};
-          data_json[i]['props']['video'] = data_json[i]['path'];
-          data_json[i]['props']['path'] = 'root/Video/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-          data_json[i]['props']['name'] = data_json[i]['filename'];          
-          data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
+          files[i]['props'] = {};
+          files[i]['props']['video'] = files[i]['path'];
+          files[i]['props']['path'] = 'root/Video/'+files[i]['filename']+'.'+files[i]['postfix'];
+          files[i]['props']['name'] = files[i]['filename'];          
+          files[i]['props']['type'] = 'file';
+          files[i]['props']['icon'] = _globalSelf.setIcon(files[i]['postfix']);
           break;
         case 'document':
-          data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = 'root/Document/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-          data_json[i]['props']['name'] = data_json[i]['filename'];   
-          data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
+          files[i]['props'] = {};
+          files[i]['props']['path'] = 'root/Document/'+files[i]['filename']+'.'+files[i]['postfix'];
+          files[i]['props']['name'] = files[i]['filename'];   
+          files[i]['props']['type'] = 'file';
+          files[i]['props']['icon'] = _globalSelf.setIcon(files[i]['postfix']);
           break;
         case 'music':
-          data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = 'root/Music/'+data_json[i]['filename']+'.'+data_json[i]['postfix'];
-          data_json[i]['props']['name'] = data_json[i]['filename'];           
-          data_json[i]['props']['type'] = 'file';
-          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
+          files[i]['props'] = {};
+          files[i]['props']['path'] = 'root/Music/'+files[i]['filename']+'.'+files[i]['postfix'];
+          files[i]['props']['name'] = files[i]['filename'];           
+          files[i]['props']['type'] = 'file';
+          files[i]['props']['icon'] = _globalSelf.setIcon(files[i]['postfix']);
           break;
         case 'devices':
-          data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = _globalDir+'/'+data_json[i]['name']+'.device';
-          data_json[i]['props']['name'] = data_json[i]['name'];           
-          data_json[i]['props']['type'] = 'device';
-          data_json[i]['props']['icon'] = 'Devices';
+          files[i]['props'] = {};
+          files[i]['props']['path'] = _globalDir+'/'+files[i]['name']+'.device';
+          files[i]['props']['name'] = files[i]['name'];           
+          files[i]['props']['type'] = 'device';
+          files[i]['props']['icon'] = 'Devices';
           break;
         default:
-          data_json[i]['props'] = {};
-          data_json[i]['props']['path'] = _globalDir+'/'+data_json[i]['filename'];
-          data_json[i]['props']['name'] = data_json[i]['filename'];           
-          data_json[i]['props']['type'] = 'other';
-          data_json[i]['props']['icon'] = _globalSelf.setIcon(data_json[i]['postfix']);
+          files[i]['props'] = {};
+          files[i]['props']['path'] = _globalDir+'/'+files[i]['filename'];
+          files[i]['props']['name'] = files[i]['filename'];           
+          files[i]['props']['type'] = 'other';
+          files[i]['props']['icon'] = _globalSelf.setIcon(files[i]['postfix']);
           break;
       }
     }
-    _globalSelf._getFiles[_globalSelf._index] = data_json;
+    _globalSelf._getFiles[_globalSelf._index] = files;
     if(_globalSelf._showNormal){
-      _globalSelf._imgReady = data_json.length;
-      _globalSelf._showContent.append(_globalSelf.showFilesNormal(data_json).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+      _globalSelf._imgReady = files.length;
+      _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
     }
     else {
-      _globalSelf._showContent.append(_globalSelf.showFilesList(data_json).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
+      _globalSelf._showContent.append(_globalSelf.showFilesList(files).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
     }
   },
 
@@ -283,7 +282,7 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来产生一个和用户交互的界面
-  genPopupDialog:function(title, message, data_json){
+  genPopupDialog:function(title, message, files){
     $("#popup_dialog").remove();
     var header_btn = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
     var header_title = $('<h4 class="modal-title"></h4>');
@@ -313,9 +312,9 @@ var ShowFiles = Class.extend({
       $(this).remove();
     });
     $('#edit_button').on('click', function(){
-      if(data_json != null){
+      if(files != null){
         $(this).removeData('bs.modal');
-        _globalSelf.genEditDialog(data_json);
+        _globalSelf.genEditDialog(files);
       }
       else{
         window.alert("You can not edit this file.");
@@ -324,21 +323,20 @@ var ShowFiles = Class.extend({
   },
 
   //产生一个可以编辑的对话框
-  genEditDialog:function(data_json){
-    console.log("gen edit dialog!", data_json);
+  genEditDialog:function(dataJson){
     var file_propery='<form>';
-    for(var key in data_json){
+    for(var key in dataJson){
       if(key == 'props' || key == 'URI'){
         continue;
       }
-      file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+data_json[key]+'"/>';
+      file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+dataJson[key]+'"/>';
     }
     file_propery += '</form></br>';
     file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
     _globalSelf.genPopupDialog('Edit', file_propery);
     $('#save_button').on('click', function(){
       var new_json = {};
-      for(var key in data_json){
+      for(var key in dataJson){
         if(key == 'props' || key == 'URI'){
           continue;
         }
@@ -346,7 +344,7 @@ var ShowFiles = Class.extend({
         new_json[key] = new_value;
       }
       new_json['category'] = get_category();
-      new_json['URI'] = data_json['URI'];
+      new_json['URI'] = dataJson['URI'];
       DataAPI.updateDataValue(function(result){
         if(result == 'success'){
           window.alert("Saved successfully!");
@@ -359,22 +357,21 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来通过json格式找到数据库中的源文件
-  cbGetDataSourceFile:function(data_json){
-    console.log('get data source file', data_json);
-    if(!data_json['openmethod'] || !data_json['content']){
+  cbGetDataSourceFile:function(dataJson){
+    if(!dataJson['openmethod'] || !dataJson['content']){
       window.alert('openmethod or content not found.');
       return false;
     }
 
-    var method = data_json['openmethod'];
-    var content = data_json['content'];
+    var method = dataJson['openmethod'];
+    var content = dataJson['content'];
     switch(method){
       case 'alert':
         window.alert(content);
         break;
       case 'html':
         var file_content;
-        var format = data_json['format'];
+        var format = dataJson['format'];
         switch(format){
           case 'audio':
             file_content = $('<audio controls></audio>');
@@ -395,16 +392,16 @@ var ShowFiles = Class.extend({
             break;
         }
 
-        var title = data_json['title'];
-        if (!data_json['windowname']){
+        var title = dataJson['title'];
+        if (!dataJson['windowname']){
           _globalSelf.genPopupDialog(title, file_content);
         }
         else{
           _globalSelf.genPopupDialog("窗口控制", "<div>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'F5\')\">PLAY</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'Up\')\">UP</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'Down\')\">DOWN</button><br>\
+              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'Escape\')\">STOP</button><br>\
             </div>");
         }
         break;
@@ -434,21 +431,42 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-          console.log('this is left once' + $(this).attr('id'));
+          $(this).delegate($(this),'mousedown',function(e){
+            console.log("you have left twice ");
+          })
+          $(this).attr('tabindex', 1).keydown(function(e) {
+              if($(this).attr('data-path')){
+                var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
+              }
+              else{
+                var file = _globalSelf.findFileByPath($(this).attr('id'));
+              }
+            if(e.which == 46){
+              var toDelete = $(this);
+              DataAPI.rmDataByUri(function(err,result){
+                if(result == 'success'){
+                  toDelete.remove();
+                }
+                else{
+                  window.alert('Delete file failed');
+                }
+              },file['URI']);
+            }
+            else {
+              console.log("what do you want to do");
+            }
+          });
           break;
         case 3:
-          console.log('this is right once---------------');
           break;  
       }
       e.stopPropagation();
     });
     this.files.delegate(whichClass,'dblclick',function(e){
-      console.log($(this).attr('data-path'));
       if($(this).attr('data-path')){
         var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
       }
       else{
-        console.log($(this).attr('data-path'));
         var file = _globalSelf.findFileByPath($(this).attr('id'));
       }
       if(!file){
