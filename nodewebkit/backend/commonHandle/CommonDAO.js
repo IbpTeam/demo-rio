@@ -106,7 +106,7 @@ function allSQL(sql,callback){
   var oDb = openDB();
   oDb.all(sql,function(err,rows){
     if(err){
-      console.log("Error:execute SQL error.",sql);
+      console.log("Error:execute SQL error.");
       console.log("Info :" + err);
       callback(err,null);
       return;
