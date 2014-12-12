@@ -1,0 +1,124 @@
+#info-list{
+  width: 164px;
+  height: 100%;
+  background: rgba(250, 0, 0, 0.95);
+  border-right: 1px solid #e5e8ec;
+  float: left;
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+  color: #2e3d44;
+  transition:background-color 0.8s ease 0s;
+
+  #title-form {
+    width: 100%;
+    text-align: center;
+    #title-text{
+        font-size:20px;
+        font-weight: bold;
+        margin-top: 20px;
+        letter-spacing: 1.2px;
+        text-transform: Capitalize;
+    }
+  }
+
+   #title-form-bottom{
+        width: 100%;
+        font-size:14px;
+        font-weight: bold;
+        padding: 4px 10px;
+        letter-spacing: 0.7px;
+        position: absolute;
+        bottom: 160px;
+        left: 10px;
+        //.bil_title{
+        //  margin-left: 6px;
+        //}
+   }
+
+  #il__container{
+    //padding-top: 0px;
+    //padding-bottom: 10px;
+    color: #64717f;
+    text-shadow: -1px 1px 0 rgba(125, 139, 153, 0.1);
+    position: absolute;
+    top: 70px;
+    //border: 1px solid #cccccc;
+    bottom: 220px;
+    left: 0;
+    //right: -1px;
+    .scroll;
+    &.contact{
+      background: rgba(50, 0, 0, 0.5);
+    }
+
+    .il__a{
+        margin: 4px 15px;
+        padding: 1px 8px 1px;
+        display: block; 
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        font-size: 12px;
+        transition:background-color 0.6s ease 0s;
+        &:hover{
+          background-color: rgba(255, 255, 255, 0.8);
+        }
+        &.active{
+          color:#29a284;
+          background-color: rgba(242, 242, 242, 0.5);
+          box-shadow: -1px 1px rgba(229, 232, 236, 0.9); 
+        }
+        .il__title{
+          margin: 0;
+          padding-top: 0;
+          font-size: 1em;
+          color: black;
+        }
+        .il__num{
+          font-size: 12px;
+          margin-left: 7px;
+          //float: right;
+        }
+    }
+    .il__add{
+      margin: 4px 15px;
+      padding: 0px 7px 6px;
+      width: 20px;
+      border-radius: 10px;
+      background-color: rgba(255, 255, 255,0.3);
+      transition:background-color 0.3s ease 0s;
+      color: f48989;
+      &:hover{
+        background-color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+      }
+    }
+  }
+
+  #il__bottom{
+    width:164px;
+    position: absolute;
+    left: 0;
+    bottom: 10px;
+    height: 150px;
+    .scroll;
+    .bil__a{
+      margin: 4px 12px;
+      padding: 4px 8px 3px;
+      border-radius: 50px;
+      display: block; 
+      font-size: 0.75em;
+      font-weight: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition:background-color 0.3s ease 0s;
+      &:hover{
+        background-color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+      }
+    }
+  }
+}
