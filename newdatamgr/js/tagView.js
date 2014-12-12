@@ -201,6 +201,7 @@ var TagView = Class.extend({
       _this._tagList = [];
       callback_();
     });
+    _this._index = 0;
     if (this._options.position === 'random') {
       this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     };
