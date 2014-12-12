@@ -391,7 +391,6 @@ function setTagByUri(callback, oTags, sUri) {
     }
     var UpdateItem = [];
     var item = items[0];
-    console.log(item)
     if (!item.others) { //item has no tags 
       var newTags = oTags.join(",");
     } else { //item has tag(s)
@@ -427,7 +426,6 @@ function setTagByUri(callback, oTags, sUri) {
             if (err) {
               return callback(err, null);
             }
-            console.log('set tags des git committed!');
             callback('commit');
           })
         });

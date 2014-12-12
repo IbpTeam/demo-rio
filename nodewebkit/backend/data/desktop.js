@@ -2229,9 +2229,12 @@ function moveToDeskTopDir(sPath, callback) {
       } else if (fs.lstatSync(path + '/' + _item).isFile()) {
         var sPosIndex = _item.lastIndexOf(".");
         var sPos = _item.slice(sPosIndex + 1, _item.length);
-        var reg_root = new RegExp(path);
+        var sDirIndex = sPath.lastIndexOf("/");
+        var rootDir = sPath.substring(sDirIndex, sPath.length);
+        var rootPath = sPath.substring(0, sDirIndex);
+        var reg_root = new RegExp(rootPath);
         var sFilePath = pathModule.join(path, _item);
-        var sRelatePath = sPath.replace(reg_root, '$desktop');
+        var sRelatePath = path.replace(reg_root, '$desktop');
         var sTag = sRelatePath.replace(/\//g, '$') + '$';
         var inode = fs.statSync(path + '/' + _item).ino;
         if (sPos != 'csv' && sPos != 'CSV') {

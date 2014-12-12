@@ -410,7 +410,7 @@ exports.updateItem = function(item,callback){
   }
   sSqlStr = sSqlStr.substring(0,sSqlStr.length-1);
   sSqlStr = sSqlStr + sCondStr + ";";
-  console.log("UPDATE Prepare SQL is : "+sSqlStr);
+  //console.log("UPDATE Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
@@ -557,7 +557,7 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
 
   // Make query string
   sQueryStr = sColStr + sTablesStr + sCondStr + sExtraStr;
-  console.log("SELECT Prepare SQL is :" + sQueryStr);
+  //console.log("SELECT Prepare SQL is :" + sQueryStr);
 
   // Runs the SQL query
   allSQL(sQueryStr,callback);
