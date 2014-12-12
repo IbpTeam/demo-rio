@@ -169,7 +169,25 @@ a {
               font-size: 0.7em;
             }
           }
-
+          .icon-pinterest-sign{
+            color: #2300d0;
+            cursor: default;
+            font-size: 0.7em;
+          }
+        }
+      }
+    }
+    #tags__bottom{
+      position: absolute;
+      bottom:0px;
+      padding: 12px 0px 9px;
+      text-align: center;
+      width: 100%;
+      .icon-github-sign{
+        font-size: 1.5em;
+        &:hover{
+          color: #c73765;
+          cursor: pointer;
         }
       }
     }
@@ -208,7 +226,10 @@ a {
     color:#8ed695; 
     cursor: pointer; 
   }
-
+  .icon-pinterest-sign:hover{
+    color:#d02823;
+    cursor: pointer;
+  }
 }
 
 #info-list{
@@ -228,14 +249,13 @@ a {
 
   #title-form {
     width: 100%;
-    //height: 45px;
-    //border-bottom: 1px solid #e5e8ec;
     text-align: center;
     #title-text{
         font-size:20px;
         font-weight: bold;
         margin-top: 20px;
         letter-spacing: 1.2px;
+        text-transform: Capitalize;
     }
   }
 
@@ -274,6 +294,7 @@ a {
         padding: 1px 8px 1px;
         border-radius: 4px;
         display:table; 
+
         background-color: rgba(255, 255, 255, 0.3);
         border-radius: 50px;
         font-size: 12px;
@@ -318,7 +339,6 @@ a {
     position: absolute;
     left: 0;
     bottom: 10px;
-    //text-align: center;
     height: 150px;
     .scroll;
     .bil__a{
@@ -344,6 +364,8 @@ a {
   position: relative;
   width: auto;
   height: 100%;
+  min-height: 400px;
+  min-width: 300px;
   &.move-right{
     margin-left: 220px;
   }
@@ -379,9 +401,6 @@ a {
         color: #999;
         top: 1px;
         &:hover{
-          //right:14px;
-          //top: 2px;
-          //font-size: 1.2em;
           color: #555;
           cursor: pointer;
         }
@@ -475,6 +494,51 @@ a {
 
 
 //screen
+@media screen and (min-device-width: 1220px) {
+  #contentDiv{
+    div{
+      &#pic-container{
+        top:auto;
+        left: 29.6%;
+      }
+      &#doc-container{
+        .transition(right 1s cubic-bezier(0.55,0.46,0.83,0.12));
+        right: 63px;
+      }
+      &#contacts-container{
+        .transition(height 1s);
+        top:auto;
+        height:210px;
+      }
+      &#music-container{
+        right: 30%;
+      }
+    }
+  }
+}
+//screen
+@media screen and (max-width: 1219px) {
+  #contentDiv{
+    div{
+      &#pic-container{
+        top: 20px;        
+        left:auto;
+      }
+      &#doc-container{
+         .transition(right 1s cubic-bezier(0,0.98,0,0.94));
+        right:350px;
+      }
+      &#contacts-container{
+        .transition(top 1s);
+        top:320px;
+        height:auto;
+      }
+      &#music-container{
+        right: 350px;
+      }
+    }
+  }
+}
 @media screen and (min-device-width: 1281px) {
   #sidebar {
     -webkit-transition: margin-left 0.5s cubic-bezier(0.77, 0, 0.175, 1);

@@ -97,7 +97,11 @@ var Contact = Class.extend({
     });*/
     var _tags = ['Family', 'School', 'Friends'];
     this._contactHead.append(_photoDiv);
+
     //this._contactHead.append(_nameDiv);
+
+    this._tagView.refresh();
+
     this._tagView.addTags(_tags);
 
     var _contactHeadBackBlue = $('<div>', {

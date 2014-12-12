@@ -52,17 +52,21 @@ var MainMusicView = Class.extend({
     this.addVideo(this._musicList2);
     this.addVideo(this._musicList);
     this.addUnslider();
-    var _tagView = TagView.create({
+    this._testTags=[['light','home-school','name','flower','water'],
+    ['flower','name','flower','water'],
+    ['name','flower','water']];
+    this._tagView = TagView.create({
       position: 'listview',
+      direction:'up',
+      max:3,
       background_color: 'rgb(51,153,102)',
       positions:{
-        top:160,
-        direction:'up',
+        bottom:10,
         step: 30
       }
     });
-    _tagView.setParent(this._musicContent);
-    _tagView.addTags(['heaven','flower','water']);
+    this._tagView.setParent(this._musicContent);
+    this._tagView.addTags(['heaven','flower','water']);
   },
   addVideo:function(video_){
     var _li = $('<li>',{
@@ -74,11 +78,16 @@ var MainMusicView = Class.extend({
   },
 
   addUnslider:function(){
+    var _this = this;
     if (!this._unslider) {
-      this._unslider = Unslider.create(this._banner, {
+      this._unslider = Unslider.create(_this._banner, {
         speed: 500,               // 轮播动画速度
         delay: 3000,              // 轮播延时
-        complete: function() {},  // 完成轮播时的响应函数
+        begin: function(index_) {
+          _this._tagView.refresh(function(){
+            _this._tagView.addTags(_this._testTags[index_]);
+          });
+        },  // begin轮播时的响应函数
         keys: true,               // 支持左右按键转换图片
         fluid: false              // 支持响应设计，屏幕变化
       });
