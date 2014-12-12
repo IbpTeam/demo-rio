@@ -12,7 +12,7 @@ var Contact = Class.extend({
       'id': 'contact-head'
     });
     this._ContactContainer.append(this._contactHead);
-    this._defaultPhoto = 'img/headphoto.png';
+    this._defaultPhoto = 'img/headphoto.svg';
     this._contactDetails = $('<div>', {
       'id': 'contact-detail'
     });
@@ -90,17 +90,32 @@ var Contact = Class.extend({
       'src': _headPhotoPath
     });
     _photoDiv.append(_photo);
+
+   /*var _nameDiv = $('<div>', {
+      'class': 'div-name',
+      'text': contact_['name']
+    });*/
+    var _tags = ['Family', 'School', 'Friends'];
+    this._contactHead.append(_photoDiv);
+    //this._contactHead.append(_nameDiv);
+    this._tagView.addTags(_tags);
+
+    var _contactHeadBackBlue = $('<div>', {
+      'id':'contact-back-blue'
+    });
+    this._contactHead.append(_contactHeadBackBlue);
+    var _contactHeadBackRed = $('<div>', {
+      'id':'contact-back-red'
+    });
+    this._contactHead.append(_contactHeadBackRed);
+
+  },
+
+  setDetails: function(contact_){
     var _nameDiv = $('<div>', {
       'class': 'div-name',
       'text': contact_['name']
     });
-    var _tags = ['Family', 'School', 'Friends'];
-    this._contactHead.append(_photoDiv);
-    this._contactHead.append(_nameDiv);
-    this._tagView.addTags(_tags);
-  },
-
-  setDetails: function(contact_){
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
@@ -121,6 +136,7 @@ var Contact = Class.extend({
       _li.append(_valueDiv);
       _ul.append(_li);
     }
+    this._contactDetails.append(_nameDiv);
     this._contactDetails.append(_ul);
   },
 
