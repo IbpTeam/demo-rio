@@ -261,6 +261,21 @@ var ShowFiles = Class.extend({
     return file;
   },
 
+  //次函数用通过文件的id来找到文件
+  findFileById:function(fileid){
+    var all = _globalSelf._getFiles[_getFiles._index];
+    var file = false;
+    if(all.length){
+      for(var i=0;i<all.length;i++){
+        if(all[i].id == fileid){
+          file = all[i];
+          break;
+        }
+      }
+    }
+    return file;
+  },
+
   //此函数用来产生一个和用户交互的界面
   genPopupDialog:function(title, message, data_json){
     $("#popup_dialog").remove();
@@ -413,6 +428,7 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
+          console.log('this is left once' + $(this).text())
           break;
         case 3:
           console.log('this is right once---------------');
