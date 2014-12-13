@@ -71,7 +71,7 @@ function repoCommit(repoPath, files, commitID, op, callback) {
     if (error) {
       console.log("Git add error");
       console.log(error, stderr, stdout);
-      callback(null,'error');
+      callback(error,'error');
     } 
     else {
       console.log("Git add success");
