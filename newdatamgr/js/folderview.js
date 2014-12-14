@@ -8,10 +8,12 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._imgReady;
     this._copiedFilepath = '';
-    this._showNormal = true;
+    this._showNormal = [0,0,0,0,0,0];
     this._pictureContentReady = false;
-    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent'];
-    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList'];
+    this._wantFiles = ['contact','Picture','Video','Document','Music','Other'];
+    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
+    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
+    this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
     this._choice = $('<div id = "choice"></div>');
     this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
     $("#contentDiv").append(this._choice);
@@ -33,19 +35,18 @@ var ShowFiles = Class.extend({
     showlistButton.click(function(){
       shownormalButton.removeClass('shownormalButtonFocus');
       showlistButton.addClass('showlistButtonFocus');
-      _globalSelf._showNormal = false;
+      _globalSelf._showNormal[_globalSelf._index] = 1;
       _globalSelf.showFile();
     });
     shownormalButton.click(function(){
       showlistButton.removeClass('showlistButtonFocus');
       shownormalButton.addClass('shownormalButtonFocus');
-      _globalSelf._showNormal = true;
+      _globalSelf._showNormal[_globalSelf._index] = 0;
       _globalSelf.showFile();
     });
     sortbyButton.click(function(){
-      _globalSelf._showContent.show();
-      _globalSelf._showContent.children().hide();
-      _globalSelf._showContent.append(_globalSelf.showFilesSortByTime(_globalSelf._getFiles[_globalSelf._index]));
+      _globalSelf._showNormal[_globalSelf._index] = 2;
+      _globalSelf.showFile();
     });
   },
   
@@ -62,106 +63,40 @@ var ShowFiles = Class.extend({
     _globalSelf._choice.show();
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
-    if (this._index == 1){
-      //所请求的是图片，显示图片
-      if(!this._getFiles[this._index]){
-        DataAPI.getAllDataByCate(this.getCallBackData,'Picture');
-      }
-      else {
-        if(this._showNormal){
-          if($("#pictureContent").children('div').length>0){
-            $("#pictureContent").show();
-            $('#pictureContent').BlocksIt({
-              numOfCol: 5,
-            });
-          }
-          else {
-            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-          }
-        }
-        else {
-          if ($("#pictureContentList").children('table').length>0){
-            $("#pictureContentList").show();
-          }
-          else {
-            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-          }
-        }
-      }
+    if(!this._getFiles[this._index]){
+      DataAPI.getAllDataByCate(this.getCallBackData,this._wantFiles[this._index]);
     }
-    else if(this._index == 2){
-      //所请求的是视频，显示视频
-      if(!this._getFiles[this._index]){
-        DataAPI.getAllDataByCate(this.getCallBackData,'Video');
+    else{
+      //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
+      switch(this._showNormal[this._index]){
+        case 0:
+          $('#'+this._contentIds[this._index]).show();
+          if(this._index ==1){
+              $('#'+this._contentIds[this._index]).BlocksIt({
+              numOfCol:5
+            }); 
+          }
+          break;
+        case 1:
+            if($('#'+ this._contentIdsList[this._index]).children('table').length >0){
+              $('#'+ this._contentIdsList[this._index]).show();
+            }
+            else {
+              _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
+            }
+            break;
+        case 2:
+            if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
+              $('#'+ this._contentIdsSortByTime[this._index]).show();
+            }
+            else {
+              _globalSelf._showContent.append(_globalSelf.showFilesSortByTime(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsSortByTime[_globalSelf._index]));
+            }
+            break;
+        default:
+          console.log("the method is failed!!!!!");
       }
-      else {
-        if(this._showNormal){
-          if($("#videoContent").children('div').length>0){
-            $("#videoContent").show();
-          }
-          else {
-            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-          }
-        }
-        else {
-          if ($("#videoContentList").children('table').length>0){
-            $("#videoContentList").show();
-          }
-          else {
-          _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
-          }
-        }
-      }
-    }
-    else if(this._index ==3){
-      //所请求的是文档，显示文档
-      if(!this._getFiles[this._index]){
-        DataAPI.getAllDataByCate(this.getCallBackData,'Document');
-      }
-      else {
-        if(this._showNormal){
-          if($("#documentContent").children('div').length>0){
-            $("#documentContent").show();
-          }
-          else {
-            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-          }
-        }
-        else {
-          if ($("#documentContentList").children('table').length>0){
-            $("#documentContentList").show();
-          }
-          else {
-            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
-          }
-        }
-      }
-    }
-    else if(this._index ==4){
-      //所请求的是音乐，显示音乐
-      if(!this._getFiles[this._index]){
-        DataAPI.getAllDataByCate(this.getCallBackData,'Music');
-      }
-      else {
-        if(this._showNormal){
-          if($("#musicContent").children('div').length>0){
-            $("#musicContent").show();
-          }
-          else {
-            _globalSelf._showContent.append(_globalSelf.showFilesNormal(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-          }
-        }
-        else {
-
-          if ($("#musicContentList").children('table').length>0){
-            $("#musicContentList").show();
-          }
-          else {
-          _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index])); 
-          }
-        }
-      }
-    }
+    } 
   },
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
@@ -201,7 +136,8 @@ var ShowFiles = Class.extend({
           break;
         case 'video':
           files[i]['props'] = {};
-          files[i]['props']['video'] = files[i]['path'];
+          // files[i]['props']['video'] = files[i]['path'];
+          files[i]['props']['video'] = 'icons/Videos.png';
           files[i]['props']['path'] = 'root/Video/'+files[i]['filename']+'.'+files[i]['postfix'];
           files[i]['props']['name'] = files[i]['filename'];          
           files[i]['props']['type'] = 'file';
@@ -216,6 +152,7 @@ var ShowFiles = Class.extend({
           break;
         case 'music':
           files[i]['props'] = {};
+          files[i]['props']['music'] = 'icons/Music.png';
           files[i]['props']['path'] = 'root/Music/'+files[i]['filename']+'.'+files[i]['postfix'];
           files[i]['props']['name'] = files[i]['filename'];           
           files[i]['props']['type'] = 'file';
@@ -230,6 +167,7 @@ var ShowFiles = Class.extend({
           break;
         default:
           files[i]['props'] = {};
+          files[i]['props']['other'] = 'icons/Other.png';
           files[i]['props']['path'] = _globalDir+'/'+files[i]['filename'];
           files[i]['props']['name'] = files[i]['filename'];           
           files[i]['props']['type'] = 'other';
@@ -238,13 +176,8 @@ var ShowFiles = Class.extend({
       }
     }
     _globalSelf._getFiles[_globalSelf._index] = files;
-    if(_globalSelf._showNormal){
-      _globalSelf._imgReady = files.length;
-      _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
-    }
-    else {
-      _globalSelf._showContent.append(_globalSelf.showFilesList(files).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-    }
+    _globalSelf._imgReady = files.length;
+    _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
   },
 
   //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
@@ -427,6 +360,7 @@ var ShowFiles = Class.extend({
     //一个JQuery元素代表的是一系列文件
     this.files = jQueryElement;
     var self = this;
+    //增加单击和右击事件,1是单击，3是右击
     this.files.delegate(whichClass,'mousedown',function(e){
       switch(e.which){
         case 1:
@@ -436,16 +370,64 @@ var ShowFiles = Class.extend({
           })
           $(this).attr('tabindex', 1).keydown(function(e) {
               if($(this).attr('data-path')){
-                var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
+                var file = _globalSelf.findFileByPath($(this).attr('data-path'));
+                var filePath = $(this).attr('data-path'); 
               }
               else{
                 var file = _globalSelf.findFileByPath($(this).attr('id'));
+                var filePath = $(this).attr('id');
               }
             if(e.which == 46){
+              //触发的是键盘的delete事件,表示删除
               var toDelete = $(this);
               DataAPI.rmDataByUri(function(err,result){
                 if(result == 'success'){
                   toDelete.remove();
+                  for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+                    if(_globalSelf._getFiles[_globalSelf._index][i]['props'].path == filePath){
+                      _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+                      break;
+                    }
+                  }
+                  if($('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div').length >0){
+                    var div = $('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div');
+                    for(var i=0;i<div.length;i++){
+                      if($(div[i]).attr('data-path') == filePath){
+                        $(div[i]).remove();
+                      }
+                    }
+                  }
+                  if($('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div').length >0){
+                    var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
+                    var sortDivs = $('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div');
+                    var whichDiv = 0;
+                    if(timeDifference >=0 && timeDifference <=24){
+                      whichDiv =0;
+                    }
+                    else if(timeDifference>24 && timeDifference <=24*7){
+                      whichDiv =1;
+                    }
+                    else if(timeDifference >24*7 && timeDifference <24*30){
+                      whichDiv =2;
+                    }
+                    else {
+                      whichDiv =3;
+                    }
+                    var div = $(sortDivs[whichDiv]).children('div');
+                    for(var i=0;i<div.length;i++){
+                      if($(div[i]).attr('data-path') == filePath){
+                        $(div[i]).remove();
+                      }
+                    }
+                  }
+                  if($('#'+ _globalSelf._contentIdsList[_globalSelf._index]).children('table').length >0){
+                    $('table,tr').each(function(index, el) {
+                      if($(this).attr('id') == filePath){
+                        $(this).remove();
+                      }
+                    });
+                  }
+                  _globalSelf.showFile();
                 }
                 else{
                   window.alert('Delete file failed');
@@ -514,9 +496,8 @@ var ShowFiles = Class.extend({
     }
     //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
     function GenerateBodyTr(file,theadMessage){
-      var bodytr = $('<tr id="'+file['path']+'" class= "bodytr"></tr>');
+      var bodytr = $('<tr id="'+file['props'].path+'" class= "bodytr"></tr>');
       for(var i =0;i<theadMessage.length;i++){
-        //bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
         switch(i){
           case 0:
             bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
@@ -572,74 +553,136 @@ var ShowFiles = Class.extend({
     for(var i =0;i<files.length;i++){
       var file = files[i];
       var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
-      var outContainer = $('<div class="outContainer" data-path="'+file['props'].path +'"></div>)');
-      var Holder = $('<div class = "Holder"></div>');
-      //用来定义最后描述的名字.
-      if(file['props'].name.indexOf(' ') != -1 ||
-         file['props'].name.indexOf('\'' != -1)){
-        var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-        var description = $('<div class="description">'+file['props'].name+'</div>');
-      }else{
-        var description = $('<div class="description">'+file['props'].name+'</div>');
-      } 
-      if(file['props'].img){
-        Holder.append($('<img src="' + file['props'].img + '"></img>'));
-        outContainer.append(Holder);
-        outContainer.append(description);
-        if(timeDifference >=0 && timeDifference <=24){
-          today.append(outContainer);
-        }
-        else if(timeDifference>24 && timeDifference <=24*7){
-          previous7Days.append(outContainer);
-        }
-        else if(timeDifference >24*7 && timeDifference <24*30){
-          previous30Days.append(outContainer);
-        }
-        else {
-          previousOneYear.append(outContainer);
-        }
-
-      }
-      else if(file['props'].video){
-        Holder.append($('<video src="' + file['props'].video + '"></video>'));
-        outContainer.append(Holder);
-        outContainer.append(description);
-        //returnContent.append(outContainer);
-        if(timeDifference >=0 && timeDifference <=24){
-          today.append(outContainer);
-        }
-        else if(timeDifference>24 && timeDifference <=24*7){
-          previous7Days.append(outContainer);
-        }
-        else if(timeDifference >24*7 && timeDifference <24*30){
-          previous30Days.append(outContainer);
-        }
-        else {
-          previousOneYear.append(outContainer);
-        }
-      }
-      else {
-        var fileContainer = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
-        fileContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
-        if(file['props'].name.indexOf(' ') != -1 ||
-           file['props'].name.indexOf('\'' != -1)){
-          var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-          fileContainer.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
-        }else{
-          fileContainer.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
-        }
-        if(timeDifference >=0 && timeDifference <=24){
-          today.append(fileContainer);
-        }
-        else if(timeDifference>24 && timeDifference <=24*7){
-          previous7Days.append(fileContainer);
-        }
-        else if(timeDifference >24*7 && timeDifference <24*30){
-          previous30Days.append(fileContainer);
-        }
-        else {
-          previousOneYear.append(fileContainer);
-        }
+      switch(_globalSelf._index){
+        case 1:
+          var Container = $('<div class="pictureContainer" data-path="'+file['props'].path +'"></div>)');
+          var Holder = $('<div class = "pictureHolder"></div>');
+          //用来定义最后描述的名字.
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div class="picturedescription">'+file['props'].name+'</div>');
+          }else{
+            var description = $('<div class="picturedescription">'+file['props'].name+'</div>');
+          }
+          Holder.append($('<img src="' + file['props'].img + '"></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          if(timeDifference >=0 && timeDifference <=24){
+            today.append(Container);
+          }
+          else if(timeDifference>24 && timeDifference <=24*7){
+            previous7Days.append(Container);
+          }
+          else if(timeDifference >24*7 && timeDifference <24*30){
+            previous30Days.append(Container);
+          }
+          else {
+            previousOneYear.append(Container);
+          }
+          break;
+        case 2:
+          var Container = $('<div class="videoContainer" data-path="'+file['props'].path +'"></div>)');
+          var Holder = $('<div class = "videoHolder"></div>');
+          //用来定义最后描述的名字.
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div class="videodescription">'+file['props'].name+'</div>');
+          }else{
+            var description = $('<div class="videodescription">'+file['props'].name+'</div>');
+          }
+          Holder.append($('<img src="' + file['props'].video + '"></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          if(timeDifference >=0 && timeDifference <=24){
+            today.append(Container);
+          }
+          else if(timeDifference>24 && timeDifference <=24*7){
+            previous7Days.append(Container);
+          }
+          else if(timeDifference >24*7 && timeDifference <24*30){
+            previous30Days.append(Container);
+          }
+          else {
+            previousOneYear.append(Container);
+          }
+          break;
+        case 3:
+          var Container = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
+          Container.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            Container.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
+          }else{
+            Container.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
+          }
+          if(timeDifference >=0 && timeDifference <=24){
+            today.append(Container);
+          }
+          else if(timeDifference>24 && timeDifference <=24*7){
+            previous7Days.append(Container);
+          }
+          else if(timeDifference >24*7 && timeDifference <24*30){
+            previous30Days.append(Container);
+          }
+          else {
+            previousOneYear.append(Container);
+          }
+          break;
+        case 4:
+          var Container = $('<div class="musicContainer" data-path="'+file['props'].path +'"></div>)');
+          var Holder = $('<div class = "musicHolder"></div>');
+          //用来定义最后描述的名字.
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div class="musicdescription">'+file['props'].name+'</div>');
+          }else{
+            var description = $('<div class="musicdescription">'+file['props'].name+'</div>');
+          }
+          Holder.append($('<img src="' + file['props'].music + '"></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          if(timeDifference >=0 && timeDifference <=24){
+            today.append(Container);
+          }
+          else if(timeDifference>24 && timeDifference <=24*7){
+            previous7Days.append(Container);
+          }
+          else if(timeDifference >24*7 && timeDifference <24*30){
+            previous30Days.append(Container);
+          }
+          else {
+            previousOneYear.append(Container);
+          }
+          break;
+        case 5:
+          var Container = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
+          Container.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            Container.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
+          }else{
+            Container.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
+          }
+          if(timeDifference >=0 && timeDifference <=24){
+            today.append(Container);
+          }
+          else if(timeDifference>24 && timeDifference <=24*7){
+            previous7Days.append(Container);
+          }
+          else if(timeDifference >24*7 && timeDifference <24*30){
+            previous30Days.append(Container);
+          }
+          else {
+            previousOneYear.append(Container);
+          }
+          break;
+        default:
+          console.log("what are you want to show??????");
       }
     }
     if(today.children('div').length ==0){
@@ -658,63 +701,110 @@ var ShowFiles = Class.extend({
     returnContent.append(previous7Days);
     returnContent.append(previous30Days);
     returnContent.append(previousOneYear);
-    _globalSelf.addClickEvent(returnContent,'.outContainer');
+    _globalSelf.addClickEvent(returnContent,'.pictureContainer');
+    _globalSelf.addClickEvent(returnContent,'.videoContainer');
+    _globalSelf.addClickEvent(returnContent,'.musicContainer');
     _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
-    var returnContent = $('<div class = "returnContent" style= "overflow:auto"></div>');
+    var returnContent = $('<div style= "overflow:auto"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
-      var outContainer = $('<div class="outContainerWaterFall" data-path="'+file['props'].path +'"></div>)');
-      var Holder = $('<div class = "HolderWaterFall"></div>');
-      //用来定义最后描述的名字.
-      if(file['props'].name.indexOf(' ') != -1 ||
-         file['props'].name.indexOf('\'' != -1)){
-        var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-        var description = $('<div class="descriptionWaterFall">'+file['props'].name+'</div>');
-      }else{
-        var description = $('<div class="descriptionWaterFall">'+file['props'].name+'</div>');
-      } 
-      if(file['props'].img){
-        Holder.append($('<img src="' + file['props'].img + '"></img>'));
-        outContainer.append(Holder);
-        outContainer.append(description);
-        returnContent.append(outContainer);
-        returnContent.hide();
-        Holder.children('img')[0].onload = function(){
-          _globalSelf._imgReady = _globalSelf._imgReady - 1;
-          if(_globalSelf._imgReady ==0){
-            returnContent.show();
-            $('#pictureContent').BlocksIt({
-              numOfCol:5
-            });
+      switch(_globalSelf._index){
+        case 1:
+          var Container = $('<div class="pictureContainerWaterFall" data-path="'+file['props'].path +'"></div>)');
+          var Holder = $('<div class = "pictureHolderWaterFall"></div>');
+          //用来定义最后描述的名字.
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div class="picturedescriptionWaterFall">'+file['props'].name+'</div>');
+          }else{
+            var description = $('<div class="picturedescriptionWaterFall">'+file['props'].name+'</div>');
           }
-        };
-      }
-      else if(file['props'].video){
-        Holder.append($('<video src="' + file['props'].video + '"></video>'));
-        outContainer.append(Holder);
-        outContainer.append(description);
-        returnContent.append(outContainer);
-      }
-      else {
-        var fileContainer = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
-        fileContainer.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
-        if(file['props'].name.indexOf(' ') != -1 ||
-           file['props'].name.indexOf('\'' != -1)){
-          var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-          fileContainer.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
-        }else{
-          fileContainer.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
-        }
-        returnContent.append(fileContainer);
+          Holder.append($('<img src="' + file['props'].img + '"></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          returnContent.append(Container);
+          returnContent.hide();
+          Holder.children('img')[0].onload = function(){
+            _globalSelf._imgReady = _globalSelf._imgReady - 1;
+            if(_globalSelf._imgReady ==0){
+              returnContent.show();
+              $('#pictureContent').BlocksIt({
+                numOfCol:5
+              });
+            }
+          };
+          break;
+        case 2:
+          var Container = $('<div class="videoContainer" data-path="'+file['props'].path +'"></div>)');
+          var Holder = $('<div class = "videoHolder"></div>');
+          //用来定义最后描述的名字.
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div class="videodescription">'+file['props'].name+'</div>');
+          }else{
+            var description = $('<div class="videodescription">'+file['props'].name+'</div>');
+          }
+          Holder.append($('<img src="' + file['props'].video + '"></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          returnContent.append(Container);
+          
+          break;
+        case 3:
+          var Container = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
+          Container.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            Container.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
+          }else{
+            Container.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
+          }
+          returnContent.append(Container);
+          break;
+        case 4:
+          var Container = $('<div class="musicContainer" data-path="'+file['props'].path +'"></div>)');
+          var Holder = $('<div class = "musicHolder"></div>');
+          //用来定义最后描述的名字.
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div class="musicdescription">'+file['props'].name+'</div>');
+          }else{
+            var description = $('<div class="musicdescription">'+file['props'].name+'</div>');
+          }
+          Holder.append($('<img src="' + file['props'].music + '"></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          returnContent.append(Container);     
+          break;
+        case 5:
+          var Container = $('<div class="doc-icon" data-path="' + file['props'].path + '"></div>');
+          Container.append($('<img src="icons/' + file['props'].icon + '.png"></img>'));
+          if(file['props'].name.indexOf(' ') != -1 ||
+            file['props'].name.indexOf('\'' != -1)){
+            var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
+            Container.append($('<p id="'+ id +'">' + file['props'].name + '</p>'));
+          }else{
+            Container.append($('<p id="'+ file['props'].name +'">' + file['props'].name + '</p>'));
+          }
+          returnContent.append(Container);
+          break;
+        default:
+          console.log("what are you want to show??????");
       }
     }
-    _globalSelf.addClickEvent(returnContent,'.outContainerWaterFall');
     _globalSelf.addClickEvent(returnContent,'.doc-icon');
+    _globalSelf.addClickEvent(returnContent,'.pictureContainerWaterFall');
+    _globalSelf.addClickEvent(returnContent,'.videoContainer');
+    _globalSelf.addClickEvent(returnContent,'.musicContainer');
     return returnContent;
   },
   
@@ -752,7 +842,7 @@ var ShowFiles = Class.extend({
       case 'html5ppt':
         return 'html5ppt'
       default:
-        return 'Documents';
+        return 'Other';
     }
   }
 })
