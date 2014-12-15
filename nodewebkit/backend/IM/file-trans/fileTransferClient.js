@@ -11,6 +11,20 @@ var path = require('path');
 var RATIO_SIZE = 0.1;
 var transferHashTable = new HashTable();
 
+function deleteTmpFile(tmpFilePath,callback){
+  try{
+    if(fs.existsSync(tmpFilePath)){
+      fs.unlinkSync(tmpFilePath);
+      callback(false,'deleteTmpFile success');
+    }else{
+      callback(false,'deleteTmpFile no need to delete');
+    }
+  }catch(e){
+    callback(true,'deleteTmpFile '+e);
+  }
+}
+exports.deleteTmpFile = deleteTmpFile;
+
 function transferFileProcess(msgObj, callback) {
   rsaKey.mkdirsSync(cryptoConf.DOWNLOADPATH, function(done) {
     if (done) {
@@ -48,11 +62,7 @@ exports.initTransferFileName = initTransferFileName;
 
 function fileExistOrNot(filePath) {
   var exists = fs.existsSync(filePath);
-  if (exists) {
-    return true;
-  } else {
-    return false;
-  }
+  return exists;
 }
 
 function initTransferSaveDir(targetDir,initTransferSaveDirCb){
@@ -89,7 +99,7 @@ function transferFile(msgObj, callback) {
         var lastSendRatio = 0;
         read.on('data', function(data) {
           currentLength += data.length;
-          currentRatio = currentLength / msgObj.fileSize;
+          currentRatio = currentLength / msgObj.fileLength;
           if ((currentRatio - lastSendRatio) > RATIO_SIZE && currentRatio !== 1) {
             //调用显示传输进度的函数  之后再调用client.transferFileRatio------------界面显示    
             lastSendRatio = currentRatio;

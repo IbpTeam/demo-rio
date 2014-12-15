@@ -14,6 +14,48 @@ function getLocalIP(){
   } 
   return;
 }
+function getFileSize(num) {
+  var type = 'byte';
+  var i = 0;
+  while (num > 1000) {
+    num /= 1000;
+    i++;
+  }
+  switch (i) {
+    case 0:
+      type = 'B';
+      break;
+    case 1:
+      type = 'KB';
+      break;
+    case 2:
+      type = 'MB';
+      break;
+    case 3:
+      type = 'GB';
+      break;
+    case 4:
+      type = 'TB';
+      break;
+    case 5:
+      type = 'PB';
+      break;
+    case 6:
+      type = 'EB';
+      break;
+    case 7:
+      type = 'ZB';
+      break;
+    case 8:
+      type = 'YB';
+      break;
+    default:
+      type = 'byte';
+  }
+  if (num - num.toFixed(2) === 0)
+    return num + ' ' + type;
+  else return num.toFixed(1) + ' ' + type;
+}
 
 function fileTransferInit(path, fileTransferInitCb) {
   if (!fs.existsSync(path)) {
@@ -43,7 +85,8 @@ function fileTransferRequest( name, length, callback) {
   msg['type'] = 'file'; //获取服务器公钥
   msg['option'] = 0x0000;
   msg['fileName'] = name;
-  msg['fileSize'] = length;
+  msg['fileSize'] = getFileSize(length);
+  msg['fileLength'] = length;
   msg['msg'] = 'file-transfer do you want to accept ' + name;
   callback(false,msg);
 }
