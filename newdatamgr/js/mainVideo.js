@@ -18,11 +18,9 @@ var MainVideoView = Class.extend({
 
     this._videoLeftBtn= $('<a>',{
       'class': 'video-left-btn',
-      'text': '<'
     });
     this._videoRightBtn = $('<a>',{
       'class': 'video-right-btn',
-      'text': '>'
     });
     this._unslider = undefined;
 
