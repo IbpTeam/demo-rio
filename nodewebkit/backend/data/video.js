@@ -77,7 +77,7 @@ function getTagsFromString(str) {
 }
 
 
-function readId3FromVideo(path, callback) {
+function readVideoMetadata(path, callback) {
   console.log(path);
   var cp = require('child_process');
   var cmd = 'mutagen-inspect ' + '"' + path + '"';
@@ -92,7 +92,7 @@ function readId3FromVideo(path, callback) {
     }
   });
 }
-exports.readId3FromVideo = readId3FromVideo;
+exports.readVideoMetadata = readVideoMetadata;
 
 /**
  * @method createData
@@ -134,33 +134,36 @@ function createData(items, callback) {
       var someTags = tagsHandle.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
-        var itemInfo = {
-          id: null,
-          URI: uri + "#" + category,
-          category: category,
-          is_delete: 0,
-          others: someTags.join(","),
-          filename: itemFilename,
-          postfix: itemPostfix,
-          size: size,
-          path: items,
-          directorName: "Xiquan",
-          actorName: "Xiquan",
-          createTime: ctime,
-          lastModifyTime: mtime,
-          lastAccessTime: ctime,
-          createDev: config.uniqueID,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID
-        };
-        commonHandle.createData(itemInfo, function(result, resultFile) {
-          if (result === 'success') {
-            callback(null, result, resultFile);
-          } else {
-            var _err = 'createData: commonHandle createData error!';
-            console.log('createData error!');
-            callback(_err, null, null);
-          }
+        readVideoMetadata(items, function(metadata) {
+          /*TODO: write metadata into sqlite database*/
+          var itemInfo = {
+            id: null,
+            URI: uri + "#" + category,
+            category: category,
+            is_delete: 0,
+            others: someTags.join(","),
+            filename: itemFilename,
+            postfix: itemPostfix,
+            size: size,
+            path: items,
+            directorName: "Xiquan",
+            actorName: "Xiquan",
+            createTime: ctime,
+            lastModifyTime: mtime,
+            lastAccessTime: ctime,
+            createDev: config.uniqueID,
+            lastModifyDev: config.uniqueID,
+            lastAccessDev: config.uniqueID
+          };
+          commonHandle.createData(itemInfo, function(result, resultFile) {
+            if (result === 'success') {
+              callback(null, result, resultFile);
+            } else {
+              var _err = 'createData: commonHandle createData error!';
+              console.log('createData error!');
+              callback(_err, null, null);
+            }
+          })
         })
       })
     })
@@ -192,39 +195,43 @@ function createData(items, callback) {
               var someTags = tagsHandle.getTagsByPath(_item);
               var resourcesPath = config.RESOURCEPATH + '/' + category;
               uniqueID.getFileUid(function(uri) {
-                var itemInfo = {
-                  id: null,
-                  URI: uri + "#" + category,
-                  category: category,
-                  is_delete: 0,
-                  others: someTags.join(","),
-                  filename: itemFilename,
-                  postfix: itemPostfix,
-                  size: size,
-                  path: _item,
-                  directorName: "Xiquan",
-                  actorName: "Xiquan",
-                  createTime: ctime,
-                  lastModifyTime: mtime,
-                  lastAccessTime: ctime,
-                  createDev: config.uniqueID,
-                  lastModifyDev: config.uniqueID,
-                  lastAccessDev: config.uniqueID
-                };
-                itemInfoAll.push(itemInfo);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(result) {
-                    if (result === 'success') {
-                      callback(null, result);
-                    } else {
-                      var _err = 'createData: commonHandle createData all error!';
-                      console.log('createData error!');
-                      callback(_err, null);
-                    }
-                  })
-                }
-                count++;
+                readVideoMetadata(_item, function(metadata) {
+                  console.log(metadata)
+                  /*TODO: write metadata into sqlite database*/
+                  var itemInfo = {
+                    id: null,
+                    URI: uri + "#" + category,
+                    category: category,
+                    is_delete: 0,
+                    others: someTags.join(","),
+                    filename: itemFilename,
+                    postfix: itemPostfix,
+                    size: size,
+                    path: _item,
+                    directorName: "Xiquan",
+                    actorName: "Xiquan",
+                    createTime: ctime,
+                    lastModifyTime: mtime,
+                    lastAccessTime: ctime,
+                    createDev: config.uniqueID,
+                    lastModifyDev: config.uniqueID,
+                    lastAccessDev: config.uniqueID
+                  };
+                  itemInfoAll.push(itemInfo);
+                  var isEnd = (count === lens - 1);
+                  if (isEnd) {
+                    commonHandle.createDataAll(itemInfoAll, function(result) {
+                      if (result === 'success') {
+                        callback(null, result);
+                      } else {
+                        var _err = 'createData: commonHandle createData all error!';
+                        console.log('createData error!');
+                        callback(_err, null);
+                      }
+                    })
+                  }
+                  count++;
+                })
               })
             }
           })

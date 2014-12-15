@@ -102,12 +102,12 @@ function loadFile(loadFileCb, sFilePath) {
     }
   }
   var cate = utils.getCategoryObject(category);
-  cate.createData([sFilePath], function(err, result) {
-    if (err) {
+  cate.createData(sFilePath, function(err, result) {
+    if (err !== 'sucess') {
       console.log(err);
       return loadFileCb(err, null);
     }
-    loadFileCb(null,result);
+    loadFileCb(null, result);
   })
 }
 exports.loadFile = loadFile;
