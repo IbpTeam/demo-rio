@@ -230,9 +230,9 @@ exports.sendFileTransferRequest = sendFileTransferRequest;
    *  var msgobj = {
           type: "file",
           option: 0x0000,
-     state: "1",//"0"表示拒绝接收文件
+          state: "1",//"0"表示拒绝接收文件
           fileName: "test.txt",
-     key:"57374caa837997035b5fbc1d7732a66b",
+          key:"57374caa837997035b5fbc1d7732a66b",
           fileSize: "1024",
           msg: "I want to get the file"
         };
@@ -284,7 +284,7 @@ exports.sendFileTransferStart = sendFileTransferStart;
           type: "file",
           option: 0x0001,
           fileName: "test.txt",
-     key:"57374caa837997035b5fbc1d7732a66b",
+          key:"57374caa837997035b5fbc1d7732a66b",
           fileSize: "1024",
           msg: "I want to get the file"
         };
@@ -321,7 +321,7 @@ exports.transferFileProcess = transferFileProcess;
           type: "file",
           option: 0x0000,
           fileName: "test.txt",
-     key:"57374caa837997035b5fbc1d7732a66b",
+          key:"57374caa837997035b5fbc1d7732a66b",
           fileSize: "1024",
           msg: "do you  want to get the file"
         };
@@ -367,8 +367,8 @@ exports.transferCancelReciever=transferCancelReciever;
           option: 0x0002,
           fileName: "test.txt",
           fileSize: "1024",
-     key:"57374caa837997035b5fbc1d7732a66b",
-     ratio:0.1234,
+          key:"57374caa837997035b5fbc1d7732a66b",
+          ratio:0.1234,
           msg: "I want to get the file"
         };
  */
@@ -383,6 +383,23 @@ function transferProcessing(transferProcessingCb,msgObj){
   transferProcessingCb();
 }
 exports.transferProcessing = transferProcessing;
+
+/**
+ * @method deleteTmpFile
+ *  接收端将接收到并存储于临时目录下的文件删除
+ *
+ * @param1 callback function
+ *   回调函数
+
+ * @param2 tmpFilePath
+ *   启动程序参数，string，文件存储的临时路径
+ */
+function deleteTmpFile(deleteTmpFileCb,tmpFilePath){ 
+  fileTransferClient.deleteTmpFile(tmpFilePath,function(err,msg){
+    deleteTmpFileCb(err,msg);
+  });
+}
+exports.deleteTmpFile = deleteTmpFile;
 
 function serverAndMapHandler(path) {
   if(pathMap===undefined)
