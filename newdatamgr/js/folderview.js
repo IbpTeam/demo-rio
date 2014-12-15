@@ -330,7 +330,12 @@ var ShowFiles = Class.extend({
 
         var title = file['title'];
         if (!file['windowname']){
-          _globalSelf.genPopupDialog(title, fileContent);
+          if(typeof(fileContent) == 'string' &&fileContent.match("成功打开文件")){
+            break;
+          }
+          else{
+            _globalSelf.genPopupDialog(title, fileContent);    
+          }
         }
         else{
           var F5Button = $('<button type="button" class="btn btn-success">PLAY</button>');
@@ -455,6 +460,10 @@ var ShowFiles = Class.extend({
                 }
               },file['URI']);
             }
+            else if(e.which == 113){
+              //按下F2键，表示要重命名
+              $("."+file['props'].name).html('Rename')
+            }
           });
           break;
         case 3:
@@ -488,7 +497,6 @@ var ShowFiles = Class.extend({
 
   //此函数是用来播放PPT时，向桌面发送按键
   sendKeyToWindow:function(windowname,key){
-    console.log("sendkey " + key + " To Window " + windowname);
     AppAPI.sendKeyToApp(function(){}, windowname, key);
   },
 
@@ -525,13 +533,16 @@ var ShowFiles = Class.extend({
         switch(i){
           case 0:
             if(_globalSelf._index == 3 || _globalSelf._index == 5){
-              var thPicture = $('<img src="icons/' + file['props'].icon + '.png"></img>');
-              var thName = $('<th class = "'+_globalSelf._currentCategory[_globalSelf._index]+ ' '+id +'">'+file[theadMessage[i]]+'.'+file['postfix'] + '</th>');
-              thName.prepend(thPicture);
+              var thP = $('<p class = "'+id +'">'+file[theadMessage[i]]+'</p>');
+              var thPicture = $('<img style="float:left" src="icons/' + file['props'].icon + '.png"></img>');
+              var thName = $('<th class = "'+_globalSelf._currentCategory[_globalSelf._index]+'"></th>');
+              thName.append(thPicture);
+              thName.append('</br>');
+              thName.append(thP);
               bodytr.append(thName);
             }
             else{
-              bodytr.append($('<th class = "'+_globalSelf._currentCategory[_globalSelf._index]+ ' '+id +'">'+file[theadMessage[i]]+'.'+file['postfix'] + '</th>')); 
+              bodytr.append($('<th class = "'+_globalSelf._currentCategory[_globalSelf._index]+ ' '+id +'">'+file[theadMessage[i]]+ '</th>')); 
             }
             break;
           case 1:
