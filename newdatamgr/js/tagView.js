@@ -34,7 +34,8 @@ var TagView = Class.extend({
       return 0;
     }
     var _tagContainer = $('<div>',{
-      'class':'tag-container'
+      'class':'tag-container',
+      'draggable':true
     })
     var _tagBackground = $('<div>',{
       'class':'tag-background'
@@ -66,6 +67,7 @@ var TagView = Class.extend({
     };
     this.setPosition(_tagContainer);
     this._tagList.push(_tagContainer);
+    this.bindDrag(_tagContainer[0]);
     this._index += 1;
   },
   /**
@@ -199,6 +201,7 @@ var TagView = Class.extend({
       _this._tagList = [];
       callback_();
     });
+    _this._index = 0;
     if (this._options.position === 'random') {
       this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     };
@@ -247,5 +250,20 @@ var TagView = Class.extend({
       $obj_.children('div').addClass('left-triangle');
       $obj_.addClass('rotate');
     }
+  },
+  bindDrag:function(tag_){
+    tag_.ondragstart = this.drag;
+    tag_.ondragend = this.dragEnd;
+  },
+  drag:function(ev){
+    $(ev.currentTarget).addClass('no-rotate');
+    var _tagText = $(ev.currentTarget).children('.tag-text')[0].textContent;
+    console.log(_tagText);
+    ev.dataTransfer.setData("tag", _tagText);
+  },
+  dragEnd:function(ev){
+    $(ev.currentTarget).removeClass('no-rotate');
   }
+
+
 });
