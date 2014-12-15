@@ -455,6 +455,29 @@ var ShowFiles = Class.extend({
                 }
               },file['URI']);
             }
+            else if(e.which == 113){
+              //按下F2,是重命名操作
+              $("."+file['props'].name).html('Rename')
+              var inputer = Inputer.create('button-name');
+              var options = {
+                'left': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().left,
+                    'top': $('#'+file_json['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().top,
+                    'width': 80,
+                    'height': 25,
+                    'oldtext': file_json['props'].name,
+                    'callback': function(newtext){
+                      DataAPI.renameDataByUri(get_category(), file_json['URI'], newtext+'.'+file_json['postfix'], function(err, result){
+                        if(result == 'success'){
+                          $("#"+file_json['props'].name).html(newtext);
+                        }
+                        else{
+                          window.alert("Rename failed!");
+                        }
+                      });
+                    }
+                  }
+                  inputer.show(options); 
+            }
           });
           break;
         case 3:
