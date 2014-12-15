@@ -122,7 +122,7 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
       email: Item["电子邮件地址"],
       email2: email2,
       id: "",
-      photoPath: '/home/v1/.resources/picture/data/'+Item["姓"] + Item["名"]+'.jpg' || '',
+      photoPath: config.RESOURCEPATH + '/picture/data/'+Item["姓"] + Item["名"]+'.jpg' || '',
       createTime: currentTime,
       lastModifyTime: currentTime,
       lastAccessTime: currentTime,
