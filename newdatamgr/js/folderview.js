@@ -486,7 +486,13 @@ var ShowFiles = Class.extend({
         if(file.postfix == 'pdf'){
           function cbViewPdf(){
           }
-          AppAPI.startAppByName(cbViewPdf, "viewerPDF", file.path);
+          // AppAPI.startAppByName(cbViewPdf, "viewerPDF", file.path);
+          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+            if (err) {
+              return console.log(err);
+            }
+            AppAPI.startApp(cbViewPdf, appInfo, file.path);
+          }, "viewerPDF-app");
         }
         else {
           DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
