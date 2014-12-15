@@ -133,8 +133,15 @@ exports.saveAppList = save;
 // }
 // callback_: function(err_)
 //    err_: error discription or null
-function registerApp(appInfo_, callback_) {
-  var cb_ = callback_ || function() {};
+function registerApp(appInfo_, option_, callback_) {
+  var cb_ = callback_ || function() {},
+      op_ = {
+        desktop: false,
+        dock: false 
+      };
+  for(var key in option_) {
+    op_[key] = option_[key];
+  }
   if(isRegistered(appInfo_.id)) return cb_('This ID has been registered already');
   pathValidate(appInfo_.path, function(err_) {
     if(err_) return cb_(err_);
@@ -145,13 +152,14 @@ function registerApp(appInfo_, callback_) {
         delete AppList[appInfo_.id];
         return cb_('Failed to register to system: ' + err_);
       }
-      emit('register', appInfo_.id);
+      emit('register', appInfo_.id, op_);
       router.wsNotify({
         'Action': 'notify',
         'Event': 'app',
         'Data': {
           'event': 'register',
-          'appID': appInfo_.id
+          'appID': appInfo_.id,
+          'option': op_
         }
       });
       return cb_(null);
@@ -352,11 +360,12 @@ function pathValidate(path_, callback_) {
   });
 }
 
-function emit(event_, appID_) {
+function emit(event_, appID_, option_) {
   for(var i = 0; i < listeners.length; ++i) {
     listeners[i].call(this, {
       event: event_,
-      appID: appID_
+      appID: appID_,
+      option: option_
     });
   }
 }
@@ -497,7 +506,7 @@ function generateOnlineApp(url_, callback_) {
   });
 }
 
-exports.generateAppByURL = function(url_, callback_) {
+exports.generateAppByURL = function(url_, option_, callback_) {
   var cb_ = callback_ || function() {};
   utils.series([
     {
@@ -513,9 +522,9 @@ exports.generateAppByURL = function(url_, callback_) {
       id: 'app-' + id,
       path: path,
       local: true
-    }, function(err_) {
+    }, option_, function(err_) {
       if(err_) cb_(err_);
-      cb_(null);
+      cb_(null, 'app-' + id);
     });
   });
 }
