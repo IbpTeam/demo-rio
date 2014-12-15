@@ -90,6 +90,7 @@ var MainDocView = Class.extend({
   appendFile:function(file_){
     var _fileView = $('<div>',{
       'class': 'doc-icon',
+      'draggable': true,
       'data-path': file_.path
     });
     _fileView.html('<img draggable="false" src='
