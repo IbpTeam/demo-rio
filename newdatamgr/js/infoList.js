@@ -110,7 +110,7 @@ var InfoList = Class.extend({
         for(var key = 0; key < _this._info['tags'].length; key ++){
           var _a = $('<a>',{
             'class':'il__a',
-            'href':'#'
+            'draggable':'true'
           });
           var _text = $('<span>',{
             'class':'il__title',
@@ -136,7 +136,6 @@ var InfoList = Class.extend({
               'class':'bil__a',
               'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename']
             });
-            //_this._edit.before(_a);
             _this._infoBottom.append(_a);
           }
         }
@@ -156,6 +155,10 @@ var InfoList = Class.extend({
     if (_blist.length !== 0) {
       _blist.remove();
     };
+  },
+
+  bindEvent:function(){
+
   },
 
   attach:function($parent_){
