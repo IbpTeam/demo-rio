@@ -14,8 +14,9 @@ var MainPicView = Class.extend({
         _this._picData={
           'path': picture_json_[i]['path'],
           'text': picture_json_[i]['filename'],
+          'uri': picture_json_[i]['URI'],
           'date': _date.toDateString(),
-          'tags': [picture_json_[i]['others']]
+          'tags': picture_json_[i]['others'].split(',')
         }
         _this.setPicture(_this._picData);
       }
@@ -90,7 +91,11 @@ var MainPicView = Class.extend({
   drop:function(ev){
     var _tag = ev.dataTransfer.getData('tag');
     if (typeof _tag === 'string' && _tag.length > 0) {
-      homePage._pic._tagView.addPreTag(_tag);
+      DataAPI.setTagByUri(function(result_){
+        if (result_ === 'commit') {
+          homePage._pic._tagView.addPreTag(_tag);
+        };
+      },[_tag],homePage._pic._picData.uri);
     };
     ev.preventDefault();
     ev.stopPropagation();

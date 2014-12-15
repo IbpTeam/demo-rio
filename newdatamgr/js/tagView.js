@@ -75,6 +75,9 @@ var TagView = Class.extend({
    * @type {[0]}
    */
   addTag:function(tag_){
+    if(!tag_){
+      return 0;
+    }
     this._tagTextList.push(tag_);
     if(this._index === this._options.max){
       return 0;
@@ -320,6 +323,7 @@ var TagView = Class.extend({
     }
   },
   bindDrag:function(tag_){
+    var _this = 
     tag_.ondragstart = this.drag;
     tag_.ondragend = this.dragEnd;
   },
@@ -332,6 +336,4 @@ var TagView = Class.extend({
   dragEnd:function(ev){
     $(ev.currentTarget).removeClass('no-rotate');
   }
-
-
 });
