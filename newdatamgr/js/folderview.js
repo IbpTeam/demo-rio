@@ -26,11 +26,9 @@ var ShowFiles = Class.extend({
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
     var showlistButton = $('<div id = "showlistButton" class="showlistButton"> </div>');
-    //var linebetweenButton = &('<div id = "linebetweenButton"> </div>');
     var shownormalButton = $('<div id = "shownormalButton" class="shownormalButton shownormalButtonFocus"> </div>');
     var sortbyButton = $('<div id = "sortbyButton">sortby </div>');
     this._choice.append(showlistButton);
-    //this._choice.append(linebetweenButton);
     this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
@@ -95,7 +93,6 @@ var ShowFiles = Class.extend({
             }
             break;
         default:
-          console.log("the method is failed!!!!!");
       }
     } 
   },
@@ -201,12 +198,12 @@ var ShowFiles = Class.extend({
   },
 
   //次函数用通过文件的id来找到文件
-  findFileById:function(fileid){
+  findFileById:function(fileId){
     var all = _globalSelf._getFiles[_getFiles._index];
     var file = false;
     if(all.length){
       for(var i=0;i<all.length;i++){
-        if(all[i].id == fileid){
+        if(all[i].id == fileId){
           file = all[i];
           break;
         }
@@ -257,28 +254,34 @@ var ShowFiles = Class.extend({
   },
 
   //产生一个可以编辑的对话框
-  genEditDialog:function(dataJson){
-    var file_propery='<form>';
-    for(var key in dataJson){
+  genEditDialog:function(file){
+    var editDiv = $('<div></div>');
+    var fileForm = $('<form></form>');
+    for(var key in file){
       if(key == 'props' || key == 'URI'){
         continue;
       }
-      file_propery += '<p>'+key+':</p> <input id="'+key+'" type="text" size="60" aligin="right" value="'+dataJson[key]+'"/>';
+      var p = $('<p>'+key+':</p>');
+      var input = $('id ="'+key+'" type = "text" size = "60" aligin = "right" value = "'+file[key]+'"/>');
+      fileForm.append(p);
+      fileForm.append(input);
     }
-    file_propery += '</form></br>';
-    file_propery += '<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>';
-    _globalSelf.genPopupDialog('Edit', file_propery);
+    editDiv.append(fileForm);
+    editDiv.append('</br>');
+    var saveButton = $('<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>');
+    editDiv.append(saveButton);
+    _globalSelf.genPopupDialog('Edit', editDiv);
     $('#save_button').on('click', function(){
       var new_json = {};
-      for(var key in dataJson){
+      for(var key in file){
         if(key == 'props' || key == 'URI'){
           continue;
         }
         var new_value = document.getElementById(key).value;
         new_json[key] = new_value;
       }
-      new_json['category'] = get_category();
-      new_json['URI'] = dataJson['URI'];
+      new_json['category'] = _globalSelf._currentCategory[_globalSelf._index];
+      new_json['URI'] = file['URI'];
       DataAPI.updateDataValue(function(result){
         if(result == 'success'){
           window.alert("Saved successfully!");
@@ -291,52 +294,71 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来通过json格式找到数据库中的源文件
-  cbGetDataSourceFile:function(dataJson){
-    if(!dataJson['openmethod'] || !dataJson['content']){
+  cbGetDataSourceFile:function(file){
+    if(!file['openmethod'] || !file['content']){
       window.alert('openmethod or content not found.');
       return false;
     }
-
-    var method = dataJson['openmethod'];
-    var content = dataJson['content'];
+    var method = file['openmethod'];
+    var content = file['content'];
     switch(method){
       case 'alert':
         window.alert(content);
         break;
       case 'html':
-        var file_content;
-        var format = dataJson['format'];
+        var fileContent;
+        var format = file['format'];
         switch(format){
           case 'audio':
-            file_content = $('<audio controls></audio>');
-            file_content.html('<source src=\"' + content + '\"" type="audio/mpeg">');
+            fileContent = $('<audio controls></audio>');
+            fileContent.append('<source src=\"' + content + '\"" type="audio/mpeg">');
             break;
           case 'video':
-            file_content = $('<video width="400" height="300" controls></video>');
-            file_content.html('<source src=\"' + content + '\"" type="video/ogg">');
+            fileContent = $('<video width="400" height="300" controls></video>');
+            fileContent.append('<source src=\"' + content + '\"" type="video/ogg">');
             break;
           case 'div':
-            file_content = content;
+            fileContent = content;
             break;
           case 'txtfile':
-            file_content = $("<p></p>").load(content);
+            fileContent = $("<p></p>").load(content);
             break;
           default:
-            file_content = content;
+            fileContent = content;
             break;
         }
 
-        var title = dataJson['title'];
-        if (!dataJson['windowname']){
-          _globalSelf.genPopupDialog(title, file_content);
+        var title = file['title'];
+        if (!file['windowname']){
+          _globalSelf.genPopupDialog(title, fileContent);
         }
         else{
-          _globalSelf.genPopupDialog("窗口控制", "<div>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'F5\')\">PLAY</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'Up\')\">UP</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'Down\')\">DOWN</button><br>\
-              <button type=\"button\" class=\"btn btn-success\" onclick=\"_globalSelf.sendKeyToWindow(\'" + dataJson['windowname'] + "\', \'Escape\')\">STOP</button><br>\
-            </div>");
+          var F5Button = $('<button type="button" class="btn btn-success">PLAY</button>');
+          F5Button.click(function(){
+             _globalSelf.sendKeyToWindow(file['windowname'],'F5')
+          });
+          var UpButton = $('<button type="button" class="btn btn-success">UP</button>');
+          UpButton.click(function(){
+            _globalSelf.sendKeyToWindow(file['windowname'],'Up')
+          });
+          var DownButton = $('<button type="button" class="btn btn-success">DOWN</button>');
+          DownButton.click(function(){
+            _globalSelf.sendKeyToWindow(file['windowname'],'Down')
+          });
+          var StopButton = $('<button type="button" class="btn btn-success">STOP</button>');
+          StopButton.click(function(){
+            _globalSelf.sendKeyToWindow(file['windowname'],'Escape')
+          });
+          var genDiv = $('<div></div>');
+          genDiv.append(F5Button);
+          genDiv.append('<br>');
+          genDiv.append(UpButton);
+          genDiv.append('<br>');
+          genDiv.append(DownButton);
+          genDiv.append('<br>');
+          genDiv.append(StopButton);
+          genDiv.append('<br>');
+          _globalSelf.genPopupDialog("窗口控制",genDiv);
         }
         break;
       default:
@@ -352,7 +374,6 @@ var ShowFiles = Class.extend({
     theadMessage.push('lastModifyTime');
     theadMessage.push('size');
     theadMessage.push('createTime');
-
     return theadMessage;
   },
 
@@ -367,7 +388,6 @@ var ShowFiles = Class.extend({
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
           $(this).delegate($(this),'mousedown',function(e){
-            console.log("you have left twice ");
           })
           $(this).attr('tabindex', 1).keydown(function(e) {
               if($(this).attr('data-path')){
@@ -435,32 +455,6 @@ var ShowFiles = Class.extend({
                 }
               },file['URI']);
             }
-            else if(e.which == 113){
-            $("."+file['props'].name+"."+_globalSelf._currentCategory[_globalSelf._index]).html('Rename');
-              //按下F2，表示重命名.
-              // var inputer = Inputer.create('button-name');
-              // var options = {
-              //       'left': $('.'+file['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().left,
-              //       'top': $('.'+file['props'].name.replace(/\s+/g,'_').replace(/'/g, '')).offset().top,
-              //       'width': 80,
-              //       'height': 25,
-              //       'oldtext': file['props'].name,
-              //       'callback': function(newtext){
-              //         DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], file['URI'], newtext+'.'+file['postfix'], function(err, result){
-              //           if(result == 'success'){
-              //             $("."+file['props'].name).html(newtext);
-              //           }
-              //           else{
-              //             window.alert("Rename failed!");
-              //           }
-              //         });
-              //       }
-              //     }
-              // inputer.show(options);
-            }
-            else {
-              console.log('what do you want to do ');
-            }
           });
           break;
         case 3:
@@ -482,7 +476,6 @@ var ShowFiles = Class.extend({
       if(file.URI.indexOf('#') != -1){
         if(file.postfix == 'pdf'){
           function cbViewPdf(){
-            console.log('open pdf with viewer PDF');
           }
           AppAPI.startAppByName(cbViewPdf, "viewerPDF", file.path);
         }
@@ -524,7 +517,7 @@ var ShowFiles = Class.extend({
       if(file['props'].name.indexOf(' ') != -1 ||
         file['props'].name.indexOf('\'' != -1)){
         var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
-        }
+      }
       else{
           var id = file['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
       }
@@ -721,7 +714,6 @@ var ShowFiles = Class.extend({
           }
           break;
         default:
-          console.log("what are you want to show??????");
       }
     }
     if(today.children('div').length ==0){
@@ -837,7 +829,6 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           break;
         default:
-          console.log("what are you want to show??????");
       }
     }
     _globalSelf.addClickEvent(returnContent,'.doc-icon');
@@ -854,6 +845,8 @@ var ShowFiles = Class.extend({
         return 'powerpoint';
       case 'pptx':
         return 'powerpoint';
+      case 'none':
+        return 'blank';
       case 'txt':
         return 'text';
       case 'xlsx':
@@ -880,6 +873,18 @@ var ShowFiles = Class.extend({
         return 'Pictures';
       case 'html5ppt':
         return 'html5ppt'
+      case 'pdf':
+        return 'pdf'
+      case 'odt':
+        return 'odt'
+      case 'html':
+        return 'html'
+      case 'zip':
+        return 'zip';
+      case 'sh':
+        return 'sh';
+      case 'gz':
+        return 'gz';
       default:
         return 'Other';
     }
