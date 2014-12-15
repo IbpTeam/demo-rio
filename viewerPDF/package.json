@@ -1,0 +1,21 @@
+{
+	"main": "index.html",
+	"name": "viewerPDF",
+	"name[zh_CN]": "viewerPDF",
+	"window": {
+		"title": "viewerPDF",
+		"icon": "icon.png",
+		"toolbar": false,
+		"frame": false,
+		"width": 800,
+		"height": 500,
+		"position": "mouse",
+		"min_width": 400,
+		"min_height": 400,
+		"max_width": 800,
+		"max_height": 800,
+		"resizable": true,
+		"fullscreen": false
+	},
+	"API": ["data"]
+}

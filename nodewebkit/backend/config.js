@@ -21,9 +21,10 @@ exports.APPBASEPATH = APPBASEPATH;
 var APP_DATA_PATH = [
   // TODO: make sure where to save
   path.join(process.env["HOME"], '.local/share/webde/App.list'),
-  __dirname + '/app/App.list'
+  __dirname + '/app/default/App.list'
 ];
 exports.APP_DATA_PATH = APP_DATA_PATH;
+exports.D_APP_ICON = __dirname + '/app/default/favicon.ico';
 
 /**
  * Project Path
