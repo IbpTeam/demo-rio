@@ -223,9 +223,10 @@ exports.createServer = createServer;
 function startEntryGroup(path, devicePublishCb){
  // console.log('A new EntryGroup started, path:' + path);    
   bus.getInterface('org.freedesktop.Avahi', path, 'org.freedesktop.Avahi.EntryGroup', function(err, iface) {
-    if (err != null){
+    if ((err != null) || (undefined === iface)){
       console.log(err);
-     }
+      return;
+    }
     entryGroup = iface;
     iface.AddService['timeout'] = 2000;
     iface.AddService['error'] = function(err) {
@@ -242,8 +243,9 @@ function startEntryGroup(path, devicePublishCb){
 function startServiceBrowser(path){
  // console.log('A new ServiceBrowser started, path:' + path);
   bus.getLocalInterface('org.freedesktop.Avahi', path, 'org.freedesktop.Avahi.ServiceBrowser', __dirname + '/org.freedesktop.Avahi.ServiceBrowser.xml', function(err, iface) {
-    if (err != null){
+    if ((err != null) || (undefined === iface)){
       console.log(err);
+      return;
     }
     serviceBrowser = iface;
     iface.on('ItemNew', function(arg) {
@@ -308,8 +310,9 @@ function arrayToString(array) {
 function createServiceBrowser(){
   bus.getInterface('org.freedesktop.Avahi', '/', 'org.freedesktop.Avahi.Server', function(err, iface) {
     console.log("server in createServiceBrowser", server);
-    if (err != null){
+    if ((err != null) || (undefined === iface)){
       console.log(err);
+      return;
     }
 
     iface.ServiceBrowserNew['error'] = function(err) {

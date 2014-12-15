@@ -10,6 +10,7 @@ var main = function(params_){
     };
     homePage = HomePage.create();
     search = Search.create();
+    contact = Contact.create();
     infoList = InfoList.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
