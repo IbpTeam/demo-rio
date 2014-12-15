@@ -1,0 +1,115 @@
+#container{
+  #searchDiv{
+    .select(none);
+    position: relative;
+    width: 100%;
+    height: 80px;
+    border: 1px solid rgba(0,0,0,0);
+    #search-container{
+      margin-left: 40px;
+      margin-top:  25px;
+      margin-right: 60px;
+      margin-bottom: 25px;
+      height: 30px;
+      position: relative;
+      #search-input{
+        position: absolute;
+        border: 1px solid #dddddd;
+        background-color: #f2f2f2;
+        color: #999;
+        border-radius: 15px;
+        padding-left: 15px;
+        font-size: 0.8em;
+        height: 100%;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+      }
+      #search-button{
+        position:absolute;
+        right: 10px;
+        font-size:1.1em;
+        color: #999;
+        top: 1px;
+        &:hover{
+          color: #555;
+          cursor: pointer;
+        }
+      }
+    }
+    #qrcode-button{
+      float: right;
+      color: #999;
+      position: absolute;
+      top: 12px;
+      right: 10px;
+      width: 30px;
+      height:30px;
+      font-size: 30px;
+      &:hover{
+        color: #555;
+        right: 10px;
+        cursor: pointer;
+      }
+      &:active{
+        color: #777;
+      }
+    }
+     .qrcode-container{
+      z-index:98;
+      position:absolute;
+      top: 68px;
+      right: 25px;
+      width:170px;
+      height:210px;
+      border: 1px solid #999;
+      border-radius:6px;
+      .qrcode-triangle{
+        position: absolute;
+        display:block;
+        width:0px;
+        height:0px;
+        right:10px;
+        border:11px;
+        overflow:hidden;
+        border-style: dashed dashed solid;
+        &.qrcode-down{
+          top:-22px;
+          border-color: transparent transparent #999;
+          z-index: 10;
+        }
+        &.qrcode-top{
+          top:-21px;
+          border-color: transparent transparent #fff;
+          z-index:11;
+        }
+      }
+      .qrcode-title{
+        position:absolute;
+        top: 0;
+        width:100%;
+        padding:5px 3px;
+        height: 40px;
+        font-size:20px;
+        font-weight: bold;
+        background-color:#fff;
+        border-bottom:1px solid #999;
+        border-radius:6px 6px 0 0;
+        text-align: center;
+        line-height: 40px;
+      }
+      .qrcode-content{
+        position:absolute;
+        width: 100%;
+        top: 40px;
+        bottom: 0;
+        background-color:#fff;
+        border-radius:6px;
+        text-align: center;
+        canvas{
+          margin-top: 10px; 
+        }
+      }
+    }
+  }
+}

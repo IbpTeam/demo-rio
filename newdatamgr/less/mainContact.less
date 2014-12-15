@@ -1,0 +1,105 @@
+#container{
+  #contentDiv{
+    #contacts-container{
+      position: absolute;
+      width:230px;
+      right:63px;
+      bottom: 40px;
+      border: 1px solid #CDC9C9;
+      background:#FFFFFF;
+      border-radius:4px;
+      box-shadow: v-shadow; 
+      #contacts-title-content{
+        position: relative;
+        width: 100%;
+        height: 50px;
+        border: 1px;
+        border: #FFC1C1;
+        #contacts-title-tag{
+          position: absolute;
+          left: 0px;
+          height: 25px;
+          width: 5px;
+          top:15px;
+          background:#FFAEB9;
+         }
+        #title-button{
+          color: #00BFFF;
+          position: absolute;
+          top: 15px;
+          right: 28px;
+          width: 10px;
+          height:10px;
+          font-size: 20px;
+        }    
+        #contacts-title-text{
+          position: absolute;
+          left: 23px;
+          top: 10px;
+          bottom:10px;
+          color: #00BFFF;
+          font-weight: bold;
+          font-size:25px;
+          font-line-height:200%;
+         }
+      }
+      #contacts-content{
+        position: absolute;
+        top:50px;
+        bottom: 0px;
+        width: 100%;
+        border-top: 1px solid #FFC1C1;
+        #contacts-list-content{
+          color: #64717f;
+          position: absolute;
+          padding: 0;
+          width: 100%;
+          height:100%;
+          margin:0px;
+          .scroll;
+          &.contact{
+            background: rgba(50, 0, 0, 0.5);
+          }
+          .contacts-list{
+            height:35px;
+            position: relative;
+            border-bottom:1px solid #EDEDED;
+            &:hover{
+              background: #E0EEEE;
+              #email-button{
+                color: #00BFFF;
+              }
+              .contacts-list-title{
+                position:relative;
+                color: #00BFFF;
+                top:8px;
+                left:20px;
+                font-size: 6;
+              }
+            }
+           .contacts-list-title{
+             position:relative;
+             top:8px;
+             left:20px;
+             font-size: 6;
+            }
+            .contacts-list-date{
+              position:absolute;
+              right:15px;
+              top:8px;
+              color: #9aa4af;
+              font-size: 14px;
+             }
+          }
+          #email-button{
+           position:absolute;
+           right:20px;
+           top:6px;
+           font-size:1em;
+           color: transparent;
+          }
+        }
+      }
+    }
+  }
+}

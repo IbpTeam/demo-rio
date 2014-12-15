@@ -165,62 +165,113 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
 exports.sendKeyToApp = sendKeyToApp;
 
 /**
-** Register a HTML5 app to system
-** registerAppCB: function(err_)
-**    err_: error discription or null
-** appInfo_: {
-**  id: ${app id},
-**  path: ${path of app},
-** }
-**/
-exports.registerApp = function(registerAppCB, appInfo) {
-  appManager.registerApp(appInfo, registerAppCB);
+ * Register a HTML5 app to system
+ * registerAppCB: function(err_)
+ *    err_: error discription or null
+ * appInfo_: {
+ *  id: ${app id},
+ *  path: ${path of app},
+ * }
+ * option: options to create an inside app(object)
+ *    {
+ *      desktop: (true|false) // create a shortcut on desktop or not
+ *      dock: (true|false) // create a shortcut on dock or not
+ *    }
+ */
+exports.registerApp = function(registerAppCB, appInfo, option) {
+  appManager.registerApp(appInfo, option, registerAppCB);
 };
 
 /**
-** Unregister a HTML5 app from system
-** unregisterAppCB: function(err_)
-**    err_: error discription or null
-** appID: id of app
-**/
+ * Unregister a HTML5 app from system
+ * unregisterAppCB: function(err_)
+ *    err_: error discription or null
+ * appID: id of app
+ */
 exports.unregisterApp = function(unregisterAppCB, appID) {
   appManager.unregisterApp(appID, unregisterAppCB);
 };
 
 /**
-** Get all registered HTML5 app
-** getRegisteredAppCB: function(err, appList)
-**    err: error discription or null
-**    appList: the list of app id
-**/
+ * Get all registered HTML5 app
+ * getRegisteredAppCB: function(err, appList)
+ *    err: error discription or null
+ *    appList: the list of app id
+ */
 exports.getRegisteredApp = function(getRegisteredAppCB) {
   getRegisteredAppCB(null, appManager.getRegisteredApp());
 }
 
 /**
-** Get registered app info by id
-** getRegisteredAppInfoCB: function(err, appInfo)
-**    err: error discription or null
-**    appInfo: {
-**      id: ${app id},
-**      name: ${app name},
-**      path: ${path of app},
-**      iconPath: ${icon path of app}
-**    }
-** appID: the id of app
-**/
+ * Get registered app info by id
+ * getRegisteredAppInfoCB: function(err, appInfo)
+ *    err: error discription or null
+ *    appInfo: {
+ *      id: ${app id},
+ *      name: ${app name},
+ *      path: ${path of app},
+ *      iconPath: ${icon path of app}
+ *    }
+ * appID: the id of app
+ */
 exports.getRegisteredAppInfo = function(getRegisteredAppInfoCB, appID) {
   appManager.getRegisteredAppInfo(appID, getRegisteredAppInfoCB);
 }
 
 /**
-** Get all app base path
-** getRegisteredAppCB: function(err, basePath)
-**    err: error discription or null
-**    basePath: the base path of app
-**/
+ * Get all app base path
+ * getRegisteredAppCB: function(err, basePath)
+ *    err: error discription or null
+ *    basePath: the base path of app
+ */
 exports.getBasePath = function(getBasePathCB) {
   getBasePathCB(null, appManager.getBasePath());
 }
 
-// TODO: add a interface to on and off listener
+/**
+ * add listener for app register or unregister
+ * addListenerCB: function(err)
+ *    err: error discription or null
+ * listener: function(data)
+ *    data: {
+ *      event: (register|unregister)
+ *      appID: id of app
+ *      option: options to create an inside app(object)
+ *          {
+ *            desktop: (true|false) // create a shortcut on desktop or not
+ *            dock: (true|false) // create a shortcut on desktop or not
+ *          }
+ *    }
+ */
+exports.addListener = function(addListenerCB, listener) {
+  appManager.addListener(listener, addListenerCB);
+}
+
+/**
+ * remove listener for app register or unregister
+ * removeListenerCB: function(err)
+ *    err: error discription or null
+ * listener: function(event, appID)
+ *    event: (register|unregister)
+ *    appID: id of app
+ */
+exports.removeListner = function(removeListnerCB, listener) {
+  appManager.addListener(listener, removeListnerCB);
+}
+
+/**
+ * generate and register an HTML5 App by a URL
+ * generateAppByURLCB: function(err, appID)
+ *    err: error discription or null
+ *    appID: the ID of new generated app
+ * url: URL of a website
+ * option: options to create an inside app(object)
+ *    {
+ *      desktop: (true|false) // create a shortcut on desktop or not
+ *      dock: (true|false) // create a shortcut on desktop or not
+ *    }
+ */
+exports.generateAppByURL = function(generateAppByURLCB, url, option) {
+  appManager.generateAppByURL(url, option, generateAppByURLCB);
+}
+
