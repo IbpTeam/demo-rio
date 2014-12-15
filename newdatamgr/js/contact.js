@@ -16,6 +16,7 @@ var Contact = Class.extend({
     this._contactDetails = $('<div>', {
       'id': 'contact-detail'
     });
+    this._first = true;
     this._ContactContainer.append(this._contactDetails);
     this._tagView = TagView.create();
     this._tagView.setParent(this._contactHead);
@@ -62,6 +63,7 @@ var Contact = Class.extend({
       _this.setHead(_this._contacts[0]);
       _this.setDetails(_this._contacts[0]);
       _this.bindAction();
+      _this._first = false;
     }, 'Contact');
   },
 
@@ -71,13 +73,13 @@ var Contact = Class.extend({
       _this.removeHead();
       _this.removeDetails();
       _this.setHead(_this._contacts[this.id]);
-      _this.setDetails(_this._contacts[this.id]);
+      _this.setDetails(_this._contacts[this.id], this.id);
     });
   },
 
   setHead: function(contact_){
     var _headPhotoPath = '';
-    if(contact_['photoPath'] != null){
+    if(contact_['photoPath'] != null && contact_['photoPath'] != ''){
       _headPhotoPath = contact_['photoPath'];
     } else{
       _headPhotoPath = this._defaultPhoto;
@@ -115,7 +117,8 @@ var Contact = Class.extend({
 
   },
 
-  setDetails: function(contact_){
+  setDetails: function(contact_, id){
+    var _this = this;
     var _nameDiv = $('<div>', {
       'class': 'div-name',
       'text': contact_['name']
@@ -142,6 +145,79 @@ var Contact = Class.extend({
     }
     this._contactDetails.append(_nameDiv);
     this._contactDetails.append(_ul);
+    var _buttonsDiv = $('<div>', {
+      'id' : 'buttons-div'
+    });
+    var _editButton = $('<input>', {
+      'type' : 'button',
+      'id' : 'edit-button',
+      'value' : 'Edit'
+    });
+    _buttonsDiv.append(_editButton);
+    _this._contactDetails.append(_buttonsDiv);
+    $('#edit-button').on('click', function(){
+      _this.editDetails(contact_, id);
+    });
+  },
+
+  editDetails: function(contact_, id){
+    var _this = this;
+    _this.removeDetails();
+    var _ul = $('<ul>', {
+      'class':'ul-details'
+    });
+    for(var key in contact_){
+      if(key == 'URI') continue;
+      var _li = $('<li>',{
+        'class': 'li-details'
+      });
+      var _keyDiv = $('<div>', {
+        'class': 'div-key',
+        'text': key
+      });
+      var _valueDiv = $('<div>', {
+        'class': 'div-value',
+      });
+      var _editInput = $('<input>', {
+        'class' : 'input-value',
+        'value' : contact_[key],
+        'id' : key
+      });
+      _valueDiv.append(_editInput);
+      _li.append(_keyDiv);
+      _li.append(_valueDiv);
+      _ul.append(_li);
+    }
+    _this._contactDetails.append(_ul);
+    var _buttonsDiv = $('<div>', {
+      'id' : 'buttons-div'
+    });
+    var _saveButton = $('<input>', {
+      'type' : 'button',
+      'id' : 'save-button',
+      'value' : 'Save'
+    });
+    _buttonsDiv.append(_saveButton);
+    _this._contactDetails.append(_buttonsDiv);
+    $('#save-button').on('click', function(){
+      var _newContact = {};
+      for(var key in contact_){
+        if(key == 'URI') continue;
+        var _newValue = document.getElementById(key).value;
+        _newContact[key] = _newValue;
+      }
+      _newContact['category'] = 'contact';
+      _newContact['URI'] = contact_['URI'];
+      DataAPI.updateDataValue(function(result_){
+        if(result_ == 'success'){
+          _this.removeDetails();
+          _this.setDetails(_newContact);
+          _this._contacts[id] = _newContact;
+        } else {
+          alert('Saved failed!');
+        }
+      }, [_newContact]);
+    });
   },
 
   removeHead: function(){
