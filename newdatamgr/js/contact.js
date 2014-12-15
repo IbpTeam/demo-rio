@@ -91,10 +91,6 @@ var Contact = Class.extend({
     });
     _photoDiv.append(_photo);
 
-   /*var _nameDiv = $('<div>', {
-      'class': 'div-name',
-      'text': contact_['name']
-    });*/
     var _tags = ['Family', 'School', 'Friends'];
     this._contactHead.append(_photoDiv);
 

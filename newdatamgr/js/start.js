@@ -43,7 +43,18 @@ var main = function(params_){
     };
     for (var i = 1; i <= 7; i++) {
       $('#js-label' + i).on('click', clickHandler(i));
+      $('#js-label' + i)[0].ondragenter = clickHandler(i);
     }
+
+     var _logGit= $("#tags__bottom");
+     _logGit.ondragover = function(ev){
+      ev.preventDefault();
+     };
+     _logGit.ondrop = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      
+     }
     //analyse and performance params
     if (_params) {
       if (_params['category']) {

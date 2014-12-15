@@ -101,28 +101,33 @@ var InfoList = Class.extend({
     }
   },
 
+  addTag:function(tag_, num_){
+    var _a = $('<a>',{
+      'class':'il__a',
+      'draggable':'true'
+    });
+    var _text = $('<span>',{
+      'class':'il__title',
+      'text': tag_
+    });
+    var _num = $('<span>',{
+      'class':'il__num',
+      'text': num_
+    });
+    _a.append(_text);
+    _a.append(_num);
+    this._add.before(_a);
+    this.bindDrag(_a[0]);
+  },
+
   setContent:function(){
 	var _this = this;
-      _this.removeTags();
     DataAPI.getAllTagsByCategory(function(result){
+      _this.removeTags();
       _this._info = result;
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
-          var _a = $('<a>',{
-            'class':'il__a',
-            'draggable':'true'
-          });
-          var _text = $('<span>',{
-            'class':'il__title',
-            'text': _this._info['tags'][key]
-          });
-          var _num = $('<span>',{
-            'class':'il__num',
-            'text': _this._info['tagFiles'][_this._info['tags'][key]].length
-          });
-          _a.append(_text);
-          _a.append(_num);
-          _this._add.before(_a);
+          _this.addTag(_this._info['tags'][key],_this._info['tagFiles'][_this._info['tags'][key]].length);
         }
       }
     }, _this.getCategoryName(_this._index));
@@ -157,10 +162,6 @@ var InfoList = Class.extend({
     };
   },
 
-  bindEvent:function(){
-
-  },
-
   attach:function($parent_){
     $parent_.append(this._infoList);
   },
@@ -182,5 +183,20 @@ var InfoList = Class.extend({
       contact.setContactsList();
       contact._ContactContainer.show();
     }
+  },
+
+  bindDrag:function(tag_){
+    tag_.ondragstart = this.drag;
+    tag_.ondragend = this.dragEnd;
+  },
+  drag:function(ev){
+    $(ev.currentTarget).addClass('ondrag');
+    var _tagText = $(ev.currentTarget).children('.il__title')[0].textContent;
+    console.log(_tagText);
+    ev.dataTransfer.setData("tag", _tagText);
+  },
+  dragEnd:function(ev){
+    $(ev.currentTarget).removeClass('ondrag');
   }
+
 })
