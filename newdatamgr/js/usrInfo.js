@@ -145,7 +145,7 @@ var UsrInfoView = Class.extend({
       'change' : function(){
         var resourcePath = this.value;
         if ($('#contactCheckBox')[0].checked) {
-          DataAPI.loadContacts(function(result){
+          DataAPI.loadContacts(function(err,result){
             alert(result);
           },resourcePath);
         }else if ($('#dataCheckBox')[0].checked) {
