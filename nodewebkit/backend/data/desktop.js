@@ -91,22 +91,22 @@ function getnit(initType) {
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
     _datamgr_app.path = 'demo-rio/datamgr'; //change 'WORK_DIRECTORY' into local.
-    _datamgr_app.iconPath = 'demo-rio/datamgr/icons/datamgr.png';
+    _datamgr_app.iconPath = 'icons/datamgr.png';
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
-    _launcher_app.path = "";
-    _launcher_app.iconPath = "demo-webde/nw/img/launcher.png";
+    _launcher_app.path = "demo-webde/nw";
+    _launcher_app.iconPath = "img/launcher.png";
     _launcher_app.name = "应用启动器";
     _launcher_app.type = "inside-app";
     _launcher_app.idx = 0;
 
     var _login_app = {}
     _login_app.id = "login-app";
-    _login_app.path = "";
-    _login_app.iconPath = "demo-webde/nw/img/Login-icon.png";
+    _login_app.path = "demo-webde/nw";
+    _login_app.iconPath = "img/Login-icon.png";
     _login_app.name = "登录";
     _login_app.type = "inside-app";
     _login_app.idx = 1;
@@ -114,7 +114,7 @@ function getnit(initType) {
     var _flash_app = {}
     _flash_app.id = "flash-app";
     _flash_app.path = "demo-webde/nw/app/flash";
-    _flash_app.iconPath = "demo-webde/nw/app/flash/img/video.png";
+    _flash_app.iconPath = "img/video.png";
     _flash_app.name = "视频播放器";
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
@@ -123,7 +123,7 @@ function getnit(initType) {
     var _test_app = {}
     _test_app.id = "test-app";
     _test_app.path = "demo-webde/nw/app/test-app";
-    _test_app.iconPath = "demo-webde/nw/app/test-app/img/test-app2.png";
+    _test_app.iconPath = "img/test-app2.png";
     _test_app.name = "新浪NBA";
     _test_app.type = "inside-app";
     _test_app.idx = -1;
@@ -131,7 +131,7 @@ function getnit(initType) {
     var _wiki_app = {}
     _wiki_app.id = "wiki-app";
     _wiki_app.path = "demo-webde/nw/app/wiki-app";
-    _wiki_app.iconPath = "demo-webde/nw/app/wiki-app/img/icon.jpg";
+    _wiki_app.iconPath = "img/icon.jpg";
     _wiki_app.name = "维基百科";
     _wiki_app.type = "inside-app";
     _wiki_app.idx = -1;
@@ -261,6 +261,10 @@ function initDesktop(callback) {
           })
         })
       })
+    });
+    // create the user local app dir
+    fs_extra.ensureDir(config.APP_DATA_PATH[0], function(err_) {
+      if(err_) console.log(err_);
     });
   } else {
     console.log("Not a linux system! Not supported now!");
@@ -421,7 +425,7 @@ function readConf(callback, sFileName) {
       var sFileDir = WIGDET_PATH;
       var sDesFileDir = WIGDET_DES_PATH;
     } else if (sFileName === 'Default.conf') {
-      var sFileDir = '/webde/Default.conf';
+      var sFileDir = config.BEFORELOGIN;
       var sDesFileDir = null;
     } else {
       var _err = 'Error: Not a .conf file!';
