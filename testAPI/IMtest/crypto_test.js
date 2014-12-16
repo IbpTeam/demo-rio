@@ -1,4 +1,4 @@
-var cryptoApp= require('../../nodewebkit/lib/api/crypto_app');
+var cryptoApp= require('../../nodewebkit/backend/crypto_app');
 var path= require('path');
 
 var HOME_DIR = "/home";
@@ -36,6 +36,7 @@ cryptoApp.generateRsaKeypair(function(done) {
   else
     console.log('create rsa keypair failed!!!');
 }, parse);
+
 //在默认路径下初始化服务器端公钥信息
 cryptoApp.initServerPubKey(function(done) {
   if (done)
@@ -43,6 +44,7 @@ cryptoApp.initServerPubKey(function(done) {
   else
     console.log('init server pubkey failed!!!');
  });
+
 //获取默认路径.ssh/下的公钥信息
 cryptoApp.getPubKeyInfo(function(pubkey) {
   if (pubkey===undefined)

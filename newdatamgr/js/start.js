@@ -8,6 +8,7 @@ var main = function(params_){
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
+    tagDragged = undefined;
     homePage = HomePage.create();
     search = Search.create();
     contact = Contact.create();
@@ -19,6 +20,12 @@ var main = function(params_){
     content    = $('#contentDiv');
     search.attach($('#searchDiv'));
     homePage.attach(content);
+
+    usrInfo = UsrInfoView.create();
+    usrInfo.attach(container);
+    usrInfo.hide();
+    usrInfo.setUsrInfo();
+    usrInfo.setUsrExtra('load');
 
     // infoList switcher
     var clickHandler = function(k) {
@@ -44,6 +51,29 @@ var main = function(params_){
     };
     for (var i = 1; i <= 7; i++) {
       $('#js-label' + i).on('click', clickHandler(i));
+      $('#js-label' + i)[0].ondragenter = clickHandler(i);
+    }
+
+    //bind drag event
+    $('#tags__bottom')[0].ondragover = function(ev){
+      ev.preventDefault();
+    }
+    $('#tags__bottom')[0].ondrop = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      var _tag = ev.dataTransfer.getData('tag');
+      var _uri = ev.dataTransfer.getData('uri');
+      if(_tag && _uri){
+        DataAPI.rmTagsByUri(function(result){
+          if (result === 'commit') {
+            if(tagDragged){
+              tagDragged.removeTagByText(_tag);
+            }
+          }else{
+            console.log('Delect tags failed!');
+          }
+        },[_tag],_uri);
+      }
     }
     //analyse and performance params
     if (_params) {
@@ -58,9 +88,11 @@ var main = function(params_){
           case 'other': $('#js-label7')[0].click(); break;
         }
       }
-    };
-  });
+    }
+
+    //add click func to usr info
+    $('#avatar').on('click',function(){
+      usrInfo.showUsrInfo();
+    });
+});
 }
-
-
-
