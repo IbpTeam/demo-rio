@@ -114,15 +114,19 @@ function save(local_, callback_) {
       if(err_) return cb_(err_);
       cb_(null);
     });
-    // TODO: delete it later
-    /* var data = JSON.stringify(d, null, 2); */
-    // fs.writeFile(p, data, function(err_) {
-      // if(err_) return cb_(err_);
-      // cb_(null);
-    /* }); */
   }
 }
 exports.saveAppList = save;
+
+// path validate
+function pathValidate(path_, callback_) {
+  var cb_ = callback_ || function() {};
+  if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
+  fs.exists(config.APPBASEPATH + '/' + path_ + '/package.json', function(exist) {
+    if(!exist) return cb_('package.json not found');
+    return cb_(null);
+  });
+}
 
 // Register a HTML5 app to system
 // appInfo_: {
@@ -348,16 +352,6 @@ exports.startApp = function(appInfo_, params_, callback_) {
   } catch(e) {
     return cb_(e);
   }
-}
-
-// path validate
-function pathValidate(path_, callback_) {
-  var cb_ = callback_ || function() {};
-  if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
-  fs.exists(config.APPBASEPATH + '/' + path_ + '/package.json', function(exist) {
-    if(!exist) return cb_('package.json not found');
-    return cb_(null);
-  });
 }
 
 function emit(event_, appID_, option_) {
