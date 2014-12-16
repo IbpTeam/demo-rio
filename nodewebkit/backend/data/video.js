@@ -12,6 +12,7 @@
 
 var pathModule = require('path');
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var config = require("../config");
 var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
@@ -21,7 +22,8 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
-
+var probe = require('node-ffprobe');
+var thumbler = require('video-thumb');
 
 //@const
 var CATEGORY_NAME = "video";
@@ -30,69 +32,79 @@ var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
-function getTagsFromString(str) {
-  console.log(str)
-  var tags={};
-  var line1 = str.split("\n");
-  for (var index1 in line1) {
-    if (line1[index1] == "") {
-      line1.pop(line1[index1]);
-    }
-    else{
-      if(line1[index1].lastIndexOf("- ")>=0){
-        var line2 = str.split(",");
-        for (var index2 in line2) {
-          if(line2[index2].lastIndexOf("MPEG")>=0){
-            tags.format=(line2[index2].substring(line2[index2].lastIndexOf("MPEG"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
-          }
-          else if(line2[index2].lastIndexOf("Ogg")>=0){
-            tags.format=(line2[index2].substring(line2[index2].lastIndexOf("Ogg"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
-          }
-          else if(line2[index2].lastIndexOf("bps")>=0){
-            tags.bit_rate=(line2[index2].substring(0,line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g,'');
-          }
-          else if(line2[index2].lastIndexOf("seconds")>=0){
-            tags.track=(line2[index2].substring(0,line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g,'');
-          }
-        }
-      }
-      else if(line1[index1].indexOf("major_brand=")>=0){
-        tags.major_brand=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("minor_version=")>=0){
-        tags.minor_version=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("compatible_brands=")>=0){
-        tags.compatible_brands=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("creation_time=")>=0){
-        tags.creation_time=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("encoder=")>=0){
-        tags.encoder=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-    }
-  }
-  return tags;
-}
 
 
-function readVideoMetadata(path, callback) {
-  console.log(path);
-  var cp = require('child_process');
-  var cmd = 'mutagen-inspect ' + '"' + path + '"';
-  console.log(cmd);
-  cp.exec(cmd, function(error, stdout, stderr) {
-    if (error) {
-      console.log(error);
-      callback(error);
-    } else {
-      console.log(stdout)
-      callback(error, getTagsFromString(stdout));
+function readVideoMetadata(sPath, callback) {
+  probe(sPath, function(err, probeData) {
+    if (err) {
+      return callback(err, null);
     }
+    var audioInfo = {};
+    for (var type in probeData.streams) {
+      if (probeData.streams[type].codec_type === "video") {
+        audioInfo = probeData.streams[type];
+      }
+    }
+    if (!probeData.format) {
+      probeData.format = {}
+    }
+    if (!probeData.metadata) {
+      probeData.metadata = {}
+    }
+    var extraInfo = {
+      format_long_name: probeData.format.format_long_name || '',
+      width: audioInfo.width || '',
+      height: audioInfo.height || '',
+      display_aspect_ratio: audioInfo.display_aspect_ratio || '',
+      pix_fmt: audioInfo.pix_fmt || '',
+      duration: audioInfo.duration || probeData.format.duration || '',
+      major_brand: probeData.metadata.major_brand || '',
+      minor_version: probeData.metadata.minor_version || '',
+      compatible_brands: probeData.metadata.compatible_brands || '',
+    }
+    callback(null, extraInfo);
   });
 }
-exports.readVideoMetadata = readVideoMetadata;
+
+function readVideoThumbnail(sUri, callback) {
+  var columns = ['path'];
+  var conditions = ["uri ='" + sUri + "'"];
+  commonDAO.findItems(columns, CATEGORY_NAME, conditions, null, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    } else if (result == '') {
+      var _err = sUri + ': not foud in database...';
+      return (_err, null);
+    }
+    var sPath = result[0].path;
+    readVideoMetadata(sPath, function(err, data) {
+      if (err) {
+        return callback(err, null);
+      }
+      var duration = data.format.duration;
+      var time = (String(duration).lastIndexOf('.') - 1);
+      //get the last digit to make sure the frame is in duration
+      var tmpDir = pathModule.join(utils.getHomeDir(), '/tmp/snapshot.png');
+      thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
+        var option = {
+          encoding: 'base64'
+        }
+        fs.readFile(tmpDir, option, function(err, buffer_base64) {
+          if (err) {
+            return callback(err, null);
+          }
+          fs_extra.remove(tmpDir, function(err) {
+            if (err) {
+              return callback(err, null);
+            }
+            callback(null, buffer_base64);
+          })
+        })
+      });
+    })
+  })
+}
+exports.readVideoThumbnail = readVideoThumbnail;
 
 /**
  * @method createData
@@ -134,8 +146,10 @@ function createData(items, callback) {
       var someTags = tagsHandle.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
-        readVideoMetadata(items, function(metadata) {
-          /*TODO: write metadata into sqlite database*/
+        readVideoMetadata(items, function(err, metadata) {
+          if (err) {
+            return callback(err, null);
+          }
           var itemInfo = {
             id: null,
             URI: uri + "#" + category,
@@ -153,7 +167,16 @@ function createData(items, callback) {
             lastAccessTime: ctime,
             createDev: config.uniqueID,
             lastModifyDev: config.uniqueID,
-            lastAccessDev: config.uniqueID
+            lastAccessDev: config.uniqueID,
+            format_long_name: metadata.format_long_name,
+            width: metadata.width,
+            height: metadata.height,
+            display_aspect_ratio: metadata.display_aspect_ratio,
+            pix_fmt: metadata.pix_fmt,
+            duration: metadata.duration,
+            major_brand: metadata.major_brand,
+            minor_version: metadata.minor_version,
+            compatible_brands: metadata.compatible_brands,
           };
           commonHandle.createData(itemInfo, function(result, resultFile) {
             if (result === 'success') {
@@ -195,9 +218,10 @@ function createData(items, callback) {
               var someTags = tagsHandle.getTagsByPath(_item);
               var resourcesPath = config.RESOURCEPATH + '/' + category;
               uniqueID.getFileUid(function(uri) {
-                readVideoMetadata(_item, function(metadata) {
-                  console.log(metadata)
-                  /*TODO: write metadata into sqlite database*/
+                readVideoMetadata(_item, function(err, metadata) {
+                  if (err) {
+                    return callback(err, null);
+                  }
                   var itemInfo = {
                     id: null,
                     URI: uri + "#" + category,
@@ -208,14 +232,22 @@ function createData(items, callback) {
                     postfix: itemPostfix,
                     size: size,
                     path: _item,
-                    directorName: "Xiquan",
-                    actorName: "Xiquan",
+                    directorName: "",
+                    actorName: "",
                     createTime: ctime,
                     lastModifyTime: mtime,
                     lastAccessTime: ctime,
                     createDev: config.uniqueID,
                     lastModifyDev: config.uniqueID,
-                    lastAccessDev: config.uniqueID
+                    lastAccessDev: config.uniqueID,
+                    format_long_name: metadata.format_long_name,
+                    width: metadata.width,
+                    height: metadata.height,
+                    display_aspect_ratio: metadata.display_aspect_ratio,
+                    pix_fmt: metadata.pix_fmt,
+                    duration: metadata.duration,
+                    major_brand: metadata.major_brand,
+                    minor_version: metadata.minor_version,
                   };
                   itemInfoAll.push(itemInfo);
                   var isEnd = (count === lens - 1);
@@ -287,10 +319,6 @@ function getByUri(uri, callback) {
 exports.getByUri = getByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
-  readId3FromVideo('/home/xiquan/testFile/music/因为有你.ogg',function(err,result){
-    console.log(result);
-  })
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
@@ -417,7 +445,7 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"open", function() {
+        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "open", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
@@ -450,10 +478,10 @@ exports.openDataByUri = openDataByUri;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
-  commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
+function pullRequest(deviceId, address, account, resourcesPath, callback) {
+  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
+  commonHandle.pullRequest(CATEGORY_NAME, deviceId, address, account, sRepoPath, sDesRepoPath, callback);
 }
 exports.pullRequest = pullRequest;
 
@@ -504,24 +532,22 @@ function repoReset(commitID, callback) {
       callback(err, null);
     } else {
       var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID!="null") {
-        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
+      if (dataCommitID != "null") {
+        resourceRepo.repoReset(REAL_REPO_DIR, dataCommitID, null, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
-          } 
-          else {
+          } else {
             resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
+              resourceRepo.repoReset(DES_REPO_DIR, commitID, relateCommitID, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback({
                     'document': err
                   }, null);
-                } 
-                else {
+                } else {
                   console.log('reset success!')
                   callback(null, result)
                 }
@@ -529,16 +555,14 @@ function repoReset(commitID, callback) {
             });
           }
         })
-      } 
-      else {
-        resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
+      } else {
+        resourceRepo.repoReset(DES_REPO_DIR, commitID, null, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
-          } 
-          else {
+          } else {
             console.log('reset success!')
             callback(null, result)
           }
