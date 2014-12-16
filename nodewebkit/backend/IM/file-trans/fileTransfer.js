@@ -15,21 +15,25 @@ function getLocalIP(){
   return;
 }
 
-function fileTransferInit(path,fileTransferInitCb){
+function fileTransferInit(path, fileTransferInitCb) {
   if (!fs.existsSync(path)) {
-    fileTransferInitCb(true,'no such a file');
-    return false;    
-  }else{    
-    var file = fs.statSync(path);   
-    if (!file || !file.isFile()) {  
-      fileTransferInitCb(true,'file stat error');
-      return false;     
-    }else{
+    fileTransferInitCb(true, 'no such a file');
+    return false;
+  } else {
+    var file = fs.statSync(path);
+    if (!file || !file.isFile()) {
+      fileTransferInitCb(true, 'file stat error');
+      return false;
+    } else {
       size = file.size;
-      var buf = path.split('/');
-      var name = buf[buf.length - 1];
-      fileTransferRequest(name, size, fileTransferInitCb);
-    }  
+      if (size === 0) {
+        fileTransferInitCb(true, 0);
+      } else {
+        var buf = path.split('/');
+        var name = buf[buf.length - 1];
+        fileTransferRequest(name, size, fileTransferInitCb);
+      }
+    }
   }
 }
 exports.fileTransferInit=fileTransferInit;

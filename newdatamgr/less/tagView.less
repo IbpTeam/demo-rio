@@ -5,12 +5,17 @@
   line-height: 20px;
   text-align: center;
   cursor: pointer;
+  z-index: 100;
   .transition(right, 0.5s);
   &.rotate{
     right:-45px;
     .rotate(-15deg);
     &:hover{
       right:-65px;
+    }
+    &.no-rotate{
+      right:-85px;
+      .rotate(0deg);
     }
   }
   div{

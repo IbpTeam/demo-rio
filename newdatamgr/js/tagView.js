@@ -19,6 +19,7 @@ var TagView = Class.extend({
     };
     var _this = this;
     this._tagList = [];
+    this._tagTextList = [];
     this._parent = undefined;
     if (this._options.position === 'random') {
       this._positionIndex = Math.ceil(Math.random()*_this._options.max);
@@ -26,15 +27,14 @@ var TagView = Class.extend({
     this._index = 0;
   },
   /**
-   * [addTag add a tag]
-   * @type {[type]}
+   * [newTag new create a div of tag]
+   * @param  {[type]} tag_ [tag text]
+   * @return {[type]}      [div of tag]
    */
-  addTag:function(tag_){
-    if(this._index === this._options.max){
-      return 0;
-    }
+  newTag:function(tag_){
     var _tagContainer = $('<div>',{
-      'class':'tag-container'
+      'class':'tag-container',
+      'draggable':true
     })
     var _tagBackground = $('<div>',{
       'class':'tag-background'
@@ -47,26 +47,98 @@ var TagView = Class.extend({
     var _tagTriangle = $('<div>',{
       'class':'tag-triangle'
     })
-    _tagBackground.css({
-      'background-color': this._options.background_color,
-      'opacity': this._options.opacity - this._index*this._options.opacity_step
-    });
-    _tagSpan.css({
-      'color': this._options.color,
-    });
-    _tagTriangle.css({
-      'background-color': this._options.background_color,
-      'opacity': this._options.opacity - this._index*this._options.opacity_step
-    });
     _tagContainer.append(_tagBackground);
     _tagContainer.append(_tagSpan);
     _tagContainer.append(_tagTriangle);
+    return _tagContainer;
+  },
+  /**
+   * [setColorOpacity set color and opacity]
+   * @param {[type]} $target_ [a jquery target object]
+   * @param {[type]} index_   [index of tags]
+   */
+  setColorOpacity:function($target_, index_){
+    $target_.children('.tag-background').css({
+      'background-color': this._options.background_color,
+      'opacity': this._options.opacity - index_*this._options.opacity_step
+    });
+    $target_.children('.tag-text').css({
+      'color': this._options.color,
+    });
+    $target_.children('.tag-triangle').css({
+      'background-color': this._options.background_color,
+      'opacity': this._options.opacity - index_*this._options.opacity_step
+    });
+  },
+  /**
+   * [addTag add a tag]
+   * @type {[0]}
+   */
+  addTag:function(tag_){
+    if(!tag_){
+      return 0;
+    }
+    this._tagTextList.push(tag_);
+    if(this._index === this._options.max){
+      return 0;
+    }
+    var _tagContainer = this.newTag(tag_);
+    this.setColorOpacity(_tagContainer, this._index);
     if (this._parent) {
       this._parent.append(_tagContainer);
     };
-    this.setPosition(_tagContainer);
+    this.setPosition(_tagContainer, this._index);
     this._tagList.push(_tagContainer);
+    this.bindDrag(_tagContainer[0]);
     this._index += 1;
+  },
+  /**
+   * [addPreTag description]
+   * @param {[type]} tag_ [description]
+   */
+  addPreTag:function(tag_){
+    for (var i = 0; i < this._tagTextList.length; i++) {
+      if(this._tagTextList[i] === tag_ ){
+        if(i < this._options.max){   //tag is in the show
+          var _tag = this._tagList.splice(i,1)[0];
+          this._tagList.unshift(_tag);
+          var _tagText = this._tagTextList.splice(i,1);
+          this._tagTextList.unshift(_tagText[0]);
+          for (var j = 0; j < this._tagList.length; j++) {
+            this.setColorOpacity(this._tagList[j],j);
+          };
+          this.showTags();
+        }else{    //has the tag but not in the show
+          var _tag = this._tagList.splice((this._options.max-1),1)[0];
+          _tag.children('.tag-text')[0].text = tag_;
+          this._tagList.unshift(_tag);
+          var _tagText = this._tagTextList.splice(i,1);
+          this._tagTextList.unshift(_tagText);
+          for (var j = 0; j < this._tagList.length; j++) {
+            this.setColorOpacity(this._tagList[j],j);
+          };
+          this.showTags();
+        }
+        return 0;
+      }
+    };
+    this._tagTextList.unshift(tag_);
+    var _tagContainer = this.newTag(tag_);
+    this._tagList.unshift(_tagContainer);
+    for (var i = 0; i < this._tagList.length; i++) {
+      this.setColorOpacity((this._tagList[i]),i);
+    };
+    if (this._parent) {
+      this._parent.prepend(_tagContainer);
+    };
+    this.setPosition(_tagContainer, 0);
+    this.bindDrag(_tagContainer[0]);
+    if (this._index < this._options.max) {
+      this._index++;
+    }else{
+      this._tagList.pop().remove();
+    }
+    this.showTags();
   },
   /**
    * [hideTags description]
@@ -197,8 +269,10 @@ var TagView = Class.extend({
     this.removeTags(function(){
       _this._index = 0;
       _this._tagList = [];
+      _this._tagTextList = [];
       callback_();
     });
+    _this._index = 0;
     if (this._options.position === 'random') {
       this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     };
@@ -247,5 +321,19 @@ var TagView = Class.extend({
       $obj_.children('div').addClass('left-triangle');
       $obj_.addClass('rotate');
     }
+  },
+  bindDrag:function(tag_){
+    var _this = 
+    tag_.ondragstart = this.drag;
+    tag_.ondragend = this.dragEnd;
+  },
+  drag:function(ev){
+    $(ev.currentTarget).addClass('no-rotate');
+    var _tagText = $(ev.currentTarget).children('.tag-text')[0].textContent;
+    console.log(_tagText);
+    ev.dataTransfer.setData("tag", _tagText);
+  },
+  dragEnd:function(ev){
+    $(ev.currentTarget).removeClass('no-rotate');
   }
 });
