@@ -172,11 +172,9 @@ function SendAppMsgByAccount(SentCallBack, MsgObj) {
 exports.SendAppMsgByAccount = SendAppMsgByAccount;
 
 function sendIMMsg(SentCallBack, MsgObj){
-  if(MsgObj.Msg.noGroup){
-    MsgObj['Msg']=JSON.stringify(MsgObj.Msg);
+  if(MsgObj.noGroup){
     SendAppMsg(SentCallBack, MsgObj);
   }else{
-    MsgObj['Msg']=JSON.stringify(MsgObj.Msg);
     SendAppMsgByAccount(SentCallBack, MsgObj);
   }
 }
