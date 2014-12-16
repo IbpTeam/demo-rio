@@ -135,82 +135,59 @@ var ShowFiles = Class.extend({
 
   //此函数用来产生一个和用户交互的界面
   genPopupDialog:function(title, message, files){
-    $("#popup_dialog").remove();
-    var header_btn = $('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>');
-    var header_title = $('<h4 class="modal-title"></h4>');
-    header_title.text(title);
-    var header = $('<div class="modal-header"></div>');
-    header.append(header_btn).append(header_title);
+    $("#popupDialog").remove();
+    var headerButton = $('<button>',{
+      'type':'button',
+      'class':'close',
+      'data-dismiss':'modal',
+      'aria-hidden':'true',
+      'text':'x'
+    });
+    var headerTitle = $('<h4>',{
+      'class':'modal-title',
+      'text':title
+    });
+    var header = $('<div>',{
+      'class':'modal-header'
+    });
+    header.append(headerButton).append(headerTitle);
+    var body = $('<div>',{
+      'class':'modal-body',
+      'html':message
+    });
   
-    var body = $('<div class="modal-body"></div>');
-    body.html(message);
+    var footer = $('<div>',{
+      'class':'modal-footer'
+    });
+    var footerButton = $('<button>',{
+      'type':'button',
+      'class':'btn btn-default',
+      'data-dismiss':'modal',
+      'text':'Close'
+    });
+    footer.append(footerButton);
   
-    var footer = $('<div class="modal-footer"></div>');
-    var footer_btn = $('<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>');
-    footer.append(footer_btn);
-  
-    var content = $('<div class="modal-content"></div>');
+    var content = $('<div>',{
+      'class':'modal-content'
+    });
     content.append(header);
     content.append(body);
     content.append(footer);
   
-    var dialog = $('<div class="modal-dialog"></div>');
+    dialog = $('<div>',{
+      'class':'modal-dialog'
+    });
     dialog.append(content);
-    var div = $('<div id="popup_dialog" class="modal fade" data-backdrop="false"></div>');
+    var div = $('<div>',{
+      'id':'popupDialog',
+      'class':'modal fade',
+      'data-backdrop':'false'
+    });
     div.append(dialog);
     $('body').append(div);
-    $("#popup_dialog").modal('show');
-    $('#popup_dialog').on('hidden.bs.modal', function(){
+    $("#popupDialog").modal('show');
+    $('#popupDialog').on('hidden.bs.modal', function(){
       $(this).remove();
-    });
-    $('#edit_button').on('click', function(){
-      if(files != null){
-        $(this).removeData('bs.modal');
-        _globalSelf.genEditDialog(files);
-      }
-      else{
-        window.alert("You can not edit this file.");
-      }
-    });
-  },
-
-  //产生一个可以编辑的对话框
-  genEditDialog:function(file){
-    var editDiv = $('<div></div>');
-    var fileForm = $('<form></form>');
-    for(var key in file){
-      if(key == 'props' || key == 'URI'){
-        continue;
-      }
-      var p = $('<p>'+key+':</p>');
-      var input = $('id ="'+key+'" type = "text" size = "60" aligin = "right" value = "'+file[key]+'"/>');
-      fileForm.append(p);
-      fileForm.append(input);
-    }
-    editDiv.append(fileForm);
-    editDiv.append('</br>');
-    var saveButton = $('<button type="button" class="btn active" id="save_button" data-dismiss="modal">Save</button>');
-    editDiv.append(saveButton);
-    _globalSelf.genPopupDialog('Edit', editDiv);
-    $('#save_button').on('click', function(){
-      var new_json = {};
-      for(var key in file){
-        if(key == 'props' || key == 'URI'){
-          continue;
-        }
-        var new_value = document.getElementById(key).value;
-        new_json[key] = new_value;
-      }
-      new_json['category'] = _globalSelf._currentCategory[_globalSelf._index];
-      new_json['URI'] = file['URI'];
-      DataAPI.updateDataValue(function(result){
-        if(result == 'success'){
-          window.alert("Saved successfully!");
-        }
-        else{
-          window.alert("Saved failed!");
-        }
-      }, [new_json]);
     });
   },
 
