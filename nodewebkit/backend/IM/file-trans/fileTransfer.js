@@ -96,7 +96,7 @@ function fileTransferStart(err,filePort,msgObj,fileTransferStartCb){
   var IPv4=getLocalIP();
   if(err||IPv4===undefined){
     msg['state']='0';
-    msg['msg']='file-transfer you can\'t file '+name; 
+    msg['msg']='file-transfer you can\'t file '+msg.fileName; 
     fileTransferStartCb(true,msg);
     return;
   }else{      
