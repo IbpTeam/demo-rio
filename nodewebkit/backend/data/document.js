@@ -261,7 +261,11 @@ function changeData(filePath,uri, callback) {
         var updateItems = new Array();
         updateItems.push(updateItem);
         commonDAO.updateItems(updateItems, function(result) {
-          console.log(result);
+          if(result!='commit'){
+            console.log("DB update error:");
+            console.log(result);
+            return;
+          }
           callback(result);
         });
       });
@@ -416,7 +420,8 @@ function openDataByUri(openDataByUriCb, uri) {
           var updateItems = new Array();
           updateItems.push(updateItem);
           commonDAO.updateItems(updateItems, function(result) {
-            if(result!==null){
+            if(result!='commit'){
+              console.log("DB update error:");
               console.log(result);
               return;
             }           
@@ -439,7 +444,8 @@ function openDataByUri(openDataByUriCb, uri) {
                     var conditions = ["path = " + "'" + path + "'"];
                     commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
                       changeData(path,items[0].URI,function(result){
-                        if(result!==null){
+                        if(result!='commit'){
+                          console.log("DB update error:");
                           console.log(result);
                           return;
                         } 
