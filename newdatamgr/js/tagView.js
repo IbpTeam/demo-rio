@@ -113,6 +113,7 @@ var TagView = Class.extend({
             this.setColorOpacity(this._tagList[j],j);
           };
           this.showTags();
+          return 0;
         }else{    //has the tag but not in the show
           var _tag = this._tagList.splice((this._options.max-1),1)[0];
           _tag.children('.tag-text')[0].text = tag_;
@@ -226,6 +227,8 @@ var TagView = Class.extend({
               this.setPosition(_newtag,this._options.max);
               this._parent.append(_newtag);
               this._tagList.push(_newtag);
+            }else{
+              this._index--;
             }
             for (var j = 0; j < this._tagList.length; j++) {
               this.setColorOpacity(this._tagList[j],j)
