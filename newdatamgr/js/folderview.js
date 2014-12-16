@@ -15,8 +15,13 @@ var ShowFiles = Class.extend({
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
     this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
-    this._choice = $('<div id = "choice"></div>');
-    this._showContent = $('<div id = "showContent" style= "overflow:auto"></div>');
+    this._choice = $('<div>',{
+      'id':'choice'
+    });
+    this._showContent = $('<div>',{
+      'id':'showContent',
+      'style':'overflow:auto'
+    });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
     this.setChoice();
@@ -25,9 +30,18 @@ var ShowFiles = Class.extend({
 
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
-    var showlistButton = $('<div id = "showlistButton" class="showlistButton"> </div>');
-    var shownormalButton = $('<div id = "shownormalButton" class="shownormalButton shownormalButtonFocus"> </div>');
-    var sortbyButton = $('<div id = "sortbyButton">sortby </div>');
+    var showlistButton = $('<div>',{
+      'id':'showlistButton',
+      'class':'showlistButton'
+    });
+    var shownormalButton = $('<div>',{
+      'id':'shownormalButton',
+      'class':'shownormalButton shownormalButtonFocus'
+    });
+    var sortbyButton = $('<div>',{
+      'id':'sortbyButton',
+      'text':'sortby'
+    });
     this._choice.append(showlistButton);
     this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
@@ -111,21 +125,6 @@ var ShowFiles = Class.extend({
     if(all.length){
       for(var i =0;i<all.length;i++){
         if(all[i]['path'] && all[i]['path']== filePath){
-          file = all[i];
-          break;
-        }
-      }
-    }
-    return file;
-  },
-
-  //次函数用通过文件的id来找到文件
-  findFileById:function(fileId){
-    var all = _globalSelf._getFiles[_getFiles._index];
-    var file = false;
-    if(all.length){
-      for(var i=0;i<all.length;i++){
-        if(all[i].id == fileId){
           file = all[i];
           break;
         }
@@ -232,12 +231,20 @@ var ShowFiles = Class.extend({
         var format = file['format'];
         switch(format){
           case 'audio':
-            fileContent = $('<audio controls></audio>');
-            fileContent.append('<source src=\"' + content + '\"" type="audio/mpeg">');
+            fileContent = $('<audio>',{
+              'controls':'controls',
+              'src':content,
+              'type':'audio/mpeg'
+            });
             break;
           case 'video':
-            fileContent = $('<video width="400" height="300" controls></video>');
-            fileContent.append('<source src=\"' + content + '\"" type="video/ogg">');
+            fileContent = $('<video>',{
+              'controls':'controls',
+              'width':'400',
+              'height':'300',
+              'src':content,
+              'type':'video/ogg'
+            });
             break;
           case 'div':
             fileContent = content;
@@ -260,21 +267,37 @@ var ShowFiles = Class.extend({
           }
         }
         else{
-          var F5Button = $('<button type="button" class="btn btn-success">PLAY</button>');
+          var F5Button = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'PLAY'
+          });
           F5Button.click(function(){
-             _globalSelf.sendKeyToWindow(file['windowname'],'F5')
+             AppAPI.sendKeyToApp(function(){},file['windowname'],'F5')
           });
-          var UpButton = $('<button type="button" class="btn btn-success">UP</button>');
+          var UpButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'UP'
+          });
           UpButton.click(function(){
-            _globalSelf.sendKeyToWindow(file['windowname'],'Up')
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Up')
           });
-          var DownButton = $('<button type="button" class="btn btn-success">DOWN</button>');
+          var DownButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'DOWN'
+          });
           DownButton.click(function(){
-            _globalSelf.sendKeyToWindow(file['windowname'],'Down')
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Down')
           });
-          var StopButton = $('<button type="button" class="btn btn-success">STOP</button>');
+          var StopButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'STOP'
+          });
           StopButton.click(function(){
-            _globalSelf.sendKeyToWindow(file['windowname'],'Escape')
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Escape')
           });
           var genDiv = $('<div></div>');
           genDiv.append(F5Button);
@@ -408,7 +431,6 @@ var ShowFiles = Class.extend({
         if(file.postfix == 'pdf'){
           function cbViewPdf(){
           }
-          // AppAPI.startAppByName(cbViewPdf, "viewerPDF", file.path);
           AppAPI.getRegisteredAppInfo(function(err, appInfo) {
             if (err) {
               return console.log(err);
@@ -421,11 +443,6 @@ var ShowFiles = Class.extend({
         }
       }
     });
-  },
-
-  //此函数是用来播放PPT时，向桌面发送按键
-  sendKeyToWindow:function(windowname,key){
-    AppAPI.sendKeyToApp(function(){}, windowname, key);
   },
 
   //此函数用来转换时间
