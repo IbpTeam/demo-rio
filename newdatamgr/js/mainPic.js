@@ -66,7 +66,7 @@ var MainPicView = Class.extend({
       });
       _picBtmContent.append(_picDate);
     };
-    this._tagView.setParent(_picContent);
+    this._tagView.setParent(_picContent,pic_.uri);
     this._tagView.addTags(pic_.tags);
     this.bindDrag(_picImg[0]);
   },
@@ -90,6 +90,7 @@ var MainPicView = Class.extend({
   },
   drop:function(ev){
     var _tag = ev.dataTransfer.getData('tag');
+    var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
       DataAPI.setTagByUri(function(result_){
         if (result_ === 'commit') {
