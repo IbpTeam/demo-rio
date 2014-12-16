@@ -16,15 +16,20 @@ exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
  * Default APP Base path is repo/app dir，we use __dirname to locate it
  */
 var APPBASEPATH;
-APPBASEPATH = path.join(__dirname,"../../..");
+APPBASEPATH = path.join(__dirname, "../../..");
 exports.APPBASEPATH = APPBASEPATH;
 var APP_DATA_PATH = [
   // TODO: make sure where to save
-  path.join(process.env["HOME"], '.local/share/webde/App.list'),
-  __dirname + '/app/default/App.list'
+  path.join(process.env["HOME"], '.local/share/webde'),
+  __dirname + '/app/default'
 ];
 exports.APP_DATA_PATH = APP_DATA_PATH;
 exports.D_APP_ICON = __dirname + '/app/default/favicon.ico';
+
+/**
+ * Desktop configure file Path before login
+ */
+exports.BEFORELOGIN = __dirname + '/data/default/Default.conf';
 
 /**
  * Project Path
@@ -33,41 +38,6 @@ exports.D_APP_ICON = __dirname + '/app/default/favicon.ico';
 var PROJECTPATH;
 PROJECTPATH = path.join(__dirname,"../../../..");
 exports.PROJECTPATH = PROJECTPATH;
-
-/**
- * AppList 用于存放所有已安装程序列表，目前暂时支持默认自带的程序，如数据管理器
- * 音乐播放器等
- * 每一个APP对象包括以下属性：
- *   name:程序名称
- *   win:窗口对象，如果为null则处于未打开状态
- *   path:程序的启动路径，应该是html文件，可以是相对repo/app路径
- */
-// TODO: delete these codes when new added stable
-/* var AppList=[ */
-  // {
-    // id:"app1",
-    // name:"datamgr",
-    // win:null,
-    // win2:null,
-    // path:"demo-rio/datamgr/file-explorer.html"
-  // },
-  // {
-    // id:"app_example",
-    // name:"example",
-    // win:null,
-    // win2:null,
-    // path:"demo-rio/appExample/index.html"
-  // },
-  // {
-    // id:"app_viewerPDF",
-    // name:"viewerPDF",
-    // win:null,
-    // win2:null,
-    // path:"demo-rio/viewerPDF/index.html"
-  // }
-// ];
-// exports.AppList = AppList;
-/* exports.AppRegisterPath = '/webde/App.list' */
 
 /**
  * Database Path
