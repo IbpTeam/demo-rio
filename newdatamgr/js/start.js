@@ -21,6 +21,12 @@ var main = function(params_){
     search.attach($('#searchDiv'));
     homePage.attach(content);
 
+    usrInfo = UsrInfoView.create();
+    usrInfo.attach(container);
+    usrInfo.hide();
+    usrInfo.setUsrInfo();
+    usrInfo.setUsrExtra('load');
+
     // infoList switcher
     var clickHandler = function(k) {
       return function() {
@@ -82,9 +88,11 @@ var main = function(params_){
           case 'other': $('#js-label7')[0].click(); break;
         }
       }
-    };
-  });
+    }
+
+    //add click func to usr info
+    $('#avatar').on('click',function(){
+      usrInfo.showUsrInfo();
+    });
+});
 }
-
-
-
