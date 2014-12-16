@@ -20,6 +20,8 @@ var Contact = Class.extend({
     this._ContactContainer.append(this._contactDetails);
     this._tagView = TagView.create();
     this._tagView.setParent(this._contactHead);
+    this._uri = undefined;
+    this.bindDrag(this._contactHead[0]);
   },
 
   setContactsList:function(){
@@ -93,13 +95,15 @@ var Contact = Class.extend({
     });
     _photoDiv.append(_photo);
 
-    var _tags = ['Family', 'School', 'Friends'];
+    this._uri = contact_['URI'];
+    var _tags = [];
+    var _tagStr = contact_['others'];
+    if (typeof _tagStr === 'string' && _tagStr.length > 0) {
+      _tags = _tagStr.split(',');
+    };
     this._contactHead.append(_photoDiv);
 
-    //this._contactHead.append(_nameDiv);
-
     this._tagView.refresh();
-
     this._tagView.addTags(_tags);
 
     var _contactHeadBackBlue = $('<div>', {
@@ -232,6 +236,28 @@ var Contact = Class.extend({
 
   attach:function($parent_){
     $parent_.append(this._ContactContainer);
+  },
+
+  bindDrag:function(target_){
+    target_.ondragover = this.dragover;
+    target_.ondrop = this.drop;
+  },
+  drop:function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    var _tag = ev.dataTransfer.getData('tag');
+    if (typeof _tag === 'string' && _tag.length > 0) {
+      DataAPI.setTagByUri(function(result_){
+        if (result_ === 'commit') {
+          contact._tagView.addTag(_tag);
+          contact._tagView.setUri(contact._uri);
+          infoList.fixTagNum(_tag,1);
+        };
+      },[_tag],contact._uri);
+    };
+  },
+  dragover:function(ev){
+    ev.preventDefault();  
   }
 
 });

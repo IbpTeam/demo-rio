@@ -249,6 +249,9 @@ var TagView = Class.extend({
       this._uri = uri_;
     };
   },
+  setUri:function(uri){
+    this._uri = uri;
+  },
   /**
    * [refreshPosition refresh position of tag]
    * @type {[type]}

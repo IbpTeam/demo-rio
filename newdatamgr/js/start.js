@@ -69,6 +69,9 @@ var main = function(params_){
             if(tagDragged){
               tagDragged.removeTagByText(_tag);
             }
+            if (infoList.isShow()) {
+              infoList.fixTagNum(_tag,-1);
+            };
           }else{
             console.log('Delect tags failed!');
           }
