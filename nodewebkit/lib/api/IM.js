@@ -171,6 +171,17 @@ function SendAppMsgByAccount(SentCallBack, MsgObj) {
 }
 exports.SendAppMsgByAccount = SendAppMsgByAccount;
 
+function sendIMMsg(SentCallBack, MsgObj){
+  if(MsgObj.Msg.noGroup){
+    MsgObj['Msg']=JSON.stringify(MsgObj.Msg);
+    SendAppMsg(SentCallBack, MsgObj);
+  }else{
+    MsgObj['Msg']=JSON.stringify(MsgObj.Msg);
+    SendAppMsgByAccount(SentCallBack, MsgObj);
+  }
+}
+exports.sendIMMsg = sendIMMsg;
+
 /**
  * @method sendFileTransferRequest
  *  发送端发送传输文件请求
@@ -211,6 +222,52 @@ function sendFileTransferRequest(sendFileTransferRequestCb, MsgObj) {
   });
  }
 exports.sendFileTransferRequest = sendFileTransferRequest;
+
+/**
+ * @method sendFileTransferRequestByAccount
+ *  发送端发送传输文件请求
+ *
+ * @param1 callback function
+ *   回调函数
+ *   @cbparam1
+ *      boolean, 返回操作出错与否，出错则返回true,无错则返回false
+ *   @cbparam2
+ *      JSON, 返回待传输的文件信息MsgObj或者出错信息
+
+ * @param2 MsgObj
+ *   启动程序参数，json格式封装
+   *   JSON,待发送的消息结构体，其中：
+   *  MsgObj.IP 表示接收方的IP地址
+   *  MsgObj.UID 表示接收方的UUID
+   *  MsgObj.Account表示接收方的帐号
+   *  MsgObj.Msg表示代传输文件的路径
+   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+   *  MsgOb举例如下：
+   *  var msgobj = {
+          IP: "192.168.1.100",
+          UID: "2312324323dsfseferfgdghf",
+          Account: "USER2",
+          Msg: "/media/fyf/BACKUP/test.txt",
+          App: "app1"
+        };
+ */
+function sendFileTransferRequestByAccount(sendFileTransferRequestByAccountCb, MsgObj) {
+  var accSetItem = {};
+  var ipset = {};
+  for (var accSetItemKey in MsgObj.toAccList) {
+    accSetItem = MsgObj.toAccList[accSetItemKey];
+    fileTransfer.fileTransferInit(MsgObj.Msg, function(err, msg) {
+      if (err) {
+        sendFileTransferRequestByAccountCb(err, msg);
+      } else {
+        msg['key'] = MD5(msg.fileName + accSetItem.toIP + new Date().getTime());
+        MsgObj.Msg = msg;
+        sendFileTransferRequestByAccountCb(err, MsgObj);
+      }
+    });
+  }
+}
+exports.sendFileTransferRequestByAccount = sendFileTransferRequestByAccount;
 
 /**
  * @method sendFileTransferStart
