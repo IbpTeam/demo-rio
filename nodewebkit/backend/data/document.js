@@ -416,7 +416,10 @@ function openDataByUri(openDataByUriCb, uri) {
           var updateItems = new Array();
           updateItems.push(updateItem);
           commonDAO.updateItems(updateItems, function(result) {
-            console.log(result);
+            if(result!==null){
+              console.log(result);
+              return;
+            }           
             //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
             if(item.postfix=='ppt' ||
                item.postfix=='pptx'||
@@ -435,9 +438,11 @@ function openDataByUri(openDataByUriCb, uri) {
                   if(event=='change'){
                     var conditions = ["path = " + "'" + path + "'"];
                     commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
-                      console.log(items);
                       changeData(path,items[0].URI,function(result){
-                        console.log(result);
+                        if(result!==null){
+                          console.log(result);
+                          return;
+                        } 
                       });
                     });
                   }
