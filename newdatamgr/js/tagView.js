@@ -18,6 +18,7 @@ var TagView = Class.extend({
       }
     };
     var _this = this;
+    this._uri = undefined;
     this._tagList = [];
     this._tagTextList = [];
     this._parent = undefined;
@@ -87,7 +88,11 @@ var TagView = Class.extend({
     if (this._parent) {
       this._parent.append(_tagContainer);
     };
-    this.setPosition(_tagContainer, this._index);
+    if(this._options.animate){
+      this.setPosition(_tagContainer, 0);
+    }else{
+      this.setPosition(_tagContainer,this._index);
+    }
     this._tagList.push(_tagContainer);
     this.bindDrag(_tagContainer[0]);
     this._index += 1;
@@ -207,10 +212,26 @@ var TagView = Class.extend({
    * @type {[type]}
    */
   removeTagByText:function(tag_){
-    for (var i = 0; i < this._tagList.length; i++) {
-      if(this._tagList[i][0].textContent === tag_){
-        this._tagList[i].remove();
-        this._tagList[i].splice(i,1);
+    for (var i = 0; i < this._tagTextList.length; i++) {
+      if(this._tagTextList[i] === tag_){
+        if(i >= this._options.max){
+          this._tagTextList.splice(i,1);
+        }else{
+          if (i < this._options.max) {
+            this._tagList[i].remove();
+            this._tagList.splice(i,1);
+            this._tagTextList.splice(i,1);
+            if(this._tagList.length < this._tagTextList.length){
+              var _newtag = this.newTag(this._tagTextList[this._options.max-1]);
+              this.setPosition(_newtag,this._options.max);
+              this._tagList.push(_newtag);
+              for (var j = 0; j < this._tagList.length; j++) {
+                this.setColorOpacity(this._tagList[j],j)
+              };
+            }
+          };
+          this.showTags();
+        }
       }
     };
   },
@@ -218,8 +239,11 @@ var TagView = Class.extend({
    * [setParent set element witch would be tagged]
    * @type {[type]}
    */
-  setParent:function($parent_){
+  setParent:function($parent_, uri_){
     this._parent = $parent_;
+    if (uri_) {
+      this._uri = uri_;
+    };
   },
   /**
    * [refreshPosition refresh position of tag]
@@ -281,10 +305,10 @@ var TagView = Class.extend({
    * [setPosition set tag position]
    * @type {[type]}
    */
-  setPosition:function($obj_){
+  setPosition:function($obj_, index_){
     var _position = undefined;
     if (this._options.position === 'random') {
-      var _index = this._positionIndex + this._index;
+      var _index = this._positionIndex +index_;
       _index = (_index > this._options.max -1) ?  _index - this._options.max : _index;
       _position = this._options.random_positions[_index];     
       if (_position.left > 50) {
@@ -298,22 +322,13 @@ var TagView = Class.extend({
       });
     } else {
       _position = {}
-      _position['right'] = this._options.positions.right;
       if (this._options.direction === 'down') {
-        if (this._options.animate) {
-          _position['top'] = this._options.positions.top;
-        }else{
-          _position['top'] = this._options.positions.top + this._index * this._options.positions.step;
-        };
+        _position['top'] = this._options.positions.top + index_ * this._options.positions.step;
         $obj_.css({
           top: _position.top + 'px'
         });
       } else if (this._options.direction === 'up'){
-        if (this._options.animate) {
-        _position['bottom'] = this._options.positions.bottom;
-        }else{
-          _position['bottom'] = this._options.positions.bottom + this._index * this._options.positions.step;
-        }
+        _position['bottom'] = this._options.positions.bottom + index_ * this._options.positions.step;
         $obj_.css({
           bottom: _position.bottom + 'px'
         });
@@ -323,15 +338,16 @@ var TagView = Class.extend({
     }
   },
   bindDrag:function(tag_){
-    var _this = 
-    tag_.ondragstart = this.drag;
+    var _this = this;
+    tag_.ondragstart = function(ev){
+      $(ev.currentTarget).addClass('no-rotate');
+      var _tagText = $(ev.currentTarget).children('.tag-text')[0].textContent;
+      ev.dataTransfer.setData("tag", _tagText);
+      if (_this._uri) {
+        ev.dataTransfer.setData("uri", _this._uri);
+      };
+    }
     tag_.ondragend = this.dragEnd;
-  },
-  drag:function(ev){
-    $(ev.currentTarget).addClass('no-rotate');
-    var _tagText = $(ev.currentTarget).children('.tag-text')[0].textContent;
-    console.log(_tagText);
-    ev.dataTransfer.setData("tag", _tagText);
   },
   dragEnd:function(ev){
     $(ev.currentTarget).removeClass('no-rotate');
