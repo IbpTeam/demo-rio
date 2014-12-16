@@ -446,6 +446,7 @@ function openDataByUri(openDataByUriCb, uri) {
               else{
                 watchFilesNum++;
                 console.log("watchFilesNum = "+watchFilesNum);
+                openDataByUriCb(source);
               }
             }
             else{
