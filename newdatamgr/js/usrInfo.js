@@ -104,7 +104,11 @@ var UsrInfoView = Class.extend({
     });
     var _contactCheckBox = $('<input>',{
       'id' : 'contactCheckBox',
-      'type' : 'checkbox'
+      'type' : 'checkbox',
+      'checked' : 'checked',
+      'click' : function(){
+        $('#dataCheckBox')[0].checked = false;
+      }
     });
     _loadContactDiv.append(_contactCheckBox);
     _loadContactDiv.append(_contactLabel);
@@ -122,7 +126,10 @@ var UsrInfoView = Class.extend({
     });
     var _dataCheckBox = $('<input>',{
       'id' : 'dataCheckBox',
-      'type' : 'checkbox'
+      'type' : 'checkbox',
+      'click' : function(){
+        $('#contactCheckBox')[0].checked = false;
+      }
     });
     _loadDataDiv.append(_dataCheckBox);
     _loadDataDiv.append(_dataLabel);
@@ -133,7 +140,22 @@ var UsrInfoView = Class.extend({
     });
     var _fileUpLoad = $('<input>',{
       'id' : 'fileUpLoad',
-      'type' : 'file'
+      'type' : 'file',
+      'nwdirectory' : 'true',
+      'change' : function(){
+        var resourcePath = this.value;
+        if ($('#contactCheckBox')[0].checked) {
+          DataAPI.loadContacts(function(result){
+            alert(result);
+          },resourcePath);
+        }else if ($('#dataCheckBox')[0].checked) {
+          DataAPI.loadResources(function(result){
+            alert(result);
+          },resourcePath);
+        }else{
+          //ToDo-err handle
+        }
+      }
     });
     _uploadDiv.append(_fileUpLoad);
 

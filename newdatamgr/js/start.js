@@ -64,16 +64,11 @@ var main = function(params_){
           case 'other': $('#js-label7')[0].click(); break;
         }
       }
-    };
-  });
-}
+    }
 
-  for (var i = 1; i <= 6; i++) {
-    $('#js-label' + i).on('click', clickHandler(i));
-  }
-
-  //add click func to usr info
-  $('#avatar').on('click',function(){
-    usrInfo.showUsrInfo();
-  });
+    //add click func to usr info
+    $('#avatar').on('click',function(){
+      usrInfo.showUsrInfo();
+    });
 });
+}
