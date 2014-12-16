@@ -5,12 +5,13 @@
   line-height: 20px;
   text-align: center;
   cursor: pointer;
+  z-index: 999999;
   .transition(right, 0.5s);
   &.rotate{
     right:-45px;
     .rotate(-15deg);
     &:hover{
-      right:-65px;
+      right:-55px;
     }
     &.no-rotate{
       right:-85px;
@@ -27,7 +28,7 @@
     line-height: 20px;
     padding: 0 10px;
     opacity: 1.0;
-    z-index: 10;
+    z-index: 1000000;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -38,20 +39,29 @@
     top: 0;
     left: 0;
     z-index: 1;
+    border-radius: 20px;
   }
   .tag-triangle{
+    &:after{
+    font-family: 'icomoon';
+    content: "\e61e";
+    font-size: 1em;
     position: absolute;
     left:-10px;
-    top: 0px;
+    top: -20px;
     width:20px;
     height: 20px;
-    font-weight: 20px;
-    border-radius: 50%;
+    //color: red;
+    }
+    //font-weight: 20px;
+    //border-radius: 50%;
     &.right-triangle{
-      left:70px;
+      left:80px;
+      top:20px;
+      position: absolute;
     }
     &.left-triangle{
-      left:-10px;
+      //left:-10px;
       .rotate(180deg);
     }
    -webkit-transition:-webkit-transform 0.5s;

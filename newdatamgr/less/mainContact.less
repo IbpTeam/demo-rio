@@ -7,8 +7,8 @@
       bottom: 40px;
       border: 1px solid #CDC9C9;
       background:#FFFFFF;
-      border-radius:4px;
-      box-shadow: v-shadow; 
+      border-radius:3px;
+      box-shadow: 0px 1px 1px rgba(209,209,209,0.85);
       #contacts-title-content{
         position: relative;
         width: 100%;
@@ -18,7 +18,7 @@
         #contacts-title-tag{
           position: absolute;
           left: 0px;
-          height: 25px;
+          height: 20px;
           width: 5px;
           top:15px;
           background:#FFAEB9;
@@ -26,21 +26,21 @@
         #title-button{
           color: #00BFFF;
           position: absolute;
-          top: 15px;
+          top: 13px;
           right: 28px;
           width: 10px;
           height:10px;
-          font-size: 20px;
+          font-size: 16px;
         }    
         #contacts-title-text{
           position: absolute;
           left: 23px;
-          top: 10px;
-          bottom:10px;
+          top: 3px;
           color: #00BFFF;
           font-weight: bold;
-          font-size:25px;
-          font-line-height:200%;
+          font-size:20px;
+          line-height:50px;
+          letter-spacing: 1px;
          }
       }
       #contacts-content{
@@ -64,24 +64,30 @@
             height:35px;
             position: relative;
             border-bottom:1px solid #EDEDED;
+            &:nth-child(even){
+              background: rgba(224, 224, 224, 0.05);
+            }
             &:hover{
-              background: #E0EEEE;
+              background: #f2f9f8;
+              //border-bottom: 1px solid #f3fffe;
               #email-button{
                 color: #00BFFF;
+                font-size: 13px;
               }
               .contacts-list-title{
                 position:relative;
                 color: #00BFFF;
                 top:8px;
                 left:20px;
-                font-size: 6;
+                font-size: 13px;
+                cursor: pointer;
               }
             }
            .contacts-list-title{
              position:relative;
              top:8px;
              left:20px;
-             font-size: 6;
+             font-size: 13px;
             }
             .contacts-list-date{
               position:absolute;
@@ -93,9 +99,9 @@
           }
           #email-button{
            position:absolute;
-           right:20px;
+           right:25px;
            top:6px;
-           font-size:1em;
+           font-size:13px;
            color: transparent;
           }
         }

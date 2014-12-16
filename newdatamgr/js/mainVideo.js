@@ -13,7 +13,7 @@ var MainVideoView = Class.extend({
     })
 
     this._videoMiddleBtn = $('<a>',{
-      'class': 'video-middle-btn icon-play',
+      'class': 'video-middle-btn',
     });
 
     this._videoLeftBtn= $('<a>',{

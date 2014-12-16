@@ -3,13 +3,13 @@ var TagView = Class.extend({
     this._options = {
       direction: 'down',
       position: 'random',  //listView
-      background_color: 'rgb(255,0,0)',
+      background_color: 'rgb(255,125,125)',
       opacity: 0.9,
       opacity_step:0.2,
       color: 'rgb(255,255,255)',
       max: 6,
       animate: true,
-      random_positions: [{left:25,top:20},{left:60,top:60},{left:20,top:50},{left:18,top:130},{left:70,top:30},{left:65,top:90}],
+      random_positions: [{left:15,top:20},{left:70,top:60},{left:10,top:50},{left:18,top:110},{left:70,top:30},{left:65,top:90}],
       positions: {top:10,step:30}
     }
     if (options_) {
@@ -56,7 +56,7 @@ var TagView = Class.extend({
       'color': this._options.color,
     });
     _tagTriangle.css({
-      'background-color': this._options.background_color,
+      'color': this._options.background_color,
       'opacity': this._options.opacity - this._index*this._options.opacity_step
     });
     _tagContainer.append(_tagBackground);
