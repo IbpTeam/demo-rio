@@ -16,7 +16,8 @@ var mimeTypes = {
      "txt": "text/plain",
      "mp3": "audio/mpeg3",
      "ogg": "audio/mpeg",
-     "svg": "image/svg+xml"
+     "svg": "image/svg+xml",
+     "ico": "image/x-icon"
 };
 
 function getRemoteAPIFile(handle, modulename, response){
@@ -115,18 +116,11 @@ function getRealFile(pathname, response){
             var suffix = pathname.substring(pathname.lastIndexOf('.') + 1).toLowerCase();
             switch(suffix){
             case 'css':
-              content_type = mimeTypes[suffix];
-              break;
             case 'mp3':
-              content_type = mimeTypes[suffix];
-              break;
             case 'ogg':
-              content_type = mimeTypes[suffix];
-              break;
             case 'js':
-              content_type = mimeTypes[suffix];
-              break;
             case 'svg':
+            case 'ico':
               content_type = mimeTypes[suffix];
               break;
             default:

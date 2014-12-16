@@ -44,6 +44,7 @@ var main = function(params_){
     };
     for (var i = 1; i <= 7; i++) {
       $('#js-label' + i).on('click', clickHandler(i));
+      $('#js-label' + i)[0].ondragenter = clickHandler(i);
     }
     //analyse and performance params
     if (_params) {

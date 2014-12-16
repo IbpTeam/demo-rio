@@ -119,9 +119,13 @@ exports.startApp = function(startAppCB, appInfo, params) {
       p_ = params || null;
   try {
     var win = createWindow(appInfo);
-    // TODO: if this app is genarate from a URL, do something
-    win.appendHtml("/callapp/" + appInfo.id + '/' + appInfo.main
-      + (p_ === null ? "" : ("?" + p_)));
+    // if this app is genarate from a URL, do something
+    if(appInfo_.url) {
+      win.appendHtml(appInfo_.main);
+    } else {
+      win.appendHtml("/callapp/" + appInfo.id + '/' + appInfo.main
+        + (p_ === null ? "" : ("?" + p_)));
+    }
     cb_(null, win);
   } catch(e) {
     return cb_(e);
