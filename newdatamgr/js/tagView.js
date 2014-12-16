@@ -88,7 +88,7 @@ var TagView = Class.extend({
     if (this._parent) {
       this._parent.append(_tagContainer);
     };
-    if(this._options.animate){
+    if(this._options.animate && this._options.position !== 'random'){
       this.setPosition(_tagContainer, 0);
     }else{
       this.setPosition(_tagContainer,this._index);
@@ -224,11 +224,12 @@ var TagView = Class.extend({
             if(this._tagList.length < this._tagTextList.length){
               var _newtag = this.newTag(this._tagTextList[this._options.max-1]);
               this.setPosition(_newtag,this._options.max);
+              this._parent.append(_newtag);
               this._tagList.push(_newtag);
-              for (var j = 0; j < this._tagList.length; j++) {
-                this.setColorOpacity(this._tagList[j],j)
-              };
             }
+            for (var j = 0; j < this._tagList.length; j++) {
+              this.setColorOpacity(this._tagList[j],j)
+            };
           };
           this.showTags();
         }
@@ -346,6 +347,7 @@ var TagView = Class.extend({
       if (_this._uri) {
         ev.dataTransfer.setData("uri", _this._uri);
       };
+      tagDragged = _this;
     }
     tag_.ondragend = this.dragEnd;
   },

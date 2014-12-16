@@ -8,6 +8,7 @@ var main = function(params_){
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
+    tagDragged = undefined;
     homePage = HomePage.create();
     search = Search.create();
     contact = Contact.create();
@@ -58,7 +59,13 @@ var main = function(params_){
       var _uri = ev.dataTransfer.getData('uri');
       if(_tag && _uri){
         DataAPI.rmTagsByUri(function(result){
-          
+          if (result === 'commit') {
+            if(tagDragged){
+              tagDragged.removeTagByText(_tag);
+            }
+          }else{
+            console.log('Delect tags failed!');
+          }
         },[_tag],_uri);
       }
     }
