@@ -38,7 +38,7 @@ exports.loadAppList = function(callback_) {
           });
         },
         pera: {
-          arg0: config.APP_DATA_PATH[0]
+          arg0: config.APP_DATA_PATH[0] + '/App.list'
         }
       },
       {
@@ -55,7 +55,7 @@ exports.loadAppList = function(callback_) {
           });
         },
         pera: {
-          arg0: config.APP_DATA_PATH[1]
+          arg0: config.APP_DATA_PATH[1] + '/App.list'
         }
       }
     ], function(err_, rets_) {
@@ -83,13 +83,12 @@ function writeJSONFile(path_, json_, callback_) {
 //    err_: error description or null
 // save App list to system
 function save(local_, callback_) {
-  var cb_ = callback_ || function() {},
-      lo_ = local_ || true;
+  var cb_ = callback_ || function() {};
   if(os.type() == 'Linux') {
     var p, d = {};
-    if(lo_) {
+    if(local_) {
       // save to local app list
-      p = config.APP_DATA_PATH[0];
+      p = config.APP_DATA_PATH[0] + '/App.list';
       for(var key in AppList) {
         if(AppList[key].local) {
           d[key] = {
@@ -100,7 +99,7 @@ function save(local_, callback_) {
       }
     } else {
       // save to global app list
-      p = config.APP_DATA_PATH[1];
+      p = config.APP_DATA_PATH[1] + '/App.list';
       for(var key in AppList) {
         if(!AppList[key].local) {
           d[key] = {
@@ -114,15 +113,19 @@ function save(local_, callback_) {
       if(err_) return cb_(err_);
       cb_(null);
     });
-    // TODO: delete it later
-    /* var data = JSON.stringify(d, null, 2); */
-    // fs.writeFile(p, data, function(err_) {
-      // if(err_) return cb_(err_);
-      // cb_(null);
-    /* }); */
   }
 }
 exports.saveAppList = save;
+
+// path validate
+function pathValidate(path_, callback_) {
+  var cb_ = callback_ || function() {};
+  // if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
+  fs.exists(path_ + '/package.json', function(exist) {
+    if(!exist) return cb_('package.json not found');
+    return cb_(null);
+  });
+}
 
 // Register a HTML5 app to system
 // appInfo_: {
@@ -143,6 +146,8 @@ function registerApp(appInfo_, option_, callback_) {
     op_[key] = option_[key];
   }
   if(isRegistered(appInfo_.id)) return cb_('This ID has been registered already');
+  if(appInfo_.id.match(/.*[\.:]+.*/) != null)
+    return cb_('Illegal characters(.|:) are included in ID');
   pathValidate(appInfo_.path, function(err_) {
     if(err_) return cb_(err_);
     AppList[appInfo_.id] = appInfo_;
@@ -243,13 +248,15 @@ function getRegisteredAppInfo(appID_, callback_) {
   if(isRegistered(appID_)) {
     // change to parse package.json under AppList[appID_].path first
     //  and then return corresponding information json object.
-    return parsePackageJSON(path.join(config.APPBASEPATH, AppList[appID_].path, 'package.json')
+    var p = ((AppList[appID_].local) ? (AppList[appID_].path)
+              : (config.APPBASEPATH + '/' + AppList[appID_].path));
+    return parsePackageJSON(path.join(p, 'package.json')
         , function(err_, data_) {
           if(err_) return cb_(err_);
           var info = {
             id: appID_,
-            path: AppList[appID_].path,
-            iconPath: AppList[appID_].path + '/' + data_.window.icon,
+            path: p,
+            iconPath: data_.window.icon,
             name: data_.name,
             main: data_.main,
             url: data_.url,
@@ -341,23 +348,13 @@ exports.startApp = function(appInfo_, params_, callback_) {
     if(appInfo_.url) {
       win.appendHtml(appInfo_.main);
     } else {
-      win.appendHtml(path.join(config.APPBASEPATH, appInfo_.path, appInfo_.main)
+      win.appendHtml(path.join(appInfo_.path, appInfo_.main)
         + (p_ === null ? "" : ("?" + p_)));
     }
     cb_(null, win);
   } catch(e) {
     return cb_(e);
   }
-}
-
-// path validate
-function pathValidate(path_, callback_) {
-  var cb_ = callback_ || function() {};
-  if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
-  fs.exists(config.APPBASEPATH + '/' + path_ + '/package.json', function(exist) {
-    if(!exist) return cb_('package.json not found');
-    return cb_(null);
-  });
 }
 
 function emit(event_, appID_, option_) {
@@ -377,7 +374,7 @@ exports.addListener = function(listener_, callback_) {
   cb_(null);
 }
 
-exports.removeListner = function(listener_, callback_) {
+exports.removeListener = function(listener_, callback_) {
   var cb_ = callback_ || function() {};
   for(var i = 0; i < listeners.length; ++i) {
     if(listener_ == listeners[i]) {
@@ -433,8 +430,9 @@ function extractIconFromURL(url_, dst_, callback_) {
       data += chunk_;
     }).on('end', function() {
       var iconHref = extractIconHref(data);
-      if(iconHref == null) return cb_('Has no icon');
-      if(iconHref.match(/^(http|https):\/\/.*/) == null) {
+      if(iconHref == null) {
+        url.path = '/favicon.ico';
+      } else if(iconHref.match(/^(http|https):\/\/.*/) == null) {
         var t = url.path.indexOf('#');
         if(t != -1) {
           url.path = url.path.substring(0, t) + iconHref;
@@ -470,7 +468,7 @@ function extractIconFromURL(url_, dst_, callback_) {
 function generateOnlineApp(url_, callback_) {
   var cb_ = callback_ || function() {},
       url = parseURL(url_),
-      dst_ = config.APPBASEPATH + '/demo-webde/nw/app/' + url.hostname;
+      dst_ = config.APP_DATA_PATH[0] + '/' + url.hostname;
   fs.mkdir(dst_, function(err_) {
     if(err_) return console.log(err_);
     var imgDir = dst_ + '/img',
@@ -494,7 +492,7 @@ function generateOnlineApp(url_, callback_) {
       if(err_) return console.log(err_);
       extractIconFromURL(url, imgDir + '/' + iconName, function(err_) {
         if(err_) {
-          // TODO: cp a defualt icon to this img dir
+          // cp a defualt icon to this img dir
           return exec('cp ' + config.D_APP_ICON + ' ' + imgDir, function(err_, stdout_, stderr_) {
             if(err_) console.log(err_);
             cb_(null, dst_);
@@ -516,14 +514,19 @@ exports.generateAppByURL = function(url_, option_, callback_) {
     }
   ], function(err_, rets_) {
     if(err_) cb_(err_);
-    var path = rets_[0].substr(config.APPBASEPATH.length + 1),
-        id = path.match(/[^\/]*$/)[0].replace(/\./g, '-');
+    var path = rets_[0],
+        id = path.match(/[^\/]*$/)[0].replace(/[\.:]/g, '-');
     registerApp({
       id: 'app-' + id,
       path: path,
       local: true
     }, option_, function(err_) {
-      if(err_) cb_(err_);
+      if(err_) {
+        fs.rmdir(path, function(err_) {
+          if(err_) console.log(err_);
+        });
+        cb_(err_);
+      }
       cb_(null, 'app-' + id);
     });
   });

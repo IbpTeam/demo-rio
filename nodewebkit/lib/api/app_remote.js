@@ -86,7 +86,7 @@ exports.startApp = function(startAppCB, appInfo, params) {
     return ((a > b) ? b : a);
   };
   var createWindow = function(appInfo_) {
-    // TODO: create a window whose attributes based on app info
+    // create a window whose attributes based on app info
     var title = appInfo_.window.title || appInfo_.name,
         height = appInfo_.window.height || 500,
         width = appInfo_.window.width || 660,
