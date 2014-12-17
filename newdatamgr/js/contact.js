@@ -95,9 +95,9 @@ var Contact = Class.extend({
     });
     _photoDiv.append(_photo);
 
-    this._uri = contact_['URI'];
+    this._uri = contact_? contact_['URI']:undefined;
     var _tags = [];
-    var _tagStr = contact_['others'];
+    var _tagStr = contact_ ? contact_['others']:undefined;
     if (typeof _tagStr === 'string' && _tagStr.length > 0) {
       _tags = _tagStr.split(',');
     };

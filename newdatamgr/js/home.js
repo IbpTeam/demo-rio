@@ -7,6 +7,7 @@ var HomePage = Class.extend({
     this._contact = MainContactView.create();
     this._isShow = undefined;
     this._noneData = 0;
+    this._dataClasses = 3;
   },
 
   attach:function($parent_){
