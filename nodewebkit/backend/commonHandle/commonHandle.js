@@ -194,6 +194,7 @@ function createDataAll(items, callback) {
   var allItemPath = [];
   var allDesPath = [];
   var allTagsInfo = [];
+  var existsFils = [];
   var itemsRename = utils.renameExists(items);
   for (var i = 0; i < itemsRename.length; i++) {
     var item = itemsRename[i];
@@ -208,6 +209,11 @@ function createDataAll(items, callback) {
           var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
           _item.filename = surfix + _item.filename;
           console.log('file ' + result + ' exists ...');
+          existsFils.push({
+            origin_path: _item.path,
+            old_name: result,
+            re_name: surfix + _item.filename + '.' + _item.postfix
+          })
         }
         var sOriginPath = _item.path;
         var sFileName = _item.filename + '.' + _item.postfix;
@@ -247,11 +253,11 @@ function createDataAll(items, callback) {
                   return callback(_err, null);
                 }
                 repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
-                  if (result !== 'success') {
+                  if (err) {
                     console.log(err);
-                    return callback(null);
+                    return callback(err, null);
                   }
-                  callback('success');
+                  callback(null, existsFils);
                 })
               })
             }

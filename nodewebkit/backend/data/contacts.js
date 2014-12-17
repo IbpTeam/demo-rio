@@ -38,6 +38,7 @@ function createData(item, callback) {
     console.log('no contact info ...');
     return callback('no contact info ...', null);
   }
+
   uniqueID.getFileUid(function(uri) {
     var currentTime = (new Date());
     var oNewItem = {
@@ -87,6 +88,7 @@ function createData(item, callback) {
       })
     });
   })
+
 }
 exports.createData = createData;
 
