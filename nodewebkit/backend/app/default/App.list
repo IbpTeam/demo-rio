@@ -11,16 +11,12 @@
     "id": "datamgr-app",
     "path": "demo-rio/datamgr"
   },
-  "viewerPDF-app": {
-    "id": "viewerPDF-app",
-    "path": "demo-rio/viewerPDF"
-  },
   "app-register": {
     "id": "app-register",
     "path": "demo-webde/nw/app/app-register"
   },
   "flash-app": {
-    "id": "flash-app", 
+    "id": "flash-app",
     "path": "demo-webde/nw/app/flash"
   }
 }

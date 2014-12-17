@@ -78,7 +78,7 @@ function startAppByName(startAppByNameCb, sAppName, sParams){
       contentDiv: false,
       iframe: true
     });
-    twin.appendHtml(path.join(config.APPBASEPATH, runapp.path, '/index.html')
+    twin.appendHtml(path.join(runapp.path, '/index.html')
         + (sParams === null ? "" : ("?" + sParams)));
     app.win=twin;
     setTimeout(startAppByNameCb({
@@ -255,8 +255,8 @@ exports.addListener = function(addListenerCB, listener) {
  *    event: (register|unregister)
  *    appID: id of app
  */
-exports.removeListner = function(removeListnerCB, listener) {
-  appManager.addListener(listener, removeListnerCB);
+exports.removeListener = function(removeListenerCB, listener) {
+  appManager.removeListener(listener, removeListenerCB);
 }
 
 /**
