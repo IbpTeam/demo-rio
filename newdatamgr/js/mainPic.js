@@ -9,6 +9,12 @@ var MainPicView = Class.extend({
       background_color: 'rgb(0,120,240)'
     });
     DataAPI.getRecentAccessData(function(err_, picture_json_){
+      if(picture_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
+      }
       for(var i = 0; i < picture_json_.length; i++){
         var _date = new Date(picture_json_[i]['createTime']);
         _this._picData={
