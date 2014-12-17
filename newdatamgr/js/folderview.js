@@ -6,6 +6,8 @@ var ShowFiles = Class.extend({
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
+    this._musicPicture ={};
+    this._videoPicture = {};
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -436,19 +438,6 @@ var ShowFiles = Class.extend({
     return dateDifference;
   },
 
-  ////通过文件路径获取音乐的图标
-  getMusicPicData:function(filePath) {
-    DataAPI.getMusicPicData(function(err,result){
-      if(err){
-        window.alert('the music picture is not get');
-      }
-      else{
-        var imgSrc = 'data:image/jpeg;base64,'+result;
-        return imgSrc;
-      }
-    },filePath)
-  },
-
   //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
   showFilesList:function(files){
     if(!files.length){
@@ -543,6 +532,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesSortByTime:function(files){
+        console.log("picture files!!!!" +files);
     var returnContent = $('<div>',{
       'overflow':'auto'
     });
@@ -678,41 +668,44 @@ var ShowFiles = Class.extend({
         case 4:
           var Container = $('<div>',{
             'class':'musicContainer',
-            'data-path':file['path']
-          });
-          var Holder = $('<div>',{
-            'class':'musicHolder'
-          });
-          //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'musicdescription '+id,
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<div>',{
-              'class':'musicdescription '+file['filename'],
-              'text':file['filename']
-            });
-          }
-          Holder.append($('<img src="icons/Music.png"></img>'));
-          Container.append(Holder);
-          Container.append(description);
-          if(timeDifference >=0 && timeDifference <=24){
-            today.append(Container);
-          }
-          else if(timeDifference>24 && timeDifference <=24*7){
-            previous7Days.append(Container);
-          }
-          else if(timeDifference >24*7 && timeDifference <24*30){
-            previous30Days.append(Container);
-          }
-          else {
-            previousOneYear.append(Container);
-          }
-          break;
+                'data-path':file['path']
+              });
+              var Holder = $('<div>',{
+                'class':'musicHolder'
+              });
+              //用来定义最后描述的名字.
+              if(file['filename'].indexOf(' ') != -1 ||
+                file['filename'].indexOf('\'' != -1)){
+                var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
+                var description = $('<div>',{
+                  'class':'musicdescription '+id,
+                  'text':file['filename']
+                });
+              }else{
+                var description = $('<div>',{
+                  'class':'musicdescription '+file['filename'],
+                  'text':file['filename']
+                });
+              }
+              var img = $('<img>',{
+                'src':file['musciPictureSrc']
+              });
+              Holder.append(img);
+              Container.append(Holder);
+              Container.append(description);
+              if(timeDifference >=0 && timeDifference <=24){
+                today.append(Container);
+              }
+              else if(timeDifference>24 && timeDifference <=24*7){
+                previous7Days.append(Container);
+              }
+              else if(timeDifference >24*7 && timeDifference <24*30){
+                previous30Days.append(Container);
+              }
+              else {
+                previousOneYear.append(Container);
+              }
+              break;
         case 5:
           var Container = $('<div>',{
             'class':'doc-icon',
@@ -751,6 +744,7 @@ var ShowFiles = Class.extend({
           }
           break;
         default:
+          break;
       }
     }
     if(today.children('div').length ==0){
@@ -778,6 +772,7 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
+    console.log("picture files!!!!" +files);
     var returnContent = $('<div style= "overflow:auto"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
@@ -873,33 +868,43 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           break;
         case 4:
-          var Container = $('<div>',{
-            'class':'musicContainer',
-            'data-path':file['path']
-          });
-          var Holder = $('<div>',{
-            'class':'musicHolder'
-          });
-          //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'musicdescription '+id,
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<div>',{
-              'class':'musicdescription '+file['filename'],
-              'text':file['filename']
-            });
-          }
-          Holder.append($('<img>',{
-            'src':_globalSelf.getMusicPicData(file['path'])
-          }));
-          Container.append(Holder);
-          Container.append(description);
-          returnContent.append(Container);     
+          DataAPI.getMusicPicData(function(err,result){
+            if(err){
+              window.alert(err);
+            }
+            else{
+              file['musciPictureSrc'] = 'data:image/jpeg;base64,' + result;
+              var Container = $('<div>',{
+                'class':'musicContainer',
+                'data-path':file['path']
+              });
+              var Holder = $('<div>',{
+                'class':'musicHolder'
+              });
+              //用来定义最后描述的名字.
+              if(file['filename'].indexOf(' ') != -1 ||
+                file['filename'].indexOf('\'' != -1)){
+                var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
+                var description = $('<div>',{
+                  'class':'musicdescription '+id,
+                  'text':file['filename']
+                });
+              }else{
+                var description = $('<div>',{
+                  'class':'musicdescription '+file['filename'],
+                  'text':file['filename']
+                });
+              }
+              var img = $('<img>',{
+                'src':file['musciPictureSrc']
+              });
+              files[i] = file;
+              Holder.append(img);
+              Container.append(Holder);
+              Container.append(description);
+              returnContent.append(Container);  
+            }
+          },file['path']);  
           break;
         case 5:
           var Container = $('<div>',{
