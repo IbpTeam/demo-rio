@@ -38,59 +38,66 @@ function createData(item, callback) {
     console.log('no contact info ...');
     return callback('no contact info ...', null);
   }
-
-  uniqueID.getFileUid(function(uri) {
-    var currentTime = (new Date());
-    var oNewItem = {
-      URI: uri + "#" + CATEGORY_NAME,
-      category: CATEGORY_NAME,
-      is_delete: 0,
-      name: item.name || '',
-      phone: item.phone || '',
-      phone2: item.phone2 || '',
-      phone3: item.phone3 || '',
-      phone4: item.phone4 || '',
-      phone5: item.phone5 || '',
-      sex: item.sex || '',
-      age: item.age || '',
-      email: item.email || '',
-      email2: item.email2 || '',
-      id: "",
-      photoPath: item.photoPath || '',
-      createTime: currentTime,
-      lastModifyTime: currentTime,
-      lastAccessTime: currentTime,
-      createDev: config.uniqueID,
-      lastModifyDev: config.uniqueID,
-      lastAccessDev: config.uniqueID,
-      others: item.others || ''
+  var condition = ["name = '" + item.name + "'"];
+  commonDAO.findItems(null, CATEGORY_NAME, condition, null, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    } else if (result != '' && result != null) {
+      var _err = 'contact exists: '+ item.name + ' ...';
+      return callback(_err, null)
     }
-    dataDes.createItem(oNewItem, DES_DIR, function() {
-      commonDAO.createItem(oNewItem, function(err) {
-        if (err) {
-          return callback(err, null);
-        }
-        var sDesFilePath = pathModule.join(DES_DIR, oNewItem.name + '.md');
-        repo.repoCommit(DES_REPO_DIR, [sDesFilePath], null, 'add', function(err) {
+    uniqueID.getFileUid(function(uri) {
+      var currentTime = (new Date());
+      var oNewItem = {
+        URI: uri + "#" + CATEGORY_NAME,
+        category: CATEGORY_NAME,
+        is_delete: 0,
+        name: item.name || '',
+        phone: item.phone || '',
+        phone2: item.phone2 || '',
+        phone3: item.phone3 || '',
+        phone4: item.phone4 || '',
+        phone5: item.phone5 || '',
+        sex: item.sex || '',
+        age: item.age || '',
+        email: item.email || '',
+        email2: item.email2 || '',
+        id: "",
+        photoPath: item.photoPath || '',
+        createTime: currentTime,
+        lastModifyTime: currentTime,
+        lastAccessTime: currentTime,
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID,
+        others: item.others || ''
+      }
+      dataDes.createItem(oNewItem, DES_DIR, function() {
+        commonDAO.createItem(oNewItem, function(err) {
           if (err) {
             return callback(err, null);
           }
-          if (item.others != '' && item.others != null) {
-            var oTags = item.others.split(',');
-            tagsHandle.addInTAGS(oTags, uri, function(err) {
-              if (err) {
-                return callback(err, null);
-              }
+          var sDesFilePath = pathModule.join(DES_DIR, oNewItem.name + '.md');
+          repo.repoCommit(DES_REPO_DIR, [sDesFilePath], null, 'add', function(err) {
+            if (err) {
+              return callback(err, null);
+            }
+            if (item.others != '' && item.others != null) {
+              var oTags = item.others.split(',');
+              tagsHandle.addInTAGS(oTags, uri, function(err) {
+                if (err) {
+                  return callback(err, null);
+                }
+                callback(null, 'success');
+              })
+            } else {
               callback(null, 'success');
-            })
-          } else {
-            callback(null, 'success');
-          }
+            }
+          })
         })
-      })
-    });
+      });
+    })
   })
-
 }
 exports.createData = createData;
 
