@@ -1113,9 +1113,9 @@ exports.moveToDesktopSingle = moveToDesktopSingle;
  *        string, the path of target after load into local db.
  *
  **/
-function moveToDesktop(moveToDesktopCb, oFilePath) {
+function moveToDesktop(moveToDesktopCb, sFilePath) {
   console.log("Request handler 'moveToDesktop' was called.");
-  desktopConf.moveToDesktop(oFilePath, moveToDesktopCb);
+  desktopConf.moveToDesktop(sFilePath, moveToDesktopCb);
 }
 exports.moveToDesktop = moveToDesktop;
 

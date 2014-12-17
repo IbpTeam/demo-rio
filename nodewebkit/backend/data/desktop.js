@@ -26,7 +26,16 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
+var contacts = require("./contacts");
+var documents = require("./document");
+var other = require("./other");
+var pictures = require("./picture");
+var video = require("./video");
+var music = require("./music");
+var other = require("./other");
+
 var configPath = config.RESOURCEPATH + "/desktop";
+
 
 var CATEGORY_NAME = "desktop";
 var DES_NAME = "desktopDes";
@@ -1874,7 +1883,7 @@ function moveFile(callback, oldPath, newPath) {
   fs_extra.move(oldFullpath, newFullpath, function(err) {
     if (err) {
       console.log(err);
-      var _err = 'moveFile : move error';
+      var _err = 'move ' + oldFullpath + ' error';
       callback(_err, null);
     } else {
       console.log('move ', oldPath, ' to ', newPath);
@@ -2151,7 +2160,7 @@ function moveToDesktopSingle(sFilePath, callback) {
             console.log(err, 'copy file', sFilePath, ' error!');
             return callback(err, null);
           }
-          doCreateData(sNewFilePath, category, function(err, result) {
+          doCreateData(sNewFilePath, category, ['$desktop$'], function(err, result) {
             if (err) {
               console.log(err, 'create data error!', sNewFilePath);
               return callback(err, null);
@@ -2174,7 +2183,7 @@ function moveToDesktopSingle(sFilePath, callback) {
         })
       } else { //target's name is unique
         console.log('target name is unique');
-        doCreateData(sFilePath, category, function(err, result) {
+        doCreateData(sFilePath, category, ['$desktop$'], function(err, result) {
           if (err) {
             console.log(err, 'create data error!', sFilePath);
             return callback(err, null);
@@ -2194,14 +2203,174 @@ function moveToDesktopSingle(sFilePath, callback) {
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
+
+function moveToDeskTopDir(sPath, callback) {
+  var FileList = [];
+  var DocList = [];
+  var MusList = [];
+  var VidList = [];
+  var PicList = [];
+  var DskList = [];
+  var OtherList = [];
+  //walk the dir then gather info as {file:dir} to make desktop tags. Push all 
+  //this info into FileList in json.
+  function walk(path) {
+    var dirList = fs.readdirSync(path);
+    for (var i = 0; i < dirList.length; i++) {
+      var _item = dirList[i];
+      if (fs.lstatSync(path + '/' + _item).isDirectory()) {
+        if (_item != '.git' && _item != '.des' && _item != 'contacts') {
+          if (_item == 'html5ppt') {
+            /*TODO: deal with html5ppt*/
+            /*var html5pptList = fs.readdirSync(path + '/' + _item);
+            for (var i = 0; i < html5pptList.length; i++) {
+              var filename = _item + '/' + html5pptList[i] + '.html5ppt';
+              fileList.push(path + '/' + filename);
+            }*/
+          } else {
+            walk(path + '/' + _item);
+          }
+        }
+      } else if (fs.lstatSync(path + '/' + _item).isFile()) {
+        var sPosIndex = _item.lastIndexOf(".");
+        var sPos = _item.slice(sPosIndex + 1, _item.length);
+        var sDirIndex = sPath.lastIndexOf("/");
+        var rootDir = sPath.substring(sDirIndex, sPath.length);
+        var rootPath = sPath.substring(0, sDirIndex);
+        var reg_root = new RegExp(rootPath);
+        var sFilePath = pathModule.join(path, _item);
+        //sRelatePath is the path based on sPath
+        var sRelatePath = path.replace(reg_root, '$desktop');
+        var sTag = sRelatePath.replace(/\//g, '$') + '$';
+        var inode = fs.statSync(path + '/' + _item).ino;
+        var tmp = {};
+        tmp.path = sFilePath;
+        tmp.tag = sTag;
+        tmp.filename = _item;
+        tmp.inode = inode;
+        FileList.push(tmp);
+        if (sPos != 'csv' && sPos != 'CSV') {
+          if (sPos == 'none' ||
+            sPos == 'ppt' ||
+            sPos == 'pptx' ||
+            sPos == 'doc' ||
+            sPos == 'docx' ||
+            sPos == 'wps' ||
+            sPos == 'odt' ||
+            sPos == 'et' ||
+            sPos == 'txt' ||
+            sPos == 'xls' ||
+            sPos == 'xlsx' ||
+            sPos == 'ods' ||
+            sPos == 'zip' ||
+            sPos == 'sh' ||
+            sPos == 'gz' ||
+            sPos == 'html' ||
+            sPos == 'et' ||
+            sPos == 'odt' ||
+            sPos == 'pdf' ||
+            sPos == 'html5ppt') {
+            tmp.category = 'document';
+            FileList.push(tmp);
+            DocList.push(path + '/' + _item);
+          } else if (sPos == 'jpg' || sPos == 'png') {
+            tmp.category = 'picture';
+            FileList.push(tmp);
+            PicList.push(path + '/' + _item);
+          } else if (sPos == 'mp3') {
+            tmp.category = 'music';
+            FileList.push(tmp);
+            MusList.push(path + '/' + _item);
+          } else if (sPos == 'ogg') {
+            tmp.category = 'video';
+            FileList.push(tmp);
+            VidList.push(path + '/' + _item);
+          } else if (sPos == 'conf' || sPos == 'desktop') {
+            /*TODO: don't deal with decktop config file now*/
+          } else {
+            tmp.category = 'other';
+            FileList.push(tmp);
+            OtherList.push(path + '/' + _item);
+          }
+        }
+      } else if (fs.lstatSync(path + '/' + _item).isSymbolicLink()) {
+        /*TODO: deal with symbolic*/
+      }
+    }
+  }
+  walk(sPath);
+
+  //load all files and then tag all file with desktop tags
+  var fileInfo = [];
+  var existFile = [];
+  var lens = FileList.length;
+  var count = 0;
+  documents.createData(DocList, function(err, result) {
+    if (err) {
+      console.log(err);
+      callback(err, null);
+    } else {
+      pictures.createData(PicList, function(err, result) {
+        if (err) {
+          console.log(err);
+          callback(err, null);
+        } else {
+          music.createData(MusList, function(err, result) {
+            if (err) {
+              console.log(err);
+              callback(err, null);
+            } else {
+              video.createData(VidList, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  callback(err, null);
+                } else {
+                  other.createData(OtherList, function(err, result) {
+                    if (err) {
+                      console.log(err);
+                      callback(err, null);
+                    } else {
+                      var updateItems = [];
+                      var lens = FileList.length;
+                      var count = 0;
+                      for (var i = 0; i < lens; i++) {
+                        var item = FileList[i];
+                        (function(_item) {
+                          var filepath = pathModule.join(utils.getRealDir(_item.category), _item.filename)
+                          tagsHandle.setTagByUri(function(err) {
+                            if (err !== 'commit') {
+                              count++;
+                              return callback(err, null);
+                            }
+                            var isEnd = (count === lens - 1);
+                            if (isEnd) {
+                              console.log("load resources success!");
+                              console.log(FileList)
+                              callback(null, FileList);
+                            }
+                            count++;
+                          }, [_item.tag], filepath)
+                        })(item)
+                      }
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
 /*TODO: sqlite bug, not complete*/
 /** 
  * @Method: moveToDesktop
- *    To drag multiple files from any where to desktop.
+ *    To single file or dir from any where to desktop.
  *
- * @param2: oFilePath
- *    string, array of file path, should be a full path.
- *            example: ['/home/xiquan/somedir/somefile.txt'].
+ * @param2: sPath
+ *    string, a file/dir path.
  *
  * @param1: callback
  *    @result, (_err,result)
@@ -2210,34 +2379,29 @@ exports.moveToDesktopSingle = moveToDesktopSingle;
  *        string, contain specific error info.
  *
  *    @param: result,
- *        string, the path of target after load into local db.
+ *        object, the files' info loaded into local db.
  *
  **/
-function moveToDesktop(oFilePath, callback) {
-  var count = 0;
-  var lens = oFilePath.length;
-  var resultFiles = [];
-  for (var i = 0; i < lens; i++) {
-    var item = oFilePath[i];
-    (function(_filePath) {
-      moveToDesktopSingle(_filePath, function(err, result) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        resultFiles.push(result);
-        var isEnd = (count === lens - 1);
-        if (isEnd) {
-          callback(null, resultFiles);
-        }
-        count++;
-      })
-    })(item);
-  };
+function moveToDesktop(sPath, callback) {
+  if (fs.statSync(sPath).isDirectory()) {
+    console.log('move dir ' + sPath + 'to desktop ...');
+    moveToDeskTopDir(sPath, callback);
+  } else if (fs.statSync(sPath).isFile()) {
+    console.log('move file ' + sPath + 'to desktop ...');
+    fs.open(sPath, 'r', function(err) {
+      if (err) {
+        return callback(err, null);
+      }
+      moveToDesktopSingle(sPath, callback)
+    })
+  } else {
+    var _err = 'bad input type ...';
+    callback(_err, null);
+  }
 }
 exports.moveToDesktop = moveToDesktop;
 
-function doCreateData(sFilePath, category, callback) {
+function doCreateData(sFilePath, category, oTags, callback) {
   var cate = utils.getCategoryObject(category);
   cate.createData(sFilePath, function(err, result, resultFile) {
     if (err) {
@@ -2261,7 +2425,7 @@ function doCreateData(sFilePath, category, callback) {
         callback(null, resultFile);
       }
       var sUri = item.URI;
-      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
+      tagsHandle.setTagByUri(setTagsCb, oTags, sUri);
     })
   });
 }
@@ -2396,6 +2560,7 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *
  **/
 function getFilesFromDesk(callback) {
+
   function getFilesByTagsCb(err, result) {
     if (err) {
       console.log(err);
