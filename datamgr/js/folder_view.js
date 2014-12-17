@@ -205,7 +205,7 @@ function gen_add_tags_dialog(data_uri){
   $('#addtag_button').on('click', function(){
     var new_tag = document.getElementById('newtag').value;
     DataAPI.setTagByUri(function(err){
-      if(err!=null){
+      if(err === null){
         window.alert("Add tags successfully!");
       }
       else{
