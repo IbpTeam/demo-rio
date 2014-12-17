@@ -116,15 +116,9 @@ function getAllContacts(getAllCb) {
     }
     var contacts = [];
     data.forEach(function(each) {
-      contacts.push({
-        URI: each.URI,
-        name: each.name,
-        sex: each.sex,
-        age: each.age,
-        photoPath: each.path,
-        phone: each.phone,
-        email: each.email
-      });
+      if (each != '' || each != null) {
+        contacts.push(each);
+      }
     });
     getAllCb(contacts);
   }
