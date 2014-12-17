@@ -277,6 +277,27 @@
     });
   }
 
+  function getVideoThumbnailCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getVideoThumbnail()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+      var img = document.getElementById("test_video_img");
+      img.src = 'data:image/jpeg;base64,' + result;
+    }
+  }
+  function test_getVideoThumbnail(getVideoThumbnailCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = '/home/xiquan/testFile/music/救火英雄.mp4';
+      data.getVideoThumbnail(getVideoThumbnailCb, path);
+    });
+  }
+
   function createFileCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -777,6 +798,37 @@
     WDC.requireAPI(['data'], function(data){
       var path = '/home/xiquan/testFile/music/打错了.mp3';
       data.getMusicPicData(getMusicPicDataCb,path);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getVideoThumbnail')">getVideoThumbnail(getVideoThumbnailCb,path)<span><a class="mark" href="#test_getVideoThumbnail" id="test_getVideoThumbnail" onclick="test_getVideoThumbnail(getVideoThumbnailCb)">test</a></span></h2>
+<div id="getVideoThumbnail" style="display:none;">
+<div style="color:#930000">
+  <canvas id="test_id3" width="100" height="100"></canvas>
+  <img id="test_video_img"  />
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getVideoThumbnailCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getVideoThumbnail()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getVideoThumbnail(getVideoThumbnailCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = '/home/xiquan/testFile/music/打错了.mp4';
+      data.getVideoThumbnail(getVideoThumbnailCb,path);
     });        
   }
   </pre>

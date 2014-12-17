@@ -66,22 +66,16 @@ function readVideoMetadata(sPath, callback) {
   });
 }
 
-function readVideoThumbnail(sUri, callback) {
-  var columns = ['path'];
-  var conditions = ["uri ='" + sUri + "'"];
-  commonDAO.findItems(columns, CATEGORY_NAME, conditions, null, function(err, result) {
+function readVideoThumbnail(sPath, callback) {
+  fs.open(sPath, 'r', function(err) {
     if (err) {
       return callback(err, null);
-    } else if (result == '') {
-      var _err = sUri + ': not foud in database...';
-      return (_err, null);
     }
-    var sPath = result[0].path;
     readVideoMetadata(sPath, function(err, data) {
       if (err) {
         return callback(err, null);
       }
-      var duration = data.format.duration;
+      var duration = data.duration;
       var time = (String(duration).lastIndexOf('.') - 1);
       //get the last digit to make sure the frame is in duration
       var tmpDir = pathModule.join(utils.getHomeDir(), '/tmp/snapshot.png');

@@ -1597,13 +1597,13 @@ exports.getMusicPicData = getMusicPicData;
  *                img.src = 'data:image/jpeg;base64,' + result;
  *
  *
- *  @param2: sUri
- *    string, a specific music file uri.
+ *  @param2: sPath
+ *    string, a specific music file full path.
  *
  *
  **/
-function getVideoThumbnail(getVideoThumbnailCb, sUri) {
+function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   console.log("Request handler 'getVideoThumbnail' was called.");
-  video.readVideoThumbnail(sUri, getVideoThumbnailCb);
+  video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;
