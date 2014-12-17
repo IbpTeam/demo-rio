@@ -56,6 +56,13 @@ var InfoList = Class.extend({
         'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
         'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
           if(newtext_){
+            var _tags = _this._infoContent.children('.il__a');
+            for (var i = 0; i < _tags.length; i++) {
+              var _tagText = $(_tags[i]).children('.il__title')[0].textContent;
+              if(_tagText === newtext_) {
+                return 0;
+              }
+            };
             _this.addTag(newtext_,0);
           }
         }

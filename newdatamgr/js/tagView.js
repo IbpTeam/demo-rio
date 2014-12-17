@@ -269,9 +269,9 @@ var TagView = Class.extend({
     if (this._options.position !== 'random') {
       return 0;
     };
-    this._positionIndex = this._positionIndex + 1;
-    if (this._positionIndex === this._options.max) {
-      this._positionIndex = 0;
+    this._positionIndex = this._positionIndex + 4;
+    if (this._positionIndex >= this._options.max) {
+      this._positionIndex -= this._options.max;
     };
     if (this._parent && this._options.position === 'random') {
       for (var i = 0; i < this._tagList.length; i++) {
