@@ -81,7 +81,7 @@ var Contact = Class.extend({
 
   setHead: function(contact_){
     var _headPhotoPath = '';
-    if(contact_['photoPath'] != null && contact_['photoPath'] != ''){
+    if(contact_ && contact_['photoPath']){
       _headPhotoPath = contact_['photoPath'];
     } else{
       _headPhotoPath = this._defaultPhoto;
@@ -121,7 +121,7 @@ var Contact = Class.extend({
     var _this = this;
     var _nameDiv = $('<div>', {
       'class': 'div-name',
-      'text': contact_['name']
+      'text': (contact_ ? contact_['name'] : 'none')
     });
     var _ul = $('<ul>', {
       'class':'ul-details'
