@@ -80,9 +80,11 @@ function createData(item, callback) {
               if (err) {
                 return callback(err, null);
               }
+              callback(null, 'success');
             })
+          } else {
+            callback(null, 'success');
           }
-          callback(null, 'success');
         })
       })
     });
