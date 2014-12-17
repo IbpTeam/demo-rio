@@ -430,8 +430,9 @@ function extractIconFromURL(url_, dst_, callback_) {
       data += chunk_;
     }).on('end', function() {
       var iconHref = extractIconHref(data);
-      if(iconHref == null) return cb_('Has no icon');
-      if(iconHref.match(/^(http|https):\/\/.*/) == null) {
+      if(iconHref == null) {
+        url.path = '/favicon.ico';
+      } else if(iconHref.match(/^(http|https):\/\/.*/) == null) {
         var t = url.path.indexOf('#');
         if(t != -1) {
           url.path = url.path.substring(0, t) + iconHref;
@@ -491,7 +492,7 @@ function generateOnlineApp(url_, callback_) {
       if(err_) return console.log(err_);
       extractIconFromURL(url, imgDir + '/' + iconName, function(err_) {
         if(err_) {
-          // TODO: cp a defualt icon to this img dir
+          // cp a defualt icon to this img dir
           return exec('cp ' + config.D_APP_ICON + ' ' + imgDir, function(err_, stdout_, stderr_) {
             if(err_) console.log(err_);
             cb_(null, dst_);
