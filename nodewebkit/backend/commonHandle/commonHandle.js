@@ -583,6 +583,9 @@ function renameDataByUri(category, sUri, sNewName, callback) {
     if (err) {
       console.log(err);
       return callback(err, null);
+    } else if (result == '' || result == null) {
+      var _err = 'not found in database ...';
+      return callback(_err, null);
     }
     var item = result[0];
     var sOriginPath = item.path;
@@ -591,7 +594,7 @@ function renameDataByUri(category, sUri, sNewName, callback) {
     if (sNewName === sOriginName) {
       return callback(null, 'success');
     }
-    utils.isNameExists(sOriginPath, function(err, result) {
+    utils.isNameExists(sNewPath, function(err, result) {
       if (err) {
         console.log(err);
         return callback(err, null);
