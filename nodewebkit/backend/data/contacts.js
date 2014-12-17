@@ -117,7 +117,24 @@ function getAllContacts(getAllCb) {
     var contacts = [];
     data.forEach(function(each) {
       if (each != '' && each != null) {
-        contacts.push(each);
+        var tmp = {
+          URI: each.URI,
+          name: each.name,
+          sex: each.sex,
+          age: each.age,
+          photoPath: each.path,
+          phone: each.phone,
+          email: each.email
+        }
+        for (var i = 2; i < 6; i++) {
+          if (each['phone' + String(i)] != null && each['phone' + String(i)] != '') {
+            tmp['phone' + String(i)] = each['phone' + String(i)];
+          }
+        }
+        if (each.email2 != null && each.email2 != '') {
+          tmp.email2 = each.email2;
+        }
+        contacts.push(tmp);
       }
     });
     getAllCb(contacts);
