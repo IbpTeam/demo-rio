@@ -116,7 +116,7 @@ function getAllContacts(getAllCb) {
     }
     var contacts = [];
     data.forEach(function(each) {
-      if (each != '' || each != null) {
+      if (each != '' && each != null) {
         contacts.push(each);
       }
     });
