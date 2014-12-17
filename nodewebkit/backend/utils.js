@@ -1,4 +1,5 @@
 var path = require("path");
+var fs = require('fs');
 var exec = require('child_process').exec;
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
@@ -479,3 +480,30 @@ function series1(peraArr_, fn_, callback_) {
   this.series(fnArr, callback_);
 }
 exports.series1 = series1;
+
+function readJSONFile(path_, callback_) {
+  var cb_ = callback_ || function() {};
+  fs.readFile(path_, 'utf8', function(err_, data_) {
+    if(err_) return cb_('Fail to load file: ' + err_);
+    try {
+      json = JSON.parse(data_);
+      return cb_(null, json);
+    } catch(e) {
+      return cb_(e);
+    }
+  });
+}
+exports.readJSONFile = readJSONFile;
+
+function writeJSONFile(path_, json_, callback_) {
+  var cb_ = callback_ || function() {};
+  try {
+    fs.writeFile(path_, JSON.stringify(json_, null, 2), function(err_) {
+      if(err_) return cb_(err_);
+      cb_(null);
+    });
+  } catch(e) {
+    return cb_(e);
+  }
+}
+exports.writeJSONFile = writeJSONFile;
