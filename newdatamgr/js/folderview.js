@@ -436,6 +436,19 @@ var ShowFiles = Class.extend({
     return dateDifference;
   },
 
+  ////通过文件路径获取音乐的图标
+  getMusicPicData:function(filePath) {
+    DataAPI.getMusicPicData(function(err,result){
+      if(err){
+        window.alert('the music picture is not get');
+      }
+      else{
+        var imgSrc = 'data:image/jpeg;base64,'+result;
+        return imgSrc;
+      }
+    },filePath)
+  },
+
   //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
   showFilesList:function(files){
     if(!files.length){
@@ -881,7 +894,9 @@ var ShowFiles = Class.extend({
               'text':file['filename']
             });
           }
-          Holder.append($('<img src="icons/Music.png"></img>'));
+          Holder.append($('<img>',{
+            'src':_globalSelf.getMusicPicData(file['path'])
+          }));
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);     
