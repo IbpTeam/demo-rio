@@ -63,6 +63,7 @@ var main = function(params_){
       ev.stopPropagation();
       var _tag = ev.dataTransfer.getData('tag');
       var _uri = ev.dataTransfer.getData('uri');
+      var _category = ev.dataTransfer.getData('category');
       if(_tag && _uri){
         DataAPI.rmTagsByUri(function(result){
           if (result === 'commit') {
@@ -71,6 +72,19 @@ var main = function(params_){
             }
             if (infoList.isShow()) {
               infoList.fixTagNum(_tag,-1);
+            };
+            if (_category === 'contact') {
+              var _tags = contact._contacts[contact._selectId]['others'].split(',');
+              var _others = '';
+              for (var i = 0; i < _tags.length; i++) {
+                  if (_tags[i] == _tag) continue;
+                  if(_others === '') {
+                    _others = _tags[i];
+                  }else{
+                    _others += ','+_tags[i];
+                  }
+              };
+              contact._contacts[contact._selectId]['others'] = _others;
             };
           }else{
             console.log('Delect tags failed!');

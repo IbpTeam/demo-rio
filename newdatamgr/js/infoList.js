@@ -160,6 +160,9 @@ var InfoList = Class.extend({
         return _num;
       }
     };
+    if(num_>0){
+      this.addTag(tag_,num_);
+    }
     return -1;
   },
 

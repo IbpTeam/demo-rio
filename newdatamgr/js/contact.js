@@ -20,7 +20,7 @@ var Contact = Class.extend({
     this._ContactContainer.append(this._contactDetails);
     this._tagView = TagView.create();
     this._tagView.setParent(this._contactHead);
-    this._uri = undefined;
+    this._selectId = 0;
     this.bindDrag(this._contactHead[0]);
   },
 
@@ -71,6 +71,7 @@ var Contact = Class.extend({
       }
       this._contactsList.append(_ul);
     }
+
     this.removeHead();
     this.setHead(this._contacts[_index]);
     this.removeDetails();
@@ -85,6 +86,7 @@ var Contact = Class.extend({
       _this.removeDetails();
       _this.setHead(_this._contacts[this.id]);
       _this.setDetails(_this._contacts[this.id], this.id);
+      _this._selectId = this.id;
     });
   },
 
@@ -104,7 +106,7 @@ var Contact = Class.extend({
     });
     _photoDiv.append(_photo);
 
-    this._uri = contact_? contact_['URI']:undefined;
+    var _uri = contact_? contact_['URI']:undefined;
     var _tags = [];
     var _tagStr = contact_ ? contact_['others']:undefined;
     if (typeof _tagStr === 'string' && _tagStr.length > 0) {
@@ -114,6 +116,7 @@ var Contact = Class.extend({
 
     this._tagView.refresh();
     this._tagView.addTags(_tags);
+    this._tagView.setUri(_uri);
 
     var _contactHeadBackBlue = $('<div>', {
       'id':'contact-back-blue'
@@ -348,13 +351,13 @@ var Contact = Class.extend({
     ev.stopPropagation();
     var _tag = ev.dataTransfer.getData('tag');
     if (typeof _tag === 'string' && _tag.length > 0) {
-      DataAPI.setTagByUri(function(result_){
-        if (result_ === 'commit') {
+      DataAPI.setTagByUri(function(err_){
+        if (err_ === null) {
           contact._tagView.addTag(_tag);
-          contact._tagView.setUri(contact._uri);
+          contact._contacts[contact._selectId]['others'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
         };
-      },[_tag],contact._uri);
+      },[_tag],contact._tagView._uri);
     };
   },
   dragover:function(ev){

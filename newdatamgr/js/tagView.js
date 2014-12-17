@@ -153,7 +153,7 @@ var TagView = Class.extend({
   removeTags:function(callback_){
     var _this = this;
     var _tags = this._parent.children('.tag-container');
-    if (!this._options.animate) {
+    if (!this._options.animate || this._options.position === 'random') {
       _tags.remove();
       if (callback_) {
         callback_();
@@ -301,7 +301,9 @@ var TagView = Class.extend({
       _this._index = 0;
       _this._tagList = [];
       _this._tagTextList = [];
-      callback_();
+      if(callback_){
+        callback_();
+      }
     });
     _this._index = 0;
     if (this._options.position === 'random') {
@@ -353,6 +355,10 @@ var TagView = Class.extend({
       if (_this._uri) {
         ev.dataTransfer.setData("uri", _this._uri);
       };
+      //tag is contact
+      if(_this._parent[0].id === 'contact-head'){
+        ev.dataTransfer.setData("category", 'contact')
+      }
       tagDragged = _this;
     }
     tag_.ondragend = this.dragEnd;
