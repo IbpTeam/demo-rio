@@ -62,7 +62,7 @@ function createData(item, callback) {
       createDev: config.uniqueID,
       lastModifyDev: config.uniqueID,
       lastAccessDev: config.uniqueID,
-      others: item.others
+      others: item.others || ''
     }
     dataDes.createItem(oNewItem, DES_DIR, function() {
       commonDAO.createItem(oNewItem, function(err) {
@@ -74,15 +74,15 @@ function createData(item, callback) {
           if (err) {
             return callback(err, null);
           }
-          if (item.others != '') {
+          if (item.others != '' && item.others != null) {
             var oTags = item.others.split(',');
             tagsHandle.addInTAGS(oTags, uri, function(err) {
               if (err) {
                 return callback(err, null);
               }
-              callback(null, 'success');
             })
           }
+          callback(null, 'success');
         })
       })
     });
@@ -116,15 +116,9 @@ function getAllContacts(getAllCb) {
     }
     var contacts = [];
     data.forEach(function(each) {
-      contacts.push({
-        URI: each.URI,
-        name: each.name,
-        sex: each.sex,
-        age: each.age,
-        photoPath: each.path,
-        phone: each.phone,
-        email: each.email
-      });
+      if (each != '' && each != null) {
+        contacts.push(each);
+      }
     });
     getAllCb(contacts);
   }
