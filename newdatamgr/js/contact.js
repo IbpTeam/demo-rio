@@ -353,7 +353,9 @@ var Contact = Class.extend({
     if (typeof _tag === 'string' && _tag.length > 0) {
       DataAPI.setTagByUri(function(err_){
         if (err_ === null) {
-          contact._tagView.addTag(_tag);
+          if(!contact._tagView.addTag(_tag)){
+            return 0;
+          }
           contact._contacts[contact._selectId]['others'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
         };
