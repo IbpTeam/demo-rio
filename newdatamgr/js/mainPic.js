@@ -92,8 +92,8 @@ var MainPicView = Class.extend({
     var _tag = ev.dataTransfer.getData('tag');
     var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
-      DataAPI.setTagByUri(function(result_){
-        if (result_ === 'commit') {
+      DataAPI.setTagByUri(function(err){
+        if (err!=null) {
           homePage._pic._tagView.addPreTag(_tag);
         };
       },[_tag],homePage._pic._picData.uri);
