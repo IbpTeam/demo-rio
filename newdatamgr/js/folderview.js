@@ -316,6 +316,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来获得视频截图图片，并且保存在本地
   getVideoPicData:function(file){
+    // window.alert(file['path']);
     DataAPI.getVideoThumbnail(function(err,result){
       if(err){
         window.alert(err);
@@ -324,7 +325,7 @@ var ShowFiles = Class.extend({
         var videoPictureSrc = 'data:image/jpeg;base64,' + result;
         _globalSelf._videoPicture[file['path']] = videoPictureSrc;
         var fileImg = document.getElementById(file['URI']);
-        fileImg.src = musciPictureSrc;
+        fileImg.src = videoPictureSrc;
       }
     },file['path']);  
   },
@@ -874,6 +875,7 @@ var ShowFiles = Class.extend({
           var img = $('<img>',{
             'id':file['URI']
           });
+          _globalSelf.getVideoPicData(file);
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
