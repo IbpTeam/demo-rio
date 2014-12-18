@@ -1,0 +1,142 @@
+.text-core {
+  position: relative;
+  background: transparent;
+  .text-wrap{
+    position: absolute;
+    textarea,input{
+      .radius(0);
+      border: 0;
+      outline: none;
+      resize: none;
+      position: absolute;
+      z-index: 1;
+      background: none;
+      overflow: hidden;
+      margin: 0;
+      padding: 3px 5px 4px 5px;
+      white-space: nowrap;
+      font: 14px arial, sans-serif;
+      line-height: 30px;
+      height: 30px;
+    }
+    .text-arrow {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 22px;
+      height: 22px;
+      background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAOAQMAAADHWqTrAAAAA3NCSVQICAjb4U/gAAAABlBMVEX///8yXJnt8Ns4AAAACXBIWXMAAAsSAAALEgHS3X78AAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1MzmNZGAwAAABpJREFUCJljYEAF/xsY6hkY7BgYZBgYOFBkADkdAmFDagYFAAAAAElFTkSuQmCC") 50% 50% no-repeat;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .text-dropdown {
+      padding: 0;
+      position: absolute;
+      z-index: 3;
+      background: #fff;
+      border: 1px solid #9daccc;
+      width: 100%;
+      max-height: 100px;
+      padding: 1px;
+      font: 11px "lucida grande", tahoma, verdana, arial, sans-serif;
+      display: none;
+      overflow-x: hidden;
+      overflow-y: auto;
+      &.text-position-below {
+        margin-top: 1px;
+      }
+      &.text-position-above{
+        margin-bottom: 1px;
+      }
+      .text-list{
+        .text-suggestion{
+          padding: 3px 5px;
+          cursor: pointer;
+          &em{
+            font-style: normal;
+            text-decoration: underline;
+          }
+          &.text-selected{
+            color: #fff;
+            background: #6d84b4;
+          }
+        }
+      }
+    }
+    .text-focus{
+      -webkit-box-shadow: 0px 0px 6px #6d84b4;
+      -moz-box-shadow: 0px 0px 6px #6d84b4;
+      box-shadow: 0px 0px 6px #6d84b4;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: none;
+      &.text-show-focus{
+        display: block;
+      }
+    }
+    .text-prompt{
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      margin: 3px 0 0 2px;
+      font: 14px "lucida grande", tahoma, verdana, arial, sans-serif;
+      color: #c0c0c0;
+      overflow: hidden;
+      white-space: pre;
+      &.text-hide-prompt{
+        display: none;
+      }
+    }
+    .text-tags {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 5px 35px 5px 5px;
+      cursor: text;
+      &.text-tags-on-top{
+        z-index: 2;
+      }
+      .text-tag{
+        float: left;
+        padding-left:3px;
+        .text-button {
+          -webkit-border-radius: 2px;
+          -moz-border-radius: 2px;
+          border-radius: 2px;
+          -webkit-box-sizing: border-box;
+          -moz-box-sizing: border-box;
+          box-sizing: border-box;
+          position: relative;
+          float: left;
+          border: 1px solid #888;
+          background: #202020;
+          color: #CCC;
+          padding: 2px 25px 2px 6px;
+          margin: 0 2px 2px 0;
+          cursor: pointer;
+          height: 20px;
+          font: 14px arial, sans-serif;
+          a.text-remove{
+            position: absolute;
+            right: 5px;
+            top: 4px;
+            display: block;
+            width: 11px;
+            height: 11px;
+            background: url("../img/remove.png") 0 -11px no-repeat;
+            &:hover{
+              background-position: 0 -22px;
+            }
+            &:active{
+              background-position: 0 -22px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
