@@ -96,15 +96,15 @@ exports.StartIMService = StartIMService;
  *  MsgObj.IP 表示接收方的IP地址
  *  MsgObj.UID 表示接收方的UUID
  *  MsgObj.Account表示接收方的帐号
- *  MsgObj.Msg表示要发送给指定应用的消息
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“”，表示无组别;msg为发送消息内容
  *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
   IP: "192.168.1.100",
-  UID: "2312324323dsfseferfgdghf",
-  Account: "USER2",
-  Msg: "Hi  this is in IMSender test",
+  UID: "fyfrio1997rio",
+  Account: "fyf",
+  Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
   App: "app1"
   rsaflag: "true"
 };
@@ -127,33 +127,36 @@ function SendAppMsg(SentCallBack, MsgObj) {
 exports.SendAppMsg = SendAppMsg;
 
 /**
- * @method SendAppMsgByAccount
- *  该函数用来给目的帐号的指定应用程序发送消息
+ * @method SendAppMsgByGroup
+ *  该函数用来给目的帐号（一个帐号下的设备组）的指定应用程序发送消息
  *
  * @param SentCallBack
  *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
- *  @param1
+ *  @cbparam1
  *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.toAccList 表示接收方的IP以及UID集合
  *  MsgObj.Account表示接收方的帐号
- *  MsgObj.Msg表示要发送给指定应用的消息
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
  *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
   toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
   Account: "fyf",
-  Msg: "Hi  this is in IMSender test",
+  Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
   App: "app1"
   rsaflag: "true"
 };
  *
  */
-function SendAppMsgByAccount(SentCallBack, MsgObj) {
+function SendAppMsgByGroup(SentCallBack, MsgObj) {
   var accSetItem = {};
   var ipset={};
+  var countFlag=0;
+  var msgRst;
+  var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
     if (!net.isIP(accSetItem.toIP)) {
@@ -162,20 +165,57 @@ function SendAppMsgByAccount(SentCallBack, MsgObj) {
       ipset["IP"] = accSetItem.toIP;
       ipset["UID"] = accSetItem.toUID;
       if (MsgObj.rsaflag === "true") {
-        IMRsa.sendMSGbyUID(ipset,accSetItem.toAccount,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+        IMRsa.sendMSGbyUID(ipset,accSetItem.toAccount,MsgObj.Msg,Port,MsgObj.App,function(msg){
+          if((++countFlag)===len)
+            SentCallBack(msg);
+        });
       }else{
-        IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+        IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg){
+          if((++countFlag)===len)
+            SentCallBack(msg);
+        });
       }
     }
   }
 }
-exports.SendAppMsgByAccount = SendAppMsgByAccount;
+exports.SendAppMsgByGroup = SendAppMsgByGroup;
 
+/**
+ * @method sendIMMsg
+ *  该函数用来给目的帐号（与一组设备）或者设备的指定应用程序发送消息
+ *
+ * @param SentCallBack
+ *   回调函数，当所有设备的消息发送成功时，调用该函数，并传参发送的消息
+ *  @cbparam1
+ *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ * @param MsgObj
+ *   JSON,待发送的消息结构体，其中：
+ *  MsgObj.IP 表示接收方的IP地址
+ *  MsgObj.UID 表示接收方的UUID
+ *  MsgObj.toAccList 表示接收方的IP以及UID集合
+ *  MsgObj.Account表示接收方的帐号
+ *  MsgObj.group表示消息发送以及接收端群组名称
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
+ *  MsgOb举例如下：
+ *  var msgobj = {
+  IP: "",
+  UID: "",
+  toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+  Account: "fyf",
+  group: "fyf",
+  Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
+  App: "app1"
+  rsaflag: "true"
+};
+ *
+ */
 function sendIMMsg(SentCallBack, MsgObj){
-  if(MsgObj.noGroup){
+  if(MsgObj.group===''){
     SendAppMsg(SentCallBack, MsgObj);
   }else{
-    SendAppMsgByAccount(SentCallBack, MsgObj);
+    SendAppMsgByGroup(SentCallBack, MsgObj);
   }
 }
 exports.sendIMMsg = sendIMMsg;
@@ -213,59 +253,14 @@ function sendFileTransferRequest(sendFileTransferRequestCb, MsgObj) {
     if(err){
       sendFileTransferRequestCb(err,msg);
     }else{
-      msg['key']=MD5(msg.fileName + MsgObj.toIP + new Date().getTime());
+      var id=MsgObj.group===''?MsgObj.Account+MsgObj.UID:MsgObj.group+MsgObj.localUID;
+      msg['key']=MD5(id + new Date().getTime());
       MsgObj.Msg=msg;
       sendFileTransferRequestCb(err,MsgObj);
     }
   });
  }
 exports.sendFileTransferRequest = sendFileTransferRequest;
-
-/**
- * @method sendFileTransferRequestByAccount
- *  发送端发送传输文件请求
- *
- * @param1 callback function
- *   回调函数
- *   @cbparam1
- *      boolean, 返回操作出错与否，出错则返回true,无错则返回false
- *   @cbparam2
- *      JSON, 返回待传输的文件信息MsgObj或者出错信息
-
- * @param2 MsgObj
- *   启动程序参数，json格式封装
-   *   JSON,待发送的消息结构体，其中：
-   *  MsgObj.IP 表示接收方的IP地址
-   *  MsgObj.UID 表示接收方的UUID
-   *  MsgObj.Account表示接收方的帐号
-   *  MsgObj.Msg表示代传输文件的路径
-   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
-   *  MsgOb举例如下：
-   *  var msgobj = {
-          IP: "192.168.1.100",
-          UID: "2312324323dsfseferfgdghf",
-          Account: "USER2",
-          Msg: "/media/fyf/BACKUP/test.txt",
-          App: "app1"
-        };
- */
-function sendFileTransferRequestByAccount(sendFileTransferRequestByAccountCb, MsgObj) {
-  var accSetItem = {};
-  var ipset = {};
-  for (var accSetItemKey in MsgObj.toAccList) {
-    accSetItem = MsgObj.toAccList[accSetItemKey];
-    fileTransfer.fileTransferInit(MsgObj.Msg, function(err, msg) {
-      if (err) {
-        sendFileTransferRequestByAccountCb(err, msg);
-      } else {
-        msg['key'] = MD5(msg.fileName + accSetItem.toIP + new Date().getTime());
-        MsgObj.Msg = msg;
-        sendFileTransferRequestByAccountCb(err, MsgObj);
-      }
-    });
-  }
-}
-exports.sendFileTransferRequestByAccount = sendFileTransferRequestByAccount;
 
 /**
  * @method sendFileTransferStart
@@ -380,10 +375,14 @@ exports.transferFileProcess = transferFileProcess;
           fileSize: "1024",
           msg: "do you  want to get the file"
         };
+
+ * @param3 boolean
+ *  是否完全中断传输
  */
-function transferCancelSender(transferCancelSenderCb,msgObj){//接收端取消传输文件-----界面显示
+function transferCancelSender(transferCancelSenderCb,msgObj,flag){//接收端取消传输文件-----界面显示
   fileTransfer.transferFileCancel(msgObj,function (){
-    serverAndMapHandler(msgObj.key);
+    if(flag)
+      serverAndMapHandler(msgObj.key);
     transferCancelSenderCb(msgObj);
   });
 }
