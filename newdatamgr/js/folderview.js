@@ -117,9 +117,6 @@ var ShowFiles = Class.extend({
   getCallBackData:function(files){
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
-    // if(_globalSelf._index == 4){
-    //   _globalSelf.getMusicPicData(files);
-    // }
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
   },
 
@@ -420,7 +417,6 @@ var ShowFiles = Class.extend({
             }
             else if(e.which == 113){
               //按下F2键，表示要重命名
-              $("."+file['filename']).html('Renamfikele')
             }
           });
           break;
