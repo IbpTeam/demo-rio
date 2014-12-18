@@ -247,13 +247,12 @@ function createData(items, callback) {
                   var isEnd = (count === lens - 1);
                   if (isEnd) {
                     commonHandle.createDataAll(itemInfoAll, function(result) {
-                      if (result === 'success') {
-                        callback(null, result);
-                      } else {
+                      if (err) {
                         var _err = 'createData: commonHandle createData all error!';
                         console.log('createData error!');
-                        callback(_err, null);
+                        return callback(_err, null);
                       }
+                      callback(null, result);
                     })
                   }
                   count++;
