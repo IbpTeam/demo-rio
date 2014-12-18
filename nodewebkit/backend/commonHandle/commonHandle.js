@@ -394,9 +394,10 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
       return getRecentAccessDataCb(err, null);
     }
     var DataByNum = utils.getRecent(items, num);
+    console.log(DataByNum);
     getRecentAccessDataCb(null, DataByNum);
   }
-  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc limit " + "'" + num + "'";
+  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc ";
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
 }
 
