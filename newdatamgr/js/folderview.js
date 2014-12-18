@@ -384,7 +384,7 @@ var ShowFiles = Class.extend({
               //按下F2,是重命名操作
               if(_globalSelf._showNormal[_globalSelf._index] == 1){
                 var renameTh = $(this).children('th').eq(0);
-                if(_globalSelf._index == 3 || _globalSelf._index == 5){
+                if(_globalSelf._index == 3){
                   var rename = renameTh.children('p');
                 }
                 else{
