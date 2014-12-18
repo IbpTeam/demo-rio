@@ -138,6 +138,7 @@ exports.SendAppMsg = SendAppMsg;
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.toAccList 表示接收方的IP以及UID集合
  *  MsgObj.Account表示接收方的帐号
+ *  MsgObj.localUID表示正在登录帐号的对应设备的UID
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
  *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
@@ -145,6 +146,7 @@ exports.SendAppMsg = SendAppMsg;
  *  var msgobj = {
   toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
   Account: "fyf",
+  localUID: "fyfrio1997rio",
   Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
   App: "app1"
   rsaflag: "true"
@@ -153,27 +155,34 @@ exports.SendAppMsg = SendAppMsg;
  */
 function SendAppMsgByGroup(SentCallBack, MsgObj) {
   var accSetItem = {};
-  var ipset={};
-  var countFlag=0;
+  var ipset = {};
+  var countFlag = 0;
   var msgRst;
   var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
-    if (!net.isIP(accSetItem.toIP)) {
-      console.log('Input IP Format Error!:::', accSetItem.toIP);
+    if (MsgObj.localUID === accSetItemKey){
+      len-=1;
+      if (countFlag=== len)
+        SentCallBack();
+      continue;
     } else {
-      ipset["IP"] = accSetItem.toIP;
-      ipset["UID"] = accSetItem.toUID;
-      if (MsgObj.rsaflag === "true") {
-        IMRsa.sendMSGbyUID(ipset,accSetItem.toAccount,MsgObj.Msg,Port,MsgObj.App,function(msg){
-          if((++countFlag)===len)
-            SentCallBack(msg);
-        });
-      }else{
-        IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg){
-          if((++countFlag)===len)
-            SentCallBack(msg);
-        });
+      if (!net.isIP(accSetItem.toIP)) {
+        console.log('Input IP Format Error!:::', accSetItem.toIP);
+      } else {
+        ipset["IP"] = accSetItem.toIP;
+        ipset["UID"] = accSetItem.toUID;
+        if (MsgObj.rsaflag === "true") {
+          IMRsa.sendMSGbyUID(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
+            if ((++countFlag) === len)
+              SentCallBack(msg);
+          });
+        } else {
+          IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
+            if ((++countFlag) === len)
+              SentCallBack(msg);
+          });
+        }
       }
     }
   }
@@ -194,6 +203,7 @@ exports.SendAppMsgByGroup = SendAppMsgByGroup;
  *  MsgObj.UID 表示接收方的UUID
  *  MsgObj.toAccList 表示接收方的IP以及UID集合
  *  MsgObj.Account表示接收方的帐号
+ *  MsgObj.localUID表示正在登录帐号的对应设备的UID
  *  MsgObj.group表示消息发送以及接收端群组名称
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
  *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
@@ -204,6 +214,7 @@ exports.SendAppMsgByGroup = SendAppMsgByGroup;
   UID: "",
   toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
   Account: "fyf",
+  localUID: "fyfrio1997rio",
   group: "fyf",
   Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
   App: "app1"
