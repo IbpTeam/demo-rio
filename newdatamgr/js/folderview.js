@@ -299,7 +299,7 @@ var ShowFiles = Class.extend({
     return; 
   },
   
-  //此函数用来获得音乐的图片，并且保存在本地
+  //此函数用来获得音乐的专辑图片，并且保存在本地
   getMusicPicData:function(file){
     DataAPI.getMusicPicData(function(err,result){
       if(err){
@@ -307,9 +307,24 @@ var ShowFiles = Class.extend({
       }
       else{
         var musciPictureSrc = 'data:image/jpeg;base64,' + result;
-        _globalSelf._videoPicture[file['path']] = musciPictureSrc;
+        _globalSelf._musicPicture[file['path']] = musciPictureSrc;
         var filep = document.getElementById(file['URI']);
         filep.src = musciPictureSrc;
+      }
+    },file['path']);  
+  },
+
+  //此函数用来获得视频截图图片，并且保存在本地
+  getVideoPicData:function(file){
+    DataAPI.getVideoThumbnail(function(err,result){
+      if(err){
+        window.alert(err);
+      }
+      else{
+        var videoPictureSrc = 'data:image/jpeg;base64,' + result;
+        _globalSelf._videoPicture[file['path']] = videoPictureSrc;
+        var fileImg = document.getElementById(file['URI']);
+        fileImg.src = musciPictureSrc;
       }
     },file['path']);  
   },
@@ -404,7 +419,7 @@ var ShowFiles = Class.extend({
             }
             else if(e.which == 113){
               //按下F2键，表示要重命名
-              $("."+file['filename']).html('Rename')
+              $("."+file['filename']).html('Renamfikele')
             }
           });
           break;
@@ -477,7 +492,7 @@ var ShowFiles = Class.extend({
       for(var i =0;i<theadMessage.length;i++){
         switch(i){
           case 0:
-            if(_globalSelf._index == 3 || _globalSelf._index == 5){
+            if(_globalSelf._index == 3){
               var thP = $('<P>',{
                 'class':id,
                 'text':file[theadMessage[i]]
@@ -630,7 +645,10 @@ var ShowFiles = Class.extend({
               'text':file['filename']
             });
           }
-          Holder.append($('<img src="icons/Videos.png"></img>'));
+          var img = $('<img>',{
+            'src':_globalSelf._videoPicture[file['path']]
+          });
+          Holder.append(img);
           Container.append(Holder);
           Container.append(description);
           if(timeDifference >=0 && timeDifference <=24){
@@ -706,7 +724,7 @@ var ShowFiles = Class.extend({
                 });
               }
               var img = $('<img>',{
-                'src':_globalSelf._videoPicture[file['path']]
+                'src':_globalSelf._musicPicture[file['path']]
               });
               Holder.append(img);
               Container.append(Holder);
@@ -852,8 +870,11 @@ var ShowFiles = Class.extend({
               'class':'videodescription '+file['filename'],
               'text':file['filename']
             });
-          }
-          Holder.append($('<img src="icons/Videos.png"></img>'));
+          };
+          var img = $('<img>',{
+            'id':file['URI']
+          });
+          Holder.append(img);
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);          
