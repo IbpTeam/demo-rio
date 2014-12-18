@@ -12,6 +12,7 @@
 
 var pathModule = require('path');
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var config = require("../config");
 var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
@@ -21,7 +22,8 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
-
+var probe = require('node-ffprobe');
+var thumbler = require('video-thumb');
 
 //@const
 var CATEGORY_NAME = "video";
@@ -29,6 +31,74 @@ var DES_NAME = "videoDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
+
+
+
+function readVideoMetadata(sPath, callback) {
+  probe(sPath, function(err, probeData) {
+    if (err) {
+      return callback(err, null);
+    }
+    var audioInfo = {};
+    for (var type in probeData.streams) {
+      if (probeData.streams[type].codec_type === "video") {
+        audioInfo = probeData.streams[type];
+      }
+    }
+    if (!probeData.format) {
+      probeData.format = {}
+    }
+    if (!probeData.metadata) {
+      probeData.metadata = {}
+    }
+    var extraInfo = {
+      format_long_name: probeData.format.format_long_name || '',
+      width: audioInfo.width || '',
+      height: audioInfo.height || '',
+      display_aspect_ratio: audioInfo.display_aspect_ratio || '',
+      pix_fmt: audioInfo.pix_fmt || '',
+      duration: audioInfo.duration || probeData.format.duration || '',
+      major_brand: probeData.metadata.major_brand || '',
+      minor_version: probeData.metadata.minor_version || '',
+      compatible_brands: probeData.metadata.compatible_brands || '',
+    }
+    callback(null, extraInfo);
+  });
+}
+
+function readVideoThumbnail(sPath, callback) {
+  fs.open(sPath, 'r', function(err) {
+    if (err) {
+      return callback(err, null);
+    }
+    readVideoMetadata(sPath, function(err, data) {
+      if (err) {
+        return callback(err, null);
+      }
+      var duration = data.duration;
+      var time = (String(duration).lastIndexOf('.') - 1);
+      //get the last digit to make sure the frame is in duration
+      var tmpDir = pathModule.join(utils.getHomeDir(), '/tmp/snapshot.png');
+      thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
+        var option = {
+          encoding: 'base64'
+        }
+        fs.readFile(tmpDir, option, function(err, buffer_base64) {
+          if (err) {
+            return callback(err, null);
+          }
+          fs_extra.remove(tmpDir, function(err) {
+            if (err) {
+              return callback(err, null);
+            }
+            callback(null, buffer_base64);
+          })
+        })
+      });
+    })
+  })
+}
+exports.readVideoThumbnail = readVideoThumbnail;
 
 /**
  * @method createData
@@ -70,33 +140,47 @@ function createData(items, callback) {
       var someTags = tagsHandle.getTagsByPath(items);
       var resourcesPath = config.RESOURCEPATH + '/' + category;
       uniqueID.getFileUid(function(uri) {
-        var itemInfo = {
-          id: null,
-          URI: uri + "#" + category,
-          category: category,
-          is_delete: 0,
-          others: someTags.join(","),
-          filename: itemFilename,
-          postfix: itemPostfix,
-          size: size,
-          path: items,
-          directorName: "Xiquan",
-          actorName: "Xiquan",
-          createTime: ctime,
-          lastModifyTime: mtime,
-          lastAccessTime: ctime,
-          createDev: config.uniqueID,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID
-        };
-        commonHandle.createData(itemInfo, function(result, resultFile) {
-          if (result === 'success') {
-            callback(null, result, resultFile);
-          } else {
-            var _err = 'createData: commonHandle createData error!';
-            console.log('createData error!');
-            callback(_err, null, null);
+        readVideoMetadata(items, function(err, metadata) {
+          if (err) {
+            return callback(err, null);
           }
+          var itemInfo = {
+            id: null,
+            URI: uri + "#" + category,
+            category: category,
+            is_delete: 0,
+            others: someTags.join(","),
+            filename: itemFilename,
+            postfix: itemPostfix,
+            size: size,
+            path: items,
+            directorName: "Xiquan",
+            actorName: "Xiquan",
+            createTime: ctime,
+            lastModifyTime: mtime,
+            lastAccessTime: ctime,
+            createDev: config.uniqueID,
+            lastModifyDev: config.uniqueID,
+            lastAccessDev: config.uniqueID,
+            format_long_name: metadata.format_long_name,
+            width: metadata.width,
+            height: metadata.height,
+            display_aspect_ratio: metadata.display_aspect_ratio,
+            pix_fmt: metadata.pix_fmt,
+            duration: metadata.duration,
+            major_brand: metadata.major_brand,
+            minor_version: metadata.minor_version,
+            compatible_brands: metadata.compatible_brands,
+          };
+          commonHandle.createData(itemInfo, function(result, resultFile) {
+            if (result === 'success') {
+              callback(null, result, resultFile);
+            } else {
+              var _err = 'createData: commonHandle createData error!';
+              console.log('createData error!');
+              callback(_err, null, null);
+            }
+          })
         })
       })
     })
@@ -128,38 +212,52 @@ function createData(items, callback) {
               var someTags = tagsHandle.getTagsByPath(_item);
               var resourcesPath = config.RESOURCEPATH + '/' + category;
               uniqueID.getFileUid(function(uri) {
-                var itemInfo = {
-                  id: null,
-                  URI: uri + "#" + category,
-                  category: category,
-                  is_delete: 0,
-                  others: someTags.join(","),
-                  filename: itemFilename,
-                  postfix: itemPostfix,
-                  size: size,
-                  path: _item,
-                  directorName: "Xiquan",
-                  actorName: "Xiquan",
-                  createTime: ctime,
-                  lastModifyTime: mtime,
-                  lastAccessTime: ctime,
-                  createDev: config.uniqueID,
-                  lastModifyDev: config.uniqueID,
-                  lastAccessDev: config.uniqueID
-                };
-                itemInfoAll.push(itemInfo);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(result) {
-                    if (err) {
-                      var _err = 'createData: commonHandle createData all error!';
-                      console.log('createData error!');
-                      return callback(_err, null);
-                    }
-                    callback(null, result);
-                  })
-                }
-                count++;
+                readVideoMetadata(_item, function(err, metadata) {
+                  if (err) {
+                    return callback(err, null);
+                  }
+                  var itemInfo = {
+                    id: null,
+                    URI: uri + "#" + category,
+                    category: category,
+                    is_delete: 0,
+                    others: someTags.join(","),
+                    filename: itemFilename,
+                    postfix: itemPostfix,
+                    size: size,
+                    path: _item,
+                    directorName: "",
+                    actorName: "",
+                    createTime: ctime,
+                    lastModifyTime: mtime,
+                    lastAccessTime: ctime,
+                    createDev: config.uniqueID,
+                    lastModifyDev: config.uniqueID,
+                    lastAccessDev: config.uniqueID,
+                    format_long_name: metadata.format_long_name,
+                    width: metadata.width,
+                    height: metadata.height,
+                    display_aspect_ratio: metadata.display_aspect_ratio,
+                    pix_fmt: metadata.pix_fmt,
+                    duration: metadata.duration,
+                    major_brand: metadata.major_brand,
+                    minor_version: metadata.minor_version,
+                  };
+                  itemInfoAll.push(itemInfo);
+                  var isEnd = (count === lens - 1);
+                  if (isEnd) {
+                    commonHandle.createDataAll(itemInfoAll, function(result) {
+                      if (result === 'success') {
+                        callback(null, result);
+                      } else {
+                        var _err = 'createData: commonHandle createData all error!';
+                        console.log('createData error!');
+                        callback(_err, null);
+                      }
+                    })
+                  }
+                  count++;
+                })
               })
             }
           })
@@ -215,7 +313,6 @@ function getByUri(uri, callback) {
 exports.getByUri = getByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
@@ -342,7 +439,7 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"open", function() {
+        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "open", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
@@ -375,10 +472,10 @@ exports.openDataByUri = openDataByUri;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
-  commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
+function pullRequest(deviceId, address, account, resourcesPath, callback) {
+  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
+  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
+  commonHandle.pullRequest(CATEGORY_NAME, deviceId, address, account, sRepoPath, sDesRepoPath, callback);
 }
 exports.pullRequest = pullRequest;
 
@@ -429,24 +526,22 @@ function repoReset(commitID, callback) {
       callback(err, null);
     } else {
       var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID!="null") {
-        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
+      if (dataCommitID != "null") {
+        resourceRepo.repoReset(REAL_REPO_DIR, dataCommitID, null, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
-          } 
-          else {
+          } else {
             resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
+              resourceRepo.repoReset(DES_REPO_DIR, commitID, relateCommitID, function(err, result) {
                 if (err) {
                   console.log(err);
                   callback({
                     'document': err
                   }, null);
-                } 
-                else {
+                } else {
                   console.log('reset success!')
                   callback(null, result)
                 }
@@ -454,16 +549,14 @@ function repoReset(commitID, callback) {
             });
           }
         })
-      } 
-      else {
-        resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
+      } else {
+        resourceRepo.repoReset(DES_REPO_DIR, commitID, null, function(err, result) {
           if (err) {
             console.log(err);
             callback({
               'document': err
             }, null);
-          } 
-          else {
+          } else {
             console.log('reset success!')
             callback(null, result)
           }

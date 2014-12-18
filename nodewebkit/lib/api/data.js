@@ -100,12 +100,12 @@ function loadFile(loadFileCb, sFilePath) {
     }
   }
   var cate = utils.getCategoryObject(category);
-  cate.createData([sFilePath], function(err, result) {
-    if (err) {
+  cate.createData(sFilePath, function(err, result) {
+    if (err !== 'sucess') {
       console.log(err);
       return loadFileCb(err, null);
     }
-    loadFileCb(null,result);
+    loadFileCb(null, result);
   })
 }
 exports.loadFile = loadFile;
@@ -1601,3 +1601,31 @@ function getMusicPicData(getMusicPicDataCb, filePath) {
   music.getMusicPicData(filePath, getMusicPicDataCb);
 }
 exports.getMusicPicData = getMusicPicData;
+
+/** 
+ * @Method: getVideoThumbnail
+ *    To get thumbnail of a video.
+ *
+ * @param: getMusicPicDataCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, data is returned in binary encoded with base64. You could acc-
+ *                ess the picture like: 
+ *                var img = document.getElementById("test_img");
+ *                img.src = 'data:image/jpeg;base64,' + result;
+ *
+ *
+ *  @param2: sPath
+ *    string, a specific music file full path.
+ *
+ *
+ **/
+function getVideoThumbnail(getVideoThumbnailCb, sPath) {
+  console.log("Request handler 'getVideoThumbnail' was called.");
+  video.readVideoThumbnail(sPath, getVideoThumbnailCb);
+}
+exports.getVideoThumbnail = getVideoThumbnail;
