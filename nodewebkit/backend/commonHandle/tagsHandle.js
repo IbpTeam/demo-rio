@@ -347,13 +347,15 @@ function getFilesByTagsInCategory(callback, category, sTag) {
       }
     }
     var oCondition = [];
-    var reg_cate = new RegExp(category, 'g');
     for (var j = 0; j < oUris.length; j++) {
-      if (reg_cate.test(oUris[j])) {
+      var pos = oUris[j].lastIndexOf('#');
+      var _category = oUris[j].substr(pos+1);
+      if (_category === category) {
         var tmpCondition = "uri='" + oUris[j] + "'";
         oCondition.push(tmpCondition);
       }
     }
+    console.log(oCondition)
     var sCondition = oCondition.join(' or ');
     commonDAO.findItems(null, category, [sCondition], null, function(err, result) {
       if (err) {
