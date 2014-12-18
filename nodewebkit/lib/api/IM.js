@@ -1,7 +1,7 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var IMRsa = require("../../backend/IM/IMChat.js");
-var config = require("../../backend/vnc/config.js");
+var config = require("../../backend/config.js");
 var net = require('net');
 var fileTransfer = require("../../backend/IM/file-trans/fileTransfer");
 var fileTransferServer = require("../../backend/IM/file-trans/fileTransferServer");
@@ -13,27 +13,16 @@ var fileServer;
 var pathMap;
 
 /*
-*getLocalDataTest
+*getLocalData
 */
-function getLocalDataTest(getLocalDataCb){
+function getLocalData(getLocalDataCb){
   var localJson={};
   localJson['account']=config.ACCOUNT;
   localJson['UID']=config.uniqueID;
   getLocalDataCb(localJson);
 }
-exports.getLocalDataTest = getLocalDataTest;
-
-/*
-*getLocalData
-*/
-function getLocalData(getLocalDataCb){
-  var localJson={};
-  localJson['account']=IMNoRsa.LOCALACCOUNT;
-  localJson['UID']=IMNoRsa.LOCALUUID;
- 
-  getLocalDataCb(localJson);
-}
 exports.getLocalData = getLocalData;
+
 
 /**
  * @method RegisterApp
