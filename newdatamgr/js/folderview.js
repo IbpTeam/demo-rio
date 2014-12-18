@@ -6,6 +6,8 @@ var ShowFiles = Class.extend({
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
+    this._musicPicture ={};
+    this._videoPicture = {};
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -65,7 +67,7 @@ var ShowFiles = Class.extend({
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
   setIndex:function(index_){
-    if (typeof index_ === 'number' && index_ >0 && index_ <5) {
+    if (typeof index_ === 'number' && index_ >0 && index_ <6) {
       this._index = index_;
     }
     _globalSelf.showFile();
@@ -115,6 +117,9 @@ var ShowFiles = Class.extend({
   getCallBackData:function(files){
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
+    // if(_globalSelf._index == 4){
+    //   _globalSelf.getMusicPicData(files);
+    // }
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
   },
 
@@ -292,6 +297,21 @@ var ShowFiles = Class.extend({
         break;
     }
     return; 
+  },
+  
+  //此函数用来获得音乐的图片，并且保存在本地
+  getMusicPicData:function(file){
+    DataAPI.getMusicPicData(function(err,result){
+      if(err){
+        window.alert(err);
+      }
+      else{
+        var musciPictureSrc = 'data:image/jpeg;base64,' + result;
+        _globalSelf._videoPicture[file['path']] = musciPictureSrc;
+        var filep = document.getElementById(file['URI']);
+        filep.src = musciPictureSrc;
+      }
+    },file['path']);  
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
@@ -569,6 +589,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesSortByTime:function(files){
+    console.log("picture files!!!!++++++++++++" +files);
     var returnContent = $('<div>',{
       'overflow':'auto'
     });
@@ -704,41 +725,44 @@ var ShowFiles = Class.extend({
         case 4:
           var Container = $('<div>',{
             'class':'musicContainer',
-            'data-path':file['path']
-          });
-          var Holder = $('<div>',{
-            'class':'musicHolder'
-          });
-          //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'musicdescription '+id,
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<div>',{
-              'class':'musicdescription '+file['filename'],
-              'text':file['filename']
-            });
-          }
-          Holder.append($('<img src="icons/Music.png"></img>'));
-          Container.append(Holder);
-          Container.append(description);
-          if(timeDifference >=0 && timeDifference <=24){
-            today.append(Container);
-          }
-          else if(timeDifference>24 && timeDifference <=24*7){
-            previous7Days.append(Container);
-          }
-          else if(timeDifference >24*7 && timeDifference <24*30){
-            previous30Days.append(Container);
-          }
-          else {
-            previousOneYear.append(Container);
-          }
-          break;
+                'data-path':file['path']
+              });
+              var Holder = $('<div>',{
+                'class':'musicHolder'
+              });
+              //用来定义最后描述的名字.
+              if(file['filename'].indexOf(' ') != -1 ||
+                file['filename'].indexOf('\'' != -1)){
+                var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
+                var description = $('<div>',{
+                  'class':'musicdescription '+id,
+                  'text':file['filename']
+                });
+              }else{
+                var description = $('<div>',{
+                  'class':'musicdescription '+file['filename'],
+                  'text':file['filename']
+                });
+              }
+              var img = $('<img>',{
+                'src':_globalSelf._videoPicture[file['path']]
+              });
+              Holder.append(img);
+              Container.append(Holder);
+              Container.append(description);
+              if(timeDifference >=0 && timeDifference <=24){
+                today.append(Container);
+              }
+              else if(timeDifference>24 && timeDifference <=24*7){
+                previous7Days.append(Container);
+              }
+              else if(timeDifference >24*7 && timeDifference <24*30){
+                previous30Days.append(Container);
+              }
+              else {
+                previousOneYear.append(Container);
+              }
+              break;
         case 5:
           var Container = $('<div>',{
             'class':'doc-icon',
@@ -777,6 +801,7 @@ var ShowFiles = Class.extend({
           }
           break;
         default:
+          break;
       }
     }
     if(today.children('div').length ==0){
@@ -899,6 +924,7 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           break;
         case 4:
+          _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
             'class':'musicContainer',
             'data-path':file['path']
@@ -913,17 +939,20 @@ var ShowFiles = Class.extend({
             var description = $('<div>',{
               'class':'musicdescription '+id,
               'text':file['filename']
-            });
+          });
           }else{
             var description = $('<div>',{
               'class':'musicdescription '+file['filename'],
               'text':file['filename']
             });
           }
-          Holder.append($('<img src="icons/Music.png"></img>'));
+          var musicImg = $('<img>',{
+             'id':file['URI']
+          });
+          Holder.append(musicImg);
           Container.append(Holder);
           Container.append(description);
-          returnContent.append(Container);     
+          returnContent.append(Container);
           break;
         case 5:
           var Container = $('<div>',{
@@ -969,7 +998,7 @@ var ShowFiles = Class.extend({
       case 'pptx':
         return 'powerpoint';
       case 'none':
-        return 'blank';
+        return 'Other';
       case 'txt':
         return 'text';
       case 'xlsx':
