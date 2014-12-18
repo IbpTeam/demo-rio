@@ -33,7 +33,10 @@ exports.BEFORELOGIN = __dirname + '/data/default/Default.conf';
 /**
  * path of language file
  */
-exports.LANG = __dirname + '/language/langs';
+exports.LANG = [
+  path.join(process.env["HOME"], '.local/share/webde/langs'),
+  __dirname + '/language/langs'
+];
 
 /**
  * Project Path

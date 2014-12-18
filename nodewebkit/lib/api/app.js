@@ -251,9 +251,16 @@ exports.addListener = function(addListenerCB, listener) {
  * remove listener for app register or unregister
  * removeListenerCB: function(err)
  *    err: error discription or null
- * listener: function(event, appID)
- *    event: (register|unregister)
- *    appID: id of app
+ * listener: function(data), the listener registered before
+ *    data: {
+ *      event: (register|unregister)
+ *      appID: id of app
+ *      option: options to create an inside app(object)
+ *          {
+ *            desktop: (true|false) // create a shortcut on desktop or not
+ *            dock: (true|false) // create a shortcut on desktop or not
+ *          }
+ *    }
  */
 exports.removeListener = function(removeListenerCB, listener) {
   appManager.removeListener(listener, removeListenerCB);

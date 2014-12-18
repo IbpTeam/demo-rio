@@ -266,6 +266,10 @@ function initDesktop(callback) {
     fs_extra.ensureDir(config.APP_DATA_PATH[0], function(err_) {
       if(err_) console.log(err_);
     });
+    // create the user local language dir
+    fs_extra.ensureDir(config.LANG[0], function(err_) {
+      if(err_) console.log(err_);
+    });
   } else {
     console.log("Not a linux system! Not supported now!");
   }
