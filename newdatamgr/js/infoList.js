@@ -136,7 +136,8 @@ var InfoList = Class.extend({
   addTag:function(tag_, num_){
     var _a = $('<a>',{
       'class':'il__a',
-      'draggable':'true'
+      'draggable':'true',
+      'id': tag_
     });
     var _text = $('<span>',{
       'class':'il__title',
@@ -174,15 +175,18 @@ var InfoList = Class.extend({
   },
 
   setContent:function(){
-	var _this = this;
-    DataAPI.getAllTagsByCategory(function(result){
+	  var _this = this;
+    DataAPI.getAllTagsByCategory(function(result_){
       _this.removeTags();
-      _this._info = result;
+      _this._info = result_;
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
           _this.addTag(_this._info['tags'][key],_this._info['tagFiles'][_this._info['tags'][key]].length);
         }
       }
+      $('.il__a').one('click', function(){
+        _this.showTagFilterData(this.id);
+      });
     }, _this.getCategoryName(_this._index));
     DataAPI.getRecentAccessData(function(err_, result_){
       if(result_ != null){
@@ -199,6 +203,13 @@ var InfoList = Class.extend({
         }
       }
     }, _this.getCategoryName(_this._index), 10);
+  },
+
+  showTagFilterData:function(_tag){
+    var _this = this;
+    DataAPI.getFilesByTagsInCategory(function(err_, result_){
+      console.log("result_=====", result_);
+    }, _this.getCategoryName(_this._index), _tag);
   },
 
   removeTags:function(){
