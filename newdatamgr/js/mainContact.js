@@ -36,7 +36,13 @@ var MainContactView = Class.extend({
   setContent:function(){
     var _this = this;
     DataAPI.getAllDataByCate(function(contact_json_){
-       _this._contacts = contact_json_;
+      if(contact_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
+      }
+      _this._contacts = contact_json_;
       var names_json = {};
       for(var i = 0; i < _this._contacts.length; i ++){
         var full_name = _this._contacts[i]['name'];
