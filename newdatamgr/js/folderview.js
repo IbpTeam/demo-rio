@@ -117,6 +117,9 @@ var ShowFiles = Class.extend({
   getCallBackData:function(files){
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
+    // if(_globalSelf._index == 4){
+    //   _globalSelf.getMusicPicData(files);
+    // }
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
   },
 
@@ -297,7 +300,7 @@ var ShowFiles = Class.extend({
   },
   
   //此函数用来获得音乐的图片，并且保存在本地
-  getMusicPicData:function(file,getMusicPicDataCb){
+  getMusicPicData:function(file){
     DataAPI.getMusicPicData(function(err,result){
       if(err){
         window.alert(err);
@@ -305,8 +308,8 @@ var ShowFiles = Class.extend({
       else{
         var musciPictureSrc = 'data:image/jpeg;base64,' + result;
         _globalSelf._videoPicture[file['path']] = musciPictureSrc;
-        $('#'+file['URI']).attr('src', musciPictureSrc); 
-        //window.alert('set music picture');
+        var filep = document.getElementById(file['URI']);
+        filep.src = musciPictureSrc;
       }
     },file['path']);  
   },
@@ -823,7 +826,7 @@ var ShowFiles = Class.extend({
             if(_globalSelf._imgReady ==0){
               returnContent.show();
               $('#pictureContent').BlocksIt({
-                numOfCol:2
+                numOfCol:5
               });
             }
           };
@@ -882,58 +885,35 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           break;
         case 4:
-          // DataAPI.getMusicPicData(function(err,result){
-          //   if(err){
-          //     window.alert(err);
-          //   }
-          //   else{
-          //     var musciPictureSrc = 'data:image/jpeg;base64,' + result;
-          //     _globalSelf._videoPicture[file['path']] = musciPictureSrc;
-              var Container = $('<div>',{
-                'class':'musicContainer',
-                'data-path':file['path']
-              });
-              var Holder = $('<div>',{
-                'class':'musicHolder'
-              });
-              //用来定义最后描述的名字.
-              if(file['filename'].indexOf(' ') != -1 ||
-                file['filename'].indexOf('\'' != -1)){
-                var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-                var description = $('<div>',{
-                  'class':'musicdescription '+id,
-                  'text':file['filename']
-                });
-              }else{
-                var description = $('<div>',{
-                  'class':'musicdescription '+file['filename'],
-                  'text':file['filename']
-                });
-              }
-              var musicImg = $('<img>',{
-                'id':file['URI']
-              });
-              _globalSelf.getMusicPicData(file);
-             // musicImg.onload = function(){
-              Holder.append(musicImg);
-              Container.append(Holder);
-              Container.append(description);
-              returnContent.append(Container);
-              returnContent.hide();
-              musicImg.onload = function(){
-                window.alert('music img is ready');
-              //   _globalSelf._imgReady = _globalSelf._imgReady - 1;
-              //   if(_globalSelf._imgReady ==0){
-              //   returnContent.show();
-              };
-
-              //}
-              // Holder.append(img);
-              // Container.append(Holder);
-              // Container.append(description);
-              // returnContent.append(Container);  
-          //   }
-          // },file['path']);  
+          _globalSelf.getMusicPicData(file);
+          var Container = $('<div>',{
+            'class':'musicContainer',
+            'data-path':file['path']
+          });
+          var Holder = $('<div>',{
+            'class':'musicHolder'
+          });
+          //用来定义最后描述的名字.
+          if(file['filename'].indexOf(' ') != -1 ||
+            file['filename'].indexOf('\'' != -1)){
+            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
+            var description = $('<div>',{
+              'class':'musicdescription '+id,
+              'text':file['filename']
+          });
+          }else{
+            var description = $('<div>',{
+              'class':'musicdescription '+file['filename'],
+              'text':file['filename']
+            });
+          }
+          var musicImg = $('<img>',{
+             'id':file['URI']
+          });
+          Holder.append(musicImg);
+          Container.append(Holder);
+          Container.append(description);
+          returnContent.append(Container);
           break;
         case 5:
           var Container = $('<div>',{
