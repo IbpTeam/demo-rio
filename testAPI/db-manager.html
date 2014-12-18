@@ -12,10 +12,15 @@
 <body>
 
 <script>
-function loadResourcesCb(result){
+function loadResourcesCb(err,result){
   $("body").css("cursor", "default");
   console.log('end of load resource callback.');
-  //document.write(result);
+  if(err){
+    document.write(err);
+  }else{
+    document.write(result);    
+  }
+
 }
 
 function loadContactsCb(err, result){

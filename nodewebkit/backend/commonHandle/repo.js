@@ -142,7 +142,10 @@ exports.repoResetCommit=repoResetCommit;
 exports.repoCommitBoth = function(op, realPath, desPath, oFiles, oDesFiles, callback) {
   repoCommit(realPath, oFiles,null ,op, function() {
     getLatestCommit(realPath, function(commitID) {
-      repoCommit(desPath, oDesFiles, commitID,op, function() {
+      repoCommit(desPath, oDesFiles, commitID,op, function(err) {
+        if(err){
+          return callback(err,null)
+        }
         callback(null,'success');
       });
     })
