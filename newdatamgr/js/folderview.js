@@ -67,7 +67,7 @@ var ShowFiles = Class.extend({
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
   setIndex:function(index_){
-    if (typeof index_ === 'number' && index_ >0 && index_ <5) {
+    if (typeof index_ === 'number' && index_ >0 && index_ <6) {
       this._index = index_;
     }
     _globalSelf.showFile();
@@ -294,6 +294,21 @@ var ShowFiles = Class.extend({
         break;
     }
     return; 
+  },
+  
+  //此函数用来获得音乐的图片，并且保存在本地
+  getMusicPicData:function(file,getMusicPicDataCb){
+    DataAPI.getMusicPicData(function(err,result){
+      if(err){
+        window.alert(err);
+      }
+      else{
+        var musciPictureSrc = 'data:image/jpeg;base64,' + result;
+        _globalSelf._videoPicture[file['path']] = musciPictureSrc;
+        $('#'+file['URI']).attr('src', musciPictureSrc); 
+        //window.alert('set music picture');
+      }
+    },file['path']);  
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
@@ -532,7 +547,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesSortByTime:function(files){
-        console.log("picture files!!!!" +files);
+    console.log("picture files!!!!++++++++++++" +files);
     var returnContent = $('<div>',{
       'overflow':'auto'
     });
@@ -688,7 +703,7 @@ var ShowFiles = Class.extend({
                 });
               }
               var img = $('<img>',{
-                'src':file['musciPictureSrc']
+                'src':_globalSelf._videoPicture[file['path']]
               });
               Holder.append(img);
               Container.append(Holder);
@@ -772,7 +787,6 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
-    console.log("picture files!!!!" +files);
     var returnContent = $('<div style= "overflow:auto"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
@@ -809,7 +823,7 @@ var ShowFiles = Class.extend({
             if(_globalSelf._imgReady ==0){
               returnContent.show();
               $('#pictureContent').BlocksIt({
-                numOfCol:5
+                numOfCol:2
               });
             }
           };
@@ -868,12 +882,13 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           break;
         case 4:
-          DataAPI.getMusicPicData(function(err,result){
-            if(err){
-              window.alert(err);
-            }
-            else{
-              file['musciPictureSrc'] = 'data:image/jpeg;base64,' + result;
+          // DataAPI.getMusicPicData(function(err,result){
+          //   if(err){
+          //     window.alert(err);
+          //   }
+          //   else{
+          //     var musciPictureSrc = 'data:image/jpeg;base64,' + result;
+          //     _globalSelf._videoPicture[file['path']] = musciPictureSrc;
               var Container = $('<div>',{
                 'class':'musicContainer',
                 'data-path':file['path']
@@ -895,16 +910,30 @@ var ShowFiles = Class.extend({
                   'text':file['filename']
                 });
               }
-              var img = $('<img>',{
-                'src':file['musciPictureSrc']
+              var musicImg = $('<img>',{
+                'id':file['URI']
               });
-              files[i] = file;
-              Holder.append(img);
+              _globalSelf.getMusicPicData(file);
+             // musicImg.onload = function(){
+              Holder.append(musicImg);
               Container.append(Holder);
               Container.append(description);
-              returnContent.append(Container);  
-            }
-          },file['path']);  
+              returnContent.append(Container);
+              returnContent.hide();
+              musicImg.onload = function(){
+                window.alert('music img is ready');
+              //   _globalSelf._imgReady = _globalSelf._imgReady - 1;
+              //   if(_globalSelf._imgReady ==0){
+              //   returnContent.show();
+              };
+
+              //}
+              // Holder.append(img);
+              // Container.append(Holder);
+              // Container.append(description);
+              // returnContent.append(Container);  
+          //   }
+          // },file['path']);  
           break;
         case 5:
           var Container = $('<div>',{
@@ -950,7 +979,7 @@ var ShowFiles = Class.extend({
       case 'pptx':
         return 'powerpoint';
       case 'none':
-        return 'blank';
+        return 'Other';
       case 'txt':
         return 'text';
       case 'xlsx':
