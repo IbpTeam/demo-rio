@@ -1,6 +1,7 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var IMRsa = require("../../backend/IM/IMChat.js");
+var config = require("../../backend/vnc/config.js");
 var net = require('net');
 var fileTransfer = require("../../backend/IM/file-trans/fileTransfer");
 var fileTransferServer = require("../../backend/IM/file-trans/fileTransferServer");
@@ -10,6 +11,18 @@ var crypto = require('crypto');
 var Port = 7777;
 var fileServer;
 var pathMap;
+
+/*
+*getLocalDataTest
+*/
+function getLocalDataTest(getLocalDataCb){
+  var localJson={};
+  localJson['account']=config.ACCOUNT;
+  localJson['UID']=config.uniqueID;
+  getLocalDataCb(localJson);
+}
+exports.getLocalDataTest = getLocalDataTest;
+
 /*
 *getLocalData
 */
