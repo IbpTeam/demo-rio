@@ -168,14 +168,13 @@ function createData(items, callback) {
                 itemInfoAll.push(itemInfo);
                 var isEnd = (count === lens - 1);
                 if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(result) {
-                    if (result === 'success') {
-                      callback(null, result); 
-                    } else {
+                  commonHandle.createDataAll(itemInfoAll, function(err, result) {
+                    if (err) {
                       var _err = 'createData: commonHandle createData all error!';
                       console.log('createData error!');
-                      callback(_err, null);
+                      return callback(_err, null);
                     }
+                    callback(null, result);
                   })
                 }
                 count++;
@@ -261,7 +260,11 @@ function changeData(filePath,uri, callback) {
         var updateItems = new Array();
         updateItems.push(updateItem);
         commonDAO.updateItems(updateItems, function(result) {
-          console.log(result);
+          if(result!='commit'){
+            console.log("DB update error:");
+            console.log(result);
+            return;
+          }
           callback(result);
         });
       });
@@ -416,28 +419,48 @@ function openDataByUri(openDataByUriCb, uri) {
           var updateItems = new Array();
           updateItems.push(updateItem);
           commonDAO.updateItems(updateItems, function(result) {
-            console.log(result);
-            if(watchFilesNum==0){
-              console.log(CATEGORY_NAME+" watcher started!!");
-              watchFilesNum++;
-              console.log("watchFilesNum = "+watchFilesNum);
-              openDataByUriCb(source);
-              commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
-                console.log(path+" : "+event);
-                if(event=='change'){
-                  var conditions = ["path = " + "'" + path + "'"];
-                  commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
-                    console.log(items);
-                    changeData(path,items[0].URI,function(result){
-                      console.log(result);
+            if(result!='commit'){
+              console.log("DB update error:");
+              console.log(result);
+              return;
+            }           
+            //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
+            if(item.postfix=='ppt' ||
+               item.postfix=='pptx'||
+               item.postfix=='doc' ||
+               item.postfix=='docx'||
+               item.postfix=='xls' ||
+               item.postfix=='xlsx'){
+              if(watchFilesNum==0)
+              {
+                console.log(CATEGORY_NAME+" watcher started!!");
+                watchFilesNum++;
+                console.log("watchFilesNum = "+watchFilesNum);
+                openDataByUriCb(source);
+                commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
+                  console.log(path+" : "+event);
+                  if(event=='change'){
+                    var conditions = ["path = " + "'" + path + "'"];
+                    commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
+                      changeData(path,items[0].URI,function(result){
+                        if(result!='commit'){
+                          console.log("DB update error:");
+                          console.log(result);
+                          return;
+                        } 
+                      });
                     });
-                  });
-                }
-              });
+                  }
+                });
+              }
+              else{
+                watchFilesNum++;
+                console.log("watchFilesNum = "+watchFilesNum);
+                openDataByUriCb(source);
+              }
             }
             else{
-              watchFilesNum++;
-              console.log("watchFilesNum = "+watchFilesNum);
+              openDataByUriCb(source);
             }
           });
         });

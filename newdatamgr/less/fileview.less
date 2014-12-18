@@ -12,12 +12,12 @@
         height: 24px;
         float: left;
       }
-      #_shownormalButton{
+      #shownormalButton{
         width: 45px;
         height: 24px;
         float: left;
       }
-      .showlistButton:after, ._shownormalButton:after{
+      .showlistButton:after, .shownormalButton:after{
         font-family: 'icomoon';
         content: "\e604";
         float: left;
@@ -25,7 +25,7 @@
         color:#b6b6b6;
         width: 20px;
         height: 20px;
-        }
+      }
       #showlistButton:hover, #_shownormalButton:hover{
         cursor: pointer;
         background-color:rgba(255,255,255,0.3);
@@ -34,10 +34,10 @@
         content: "\e603";
         margin-left: 14px;  
       }
-      .showlistButtonFocus:after, ._shownormalButtonFocus:after{
+      .showlistButtonFocus:after, .shownormalButtonFocus:after{
         color: #f48989;
       }
-      ._shownormalButtonFocus:after{
+      .shownormalButtonFocus:after{
         content: "\e603";
         margin-left: 14px;
       }
@@ -51,7 +51,6 @@
         height: 23px;
         background-color: #b6b6b6;
       }
-
     }
     #showContent {
       top: 50px;
@@ -60,27 +59,67 @@
       left: 0px;
       width: 100%;
       border: 1px solid #f00;
-      .outContainer {
-        width:200px;
-        height:200px; 
+      .pictureContainerWaterFall {
+        width:188px; 
+        min-height:100px; 
+        padding: 15px; 
+        margin:8px; 
+        font-size:12px; 
+        float:left; 
+        cursor: pointer; 
+        box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4); 
+        -moz-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4); 
+        -webkit-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.4);
+        -webkit-transition: top 1s ease, left 1s ease;
+        -moz-transition: top 1s ease, left 1s ease; 
+        -o-transition: top 1s ease, left 1s ease;
+        -ms-transition: top 1s ease, left 1s ease; 
+        &:hover {
+          -webkit-filter: brightness(1.2);
+          -moz-filter: brightness(1.2);
+          -ms-filter: brightness(1.2);
+          filter: brightness(1.2);
+        }
+        .pictureHolderWaterFall img{
+          max-width:100%; 
+          background:#ccc; 
+          display:block; 
+        }
+        .picturedescriptionWaterFall {
+          text-align:center; 
+          color:#777; 
+        }
+      }
+      .selected {
+        background-color:#08c;
+      }
+      .sortByTime {
+        border: 1px solid #ff0;
+        width: 100%;
+        display: inline-block;
+      }
+      .musicContainer {
+        width:188px;
+        height:188px; 
         padding:auto; 
         margin:30px; 
         font-size:12px; 
         float:left;
-        vertical-align:center; 
-        .Holder img{
-          max-width:100%;
-          max-height:100%;
+        vertical-align:center;
+        cursor: pointer; 
+        &:hover {
+          -webkit-filter: brightness(1.2);
+          -moz-filter: brightness(1.2);
+          -ms-filter: brightness(1.2);
+          filter: brightness(1.2);
+        }
+        .musicHolder img{
+          max-width:98%;
+          max-height:98%;
           background:#ccc;
           display:block;
         }
-        .Holder video{
-          max-width:100%;
-          max-height:100%;
-          background:#ccc;
-          display:block;
-        }
-        .description {
+        .musicdescription {
           text-align:center;
           font-weight:normal;
           width:150px;
@@ -88,24 +127,73 @@
           margin:10px 5px 10px 5px;
         }
       }
-      .fileContainer {
-        padding:2px;
-        margin:2px;
-        width:80px;
-        display:inline-block;
-        text-align:center;
-        vertical-align:top;
-        .iconContainer {
-          margin:auto;
-          margin-top:0;
-          width:60px;
+      .videoContainer {
+        width:188px;
+        height:188px; 
+        padding:auto; 
+        margin:30px; 
+        font-size:12px; 
+        float:left;
+        vertical-align:center;
+        cursor: pointer; 
+        &:hover {
+          -webkit-filter: brightness(1.2);
+          -moz-filter: brightness(1.2);
+          -ms-filter: brightness(1.2);
+          filter: brightness(1.2);
         }
-        .iconContainer img{
-          width:100%;
+        .videoHolder img{
+          max-width:100%;
+          max-height:100%;
+          background:#ccc;
+          display:block;
         }
-        .name {
-          width:80px;
-          word-wrap:break-word;
+        .videodescription {
+          text-align:center;
+          font-weight:normal;
+          width:150px;
+          font-size:12px;
+          margin:10px 5px 10px 5px;
+        }
+      }
+      .pictureContainer {
+        width:188px;
+        height:188px; 
+        padding:auto; 
+        margin:30px; 
+        font-size:12px; 
+        float:left;
+        vertical-align:center;
+        cursor: pointer; 
+        &:hover {
+          -webkit-filter: brightness(1.2);
+          -moz-filter: brightness(1.2);
+          -ms-filter: brightness(1.2);
+          filter: brightness(1.2);
+        }
+        .pictureHolder img{
+          max-width:100%;
+          max-height:100%;
+          background:#ccc;
+          display:block;
+        }
+        .picturedescription {
+          text-align:center;
+          font-weight:normal;
+          width:150px;
+          font-size:12px;
+          margin:10px 5px 10px 5px;
+        }
+      }
+      .tableContainer{
+        .table tbody th{
+          font-weight:normal;
+        }
+        .table tr:hover {
+          color:#ff0000;
+          text-shadow:0 -1px 0 rgba(0,0,0,0.2);
+          text-decoration:none;
+          cursor:pointer;
         }
       }
     }

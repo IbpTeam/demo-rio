@@ -8,6 +8,7 @@ var main = function(params_){
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
+    tagDragged = undefined;
     homePage = HomePage.create();
     search = Search.create();
     contact = Contact.create();
@@ -19,6 +20,12 @@ var main = function(params_){
     content    = $('#contentDiv');
     search.attach($('#searchDiv'));
     homePage.attach(content);
+
+    usrInfo = UsrInfoView.create();
+    usrInfo.attach(container);
+    usrInfo.hide();
+    usrInfo.setUsrInfo();
+    usrInfo.setUsrExtra('load');
 
     // infoList switcher
     var clickHandler = function(k) {
@@ -46,6 +53,45 @@ var main = function(params_){
       $('#js-label' + i).on('click', clickHandler(i));
       $('#js-label' + i)[0].ondragenter = clickHandler(i);
     }
+
+    //bind drag event
+    $('#tags__bottom')[0].ondragover = function(ev){
+      ev.preventDefault();
+    }
+    $('#tags__bottom')[0].ondrop = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      var _tag = ev.dataTransfer.getData('tag');
+      var _uri = ev.dataTransfer.getData('uri');
+      var _category = ev.dataTransfer.getData('category');
+      if(_tag && _uri){
+        DataAPI.rmTagsByUri(function(result){
+          if (result === 'commit') {
+            if(tagDragged){
+              tagDragged.removeTagByText(_tag);
+            }
+            if (infoList.isShow()) {
+              infoList.fixTagNum(_tag,-1);
+            };
+            if (_category === 'contact') {
+              var _tags = contact._contacts[contact._selectId]['others'].split(',');
+              var _others = '';
+              for (var i = 0; i < _tags.length; i++) {
+                  if (_tags[i] == _tag) continue;
+                  if(_others === '') {
+                    _others = _tags[i];
+                  }else{
+                    _others += ','+_tags[i];
+                  }
+              };
+              contact._contacts[contact._selectId]['others'] = _others;
+            };
+          }else{
+            console.log('Delect tags failed!');
+          }
+        },[_tag],_uri);
+      }
+    }
     //analyse and performance params
     if (_params) {
       if (_params['category']) {
@@ -59,9 +105,11 @@ var main = function(params_){
           case 'other': $('#js-label7')[0].click(); break;
         }
       }
-    };
-  });
+    }
+
+    //add click func to usr info
+    $('#avatar').on('click',function(){
+      usrInfo.showUsrInfo();
+    });
+});
 }
-
-
-

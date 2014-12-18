@@ -2,10 +2,10 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = ['Contacts','Images','Videos','Documents','Musics'];
-    this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)'];
+    this._title = ['Contacts','Images','Videos','Documents','Musics','Others'];
+    this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(225,255,225,1)'];
 
-    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays'];
+    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays','Recent Visit'];
 
     this._index = -1;
     this._info = {};
@@ -38,16 +38,47 @@ var InfoList = Class.extend({
     });
     this._infoList.append(this._infoBottom);
     this._isFirstRequset = true;
+    this._inputer = Inputer.create('infoList-inputer');
+    this.bindEvent();
+  },
+  /**
+   * [bindEvent bind event include click add button]
+   * @return {[type]} [description]
+   */
+  bindEvent:function(){
+    var _this = this;
+    this._add.click(function(){
+      var _options = {
+        'left': $(this).offset().left,
+        'top' : $(this).offset().top,
+        'width': 100,
+        'height': 20,
+        'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
+        'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
+          if(newtext_){
+            var _tags = _this._infoContent.children('.il__a');
+            for (var i = 0; i < _tags.length; i++) {
+              var _tagText = $(_tags[i]).children('.il__title')[0].textContent;
+              if(_tagText === newtext_) {
+                return 0;
+              }
+            };
+            _this.addTag(newtext_,0);
+          }
+        }
+      }
+      _this._inputer.show(_options);
+    });
   },
 
   setIndex:function(index_){
-    if(typeof index_ === 'number' && index_ > 0 && index_ < 7){
+    if(typeof index_ === 'number' && index_ > 0 && index_ < 8){
       this._index = index_-2;
     }
   },
 
   setTitle:function(){
-    if (this._index < 0  || this._index > 4) return 0;
+    if (this._index < 0  || this._index > 5) return 0;
     this._infoList.css('background-color', this._bkgColor[this._index]);
     var _p = this._titleForm.children('p');
     if (_p.length > 0) {
@@ -66,7 +97,6 @@ var InfoList = Class.extend({
       'class': 'bil_title',
       'text': this._btmTitle[this._index]
     })
-    //this._infoBtmTitle.append(_icon);
     this._infoBtmTitle.append(_title);
   },
 
@@ -98,6 +128,8 @@ var InfoList = Class.extend({
         return 'document';
       case 4:
         return 'music';
+      case 5:
+        return 'other';
     }
   },
 
@@ -118,6 +150,27 @@ var InfoList = Class.extend({
     _a.append(_num);
     this._add.before(_a);
     this.bindDrag(_a[0]);
+  },
+
+  fixTagNum:function(tag_, num_){
+    var _tags = this._infoContent.children('.il__a');
+    for (var i = 0; i < _tags.length; i++) {
+      if($(_tags[i]).children('.il__title')[0].textContent === tag_){
+        var _num = $(_tags[i]).children('.il__num')[0].textContent;
+        _num = parseInt(_num) + num_;
+        $(_tags[i]).children('.il__num').remove();
+        var _numText = $('<span>',{
+          'class':'il__num',
+          'text': _num
+        });
+        $(_tags[i]).append(_numText);
+        return _num;
+      }
+    };
+    if(num_>0){
+      this.addTag(tag_,num_);
+    }
+    return -1;
   },
 
   setContent:function(){
@@ -166,10 +219,22 @@ var InfoList = Class.extend({
     $parent_.append(this._infoList);
   },
 
+  show:function(){
+    this._infoList.show();    
+  },
+  
+  hide:function(){
+    this._infoList.hide();
+  },
+
+  isShow:function(){
+    return this._infoList.is(":visible");
+  },
+
   loadData:function(){
-    if(this._index >0 && this._index <5){
+    if(this._index >0 && this._index <6){
       if(this._isFirstRequset){
-        showfiles = ShowFiles.create();  
+        showfiles = ShowFiles.create();
         showfiles.setIndex(this._index);
         this._isFirstRequset = false;
       }

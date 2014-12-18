@@ -33,6 +33,9 @@ a {
   -ms-transition: color .35s;
   -o-transition: color .35s;
   transition: color .35s; 
+  &:hover{
+    text-decoration: none;
+  }
 }
 
 #sidebar {
@@ -56,6 +59,7 @@ a {
     -o-user-select: none;
     user-select: none; 
     #avatar{
+      cursor:pointer;
       width: 41px;
       height: 41px;
       margin: 0px 9px 24.6px;
