@@ -131,6 +131,25 @@
     });  
   }
 
+  function getCategoryFilesByTagCb(err,result){
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API setTagByUriMulti()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getCategoryFilesByTag(getCategoryFilesByTagCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = 'test111';
+      data.getCategoryFilesByTag(getCategoryFilesByTagCb,'picture',oTags);
+    });  
+  }
+
   function rmTagsAllCb(result){
     var win = window.open('');
     win.document.write("test API rmTagsAll()");
@@ -315,6 +334,33 @@
       var oUri = [test_uri];
       data.setTagByUri(setTagByUriCb,oTags,oUri);
     });    
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getCategoryFilesByTag')">getCategoryFilesByTag(getCategoryFilesByTagCb,category,oTags)<span><a class="mark" href="#test_getCategoryFilesByTag" id="test_getCategoryFilesByTag" onclick="test_getCategoryFilesByTag(getCategoryFilesByTagCb)">test</a></span></h2>
+<div id="getCategoryFilesByTag" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getCategoryFilesByTagCb(err,result){
+    var win = window.open('');
+    win.document.write("test API getCategoryFilesByTag()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_getCategoryFilesByTag(getCategoryFilesByTagCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['music','picture','document'];
+      data.getCategoryFilesByTag(getCategoryFilesByTagCb,'document',oTags);
+    });  
   }
   </pre>
 </div>

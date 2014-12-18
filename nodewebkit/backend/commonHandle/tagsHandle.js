@@ -310,39 +310,57 @@ function getFilesByTags(callback, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
+/*
+TODO: this is a much quiker way to get files by tag, but not precisely enough. 
+May improve it in futre.
+*/
+// function getFilesByTagsInCategory(callback, category, sTag) {
+//   var condition = ["others like '%" + sTag + "%'"];
+//   commonDAO.findItems(null, category, condition, null, function(err, result) {
+//     if (err) {
+//       console.log(err);
+//       return callback(err, null);
+//     } else if (result == undefined) {
+//       var _err = 'not found in data base ...';
+//       return callback(_err, null);
+//     }
+//     callback(null, result);
+//   })
+// }
+// exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
+
 function getFilesByTagsInCategory(callback, category, sTag) {
   var condition = ["tag='" + sTag + "'"];
   commonDAO.findItems(null, ['tags'], condition, null, function(err, result) {
     if (err) {
       console.log(err);
       return callback(err, null);
-    } else if (result = undefined) {
+    } else if (result == '' || result == null) {
       var _err = 'not found in data base ...';
       return callback(_err, null);
-    } else if (result.length > 1) {
-      var _err = 'tag in data base is not unique ...';
-      return callback(_err, null);
     }
-    try {
-      var oUris = result[0].file_URI.split(',');
-    } catch (e) {
-      var _err = result[0] + ': bad file_URI ...';
-      return callback(_err, null);
+    var oUris = [];
+    for (var tmp in result) {
+      if (result[tmp].file_URI != '' && result[tmp].file_URI != null) {
+        oUris.push(result[tmp].file_URI);
+      }
     }
     var oCondition = [];
-    var reg_cate = new RegExp(category, 'g');
     for (var j = 0; j < oUris.length; j++) {
-      if (reg_cate.test(oUris[j])) {
+      var pos = oUris[j].lastIndexOf('#');
+      var _category = oUris[j].substr(pos+1);
+      if (_category === category) {
         var tmpCondition = "uri='" + oUris[j] + "'";
         oCondition.push(tmpCondition);
       }
     }
-    var sCondition = oCondition.join('or');
+    console.log(oCondition)
+    var sCondition = oCondition.join(' or ');
     commonDAO.findItems(null, category, [sCondition], null, function(err, result) {
       if (err) {
         console.log(err);
         return callback(err, null);
-      } else if (result = undefined) {
+      } else if (result == undefined) {
         var _err = 'not found in data base ...';
         return callback(_err, null);
       }
