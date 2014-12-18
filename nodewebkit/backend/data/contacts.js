@@ -124,7 +124,8 @@ function getAllContacts(getAllCb) {
           age: each.age,
           photoPath: each.path,
           phone: each.phone,
-          email: each.email
+          email: each.email,
+          others: each.others
         }
         for (var i = 2; i < 6; i++) {
           if (each['phone' + String(i)] != null && each['phone' + String(i)] != '') {
