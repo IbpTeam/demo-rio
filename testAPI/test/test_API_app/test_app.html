@@ -70,10 +70,15 @@
     win.document.write("<br/>");
   }
 
-  function startAppByName(startAppByNameCb){
-    WDC.requireAPI(['app'], function(app){
+  function startAppByName(startAppByNameCb) {
+    WDC.requireAPI(['app'], function(app) {
       var _url = '/home/xiquan/Documents/books/SEP/JavaScript设计模式.pdf';
-      app.startAppByName(startAppByNameCb, "viewerPDF", _url);
+      app.getRegisteredAppInfo(function(err, appInfo) {
+        if (err) {
+          return console.log(err);
+        }
+        app.startApp(startAppByNameCb, appInfo, _url);
+      }, "viewerPDF-app")
     });
   }
   </script>

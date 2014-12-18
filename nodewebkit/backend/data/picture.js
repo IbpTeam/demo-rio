@@ -156,14 +156,13 @@ function createData(items, callback) {
                 itemInfoAll.push(itemInfo);
                 var isEnd = (count === lens - 1);
                 if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(result) {
-                    if (result === 'success') {
-                      callback(null, result);
-                    } else {
+                  commonHandle.createDataAll(itemInfoAll, function(err, result) {
+                    if (err) {
                       var _err = 'createData: commonHandle createData all error!';
                       console.log('createData error!');
-                      callback(_err, null);
+                      return callback(_err, null);
                     }
+                    callback(null, result);
                   })
                 }
                 count++;
@@ -348,7 +347,7 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"ch", function() {
+        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"open", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];

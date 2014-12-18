@@ -3,12 +3,30 @@ var MainPicView = Class.extend({
     this._picContainer = $('<div>',{
       'id': 'pic-container'
     });
-    this._picData={
-      'path': 'img/show.jpg',
-      'text': 'heaven',
-      'date': ' 2014-10-31' 
-    }
-    this.setPicture(this._picData);
+    var _this = this;
+    _this._tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(0,120,240)'
+    });
+    DataAPI.getRecentAccessData(function(err_, picture_json_){
+      if(picture_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
+      }
+      for(var i = 0; i < picture_json_.length; i++){
+        var _date = new Date(picture_json_[i]['createTime']);
+        _this._picData={
+          'path': picture_json_[i]['path'],
+          'text': picture_json_[i]['filename'],
+          'uri': picture_json_[i]['URI'],
+          'date': _date.toDateString(),
+          'tags': picture_json_[i]['others'].split(',')
+        }
+        _this.setPicture(_this._picData);
+      }
+    }, 'picture', 1);
   },
 
   attach:function($parent_){
@@ -21,12 +39,24 @@ var MainPicView = Class.extend({
         'class':'pic-content'
       });
       this._picContainer.append(_picContent);
+      var _picContentBack_1 = $('<div>',{
+        'class':'pic-content-bj-01'
+      })
+      this._picContainer.append(_picContentBack_1);
+      var _picContentBack_2 = $('<div>',{
+        'class':'pic-content-bj-02'
+      })
+      this._picContainer.append(_picContentBack_2);    
+      var _picSize = $('<div>',{
+        'class':'pic-size'
+      })
+      _picContent.append(_picSize);
       var _picImg = $('<img>',{
         'class':'pic-img',
         'draggable': false,
         'src': pic_.path
       });
-      _picContent.append(_picImg);
+      _picSize.append(_picImg);
       _picBtmContent = $('<div>',{
         'class': 'pic-btm-content'
       });
@@ -36,27 +66,15 @@ var MainPicView = Class.extend({
         'text': pic_.text
       });
       _picBtmContent.append(_picText);
-      _picBtn = $('<a>',{
-        'class': 'pic-btn icon-heart-empty'
-      });
-      _picBtmContent.append(_picBtn);
-      _picBtn.click(function(){
-        if (_picBtn.hasClass('selected')) {
-          _picBtn.addClass('icon-heart-empty');
-          _picBtn.removeClass('icon-heart');
-          _picBtn.removeClass('selected');
-        }else{
-          _picBtn.addClass('selected');
-          _picBtn.removeClass('icon-heart-empty');
-          _picBtn.addClass('icon-heart');
-        }
-      })
       _picDate = $('<span>',{
         'class': 'pic-date',
         'text': pic_.date
       });
       _picBtmContent.append(_picDate);
     };
+    this._tagView.setParent(_picContent,pic_.uri);
+    this._tagView.addTags(pic_.tags);
+    this.bindDrag(_picImg[0]);
   },
 
   removePicture:function(index_){
@@ -71,6 +89,25 @@ var MainPicView = Class.extend({
   },
   show:function(){
     this._picContainer.show();
+  },
+  bindDrag:function(target_){
+    target_.ondrop = this.drop;
+    target_.ondragover = this.dragOver;
+  },
+  drop:function(ev){
+    var _tag = ev.dataTransfer.getData('tag');
+    var _uri = ev.dataTransfer.getData('uri');
+    if (typeof _tag === 'string' && _tag.length > 0) {
+      DataAPI.setTagByUri(function(err){
+        if (err === null) {
+          homePage._pic._tagView.addPreTag(_tag);
+        };
+      },[_tag],homePage._pic._picData.uri);
+    };
+    ev.preventDefault();
+    ev.stopPropagation();
+  },
+  dragOver:function(ev){
+    ev.preventDefault();
   }
-
 });

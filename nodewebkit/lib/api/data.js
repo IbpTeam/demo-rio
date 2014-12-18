@@ -44,6 +44,72 @@ function sendIMMsg(sendIMMsgCb, ipset, toAccount, msg) {
 }
 exports.sendIMMsg = sendIMMsg;
 
+/**
+ * @method loadFile
+ *    To load one single file into datamgr.
+ *
+ * @param1 loadFileCb
+ *   回调函数(err,result)
+ *   @err
+ *      string, specific err info
+ *   @result
+ *      array，object array, include file info of name exist file.
+ *
+ * @param1: sFilePath
+ *    string, a file path as, '/home/xiquan/mydir/myfile.txt'.
+ *
+ */
+function loadFile(loadFileCb, sFilePath) {
+  console.log("Request handler 'loadFile' was called.");
+  var sPosIndex = (sFilePath).lastIndexOf(".");
+  var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
+  var category = null;
+  if (sPos != 'csv' && sPos != 'CSV') {
+    if (sPos == 'none' ||
+      sPos == 'ppt' ||
+      sPos == 'pptx' ||
+      sPos == 'doc' ||
+      sPos == 'docx' ||
+      sPos == 'wps' ||
+      sPos == 'odt' ||
+      sPos == 'et' ||
+      sPos == 'txt' ||
+      sPos == 'xls' ||
+      sPos == 'xlsx' ||
+      sPos == 'ods' ||
+      sPos == 'zip' ||
+      sPos == 'sh' ||
+      sPos == 'gz' ||
+      sPos == 'html' ||
+      sPos == 'et' ||
+      sPos == 'odt' ||
+      sPos == 'pdf' ||
+      sPos == 'html5ppt') {
+      category = 'document';
+    } else if (sPos == 'jpg' || sPos == 'png') {
+      category = 'picture';
+    } else if (sPos == 'mp3') {
+      category = 'music';
+    } else if (sPos == 'ogg') {
+      category = 'video';
+    } else if (sPos == 'conf' || sPos == 'desktop') {
+      var _err = 'this is a desktop config file ...'
+      return loadFileCb(_err, null);
+    } else {
+      category = 'other';
+    }
+  }
+  var cate = utils.getCategoryObject(category);
+  cate.createData(sFilePath, function(err, result) {
+    if (err !== 'sucess') {
+      console.log(err);
+      return loadFileCb(err, null);
+    }
+    loadFileCb(null, result);
+  })
+}
+exports.loadFile = loadFile;
+
 //var utils = require('util');
 //var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
 /**
@@ -51,10 +117,23 @@ exports.sendIMMsg = sendIMMsg;
  *   读取某个资源文件夹到数据库
  *
  * @param1 loadResourcesCb
- *   回调函数
+ *   回调函数(err,result)
+ *   @err
+ *      string, specific err info
  *   @result
- *      string，success代表成功，其他代表失败原因
- *
+ *      array，object array, include file info of name exist file.
+ *  
+ *   example:
+ *   [{
+ *     "origin_path": "/home/xiquan/WORK_DIRECTORY/resources/pictures/city1.jpg",
+ *     "old_name": "city1.jpg",
+ *     "re_name": "duplicate_at_2014年12月17日_下午1:30:40_duplicate_at_2014年12月17日_下午1:30:40_city1.jpg"
+ *   }, {
+ *     "origin_path": "/home/xiquan/WORK_DIRECTORY/resources/pictures/city3.jpg",
+ *     "old_name": "city3.jpg",
+ *     "re_name": "duplicate_at_2014年12月17日_下午1:30:40_duplicate_at_2014年12月17日_下午1:30:40_city3.jpg"
+ *   }]
+ *  
  * @param2 path
  *   string，要加载资源的路径
  */
@@ -66,6 +145,7 @@ function loadResources(loadResourcesCb, path) {
   var PicList = [];
   var DskList = [];
   var OtherList = [];
+  var existFile = [];
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -127,39 +207,49 @@ function loadResources(loadResourcesCb, path) {
   documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
-      loadResourcesCb(err, null);
-    } else {
-      pictures.createData(PicList, function(err, result) {
+      return loadResourcesCb(err, null);
+    }
+    if (result != '' && result != null && typeof result === 'object') {
+      existFile = existFile.concat(result);
+    }
+    pictures.createData(PicList, function(err, result) {
+      if (err) {
+        console.log(err);
+        return loadResourcesCb(err, null);
+      }
+      if (result != '' && result != null && typeof result === 'object') {
+        existFile = existFile.concat(result);
+      }
+      music.createData(MusList, function(err, result) {
         if (err) {
           console.log(err);
-          loadResourcesCb(err, null);
-        } else {
-          music.createData(MusList, function(err, result) {
+          return loadResourcesCb(err, null);
+        }
+        if (result != '' && result != null && typeof result === 'object') {
+          existFile = existFile.concat(result);
+        }
+        video.createData(VidList, function(err, result) {
+          if (err) {
+            console.log(err);
+            return loadResourcesCb(err, null);
+          }
+          if (result != '' && result != null && typeof result === 'object') {
+            existFile = existFile.concat(result);
+          }
+          other.createData(OtherList, function(err, result) {
             if (err) {
               console.log(err);
-              loadResourcesCb(err, null);
-            } else {
-              video.createData(VidList, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  loadResourcesCb(err, null);
-                } else {
-                  other.createData(OtherList, function(err, result) {
-                    if (err) {
-                      console.log(err);
-                      loadResourcesCb(err, null);
-                    } else {
-                      console.log("load resources success!");
-                      loadResourcesCb('success');
-                    }
-                  });
-                }
-              });
+              return loadResourcesCb(err, null);
             }
+            if (result != '' && result != null && typeof result === 'object') {
+              existFile = existFile.concat(result);
+            }
+            console.log("load resources success!", existFile);
+            loadResourcesCb(null, existFile);
           });
-        }
+        });
       });
-    }
+    });
   });
 }
 exports.loadResources = loadResources;
@@ -475,28 +565,38 @@ exports.pasteFile = pasteFile;
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因
+//if catefory is 'contact', then the input 'filename',should be an object that 
+//includes all contact info.
 function createFile(createFileCb, filename, category) {
   console.log("Request handler 'createFile' was called.");
-  var desPath = '/tmp/' + filename;
-  cp.exec("touch " + desPath, function(error, stdout, stderr) {
-    if (error !== null) {
-      console.log('exec error: ' + error);
-      creatFileCb(false);
-    } else {
-      if (category == 'document' || category == 'music' || category == 'picture') {
-        var cate = utils.getCategoryObject(category);
-        cate.createData([desPath], function(err, result) {
-          if (err != null) {
-            createFileCb(false);
-          } else {
-            cp.exec("rm " + desPath, function(error, stdout, stderr) {
-              createFileCb(result);
-            });
-          }
-        });
-      }
+  if (category === 'contact') {
+    if (typeof filename != 'object') {
+      var _err = 'bad contact input data ...';
+      return callback(_err, null);
     }
-  });
+    contacts.createData(filename, createFileCb);
+  } else {
+    var desPath = '/tmp/' + filename;
+    cp.exec("touch " + desPath, function(error, stdout, stderr) {
+      if (error !== null) {
+        console.log('exec error: ' + error);
+        creatFileCb(false);
+      } else {
+        if (category == 'document' || category == 'music' || category == 'picture') {
+          var cate = utils.getCategoryObject(category);
+          cate.createData([desPath], function(err, result) {
+            if (err != null) {
+              createFileCb(false);
+            } else {
+              cp.exec("rm " + desPath, function(error, stdout, stderr) {
+                createFileCb(result);
+              });
+            }
+          });
+        }
+      }
+    });
+  }
 }
 exports.createFile = createFile;
 
@@ -1469,3 +1569,63 @@ function deviceInfo(deviceInfoCb) {
   devices.deviceInfo(deviceInfoCb);
 }
 exports.deviceInfo = deviceInfo;
+
+
+/** 
+ * @Method: getMusicPicData
+ *    To get picture (like album's cover) of a music file.
+ *
+ * @param: getMusicPicDataCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, data is returned in binary encoded with base64. You could acc-
+ *                ess the picture like: 
+ *                var img = document.getElementById("test_img");
+ *                img.src = 'data:image/jpeg;base64,' + result;
+ *
+ *                You should notice that if the target file contains no pciture,
+ *                then the result would be null.
+ *
+ *  @param2: filePath
+ *    string, a specific music file path.To access it, you may use a DataView or
+ *            typed array such as Uint8Array.
+ *
+ *
+ **/
+function getMusicPicData(getMusicPicDataCb, filePath) {
+  console.log("Request handler 'getMusicPicData' was called.");
+  music.getMusicPicData(filePath, getMusicPicDataCb);
+}
+exports.getMusicPicData = getMusicPicData;
+
+/** 
+ * @Method: getVideoThumbnail
+ *    To get thumbnail of a video.
+ *
+ * @param: getMusicPicDataCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        string, data is returned in binary encoded with base64. You could acc-
+ *                ess the picture like: 
+ *                var img = document.getElementById("test_img");
+ *                img.src = 'data:image/jpeg;base64,' + result;
+ *
+ *
+ *  @param2: sPath
+ *    string, a specific music file full path.
+ *
+ *
+ **/
+function getVideoThumbnail(getVideoThumbnailCb, sPath) {
+  console.log("Request handler 'getVideoThumbnail' was called.");
+  video.readVideoThumbnail(sPath, getVideoThumbnailCb);
+}
+exports.getVideoThumbnail = getVideoThumbnail;

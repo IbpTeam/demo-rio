@@ -22,6 +22,7 @@ var uniqueID = require("../uniqueID");
 var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
+var tagsHandle = require('../commonHandle/tagsHandle');
 
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";
@@ -29,6 +30,76 @@ var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
 var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
+
+
+
+function createData(item, callback) {
+  if (item == [] || item == '') {
+    console.log('no contact info ...');
+    return callback('no contact info ...', null);
+  }
+  var condition = ["name = '" + item.name + "'"];
+  commonDAO.findItems(null, CATEGORY_NAME, condition, null, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    } else if (result != '' && result != null) {
+      var _err = 'contact exists: '+ item.name + ' ...';
+      return callback(_err, null)
+    }
+    uniqueID.getFileUid(function(uri) {
+      var currentTime = (new Date());
+      var oNewItem = {
+        URI: uri + "#" + CATEGORY_NAME,
+        category: CATEGORY_NAME,
+        is_delete: 0,
+        name: item.name || '',
+        phone: item.phone || '',
+        phone2: item.phone2 || '',
+        phone3: item.phone3 || '',
+        phone4: item.phone4 || '',
+        phone5: item.phone5 || '',
+        sex: item.sex || '',
+        age: item.age || '',
+        email: item.email || '',
+        email2: item.email2 || '',
+        id: "",
+        photoPath: item.photoPath || '',
+        createTime: currentTime,
+        lastModifyTime: currentTime,
+        lastAccessTime: currentTime,
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID,
+        others: item.others || ''
+      }
+      dataDes.createItem(oNewItem, DES_DIR, function() {
+        commonDAO.createItem(oNewItem, function(err) {
+          if (err) {
+            return callback(err, null);
+          }
+          var sDesFilePath = pathModule.join(DES_DIR, oNewItem.name + '.md');
+          repo.repoCommit(DES_REPO_DIR, [sDesFilePath], null, 'add', function(err) {
+            if (err) {
+              return callback(err, null);
+            }
+            if (item.others != '' && item.others != null) {
+              var oTags = item.others.split(',');
+              tagsHandle.addInTAGS(oTags, uri, function(err) {
+                if (err) {
+                  return callback(err, null);
+                }
+                callback(null, 'success');
+              })
+            } else {
+              callback(null, 'success');
+            }
+          })
+        })
+      });
+    })
+  })
+}
+exports.createData = createData;
 
 /**
  * @method getAllContacts
@@ -56,15 +127,27 @@ function getAllContacts(getAllCb) {
     }
     var contacts = [];
     data.forEach(function(each) {
-      contacts.push({
-        URI: each.URI,
-        name: each.name,
-        sex: each.sex,
-        age: each.age,
-        photoPath: each.path,
-        phone: each.phone,
-        email: each.email
-      });
+      if (each != '' && each != null) {
+        var tmp = {
+          URI: each.URI,
+          name: each.name,
+          sex: each.sex,
+          age: each.age,
+          photoPath: each.path,
+          phone: each.phone,
+          email: each.email,
+          others: each.others
+        }
+        for (var i = 2; i < 6; i++) {
+          if (each['phone' + String(i)] != null && each['phone' + String(i)] != '') {
+            tmp['phone' + String(i)] = each['phone' + String(i)];
+          }
+        }
+        if (each.email2 != null && each.email2 != '') {
+          tmp.email2 = each.email2;
+        }
+        contacts.push(tmp);
+      }
     });
     getAllCb(contacts);
   }
@@ -151,22 +234,22 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
 function removeByUri(uri, callback) {
   getByUri(uri, function(items) {
     //Remove des file
-    var sDesFullPath = utils.getDesPath(CATEGORY_NAME,items[0].name);
-    fs.unlink(sDesFullPath,function(err){
-      if(err){
+    var sDesFullPath = utils.getDesPath(CATEGORY_NAME, items[0].name);
+    fs.unlink(sDesFullPath, function(err) {
+      if (err) {
         console.log(err);
         callback("err");
-      }else{
+      } else {
         //Delete from db
-        commonHandle.deleteItemByUri(CATEGORY_NAME,uri,function(isSuccess){
-          if(isSuccess == "rollback"){
+        commonHandle.deleteItemByUri(CATEGORY_NAME, uri, function(isSuccess) {
+          if (isSuccess == "rollback") {
             callback("error");
             return;
           }
           //Git commit
           var aDesFiles = [sDesFullPath];
           var sDesDir = utils.getDesDir(CATEGORY_NAME);
-          repo.repoCommit(sDesDir,aDesFiles,null,"rm",callback);
+          repo.repoCommit(sDesDir, aDesFiles, null, "rm", callback);
         });
       }
     });
@@ -221,7 +304,7 @@ function initContacts(loadContactsCb, resourcePath) {
     }
 
     function isEndCallback(_oDesFiles) {
-      repo.repoCommit(contactsPath, _oDesFiles, null,"add", loadContactsCb);
+      repo.repoCommit(contactsPath, _oDesFiles, null, "add", loadContactsCb);
     }
     for (var k = 0; k < oContacts.length; k++) {
       var isContactEnd = (k == (oContacts.length - 1));
@@ -257,7 +340,7 @@ function updateDataValue(item, callback) {
           callback(_err);
         } else {
           console.log('update contact success!');
-          repo.repoCommit(DES_REPO_DIR, [desFilePath], null,"ch", function() {
+          repo.repoCommit(DES_REPO_DIR, [desFilePath], null, "ch", function() {
             callback('success')
           })
         }
@@ -314,16 +397,14 @@ function repoReset(commitID, callback) {
   getGitLog(function(err, oGitLog) {
     if (err) {
       callback(err, null);
-    } 
-    else {
-      repo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
+    } else {
+      repo.repoReset(DES_REPO_DIR, commitID, null, function(err, result) {
         if (err) {
           console.log(err);
           callback({
             'document': err
           }, null);
-        } 
-        else {
+        } else {
           console.log('reset success!')
           callback(null, result)
         }
@@ -347,19 +428,19 @@ exports.repoReset = repoReset;
  * @param callback
  *    Callback.
  */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
-  repo.pullFromOtherRepo(deviceId,address,account,sDesRepoPath,function(desFileNames){
+function pullRequest(deviceId, address, account, resourcesPath, callback) {
+  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
+  repo.pullFromOtherRepo(deviceId, address, account, sDesRepoPath, function(desFileNames) {
     var aFilePaths = new Array();
     var sDesPath = utils.getDesRepoDir(CATEGORY_NAME);
-    desFileNames.forEach(function(desFileName){
-      aFilePaths.push(path.join(sDesPath,desFileName));
+    desFileNames.forEach(function(desFileName) {
+      aFilePaths.push(path.join(sDesPath, desFileName));
     });
     console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
     //TODO base on files, modify data in db
-    dataDes.readDesFiles(CATEGORY_NAME,aFilePaths,function(desObjs){
-      dataDes.writeDesObjs2Db(desObjs,function(status){
-        callback(deviceId,address,account);
+    dataDes.readDesFiles(CATEGORY_NAME, aFilePaths, function(desObjs) {
+      dataDes.writeDesObjs2Db(desObjs, function(status) {
+        callback(deviceId, address, account);
       });
     });
   });
@@ -393,3 +474,9 @@ function getFilesByTag(sTag, callback) {
   tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
 }
 exports.getFilesByTag = getFilesByTag;
+
+function getRecentAccessData(num, getRecentAccessDataCb) {
+  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
+  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
+}
+exports.getRecentAccessData = getRecentAccessData;

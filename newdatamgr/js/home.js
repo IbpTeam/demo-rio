@@ -1,11 +1,13 @@
 var HomePage = Class.extend({
   init:function(){
-    this._doc = MainVideoView.create();
+    this._video = MainVideoView.create();
     this._pic = MainPicView.create();
-    this._video = MainDocView.create();
+    this._doc = MainDocView.create();
     this._music = MainMusicView.create();
-    this._contact = undefined;
+    this._contact = MainContactView.create();
     this._isShow = undefined;
+    this._noneData = 0;
+    this._dataClasses = 3;
   },
 
   attach:function($parent_){
@@ -13,6 +15,7 @@ var HomePage = Class.extend({
     this._pic.attach($parent_);
     this._video.attach($parent_);
     this._music.attach($parent_);
+    this._contact.attach($parent_);
   },
 
   show:function(){
@@ -21,6 +24,7 @@ var HomePage = Class.extend({
     this._video.show();
     this._pic.show();
     this._music.show();
+    this._contact.show();
   },
 
   hide:function(){
@@ -29,5 +33,6 @@ var HomePage = Class.extend({
     this._pic.hide();
     this._video.hide();
     this._music.hide();
+    this._contact.hide();
   }
 })

@@ -9,8 +9,19 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family:"PT Sans";
+  src:url("../font/PTS55F.eot?") format("eot"),
+      url("../font/PTS55F.woff") format("woff"),
+      url("../font/PTS55F.ttf") format("truetype"),
+      url("../font/PTS55F.svg#PTSans-Regular") format("svg");
+  font-weight:normal;
+  font-style:normal;
+  }
+
+
 [class^="icon-"], [class*=" icon-"] {
-  font-family: 'icomoon', 'FontAwesome';
+  font-family: 'icomoon','PT Sans';
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -49,6 +60,31 @@
 .icon-icon-facetime-video:before {
   content: "\e608";
 }
+
+.icon-plus:after{
+  content: "\e60a";
+  font-size: 0.5em;
+  width: 10px;
+}
+
+.icon-search:before {
+  content: "\e60b";
+}
+
+.icon-qrcode:before {
+  content: "\e605";
+  font-size: 0.6em;
+}
+
+.regular-checkbox:checked + label:after {
+  font-family: 'icomoon';
+  content:"\e60d";
+  font-size: 1.2em;
+  position: absolute;
+  top:-1px;
+  left:1px;
+}
+
 /*
 .black_bj:after{
   font-family: 'icomoon';

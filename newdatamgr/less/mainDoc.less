@@ -4,44 +4,71 @@
       position: absolute;
       top: 20px;
       left: 40px;
-      right:350px;
-      bottom: 50%;
-      border: 1px solid #ccc;
+      bottom: 280px;
+      border: 1px solid #d6d6d6;
+      border-radius: 3px;
+      background-color: white;
+      box-shadow: 0px 1px 1px rgba(209,209,209,0.85);
       #doc-title-content{
         position: relative;
         width: 100%;
         height: 50px;
-        border: 1px solid #f00;
+        border-bottom: 1px solid rgba(229,229,229,0.75);
         #doc-title-tag{
           position: absolute;
           left: 0px;
           height: 20px;
           width: 5px;
           top:15px;
-          background: #f00;
+          background: #e24444;
         }
         #doc-title-text{
           position: absolute;
-          left: 10px;
-          top: 10px;
+          left: 15px;
+          top: 12px;
           font-size: 20px;
-          color: #ccc;
+          color: #afafaf;
           font-weight: bold;
+          letter-spacing: 1px;
         }
         #doc-select-div{
           position: absolute;
           top:15px;
           right: 10px;
-          width: 220px;
+          width: 230px;
           height: 20px;
-          border: 1px solid #3f9;
+          border: 1px solid rgba(0,0,0,0);
+          font-size: 10px;
+          //display: none;
           .doc-select{
             margin-left: 10px;
           }
+          label{
+            display: inline;
+          }
           .select-text{
-            font-size: 13px;
+            font-size: 11px;
             font-weight: normal;
           }
+          .regular-checkbox{
+            display: none;
+          }
+          .regular-checkbox + label {
+            background-color: #fff;
+            border: 1px solid #ff8383;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            position: relative;
+            display: inline-block;
+            margin-left: 15px;
+            margin-right: 8px;
+            top: 3px;
+          }
+            .regular-checkbox:checked + label {
+                //order: 1px solid #dadada;f
+                color: #ff9292;
+            }
         }
 
       }
@@ -51,7 +78,7 @@
         top:50px;
         bottom: 0px;
         width: 100%;
-        border: 1px solid #30f;
+        border: 1px solid rgba(0,0,0,0);
       }
     }
   }
@@ -59,17 +86,16 @@
 
 .doc-icon {
   width: 100px;
-  height: 100px;
-  margin-left: 30px;
-  margin-top: 20px;
+  height: 90px;
+  margin: 20px 9px 0px;
   outline: none;
   float: left;
-  border :1px solid #55f;
+  border :1px solid rgba(0,0,0,0);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-box-pack: center;
   -webkit-box-align: center;
-  
+  cursor: pointer;
   &:hover {
   -webkit-filter: brightness(1.2);
   -moz-filter: brightness(1.2);
@@ -78,22 +104,21 @@
   }
 
   img {
-    width: 100px * 0.625;
-    height: 100px * 0.625;
+    width: 35px;
     //border: 1px solid black;
     z-index: 98;
   }
 
   p {
     width: 100px;
-    height: 100px * 0.4;
+    height: 30px;
     margin: 2px 0px;
-    font-size: small;
+    font-size: 11px;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     z-index: 99;
-    border: 1px solid #000;
+    border: 1px solid rgba(0,0,0,0);
     
     &:hover {
       cursor: default;

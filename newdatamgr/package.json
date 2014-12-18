@@ -9,8 +9,8 @@
     "show_in_taskbar": true,
     "as_desktop": false,
     "frame": true,
-    "width": 1280,
-    "height": 720
+    "width": 951,
+    "height": 627
   },
   "devDependencies": {
     "grunt": "~0.4.5",

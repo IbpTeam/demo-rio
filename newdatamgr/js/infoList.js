@@ -2,21 +2,14 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = ['contact','picture','video','document','music'];
-    this._bkgColor = ['rgba(100, 0, 0, 0.5)','rgba(0, 50, 0, 0.5)','rgba(0, 0, 50, 0.5)','rgba(200, 200, 200, 0.5)','rgba(50, 50, 50, 0.5)'];
-    this._btmTitle = ['Recent Contact', 'New Import', 'New Import','New Import','New Import'];
+    this._title = ['Contacts','Images','Videos','Documents','Musics','Others'];
+    this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(225,255,225,1)'];
+
+    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays','Recent Visit'];
+
     this._index = -1;
-    this._info = {
-      'Falimy': 8,
-      'Friend': 30,
-      'Co-workers': 10,
-      'Other': 8
-    };
-    this._btmInfo = {
-	'New file1' : 'today',
-	'New File2' : 'today',
-	'New File3' : 'today'
-    };
+    this._info = {};
+    this._btmInfo = {};
     this._infoList = $('<div>',{
       'id':'info-list'
     });
@@ -36,29 +29,56 @@ var InfoList = Class.extend({
       'class':'il__add icon-plus'
     })
     this._infoContent.append(this._add);
+    this._infoBtmTitle = $('<div>',{
+      'id':'title-form-bottom'
+    });
+    this._infoList.append(this._infoBtmTitle);
     this._infoBottom = $('<nav>',{
       'id':'il__bottom'
     });
     this._infoList.append(this._infoBottom);
-    this._infoBtmTitle = $('<p>',{
-      'class':'title-form'
-    });
-    this._infoBottom.append(this._infoBtmTitle);
-    this._edit = $('<a>',{
-      'class': 'il__edit icon-edit'
-    });
-    this._infoBottom.append(this._edit);
     this._isFirstRequset = true;
+    this._inputer = Inputer.create('infoList-inputer');
+    this.bindEvent();
+  },
+  /**
+   * [bindEvent bind event include click add button]
+   * @return {[type]} [description]
+   */
+  bindEvent:function(){
+    var _this = this;
+    this._add.click(function(){
+      var _options = {
+        'left': $(this).offset().left,
+        'top' : $(this).offset().top,
+        'width': 100,
+        'height': 20,
+        'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
+        'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
+          if(newtext_){
+            var _tags = _this._infoContent.children('.il__a');
+            for (var i = 0; i < _tags.length; i++) {
+              var _tagText = $(_tags[i]).children('.il__title')[0].textContent;
+              if(_tagText === newtext_) {
+                return 0;
+              }
+            };
+            _this.addTag(newtext_,0);
+          }
+        }
+      }
+      _this._inputer.show(_options);
+    });
   },
 
   setIndex:function(index_){
-    if(typeof index_ === 'number' && index_ > 0 && index_ < 7){
+    if(typeof index_ === 'number' && index_ > 0 && index_ < 8){
       this._index = index_-2;
     }
   },
 
   setTitle:function(){
-    if (this._index < 0  || this._index > 4) return 0;
+    if (this._index < 0  || this._index > 5) return 0;
     this._infoList.css('background-color', this._bkgColor[this._index]);
     var _p = this._titleForm.children('p');
     if (_p.length > 0) {
@@ -73,14 +93,10 @@ var InfoList = Class.extend({
     if ($span.length > 0) {
       $span.remove();
     };
-    var _icon = $('<span>',{
-      'class': 'icon-time title-icon'
-    });
     var _title = $('<span>', {
       'class': 'bil_title',
       'text': this._btmTitle[this._index]
     })
-    this._infoBtmTitle.append(_icon);
     this._infoBtmTitle.append(_title);
   },
 
@@ -100,6 +116,63 @@ var InfoList = Class.extend({
     }
   },
 
+  getCategoryName:function(index_){
+    switch(index_){
+      case 0:
+        return 'contact';
+      case 1:
+        return 'picture';
+      case 2:
+        return 'video';
+      case 3:
+        return 'document';
+      case 4:
+        return 'music';
+      case 5:
+        return 'other';
+    }
+  },
+
+  addTag:function(tag_, num_){
+    var _a = $('<a>',{
+      'class':'il__a',
+      'draggable':'true'
+    });
+    var _text = $('<span>',{
+      'class':'il__title',
+      'text': tag_
+    });
+    var _num = $('<span>',{
+      'class':'il__num',
+      'text': num_
+    });
+    _a.append(_text);
+    _a.append(_num);
+    this._add.before(_a);
+    this.bindDrag(_a[0]);
+  },
+
+  fixTagNum:function(tag_, num_){
+    var _tags = this._infoContent.children('.il__a');
+    for (var i = 0; i < _tags.length; i++) {
+      if($(_tags[i]).children('.il__title')[0].textContent === tag_){
+        var _num = $(_tags[i]).children('.il__num')[0].textContent;
+        _num = parseInt(_num) + num_;
+        $(_tags[i]).children('.il__num').remove();
+        var _numText = $('<span>',{
+          'class':'il__num',
+          'text': _num
+        });
+        $(_tags[i]).append(_numText);
+        return _num;
+      }
+    };
+    if(num_>0){
+      this.addTag(tag_,num_);
+    }
+    return -1;
+  },
+
   setContent:function(){
 	var _this = this;
     DataAPI.getAllTagsByCategory(function(result){
@@ -107,33 +180,25 @@ var InfoList = Class.extend({
       _this._info = result;
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
-          var _a = $('<a>',{
-            'class':'il__a',
-            'href':'#'
-          });
-          var _text = $('<span>',{
-            'class':'il__title',
-            'text': _this._info['tags'][key]
-          });
-          var _num = $('<span>',{
-            'class':'il__num',
-            'text': _this._info['tagFiles'][_this._info['tags'][key]].length
-          });
-          _a.append(_text);
-          _a.append(_num);
-          _this._add.before(_a);
+          _this.addTag(_this._info['tags'][key],_this._info['tagFiles'][_this._info['tags'][key]].length);
         }
       }
-    }, _this._title[_this._index]);
-    if (_this._btmInfo) {
-      for(var key in _this._btmInfo){
-        var _a = $('<a>',{
-          'class':'bil__a',
-          'text': key
-        });
-        _this._edit.before(_a);
+    }, _this.getCategoryName(_this._index));
+    DataAPI.getRecentAccessData(function(err_, result_){
+      if(result_ != null){
+        _this.removeRecent();
+        _this._btmInfo = result_;
+        if (_this._btmInfo) {
+          for(var i = 0; i < _this._btmInfo.length; i ++){
+            var _a = $('<a>',{
+              'class':'bil__a',
+              'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename']
+            });
+            _this._infoBottom.append(_a);
+          }
+        }
       }
-    }
+    }, _this.getCategoryName(_this._index), 10);
   },
 
   removeTags:function(){
@@ -154,10 +219,22 @@ var InfoList = Class.extend({
     $parent_.append(this._infoList);
   },
 
+  show:function(){
+    this._infoList.show();    
+  },
+  
+  hide:function(){
+    this._infoList.hide();
+  },
+
+  isShow:function(){
+    return this._infoList.is(":visible");
+  },
+
   loadData:function(){
-    if(this._index >0 && this._index <5){
+    if(this._index >0 && this._index <6){
       if(this._isFirstRequset){
-        showfiles = ShowFiles.create();  
+        showfiles = ShowFiles.create();
         showfiles.setIndex(this._index);
         this._isFirstRequset = false;
       }
@@ -166,10 +243,28 @@ var InfoList = Class.extend({
       }
     }
     if(this._index == 0){
-      contact = Contact.create();
-      contact.attach($('#contentDiv'));
-      contact.setContactsList();
-      contact._ContactContainer.show();
+      if(contact._first === true){
+        contact.attach($('#contentDiv'));
+        contact.setContactsList();
+        contact._ContactContainer.show();
+      }else{
+        contact._ContactContainer.show();
+      }
     }
+  },
+
+  bindDrag:function(tag_){
+    tag_.ondragstart = this.drag;
+    tag_.ondragend = this.dragEnd;
+  },
+  drag:function(ev){
+    $(ev.currentTarget).addClass('ondrag');
+    var _tagText = $(ev.currentTarget).children('.il__title')[0].textContent;
+    console.log(_tagText);
+    ev.dataTransfer.setData("tag", _tagText);
+  },
+  dragEnd:function(ev){
+    $(ev.currentTarget).removeClass('ondrag');
   }
+
 })

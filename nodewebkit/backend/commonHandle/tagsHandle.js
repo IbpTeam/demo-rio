@@ -95,7 +95,6 @@ function getAllTagsByCategory(callback, category) {
   };
 
   function findItemsCb(err, items) {
-    console.log(items)
     if (err) {
       console.log(err);
       return;
@@ -399,11 +398,28 @@ function setTagByUri(callback, oTags, sUri) {
     var UpdateItem = [];
     var item = items[0];
     console.log(item)
-    if (!item.others) { //item has no tags 
+    if(oTags == ''|| oTags == null){
+      return callback(null);
+    }
+    if (item.others == '' || item.others == null) { //item has no tags 
       var newTags = oTags.join(",");
     } else { //item has tag(s)
-      item.others = item.others + ",";
-      var newTags = (item.others).concat(oTags.join(","));
+      var oldTags = item.others.split(',');
+      if(oldTags == oTags){
+        return callback(null);
+      }
+      for(var tag in oTags){
+        var isExist = false;
+        for(var oldTag in oldTags){
+          if(oTags[tag] === oldTags[oldTag]){
+            isExist = true;
+          }
+        }
+        if(!isExist){
+          oldTags.push(oTags[tag]);
+        }
+      }
+      var newTags = oldTags.join(',');
     }
     UpdateItem = {
       URI: item.URI,
@@ -432,10 +448,10 @@ function setTagByUri(callback, oTags, sUri) {
         repo.repoCommit(chPath, [desFilePath], null, "ch", function() {
           addInTAGS(oTags, sUri, function(err) {
             if (err) {
-              return callback(err, null);
+              return callback(err);
             }
             console.log('set tags des git committed!');
-            callback('commit');
+            callback(null);
           })
         });
       });
@@ -480,10 +496,10 @@ function setTagByUriMulti(callback, oTags, oUri) {
   for (var i = 0; i < lens; i++) {
     var sUri = oUri[i];
     (function(_sUri, _oTags) {
-      function setTagByUriCb(result) {
-        if (result !== 'commit') {
-          console.log(result, 'set tags error!');
-          return callback(result, null);
+      function setTagByUriCb(err) {
+        if (err) {
+          console.log(err, 'set tags error!');
+          return callback(err, null);
         }
         var isEnd = (count === lens - 1);
         if (isEnd) {
