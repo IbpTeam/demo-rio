@@ -48,14 +48,12 @@ exports.sendIMMsg = sendIMMsg;
  * @method loadFile
  *    To load one single file into datamgr.
  *
- * @param2: loadFileCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, specific error info.
- *
- *    @param2: result,
- *        string, retrieve 'success' when success.
+ * @param1 loadFileCb
+ *   回调函数(err,result)
+ *   @err
+ *      string, specific err info
+ *   @result
+ *      array，object array, include file info of name exist file.
  *
  * @param1: sFilePath
  *    string, a file path as, '/home/xiquan/mydir/myfile.txt'.
@@ -119,10 +117,23 @@ exports.loadFile = loadFile;
  *   读取某个资源文件夹到数据库
  *
  * @param1 loadResourcesCb
- *   回调函数
+ *   回调函数(err,result)
+ *   @err
+ *      string, specific err info
  *   @result
- *      string，success代表成功，其他代表失败原因
- *
+ *      array，object array, include file info of name exist file.
+ *  
+ *   example:
+ *   [{
+ *     "origin_path": "/home/xiquan/WORK_DIRECTORY/resources/pictures/city1.jpg",
+ *     "old_name": "city1.jpg",
+ *     "re_name": "duplicate_at_2014年12月17日_下午1:30:40_duplicate_at_2014年12月17日_下午1:30:40_city1.jpg"
+ *   }, {
+ *     "origin_path": "/home/xiquan/WORK_DIRECTORY/resources/pictures/city3.jpg",
+ *     "old_name": "city3.jpg",
+ *     "re_name": "duplicate_at_2014年12月17日_下午1:30:40_duplicate_at_2014年12月17日_下午1:30:40_city3.jpg"
+ *   }]
+ *  
  * @param2 path
  *   string，要加载资源的路径
  */
@@ -134,6 +145,7 @@ function loadResources(loadResourcesCb, path) {
   var PicList = [];
   var DskList = [];
   var OtherList = [];
+  var existFile = [];
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -195,39 +207,49 @@ function loadResources(loadResourcesCb, path) {
   documents.createData(DocList, function(err, result) {
     if (err) {
       console.log(err);
-      loadResourcesCb(err, null);
-    } else {
-      pictures.createData(PicList, function(err, result) {
+      return loadResourcesCb(err, null);
+    }
+    if (result != '' && result != null && typeof result === 'object') {
+      existFile = existFile.concat(result);
+    }
+    pictures.createData(PicList, function(err, result) {
+      if (err) {
+        console.log(err);
+        return loadResourcesCb(err, null);
+      }
+      if (result != '' && result != null && typeof result === 'object') {
+        existFile = existFile.concat(result);
+      }
+      music.createData(MusList, function(err, result) {
         if (err) {
           console.log(err);
-          loadResourcesCb(err, null);
-        } else {
-          music.createData(MusList, function(err, result) {
+          return loadResourcesCb(err, null);
+        }
+        if (result != '' && result != null && typeof result === 'object') {
+          existFile = existFile.concat(result);
+        }
+        video.createData(VidList, function(err, result) {
+          if (err) {
+            console.log(err);
+            return loadResourcesCb(err, null);
+          }
+          if (result != '' && result != null && typeof result === 'object') {
+            existFile = existFile.concat(result);
+          }
+          other.createData(OtherList, function(err, result) {
             if (err) {
               console.log(err);
-              loadResourcesCb(err, null);
-            } else {
-              video.createData(VidList, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  loadResourcesCb(err, null);
-                } else {
-                  other.createData(OtherList, function(err, result) {
-                    if (err) {
-                      console.log(err);
-                      loadResourcesCb(err, null);
-                    } else {
-                      console.log("load resources success!");
-                      loadResourcesCb('success');
-                    }
-                  });
-                }
-              });
+              return loadResourcesCb(err, null);
             }
+            if (result != '' && result != null && typeof result === 'object') {
+              existFile = existFile.concat(result);
+            }
+            console.log("load resources success!", existFile);
+            loadResourcesCb(null, existFile);
           });
-        }
+        });
       });
-    }
+    });
   });
 }
 exports.loadResources = loadResources;

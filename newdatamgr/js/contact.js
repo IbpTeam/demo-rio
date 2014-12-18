@@ -20,51 +20,63 @@ var Contact = Class.extend({
     this._ContactContainer.append(this._contactDetails);
     this._tagView = TagView.create();
     this._tagView.setParent(this._contactHead);
+    this._selectId = 0;
+    this.bindDrag(this._contactHead[0]);
   },
 
   setContactsList:function(){
     var _this = this;
     DataAPI.getAllDataByCate(function(contact_json_){
       _this._contacts = contact_json_;
-      var family_name_json = {};
-      for(var i = 0; i < _this._contacts.length; i ++){
-        var family_name = _this._contacts[i]['name'][0];
-        if(family_name_json.hasOwnProperty(family_name)){
-          family_name_json[family_name].push({
-            name: _this._contacts[i]['name'],
-            id: i
-          });
-        } else {
-          family_name_json[family_name] = [{
-            name: _this._contacts[i]['name'],
-            id: i
-          }];
-        }
+      if(_this._contacts != null && _this._contacts.length > 0){
+        _this.loadContactsList(0);
       }
-      for(var i in family_name_json){
-        var _ul = $('<ul>', {
-          'class':'ul-family'
-        });
-        var _first = $('<li>',{
-          'class': 'ul-first',
-          'text': i
-        });
-        _ul.append(_first);
-        for(var j = 0; j < family_name_json[i].length; j ++){
-          var _name = $('<li>', {
-            'class':'li-name',
-            'text': family_name_json[i][j]['name'],
-            'id': family_name_json[i][j]['id']
-          });
-          _ul.append(_name);
-        }
-        _this._contactsList.append(_ul);
-      }
-      _this.setHead(_this._contacts[0]);
-      _this.setDetails(_this._contacts[0]);
-      _this.bindAction();
       _this._first = false;
     }, 'Contact');
+  },
+
+  loadContactsList:function(_index){
+    this.removeContactList();
+    var family_name_json = {};
+    for(var i = 0; i < this._contacts.length; i ++){
+      var family_name = this._contacts[i]['name'][0];
+      if(family_name_json.hasOwnProperty(family_name)){
+        family_name_json[family_name].push({
+          name: this._contacts[i]['name'],
+          id: i
+        });
+      } else {
+        family_name_json[family_name] = [{
+          name: this._contacts[i]['name'],
+          id: i
+        }];
+      }
+    }
+    for(var i in family_name_json){
+      var _ul = $('<ul>', {
+        'class':'ul-family'
+      });
+      var _first = $('<li>',{
+        'class': 'ul-first',
+        'text': i
+      });
+      _ul.append(_first);
+      for(var j = 0; j < family_name_json[i].length; j ++){
+        var _name = $('<li>', {
+          'class':'li-name',
+          'text': family_name_json[i][j]['name'],
+          'id': family_name_json[i][j]['id']
+        });
+        _ul.append(_name);
+      }
+      this._contactsList.append(_ul);
+    }
+
+    this.removeHead();
+    this.setHead(this._contacts[_index]);
+    this.removeDetails();
+    this.setDetails(this._contacts[_index]);
+    this.bindAction();
   },
 
   bindAction: function(){
@@ -74,12 +86,13 @@ var Contact = Class.extend({
       _this.removeDetails();
       _this.setHead(_this._contacts[this.id]);
       _this.setDetails(_this._contacts[this.id], this.id);
+      _this._selectId = this.id;
     });
   },
 
   setHead: function(contact_){
     var _headPhotoPath = '';
-    if(contact_['photoPath'] != null && contact_['photoPath'] != ''){
+    if(contact_ && contact_['photoPath']){
       _headPhotoPath = contact_['photoPath'];
     } else{
       _headPhotoPath = this._defaultPhoto;
@@ -93,18 +106,17 @@ var Contact = Class.extend({
     });
     _photoDiv.append(_photo);
 
-   /*var _nameDiv = $('<div>', {
-      'class': 'div-name',
-      'text': contact_['name']
-    });*/
-    var _tags = ['Family', 'School', 'Friends'];
+    var _uri = contact_? contact_['URI']:undefined;
+    var _tags = [];
+    var _tagStr = contact_ ? contact_['others']:undefined;
+    if (typeof _tagStr === 'string' && _tagStr.length > 0) {
+      _tags = _tagStr.split(',');
+    };
     this._contactHead.append(_photoDiv);
 
-    //this._contactHead.append(_nameDiv);
-
     this._tagView.refresh();
-
     this._tagView.addTags(_tags);
+    this._tagView.setUri(_uri);
 
     var _contactHeadBackBlue = $('<div>', {
       'id':'contact-back-blue'
@@ -121,7 +133,7 @@ var Contact = Class.extend({
     var _this = this;
     var _nameDiv = $('<div>', {
       'class': 'div-name',
-      'text': contact_['name']
+      'text': (contact_ ? contact_['name'] : 'none')
     });
     var _ul = $('<ul>', {
       'class':'ul-details'
@@ -148,15 +160,100 @@ var Contact = Class.extend({
     var _buttonsDiv = $('<div>', {
       'id' : 'buttons-div'
     });
+    var _addButton = $('<input>', {
+      'type' : 'button',
+      'id': 'add-button',
+      'value': 'Add'
+    });
+    _buttonsDiv.append(_addButton);
     var _editButton = $('<input>', {
       'type' : 'button',
       'id' : 'edit-button',
       'value' : 'Edit'
     });
     _buttonsDiv.append(_editButton);
+    var _deleteButton = $('<input>', {
+      'type' : 'button',
+      'id': 'delete-button',
+      'value': 'Delete'
+    });
+    _buttonsDiv.append(_deleteButton);
     _this._contactDetails.append(_buttonsDiv);
+    $('#add-button').on('click', function(){
+      _this.addContact();
+    });
     $('#edit-button').on('click', function(){
       _this.editDetails(contact_, id);
+    });
+  },
+
+  addContact: function(){
+    var _this = this;
+    _this.removeDetails();
+    var keys = ['name', 'phone', 'email', 'sex', 'age', 'others'];
+    var _ul = $('<ul>', {
+      'class':'ul-details'
+    });
+    for(var i = 0; i < keys.length; i ++){
+      var _li = $('<li>',{
+        'class': 'li-details'
+      });
+      var _keyDiv = $('<div>', {
+        'class': 'div-key',
+        'text': keys[i]
+      });
+      var _valueDiv = $('<div>', {
+        'class': 'div-value',
+      });
+      var _editInput = $('<input>', {
+        'class' : 'input-value',
+        'id' : keys[i]
+      });
+      _valueDiv.append(_editInput);
+      _li.append(_keyDiv);
+      _li.append(_valueDiv);
+      _ul.append(_li);
+    }
+    _this._contactDetails.append(_ul);
+    var _buttonsDiv = $('<div>', {
+      'id' : 'buttons-div'
+    });
+    var _confirmAddButton = $('<input>', {
+      'type' : 'button',
+      'id' : 'confirm-add-button',
+      'value' : 'Add'
+    });
+    _buttonsDiv.append(_confirmAddButton);
+    _this._contactDetails.append(_buttonsDiv);
+    $('#confirm-add-button').on('click', function(){
+      var _newContact = {};
+      var _isValid = true;
+      for(var i = 0; i < keys.length; i ++){
+        var _newValue = document.getElementById(keys[i]).value;
+        _newContact[keys[i]] = _newValue;
+      }
+      if(_newContact['email'] != '' && _newContact['email'].indexOf('@') == -1){
+        _isValid = false;
+        alert("Invalid Email!");
+      }
+      if(_newContact['phone'] != '' && isNaN(_newContact['phone'])){
+        _isValid = false;
+        alert("Invalid Phone Number!");
+      }
+      if(_newContact['name'] == ''){
+        _isValid = false;
+        alert("Name can not be null!");
+      }
+      if(_isValid == true){
+        DataAPI.createFile(function(err_, result_){
+          if(result_ == 'success'){
+            _this._contacts.push(_newContact);
+            _this.loadContactsList(_this._contacts.length - 1);
+          } else {
+            alert('Saved failed!');
+          }
+        }, _newContact, 'contact');
+      }
     });
   },
 
@@ -234,8 +331,39 @@ var Contact = Class.extend({
     }
   },
 
+  removeContactList: function(){
+    var _list = this._contactsList.children();
+    if(_list.length != 0){
+      _list.remove();
+    }
+  },
+
   attach:function($parent_){
     $parent_.append(this._ContactContainer);
+  },
+
+  bindDrag:function(target_){
+    target_.ondragover = this.dragover;
+    target_.ondrop = this.drop;
+  },
+  drop:function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+    var _tag = ev.dataTransfer.getData('tag');
+    if (typeof _tag === 'string' && _tag.length > 0) {
+      DataAPI.setTagByUri(function(err_){
+        if (err_ === null) {
+          if(!contact._tagView.addTag(_tag)){
+            return 0;
+          }
+          contact._contacts[contact._selectId]['others'] += ','+_tag;
+          infoList.fixTagNum(_tag,1);
+        };
+      },[_tag],contact._tagView._uri);
+    };
+  },
+  dragover:function(ev){
+    ev.preventDefault();  
   }
 
 });
