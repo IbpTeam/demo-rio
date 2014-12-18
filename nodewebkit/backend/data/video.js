@@ -81,7 +81,10 @@ function readVideoThumbnail(sPath, callback) {
       //get the last digit to make sure the frame is in duration
       var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
       fs_extra.ensureDir(tmpBaseDir, function() {
-        var tmpDir = pathModule.join(tmpBaseDir, data.filename + '.png');
+        var date = new Date();
+        var surfix = 'duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_';
+        var name =  data.filename || surfix+'snapshot'; 
+        var tmpDir = pathModule.join(tmpBaseDir, name + '.png');
         thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
           var option = {
             encoding: 'base64'
