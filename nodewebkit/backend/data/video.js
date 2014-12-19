@@ -80,7 +80,10 @@ function readVideoThumbnail(sPath, callback) {
       var time = duration[duration.length-1];
       //get the last digit to make sure the frame is in duration
       var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
-      fs_extra.ensureDir(tmpBaseDir, function() {
+      fs_extra.ensureDir(tmpBaseDir, function(err) {
+        if(err){
+          return callback(err, null)
+        }
         var date = new Date();
         var surfix = 'duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_';
         var name = data.filename || surfix + 'snapshot';
