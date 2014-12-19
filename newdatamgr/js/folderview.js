@@ -627,7 +627,7 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'class':'pictureContainer',
+            'class':'pictureContainer '+file['URI'],
             'data-path':file['path']
           });
           var Holder = $('<div>',{
