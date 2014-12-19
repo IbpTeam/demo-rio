@@ -51,7 +51,6 @@ function createData(item, callback) {
       var oNewItem = {
         URI: uri + "#" + CATEGORY_NAME,
         category: CATEGORY_NAME,
-        is_delete: 0,
         name: item.name || '',
         phone: item.phone || '',
         phone2: item.phone2 || '',
@@ -157,7 +156,7 @@ exports.getAllContacts = getAllContacts;
 
 /*
 CONTENT in contacts info:
-is_delete, URI, lastAccessTime, id
+URI, lastAccessTime, id
 createTime, createDev lastModifyTime, lastModifyDev lastAccessTime, lastAccessDev,
 name, phone, sex, age, email, photoPath
 */
@@ -193,7 +192,6 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
       id: null,
       URI: uri + "#" + category,
       category: category,
-      is_delete: 0,
       name: Item["姓"] + Item["名"],
       phone: Item["移动电话"],
       phone2: phone2,
