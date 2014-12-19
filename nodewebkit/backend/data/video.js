@@ -83,7 +83,7 @@ function readVideoThumbnail(sPath, callback) {
       fs_extra.ensureDir(tmpBaseDir, function() {
         var date = new Date();
         var surfix = 'duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_';
-        var name =  data.filename || surfix+'snapshot'; 
+        var name = data.filename || surfix + 'snapshot';
         var tmpDir = pathModule.join(tmpBaseDir, name + '.png');
         thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
           var option = {
@@ -91,14 +91,23 @@ function readVideoThumbnail(sPath, callback) {
           }
           fs.readFile(tmpDir, option, function(err, buffer_base64) {
             if (err) {
-              return callback(err, null);
+              //if thumbnail read err, then read a backup icon in local.
+              var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/video_320_180.png');
+              fs.readFile(backup_icon, option, function(err, buffer_base64) {
+                if (err) { 
+                  return callback(err, null);
+                }
+                callback(null, buffer_base64);
+              })
+            } else {
+              //remove tmp thumbnail file after scuccessfully get it.
+              fs_extra.remove(tmpDir, function(err) {
+                if (err) {
+                  return callback(err, null);
+                }
+                callback(null, buffer_base64);
+              })
             }
-            fs_extra.remove(tmpDir, function(err) {
-              if (err) {
-                return callback(err, null);
-              }
-              callback(null, buffer_base64);
-            })
           })
         });
       })
