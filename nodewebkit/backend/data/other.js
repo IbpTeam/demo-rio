@@ -154,7 +154,7 @@ function createData(items, callback) {
                 itemInfoAll.push(itemInfo);
                 var isEnd = (count === lens - 1);
                 if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(result) {
+                  commonHandle.createDataAll(itemInfoAll, function(err, result) {
                     if (err) {
                       var _err = 'createData: commonHandle createData all error!';
                       console.log('createData error!');
