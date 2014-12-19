@@ -27,7 +27,9 @@
     "file-stream" : "0.0.0",
     "request" : "2.47.1",
     "tape" : "3.0.1",
-    "musicmetadata": "0.6.0"
+    "musicmetadata": "0.6.0",
+    "node-ffprobe": "1.2.2",
+    "video-thumb":"0.0.2"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }

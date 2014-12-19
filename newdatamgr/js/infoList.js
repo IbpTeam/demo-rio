@@ -149,6 +149,9 @@ var InfoList = Class.extend({
     _a.append(_text);
     _a.append(_num);
     this._add.before(_a);
+    _a.click(function(e){
+      search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
+    })
     this.bindDrag(_a[0]);
   },
 
@@ -178,10 +181,13 @@ var InfoList = Class.extend({
     DataAPI.getAllTagsByCategory(function(result){
       _this.removeTags();
       _this._info = result;
+      var _tagTextList = [];
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
+          _tagTextList.push(_this._info['tags'][key]);
           _this.addTag(_this._info['tags'][key],_this._info['tagFiles'][_this._info['tags'][key]].length);
         }
+        search.bindSuggestion(_tagTextList);
       }
     }, _this.getCategoryName(_this._index));
     DataAPI.getRecentAccessData(function(err_, result_){

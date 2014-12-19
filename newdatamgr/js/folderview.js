@@ -350,8 +350,6 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-          $(this).delegate($(this),'mousedown',function(e){
-          })
           $(this).attr('tabindex', 1).keydown(function(e) {
               if($(this).attr('data-path')){
                 var file = _globalSelf.findFileByPath($(this).attr('data-path'));
@@ -419,8 +417,49 @@ var ShowFiles = Class.extend({
               },file['URI']);
             }
             else if(e.which == 113){
-              //按下F2键，表示要重命名
-              $("."+file['filename']).html('Renamfikele')
+              //按下F2,是重命名操作
+              if(_globalSelf._showNormal[_globalSelf._index] == 1){
+                var renameTh = $(this).children('th').eq(0);
+                if(_globalSelf._index == 3 || _globalSelf._index == 5){
+                  var rename = renameTh.children('p');
+                }
+                else{
+                  var rename = renameTh;
+                }
+              }
+              else {
+                if(_globalSelf._index == 3 || _globalSelf._index ==5){
+                  var rename = $(this).children('p');
+                }
+                else{
+                  var rename = $(this).children('div').eq(1);
+                }
+              }
+              var inputer = Inputer.create('button-name');
+              var options = {
+                'left': rename.offset().left,
+                'top': rename.offset().top,
+                'width': 80,
+                'height': 25,
+                'oldtext': file['filename'],
+                'callback': function(newtext){
+                  DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], file['URI'], newtext+'.'+file['postfix'], function(err, result){
+                    if(result == 'success'){
+                      $("."+file['filename']).html(newtext);
+                      for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+                        if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
+                          _globalSelf._getFiles[_globalSelf._index][i]['filename'] = newtext;
+                        break;
+                        }
+                      }
+                    }
+                    else{
+                      window.alert("Rename failed!");
+                    }
+                  });
+                }
+              }
+              inputer.show(options); 
             }
           });
           break;
