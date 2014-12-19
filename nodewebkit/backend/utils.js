@@ -338,7 +338,7 @@ exports.getRecent = function(items, num) {
   }
   var oNewData = [];
   DataSort.sort();
-  for (var k in DataSort) {
+  for (var k = DataSort.length - 1; k > -1; k--) {
     oNewData.push(Data[DataSort[k]]);
   }
   var DataByNum = oNewData.slice(0, num);

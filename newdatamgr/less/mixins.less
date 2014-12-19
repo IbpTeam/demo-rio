@@ -35,4 +35,13 @@
 }
 
 
+// [radius: 设置圆角]
+//  {[px]} 四个参数分别为四个圆角的大小参数，默认为6px
+.radius(@topLeft:6px,...){
+  -webkit-border-radius: @arguments;
+  -moz-border-radius: @arguments;
+  -ms-border-radius: @arguments;
+  -o-border-radius: @arguments;
+  border-radius: @arguments;
+}
 
