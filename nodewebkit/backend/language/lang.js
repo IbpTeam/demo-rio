@@ -88,7 +88,7 @@ Language.prototype.getLangByName = function(name_, callback_) {
       fn: function(pera_, callback_) {
         utils.readJSONFile(config.LANG[0] + '/' + locale + '/' + name_
           , function(err_, json_) {
-            if(err_) callback_(null);
+            if(err_) return callback_(null);
             cb_(null, json_);
           });
       }
@@ -97,7 +97,7 @@ Language.prototype.getLangByName = function(name_, callback_) {
       fn: function(pera_, callback_) {
         utils.readJSONFile(config.LANG[1] + '/' + locale + '/' + name_
           , function(err_, json_) {
-            if(err_) callback_(null);
+            if(err_) return callback_(null);
             cb_(null, json_);
           });
       }
@@ -106,7 +106,7 @@ Language.prototype.getLangByName = function(name_, callback_) {
       fn: function(pera_, callback_) {
         utils.readJSONFile(config.LANG[1] + '/default/' + name_
           , function(err_, json_) {
-            if(err_) callback_(err_);
+            if(err_) return callback_(err_);
             cb_(null, json_);
           });
       }
