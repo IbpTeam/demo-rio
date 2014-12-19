@@ -117,9 +117,6 @@ var ShowFiles = Class.extend({
   getCallBackData:function(files){
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
-    // if(_globalSelf._index == 4){
-    //   _globalSelf.getMusicPicData(files);
-    // }
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
   },
 
@@ -420,7 +417,7 @@ var ShowFiles = Class.extend({
               //按下F2,是重命名操作
               if(_globalSelf._showNormal[_globalSelf._index] == 1){
                 var renameTh = $(this).children('th').eq(0);
-                if(_globalSelf._index == 3 || _globalSelf._index == 5){
+                if(_globalSelf._index == 3){
                   var rename = renameTh.children('p');
                 }
                 else{
