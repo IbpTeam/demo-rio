@@ -76,8 +76,8 @@ function readVideoThumbnail(sPath, callback) {
       if (err) {
         return callback(err, null);
       }
-      var duration = data.duration;
-      var time = (String(duration).lastIndexOf('.') - 1);
+      var duration = String(data.duration);
+      var time = duration[(duration.lastIndexOf('.') - 1)];
       //get the last digit to make sure the frame is in duration
       var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
       fs_extra.ensureDir(tmpBaseDir, function() {
@@ -85,7 +85,10 @@ function readVideoThumbnail(sPath, callback) {
         var surfix = 'duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_';
         var name = data.filename || surfix + 'snapshot';
         var tmpDir = pathModule.join(tmpBaseDir, name + '.png');
-        thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
+        if (time == '0') {
+          time = '2';
+        }
+        thumbler.extract(sPath, tmpDir, '10:00:0' + time, '640x360', function() {
           var option = {
             encoding: 'base64'
           }
