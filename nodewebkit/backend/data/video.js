@@ -52,6 +52,7 @@ function readVideoMetadata(sPath, callback) {
       probeData.metadata = {}
     }
     var extraInfo = {
+      filename: probeData.filename,
       format_long_name: probeData.format.format_long_name || '',
       width: audioInfo.width || '',
       height: audioInfo.height || '',
@@ -78,23 +79,29 @@ function readVideoThumbnail(sPath, callback) {
       var duration = data.duration;
       var time = (String(duration).lastIndexOf('.') - 1);
       //get the last digit to make sure the frame is in duration
-      var tmpDir = pathModule.join(utils.getHomeDir(), '/tmp/snapshot.png');
-      thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
-        var option = {
-          encoding: 'base64'
-        }
-        fs.readFile(tmpDir, option, function(err, buffer_base64) {
-          if (err) {
-            return callback(err, null);
+      var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
+      fs_extra.ensureDir(tmpBaseDir, function() {
+        var date = new Date();
+        var surfix = 'duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_';
+        var name =  data.filename || surfix+'snapshot'; 
+        var tmpDir = pathModule.join(tmpBaseDir, name + '.png');
+        thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
+          var option = {
+            encoding: 'base64'
           }
-          fs_extra.remove(tmpDir, function(err) {
+          fs.readFile(tmpDir, option, function(err, buffer_base64) {
             if (err) {
               return callback(err, null);
             }
-            callback(null, buffer_base64);
+            fs_extra.remove(tmpDir, function(err) {
+              if (err) {
+                return callback(err, null);
+              }
+              callback(null, buffer_base64);
+            })
           })
-        })
-      });
+        });
+      })
     })
   })
 }
