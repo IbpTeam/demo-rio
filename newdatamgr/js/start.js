@@ -8,6 +8,7 @@ var main = function(params_){
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
+    //用于记录被拖拽的标签的对象，被tagview.js设置
     tagDragged = undefined;
     homePage = HomePage.create();
     search = Search.create();
@@ -32,12 +33,14 @@ var main = function(params_){
       return function() {
         $(this).addClass('active').siblings().removeClass('active');
         content.children('div').hide();
+        search.clearTags();
         if(k == 1){
           infoList._infoList.hide();
           infoList.removeTags();
           infoList.removeRecent();
           container.removeClass('move-right');
           homePage.show();
+          search.bindSuggestion([]);
         } else {
           infoList.setIndex(k);
           infoList.setContent();
@@ -69,6 +72,7 @@ var main = function(params_){
           if (result === 'commit') {
             if(tagDragged){
               tagDragged.removeTagByText(_tag);
+              tagDragged = undefined;
             }
             if (infoList.isShow()) {
               infoList.fixTagNum(_tag,-1);
