@@ -76,8 +76,8 @@ function readVideoThumbnail(sPath, callback) {
       if (err) {
         return callback(err, null);
       }
-      var duration = String(data.duration);
-      var time = duration[(duration.lastIndexOf('.') - 1)];
+      var duration = String(parseInt(data.duration));
+      var time = duration[duration.length-1];
       //get the last digit to make sure the frame is in duration
       var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
       fs_extra.ensureDir(tmpBaseDir, function() {
