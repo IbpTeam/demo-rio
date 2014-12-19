@@ -88,7 +88,7 @@ function readVideoThumbnail(sPath, callback) {
         if (time == '0') {
           time = '2';
         }
-        thumbler.extract(sPath, tmpDir, '10:00:0' + time, '640x360', function() {
+        thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
           var option = {
             encoding: 'base64'
           }
