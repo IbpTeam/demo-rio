@@ -2116,11 +2116,11 @@ function moveToDesktopSingle(sFilePath, callback) {
         return callback(null, 'exist');
       }
 
-      function setTagsCb(result) {
-        if (result != 'commit') {
+      function setTagsCb(err) {
+        if (err) {
           var _err = 'Error: set tags error!';
           console.log(_err);
-          return callback(_err, null);
+          return callback(err, null);
         }
         fs.stat(sFilePath, function(err, stats) {
           if (err) {
@@ -2256,11 +2256,11 @@ function doCreateData(sFilePath, category, callback) {
       }
       var item = result[0];
 
-      function setTagsCb(result) {
-        if (result != 'commit') {
+      function setTagsCb(err) {
+        if (err) {
           var _err = 'Error: set tags error!';
           console.log(_err);
-          return callback(_err, null);
+          return callback(err, null);
         }
         callback(null, resultFile);
       }
@@ -2729,10 +2729,10 @@ function createFile(sContent, callback) {
               return callback(_err, null);
             }
 
-            function setTagsCb(result) {
-              if (result != 'commit') {
+            function setTagsCb(err) {
+              if (err) {
                 var _err = 'Error: set tags error!';
-                return callback(_err, null);
+                return callback(err, null);
               }
               fs.stat(resultFile, function(err, stats) {
                 if (err) {

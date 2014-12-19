@@ -9,6 +9,12 @@ var MainPicView = Class.extend({
       background_color: 'rgb(0,120,240)'
     });
     DataAPI.getRecentAccessData(function(err_, picture_json_){
+      if(picture_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
+      }
       for(var i = 0; i < picture_json_.length; i++){
         var _date = new Date(picture_json_[i]['createTime']);
         _this._picData={
@@ -92,8 +98,8 @@ var MainPicView = Class.extend({
     var _tag = ev.dataTransfer.getData('tag');
     var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
-      DataAPI.setTagByUri(function(result_){
-        if (result_ === 'commit') {
+      DataAPI.setTagByUri(function(err){
+        if (err === null) {
           homePage._pic._tagView.addPreTag(_tag);
         };
       },[_tag],homePage._pic._picData.uri);

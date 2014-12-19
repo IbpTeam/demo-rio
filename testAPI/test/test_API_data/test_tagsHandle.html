@@ -17,8 +17,8 @@
   <script language=javascript>  
 
   var test_uri = "32a365a5ee8e6e27eeb342ae1837b665#7fd0182cc6ae55d049f4#document";
-  var test_uri1 = "32a365a5ee8e6e27eeb342ae1837b665#0996d8ec134d4d546c07#music";
-  var test_uri2 = "32a365a5ee8e6e27eeb342ae1837b665#59fa5ceda804ce908d3e#picture";
+  var test_uri1 = "rio25216rio#b509dd897da10d9161eb#contact";
+  var test_uri2 = "rio20119rio#fc06764f9db7ead25131#contact";
   var test_uri3 = "32a365a5ee8e6e27eeb342ae1837b665#104250bc84de4cbab0c7#picture";
 
   function print(win,something){
@@ -60,7 +60,7 @@
   }
   function test_getAllTagsByCategory(getAllTagsByCategoryCb){
     WDC.requireAPI(['data'], function(data){
-      data.getAllTagsByCategory(getAllTagsByCategoryCb,['music']);
+      data.getAllTagsByCategory(getAllTagsByCategoryCb,'contact');
     });      
   }
 
@@ -128,6 +128,25 @@
       var oTags = ['music','picture','document'];
       var oUri = test_uri;
       data.getFilesByTags(getFilesByTagsCb,oTags);
+    });  
+  }
+
+  function getCategoryFilesByTagCb(err,result){
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API setTagByUriMulti()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getCategoryFilesByTag(getCategoryFilesByTagCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = 'test111';
+      data.getCategoryFilesByTag(getCategoryFilesByTagCb,'picture',oTags);
     });  
   }
 
@@ -315,6 +334,33 @@
       var oUri = [test_uri];
       data.setTagByUri(setTagByUriCb,oTags,oUri);
     });    
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getCategoryFilesByTag')">getCategoryFilesByTag(getCategoryFilesByTagCb,category,oTags)<span><a class="mark" href="#test_getCategoryFilesByTag" id="test_getCategoryFilesByTag" onclick="test_getCategoryFilesByTag(getCategoryFilesByTagCb)">test</a></span></h2>
+<div id="getCategoryFilesByTag" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getCategoryFilesByTagCb(err,result){
+    var win = window.open('');
+    win.document.write("test API getCategoryFilesByTag()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_getCategoryFilesByTag(getCategoryFilesByTagCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['music','picture','document'];
+      data.getCategoryFilesByTag(getCategoryFilesByTagCb,'document',oTags);
+    });  
   }
   </pre>
 </div>

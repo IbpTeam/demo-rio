@@ -8,6 +8,7 @@ var main = function(params_){
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
+    //用于记录被拖拽的标签的对象，被tagview.js设置
     tagDragged = undefined;
     homePage = HomePage.create();
     search = Search.create();
@@ -32,12 +33,14 @@ var main = function(params_){
       return function() {
         $(this).addClass('active').siblings().removeClass('active');
         content.children('div').hide();
+        search.clearTags();
         if(k == 1){
           infoList._infoList.hide();
           infoList.removeTags();
           infoList.removeRecent();
           container.removeClass('move-right');
           homePage.show();
+          search.bindSuggestion([]);
         } else {
           infoList.setIndex(k);
           infoList.setContent();
@@ -63,12 +66,30 @@ var main = function(params_){
       ev.stopPropagation();
       var _tag = ev.dataTransfer.getData('tag');
       var _uri = ev.dataTransfer.getData('uri');
+      var _category = ev.dataTransfer.getData('category');
       if(_tag && _uri){
         DataAPI.rmTagsByUri(function(result){
           if (result === 'commit') {
             if(tagDragged){
               tagDragged.removeTagByText(_tag);
+              tagDragged = undefined;
             }
+            if (infoList.isShow()) {
+              infoList.fixTagNum(_tag,-1);
+            };
+            if (_category === 'contact') {
+              var _tags = contact._contacts[contact._selectId]['others'].split(',');
+              var _others = '';
+              for (var i = 0; i < _tags.length; i++) {
+                  if (_tags[i] == _tag) continue;
+                  if(_others === '') {
+                    _others = _tags[i];
+                  }else{
+                    _others += ','+_tags[i];
+                  }
+              };
+              contact._contacts[contact._selectId]['others'] = _others;
+            };
           }else{
             console.log('Delect tags failed!');
           }

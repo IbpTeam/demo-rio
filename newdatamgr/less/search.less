@@ -3,49 +3,38 @@
     .select(none);
     position: relative;
     width: 100%;
-    height: 80px;
+    height: 100%;
     border: 1px solid rgba(0,0,0,0);
-    #search-container{
-      margin-left: 40px;
-      margin-top:  25px;
-      margin-right: 60px;
-      margin-bottom: 25px;
-      height: 30px;
-      position: relative;
-      #search-input{
-        position: absolute;
-        border: 1px solid #dddddd;
-        background-color: #f2f2f2;
-        color: #999;
-        border-radius: 15px;
-        padding-left: 15px;
-        font-size: 0.8em;
-        height: 100%;
-        left: 0px;
-        top: 0px;
-        width: 100%;
-      }
-      #search-button{
-        position:absolute;
-        right: 10px;
-        font-size:1.1em;
-        color: #999;
-        top: 1px;
-        &:hover{
-          color: #555;
-          cursor: pointer;
-        }
+    #searchContent{
+      position: absolute;
+      top:24px;
+      left:25px;
+      right:60px;
+      border:  1px solid #ccc;
+      .radius(20px)
+    }
+    #search-button{
+      position:absolute;
+      right: 65px;
+      font-size:1.1em;
+      color: #999;
+      top: 28px;
+      z-index: 10;
+      &:hover{
+        color: #555;
+        cursor: pointer;
       }
     }
     #qrcode-button{
       float: right;
       color: #999;
       position: absolute;
-      top: 12px;
+      top: 13px;
       right: 10px;
       width: 30px;
       height:30px;
       font-size: 30px;
+      z-index: 10;
       &:hover{
         color: #555;
         right: 10px;
@@ -112,4 +101,9 @@
       }
     }
   }
+}
+
+#search_input{
+  width: 1900px;
+  line-height: 17px;
 }

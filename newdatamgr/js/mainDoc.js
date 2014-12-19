@@ -70,6 +70,12 @@ var MainDocView = Class.extend({
     this.setIcon();
     var _this = this;
     DataAPI.getRecentAccessData(function(err_, document_json_){
+      if(document_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
+      }
       for(var i = 0; i < document_json_.length; i++){
         _this.appendFile({
           'path': document_json_[i]['path'],
