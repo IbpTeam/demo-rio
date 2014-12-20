@@ -36,26 +36,30 @@ var ShowFiles = Class.extend({
       'id':'showlistButton',
       'class':'showlistButton'
     });
+    var line = $('<div>',{
+      'id':'line',
+    });
     var shownormalButton = $('<div>',{
-      'id':'shownormalButton',
-      'class':'shownormalButton shownormalButtonFocus'
+      'id':'_shownormalButton',
+      'class':'normalButtonFocus shownormalButton'
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
       'text':'sortby'
     });
     this._choice.append(showlistButton);
+    this._choice.append(line);
     this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
-      shownormalButton.removeClass('shownormalButtonFocus');
+      shownormalButton.removeClass('normalButtonFocus');
       showlistButton.addClass('showlistButtonFocus');
       _globalSelf._showNormal[_globalSelf._index] = 1;
       _globalSelf.showFile();
     });
     shownormalButton.click(function(){
       showlistButton.removeClass('showlistButtonFocus');
-      shownormalButton.addClass('shownormalButtonFocus');
+      shownormalButton.addClass('normalButtonFocus');
       _globalSelf._showNormal[_globalSelf._index] = 0;
       _globalSelf.showFile();
     });

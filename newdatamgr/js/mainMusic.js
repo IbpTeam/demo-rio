@@ -18,24 +18,24 @@ var MainMusicView = Class.extend({
     })
 
     this._musicMiddleBtn = $('<a>',{
-      'class': 'music-middle-btn icon-play',
+      'class': 'music-middle-btn',
     });
 
     this._musicLeftBtn= $('<a>',{
-      'class': 'music-left-btn',
-      'text': '<'
+      'class': 'music-left-btn active',
     });
     this._musicRightBtn = $('<a>',{
       'class': 'music-right-btn',
-      'text': '>'
     });
-
+    this._dots = [];
     this._musicContent.append(this._banner);
     this._banner.append(this._ul);
     this._musicBtnContent.append(this._musicMiddleBtn);
     this._musicBtnContent.append(this._musicLeftBtn);
     this._musicBtnContent.append(this._musicRightBtn);
-
+    this._dots.push(this._musicLeftBtn);
+    this._dots.push(this._musicMiddleBtn);
+    this._dots.push(this._musicRightBtn);
     this._musicList = {
       'imgPath': 'img/show.jpg',
       'name': 'Sea'
@@ -87,8 +87,10 @@ var MainMusicView = Class.extend({
           _this._tagView.refresh(function(){
             _this._tagView.addTags(_this._testTags[index_]);
           });
+          _this._dots[index_].addClass('active').siblings().removeClass('active');
         },  // begin轮播时的响应函数
         keys: true,               // 支持左右按键转换图片
+        //dots:true,
         fluid: false              // 支持响应设计，屏幕变化
       });
     }
@@ -108,11 +110,13 @@ var MainMusicView = Class.extend({
   bindEvent:function(){
     var _this = this;
     this._musicLeftBtn.click(function(ev){
-      _this._unslider.prev();
+      _this._unslider.move(0);
     });
-
+    this._musicMiddleBtn.click(function(ev){
+      _this._unslider.move(1);
+    });
     this._musicRightBtn.click(function(ev){
-      _this._unslider.next();
+      _this._unslider.move(2);
     });
   }
 })
