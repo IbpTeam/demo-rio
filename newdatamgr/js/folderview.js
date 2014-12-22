@@ -418,7 +418,49 @@ var ShowFiles = Class.extend({
               },file['URI']);
             }
             else if(e.which == 113){
-              //按下F2键，表示要重命名
+              //按下F2,是重命名操作
+              if(_globalSelf._showNormal[_globalSelf._index] == 1){
+                var renameTh = $(this).children('th').eq(0);
+                if(_globalSelf._index == 3){
+                  var rename = renameTh.children('p');
+                }
+                else{
+                  var rename = renameTh;
+                }
+              }
+              else {
+                if(_globalSelf._index == 3 || _globalSelf._index ==5){
+                  var rename = $(this).children('p');
+                }
+                else{
+                  var rename = $(this).children('div').eq(1);
+                }
+              }
+              var inputer = Inputer.create('button-name');
+              var options = {
+                'left': rename.offset().left,
+                'top': rename.offset().top,
+                'width': 80,
+                'height': 25,
+                'oldtext': file['filename'],
+                'callback': function(newtext){
+                  DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], file['URI'], newtext+'.'+file['postfix'], function(err, result){
+                    if(result == 'success'){
+                      $("."+file['filename']).html(newtext);
+                      for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+                        if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
+                          _globalSelf._getFiles[_globalSelf._index][i]['filename'] = newtext;
+                        break;
+                        }
+                      }
+                    }
+                    else{
+                      window.alert("Rename failed!");
+                    }
+                  });
+                }
+              }
+              inputer.show(options); 
             }
           });
           break;
@@ -479,7 +521,7 @@ var ShowFiles = Class.extend({
     function GenerateBodyTr(file,theadMessage){
       var bodytr = $('<tr>',{
         'id':file['path'],
-        'class':'bodytr'
+        'class':'bodytr '+file['URI']
       });
       if(file['filename'].indexOf(' ') != -1 ||
         file['filename'].indexOf('\'' != -1)){
@@ -493,7 +535,7 @@ var ShowFiles = Class.extend({
           case 0:
             if(_globalSelf._index == 3){
               var thP = $('<P>',{
-                'class':id,
+                // 'class':id,
                 'text':file[theadMessage[i]]
               });
               var thPicture = $('<img>',{
@@ -508,7 +550,7 @@ var ShowFiles = Class.extend({
             }
             else{
               var th = $('<th>',{
-                'class':id,
+                // 'class':id,
                 'text':file[theadMessage[i]]
               });
               bodytr.append(th);
@@ -586,7 +628,7 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'class':'pictureContainer',
+            'class':'pictureContainer '+file['URI'],
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -596,13 +638,13 @@ var ShowFiles = Class.extend({
           if(file['filename'].indexOf(' ') != -1 ||
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'picturedescription '+id,
+            var description = $('<p>',{
+              'class':'picturedescription',
               'text':file['filename']
             });
           }else{
-            var description = $('<div>',{
-              'class':'picturedescription '+file['filename'],
+            var description = $('<p>',{
+              'class':'picturedescription',
               'text':file['filename']
             });
           }
@@ -624,7 +666,7 @@ var ShowFiles = Class.extend({
           break;
         case 2:
           var Container = $('<div>',{
-            'class':'videoContainer',
+            'class':'videoContainer '+file['URI'],
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -634,13 +676,13 @@ var ShowFiles = Class.extend({
           if(file['filename'].indexOf(' ') != -1 ||
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'videodescription '+file['filename'],
+            var description = $('<p>',{
+              'class':'videodescription',
               'text':file['filename']
             });
           }else{
-            var description = $('<div>',{
-              'class':'videodescription '+file['filename'],
+            var description = $('<p>',{
+              'class':'videodescription',
               'text':file['filename']
             });
           }
@@ -665,7 +707,7 @@ var ShowFiles = Class.extend({
           break;
         case 3:
           var Container = $('<div>',{
-            'class':'doc-icon',
+            'class':'doc-icon '+file['URI'],
             'data-path':file['path']
           });
           var img = $('<img>',{
@@ -676,13 +718,11 @@ var ShowFiles = Class.extend({
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
             var p = $('<p>',{
-              'class':id,
               'text':file['filename']
             });
             Container.append(p);
           }else{
             var p = $('<p>',{
-              'class':file['filename'],
               'text':file['filename']
             });
             Container.append(p);
@@ -702,7 +742,7 @@ var ShowFiles = Class.extend({
           break;
         case 4:
           var Container = $('<div>',{
-            'class':'musicContainer',
+            'class':'musicContainer '+file['URI'],
                 'data-path':file['path']
               });
               var Holder = $('<div>',{
@@ -712,13 +752,13 @@ var ShowFiles = Class.extend({
               if(file['filename'].indexOf(' ') != -1 ||
                 file['filename'].indexOf('\'' != -1)){
                 var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-                var description = $('<div>',{
-                  'class':'musicdescription '+id,
+                var description = $('<p>',{
+                  'class':'musicdescription',
                   'text':file['filename']
                 });
               }else{
-                var description = $('<div>',{
-                  'class':'musicdescription '+file['filename'],
+                var description = $('<p>',{
+                  'class':'musicdescription',
                   'text':file['filename']
                 });
               }
@@ -743,7 +783,7 @@ var ShowFiles = Class.extend({
               break;
         case 5:
           var Container = $('<div>',{
-            'class':'doc-icon',
+            'class':'doc-icon '+file['URI'],
             'data-path':file['path']
           });
           var img = $('<img>',{
@@ -754,13 +794,11 @@ var ShowFiles = Class.extend({
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
             var p = $('<p>',{
-              'class':id,
               'text':file['filename']
             });
             Container.append(p);
           }else{
             var p = $('<p>',{
-              'class':file['filename'],
               'text':file['filename']
             });
             Container.append(p);
@@ -1056,7 +1094,7 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'class':'pictureContainerWaterFall',
+            'class':'pictureContainerWaterFall '+file['URI'],
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -1066,13 +1104,13 @@ var ShowFiles = Class.extend({
           if(file['filename'].indexOf(' ') != -1 ||
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'picturedescriptionWaterFall '+file['filename'],
+            var description = $('<p>',{
+              'class':'picturedescriptionWaterFall',
               'text':file['filename']
             });
           }else{
-            var description = $('<div>',{
-              'class':'picturedescriptionWaterFall '+file['filename'],
+            var description = $('<p>',{
+              'class':'picturedescriptionWaterFall',
               'text':file['filename']
             });
           }
@@ -1093,7 +1131,7 @@ var ShowFiles = Class.extend({
           break;
         case 2:
           var Container = $('<div>',{
-            'class':'videoContainer',
+            'class':'videoContainer '+ file['URI'],
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -1103,13 +1141,13 @@ var ShowFiles = Class.extend({
           if(file['filename'].indexOf(' ') != -1 ||
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'videodescription '+id,
+            var description = $('<p>',{
+              'class':'videodescription',
               'text':file['filename']
             });
           }else{
-            var description = $('<div>',{
-              'class':'videodescription '+file['filename'],
+            var description = $('<p>',{
+              'class':'videodescription',
               'text':file['filename']
             });
           };
@@ -1124,7 +1162,7 @@ var ShowFiles = Class.extend({
           break;
         case 3:
           var Container = $('<div>',{
-            'class':'doc-icon',
+            'class':'doc-icon '+file['URI'],
             'data-path':file['path']
           });
           var img = $('<img>',{
@@ -1135,13 +1173,11 @@ var ShowFiles = Class.extend({
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
             var p = $('<p>',{
-              'class':id,
               'text':file['filename']
             });
             Container.append(p);
           }else{
             var p = $('<p>',{
-              'class':file['filename'],
               'text':file['filename']
             });
             Container.append(p);
@@ -1151,7 +1187,7 @@ var ShowFiles = Class.extend({
         case 4:
           _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
-            'class':'musicContainer',
+            'class':'musicContainer '+file['URI'],
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -1161,13 +1197,13 @@ var ShowFiles = Class.extend({
           if(file['filename'].indexOf(' ') != -1 ||
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'musicdescription '+id,
+            var description = $('<p>',{
+              'class':'musicdescription',
               'text':file['filename']
           });
           }else{
-            var description = $('<div>',{
-              'class':'musicdescription '+file['filename'],
+            var description = $('<p>',{
+              'class':'musicdescription',
               'text':file['filename']
             });
           }
@@ -1181,7 +1217,7 @@ var ShowFiles = Class.extend({
           break;
         case 5:
           var Container = $('<div>',{
-            'class':'doc-icon',
+            'class':'doc-icon '+file['URI'],
             'data-path':file['path']
           });
           var img = $('<img>',{
@@ -1192,13 +1228,11 @@ var ShowFiles = Class.extend({
             file['filename'].indexOf('\'' != -1)){
             var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
             var p = $('<p>',{
-              'class':id,
               'text':file['filename']
             });
             Container.append(p);
           }else{
             var p = $('<p>',{
-              'class':file['filename'],
               'text':file['filename']
             });
             Container.append(p);
