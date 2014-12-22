@@ -3,35 +3,117 @@
     #music-container{
       position: absolute;
       bottom: 40px;
-      height:180px;
-      width:170px;
-      border: 1px solid #555;
+      height:190px;
+      width:150px;
       #music-content{
         position: absolute;
         width: 100%;
         top: 0px;
         bottom: 40px;
-        border: 1px solid #00f;
+        border: 1px solid rgba(0,0,0,0);
+        &:after{
+          font-family: 'icomoon';
+          content: "\e61f";
+          position: absolute;
+          color:white;
+          opacity: 0.5;
+          font-size: 10em;
+          box-shadow: 0px 2px 1px rgba(209,209,209,0.85);
+          top:-40px;
+          left: -18px;
+          height: 188px;
+          width: 18px;
+          color: rgba(255,255,255,0.8);
+          overflow: hidden;
+        }
+        &:before{
+          content: "";
+          width: 18px;
+          height: 148px;
+          position: absolute;
+          background-color: #b2b2b2;
+          top:0px;
+          left: -18px;
+          box-shadow: 0px 2px 1px rgba(209,209,209,0.85);
+        }
+        .banner{
+          line-height:44px;
+          background-color: #e2e2e2;
+          border-top-right-radius: 3px;
+          border-bottom-right-radius: 3px;
+          border: 1px solid #e2e2e2;
+          border-left: none;
+          box-shadow: 0px 0px 0px 1px #fff, 0px 1px 1px 1px rgba(0,0,0,0.1);
+        }
+        .banner ul li{
+          min-height: 146px;
+          border-radius: 50%;
+          padding: 0px;
+          background-size: 150px 150px;
+          position: relative;
+          border:7px solid #e2e2e2;
+          box-shadow: 0px 0px 0px 4px rgba(255,255,255,1) inset;
+          &:after,&:before{
+            content: "";
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            background-color: #e2e2e2;
+            margin-left: -44px;
+            margin-top: 51px;
+            box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.4) inset;
+          }
+          &:before{
+            background-color: transparent;
+            border: 4px solid rgba(0,0,0,0.3);
+            width: 36px;
+            height: 36px;
+            margin-left:5px;
+            margin-top: 44px;
+            box-shadow: none;
+          }
+          &:nth-child(2):before{
+            margin-left: 9px;
+          }
+          &:last-child:before{
+            margin-left:-9px;
+          }
+          &:last-child:after{
+            left: 94px;
+          }
+        }
       }
       #music-button-content{
         position: absolute;
         width: 100%;
         bottom: 0px;
         height: 40px;
-        border: 1px solid #0f0;
+        border: 1px solid rgba(0,0,0,0);
         a {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: #fff;
           position: absolute;
           top:10px;
           font-size: 20px;
           cursor: pointer;
           &.music-left-btn{
-            left:40%;
+            left:50%;
+            margin-left: -24px;
           }
           &.music-middle-btn{
-            left: 48%;
+            left: 50%;
+            margin-left: -8px;
           }
           &.music-right-btn{
-            left: 56%;
+            left: 50%;
+            margin-left: 8px;
+          }
+          &.active{
+            background-color: #2e3d44;
+            opacity: 0.5;
           }
         }
       }

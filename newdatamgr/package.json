@@ -10,7 +10,7 @@
     "as_desktop": false,
     "frame": true,
     "width": 951,
-    "height": 627
+    "height": 678
   },
   "devDependencies": {
     "grunt": "~0.4.5",
