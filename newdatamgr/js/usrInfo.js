@@ -12,7 +12,7 @@ var UsrInfoView = Class.extend({
     this._usrExtraDiv = $('<div>',{
       'id' : 'usrExtraDiv'
     });
-    this._defaultHeadPhoto = 'img/headphoto.png';
+    this._defaultHeadPhoto = 'img/localhost.jpg';
     this._usrInfoContainer.append(this._closeDiv);
     this._usrInfoContainer.append(this._usrInfoDiv);
     this._usrInfoContainer.append(this._usrExtraDiv);

@@ -36,26 +36,30 @@ var ShowFiles = Class.extend({
       'id':'showlistButton',
       'class':'showlistButton'
     });
+    var line = $('<div>',{
+      'id':'line',
+    });
     var shownormalButton = $('<div>',{
-      'id':'shownormalButton',
-      'class':'shownormalButton shownormalButtonFocus'
+      'id':'_shownormalButton',
+      'class':'normalButtonFocus shownormalButton'
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
       'text':'sortby'
     });
     this._choice.append(showlistButton);
+    this._choice.append(line);
     this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
-      shownormalButton.removeClass('shownormalButtonFocus');
+      shownormalButton.removeClass('normalButtonFocus');
       showlistButton.addClass('showlistButtonFocus');
       _globalSelf._showNormal[_globalSelf._index] = 1;
       _globalSelf.showFile();
     });
     shownormalButton.click(function(){
       showlistButton.removeClass('showlistButtonFocus');
-      shownormalButton.addClass('shownormalButtonFocus');
+      shownormalButton.addClass('normalButtonFocus');
       _globalSelf._showNormal[_globalSelf._index] = 0;
       _globalSelf.showFile();
     });
@@ -117,9 +121,6 @@ var ShowFiles = Class.extend({
   getCallBackData:function(files){
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
-    // if(_globalSelf._index == 4){
-    //   _globalSelf.getMusicPicData(files);
-    // }
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
   },
 
@@ -299,7 +300,7 @@ var ShowFiles = Class.extend({
     return; 
   },
   
-  //此函数用来获得音乐的图片，并且保存在本地
+  //此函数用来获得音乐的专辑图片，并且保存在本地
   getMusicPicData:function(file){
     DataAPI.getMusicPicData(function(err,result){
       if(err){
@@ -307,9 +308,25 @@ var ShowFiles = Class.extend({
       }
       else{
         var musciPictureSrc = 'data:image/jpeg;base64,' + result;
-        _globalSelf._videoPicture[file['path']] = musciPictureSrc;
+        _globalSelf._musicPicture[file['path']] = musciPictureSrc;
         var filep = document.getElementById(file['URI']);
         filep.src = musciPictureSrc;
+      }
+    },file['path']);  
+  },
+
+  //此函数用来获得视频截图图片，并且保存在本地
+  getVideoPicData:function(file){
+    // window.alert(file['path']);
+    DataAPI.getVideoThumbnail(function(err,result){
+      if(err){
+        window.alert(err);
+      }
+      else{
+        var videoPictureSrc = 'data:image/jpeg;base64,' + result;
+        _globalSelf._videoPicture[file['path']] = videoPictureSrc;
+        var fileImg = document.getElementById(file['URI']);
+        fileImg.src = videoPictureSrc;
       }
     },file['path']);  
   },
@@ -401,49 +418,7 @@ var ShowFiles = Class.extend({
               },file['URI']);
             }
             else if(e.which == 113){
-              //按下F2,是重命名操作
-              if(_globalSelf._showNormal[_globalSelf._index] == 1){
-                var renameTh = $(this).children('th').eq(0);
-                if(_globalSelf._index == 3 || _globalSelf._index == 5){
-                  var rename = renameTh.children('p');
-                }
-                else{
-                  var rename = renameTh;
-                }
-              }
-              else {
-                if(_globalSelf._index == 3 || _globalSelf._index ==5){
-                  var rename = $(this).children('p');
-                }
-                else{
-                  var rename = $(this).children('div').eq(1);
-                }
-              }
-              var inputer = Inputer.create('button-name');
-              var options = {
-                'left': rename.offset().left,
-                'top': rename.offset().top,
-                'width': 80,
-                'height': 25,
-                'oldtext': file['filename'],
-                'callback': function(newtext){
-                  DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], file['URI'], newtext+'.'+file['postfix'], function(err, result){
-                    if(result == 'success'){
-                      $("."+file['filename']).html(newtext);
-                      for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-                        if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
-                          _globalSelf._getFiles[_globalSelf._index][i]['filename'] = newtext;
-                        break;
-                        }
-                      }
-                    }
-                    else{
-                      window.alert("Rename failed!");
-                    }
-                  });
-                }
-              }
-              inputer.show(options); 
+              //按下F2键，表示要重命名
             }
           });
           break;
@@ -516,7 +491,7 @@ var ShowFiles = Class.extend({
       for(var i =0;i<theadMessage.length;i++){
         switch(i){
           case 0:
-            if(_globalSelf._index == 3 || _globalSelf._index == 5){
+            if(_globalSelf._index == 3){
               var thP = $('<P>',{
                 'class':id,
                 'text':file[theadMessage[i]]
@@ -669,7 +644,10 @@ var ShowFiles = Class.extend({
               'text':file['filename']
             });
           }
-          Holder.append($('<img src="icons/Videos.png"></img>'));
+          var img = $('<img>',{
+            'src':_globalSelf._videoPicture[file['path']]
+          });
+          Holder.append(img);
           Container.append(Holder);
           Container.append(description);
           if(timeDifference >=0 && timeDifference <=24){
@@ -745,7 +723,7 @@ var ShowFiles = Class.extend({
                 });
               }
               var img = $('<img>',{
-                'src':_globalSelf._videoPicture[file['path']]
+                'src':_globalSelf._musicPicture[file['path']]
               });
               Holder.append(img);
               Container.append(Holder);
@@ -891,8 +869,12 @@ var ShowFiles = Class.extend({
               'class':'videodescription '+file['filename'],
               'text':file['filename']
             });
-          }
-          Holder.append($('<img src="icons/Videos.png"></img>'));
+          };
+          var img = $('<img>',{
+            'id':file['URI']
+          });
+          _globalSelf.getVideoPicData(file);
+          Holder.append(img);
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);          
