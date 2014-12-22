@@ -89,11 +89,32 @@ var ShowFiles = Class.extend({
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
+          if($('#'+this._contentIds[this._index]).children('div') .length >0){
+            $('#'+this._contentIds[this._index]).show();
+          }
+          else{
+            var sortByTime = $('#'+this._contentIdsSortByTime[this._index]).children('div');
+            for(var i =0;i<sortByTime.length;i++){
+              var sortByTimeDiv = sortByTime.eq(i).children('div');
+              for(var j=0;j<sortByTimeDiv.length;j++){
+                var div = sortByTimeDiv.eq(j);
+                if(this._index ==1){
+                  div.removeClass('pictureContainer');
+                  div.attr('class', 'pictureContainerWaterFall');
+                }
+                $('#'+this._contentIds[this._index]).append(div);
+              }
+            }
+            $('#'+ this._contentIdsSortByTime[this._index]).remove();
+          }
           $('#'+this._contentIds[this._index]).show();
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
               numOfCol:5
             }); 
+          }
+          if(this._index ==2){
+              $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
           }
           break;
         case 1:
@@ -109,7 +130,13 @@ var ShowFiles = Class.extend({
               $('#'+ this._contentIdsSortByTime[this._index]).show();
             }
             else {
-              _globalSelf._showContent.append(_globalSelf.showFilesSortByTime(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsSortByTime[_globalSelf._index]));
+              var fileDivs = $('#'+this._contentIds[this._index]).children('div');
+              var returnshow = _globalSelf.showFilesSortByTimeModify(fileDivs);
+              returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
+              if(this._index ==2){
+                returnshow.attr('class', 'videoContent');; 
+              }
+              _globalSelf._showContent.append(returnshow);
             }
             break;
         default:
@@ -121,7 +148,12 @@ var ShowFiles = Class.extend({
   getCallBackData:function(files){
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
-    _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+    var returnContent = _globalSelf.showFilesNormal(files);
+    returnContent.attr('id',_globalSelf._contentIds[_globalSelf._index]);
+    if(_globalSelf._index ==2){
+      returnContent.attr('class', 'videoContent');
+    }
+    _globalSelf._showContent.append(returnContent);
   },
 
   //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
@@ -131,6 +163,29 @@ var ShowFiles = Class.extend({
     if(all.length){
       for(var i =0;i<all.length;i++){
         if(all[i]['path'] && all[i]['path']== filePath){
+          file = all[i];
+          break;
+        }
+      }
+    }
+    return file;
+  },
+
+  //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
+  findURIByDiv:function(div){
+    var divClass = div.attr('class');
+    var URILength = _globalSelf._getFiles[_globalSelf._index][0].length;
+    var URI = divClass.substr(divClass.indexOf(' ')+1,URILength);
+    return URI;
+  },
+
+    //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
+  findFileByURI:function(URI){
+    var all = _globalSelf._getFiles[_globalSelf._index];
+    var file = false;
+    if(all.length){
+      for(var i =0;i<all.length;i++){
+        if(all[i]['URI'] && all[i]['URI']== URI){
           file = all[i];
           break;
         }
@@ -843,9 +898,8 @@ var ShowFiles = Class.extend({
     return returnContent;
   },
 
-    //此函数用来正常的显示文档，音乐，图片和视频信息。
-  showFilesSortByTimeModify:function(files){
-    console.log("picture files!!!!++++++++++++" +files);
+    //此函数用来按照事件排序来显示文档，音乐，图片和视频信息,其中div是按照正常的时候的div。
+  showFilesSortByTimeModify:function(Divs){
     var returnContent = $('<div>',{
       'overflow':'auto'
     });
@@ -861,206 +915,26 @@ var ShowFiles = Class.extend({
     var previousOneYear = $('<div>',{
       'class':'sortByTime'
     });
-    for(var i =0;i<files.length;i++){
-      var file = files[i];
+    for(var i =0;i<Divs.length;i++){
+      var div = Divs.eq(i);
+      if(_globalSelf._index == 1){
+        div.removeClass('pictureContainerWaterFall');
+        div.attr('class', 'pictureContainer');
+      }
+      var fileURI = _globalSelf.findURIByDiv(div);
+      var file = _globalSelf.findFileByURI(fileURI);
       var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
-      switch(_globalSelf._index){
-        case 1:
-          var Container = $('<div>',{
-            'class':'pictureContainer',
-            'data-path':file['path']
-          });
-          var Holder = $('<div>',{
-            'class':'pictureHolder'
-          });
-          //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'picturedescription '+id,
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<div>',{
-              'class':'picturedescription '+file['filename'],
-              'text':file['filename']
-            });
-          }
-          Holder.append($('<img src="' + file['path'] + '"></img>'));
-          Container.append(Holder);
-          Container.append(description);
-          if(timeDifference >=0 && timeDifference <=24){
-            today.append(Container);
-          }
-          else if(timeDifference>24 && timeDifference <=24*7){
-            previous7Days.append(Container);
-          }
-          else if(timeDifference >24*7 && timeDifference <24*30){
-            previous30Days.append(Container);
-          }
-          else {
-            previousOneYear.append(Container);
-          }
-          break;
-        case 2:
-          var Container = $('<div>',{
-            'class':'videoContainer',
-            'data-path':file['path']
-          });
-          var Holder = $('<div>',{
-            'class':'videoHolder'
-          });
-          //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<div>',{
-              'class':'videodescription '+file['filename'],
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<div>',{
-              'class':'videodescription '+file['filename'],
-              'text':file['filename']
-            });
-          }
-          var img = $('<img>',{
-            'src':_globalSelf._videoPicture[file['path']]
-          });
-          Holder.append(img);
-          Container.append(Holder);
-          Container.append(description);
-          if(timeDifference >=0 && timeDifference <=24){
-            today.append(Container);
-          }
-          else if(timeDifference>24 && timeDifference <=24*7){
-            previous7Days.append(Container);
-          }
-          else if(timeDifference >24*7 && timeDifference <24*30){
-            previous30Days.append(Container);
-          }
-          else {
-            previousOneYear.append(Container);
-          }
-          break;
-        case 3:
-          var Container = $('<div>',{
-            'class':'doc-icon',
-            'data-path':file['path']
-          });
-          var img = $('<img>',{
-            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png'
-          });
-          Container.append(img);
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var p = $('<p>',{
-              'class':id,
-              'text':file['filename']
-            });
-            Container.append(p);
-          }else{
-            var p = $('<p>',{
-              'class':file['filename'],
-              'text':file['filename']
-            });
-            Container.append(p);
-          }
-          if(timeDifference >=0 && timeDifference <=24){
-            today.append(Container);
-          }
-          else if(timeDifference>24 && timeDifference <=24*7){
-            previous7Days.append(Container);
-          }
-          else if(timeDifference >24*7 && timeDifference <24*30){
-            previous30Days.append(Container);
-          }
-          else {
-            previousOneYear.append(Container);
-          }
-          break;
-        case 4:
-          var Container = $('<div>',{
-            'class':'musicContainer',
-                'data-path':file['path']
-              });
-              var Holder = $('<div>',{
-                'class':'musicHolder'
-              });
-              //用来定义最后描述的名字.
-              if(file['filename'].indexOf(' ') != -1 ||
-                file['filename'].indexOf('\'' != -1)){
-                var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-                var description = $('<div>',{
-                  'class':'musicdescription '+id,
-                  'text':file['filename']
-                });
-              }else{
-                var description = $('<div>',{
-                  'class':'musicdescription '+file['filename'],
-                  'text':file['filename']
-                });
-              }
-              var img = $('<img>',{
-                'src':_globalSelf._musicPicture[file['path']]
-              });
-              Holder.append(img);
-              Container.append(Holder);
-              Container.append(description);
-              if(timeDifference >=0 && timeDifference <=24){
-                today.append(Container);
-              }
-              else if(timeDifference>24 && timeDifference <=24*7){
-                previous7Days.append(Container);
-              }
-              else if(timeDifference >24*7 && timeDifference <24*30){
-                previous30Days.append(Container);
-              }
-              else {
-                previousOneYear.append(Container);
-              }
-              break;
-        case 5:
-          var Container = $('<div>',{
-            'class':'doc-icon',
-            'data-path':file['path']
-          });
-          var img = $('<img>',{
-            'src':'icons/Other.png'
-          });
-          Container.append(img);
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var p = $('<p>',{
-              'class':id,
-              'text':file['filename']
-            });
-            Container.append(p);
-          }else{
-            var p = $('<p>',{
-              'class':file['filename'],
-              'text':file['filename']
-            });
-            Container.append(p);
-          }
-          if(timeDifference >=0 && timeDifference <=24){
-            today.append(Container);
-          }
-          else if(timeDifference>24 && timeDifference <=24*7){
-            previous7Days.append(Container);
-          }
-          else if(timeDifference >24*7 && timeDifference <24*30){
-            previous30Days.append(Container);
-          }
-          else {
-            previousOneYear.append(Container);
-          }
-          break;
-        default:
-          break;
+      if(timeDifference >=0 && timeDifference <=24){
+        today.append(div);
+      }
+      else if(timeDifference>24 && timeDifference <=24*7){
+        previous7Days.append(div);
+      }
+      else if(timeDifference >24*7 && timeDifference <24*30){
+        previous30Days.append(div);
+      }
+      else {
+        previousOneYear.append(div);
       }
     }
     if(today.children('div').length ==0){
@@ -1079,10 +953,10 @@ var ShowFiles = Class.extend({
     returnContent.append(previous7Days);
     returnContent.append(previous30Days);
     returnContent.append(previousOneYear);
-    _globalSelf.addClickEvent(returnContent,'.pictureContainer');
-    _globalSelf.addClickEvent(returnContent,'.videoContainer');
-    _globalSelf.addClickEvent(returnContent,'.musicContainer');
-    _globalSelf.addClickEvent(returnContent,'.doc-icon');
+    // _globalSelf.addClickEvent(returnContent,'.pictureContainer');
+    // _globalSelf.addClickEvent(returnContent,'.videoContainer');
+    // _globalSelf.addClickEvent(returnContent,'.musicContainer');
+    // _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
 
@@ -1158,7 +1032,7 @@ var ShowFiles = Class.extend({
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
-          returnContent.append(Container);          
+          returnContent.append(Container);       
           break;
         case 3:
           var Container = $('<div>',{
