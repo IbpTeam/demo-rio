@@ -13,16 +13,14 @@ var MainVideoView = Class.extend({
     })
 
     this._videoMiddleBtn = $('<a>',{
-      'class': 'video-middle-btn icon-play',
+      'class': 'video-middle-btn',
     });
 
     this._videoLeftBtn= $('<a>',{
       'class': 'video-left-btn',
-      'text': '<'
     });
     this._videoRightBtn = $('<a>',{
       'class': 'video-right-btn',
-      'text': '>'
     });
     this._unslider = undefined;
 

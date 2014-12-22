@@ -19,7 +19,6 @@ var APPBASEPATH;
 APPBASEPATH = path.join(__dirname, "../../..");
 exports.APPBASEPATH = APPBASEPATH;
 var APP_DATA_PATH = [
-  // TODO: make sure where to save
   path.join(process.env["HOME"], '.local/share/webde'),
   __dirname + '/app/default'
 ];
@@ -27,9 +26,17 @@ exports.APP_DATA_PATH = APP_DATA_PATH;
 exports.D_APP_ICON = __dirname + '/app/default/favicon.ico';
 
 /**
- * Desktop configure file Path before login
+ * Desktop configure file path before login
  */
 exports.BEFORELOGIN = __dirname + '/data/default/Default.conf';
+
+/**
+ * path of language file
+ */
+exports.LANG = [
+  path.join(process.env["HOME"], '.local/share/webde/langs'),
+  __dirname + '/language/langs'
+];
 
 /**
  * Project Path

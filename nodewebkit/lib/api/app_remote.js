@@ -149,7 +149,8 @@ exports.addListener = function(addListenerCB, listener, ws) {
     'Action': 'on',
     'Event': 'app'
   };
-  ws.send(JSON.stringify(msg))
+  ws.send(JSON.stringify(msg));
+  addListenerCB(null);
 }
 
 /**
@@ -170,5 +171,6 @@ exports.removeListner = function(removeListnerCB, listener, ws) {
     'Event': 'app'
   };
   ws.send(JSON.stringify(msg))
+  removeListenerCB(null);
 }
 
