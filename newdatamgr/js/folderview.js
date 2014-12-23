@@ -9,7 +9,9 @@ var ShowFiles = Class.extend({
     this._musicPicture ={};
     this._videoPicture = {};
     this._showFilesBytag = [];
-    this._showFilesBytag1 =['rio16469rio#45ed0dcb4fcd7aa8ae4f#video','rio16469rio#633d58957b91217d0ecc#video'];
+    this._showFilesBytag1 =['rio16469rio#854f47d8c29c01458a0b#music','rio16469rio#87d0a318f3b7e0235366#music','rio16469rio#8d7ae2f8afa04489b667#music'];
+    this._showFilesBytag2 =['rio16469rio#7c3700bbdb7d17d780bb#picture','rio16469rio#7c3700bbdb7d17d780bb#picture','rio16469rio#5620879d0b61f82ea1aa#picture'];
+    this._showFilesBytag3 =['rio16469rio#d4b321453740b9d97f05#document','rio16469rio#8d99e10f68ae4706252f#document','rio16469rio#a76d2513d49897836be7#document'];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -148,7 +150,7 @@ var ShowFiles = Class.extend({
           $('#'+this._contentIds[this._index]).show();
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
-              numOfCol:5
+                numOfCol:5
             }); 
           }
           if(this._index ==2){
@@ -177,7 +179,17 @@ var ShowFiles = Class.extend({
               if(this._index ==2){
                 returnshow.attr('class', 'videoContent');; 
               }
+              var sortByTimeDivs = returnshow.children('.sortByTime');
+              for(var i =0;i<sortByTimeDivs.length;i++){
+                var sortByTimeDiv = sortByTimeDivs.eq(i);
+                if(_globalSelf._showFilesBytag.length >0 && sortByTimeDiv.children('.showFileByTag').length == 0){
+                  sortByTimeDiv.hide();
+                }
+              }
               _globalSelf._showContent.append(returnshow);
+              if(this._index ==1 && _globalSelf._showFilesBytag.length >0){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              }
             }
             break;
         default:
@@ -192,21 +204,30 @@ var ShowFiles = Class.extend({
       var fileURI = fileURIS[i];
       var divs = $("."+fileURI.replace('#','').replace('#',''));
       divs.addClass('showFileByTag');
+      divs.show();
     }
     divs.siblings('tr:not(.showFileByTag)').hide();
     divs.siblings('div:not(.showFileByTag)').hide();
     var divsParent = divs.parent('.sortByTime');
     if(divsParent.length >0){
-      var sortBytimeDivs = $('.sortByTime');
+      var sortBytimeDivs = divsParent.parent('div').children('.sortByTime');
       for(var i =0;i<sortBytimeDivs.length;i++){
         var sortByTimeDiv = sortBytimeDivs.eq(i).children('div');
         for(var j =0;j<sortByTimeDiv.length;j++){
-          var innerDiv = sortByTimeDiv.eq(i);
+          var innerDiv = sortByTimeDiv.eq(j);
           if(innerDiv.attr('class').indexOf('showFileByTag') == -1){
             innerDiv.hide();
           }
         }
+        if(sortBytimeDivs.eq(i).children('.showFileByTag').length == 0){
+          sortBytimeDivs.eq(i).hide();
+        }
       }
+    }
+    if(_globalSelf._index ==1){
+      $('#'+this._contentIds[this._index]).BlocksIt({
+        numOfCol:7
+      }); 
     }
   },
 
@@ -765,10 +786,10 @@ var ShowFiles = Class.extend({
         previousOneYear.append(div);
       }
     }
-    if(today.children('div').length ==0){
+    if(today.children('div').length ==0 ){
       today.hide();
     }
-    if(previous7Days.children('div').length ==0){
+    if(previous7Days.children('div').length ==0 ){
       previous7Days.hide();
     }
     if(previous30Days.children('div').length ==0){
