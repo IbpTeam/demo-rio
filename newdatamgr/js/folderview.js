@@ -126,8 +126,8 @@ var ShowFiles = Class.extend({
                   pictureDiv.attr('class', 'pictureHolderWaterFall');
                   var pDiv = div.children('p');
                   pDiv.removeClass('picturedescription');
-                  pDiv.attr('class', 'picturedescriptionWaterFall');
-                  div.attr('class', 'pictureContainerWaterFall');
+                  pDiv.addClass('picturedescriptionWaterFall');
+                  div.addClass('pictureContainerWaterFall');
                 }
                 $('#'+this._contentIds[this._index]).append(div);
               }
@@ -691,8 +691,8 @@ var ShowFiles = Class.extend({
         pictureDiv.attr('class', 'pictureHolder');
         var pDiv = div.children('p');
         pDiv.removeClass('picturedescriptionWaterFall');
-        pDiv.attr('class', 'picturedescription');
-        div.attr('class', 'pictureContainer');
+        pDiv.addClass('picturedescription');
+        div.addClass('pictureContainer');
       }
       var fileURI = _globalSelf.findURIByDiv(div);
       var file = _globalSelf.findFileByURI(fileURI);
