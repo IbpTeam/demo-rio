@@ -10,6 +10,8 @@ var main = function(params_){
     };
     //用于记录被拖拽的标签的对象，被tagview.js设置
     tagDragged = undefined;
+    //右键菜单
+    contextMenu = ContextMenu.create();
     homePage = HomePage.create();
     search = Search.create();
     contact = Contact.create();

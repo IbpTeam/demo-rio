@@ -30,6 +30,27 @@ var ShowFiles = Class.extend({
     _globalSelf = this 
   },
 
+  setDocumentContextMenu:function(id_){
+    contextMenu.addCtxMenu([
+      {header: 'document menu'},
+      {text:'New Text',action:function(){
+
+      }},
+      {text:'New Document',action:function(){
+
+      }},
+      {text:'New PPT',action:function(){
+
+      }},
+      {text:'New Excel',action:function(){
+
+      }},
+    ]);
+    contextMenu.attachToMenu('#'+id_,
+      contextMenu.getMenuByHeader('document menu'),
+      function(){});
+  },
+
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
     var showlistButton = $('<div>',{
@@ -122,6 +143,9 @@ var ShowFiles = Class.extend({
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+    if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
+      _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
+    };
   },
 
   //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
