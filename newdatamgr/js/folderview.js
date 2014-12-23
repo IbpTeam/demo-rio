@@ -101,6 +101,12 @@ var ShowFiles = Class.extend({
                 var div = sortByTimeDiv.eq(j);
                 if(this._index ==1){
                   div.removeClass('pictureContainer');
+                  var pictureDiv = div.children('div').eq(0);
+                  pictureDiv.removeClass('pictureHolder');
+                  pictureDiv.attr('class', 'pictureHolderWaterFall');
+                  var pDiv = div.children('p');
+                  pDiv.removeClass('picturedescription');
+                  pDiv.attr('class', 'picturedescriptionWaterFall');
                   div.attr('class', 'pictureContainerWaterFall');
                 }
                 $('#'+this._contentIds[this._index]).append(div);
