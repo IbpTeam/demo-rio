@@ -919,6 +919,13 @@ var ShowFiles = Class.extend({
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
         div.removeClass('pictureContainerWaterFall');
+        div[0].style.cssText = '';
+        var pictureDiv = div.children('div').eq(0);
+        pictureDiv.removeClass('pictureHolderWaterFall');
+        pictureDiv.attr('class', 'pictureHolder');
+        var pDiv = div.children('p');
+        pDiv.removeClass('picturedescriptionWaterFall');
+        pDiv.attr('class', 'picturedescription');
         div.attr('class', 'pictureContainer');
       }
       var fileURI = _globalSelf.findURIByDiv(div);
