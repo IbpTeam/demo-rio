@@ -9,7 +9,7 @@ var TagView = Class.extend({
       color: 'rgb(255,255,255)',
       max: 6,
       animate: true,
-      random_positions: [{left:15,top:20},{left:70,top:60},{left:10,top:50},{left:18,top:110},{left:70,top:30},{left:65,top:90}],
+      random_positions: [{left:15,top:20},{left:70,top:60},{left:10,top:50},{left:70,top:30},{left:18,top:110},{left:65,top:90}],
       positions: {top:10,step:30}
     }
     if (options_) {
@@ -51,6 +51,12 @@ var TagView = Class.extend({
     _tagContainer.append(_tagBackground);
     _tagContainer.append(_tagSpan);
     _tagContainer.append(_tagTriangle);
+
+    //forbid context menu
+    $(document).on('contextmenu','.tag-container', function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
     return _tagContainer;
   },
   /**
@@ -269,7 +275,7 @@ var TagView = Class.extend({
     if (this._options.position !== 'random') {
       return 0;
     };
-    this._positionIndex = this._positionIndex + 4;
+    this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     if (this._positionIndex >= this._options.max) {
       this._positionIndex -= this._options.max;
     };
@@ -279,15 +285,16 @@ var TagView = Class.extend({
         _index = (_index > this._options.max -1) ?  _index - this._options.max : _index; 
         var _position = this._options.random_positions[_index];
         var _triangle = this._tagList[i].children('.tag-triangle');
-          if (_position.left > 50 && 
-              _triangle.hasClass('right-triangle')) {
-            _triangle.removeClass('right-triangle');
-            _triangle.addClass('left-triangle');
-          }else if(_position.left < 50 && 
-              _triangle.hasClass('left-triangle')){
-            _triangle.removeClass('left-triangle');
-            _triangle.addClass('right-triangle');
-          }
+        if (_triangle.hasClass('right-triangle')) {
+          _triangle.removeClass('right-triangle');
+        }else{
+          _triangle.removeClass('left-triangle');
+        }
+        if (_position.left > 50) {
+          _triangle.addClass('left-triangle');
+        }else if(_position.left < 50){
+          _triangle.addClass('right-triangle');
+        }
         $(this._tagList[i]).animate({
           left: _position.left +'%',
           top: _position.top +'px'
@@ -359,9 +366,8 @@ var TagView = Class.extend({
       if (_this._uri) {
         ev.dataTransfer.setData("uri", _this._uri);
       };
-      //tag is contact
       if(_this._parent[0].id === 'contact-head'){
-        ev.dataTransfer.setData("category", 'contact')
+        ev.dataTransfer.setData("category", 'contact');
       }
       tagDragged = _this;
     }

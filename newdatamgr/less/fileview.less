@@ -54,8 +54,9 @@
       bottom: 0px;
       left: 0px;
       width: 100%;
-      border: 1px solid rgba(0,0,0,0);
-      margin-left: 8px;
+      padding-top: 15px;
+      //border: 1px solid rgba(0,0,0,0);
+      //margin-left: 8px;
       .scroll();
       .pictureContainerWaterFall {
         //width:188px; 
@@ -98,7 +99,7 @@
         }
       }
       .selected {
-        background-color:#08c;
+        background-color: #717677;
       }
       .sortByTime {
         border: 1px solid #ff0;
@@ -134,14 +135,11 @@
           margin:10px 5px 10px 5px;
         }
       }
-      #videoContent {
+      .videoContent {
         .scroll();
         padding-bottom: 100px;
         .videoContainer {
-        //width:21%;         
-        //margin: 20px 2% 10px 1.5%;
           height: 0;
-        //padding-bottom: 18%;
           font-size:12px; 
           float:left;
           cursor: pointer; 
@@ -158,8 +156,6 @@
             position: relative;
             border-radius: 3px;
             padding-bottom: 60%;
-            //border-top: 15px solid #2e3d44;
-            //border-bottom: 15px solid #2e3d44;
           }
           .videoHolder img{
             width:100%;
@@ -176,7 +172,6 @@
           }
         }
       }
-
       .pictureContainer {
         width:188px;
         height:188px; 
@@ -207,14 +202,140 @@
         }
       }
       .tableContainer{
-        .table tbody th{
-          font-weight:normal;
+        position: relative;
+        table-layout: fixed;
+        overflow-x: auto;
+        overflow-y: hidden;
+        width: 100%;
+        height: 100%;
+        font-weight: normal;
+        .returnTableHead{
+          position: absolute;
+          width: 100%;
+          height:100%;
+          left: 0px;
+          top:0px;
         }
-        .table tr:hover {
-          color:#ff0000;
-          text-shadow:0 -1px 0 rgba(0,0,0,0.2);
-          text-decoration:none;
-          cursor:pointer;
+        .returnTableBody{
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          left: 0px;
+          top: 32px;
+          overflow-y: scroll;
+          overflow-x: hidden;
+          padding-bottom: 200px;
+          .scroll();
+        }
+        thead {
+          line-height: 28px;
+          //display: block;
+          width: 100%;
+        }
+        .theadtr th{
+            font-weight: normal;
+            text-align: left;
+            font-size: 13px;
+            background-color: #f6f6f6;
+            border-top: 1px solid #c6c6c6;
+            border-bottom: 1px solid #c6c6c6;
+            position: relative;
+            height: 15px;
+            padding-left: 10px;
+            color: #706f6f;
+            &:before{
+              content: "";
+              position: absolute;
+              width: 1px;
+              height: 16px;
+              background-color: #c6c6c6;
+              left: -1px;
+              top: 7px;
+              z-index: 12;
+            }
+            &:first-child{
+              width: 40%;
+              min-width: 250px; 
+            }
+            &:nth-child(2){
+              width: 25%;
+            }
+            &:nth-child(3){
+              width: 10%;
+            }
+            &:nth-child(4){
+              width: 25%;
+            }
+          }
+        tbody {
+          text-height: 50px;
+          font-weight: normal;
+          font-size: 12px;
+          text-align: left;
+          img{
+            width: 15px;
+            left: 10px;
+            padding-top: 3px;
+            position: absolute;
+          }
+          p{
+            display: block;
+            padding: 0px;
+            margin-top: -20px;
+            float: left;
+            font-size: 12px;
+            position: absolute;
+            left: 30px;
+          }
+          tr{
+            cursor: default;
+            &:focus{
+              background-color: rgba(45, 60, 67, 1);
+              color: white;
+              border: none;
+              outline: none;
+            }
+            &:nth-child(odd){
+            background-color: rgba(255, 255, 255, 0.6);
+              &:focus{
+                background-color: rgba(45, 60, 67, 1);
+              }
+            }
+          }
+          th{
+            padding-left: 10px;
+            line-height: 20px;
+            font-weight: lighter;
+            &:first-child{
+              width: 40%;
+              min-width: 250px;
+              color:rgba(45, 60, 67, 1)
+              &:focus{
+                color: white;
+              }
+            }
+            &:nth-child(2){
+              width: 25%;
+              color: #9d9d9c;
+              &:focus{
+                color: white;
+              }
+            }
+            &:nth-child(3){
+              width: 10%;
+              color: #9d9d9c;
+              &:focus{
+                color: white;
+              }
+            }
+            &:nth-child(4){
+              width: 25%;
+              color: #9d9d9c;
+              &:focus{
+                color: white;
+              }
+            }
+          }
         }
       }
     }

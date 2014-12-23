@@ -22,6 +22,7 @@ var Contact = Class.extend({
     this._tagView.setParent(this._contactHead);
     this._selectId = 0;
     this.bindDrag(this._contactHead[0]);
+    this.setContextMenu();
   },
 
   setContactsList:function(){
@@ -88,6 +89,37 @@ var Contact = Class.extend({
       _this.setDetails(_this._contacts[this.id], this.id);
       _this._selectId = this.id;
     });
+
+    //forbid context menu
+    $(document).on('contextmenu','#'+_this._contactsList[0].id, function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
+  },
+
+  setContextMenu:function(){
+    var _this = this;
+    contextMenu.addCtxMenu([
+      {header: 'contact menu'},
+      {text:'Tag', subMenu:[
+        {header: 'Tag'},
+        {text: 'Add',action:function(){
+
+        }},
+        {text: 'Remove', action:function(){
+
+        }}
+      ]},
+      {text: 'Remove Contact', action:function(){
+
+      }},
+      {text: 'Edit Contact',action:function(){
+        _this.editDetails(_this._contacts[_this._selectId], _this._selectId);
+      }}
+    ]);
+    contextMenu.attachToMenu('#contact-container',
+      contextMenu.getMenuByHeader('contact menu'),
+      function(){});
   },
 
   setHead: function(contact_){
@@ -340,6 +372,14 @@ var Contact = Class.extend({
 
   attach:function($parent_){
     $parent_.append(this._ContactContainer);
+  },
+
+  hide:function(){
+    this._ContactContainer.hide();
+  },
+
+  show:function(){
+    this._ContactContainer.show();
   },
 
   bindDrag:function(target_){
