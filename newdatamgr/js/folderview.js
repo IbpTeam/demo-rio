@@ -30,6 +30,27 @@ var ShowFiles = Class.extend({
     _globalSelf = this 
   },
 
+  setDocumentContextMenu:function(id_){
+    contextMenu.addCtxMenu([
+      {header: 'document menu'},
+      {text:'New Text',action:function(){
+
+      }},
+      {text:'New Document',action:function(){
+
+      }},
+      {text:'New PPT',action:function(){
+
+      }},
+      {text:'New Excel',action:function(){
+
+      }},
+    ]);
+    contextMenu.attachToMenu('#'+id_,
+      contextMenu.getMenuByHeader('document menu'),
+      function(){});
+  },
+
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
     var showlistButton = $('<div>',{
@@ -160,6 +181,9 @@ var ShowFiles = Class.extend({
       returnContent.attr('class', 'videoContent');
     }
     _globalSelf._showContent.append(returnContent);
+    if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
+      _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
+    };
   },
 
   //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
@@ -402,6 +426,123 @@ var ShowFiles = Class.extend({
     return theadMessage;
   },
 
+  //此函数用来绑定一些单击双击事件
+  addClickEvent:function(jQueryElement,whichClass){
+    //一个JQuery元素代表的是一系列文件
+    this.files = jQueryElement;
+    var self = this;
+    //增加单击和右击事件,1是单击，3是右击
+    this.files.delegate(whichClass,'mousedown',function(e){
+      switch(e.which){
+        case 1:
+          //$(this).addClass('selected').siblings().removeClass('selected');
+          $(this).delegate($(this),'mousedown',function(e){
+          })
+          $(this).attr('tabindex', 1).keydown(function(e) {
+              if($(this).attr('data-path')){
+                var file = _globalSelf.findFileByPath($(this).attr('data-path'));
+                var filePath = $(this).attr('data-path'); 
+              }
+              else{
+                var file = _globalSelf.findFileByPath($(this).attr('id'));
+                var filePath = $(this).attr('id');
+              }
+            if(e.which == 46){
+              //触发的是键盘的delete事件,表示删除
+              var toDelete = $(this);
+              DataAPI.rmDataByUri(function(err,result){
+                if(result == 'success'){
+                  toDelete.remove();
+                  for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+                    if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
+                      _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+                      break;
+                    }
+                  }
+                  if($('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div').length >0){
+                    var div = $('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div');
+                    for(var i=0;i<div.length;i++){
+                      if($(div[i]).attr('data-path') == filePath){
+                        $(div[i]).remove();
+                      }
+                    }
+                  }
+                  if($('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div').length >0){
+                    var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
+                    var sortDivs = $('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div');
+                    var whichDiv = 0;
+                    if(timeDifference >=0 && timeDifference <=24){
+                      whichDiv =0;
+                    }
+                    else if(timeDifference>24 && timeDifference <=24*7){
+                      whichDiv =1;
+                    }
+                    else if(timeDifference >24*7 && timeDifference <24*30){
+                      whichDiv =2;
+                    }
+                    else {
+                      whichDiv =3;
+                    }
+                    var div = $(sortDivs[whichDiv]).children('div');
+                    for(var i=0;i<div.length;i++){
+                      if($(div[i]).attr('data-path') == filePath){
+                        $(div[i]).remove();
+                      }
+                    }
+                  }
+                  if($('#'+ _globalSelf._contentIdsList[_globalSelf._index]).children('table').length >0){
+                    $('table,tr').each(function(index, el) {
+                      if($(this).attr('id') == filePath){
+                        $(this).remove();
+                      }
+                    });
+                  }
+                  _globalSelf.showFile();
+                }
+                else{
+                  window.alert('Delete file failed');
+                }
+              },file['URI']);
+            }
+            else if(e.which == 113){
+              //按下F2键，表示要重命名
+            }
+          });
+          break;
+        case 3:
+          break;  
+      }
+      e.stopPropagation();
+    });
+    this.files.delegate(whichClass,'dblclick',function(e){
+      if($(this).attr('data-path')){
+        var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
+      }
+      else{
+        var file = _globalSelf.findFileByPath($(this).attr('id'));
+      }
+      if(!file){
+        window.alert('the file is not found !');
+        return false;
+      }
+      if(file.URI.indexOf('#') != -1){
+        if(file.postfix == 'pdf'){
+          function cbViewPdf(){
+          }
+          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+            if (err) {
+              return console.log(err);
+            }
+            AppAPI.startApp(cbViewPdf, appInfo, file.path);
+          }, "viewerPDF-app");
+        }
+        else {
+          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+        }
+      }
+    });
+  },
+
   //此函数用来转换时间
   changeDate:function(changedate){
     var date = new Date(changedate);
@@ -476,9 +617,16 @@ var ShowFiles = Class.extend({
       }
       return bodytr;
     }
-    //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容.
-    var table = $('<table>',{
-      'class':'table',
+    
+
+    //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容,表头和表主体放在了两个表格里，为了表头固定
+    var tableHead = $('<table>',{
+      'class':'tableHead',
+      "cellspacing":'0',
+      'width':'100%'
+    });
+     var tableBody = $('<table>',{
+      'class':'tableBody',
       "cellspacing":'0',
       'width':'100%'
     });
@@ -497,17 +645,17 @@ var ShowFiles = Class.extend({
     for(var i =0;i<files.length;i++){
       tbody.append(GenerateBodyTr(files[i],theadMessage));
     }
-    table.append(thead);
-    table.append(tbody);
+    tableHead.append(thead);
+    tableBody.append(tbody);
     var returnContent = $('<div>',{
-      'class':'tableContainer',
-      'overflow':'auto'
+      'class':'tableContainer'
+      //'overflow':'auto'
     });
     returnContent.append(table);
     return returnContent;
   },
 
-  //此函数用来按照事件排序来显示文档，音乐，图片和视频信息,其中div是按照正常的时候的div。
+  //此函数用来按照时间排序来显示文档，音乐，图片和视频信息,其中div是按照正常的时候的div。
   showFilesSortByTime:function(Divs){
     var returnContent = $('<div>',{
       'overflow':'auto'
@@ -528,7 +676,7 @@ var ShowFiles = Class.extend({
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
         div.removeClass('pictureContainerWaterFall');
-        div[0].style.cssText = '';
+        //div[0].style.cssText = '';
         var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
