@@ -8,7 +8,7 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
-    this._showFilesBytag = {'rio16469rio#45ed0dcb4fcd7aa8ae4f#video','rio16469rio#633d58957b91217d0ecc#video'};
+    this._showFilesBytag = ['rio16469rio#45ed0dcb4fcd7aa8ae4f#video','rio16469rio#633d58957b91217d0ecc#video'];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -69,10 +69,15 @@ var ShowFiles = Class.extend({
       'id':'sortbyButton',
       'text':'sortby'
     });
+    var testButton = $('<button>',{
+      'id':'thisisatest',
+      'text':'!!!!!!'
+    });
     this._choice.append(showlistButton);
     this._choice.append(line);
     this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
+    this._choice.append(testButton);
     showlistButton.click(function(){
       shownormalButton.removeClass('normalButtonFocus');
       showlistButton.addClass('showlistButtonFocus');
@@ -88,6 +93,9 @@ var ShowFiles = Class.extend({
     sortbyButton.click(function(){
       _globalSelf._showNormal[_globalSelf._index] = 2;
       _globalSelf.showFile();
+    });
+    testButton.click(function() {
+      _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
     });
   },
   
@@ -176,7 +184,8 @@ var ShowFiles = Class.extend({
   showFileByTag:function(fileURIS){
     for(var i =0;i<fileURIS.length;i++){
       var fileURI = fileURIS[i];
-      $('.'+fileURI).addClass('showFileByTag');
+      var divs = $('.'+fileURI).eq(0);
+      divs.addClass('showFileByTag');
     }
     $('.showFileByTag').siblings().hide();
   },
@@ -694,7 +703,6 @@ var ShowFiles = Class.extend({
     for(var i =0;i<Divs.length;i++){
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
-        //var fileURI = _globalSelf.findURIByDiv(div);
         div.removeClass('pictureContainerWaterFall')
         div[0].style.cssText = '';
         var pictureDiv = div.children('div').eq(0);
@@ -704,10 +712,8 @@ var ShowFiles = Class.extend({
         pDiv.removeClass('picturedescriptionWaterFall');
         pDiv.addClass('picturedescription');
         div.addClass('pictureContainer');
-        // div.attr('class', fileURI);
       }
       var fileURI = _globalSelf.findURIByDiv(div);
-      // window.alert(fileURI);
       var file = _globalSelf.findFileByURI(fileURI);
       var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
       if(timeDifference >=0 && timeDifference <=24){
