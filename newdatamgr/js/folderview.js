@@ -8,7 +8,8 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
-    this._showFilesBytag = ['rio16469rio#45ed0dcb4fcd7aa8ae4f#video','rio16469rio#633d58957b91217d0ecc#video'];
+    this._showFilesBytag = [];
+    this._showFilesBytag1 =['rio16469rio#45ed0dcb4fcd7aa8ae4f#video','rio16469rio#633d58957b91217d0ecc#video'];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -95,7 +96,7 @@ var ShowFiles = Class.extend({
       _globalSelf.showFile();
     });
     testButton.click(function() {
-      _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+      _globalSelf.showFileByTag(_globalSelf._showFilesBytag1);
     });
   },
   
@@ -103,6 +104,7 @@ var ShowFiles = Class.extend({
   setIndex:function(index_){
     if (typeof index_ === 'number' && index_ >0 && index_ <6) {
       this._index = index_;
+      this._showFilesBytag = [];
     }
     _globalSelf.showFile();
   },
@@ -154,11 +156,14 @@ var ShowFiles = Class.extend({
           }
           break;
         case 1:
-            if($('#'+ this._contentIdsList[this._index]).children('table').length >0){
+            if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
               $('#'+ this._contentIdsList[this._index]).show();
             }
             else {
               _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
+              if(_globalSelf._showFilesBytag.length >0){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              }
             }
             break;
         case 2:
@@ -182,12 +187,27 @@ var ShowFiles = Class.extend({
 
   //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
   showFileByTag:function(fileURIS){
+    _globalSelf._showFilesBytag = fileURIS;
     for(var i =0;i<fileURIS.length;i++){
       var fileURI = fileURIS[i];
-      var divs = $('.'+fileURI).eq(0);
+      var divs = $("."+fileURI.replace('#','').replace('#',''));
       divs.addClass('showFileByTag');
     }
-    $('.showFileByTag').siblings().hide();
+    divs.siblings('tr:not(.showFileByTag)').hide();
+    divs.siblings('div:not(.showFileByTag)').hide();
+    var divsParent = divs.parent('.sortByTime');
+    if(divsParent.length >0){
+      var sortBytimeDivs = $('.sortByTime');
+      for(var i =0;i<sortBytimeDivs.length;i++){
+        var sortByTimeDiv = sortBytimeDivs.eq(i).children('div');
+        for(var j =0;j<sortByTimeDiv.length;j++){
+          var innerDiv = sortByTimeDiv.eq(i);
+          if(innerDiv.attr('class').indexOf('showFileByTag') == -1){
+            innerDiv.hide();
+          }
+        }
+      }
+    }
   },
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
@@ -223,7 +243,7 @@ var ShowFiles = Class.extend({
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
     var divClass = div.attr('class');
-    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
     var URI = divClass.substr(divClass.indexOf('rio'),URILength);
     return URI;
   },
@@ -234,7 +254,7 @@ var ShowFiles = Class.extend({
     var file = false;
     if(all.length){
       for(var i =0;i<all.length;i++){
-        if(all[i]['URI'] && all[i]['URI']== URI){
+        if(all[i]['URI'] && all[i]['URI'].replace('#','').replace('#','') == URI){
           file = all[i];
           break;
         }
@@ -585,7 +605,7 @@ var ShowFiles = Class.extend({
     function GenerateBodyTr(file,theadMessage){
       var bodytr = $('<tr>',{
         'id':file['path'],
-        'class':'bodytr '+file['URI']
+        'class':'bodytr '+file['URI'].replace('#','').replace('#','')
       });
       if(file['filename'].indexOf(' ') != -1 ||
         file['filename'].indexOf('\'' != -1)){
@@ -776,7 +796,7 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'class':'pictureContainerWaterFall '+file['URI'],
+            'class':'pictureContainerWaterFall '+file['URI'].replace('#','').replace('#',''),
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -813,7 +833,7 @@ var ShowFiles = Class.extend({
           break;
         case 2:
           var Container = $('<div>',{
-            'class':'videoContainer '+ file['URI'],
+            'class':'videoContainer '+ file['URI'].replace('#','').replace('#',''),
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -844,7 +864,7 @@ var ShowFiles = Class.extend({
           break;
         case 3:
           var Container = $('<div>',{
-            'class':'doc-icon '+file['URI'],
+            'class':'doc-icon '+file['URI'].replace('#','').replace('#',''),
             'data-path':file['path']
           });
           var img = $('<img>',{
@@ -869,7 +889,7 @@ var ShowFiles = Class.extend({
         case 4:
           _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
-            'class':'musicContainer '+file['URI'],
+            'class':'musicContainer '+file['URI'].replace('#','').replace('#',''),
             'data-path':file['path']
           });
           var Holder = $('<div>',{
@@ -899,7 +919,7 @@ var ShowFiles = Class.extend({
           break;
         case 5:
           var Container = $('<div>',{
-            'class':'doc-icon '+file['URI'],
+            'class':'doc-icon '+file['URI'].replace('#','').replace('#',''),
             'data-path':file['path']
           });
           var img = $('<img>',{
