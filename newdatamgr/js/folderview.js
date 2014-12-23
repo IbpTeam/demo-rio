@@ -8,6 +8,7 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
+    this._showFilesBytag = {};
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -142,6 +143,15 @@ var ShowFiles = Class.extend({
         default:
       }
     } 
+  },
+
+  //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
+  showFileByTag:function(fileURIS){
+    for(var i =0;i<fileURIS.length;i++){
+      var fileURI = fileURIS[i];
+      $('.'+fileURI).attr('class', 'showFileByTag');
+    }
+    $('.showFileByTag').siblings().hide();
   },
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
