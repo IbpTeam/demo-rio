@@ -548,6 +548,7 @@ var ShowFiles = Class.extend({
         div.attr('class', 'pictureContainer');
       }
       var fileURI = _globalSelf.findURIByDiv(div);
+      window.alert(fileURI);
       var file = _globalSelf.findFileByURI(fileURI);
       var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
       if(timeDifference >=0 && timeDifference <=24){
