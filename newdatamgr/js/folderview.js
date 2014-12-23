@@ -396,163 +396,6 @@ var ShowFiles = Class.extend({
     return theadMessage;
   },
 
-  //此函数用来绑定一些单击双击事件
-  addClickEvent:function(jQueryElement,whichClass){
-    //一个JQuery元素代表的是一系列文件
-    this.files = jQueryElement;
-    var self = this;
-    //增加单击和右击事件,1是单击，3是右击
-    this.files.delegate(whichClass,'mousedown',function(e){
-      switch(e.which){
-        case 1:
-          $(this).addClass('selected').siblings().removeClass('selected');
-          $(this).attr('tabindex', 1).keydown(function(e) {
-              if($(this).attr('data-path')){
-                var file = _globalSelf.findFileByPath($(this).attr('data-path'));
-                var filePath = $(this).attr('data-path'); 
-              }
-              else{
-                var file = _globalSelf.findFileByPath($(this).attr('id'));
-                var filePath = $(this).attr('id');
-              }
-            if(e.which == 46){
-              //触发的是键盘的delete事件,表示删除
-              var toDelete = $(this);
-              DataAPI.rmDataByUri(function(err,result){
-                if(result == 'success'){
-                  toDelete.remove();
-                  for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-                    if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
-                      _globalSelf._getFiles[_globalSelf._index].splice(i,1);
-                      break;
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div').length >0){
-                    var div = $('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div');
-                    for(var i=0;i<div.length;i++){
-                      if($(div[i]).attr('data-path') == filePath){
-                        $(div[i]).remove();
-                      }
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div').length >0){
-                    var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
-                    var sortDivs = $('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div');
-                    var whichDiv = 0;
-                    if(timeDifference >=0 && timeDifference <=24){
-                      whichDiv =0;
-                    }
-                    else if(timeDifference>24 && timeDifference <=24*7){
-                      whichDiv =1;
-                    }
-                    else if(timeDifference >24*7 && timeDifference <24*30){
-                      whichDiv =2;
-                    }
-                    else {
-                      whichDiv =3;
-                    }
-                    var div = $(sortDivs[whichDiv]).children('div');
-                    for(var i=0;i<div.length;i++){
-                      if($(div[i]).attr('data-path') == filePath){
-                        $(div[i]).remove();
-                      }
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIdsList[_globalSelf._index]).children('table').length >0){
-                    $('table,tr').each(function(index, el) {
-                      if($(this).attr('id') == filePath){
-                        $(this).remove();
-                      }
-                    });
-                  }
-                  _globalSelf.showFile();
-                }
-                else{
-                  window.alert('Delete file failed');
-                }
-              },file['URI']);
-            }
-            else if(e.which == 113){
-              //按下F2,是重命名操作
-              if(_globalSelf._showNormal[_globalSelf._index] == 1){
-                var renameTh = $(this).children('th').eq(0);
-                if(_globalSelf._index == 3){
-                  var rename = renameTh.children('p');
-                }
-                else{
-                  var rename = renameTh;
-                }
-              }
-              else {
-                if(_globalSelf._index == 3 || _globalSelf._index ==5){
-                  var rename = $(this).children('p');
-                }
-                else{
-                  var rename = $(this).children('div').eq(1);
-                }
-              }
-              var inputer = Inputer.create('button-name');
-              var options = {
-                'left': rename.offset().left,
-                'top': rename.offset().top,
-                'width': 80,
-                'height': 25,
-                'oldtext': file['filename'],
-                'callback': function(newtext){
-                  DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], file['URI'], newtext+'.'+file['postfix'], function(err, result){
-                    if(result == 'success'){
-                      $("."+file['filename']).html(newtext);
-                      for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-                        if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
-                          _globalSelf._getFiles[_globalSelf._index][i]['filename'] = newtext;
-                        break;
-                        }
-                      }
-                    }
-                    else{
-                      window.alert("Rename failed!");
-                    }
-                  });
-                }
-              }
-              inputer.show(options); 
-            }
-          });
-          break;
-        case 3:
-          break;  
-      }
-      e.stopPropagation();
-    });
-    this.files.delegate(whichClass,'dblclick',function(e){
-      if($(this).attr('data-path')){
-        var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
-      }
-      else{
-        var file = _globalSelf.findFileByPath($(this).attr('id'));
-      }
-      if(!file){
-        window.alert('the file is not found !');
-        return false;
-      }
-      if(file.URI.indexOf('#') != -1){
-        if(file.postfix == 'pdf'){
-          function cbViewPdf(){
-          }
-          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
-            if (err) {
-              return console.log(err);
-            }
-            AppAPI.startApp(cbViewPdf, appInfo, file.path);
-          }, "viewerPDF-app");
-        }
-        else {
-          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
-        }
-      }
-    });
-  },
-
   //此函数用来转换时间
   changeDate:function(changedate){
     var date = new Date(changedate);
@@ -655,7 +498,6 @@ var ShowFiles = Class.extend({
       'overflow':'auto'
     });
     returnContent.append(table);
-    _globalSelf.addClickEvent(returnContent,'.bodytr');
     return returnContent;
   },
 
@@ -880,10 +722,6 @@ var ShowFiles = Class.extend({
         default:
       }
     }
-    _globalSelf.addClickEvent(returnContent,'.doc-icon');
-    _globalSelf.addClickEvent(returnContent,'.pictureContainerWaterFall');
-    _globalSelf.addClickEvent(returnContent,'.videoContainer');
-    _globalSelf.addClickEvent(returnContent,'.musicContainer');
     return returnContent;
   },
   
