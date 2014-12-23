@@ -435,9 +435,9 @@ var ShowFiles = Class.extend({
     this.files.delegate(whichClass,'mousedown',function(e){
       switch(e.which){
         case 1:
-          //$(this).addClass('selected').siblings().removeClass('selected');
-          $(this).delegate($(this),'mousedown',function(e){
-          })
+          $(this).addClass('selected').siblings().removeClass('selected');
+          // $(this).delegate($(this),'mousedown',function(e){
+          // })
           $(this).attr('tabindex', 1).keydown(function(e) {
               if($(this).attr('data-path')){
                 var file = _globalSelf.findFileByPath($(this).attr('data-path'));
@@ -649,9 +649,18 @@ var ShowFiles = Class.extend({
     tableBody.append(tbody);
     var returnContent = $('<div>',{
       'class':'tableContainer'
-      //'overflow':'auto'
     });
-    returnContent.append(table);
+    var returnHeadContent = $('<div>',{
+      'class':'returnTableHead'
+    });
+    var returnBodyContent = $('<div>',{
+      'class':'returnTableBody'
+    });
+    returnContent.append(returnHeadContent);
+    returnContent.append(returnBodyContent);
+    returnHeadContent.append(tableHead);
+    returnBodyContent.append(tableBody);
+    _globalSelf.addClickEvent(returnContent,'.bodytr');
     return returnContent;
   },
 
@@ -676,7 +685,7 @@ var ShowFiles = Class.extend({
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
         div.removeClass('pictureContainerWaterFall');
-        //div[0].style.cssText = '';
+        div[0].style.cssText = '';
         var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
@@ -717,6 +726,10 @@ var ShowFiles = Class.extend({
     returnContent.append(previous7Days);
     returnContent.append(previous30Days);
     returnContent.append(previousOneYear);
+    _globalSelf.addClickEvent(returnContent,'.pictureContainer');
+    _globalSelf.addClickEvent(returnContent,'.videoContainer');
+    _globalSelf.addClickEvent(returnContent,'.musicContainer');
+    _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
 
@@ -876,6 +889,10 @@ var ShowFiles = Class.extend({
         default:
       }
     }
+    _globalSelf.addClickEvent(returnContent,'.pictureContainerWaterFall');
+    _globalSelf.addClickEvent(returnContent,'.videoContainer');
+    _globalSelf.addClickEvent(returnContent,'.musicContainer');
+    _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
   
