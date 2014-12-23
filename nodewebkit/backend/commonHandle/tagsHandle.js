@@ -8,36 +8,6 @@ var commonDAO = require("./CommonDAO");
 var repo = require("./repo");
 var utils = require("../utils");
 
-/**
- * @method pickTags
- *   pick possible tags from path
- *   this will check the string between each two "/"
- *
- * @param1 oTag
- *    object, to store tags we picked
- *
- * @param2 rePos
- *    the regExp position in the path string
- *
- * @param2 path
- *    string, the target path of data
- *
- */
-function pickTags(oTag, rePos, path) {
-  if (path.length <= 2) {
-    return;
-  }
-  var sStartPart = path.slice(rePos, path.length);
-  var startPos = sStartPart.indexOf('/');
-  if (startPos == -1) {
-    return;
-  }
-  var sTag = sStartPart.substring(0, startPos);
-  oTag.push(sTag);
-  var sNewStart = sStartPart.slice(startPos + 1, sStartPart.length);
-  pickTags(oTag, 0, sNewStart);
-}
-
 
 /**
  * @method getTagsByPath
@@ -50,11 +20,11 @@ function pickTags(oTag, rePos, path) {
  */
 function getTagsByPath(path) {
   var oTags = [];
-  var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
-  if (regPos > -1) {
-    pickTags(oTags, regPos, path);
-  }
-  return oTags;
+  var reg = new RegExp(process.env["HOME"] + '/');
+  var tmpTags = path.replace(reg, '');
+  tmpTags = tmpTags.split('/');
+  tmpTags.pop();
+  return tmpTags;
 }
 exports.getTagsByPath = getTagsByPath;
 
@@ -838,6 +808,10 @@ exports.rmInTAGS = rmInTAGS;
  *
  */
 function addInTAGS(oTags, sUri, callback) {
+  if (oTags == '' || oTags = null) {
+    var _err = 'bad input tags ...';
+    return callback(_err);
+  }
   var oItems = [];
   for (var tag in oTags) {
     var oItem = {
