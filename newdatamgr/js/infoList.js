@@ -263,13 +263,7 @@ var InfoList = Class.extend({
       }
     }
     if(this._index == 0){
-      if(contact._first === true){
-        contact.attach($('#contentDiv'));
-        contact.setContactsList();
-        contact._ContactContainer.show();
-      }else{
-        contact._ContactContainer.show();
-      }
+      contact._ContactContainer.show();
     }
   },
 

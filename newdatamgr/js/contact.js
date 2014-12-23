@@ -374,6 +374,14 @@ var Contact = Class.extend({
     $parent_.append(this._ContactContainer);
   },
 
+  hide:function(){
+    this._ContactContainer.hide();
+  },
+
+  show:function(){
+    this._ContactContainer.show();
+  },
+
   bindDrag:function(target_){
     target_.ondragover = this.dragover;
     target_.ondrop = this.drop;
