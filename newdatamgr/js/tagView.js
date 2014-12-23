@@ -51,6 +51,12 @@ var TagView = Class.extend({
     _tagContainer.append(_tagBackground);
     _tagContainer.append(_tagSpan);
     _tagContainer.append(_tagTriangle);
+
+    //forbid context menu
+    $(document).on('contextmenu','.tag-container', function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
     return _tagContainer;
   },
   /**
@@ -269,7 +275,7 @@ var TagView = Class.extend({
     if (this._options.position !== 'random') {
       return 0;
     };
-    this._positionIndex = this._positionIndex + 3;
+    this._positionIndex = Math.ceil(Math.random()*_this._options.max);
     if (this._positionIndex >= this._options.max) {
       this._positionIndex -= this._options.max;
     };
@@ -360,9 +366,8 @@ var TagView = Class.extend({
       if (_this._uri) {
         ev.dataTransfer.setData("uri", _this._uri);
       };
-      //tag is contact
       if(_this._parent[0].id === 'contact-head'){
-        ev.dataTransfer.setData("category", 'contact')
+        ev.dataTransfer.setData("category", 'contact');
       }
       tagDragged = _this;
     }

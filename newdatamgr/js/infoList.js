@@ -51,8 +51,8 @@ var InfoList = Class.extend({
       var _options = {
         'left': $(this).offset().left,
         'top' : $(this).offset().top,
-        'width': 100,
-        'height': 20,
+        'width': 22,
+        'height': 22,
         'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
         'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
           if(newtext_){
@@ -68,6 +68,10 @@ var InfoList = Class.extend({
         }
       }
       _this._inputer.show(_options);
+      _this._inputer.$input.animate({
+        width:'100px',
+        opacity:'1'
+      },800);
     });
   },
 
@@ -249,13 +253,7 @@ var InfoList = Class.extend({
       }
     }
     if(this._index == 0){
-      if(contact._first === true){
-        contact.attach($('#contentDiv'));
-        contact.setContactsList();
-        contact._ContactContainer.show();
-      }else{
-        contact._ContactContainer.show();
-      }
+      contact._ContactContainer.show();
     }
   },
 
