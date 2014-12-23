@@ -25,7 +25,7 @@ exports.getLocalData = getLocalData;
 
 
 /**
- * @method RegisterApp
+ * @method registerApp
  *  在本机消息接收端口上添加新应用监听回调函数，本方法意在将多个
  * 应用的消息收发统一化，避免开多个通信端口。当新消息到达时，根
  * 据AppName来区分消息是分发给哪个应用的
@@ -45,15 +45,15 @@ exports.getLocalData = getLocalData;
  *  string，新注册的应用名称，该名称用来区分消息的归属应用
  *
  */
-function RegisterApp(AppCallBack, AppName) {
+function registerApp(AppCallBack, AppName) {
   FuncObj.registerFunc(AppCallBack, AppName);
 }
-exports.RegisterApp = RegisterApp;
+exports.registerApp = registerApp;
 
 /**
- * @method StartIMService
+ * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启
- * 一个消息接收端口，用于通信，收到的消息交付RegisterApp函数
+ * 一个消息接收端口，用于通信，收到的消息交付registerApp函数
  * 注册的回调函数处理
  *
  * @param StartCb
@@ -66,7 +66,7 @@ exports.RegisterApp = RegisterApp;
  *   若加密则为true，否则为false
  *
  */
-function StartIMService(StartCb,Flag) {
+function startIMService(StartCb,Flag) {
   try {
     if (Flag === "true") {
       IMRsa.initIMServer(Port, function(AppType,msgobj){
@@ -83,10 +83,10 @@ function StartIMService(StartCb,Flag) {
     StartCb(false);
   }
 }
-exports.StartIMService = StartIMService;
+exports.startIMService = startIMService;
 
 /**
- * @method SendAppMsg
+ * @method sendAppMsgByDevice
  *  该函数用来给目的机器的指定应用程序发送消息
  *
  * @param SentCallBack
@@ -99,7 +99,7 @@ exports.StartIMService = StartIMService;
  *  MsgObj.UID 表示接收方的UUID
  *  MsgObj.Account表示接收方的帐号
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“”，表示无组别;msg为发送消息内容
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
@@ -112,7 +112,7 @@ exports.StartIMService = StartIMService;
 };
  *
  */
-function SendAppMsg(SentCallBack, MsgObj) {
+function sendAppMsgByDevice(SentCallBack, MsgObj) {
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -126,10 +126,10 @@ function SendAppMsg(SentCallBack, MsgObj) {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
   }
 }
-exports.SendAppMsg = SendAppMsg;
+exports.sendAppMsgByDevice = sendAppMsgByDevice;
 
 /**
- * @method SendAppMsgByGroup
+ * @method sendAppMsgByAccount
  *  该函数用来给目的帐号（一个帐号下的设备组）的指定应用程序发送消息
  *
  * @param SentCallBack
@@ -142,7 +142,7 @@ exports.SendAppMsg = SendAppMsg;
  *  MsgObj.Account表示接收方的帐号
  *  MsgObj.localUID表示正在登录帐号的对应设备的UID
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
@@ -155,7 +155,7 @@ exports.SendAppMsg = SendAppMsg;
 };
  *
  */
-function SendAppMsgByGroup(SentCallBack, MsgObj) {
+function sendAppMsgByAccount(SentCallBack, MsgObj) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
@@ -189,7 +189,7 @@ function SendAppMsgByGroup(SentCallBack, MsgObj) {
     }
   }
 }
-exports.SendAppMsgByGroup = SendAppMsgByGroup;
+exports.sendAppMsgByAccount = sendAppMsgByAccount;
 
 /**
  * @method sendIMMsg
@@ -208,7 +208,7 @@ exports.SendAppMsgByGroup = SendAppMsgByGroup;
  *  MsgObj.localUID表示正在登录帐号的对应设备的UID
  *  MsgObj.group表示消息发送以及接收端群组名称
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
@@ -226,9 +226,9 @@ exports.SendAppMsgByGroup = SendAppMsgByGroup;
  */
 function sendIMMsg(SentCallBack, MsgObj){
   if(MsgObj.group===''){
-    SendAppMsg(SentCallBack, MsgObj);
+    sendAppMsgByDevice(SentCallBack, MsgObj);
   }else{
-    SendAppMsgByGroup(SentCallBack, MsgObj);
+    sendAppMsgByAccount(SentCallBack, MsgObj);
   }
 }
 exports.sendIMMsg = sendIMMsg;
@@ -251,7 +251,7 @@ exports.sendIMMsg = sendIMMsg;
    *  MsgObj.UID 表示接收方的UUID
    *  MsgObj.Account表示接收方的帐号
    *  MsgObj.Msg表示代传输文件的路径
-   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
    *  MsgOb举例如下：
    *  var msgobj = {
           IP: "192.168.1.100",
