@@ -51,6 +51,12 @@ var TagView = Class.extend({
     _tagContainer.append(_tagBackground);
     _tagContainer.append(_tagSpan);
     _tagContainer.append(_tagTriangle);
+
+    //forbid context menu
+    $(document).on('contextmenu','.tag-container', function(ev){
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
     return _tagContainer;
   },
   /**
