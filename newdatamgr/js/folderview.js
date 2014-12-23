@@ -681,6 +681,22 @@ var ShowFiles = Class.extend({
     var previousOneYear = $('<div>',{
       'class':'sortByTime'
     });
+    var todaySpan = $('<span>',{
+      'text':'Today'
+    });
+    var previous7DaysSpan = $('<span>',{
+      'text':'previous7Days'
+    });
+    var previous30DaysSpan = $('<span>',{
+      'text':'previous30Days'
+    });
+    var previousOneYearSpan = $('<span>',{
+      'text':'previousOneYear'
+    });
+    today.append(todaySpan);
+    previous7Days.append(previous7DaysSpan);
+    previous30Days.append(previous30DaysSpan);
+    previousOneYear.append(previousOneYearSpan);
     for(var i =0;i<Divs.length;i++){
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
