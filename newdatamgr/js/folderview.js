@@ -350,7 +350,7 @@ var ShowFiles = Class.extend({
     this.files.delegate(whichClass,'mousedown',function(e){
       switch(e.which){
         case 1:
-          //$(this).addClass('selected').siblings().removeClass('selected');
+          $(this).addClass('selected').siblings().removeClass('selected');
           $(this).delegate($(this),'mousedown',function(e){
           })
           $(this).attr('tabindex', 1).keydown(function(e) {

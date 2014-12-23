@@ -56,14 +56,6 @@
       border-radius: 30px;
       -webkit-box-shadow:inset 0px 0px 2px #f0f6f7;
     }
-    /*&::-webkit-scrollbar-thumb:hover {
-        -webkit-box-shadow:inset 1px 1px 1px rgba(0,0,0,.25);
-        background-color:rgba(0,0,0,.4);
-    }
-    &::-webkit-scrollbar-thumb:active {
-        -webkit-box-shadow:inset 1px 1px 3px rgba(0,0,0,.35);
-        background-color:rgba(0,0,0,.5);
-    }*/
 
 
     .ul-family{
@@ -73,11 +65,9 @@
       padding-top: 0px;
       margin-top: 0px;
       margin-bottom: 0px;
-      //border-bottom: 1px solid #ee5455;
       .ul-first{
         color: #00afd8;
         font-size: 15px;
-        //font-weight: bold; 
         border-bottom: 1px solid #ffe0e0; 
         padding-left: 15px;
         padding-top: 3px;
@@ -139,7 +129,6 @@
       .img{
         height: 90px;
         width: 90px; 
-        //margin: 20px 20px;
       }
     }
     #contact-back-blue{
@@ -178,22 +167,13 @@
     border-bottom-right-radius: 3px;
     box-shadow: 0px 1px 1px rgba(209,209,209,0.85);
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
+    padding-bottom: 100px;
     &::-webkit-scrollbar{
       height: 0px;
       width: 0px;
     }
-    /*&:after{
-        content:"";
-        width: 1px;
-        height: 100%;
-        background-color: blue;
-        position: absolute;
-        left: 55px;
-        z-index: 999;
-        margin-top:50px;
-        bottom: 0px;
-    }*/
+
     .div-name{
       position: absolute;
       top: 10px;
@@ -207,8 +187,6 @@
     }
     .ul-details{
       padding-top: 30px;
-      //padding-left: 20px;
-      //padding-right: 30px;
       list-style-type: none;
       color:#706f6f;
       padding-left:0px; 
@@ -228,19 +206,60 @@
           float: right;
           margin-top: -20px;
           padding-right: 20px;
+          input{
+              padding: 0px 10px;
+              background-color: #fff;
+              border-radius: 4px;
+              height: 25px;
+              line-height: 20px;
+              border: 1px solid #dadada;
+              margin-left: 15px;
+              outline: none;
+              font-size: 12px;
+              color:#706f6f;
+              &:visited{             
+                outline: none;
+              }
+              &:focus{
+                border: 1px solid rgba(0,175,216,0.4);
+              }
+
+          }
+      }
+    }
+
+    }
+
+    #buttons-div{
+      input{
+          margin: 0px 30px 0px 0px;
+          position: fixed;
+          bottom: 20px;
+          right:0px;
+          z-index: 3;
+            #add-button{
+              right:0px;
+              cursor: pointer;
+            }
+            #edit-button{
+              right:75px;
+              cursor: pointer;
+            }
+            #delete-button{
+              right:150px;
+              cursor:pointer;
+            }
+        }
+        &:after{
+          content: "";
+          height: 40px;
+          background-color: rgba(250, 250, 250, 0.5);
+          bottom: 12px;
+          right: 12px;
+          left: 482px;
+          position: fixed;
+          z-index: 2;
         }
       }
-    }
-    #buttons-div{
-      float: right;
-      position: absolute;
-      right: 30px;
-      #edit-button{
-        
-      }
-      #save-button{
-        
-      }
-    }
   }
 }
