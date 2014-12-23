@@ -6,7 +6,7 @@ var MainPicView = Class.extend({
     var _this = this;
     _this._tagView = TagView.create({
       position: 'listview',
-      background_color: 'rgb(0,120,240)'
+      background_color: 'rgb(110,204,188)'
     });
     DataAPI.getRecentAccessData(function(err_, picture_json_){
       if(picture_json_.length === 0){
@@ -50,13 +50,9 @@ var MainPicView = Class.extend({
       var _picSize = $('<div>',{
         'class':'pic-size'
       })
+      _picSize.css('background-image','url('+pic_.path+')');
       _picContent.append(_picSize);
-      var _picImg = $('<img>',{
-        'class':'pic-img',
-        'draggable': false,
-        'src': pic_.path
-      });
-      _picSize.append(_picImg);
+
       _picBtmContent = $('<div>',{
         'class': 'pic-btm-content'
       });
@@ -74,7 +70,7 @@ var MainPicView = Class.extend({
     };
     this._tagView.setParent(_picContent,pic_.uri);
     this._tagView.addTags(pic_.tags);
-    this.bindDrag(_picImg[0]);
+
   },
 
   removePicture:function(index_){
