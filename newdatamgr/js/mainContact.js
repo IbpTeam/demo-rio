@@ -50,23 +50,35 @@ var MainContactView = Class.extend({
         names_json[full_name] = _email;
       }
       if(contact_json_){
-          for(var i in names_json){
+          for(var _name in names_json){
             var _li = $('<li>',{
               'class':'contacts-list'
             });
             var _text = $('<span>',{
               'class':'contacts-list-title',
-              'text': i
+              'text': _name
             });
             var _email = $('<a>',{
               'id':'email-button',
               'class':'icon-envelope',
-              'href': 'mailto:'+names_json[i]
+              'href': 'mailto:'+names_json[_name]
             });
             _li.append(_text);
-           // _li.append(_date);
             _li.append(_email);
             _this._contactslistContent.append(_li);
+            _li.click(function(){
+              var _contacts = $('.li-name');
+              for (var i = 0; i < _contacts.length; i++) {
+                if(_contacts[i].textContent === $(this).children('span')[0].textContent){
+                  $('#js-label2')[0].click();
+                  _contacts[i].click();
+                  break;
+                }
+              };
+            })
+            _email.click(function(ev){
+              ev.stopPropagation();
+            })
           }
        }
     },'contact');

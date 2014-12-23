@@ -23,6 +23,9 @@ var main = function(params_){
     content    = $('#contentDiv');
     search.attach($('#searchDiv'));
     homePage.attach(content);
+    contact.attach($('#contentDiv'));
+    contact.setContactsList();
+    contact.hide();
 
     usrInfo = UsrInfoView.create();
     usrInfo.attach(container);
@@ -69,6 +72,7 @@ var main = function(params_){
       var _tag = ev.dataTransfer.getData('tag');
       var _uri = ev.dataTransfer.getData('uri');
       var _category = ev.dataTransfer.getData('category');
+      //drag tag operation
       if(_tag && _uri){
         DataAPI.rmTagsByUri(function(result){
           if (result === 'commit') {
@@ -96,6 +100,19 @@ var main = function(params_){
             console.log('Delect tags failed!');
           }
         },[_tag],_uri);
+      }else if(_uri && !_tag){  //drag file to remove
+        DataAPI.rmDataByUri(function(err_){
+          if(err_ !== null){
+            console.log('Delect file failed:' + err_);
+            return 0;
+          }
+          switch(_category){
+            case 'mainDoc':
+              if(!homePage._doc.removeFile(_uri)){
+                alert('remove doc div error');
+              }
+          }
+        },_uri);
       }
     }
     //analyse and performance params
