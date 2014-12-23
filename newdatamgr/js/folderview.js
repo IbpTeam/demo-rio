@@ -8,7 +8,7 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
-    this._showFilesBytag = {};
+    this._showFilesBytag = {'rio16469rio#45ed0dcb4fcd7aa8ae4f#video','rio16469rio#633d58957b91217d0ecc#video'};
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -127,8 +127,8 @@ var ShowFiles = Class.extend({
                   pictureDiv.attr('class', 'pictureHolderWaterFall');
                   var pDiv = div.children('p');
                   pDiv.removeClass('picturedescription');
-                  pDiv.attr('class', 'picturedescriptionWaterFall');
-                  div.attr('class', 'pictureContainerWaterFall');
+                  pDiv.addClass('picturedescriptionWaterFall');
+                  div.addClass('pictureContainerWaterFall');
                 }
                 $('#'+this._contentIds[this._index]).append(div);
               }
@@ -176,7 +176,7 @@ var ShowFiles = Class.extend({
   showFileByTag:function(fileURIS){
     for(var i =0;i<fileURIS.length;i++){
       var fileURI = fileURIS[i];
-      $('.'+fileURI).attr('class', 'showFileByTag');
+      $('.'+fileURI).addClass('showFileByTag');
     }
     $('.showFileByTag').siblings().hide();
   },
@@ -214,8 +214,8 @@ var ShowFiles = Class.extend({
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
     var divClass = div.attr('class');
-    var URILength = _globalSelf._getFiles[_globalSelf._index][0].length;
-    var URI = divClass.substr(divClass.indexOf(' ')+1,URILength);
+    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+    var URI = divClass.substr(divClass.indexOf('rio'),URILength);
     return URI;
   },
 
@@ -694,18 +694,20 @@ var ShowFiles = Class.extend({
     for(var i =0;i<Divs.length;i++){
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
-        div.removeClass('pictureContainerWaterFall');
+        //var fileURI = _globalSelf.findURIByDiv(div);
+        div.removeClass('pictureContainerWaterFall')
         div[0].style.cssText = '';
         var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
         var pDiv = div.children('p');
         pDiv.removeClass('picturedescriptionWaterFall');
-        pDiv.attr('class', 'picturedescription');
-        div.attr('class', 'pictureContainer');
+        pDiv.addClass('picturedescription');
+        div.addClass('pictureContainer');
+        // div.attr('class', fileURI);
       }
       var fileURI = _globalSelf.findURIByDiv(div);
-      window.alert(fileURI);
+      // window.alert(fileURI);
       var file = _globalSelf.findFileByURI(fileURI);
       var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
       if(timeDifference >=0 && timeDifference <=24){
