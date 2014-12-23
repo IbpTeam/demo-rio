@@ -86,7 +86,11 @@ var MainVideoView = Class.extend({
       'class': 'video-img',
       'text': video_.name
     })
-    _li.css('background-image', "url('"+video_.imgPath+"')");
+    var _img = $('<img>',{
+      'src': video_.imgPath
+    });
+    _li.append(_img);
+    //_li.css('background-image', "url('"+video_.imgPath+"')");
     this._ul.append(_li);
   },
 

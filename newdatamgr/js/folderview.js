@@ -921,7 +921,7 @@ var ShowFiles = Class.extend({
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
-          returnContent.append(Container);          
+          returnContent.append(Container);
           break;
         case 3:
           var Container = $('<div>',{
