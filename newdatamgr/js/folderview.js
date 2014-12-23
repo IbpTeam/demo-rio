@@ -30,6 +30,27 @@ var ShowFiles = Class.extend({
     _globalSelf = this 
   },
 
+  setDocumentContextMenu:function(id_){
+    contextMenu.addCtxMenu([
+      {header: 'document menu'},
+      {text:'New Text',action:function(){
+
+      }},
+      {text:'New Document',action:function(){
+
+      }},
+      {text:'New PPT',action:function(){
+
+      }},
+      {text:'New Excel',action:function(){
+
+      }},
+    ]);
+    contextMenu.attachToMenu('#'+id_,
+      contextMenu.getMenuByHeader('document menu'),
+      function(){});
+  },
+
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
     var showlistButton = $('<div>',{
@@ -122,6 +143,9 @@ var ShowFiles = Class.extend({
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     _globalSelf._showContent.append(_globalSelf.showFilesNormal(files).attr('id',_globalSelf._contentIds[_globalSelf._index]));
+    if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
+      _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
+    };
   },
 
   //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
@@ -350,7 +374,7 @@ var ShowFiles = Class.extend({
     this.files.delegate(whichClass,'mousedown',function(e){
       switch(e.which){
         case 1:
-          $(this).addClass('selected').siblings().removeClass('selected');
+          //$(this).addClass('selected').siblings().removeClass('selected');
           $(this).delegate($(this),'mousedown',function(e){
           })
           $(this).attr('tabindex', 1).keydown(function(e) {
@@ -532,9 +556,16 @@ var ShowFiles = Class.extend({
       }
       return bodytr;
     }
-    //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容.
-    var table = $('<table>',{
-      'class':'table',
+    
+
+    //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容,表头和表主体放在了两个表格里，为了表头固定
+    var tableHead = $('<table>',{
+      'class':'tableHead',
+      "cellspacing":'0',
+      'width':'100%'
+    });
+     var tableBody = $('<table>',{
+      'class':'tableBody',
       "cellspacing":'0',
       'width':'100%'
     });
@@ -553,16 +584,27 @@ var ShowFiles = Class.extend({
     for(var i =0;i<files.length;i++){
       tbody.append(GenerateBodyTr(files[i],theadMessage));
     }
-    table.append(thead);
-    table.append(tbody);
+    tableHead.append(thead);
+    tableBody.append(tbody);
     var returnContent = $('<div>',{
-      'class':'tableContainer',
-      'overflow':'auto'
+      'class':'tableContainer'
+      //'overflow':'auto'
     });
-    returnContent.append(table);
+    var returnHeadContent = $('<div>',{
+      'class':'returnTableHead'
+    })
+    var returnBodyContent = $('<div>',{
+      'class':'returnTableBody'
+    })
+    returnContent.append(returnHeadContent);
+    returnContent.append(returnBodyContent);
+    returnHeadContent.append(tableHead);
+    returnBodyContent.append(tableBody);
     _globalSelf.addClickEvent(returnContent,'.bodytr');
     return returnContent;
   },
+
+
 
   //此函数用来正常的显示文档，音乐，图片和视频信息。
   showFilesSortByTime:function(files){
