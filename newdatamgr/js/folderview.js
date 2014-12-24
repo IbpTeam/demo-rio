@@ -226,7 +226,7 @@ var ShowFiles = Class.extend({
     }
     if(_globalSelf._index ==1){
       $('#'+this._contentIds[this._index]).BlocksIt({
-        numOfCol:7
+        numOfCol:5
       }); 
     }
   },
