@@ -13,7 +13,7 @@
   "position": "Position",
   "left-bottom": "Left-bottom",
   "left-top": "Left-top",
-  "top": "Top"，
+  "top": "Top",
   "right-top": "Right-top",
   "right-bottom": "Right-bottom",
   "bottom": "Bottom",
@@ -31,7 +31,7 @@
   "delete": "Delete",
   "property": "Property",
   "move2trash": "Move to trash",
-  "delete_warnning": "If delete it, you can\'t recover it. \n Are you sure delete the file?",
+  "delete_warnning": "Are you sure to delete this file permanently?",
   "sure": "Sure",
   "cancel": "Cancel",
   "success": "success",
