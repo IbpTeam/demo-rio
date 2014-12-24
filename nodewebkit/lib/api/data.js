@@ -732,6 +732,13 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
+
+function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag) {
+  console.log("Request handler 'getFilesByTagsInCategory' was called.");
+  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag);
+}
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
+
 /**
  * @method getCategoryFilesByTags
  *   get all files with specific tags
