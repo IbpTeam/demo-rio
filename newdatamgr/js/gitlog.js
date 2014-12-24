@@ -1,0 +1,166 @@
+var GitLog = Class.extend({
+  init:function(){
+    this._gitLogContainer = $('<div>',{
+      'id': 'gitlog-container'
+    });
+    this._gitselect = $('<div>',{
+      'id':'gitselect-content'
+    });
+    this._select = $('<select>',{
+     'id': 'gitselect',
+    });
+    this._gitcontent = $('<div>',{
+     'id':'git-content'
+    })
+    this._category = ['contact', 'picture','vedio','document','music','other'];
+    for (var i = 0; i <= this._category.length - 1; i++) {
+      var _option = $('<option>',{
+        'id':'select-option',
+        'text':this._category[i],
+        'value': this._category[i]
+      });
+      this._select.append(_option);
+    };
+    this._gitLogContainer.append(this._gitselect);
+    this._gitselect.append(this._select);
+    this._gitLogContainer.append(this._gitcontent);
+    this.bindEvent();
+  },
+  bindEvent:function(){
+    var _this = this;
+    this._select.change(function(){
+      var val_ = this.options[this.options.selectedIndex].value;
+       _this._gitcontent.children('li').remove();
+       _this.setContent(val_);
+    });
+  },
+
+  getTimeDiff:function(date_){
+    var _date = new Date(date_);
+    var _now = new Date();
+    var _diff = _now.getTime() - _date.getTime();
+    var _days = Math.floor(_diff/(24*3600*1000));
+    var _text = '';
+    switch(true){
+      case _days === 0:
+        _text = 'today';
+        break;
+      case _days ===1:
+        _text = 'yesterday';
+      case _days <= 7 :
+        _text = 'previous' + _days + 'days';
+        break;
+      case ((_days > 7)&&(_days <= 30)) :
+         _text = 'within 1 month';
+        break;
+      case ((_days > 30)&&(_days <= 90)) :
+        _text = 'within 3 months';
+        break;
+      case ((_days > 90)&&(_days <= 180)) :
+        _text = 'within half a year';
+        break;
+      case ((_days > 180)&&(_days <= 365)) :
+        _text = 'within 1 year';
+        break;
+      default:
+         _text = 'Earlier';
+    }
+    return _text;
+  },
+
+  setContent:function(category_){
+    var _this = this;
+    DataAPI.getGitLog(function(err,result){
+      if (err||!result) {
+        console.log(err);
+        return 0;
+      };
+    var content_json = {};
+    _this._gitresults = result;
+    var j = 0;
+    var _oldText = '';
+    for(var i in _this._gitresults){
+      ++j;
+      var _date = _this._gitresults[i]['Date'];
+      var _dateObj = new Date(_date);
+      var arys= _date.split(' '); 
+      var _text = _this.getTimeDiff(_date);
+      content_json[_date] = _this._gitresults[i]['content'];
+      if(j%2 != 0){
+        var _li = $('<li>',{
+          'id':'gitcontent-list1'
+          });
+       } else{
+        var _li = $('<li>',{
+          'id':'gitcontent-list2'
+        });
+      }
+      _this._gitcontent.append(_li);
+      var _date_info = $('<span>',{
+        'id':'date-info',
+        'text':arys[3]+' '+arys[4]+' '+arys[5]
+      });
+      _li.append(_date_info);
+      var _time_info = $('<span>',{
+        'id':'time-info',
+        'text':arys[6]
+      });
+      _li.append(_time_info);
+      var _date_dis = $('<span>',{
+        'id':'date-dis',
+        'text':_text
+      });
+      _li.append(_date_dis);
+      var _avatar = $('<a>',{
+        'id': 'avatar'
+      });
+      _li.append(_avatar);
+      var _op = $('<span>',{
+         'id':'_op',
+         'text':_this._gitresults[i]['content']['op']
+       });   
+       _il.append(_op);
+      var _device = $('<span>',{
+        'id':'device',
+        'text':_this._gitresults[i]['content']['device']
+      });
+      _li.append(_device);
+      var _file_select = $('<select>',{
+        'id':'file-select',
+      });
+      _li.append(_file_select);
+      var _recover_button = $('<button>',{
+        'id':'recover-button',
+        'text':'Confirm Recover'
+      });
+         for (var l in _this._gitresults[i]['content']['file']) {
+           var _file_option = $('<option>',{
+             'class':'file-option',
+             'text': _this._gitresults[i]['content']['file'][l],
+             'value': _this._gitresults[i]['content']['file'][l]
+            });
+            _file_select.append(_file_option);
+         }; 
+         var _file_option = $('<option>',{
+           'class':'file-option',
+           'text': 'select all',
+           'value': 'all'
+         })
+         _file_select.append(_file_option);
+       
+       
+       _li.append(_recover_button);
+       
+      }
+    },category_);
+  },
+  attach:function($parent_){
+    $parent_.append(this._gitLogContainer);
+  },
+  show:function(){
+    this._gitLogContainer.show();
+  },    
+  hide:function(){
+    this._gitLogContainer.hide();
+  }
+});
