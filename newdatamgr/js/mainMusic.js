@@ -59,7 +59,7 @@ var MainMusicView = Class.extend({
       position: 'listview',
       direction:'up',
       max:3,
-      background_color: 'rgb(51,153,102)',
+      background_color: 'rgb(88,204,82)',
       positions:{
         bottom:10,
         step: 30

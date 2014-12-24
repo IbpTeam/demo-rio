@@ -98,9 +98,7 @@
           text-overflow:ellipsis;
         }
       }
-      .selected {
-        background-color: #717677;
-      }
+
       .sortByTime {
         border: 1px solid #ff0;
         width: 100%;
@@ -135,7 +133,7 @@
           margin:10px 5px 10px 5px;
         }
       }
-      #videoContent {
+      .videoContent {
         .scroll();
         padding-bottom: 100px;
         .videoContainer {
@@ -172,16 +170,14 @@
           }
         }
       }
-
       .pictureContainer {
         width:188px;
         height:188px; 
-        padding:auto; 
         margin:30px; 
         font-size:12px; 
         float:left;
-        vertical-align:center;
         cursor: pointer; 
+        padding-bottom: 30px;
         &:hover {
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
@@ -189,17 +185,19 @@
           filter: brightness(1.2);
         }
         .pictureHolder img{
-          max-width:100%;
-          max-height:100%;
-          background:#ccc;
-          display:block;
+          max-width: 100%;
+          max-height: 100%;
+          background: #ccc;
+          display: block;
+          margin: 0 auto;
         }
         .picturedescription {
-          text-align:center;
-          font-weight:normal;
-          width:150px;
-          font-size:12px;
-          margin:10px 5px 10px 5px;
+          text-align: center;
+          font-weight: normal;
+          width: 150px;
+          font-size: 12px;
+          margin: 0 auto;
+          margin-top: 10px;
         }
       }
       .tableContainer{
@@ -210,7 +208,6 @@
         width: 100%;
         height: 100%;
         font-weight: normal;
-        //.scroll();
         .returnTableHead{
           position: absolute;
           width: 100%;
@@ -292,15 +289,15 @@
           tr{
             cursor: default;
             &:focus{
-              background-color: rgba(45, 60, 67, 1);
+              //background-color: rgba(45, 60, 67, 1);
               color: white;
               border: none;
               outline: none;
             }
             &:nth-child(odd){
-            background-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.5);
               &:focus{
-                background-color: rgba(45, 60, 67, 1);
+                background-color: #d8d8d8;
               }
             }
           }
@@ -312,9 +309,6 @@
               width: 40%;
               min-width: 250px;
               color:rgba(45, 60, 67, 1)
-              &:focus{
-                color: white;
-              }
             }
             &:nth-child(2){
               width: 25%;
@@ -337,6 +331,10 @@
                 color: white;
               }
             }
+          }
+
+          .selected {
+            background-color: #d8d8d8;
           }
         }
       }

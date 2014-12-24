@@ -51,7 +51,7 @@ var MainVideoView = Class.extend({
     this._tagView = TagView.create({
       position: 'listview',
       max: 5,
-      background_color: 'rgb(204,51,51)'
+      background_color: 'rgb(232,114,114)'
     });
     this._tagView.setParent(this._videoContent);
     this._tagView.addTags(this._testTags[0]);
