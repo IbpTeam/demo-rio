@@ -1,6 +1,7 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var IMRsa = require("../../backend/IM/IMChat.js");
+var config = require("../../backend/config.js");
 var net = require('net');
 var fileTransfer = require("../../backend/IM/file-trans/fileTransfer");
 var fileTransferServer = require("../../backend/IM/file-trans/fileTransferServer");
@@ -10,20 +11,21 @@ var crypto = require('crypto');
 var Port = 7777;
 var fileServer;
 var pathMap;
+
 /*
 *getLocalData
 */
 function getLocalData(getLocalDataCb){
   var localJson={};
-  localJson['account']=IMNoRsa.LOCALACCOUNT;
-  localJson['UID']=IMNoRsa.LOCALUUID;
- 
+  localJson['account']=config.ACCOUNT;
+  localJson['UID']=config.uniqueID;
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
 
+
 /**
- * @method RegisterApp
+ * @method registerApp
  *  在本机消息接收端口上添加新应用监听回调函数，本方法意在将多个
  * 应用的消息收发统一化，避免开多个通信端口。当新消息到达时，根
  * 据AppName来区分消息是分发给哪个应用的
@@ -43,15 +45,15 @@ exports.getLocalData = getLocalData;
  *  string，新注册的应用名称，该名称用来区分消息的归属应用
  *
  */
-function RegisterApp(AppCallBack, AppName) {
+function registerApp(AppCallBack, AppName) {
   FuncObj.registerFunc(AppCallBack, AppName);
 }
-exports.RegisterApp = RegisterApp;
+exports.registerApp = registerApp;
 
 /**
- * @method StartIMService
+ * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启
- * 一个消息接收端口，用于通信，收到的消息交付RegisterApp函数
+ * 一个消息接收端口，用于通信，收到的消息交付registerApp函数
  * 注册的回调函数处理
  *
  * @param StartCb
@@ -64,7 +66,7 @@ exports.RegisterApp = RegisterApp;
  *   若加密则为true，否则为false
  *
  */
-function StartIMService(StartCb,Flag) {
+function startIMService(StartCb,Flag) {
   try {
     if (Flag === "true") {
       IMRsa.initIMServer(Port, function(AppType,msgobj){
@@ -81,10 +83,10 @@ function StartIMService(StartCb,Flag) {
     StartCb(false);
   }
 }
-exports.StartIMService = StartIMService;
+exports.startIMService = startIMService;
 
 /**
- * @method SendAppMsg
+ * @method sendAppMsgByDevice
  *  该函数用来给目的机器的指定应用程序发送消息
  *
  * @param SentCallBack
@@ -96,21 +98,21 @@ exports.StartIMService = StartIMService;
  *  MsgObj.IP 表示接收方的IP地址
  *  MsgObj.UID 表示接收方的UUID
  *  MsgObj.Account表示接收方的帐号
- *  MsgObj.Msg表示要发送给指定应用的消息
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“”，表示无组别;msg为发送消息内容
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
   IP: "192.168.1.100",
-  UID: "2312324323dsfseferfgdghf",
-  Account: "USER2",
-  Msg: "Hi  this is in IMSender test",
+  UID: "fyfrio1997rio",
+  Account: "fyf",
+  Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
   App: "app1"
   rsaflag: "true"
 };
  *
  */
-function SendAppMsg(SentCallBack, MsgObj) {
+function sendAppMsgByDevice(SentCallBack, MsgObj) {
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -124,52 +126,112 @@ function SendAppMsg(SentCallBack, MsgObj) {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
   }
 }
-exports.SendAppMsg = SendAppMsg;
+exports.sendAppMsgByDevice = sendAppMsgByDevice;
 
 /**
- * @method SendAppMsgByAccount
- *  该函数用来给目的帐号的指定应用程序发送消息
+ * @method sendAppMsgByAccount
+ *  该函数用来给目的帐号（一个帐号下的设备组）的指定应用程序发送消息
  *
  * @param SentCallBack
  *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
- *  @param1
+ *  @cbparam1
  *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.toAccList 表示接收方的IP以及UID集合
  *  MsgObj.Account表示接收方的帐号
- *  MsgObj.Msg表示要发送给指定应用的消息
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+ *  MsgObj.localUID表示正在登录帐号的对应设备的UID
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
   toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
   Account: "fyf",
-  Msg: "Hi  this is in IMSender test",
+  localUID: "fyfrio1997rio",
+  Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
   App: "app1"
   rsaflag: "true"
 };
  *
  */
-function SendAppMsgByAccount(SentCallBack, MsgObj) {
+function sendAppMsgByAccount(SentCallBack, MsgObj) {
   var accSetItem = {};
-  var ipset={};
+  var ipset = {};
+  var countFlag = 0;
+  var msgRst;
+  var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
-    if (!net.isIP(accSetItem.toIP)) {
-      console.log('Input IP Format Error!:::', accSetItem.toIP);
+    if (MsgObj.localUID === accSetItemKey){
+      len-=1;
+      if (countFlag=== len)
+        SentCallBack();
+      continue;
     } else {
-      ipset["IP"] = accSetItem.toIP;
-      ipset["UID"] = accSetItem.toUID;
-      if (MsgObj.rsaflag === "true") {
-        IMRsa.sendMSGbyUID(ipset,accSetItem.toAccount,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
-      }else{
-        IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+      if (!net.isIP(accSetItem.toIP)) {
+        console.log('Input IP Format Error!:::', accSetItem.toIP);
+      } else {
+        ipset["IP"] = accSetItem.toIP;
+        ipset["UID"] = accSetItem.toUID;
+        if (MsgObj.rsaflag === "true") {
+          IMRsa.sendMSGbyUID(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
+            if ((++countFlag) === len)
+              SentCallBack(msg);
+          });
+        } else {
+          IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
+            if ((++countFlag) === len)
+              SentCallBack(msg);
+          });
+        }
       }
     }
   }
 }
-exports.SendAppMsgByAccount = SendAppMsgByAccount;
+exports.sendAppMsgByAccount = sendAppMsgByAccount;
+
+/**
+ * @method sendIMMsg
+ *  该函数用来给目的帐号（与一组设备）或者设备的指定应用程序发送消息
+ *
+ * @param SentCallBack
+ *   回调函数，当所有设备的消息发送成功时，调用该函数，并传参发送的消息
+ *  @cbparam1
+ *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ * @param MsgObj
+ *   JSON,待发送的消息结构体，其中：
+ *  MsgObj.IP 表示接收方的IP地址
+ *  MsgObj.UID 表示接收方的UUID
+ *  MsgObj.toAccList 表示接收方的IP以及UID集合
+ *  MsgObj.Account表示接收方的帐号
+ *  MsgObj.localUID表示正在登录帐号的对应设备的UID
+ *  MsgObj.group表示消息发送以及接收端群组名称
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
+ *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
+ *  MsgOb举例如下：
+ *  var msgobj = {
+  IP: "",
+  UID: "",
+  toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+  Account: "fyf",
+  localUID: "fyfrio1997rio",
+  group: "fyf",
+  Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
+  App: "app1"
+  rsaflag: "true"
+};
+ *
+ */
+function sendIMMsg(SentCallBack, MsgObj){
+  if(MsgObj.group===''){
+    sendAppMsgByDevice(SentCallBack, MsgObj);
+  }else{
+    sendAppMsgByAccount(SentCallBack, MsgObj);
+  }
+}
+exports.sendIMMsg = sendIMMsg;
 
 /**
  * @method sendFileTransferRequest
@@ -189,7 +251,7 @@ exports.SendAppMsgByAccount = SendAppMsgByAccount;
    *  MsgObj.UID 表示接收方的UUID
    *  MsgObj.Account表示接收方的帐号
    *  MsgObj.Msg表示代传输文件的路径
-   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和RegisterApp中的AppName对应
+   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
    *  MsgOb举例如下：
    *  var msgobj = {
           IP: "192.168.1.100",
@@ -204,7 +266,8 @@ function sendFileTransferRequest(sendFileTransferRequestCb, MsgObj) {
     if(err){
       sendFileTransferRequestCb(err,msg);
     }else{
-      msg['key']=MD5(msg.fileName + MsgObj.toIP + new Date().getTime());
+      var id=MsgObj.group===''?MsgObj.Account+MsgObj.UID:MsgObj.group+MsgObj.localUID;
+      msg['key']=MD5(id + new Date().getTime());
       MsgObj.Msg=msg;
       sendFileTransferRequestCb(err,MsgObj);
     }
@@ -230,9 +293,9 @@ exports.sendFileTransferRequest = sendFileTransferRequest;
    *  var msgobj = {
           type: "file",
           option: 0x0000,
-     state: "1",//"0"表示拒绝接收文件
+          state: "1",//"0"表示拒绝接收文件
           fileName: "test.txt",
-     key:"57374caa837997035b5fbc1d7732a66b",
+          key:"57374caa837997035b5fbc1d7732a66b",
           fileSize: "1024",
           msg: "I want to get the file"
         };
@@ -284,7 +347,7 @@ exports.sendFileTransferStart = sendFileTransferStart;
           type: "file",
           option: 0x0001,
           fileName: "test.txt",
-     key:"57374caa837997035b5fbc1d7732a66b",
+          key:"57374caa837997035b5fbc1d7732a66b",
           fileSize: "1024",
           msg: "I want to get the file"
         };
@@ -321,14 +384,18 @@ exports.transferFileProcess = transferFileProcess;
           type: "file",
           option: 0x0000,
           fileName: "test.txt",
-     key:"57374caa837997035b5fbc1d7732a66b",
+          key:"57374caa837997035b5fbc1d7732a66b",
           fileSize: "1024",
           msg: "do you  want to get the file"
         };
+
+ * @param3 boolean
+ *  是否完全中断传输
  */
-function transferCancelSender(transferCancelSenderCb,msgObj){//接收端取消传输文件-----界面显示
+function transferCancelSender(transferCancelSenderCb,msgObj,flag){//接收端取消传输文件-----界面显示
   fileTransfer.transferFileCancel(msgObj,function (){
-    serverAndMapHandler(msgObj.key);
+    if(flag)
+      serverAndMapHandler(msgObj.key);
     transferCancelSenderCb(msgObj);
   });
 }
@@ -367,8 +434,8 @@ exports.transferCancelReciever=transferCancelReciever;
           option: 0x0002,
           fileName: "test.txt",
           fileSize: "1024",
-     key:"57374caa837997035b5fbc1d7732a66b",
-     ratio:0.1234,
+          key:"57374caa837997035b5fbc1d7732a66b",
+          ratio:0.1234,
           msg: "I want to get the file"
         };
  */
@@ -383,6 +450,23 @@ function transferProcessing(transferProcessingCb,msgObj){
   transferProcessingCb();
 }
 exports.transferProcessing = transferProcessing;
+
+/**
+ * @method deleteTmpFile
+ *  接收端将接收到并存储于临时目录下的文件删除
+ *
+ * @param1 callback function
+ *   回调函数
+
+ * @param2 tmpFilePath
+ *   启动程序参数，string，文件存储的临时路径
+ */
+function deleteTmpFile(deleteTmpFileCb,tmpFilePath){ 
+  fileTransferClient.deleteTmpFile(tmpFilePath,function(err,msg){
+    deleteTmpFileCb(err,msg);
+  });
+}
+exports.deleteTmpFile = deleteTmpFile;
 
 function serverAndMapHandler(path) {
   if(pathMap===undefined)
