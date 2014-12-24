@@ -7,15 +7,15 @@ var GitLog = Class.extend({
       'id':'gitselect-content'
     });
     this._select = $('<select>',{
-     'id': 'gitselect',
+     'class': 'gitselect',
     });
     this._gitcontent = $('<div>',{
-     'id':'git-content'
+     'class':'git-content'
     })
-    this._category = ['contact', 'picture','vedio','document','music','other'];
+    this._category = ['contact', 'picture','video','document','music','other'];
     for (var i = 0; i <= this._category.length - 1; i++) {
       var _option = $('<option>',{
-        'id':'select-option',
+        'class':'select-option',
         'text':this._category[i],
         'value': this._category[i]
       });
@@ -47,6 +47,7 @@ var GitLog = Class.extend({
         break;
       case _days ===1:
         _text = 'yesterday';
+        break;
       case _days <= 7 :
         _text = 'previous' + _days + 'days';
         break;
@@ -75,84 +76,96 @@ var GitLog = Class.extend({
         console.log(err);
         return 0;
       };
-    var content_json = {};
-    _this._gitresults = result;
-    var j = 0;
-    var _oldText = '';
-    for(var i in _this._gitresults){
-      ++j;
-      var _date = _this._gitresults[i]['Date'];
-      var _dateObj = new Date(_date);
-      var arys= _date.split(' '); 
-      var _text = _this.getTimeDiff(_date);
-      content_json[_date] = _this._gitresults[i]['content'];
-      if(j%2 != 0){
-        var _li = $('<li>',{
-          'id':'gitcontent-list1'
-          });
-       } else{
-        var _li = $('<li>',{
-          'id':'gitcontent-list2'
-        });
-      }
-      _this._gitcontent.append(_li);
-      var _date_info = $('<span>',{
-        'id':'date-info',
-        'text':arys[3]+' '+arys[4]+' '+arys[5]
-      });
-      _li.append(_date_info);
-      var _time_info = $('<span>',{
-        'id':'time-info',
-        'text':arys[6]
-      });
-      _li.append(_time_info);
-      var _date_dis = $('<span>',{
-        'id':'date-dis',
-        'text':_text
-      });
-      _li.append(_date_dis);
-      var _avatar = $('<a>',{
-        'id': 'avatar'
-      });
-      _li.append(_avatar);
-      var _op = $('<span>',{
-         'id':'_op',
-         'text':_this._gitresults[i]['content']['op']
-       });   
-       _il.append(_op);
-      var _device = $('<span>',{
-        'id':'device',
-        'text':_this._gitresults[i]['content']['device']
-      });
-      _li.append(_device);
-      var _file_select = $('<select>',{
-        'id':'file-select',
-      });
-      _li.append(_file_select);
-      var _recover_button = $('<button>',{
-        'id':'recover-button',
-        'text':'Confirm Recover'
-      });
-         for (var l in _this._gitresults[i]['content']['file']) {
-           var _file_option = $('<option>',{
-             'class':'file-option',
-             'text': _this._gitresults[i]['content']['file'][l],
-             'value': _this._gitresults[i]['content']['file'][l]
+      var content_json = {};
+      _this._gitresults = result;
+      var j = 0;
+      var _oldText = '';
+      for(var i in _this._gitresults){
+        ++j;
+        var _date = _this._gitresults[i]['Date'];
+        var _dateObj = new Date(_date);
+        var arys= _date.split(' '); 
+        var _text = _this.getTimeDiff(_date);
+        content_json[_date] = _this._gitresults[i]['content'];
+        if(j%2 != 0){
+          var _li = $('<li>',{
+            'id':'gitcontent-list1'
             });
-            _file_select.append(_file_option);
-         }; 
-         var _file_option = $('<option>',{
-           'class':'file-option',
-           'text': 'select all',
-           'value': 'all'
-         })
-         _file_select.append(_file_option);
-       
-       
-       _li.append(_recover_button);
-       
+         } else{
+          var _li = $('<li>',{
+            'id':'gitcontent-list2'
+          });
+        }
+        _this._gitcontent.append(_li);
+        var _date_info = $('<span>',{
+          'id':'date-info',
+          'text':arys[3]+' '+arys[4]+' '+arys[5]
+        });
+        _li.append(_date_info);
+        var _time_info = $('<span>',{
+          'id':'time-info',
+          'text':arys[6]
+        });
+        _li.append(_time_info);
+        if(_text !== _oldText){
+          var _date_dis = $('<span>',{
+            'id':'date-dis',
+            'text':_text
+          });
+          _li.append(_date_dis);
+          _oldText = _text;
+        }
+        var _avatar = $('<a>',{
+          'id': 'avatar'
+        });
+        _li.append(_avatar);
+        var _op = $('<span>',{
+           'id':'_op',
+           'text':_this._gitresults[i]['content']['op']
+         });   
+         _li.append(_op);
+        var _device = $('<span>',{
+          'id':'device',
+          'text':_this._gitresults[i]['content']['device']
+        });
+        _li.append(_device);
+        var _file_select = $('<select>',{
+          'class':'gitselect',
+        });
+        _li.append(_file_select);
+        var _recover_button = $('<button>',{
+          'id':'recover-button',
+          'text':'Confirm Recover'
+        });
+        _li.append(_recover_button);
+        var _num = 0;
+        for (var key in _this._gitresults[i]['content']['file']) {
+          var _names = _this._gitresults[i]['content']['file'][key].split('/');
+          var _name = _names[_names.length -1];
+          var _file_option = $('<option>',{
+            'class':'select-option',
+            'text': _name.substr(0,_name.length-3),
+            'value': _this._gitresults[i]['content']['file'][key]
+          });
+          _file_select.append(_file_option);
+          _num++;
+        }; 
+        if(_num > 1){
+          var _file_option = $('<option>',{
+            'class':'select-option',
+            'text': 'select all',
+            'value': 'all'
+          });
+          _file_select.append(_file_option);
+        }
       }
     },category_);
+  },
+  bindRecoverEvent:function($button_,category_, commitID_){
+    var _select = $button_.siblings('select');
+    var _fileName = _select.find("option:selected").val();
+    if(_fileName === 'all'){
+    }
   },
   attach:function($parent_){
     $parent_.append(this._gitLogContainer);
