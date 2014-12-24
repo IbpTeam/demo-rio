@@ -491,40 +491,38 @@ var ShowFiles = Class.extend({
   addClickEvent:function(jQueryElement,whichClass){
     //一个JQuery元素代表的是一系列文件
     this.files = jQueryElement;
-    var self = this;
     //增加单击和右击事件,1是单击，3是右击
     this.files.delegate(whichClass,'mousedown',function(e){
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-          $(this).attr('tabindex', 1).keydown(function(e) {
-              if($(this).attr('data-path')){
-                var file = _globalSelf.findFileByPath($(this).attr('data-path'));
-                var filePath = $(this).attr('data-path'); 
-              }
-              else{
-                var file = _globalSelf.findFileByPath($(this).attr('id'));
-                var filePath = $(this).attr('id');
-              }
-            if(e.which == 46){
-              //触发的是键盘的delete事件,表示删除
-              var modifyURI_ = _globalSelf.findURIByDiv($(this));
-              _globalSelf.deleteFileByUri(modifyURI_);
-            }
-            else if(e.which == 113){
-              //按下F2键，表示要重命名
-            }
-          });
           break;
         case 3:
           break;  
       }
       e.stopPropagation();
     });
+    //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
       var fileModifyURI = _globalSelf.findURIByDiv($(this));
       _globalSelf.openFileByUri(fileModifyURI);
     });
+    //绑定一些快捷键，删除、重命名
+    $('.selected').keydown(function(e) {
+      window.alert(e.which);
+    });
+    // this.files.delegate('.selected','keydown', function(e) {
+    //   window.alert('you are click');
+    //   if(e.which == 46){
+    //     //触发的是键盘的delete事件,表示删除
+    //     var modifyURI_ = _globalSelf.findURIByDiv($(this));
+    //     _globalSelf.deleteFileByUri(modifyURI_);
+    //   }
+    //   else if(e.which == 113){
+    //     //按下F2键，表示要重命名
+    //     _globalSelf.renameFileByDivId($(this).attr('id'));
+    //   }
+    // });
   },
 
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
@@ -552,29 +550,60 @@ var ShowFiles = Class.extend({
     }
   },
 
-  //此函数用来对文件重命名，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  //此函数用来对文件重命名，传入的是文件的对应的div的ID，因为也要找到名字存在的位置然后产生inputer
   //还要把本地的获取的文件的名字修改，同时所有现存的div的名字选项也要修改
-  renameFileByUri:function(modifyURI_){
-    var file = _globalSelf.findFileByURI(modifyURI_);
+  renameFileByDivId:function(DivId_){
+    var modifyURI = _globalSelf.findURIByDiv($('#'+DivId_));
+    var file = _globalSelf.findFileByURI(modifyURI);
     if(!file){
       window.alert('the file is not found');
     }
     else{
-      if(file.URI.indexOf('#') != -1){
-        if(file.postfix == 'pdf'){
-          function cbViewPdf(){
-          }
-          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
-            if (err) {
-              return console.log(err);
-            }
-            AppAPI.startApp(cbViewPdf, appInfo, file.path);
-          }, "viewerPDF-app");
+      if(_globalSelf._showNormal[_globalSelf._index] == 1){
+        var renameTh = $('#'+DivId_).children('th').eq(0);
+        if(_globalSelf._index == 3){
+          var rename = renameTh.children('p');
         }
-        else {
-          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+        else{
+          var rename = renameTh;
         }
       }
+      else {
+        var rename = $('#'+DivId_).children('p')
+      }
+      var inputer = Inputer.create('button-name');
+      var options = {
+        'left': rename.offset().left,
+        'top': rename.offset().top,
+        'width': 80,
+        'height': 25,
+        'oldtext': file['filename'],
+        'callback': function(newtext){
+          DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], 
+            file['URI'], newtext+'.'+file['postfix'], 
+            function(err, result){
+              if(result == 'success'){
+                $('#'+modifyURI+'div').children('p').html(newtext);
+                if(_globalSelf._index ==3){
+                  $('#'+modifyURI+'tr').children('th').eq(0).children('p').html(newtext);
+                }
+                else{
+                  $('#'+modifyURI+'tr').children('th').eq(0).html(newtext);
+                }
+                for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+                  if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']){
+                    _globalSelf._getFiles[_globalSelf._index][i]['filename'] = newtext;
+                  break;
+                  }
+                }
+              }
+              else{
+                window.alert("Rename failed!");
+              }
+          });
+        }
+      }
+      inputer.show(options); 
     }
   },
 
