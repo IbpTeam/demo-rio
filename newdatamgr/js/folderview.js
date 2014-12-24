@@ -496,6 +496,20 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
+          //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
+          if(!$(this).attr('tabindex')){
+            $(this).attr('tabindex','1').keydown(function(e) {
+              if(e.which == 46){
+                //触发的是键盘的delete事件,表示删除
+                var modifyURI_ = _globalSelf.findURIByDiv($(this));
+                _globalSelf.deleteFileByUri(modifyURI_);
+              }
+              else if(e.which == 113){
+                //按下F2键，表示要重命名
+                _globalSelf.renameFileByDivId($(this).attr('id'));
+              }
+            });
+          }
           break;
         case 3:
           break;  
@@ -507,22 +521,6 @@ var ShowFiles = Class.extend({
       var fileModifyURI = _globalSelf.findURIByDiv($(this));
       _globalSelf.openFileByUri(fileModifyURI);
     });
-    //绑定一些快捷键，删除、重命名
-    $('.selected').keydown(function(e) {
-      window.alert(e.which);
-    });
-    // this.files.delegate('.selected','keydown', function(e) {
-    //   window.alert('you are click');
-    //   if(e.which == 46){
-    //     //触发的是键盘的delete事件,表示删除
-    //     var modifyURI_ = _globalSelf.findURIByDiv($(this));
-    //     _globalSelf.deleteFileByUri(modifyURI_);
-    //   }
-    //   else if(e.which == 113){
-    //     //按下F2键，表示要重命名
-    //     _globalSelf.renameFileByDivId($(this).attr('id'));
-    //   }
-    // });
   },
 
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
