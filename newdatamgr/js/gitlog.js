@@ -80,13 +80,13 @@ var GitLog = Class.extend({
       _this._gitresults = result;
       var j = 0;
       var _oldText = '';
-      for(var i in _this._gitresults){
+      for(var _commitID in _this._gitresults){
         ++j;
-        var _date = _this._gitresults[i]['Date'];
+        var _date = _this._gitresults[_commitID]['Date'];
         var _dateObj = new Date(_date);
         var arys= _date.split(' '); 
         var _text = _this.getTimeDiff(_date);
-        content_json[_date] = _this._gitresults[i]['content'];
+        content_json[_date] = _this._gitresults[_commitID]['content'];
         if(j%2 != 0){
           var _li = $('<li>',{
             'id':'gitcontent-list1'
@@ -121,12 +121,12 @@ var GitLog = Class.extend({
         _li.append(_avatar);
         var _op = $('<span>',{
            'id':'_op',
-           'text':_this._gitresults[i]['content']['op']
+           'text':_this._gitresults[_commitID]['content']['op']
          });   
          _li.append(_op);
         var _device = $('<span>',{
           'id':'device',
-          'text':_this._gitresults[i]['content']['device']
+          'text':_this._gitresults[_commitID]['content']['device']
         });
         _li.append(_device);
         var _file_select = $('<select>',{
@@ -139,13 +139,13 @@ var GitLog = Class.extend({
         });
         _li.append(_recover_button);
         var _num = 0;
-        for (var key in _this._gitresults[i]['content']['file']) {
-          var _names = _this._gitresults[i]['content']['file'][key].split('/');
+        for (var key in _this._gitresults[_commitID]['content']['file']) {
+          var _names = _this._gitresults[_commitID]['content']['file'][key].split('/');
           var _name = _names[_names.length -1];
           var _file_option = $('<option>',{
             'class':'select-option',
             'text': _name.substr(0,_name.length-3),
-            'value': _this._gitresults[i]['content']['file'][key]
+            'value': _this._gitresults[_commitID]['content']['file'][key]
           });
           _file_select.append(_file_option);
           _num++;
@@ -158,6 +158,9 @@ var GitLog = Class.extend({
           });
           _file_select.append(_file_option);
         }
+        _recover_button.click(function(ev){
+          _this.bindRecoverEvent(_recover_button,category_,_commitID);
+        });
       }
     },category_);
   },
@@ -165,6 +168,17 @@ var GitLog = Class.extend({
     var _select = $button_.siblings('select');
     var _fileName = _select.find("option:selected").val();
     if(_fileName === 'all'){
+      DataAPI.repoReset(function(err_,result_){
+        if (err_) {
+          console.log(err_);
+        };
+      },category_,commitID_);
+    }else{
+      DataAPI.repoResetFile(function(err_,result_){
+        if(err_){
+          console.log(err_);
+        }
+      },category_,commitID_,_fileName);
     }
   },
   attach:function($parent_){
