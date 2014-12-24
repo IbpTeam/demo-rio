@@ -31,30 +31,33 @@ var MainVideoView = Class.extend({
     this._videoContainer.append(this._videoLeftBtn);
     this._videoContainer.append(this._videoRightBtn);
     var _this = this;
+    _this._tags = [];
     DataAPI.getRecentAccessData(function(err_, video_json_){
       if(err_){
         console.log(err_);
         return;
       }
-      var _img;
+      var _count = 0;
       for(var i = 0; i < video_json_.length; i ++){
         if(video_json_[i].hasOwnProperty('filename') && video_json_[i].hasOwnProperty('URI')){
           _this.addVideo(video_json_[i]);
+          DataAPI.getTagsByUri(function(result_){
+            _this._tags.push(result_);
+            _count ++;
+            if(_count == video_json_.length){
+              _this._tagView = TagView.create({
+                position: 'listview',
+                max: 5,
+                background_color: 'rgb(204,51,51)'
+              });
+              _this._tagView.setParent(_this._videoContent);
+              _this._tagView.addTags(_this._tags[0]);
+              _this.addUnslider();
+            }
+          }, video_json_[i]['URI']);
         }
       }
-      
-      _this._testTags=[['name','flower','water'],
-        ['light','home-school','name','flower','water'],
-        ['flower','name','flower','water']];
-      _this._tagView = TagView.create({
-        position: 'listview',
-        max: 5,
-        background_color: 'rgb(204,51,51)'
-      });
-      _this._tagView.setParent(_this._videoContent);
-      _this._tagView.addTags(_this._testTags[0]);
-      _this.addUnslider();
-    }, 'video', 3);
+    }, 'video', 3);   
   },
 
   getVideoPicData:function(file){
@@ -65,8 +68,8 @@ var MainVideoView = Class.extend({
       }
       else{
         var videoPictureSrc = 'data:image/jpeg;base64,' + result;
-        var fileImg = document.getElementById(file['URI']);
-        fileImg.src = videoPictureSrc;
+        var fileImg = document.getElementsByName(file['URI']);
+        fileImg[0].src = videoPictureSrc;
       }
     },file['path']);  
   },
@@ -100,11 +103,10 @@ var MainVideoView = Class.extend({
       'text': video_['filename']
     });
     var _img = $('<img>', {
-      'id' : video_['URI']
+      'name' : video_['URI']
     });
     this.getVideoPicData(video_);
     _li.append(_img);
-    //_li.css('background-image', "url("+video_.imgPath+")");
     this._ul.append(_li);
   },
 
@@ -116,7 +118,7 @@ var MainVideoView = Class.extend({
         delay: 3000,              // 轮播延时
         begin: function(index_) {
           _this._tagView.refresh(function(){
-            _this._tagView.addTags(_this._testTags[index_]);
+            _this._tagView.addTags(_this._tags[index_]);
           });
         },  // 完成轮播时的响应函数
         keys: true,               // 支持左右按键转换图片
