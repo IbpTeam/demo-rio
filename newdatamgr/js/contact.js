@@ -102,7 +102,6 @@ var Contact = Class.extend({
     contextMenu.addCtxMenu([
       {header: 'contact menu'},
       {text:'Tag', subMenu:[
-        {header: 'Tag'},
         {text: 'Add',action:function(){
 
         }},

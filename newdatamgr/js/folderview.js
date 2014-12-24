@@ -51,6 +51,37 @@ var ShowFiles = Class.extend({
       function(){});
   },
 
+  setDataContextMenu:function(id_){
+    contextMenu.addCtxMenu([
+      {header: 'data menu'},
+      {text:'Open',action:function(){
+
+      }},
+      {text:'Rename',action:function(){
+
+      }},
+      {text:'Delete',action:function(){
+
+      }},
+      {divider:true},
+      {text:'Tag',subMenu:[
+        {text: 'Add',action:function(){
+
+        }},
+        {text: 'Remove', action:function(){
+
+        }}
+      ]},
+      {divider:true},
+      {text: 'Detail',action:function(){
+
+      }}
+    ]);
+    contextMenu.attachToMenu('#'+id_,
+      contextMenu.getMenuByHeader('data menu'),
+      function(){});
+  },
+
   //此函数用来设置选择界面看按照哪种方式显示
   setChoice:function(){
     var showlistButton = $('<div>',{
