@@ -9,6 +9,6 @@ var msgobj = {
   rsaflag:  "true"
 };
 
-IM.SendAppMsg(function(msg) {
-  console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
+IM.sendAppMsgByDevice(function(msg) {
+  console.log("Send Msg Successful in sendAppMsgByDevice function, msg :::", msg);
 }, msgobj);
