@@ -448,10 +448,9 @@ var ShowFiles = Class.extend({
 
   //此函数用来获得视频截图图片，并且保存在本地
   getVideoPicData:function(file){
-    // window.alert(file['path']);
     DataAPI.getVideoThumbnail(function(err,result){
       if(err){
-        window.alert(err);
+        console.log(err);
       }
       else{
         var videoPictureSrc = 'data:image/jpeg;base64,' + result;
