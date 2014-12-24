@@ -65,9 +65,9 @@ var syncList = new Array();
  */
 exports.initServer = function(){
   //imchat.initIMServerNoRSA(config.MSGPORT,recieveMsgCb);
-  im.RegisterApp(recieveMsgCb, "app1");
+  im.registerApp(recieveMsgCb, "app1");
 
-  im.StartIMService(function(state) {
+  im.startIMService(function(state) {
     console.log(state);
   },"");
 }
@@ -125,7 +125,7 @@ function sendMsg(device,msgObj){
     App: "app1"
   };
 //  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
-  im.SendAppMsg(sendMsgCb,imMsgObj);
+  im.sendAppMsgByDevice(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
 
@@ -139,7 +139,7 @@ function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  //console.log("Send Msg Successful in SendAppMsg function, msg :::", msg);
+  //console.log("Send Msg Successful in sendAppMsgByDevice function, msg :::", msg);
 }
 
 /**
