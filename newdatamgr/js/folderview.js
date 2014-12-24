@@ -9,9 +9,6 @@ var ShowFiles = Class.extend({
     this._musicPicture ={};
     this._videoPicture = {};
     this._showFilesBytag = [];
-    this._showFilesBytag1 =['rio16469rio#854f47d8c29c01458a0b#music','rio16469rio#87d0a318f3b7e0235366#music','rio16469rio#8d7ae2f8afa04489b667#music'];
-    this._showFilesBytag2 =['rio16469rio#7c3700bbdb7d17d780bb#picture','rio16469rio#7c3700bbdb7d17d780bb#picture','rio16469rio#180a0678c3f1889b8aa5#picture'];
-    this._showFilesBytag3 =['rio16469rio#d4b321453740b9d97f05#document','rio16469rio#8d99e10f68ae4706252f#document','rio16469rio#a76d2513d49897836be7#document'];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -72,10 +69,6 @@ var ShowFiles = Class.extend({
       'id':'sortbyButton',
       'text':'sortby'
     });
-    var testButton = $('<button>',{
-      'id':'thisisatest',
-      'text':'!!!!!!'
-    });
     this._choice.append(showlistButton);
     this._choice.append(line);
     this._choice.append(shownormalButton);
@@ -96,9 +89,6 @@ var ShowFiles = Class.extend({
     sortbyButton.click(function(){
       _globalSelf._showNormal[_globalSelf._index] = 2;
       _globalSelf.showFile();
-    });
-    testButton.click(function() {
-      _globalSelf.showFileByTag(_globalSelf._showFilesBytag2);
     });
   },
   
@@ -124,6 +114,7 @@ var ShowFiles = Class.extend({
       switch(this._showNormal[this._index]){
         case 0:
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
+            $('#outWaterFall').show();
             $('#'+this._contentIds[this._index]).show();
           }
           else{
@@ -146,8 +137,9 @@ var ShowFiles = Class.extend({
               }
             }
             $('#'+ this._contentIdsSortByTime[this._index]).remove();
+            $('#outWaterFall').show();
+            $('#'+this._contentIds[this._index]).show();
           }
-          $('#'+this._contentIds[this._index]).show();
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
                 numOfCol:5
@@ -241,7 +233,16 @@ var ShowFiles = Class.extend({
     if(_globalSelf._index ==2){
       returnContent.attr('class', 'videoContent');
     }
-    _globalSelf._showContent.append(returnContent);
+    if(_globalSelf._index ==1){
+      var outWaterFall = $('<div>',{
+        'id':'outWaterFall'
+      });
+      outWaterFall.append(returnContent);
+      _globalSelf._showContent.append(outWaterFall);
+    }
+    else{
+      _globalSelf._showContent.append(returnContent);
+    }
     if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
