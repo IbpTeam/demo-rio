@@ -508,60 +508,8 @@ var ShowFiles = Class.extend({
               }
             if(e.which == 46){
               //触发的是键盘的delete事件,表示删除
-              var toDelete = $(this);
-              DataAPI.rmDataByUri(function(err,result){
-                if(result == 'success'){
-                  toDelete.remove();
-                  for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-                    if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
-                      _globalSelf._getFiles[_globalSelf._index].splice(i,1);
-                      break;
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div').length >0){
-                    var div = $('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div');
-                    for(var i=0;i<div.length;i++){
-                      if($(div[i]).attr('data-path') == filePath){
-                        $(div[i]).remove();
-                      }
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div').length >0){
-                    var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
-                    var sortDivs = $('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div');
-                    var whichDiv = 0;
-                    if(timeDifference >=0 && timeDifference <=24){
-                      whichDiv =0;
-                    }
-                    else if(timeDifference>24 && timeDifference <=24*7){
-                      whichDiv =1;
-                    }
-                    else if(timeDifference >24*7 && timeDifference <24*30){
-                      whichDiv =2;
-                    }
-                    else {
-                      whichDiv =3;
-                    }
-                    var div = $(sortDivs[whichDiv]).children('div');
-                    for(var i=0;i<div.length;i++){
-                      if($(div[i]).attr('data-path') == filePath){
-                        $(div[i]).remove();
-                      }
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIdsList[_globalSelf._index]).children('table').length >0){
-                    $('table,tr').each(function(index, el) {
-                      if($(this).attr('id') == filePath){
-                        $(this).remove();
-                      }
-                    });
-                  }
-                  _globalSelf.showFile();
-                }
-                else{
-                  window.alert('Delete file failed');
-                }
-              },file['URI']);
+              var modifyURI_ = _globalSelf.findURIByDiv($(this));
+              _globalSelf.deleteFileByUri(modifyURI_);
             }
             else if(e.which == 113){
               //按下F2键，表示要重命名
@@ -574,16 +522,18 @@ var ShowFiles = Class.extend({
       e.stopPropagation();
     });
     this.files.delegate(whichClass,'dblclick',function(e){
-      if($(this).attr('data-path')){
-        var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
-      }
-      else{
-        var file = _globalSelf.findFileByPath($(this).attr('id'));
-      }
-      if(!file){
-        window.alert('the file is not found !');
-        return false;
-      }
+      var fileModifyURI = _globalSelf.findURIByDiv($(this));
+      _globalSelf.openFileByUri(fileModifyURI);
+    });
+  },
+
+  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFileByUri:function(modifyURI_){
+    var file = _globalSelf.findFileByURI(modifyURI_);
+    if(!file){
+      window.alert('the file is not found');
+    }
+    else{
       if(file.URI.indexOf('#') != -1){
         if(file.postfix == 'pdf'){
           function cbViewPdf(){
@@ -599,14 +549,58 @@ var ShowFiles = Class.extend({
           DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
         }
       }
-    });
+    }
   },
 
-  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
-  openFileByUri:function(modifyURI_){
+  //此函数用来对文件重命名，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  //还要把本地的获取的文件的名字修改，同时所有现存的div的名字选项也要修改
+  renameFileByUri:function(modifyURI_){
     var file = _globalSelf.findFileByURI(modifyURI_);
     if(!file){
       window.alert('the file is not found');
+    }
+    else{
+      if(file.URI.indexOf('#') != -1){
+        if(file.postfix == 'pdf'){
+          function cbViewPdf(){
+          }
+          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+            if (err) {
+              return console.log(err);
+            }
+            AppAPI.startApp(cbViewPdf, appInfo, file.path);
+          }, "viewerPDF-app");
+        }
+        else {
+          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+        }
+      }
+    }
+  },
+
+  //此函数用来删除一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的,
+  //删除以后还要进行本地的一些操作，把有的div给删除掉，本地的获取文件也删除掉
+  deleteFileByUri:function(modifyURI_){
+    var file = _globalSelf.findFileByURI(modifyURI_);
+    if(!file){
+      window.alert('the file is not found');
+    }
+    else{
+      DataAPI.rmDataByUri(function(err,result){
+        if(result == 'success'){
+          for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+            if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']){
+              _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+              break;
+            }
+          }
+          $("#"+modifyURI_+'div').remove();
+          $("#"+modifyURI_+'tr').remove();
+        }
+        else{
+          window.alert('Delete file failed');
+        }
+      },file['URI']);
     }
   },
 
