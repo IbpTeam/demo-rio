@@ -9,9 +9,6 @@ var ShowFiles = Class.extend({
     this._musicPicture ={};
     this._videoPicture = {};
     this._showFilesBytag = [];
-    this._showFilesBytag1 =['rio16469rio#854f47d8c29c01458a0b#music','rio16469rio#87d0a318f3b7e0235366#music','rio16469rio#8d7ae2f8afa04489b667#music'];
-    this._showFilesBytag2 =['rio16469rio#7c3700bbdb7d17d780bb#picture','rio16469rio#7c3700bbdb7d17d780bb#picture','rio16469rio#5620879d0b61f82ea1aa#picture'];
-    this._showFilesBytag3 =['rio16469rio#d4b321453740b9d97f05#document','rio16469rio#8d99e10f68ae4706252f#document','rio16469rio#a76d2513d49897836be7#document'];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
