@@ -496,8 +496,6 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-          // $(this).delegate($(this),'mousedown',function(e){
-          // })
           $(this).attr('tabindex', 1).keydown(function(e) {
               if($(this).attr('data-path')){
                 var file = _globalSelf.findFileByPath($(this).attr('data-path'));
@@ -601,6 +599,14 @@ var ShowFiles = Class.extend({
         }
       }
     });
+  },
+
+  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFileByUri:function(modifyURI_){
+    var file = _globalSelf.findFileByURI(modifyURI_);
+    if(!file){
+      window.alert('the file is not found');
+    }
   },
 
   //此函数用来转换时间
