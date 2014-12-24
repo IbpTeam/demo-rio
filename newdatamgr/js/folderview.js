@@ -247,21 +247,6 @@ var ShowFiles = Class.extend({
     };
   },
 
-  //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
-  findFileByPath:function(filePath){
-    var all = _globalSelf._getFiles[_globalSelf._index];
-    var file = false;
-    if(all.length){
-      for(var i =0;i<all.length;i++){
-        if(all[i]['path'] && all[i]['path']== filePath){
-          file = all[i];
-          break;
-        }
-      }
-    }
-    return file;
-  },
-
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
     var divId = div.attr('id');
@@ -838,7 +823,6 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'pictureContainerWaterFall',
-            'data-path':file['path']
           });
           var Holder = $('<div>',{
             'class':'pictureHolderWaterFall'
@@ -867,7 +851,6 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'videoContainer',
-            'data-path':file['path']
           });
           var Holder = $('<div>',{
             'class':'videoHolder'
@@ -890,7 +873,6 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'doc-icon',
-            'data-path':file['path']
           });
           var img = $('<img>',{
             'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png'
@@ -907,7 +889,6 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'musicContainer',
-            'data-path':file['path']
           });
           var Holder = $('<div>',{
             'class':'musicHolder'
@@ -929,7 +910,6 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'doc-icon',
-            'data-path':file['path']
           });
           var img = $('<img>',{
             'src':'icons/Other.png'
