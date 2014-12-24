@@ -2,6 +2,7 @@ var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var IMRsa = require("../../backend/IM/IMChat.js");
 var config = require("../../backend/config.js");
+var router = require('../../backend/router.js');
 var net = require('net');
 var fileTransfer = require("../../backend/IM/file-trans/fileTransfer");
 var fileTransferServer = require("../../backend/IM/file-trans/fileTransferServer");
@@ -46,7 +47,14 @@ exports.getLocalData = getLocalData;
  *
  */
 function registerApp(AppCallBack, AppName) {
-  FuncObj.registerFunc(AppCallBack, AppName);
+  FuncObj.registerFunc(function(recMsg) {
+    AppCallBack(recMsg);
+    router.wsNotify({
+      'Action': 'notify',
+      'Event': 'imChat',
+      'Data': recMsg
+    });
+  }, AppName);
 }
 exports.registerApp = registerApp;
 
@@ -113,6 +121,11 @@ exports.startIMService = startIMService;
  *
  */
 function sendAppMsgByDevice(SentCallBack, MsgObj) {
+    router.wsNotify({
+      'Action': 'notify',
+      'Event': 'imChat',
+      'Data': MsgObj
+    });
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -156,6 +169,11 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
  *
  */
 function sendAppMsgByAccount(SentCallBack, MsgObj) {
+    router.wsNotify({
+      'Action': 'notify',
+      'Event': 'imChat',
+      'Data': MsgObj
+    });
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
