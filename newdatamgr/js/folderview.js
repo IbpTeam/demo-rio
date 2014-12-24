@@ -483,6 +483,9 @@ var ShowFiles = Class.extend({
           $(this).addClass('selected').siblings().removeClass('selected');
           //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
           if(!$(this).attr('tabindex')){
+            $(this).blur(function() {
+              $(this).removeClass('selected');
+            });
             $(this).attr('tabindex','1').keydown(function(e) {
               if(e.which == 46){
                 //触发的是键盘的delete事件,表示删除
@@ -499,7 +502,6 @@ var ShowFiles = Class.extend({
         case 3:
           break;  
       }
-      e.stopPropagation();
     });
     //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
