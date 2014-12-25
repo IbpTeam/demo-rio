@@ -36,44 +36,65 @@ var MainMusicView = Class.extend({
     this._dots.push(this._musicLeftBtn);
     this._dots.push(this._musicMiddleBtn);
     this._dots.push(this._musicRightBtn);
-    this._musicList = {
-      'imgPath': 'img/show.jpg',
-      'name': 'Sea'
-    };
-    this._musicList1 = {
-      'imgPath': 'img/heaven.jpg',
-      'name': 'heaven'
-    };
-    this._musicList2 = {
-      'imgPath': 'img/vword.jpg',
-      'name': 'desktop'
-    };
-    this.addVideo(this._musicList1);
-    this.addVideo(this._musicList2);
-    this.addVideo(this._musicList);
-    this.addUnslider();
-    this._testTags=[['light','home-school','name','flower','water'],
-    ['flower','name','flower','water'],
-    ['name','flower','water']];
-    this._tagView = TagView.create({
-      position: 'listview',
-      direction:'up',
-      max:3,
-      background_color: 'rgb(51,153,102)',
-      positions:{
-        bottom:10,
-        step: 30
+    var _this = this;
+    _this._tags = [];
+    DataAPI.getRecentAccessData(function(err_, music_json_){
+      if(err_){
+        console.log(err_);
+        return;
       }
-    });
-    this._tagView.setParent(this._musicContent);
-    this._tagView.addTags(['heaven','flower','water']);
+      var _count = 0;
+      for(var i = 0; i < music_json_.length; i ++){
+        if(music_json_[i].hasOwnProperty('filename') && music_json_[i].hasOwnProperty('URI')){
+          _this.addMusic(music_json_[i]);
+          DataAPI.getTagsByUri(function(result_){
+            _this._tags.push(result_);
+            _count ++;
+            if(_count == music_json_.length){
+              _this._tagView = TagView.create({
+                position: 'listview',
+                direction:'up',
+                max:3,
+                background_color: 'rgb(51,153,102)',
+                positions:{
+                  bottom:10,
+                  step: 30
+                }
+              });
+              _this._tagView.setParent(_this._musicContent);
+              _this._tagView.addTags(_this._tags[0]);
+              _this.addUnslider();
+            }
+          }, music_json_[i]['URI']);
+        }
+      }
+    }, 'music', 3);
   },
-  addVideo:function(video_){
+
+  getMusicPicData:function(file){
+    DataAPI.getMusicPicData(function(err,result){
+      if(err){
+        console.log(err);
+        return;
+      }
+      else{
+        var musciPictureSrc = 'data:image/jpeg;base64,' + result;
+        var filep = document.getElementsByName(file['URI']);
+        filep[0].src = musciPictureSrc;
+      }
+    },file['path']);  
+  },
+
+  addMusic:function(music_){
     var _li = $('<li>',{
       'class': 'video-img',
-      'text': video_.name
-    })
-    _li.css('background-image', "url('"+video_.imgPath+"')");
+      'text': music_['filename']
+    });
+    var _img = $('<img>', {
+      'name' : music_['URI']
+    });
+    this.getMusicPicData(music_);
+    _li.append(_img);
     this._ul.append(_li);
   },
 
@@ -85,7 +106,7 @@ var MainMusicView = Class.extend({
         delay: 3000,              // 轮播延时
         begin: function(index_) {
           _this._tagView.refresh(function(){
-            _this._tagView.addTags(_this._testTags[index_]);
+            _this._tagView.addTags(_this._tags[index_]);
           });
           _this._dots[index_].addClass('active').siblings().removeClass('active');
         },  // begin轮播时的响应函数
