@@ -1,0 +1,136 @@
+#gitlog-container{
+  margin-left: 0px;
+  border: 0px solid rgba(0,0,0,0);
+  background-color: #2d3c43;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  min-width: 300px;  
+  #gitselect-content{
+    margin-left: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height:55px;
+    position: relative;
+    select{
+      background-color: #2d3c43;
+      position: absolute;
+      border: 1px solid #dddddd;
+      left: 0px;
+      top: 6px;
+      width: 50%;
+      padding-left: 15px;
+    }
+  }
+  .git-content{
+    .scroll(5px,#9d9cb3);
+    overflow-y:auto;
+    border: 0px solid rgba(0,0,0,0);
+    background-color: #2d2c43;
+    position: absolute;
+    top: 65px;
+    bottom: 0px;
+    width: 100%;
+    left: 0px;
+    li{
+      font-size: 1.2em;
+      height:170px;
+      display: block;
+      position: relative;
+      color: #a9a9a9;
+      border:1px solid rgba(0,1,1,0);
+      &#gitcontent-list1{
+        background-color: #3b4e56;  
+      }
+      &#gitcontent-list2{
+        background-color: #2d3c43; 
+      }
+      #date-info{
+        position: absolute;
+        left: 220px;
+        top:20px;
+       }
+       #time-info{
+        position: absolute;
+        left:220px;
+        top:45px;
+       }
+      #date-dis{
+        position: absolute;
+        left:20px;
+        top:10px;
+        width: 120px;
+        text-align: right;
+      }
+      #_op{
+        position: absolute;
+        left:380px;
+        top:70px;
+      }
+      #device{
+        position: absolute;
+        left:380px;
+        top:20px;
+      }
+      select{
+        position: absolute;
+        background: transparent;
+        border: 0px;
+        left:430px;
+        top:66px;
+        line-height: 35px;
+      }
+      #recover-button{
+        position: absolute;
+        outline: none;
+        right:20px;
+        top: 120px;
+        background-color: transparent;
+        border: 2px solid #324255;
+        .radius(30px);
+        &:active{
+          background-color: #324255;
+        }
+      }
+      #avatar{
+        position:relative;
+        width: 50px;
+        height: 50px;
+        left:150px;
+        top:20px;
+        background: url(../img/localhost.jpg);
+        background-size: cover;
+        border-radius: 50%;
+        overflow: hidden;
+        display: block;
+        border:2px solid #3b4e56;
+        transition:border-color 0.6s ease 0s;
+        &:hover{
+           border-color: #a54242;
+        } 
+      }
+    }   
+  }
+ }
+
+.gitselect{
+  outline: none;
+  color: #999;
+  border-radius: 4px;
+  font-size: 1em;
+  height: 35px;
+  -moz-appeatance:none;
+  -o-appeatance:none;
+  -webkit-appearance: none;
+  appearance:none;
+  .select-option{
+    .scroll;
+    position:relative;
+    border: 1px solid #dddddd;
+    background-color: #2d3c43;
+    color: #999;
+    border-radius: 4px;
+    font-size: 1em;
+  }
+}
