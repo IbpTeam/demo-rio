@@ -54,9 +54,11 @@
       bottom: 0px;
       left: 0px;
       width: 100%;
-      padding-top: 15px;
+      //padding-top: 15px;
+      margin-top: 15px;
       //border: 1px solid rgba(0,0,0,0);
       //margin-left: 8px;
+      overflow-x: hidden;
       .scroll();
       .pictureContainerWaterFall {
         //width:188px; 
@@ -105,14 +107,18 @@
         display: inline-block;
       }
       .musicContainer {
-        width:188px;
-        height:188px; 
+        height:165px; 
         padding:auto; 
-        margin:30px; 
         font-size:12px; 
         float:left;
         vertical-align:center;
         cursor: pointer; 
+        padding-bottom: 60px;
+        position: relative;
+        color: #706f6f;
+        //width: 21%;
+        //margin: 10px 2% 10px 1.5%;
+        //padding-bottom: 18%;
         &:hover {
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
@@ -120,15 +126,37 @@
           filter: brightness(1.2);
         }
         .musicHolder img{
-          max-width:98%;
-          max-height:98%;
+          width:125px;
+          height:125px;
           background:#ccc;
           display:block;
+          position: relative;
+          z-index: 3;
+        }
+        &:after {
+          content: "";
+          width: 110px;
+          height: 110px;
+          border-radius: 50%;
+          background-color: rgba(45, 60, 67, 0.1);
+          position: absolute;
+          right: 4px;
+          top:7px;
+        }
+        &:before {
+          content: "";
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          background-color: #edefef;
+          position: absolute;
+          right: 42px;
+          top:42px;
+          z-index: 2;
         }
         .musicdescription {
-          text-align:center;
+          text-align: center;
           font-weight:normal;
-          width:150px;
           font-size:12px;
           margin:10px 5px 10px 5px;
         }
@@ -335,6 +363,7 @@
 
           .selected {
             background-color: #d8d8d8;
+            color:white;
           }
         }
       }
