@@ -218,6 +218,9 @@ var InfoList = Class.extend({
     var _this = this;
     DataAPI.getFilesByTagsInCategory(function(err_, result_){
       console.log("result_=====", result_);
+      if(_this._index == 0){
+        
+      }
     }, _this.getCategoryName(_this._index), _tag);
   },
 
