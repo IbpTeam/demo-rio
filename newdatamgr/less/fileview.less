@@ -60,6 +60,10 @@
       //margin-left: 8px;
       overflow-x: hidden;
       .scroll();
+      #outWaterFall{
+        margin-left: 13px;
+        position: relative;
+      }
       .pictureContainerWaterFall {
         //width:188px; 
         width: 100%;
@@ -101,10 +105,17 @@
         }
       }
 
+
       .sortByTime {
         border: 1px solid #ff0;
         width: 100%;
         display: inline-block;
+        position: relative;
+        span {
+          position: absolute;
+          top: 2px;
+          left: 2px
+        }
       }
       .musicContainer {
         height:165px; 
@@ -155,7 +166,7 @@
           z-index: 2;
         }
         .musicdescription {
-          text-align: center;
+          //text-align: center;
           font-weight:normal;
           font-size:12px;
           margin:10px 5px 10px 5px;
