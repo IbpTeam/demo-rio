@@ -520,6 +520,7 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
+
           //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
           if(!$(this).attr('tabindex')){
             $(this).blur(function() {
