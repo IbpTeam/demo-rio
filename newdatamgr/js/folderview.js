@@ -227,7 +227,6 @@ var ShowFiles = Class.extend({
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
   getCallBackData:function(files){
-    console.log(files);
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     var returnContent = _globalSelf.showFilesNormal(files);
