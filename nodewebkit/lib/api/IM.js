@@ -50,7 +50,7 @@ function registerApp(AppCallBack, AppName) {
   FuncObj.registerFunc(AppCallBack, AppName);
 }
 exports.registerApp = registerApp;
-
+/*
 function registerIMApp(AppCallBack) {
   FuncObj.registerFunc(function(recMsg) {
     AppCallBack(recMsg);
@@ -60,6 +60,14 @@ function registerIMApp(AppCallBack) {
       'Data': recMsg
     });
   }, 'imChat');
+}
+exports.registerIMApp = registerIMApp;*/
+function registerIMApp(AppCallBack,ws) {
+    var msg = {
+    'Action': 'on',
+    'Event': 'imChat'
+  };
+  ws.send(JSON.stringify(msg));
 }
 exports.registerIMApp = registerIMApp;
 
@@ -168,7 +176,7 @@ exports.sendAppMsg = sendAppMsg;
 };
  *
  */
-function sendAppMsgByDevice(SentCallBack, MsgObj) {
+function sendAppMsgByDevice(SentCallBack, MsgObj,isLocal,ws) {
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -177,9 +185,27 @@ function sendAppMsgByDevice(SentCallBack, MsgObj) {
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
-    IMRsa.sendMSGbyUID(ipset,MsgObj.Account,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
-  }else{
-    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+    IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+      SentCallBack(rstMsg);
+      rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+      router.wsNotify({
+        'Action': 'notify',
+        'Event': 'imChat',
+        'Data': rstMsg
+      });
+      if(!isLocal)
+        ws.send(JSON.stringify(rstMsg));
+    });
+  } else {
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+      SentCallBack(rstMsg);
+      rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+      router.wsNotify({
+        'Action': 'notify',
+        'Event': 'imChat',
+        'Data': rstMsg
+      });
+    });
   }
 }
 exports.sendAppMsgByDevice = sendAppMsgByDevice;
@@ -212,11 +238,6 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
  *
  */
 function sendAppMsgByAccount(SentCallBack, MsgObj) {
-    router.wsNotify({
-      'Action': 'notify',
-      'Event': 'imChat',
-      'Data': MsgObj
-    });
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
@@ -224,10 +245,16 @@ function sendAppMsgByAccount(SentCallBack, MsgObj) {
   var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
-    if (MsgObj.localUID === accSetItemKey){
-      len-=1;
-      if (countFlag=== len)
-        SentCallBack();
+    if (MsgObj.localUID === accSetItemKey) {
+      len -= 1;
+      if (countFlag === len) {
+        SentCallBack(msgRst);
+        router.wsNotify({
+          'Action': 'notify',
+          'Event': 'imChat',
+          'Data': msgRst
+        });
+      }
       continue;
     } else {
       if (!net.isIP(accSetItem.toIP)) {
@@ -237,13 +264,29 @@ function sendAppMsgByAccount(SentCallBack, MsgObj) {
         ipset["UID"] = accSetItem.toUID;
         if (MsgObj.rsaflag === "true") {
           IMRsa.sendMSGbyUID(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
-            if ((++countFlag) === len)
+            if (msgRst === undefined)
+              msgRst = msg;
+            if ((++countFlag) === len) {
               SentCallBack(msg);
+              router.wsNotify({
+                'Action': 'notify',
+                'Event': 'imChat',
+                'Data': msg
+              });
+            }
           });
         } else {
           IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
-            if ((++countFlag) === len)
+            if (msgRst === undefined)
+              msgRst = msg;
+            if ((++countFlag) === len) {
               SentCallBack(msg);
+              router.wsNotify({
+                'Action': 'notify',
+                'Event': 'imChat',
+                'Data': msg
+              });
+            }
           });
         }
       }
@@ -285,17 +328,12 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
 };
  *
  */
-function sendIMMsg(SentCallBack, MsgObj){
+function sendIMMsg(SentCallBack, MsgObj,isLocal,ws){
   console.log('ok==================');
   if(MsgObj.group===''){
-    router.wsNotify({
-      'Action': 'notify',
-      'Event': 'imChat',
-      'Data': MsgObj
-    });
-    sendAppMsgByDevice(SentCallBack, MsgObj);
+    sendAppMsgByDevice(SentCallBack, MsgObj,isLocal,ws);
   }else{
-    sendAppMsgByAccount(SentCallBack, MsgObj);
+    sendAppMsgByAccount(SentCallBack, MsgObj,isLocal);
   }
 }
 exports.sendIMMsg = sendIMMsg;
