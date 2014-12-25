@@ -120,8 +120,8 @@ exports.startApp = function(startAppCB, appInfo, params) {
   try {
     var win = createWindow(appInfo);
     // if this app is genarate from a URL, do something
-    if(appInfo_.url) {
-      win.appendHtml(appInfo_.main);
+    if(appInfo.url) {
+      win.appendHtml(appInfo.main);
     } else {
       win.appendHtml("/callapp/" + appInfo.id + '/' + appInfo.main
         + (p_ === null ? "" : ("?" + p_)));
@@ -165,7 +165,7 @@ exports.addListener = function(addListenerCB, listener, ws) {
  *    }
  * ws: the web socket client object which has connected with server
  */
-exports.removeListner = function(removeListnerCB, listener, ws) {
+exports.removeListener = function(removeListenerCB, listener, ws) {
   var msg = {
     'Action': 'off',
     'Event': 'app'

@@ -140,8 +140,13 @@ exports.getCategoryObject = function(category) {
         return desktopConf;
       }
       break;
+    case "other":
+      {
+        return other;
+      }
+      break;
     default:
-      return other;
+      return null;
   }
 }
 
