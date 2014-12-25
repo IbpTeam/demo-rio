@@ -182,7 +182,6 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
     IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
-      SentCallBack(rstMsg);
       rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
       router.wsNotify({
         'Action': 'notify',
@@ -190,10 +189,10 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
         'Data': rstMsg,
         'SessionID':wsID
       });
+      SentCallBack(rstMsg);
     });
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
-      SentCallBack(rstMsg);
       rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
       router.wsNotify({
         'Action': 'notify',
@@ -201,6 +200,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
         'Data': rstMsg,
         'SessionID':wsID
       });
+      SentCallBack(rstMsg);
     });
   }
 }
@@ -237,7 +237,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
-  var msgRst;
+  var msgRst={};
   var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
