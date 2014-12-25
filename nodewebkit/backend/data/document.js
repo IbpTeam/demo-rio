@@ -399,6 +399,7 @@ function openDataByUri(openDataByUriCb, uri) {
                 });
               }
             });
+            console.log("child pid:" + child.pid);
             if (supportedKeySent === true) {
               source.windowname = s_windowname;
             }

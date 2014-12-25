@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>ControlPPT</title>
+  
+    <link rel="stylesheet" type="text/css" href="./lib/css/demoUI.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/css/demoUItheme.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/css/demoUIFont.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <script type="text/javascript" src="./lib/jquery.js"></script>
+    <script type="text/javascript" src="./lib/require.js"></script>
+    <script type="text/javascript" src="./lib/api.js"></script>
+<!--     
+    <script type="text/javascript" src="./lib/demoUI.js"></script>
+     -->
+    <script type="text/javascript" src="./js/viewPPT.js"></script>
+    <script>
+      /**
+       * 应用入口函数，页面加载完毕后调用，参数params是应用调用参数，目前是字符串类型
+       */
+      // function onStart(params){
+      //   console.log("onStart():" + params);
+      //   $('#params').text("程序参数是:" + params);
+      //   WDC.requireAPI(['app'], function(app){
+      //     app.getAppList(function(appArr){
+      //       $('#applist').text("已安装的程序有：" + appArr.length + "个，包括：" + appArr);
+      //     });
+      //   });
+      // }
+      getAllDataByCate();
+    </script>
+   
+  </head>
+  <body> 
+      <h2 align = "center" size = "30px" style = "background: #F5F5F5">
+          PPt list in the Datamgr.
+      </h2>
+      <div  class = "row" style = "height:85%; background: #FFF; -webkit-border-radius: 2px; overflow: auto">
+          <ul id="pptlist" style="margin: 5px; padding: 0px"></ul>
+      </div>
+        
+  </body>
+</html>

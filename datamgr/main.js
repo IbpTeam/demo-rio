@@ -129,7 +129,7 @@ function configuration(server_addr){
       popover.append($('<div></div>').addClass("arrow"));
       popover.append($('<h3>扫描二维码</h3>').addClass("popover-title"));
       var popover_content = $('<div></div>').addClass("popover-content");
-      var qrcode_link = 'http://' + server_addr.ip + ':' + server_addr.port + '/file-explorer.html#';
+      var qrcode_link = 'http://' + server_addr.ip + ':' + server_addr.port + '/index.html#';
       console.log("qrcode_link:" + qrcode_link);
       popover_content.qrcode({
             text: qrcode_link,
