@@ -3,6 +3,7 @@ var ShowFiles = Class.extend({
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     this._index = 0;
+    this._contextMenuDivID = '';
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
@@ -28,6 +29,7 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
     this.setChoice();
+    this.setDataContextMenu();
     _globalSelf = this 
   },
 
@@ -52,11 +54,11 @@ var ShowFiles = Class.extend({
       function(){});
   },
 
-  setDataContextMenu:function(id_){
+  setDataContextMenu:function(){
     contextMenu.addCtxMenu([
       {header: 'data menu'},
       {text:'Open',action:function(){
-
+        console.log(_globalSelf._contextMenuDivID);
       }},
       {text:'Rename',action:function(){
 
@@ -64,8 +66,8 @@ var ShowFiles = Class.extend({
       {text:'Delete',action:function(){
 
       }},
-      {divider:true},
-      {text:'Tag',subMenu:[
+      {text:'Tag', subMenu:[
+        {header: 'tag'},
         {text: 'Add',action:function(){
 
         }},
@@ -73,14 +75,19 @@ var ShowFiles = Class.extend({
 
         }}
       ]},
-      {divider:true},
       {text: 'Detail',action:function(){
 
       }}
     ]);
+  },
+
+  attachDataMenu:function(id_){
     contextMenu.attachToMenu('#'+id_,
       contextMenu.getMenuByHeader('data menu'),
-      function(){});
+      function(ID_){
+        _globalSelf._contextMenuDivID = ID_;
+      }
+    );
   },
 
   //此函数用来设置选择界面看按照哪种方式显示
@@ -532,6 +539,7 @@ var ShowFiles = Class.extend({
           }
           break;
         case 3:
+          $(this).addClass('selected').siblings().removeClass('selected');
           break;  
       }
     });
@@ -713,6 +721,7 @@ var ShowFiles = Class.extend({
             break;
         }
       }
+      _globalSelf.attachDataMenu(bodytr[0].id);
       return bodytr;
     }
     
@@ -857,6 +866,7 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'pictureContainerWaterFall',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'pictureHolderWaterFall'
@@ -866,7 +876,7 @@ var ShowFiles = Class.extend({
             'class':'picturedescriptionWaterFall',
             'text':file['filename']
           });
-          Holder.append($('<img src="' + file['path'] + '"></img>'));
+          Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);
@@ -881,11 +891,13 @@ var ShowFiles = Class.extend({
             }
           };
           _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 2:
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'videoContainer',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'videoHolder'
@@ -905,11 +917,13 @@ var ShowFiles = Class.extend({
           Container.append(description);
           returnContent.append(Container);
           _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 3:
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'doc-icon',
+            'draggable': true
           });
           var img = $('<img>',{
             'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
@@ -921,12 +935,15 @@ var ShowFiles = Class.extend({
           });
           Container.append(p);
           returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
           _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'musicContainer',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'musicHolder',
@@ -946,11 +963,13 @@ var ShowFiles = Class.extend({
           Container.append(description);
           returnContent.append(Container);
           _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'doc-icon',
+            'draggable': true
           });
           var img = $('<img>',{
             'src':'icons/Other.png',
@@ -963,6 +982,7 @@ var ShowFiles = Class.extend({
           Container.append(p);
           returnContent.append(Container);
           _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         default:
       }
