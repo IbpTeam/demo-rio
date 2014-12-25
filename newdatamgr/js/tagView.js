@@ -357,6 +357,11 @@ var TagView = Class.extend({
       $obj_.addClass('rotate');
     }
   },
+  /**
+   * [bindDrag bind drag Event]
+   * @param  {[type]} tag_ [description]
+   * @return {[type]}      [description]
+   */
   bindDrag:function(tag_){
     var _this = this;
     tag_.ondragstart = function(ev){
@@ -373,7 +378,30 @@ var TagView = Class.extend({
     }
     tag_.ondragend = this.dragEnd;
   },
+
   dragEnd:function(ev){
     $(ev.currentTarget).removeClass('no-rotate');
+  },
+
+  bindDrop:function(target_){
+    var _this = this;
+    var drop = function(ev){
+      var _tag = ev.dataTransfer.getData('tag');
+      var _uri = ev.dataTransfer.getData('uri');
+      if (typeof _tag === 'string' && _tag.length > 0) {
+        DataAPI.setTagByUri(function(err){
+          if (err === null) {
+            _this.addPreTag(_tag);
+          };
+        },[_tag],homePage._pic._picData.uri);
+      };
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
+    var dragOver = function(ev){
+      ev.preventDefault();
+    }
+    target_.ondrop = drop;
+    target_.ondragover = dragOver;
   }
 });
