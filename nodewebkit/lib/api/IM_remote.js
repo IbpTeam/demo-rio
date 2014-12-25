@@ -20,6 +20,7 @@
  *  string，新注册的应用名称，该名称用来区分消息的归属应用
  *
  */
+ 
 function registerIMApp(AppCallBack,ws) {
     var msg = {
     'Action': 'on',

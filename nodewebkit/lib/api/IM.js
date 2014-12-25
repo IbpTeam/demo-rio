@@ -50,10 +50,15 @@ function registerApp(AppCallBack, AppName) {
   FuncObj.registerFunc(AppCallBack, AppName);
 }
 exports.registerApp = registerApp;
-/*
-function registerIMApp(AppCallBack) {
+
+function registerIMApp(AppCallBack,ws) {
+  var msg = {
+    'Action': 'on',
+    'Event': 'imChat'
+  };
+  ws.send(JSON.stringify(msg));
   FuncObj.registerFunc(function(recMsg) {
-    AppCallBack(recMsg);
+    //AppCallBack(recMsg);
     router.wsNotify({
       'Action': 'notify',
       'Event': 'imChat',
@@ -61,16 +66,7 @@ function registerIMApp(AppCallBack) {
     });
   }, 'imChat');
 }
-exports.registerIMApp = registerIMApp;*/
-function registerIMApp(AppCallBack,ws) {
-    var msg = {
-    'Action': 'on',
-    'Event': 'imChat'
-  };
-  ws.send(JSON.stringify(msg));
-}
 exports.registerIMApp = registerIMApp;
-
 /**
  * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启
@@ -176,7 +172,7 @@ exports.sendAppMsg = sendAppMsg;
 };
  *
  */
-function sendAppMsgByDevice(SentCallBack, MsgObj,isLocal,ws) {
+function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -191,10 +187,9 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,isLocal,ws) {
       router.wsNotify({
         'Action': 'notify',
         'Event': 'imChat',
-        'Data': rstMsg
+        'Data': rstMsg,
+        'SessionID':wsID
       });
-      if(!isLocal)
-        ws.send(JSON.stringify(rstMsg));
     });
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
@@ -203,7 +198,8 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,isLocal,ws) {
       router.wsNotify({
         'Action': 'notify',
         'Event': 'imChat',
-        'Data': rstMsg
+        'Data': rstMsg,
+        'SessionID':wsID
       });
     });
   }
@@ -237,7 +233,7 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
 };
  *
  */
-function sendAppMsgByAccount(SentCallBack, MsgObj) {
+function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
@@ -249,10 +245,12 @@ function sendAppMsgByAccount(SentCallBack, MsgObj) {
       len -= 1;
       if (countFlag === len) {
         SentCallBack(msgRst);
+        msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
           'Event': 'imChat',
-          'Data': msgRst
+          'Data': rstMsg,
+          'SessionID':wsID
         });
       }
       continue;
@@ -268,10 +266,12 @@ function sendAppMsgByAccount(SentCallBack, MsgObj) {
               msgRst = msg;
             if ((++countFlag) === len) {
               SentCallBack(msg);
+              msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
               router.wsNotify({
                 'Action': 'notify',
                 'Event': 'imChat',
-                'Data': msg
+                'Data': msg,
+                'SessionID':wsID
               });
             }
           });
@@ -281,10 +281,12 @@ function sendAppMsgByAccount(SentCallBack, MsgObj) {
               msgRst = msg;
             if ((++countFlag) === len) {
               SentCallBack(msg);
+              msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
               router.wsNotify({
                 'Action': 'notify',
                 'Event': 'imChat',
-                'Data': msg
+                'Data': msg,
+                'SessionID':wsID
               });
             }
           });
@@ -328,12 +330,12 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
 };
  *
  */
-function sendIMMsg(SentCallBack, MsgObj,isLocal,ws){
+function sendIMMsg(SentCallBack, MsgObj,wsID){
   console.log('ok==================');
   if(MsgObj.group===''){
-    sendAppMsgByDevice(SentCallBack, MsgObj,isLocal,ws);
+    sendAppMsgByDevice(SentCallBack, MsgObj,wsID);
   }else{
-    sendAppMsgByAccount(SentCallBack, MsgObj,isLocal);
+    sendAppMsgByAccount(SentCallBack, MsgObj,wsID);
   }
 }
 exports.sendIMMsg = sendIMMsg;
