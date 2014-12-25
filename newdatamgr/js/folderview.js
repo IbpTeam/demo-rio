@@ -808,6 +808,14 @@ var ShowFiles = Class.extend({
             }
           };
           _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(110,204,188)',
+            max:4
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
           break;
         case 2:
           var Container = $('<div>',{

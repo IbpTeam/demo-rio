@@ -59,17 +59,13 @@
       //margin-left: 8px;
       .scroll();
       .pictureContainerWaterFall {
-        //width:188px; 
         width: 100%;
         min-height:100px; 
-        //padding: 15px; 
-        //margin:8px; 
         font-size:12px; 
         float:left; 
         cursor: pointer; 
         background-color:white;
         border-radius: 3px;
-        overflow: hidden;
         box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2); 
         -moz-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2); 
         -webkit-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2);
@@ -78,6 +74,7 @@
         -o-transition: top 1s ease, left 1s ease;
         -ms-transition: top 1s ease, left 1s ease; 
         &:hover {
+          z-index: 1;
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
           -ms-filter: brightness(1.2);
@@ -85,7 +82,6 @@
         }
         .pictureHolderWaterFall img{
           width:100%;
-          //min-height: 100%; 
           background:#ccc; 
           display:block; 
         }
@@ -173,6 +169,7 @@
         }
       }
       .pictureContainer {
+        position: relative;
         width:188px;
         height:188px; 
         padding:auto; 
@@ -182,6 +179,7 @@
         vertical-align:center;
         cursor: pointer; 
         &:hover {
+          z-index: 1;
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
           -ms-filter: brightness(1.2);
