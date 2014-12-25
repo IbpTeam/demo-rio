@@ -99,12 +99,19 @@
         }
       }
       .selected {
+        min-height: 50px;
         background-color: #717677;
       }
       .sortByTime {
         border: 1px solid #ff0;
         width: 100%;
         display: inline-block;
+        position: relative;
+        span {
+          position: absolute;
+          top: 2px;
+          left: 2px
+        }
       }
       .musicContainer {
         width:188px;
