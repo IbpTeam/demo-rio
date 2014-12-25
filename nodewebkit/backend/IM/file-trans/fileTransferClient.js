@@ -103,6 +103,7 @@ function transferFile(msgObj, callback) {
           if ((currentRatio - lastSendRatio) > RATIO_SIZE && currentRatio !== 1) {
             //调用显示传输进度的函数  之后再调用client.transferFileRatio------------界面显示    
             lastSendRatio = currentRatio;
+            console.log('data========currentRatio============='+currentRatio+' RATIO_SIZE  '+RATIO_SIZE);
             fileTransfer.transferFileRatio(1, msgObj, currentRatio, function(rstObj) {
               setTimeout(callback(false, rstObj), 0);
             });
@@ -111,6 +112,7 @@ function transferFile(msgObj, callback) {
         read.on('end', function(data) {
           test.end();
           transferHashTable.remove(msgObj.key);
+          console.log('end========currentRatio============='+currentRatio);
           //调用显示传输进度的函数  之后再调用client.transferFileRatio------------界面显示
           fileTransfer.transferFileRatio(2, msgObj, currentRatio, function(rstObj) {
             setTimeout(callback(false, rstObj), 0);
