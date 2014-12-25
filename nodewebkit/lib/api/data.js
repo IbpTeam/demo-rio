@@ -150,7 +150,9 @@ function loadResources(loadResourcesCb, path) {
   function walk(path) {
     var dirList = fs.readdirSync(path);
     dirList.forEach(function(item) {
-      if (fs.statSync(path + '/' + item).isDirectory()) {
+      if (fs.lstatSync(path + '/' + item).isSymbolicLink()) {
+        console.log('SymbolicLink: ' + path + '/' + item);
+      } else if (fs.statSync(path + '/' + item).isDirectory()) {
         if (item != '.git' && item != '.des' && item != 'contacts') {
           if (item == 'html5ppt') {
             /*var html5pptList = fs.readdirSync(path + '/' + item);
@@ -162,7 +164,7 @@ function loadResources(loadResourcesCb, path) {
             walk(path + '/' + item);
           }
         }
-      } else {
+      } else if (fs.statSync(path + '/' + item).isFile()) {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
         if (sPos != 'csv' && sPos != 'CSV') {
@@ -199,6 +201,8 @@ function loadResources(loadResourcesCb, path) {
             OtherList.push(path + '/' + item);
           }
         }
+      } else {
+        console.log("can't detect type ...");
       }
     });
   }
@@ -582,7 +586,7 @@ function createFile(createFileCb, filename, category) {
         console.log('exec error: ' + error);
         creatFileCb(false);
       } else {
-        if (category == 'document' || category == 'music' || category == 'picture') {
+        if (category !== 'contact') {
           var cate = utils.getCategoryObject(category);
           cate.createData([desPath], function(err, result) {
             if (err != null) {
@@ -731,6 +735,13 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
   tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
 }
 exports.getFilesByTags = getFilesByTags;
+
+
+function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag) {
+  console.log("Request handler 'getFilesByTagsInCategory' was called.");
+  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag);
+}
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
 /**
  * @method getCategoryFilesByTags

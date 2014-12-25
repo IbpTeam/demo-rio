@@ -3,7 +3,7 @@
 var InfoList = Class.extend({
   init:function(){
     this._title = ['Contacts','Images','Videos','Documents','Musics','Others'];
-    this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(225,255,225,1)'];
+    this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(224,214,229,1)'];
 
     this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays','Recent Visit'];
 
@@ -140,7 +140,8 @@ var InfoList = Class.extend({
   addTag:function(tag_, num_){
     var _a = $('<a>',{
       'class':'il__a',
-      'draggable':'true'
+      'draggable':'true',
+      'id': tag_
     });
     var _text = $('<span>',{
       'class':'il__title',
@@ -153,7 +154,9 @@ var InfoList = Class.extend({
     _a.append(_text);
     _a.append(_num);
     this._add.before(_a);
+    var _this = this;
     _a.click(function(e){
+      _this.showTagFilterData(this.id);
       search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
     })
     this.bindDrag(_a[0]);
@@ -181,10 +184,10 @@ var InfoList = Class.extend({
   },
 
   setContent:function(){
-	var _this = this;
-    DataAPI.getAllTagsByCategory(function(result){
+	  var _this = this;
+    DataAPI.getAllTagsByCategory(function(result_){
       _this.removeTags();
-      _this._info = result;
+      _this._info = result_;
       var _tagTextList = [];
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
@@ -209,6 +212,16 @@ var InfoList = Class.extend({
         }
       }
     }, _this.getCategoryName(_this._index), 10);
+  },
+
+  showTagFilterData:function(_tag){
+    var _this = this;
+    DataAPI.getFilesByTagsInCategory(function(err_, result_){
+      console.log("result_=====", result_);
+      if(_this._index == 0){
+        
+      }
+    }, _this.getCategoryName(_this._index), _tag);
   },
 
   removeTags:function(){
