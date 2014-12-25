@@ -111,7 +111,8 @@ function sendKeyToWindow(windowname, key){
   AppAPI.sendKeyToApp(function(){}, windowname, key);
 }
 
-function cb_get_data_source_file(data_json){
+function cb_get_data_source_file(data_json
+  ){
   console.log('get data source file', data_json);
   if(!data_json['openmethod'] || !data_json['content']){
     window.alert('openmethod or content not found.');
