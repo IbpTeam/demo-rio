@@ -168,6 +168,9 @@ function createServer(devicePublishCb){
   if (err != null){
     console.log(err);
   }
+  if (iface === undefined || iface === null){
+    return;
+  }
   server = iface;
 
   iface.ServiceBrowserNew['error'] = function(err) {

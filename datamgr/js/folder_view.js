@@ -152,10 +152,10 @@ function cb_get_data_source_file(data_json){
         gen_popup_dialog(title, file_content);
       }else{
         gen_popup_dialog("窗口控制", "<div>\
-            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button><br>\
-            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button><br>\
-            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button><br>\
-            <button type=\"button\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button><br>\
+            <button type=\"button\" style=\"width:100px;height:100px;float:left;\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'F5\')\">PLAY</button>\
+            <button type=\"button\" style=\"width:100px;height:100px;float:left;\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Escape\')\">STOP</button>\
+            <button type=\"button\" style=\"width:100px;height:100px;float:left;\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Up\')\">UP</button>\
+            <button type=\"button\" style=\"width:100px;height:100px;float:left;\" class=\"btn btn-success\" onclick=\"sendKeyToWindow(\'" + data_json['windowname'] + "\', \'Down\')\">DOWN</button>\
           </div>");
       }
       break;
@@ -485,7 +485,7 @@ function Folder(jquery_element) {
   });
   // Double click on file
   //wangyu: edit this function to folder view mode.
-  this.files.delegate('.file', 'dblclick', function(e) {
+  this.files.delegate('.file', 'click', function(e) {
     var file_json;
     if($(this).attr('data-path').lastIndexOf('.') != -1 || 
        $(this).attr('data-path') == 'root/Contact' || 
