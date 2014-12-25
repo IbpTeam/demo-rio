@@ -4,7 +4,6 @@
 // get all ppt files in the Datamgr
 function cb_get_ppt_data(data_json){
     var i=0;
-    //var pl = document.getElementById("pptlist");
     var pl = $('#pptlist');
     for(i=0;i<data_json.length;i++)
     	if(data_json[i].postfix == 'ppt' || data_json[i].postfix == 'pptx')
@@ -45,7 +44,6 @@ function view_ppt_file(uri){
 
 function cb_get_ppt_source_file(data_json){
     console.log('get ppt source file', data_json);
-    console.log(data_json.windowname);
     var _div = $('<div>',{
         id:'control'
     });
