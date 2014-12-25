@@ -100,6 +100,7 @@ function transferFile(msgObj, callback) {
         read.on('data', function(data) {
           currentLength += data.length;
           currentRatio = currentLength / msgObj.fileLength;
+          console.log('data========currentLength====msgObj.fileLength========='+currentLength+'   '+msgObj.fileLength+'  RATIO_SIZE  '+RATIO_SIZE);
           if ((currentRatio - lastSendRatio) > RATIO_SIZE && currentRatio !== 1) {
             //调用显示传输进度的函数  之后再调用client.transferFileRatio------------界面显示    
             lastSendRatio = currentRatio;

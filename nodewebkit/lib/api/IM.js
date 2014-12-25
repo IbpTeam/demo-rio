@@ -182,6 +182,9 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
     IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+      SentCallBack(rstMsg);
+      if(rstMsg.MsgObj.message.msg.type==='file')
+        return;
       rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
       router.wsNotify({
         'Action': 'notify',
@@ -189,10 +192,14 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
         'Data': rstMsg,
         'SessionID':wsID
       });
-      SentCallBack(rstMsg);
     });
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+      SentCallBack(rstMsg);
+   //   var m=rstMsg.MsgObj.message;
+    //  var m=JSON.parse(m);
+   //   if(m.msg.type==='file')
+    //    return;
       rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
       router.wsNotify({
         'Action': 'notify',
@@ -200,7 +207,6 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
         'Data': rstMsg,
         'SessionID':wsID
       });
-      SentCallBack(rstMsg);
     });
   }
 }
@@ -249,7 +255,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
         router.wsNotify({
           'Action': 'notify',
           'Event': 'imChat',
-          'Data': rstMsg,
+          'Data': msgRst,
           'SessionID':wsID
         });
       }
