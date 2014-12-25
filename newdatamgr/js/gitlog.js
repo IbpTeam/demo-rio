@@ -158,33 +158,27 @@ var GitLog = Class.extend({
           });
           _file_select.append(_file_option);
         }
-        _recover_button.click(function(ev){
-          _this.bindRecoverEvent(_recover_button,category_,_commitID);
-        });
+        _this.bindRecoverEvent(_recover_button,category_,_commitID);
       }
     },category_);
   },
   bindRecoverEvent:function($button_,category_, commitID_){
-    var _select = $button_.siblings('select');
-    var _fileName = _select.find("option:selected").val();
-    if(_fileName === 'all'){
+    $button_.click(function(ev){
       DataAPI.repoReset(function(err_,result_){
         if (err_) {
           console.log(err_);
-        };
-      },category_,commitID_);
-    }else{
-      DataAPI.repoResetFile(function(err_,result_){
-        if(err_){
-          console.log(err_);
+          return 0;
         }
-      },category_,commitID_,_fileName);
-    }
+        $button_.parent().remove();
+      },category_,commitID_);
+    });
   },
   attach:function($parent_){
     $parent_.append(this._gitLogContainer);
   },
-  show:function(){
+  getLogShow:function(){
+    this._gitcontent.children('li').remove();
+    this.setContent('contact');
     this._gitLogContainer.show();
   },    
   hide:function(){

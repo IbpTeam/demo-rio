@@ -74,7 +74,7 @@ var main = function(params_){
       container.removeClass('move-right');
       $('#tags__ul').children('li').removeClass('active');
       container.children('div').hide();
-      gitLog.show();
+      gitLog.getLogShow();
     });
 
 
