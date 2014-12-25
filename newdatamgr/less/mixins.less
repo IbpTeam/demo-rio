@@ -1,15 +1,15 @@
-.scroll(){
+.scroll(@width:1px,@thumbColor:rgba(45, 60, 67, 0.6)){
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     &::-webkit-scrollbar{
-      width: 1px; 
+      width: @width; 
     }
     &::-webkit-scrollbar-thumb{
       background: transparent;
     }
     &:hover::-webkit-scrollbar-thumb{
-      background: rgba(45, 60, 67, 0.6);;
+      background: @thumbColor;
     }
 }
 

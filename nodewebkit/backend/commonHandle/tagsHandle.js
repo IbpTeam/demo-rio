@@ -8,36 +8,6 @@ var commonDAO = require("./CommonDAO");
 var repo = require("./repo");
 var utils = require("../utils");
 
-/**
- * @method pickTags
- *   pick possible tags from path
- *   this will check the string between each two "/"
- *
- * @param1 oTag
- *    object, to store tags we picked
- *
- * @param2 rePos
- *    the regExp position in the path string
- *
- * @param2 path
- *    string, the target path of data
- *
- */
-function pickTags(oTag, rePos, path) {
-  if (path.length <= 2) {
-    return;
-  }
-  var sStartPart = path.slice(rePos, path.length);
-  var startPos = sStartPart.indexOf('/');
-  if (startPos == -1) {
-    return;
-  }
-  var sTag = sStartPart.substring(0, startPos);
-  oTag.push(sTag);
-  var sNewStart = sStartPart.slice(startPos + 1, sStartPart.length);
-  pickTags(oTag, 0, sNewStart);
-}
-
 
 /**
  * @method getTagsByPath
@@ -50,11 +20,11 @@ function pickTags(oTag, rePos, path) {
  */
 function getTagsByPath(path) {
   var oTags = [];
-  var regPos = path.search(/picture|photo|\u56fe|contact|music|document|video/i);
-  if (regPos > -1) {
-    pickTags(oTags, regPos, path);
-  }
-  return oTags;
+  var reg = new RegExp(process.env["HOME"] + '/');
+  var tmpTags = path.replace(reg, '');
+  tmpTags = tmpTags.split('/');
+  tmpTags.pop();
+  return tmpTags;
 }
 exports.getTagsByPath = getTagsByPath;
 
@@ -181,7 +151,9 @@ function getTagsByUri(callback, sUri) {
   function findItemsCb(err, result) {
     if (err) {
       console.log(err);
-      return;
+      return callback(null);
+    }else if(result == '' || result == null){
+      return callback(null);
     }
     var tags = result[0].others;
     tags = tags.split(",");
@@ -393,33 +365,30 @@ function setTagByUri(callback, oTags, sUri) {
 
   function findItemsCb(err, items) {
     if (err) {
-      return console.log(err);
+      console.log(err);
+      return callback(err);
     }
     var UpdateItem = [];
     var item = items[0];
     console.log(item)
-    if(oTags == ''|| oTags == null){
+    if (oTags == '' || oTags == null) {
       return callback(null);
     }
     if (item.others == '' || item.others == null) { //item has no tags 
-      var newTags = oTags.join(",");
+      var newTags = oTags.sort().join(",");
+      var oldTags = [];
     } else { //item has tag(s)
       var oldTags = item.others.split(',');
-      if(oldTags == oTags){
-        return callback(null);
-      }
-      for(var tag in oTags){
-        var isExist = false;
-        for(var oldTag in oldTags){
-          if(oTags[tag] === oldTags[oldTag]){
-            isExist = true;
-          }
-        }
-        if(!isExist){
+      var lens = oldTags.length;
+      for (var tag in oTags) {
+        if (!utils.isExist(oTags[tag], oldTags)) {
           oldTags.push(oTags[tag]);
         }
       }
-      var newTags = oldTags.join(',');
+      var newTags = oldTags.sort().join(',');
+    }
+    if (oldTags.length == lens) {
+      return callback(null);//no more new tags added return
     }
     UpdateItem = {
       URI: item.URI,
@@ -435,17 +404,22 @@ function setTagByUri(callback, oTags, sUri) {
     }
     dataDes.updateItem(desFilePath, UpdateItem, function(result) {
       if (result !== "success") {
-        return console.log("error in update des file!");
+        console.log("error in update des file!");
+        return callback("error in update des file!");
       }
       if (category == 'contact') {
         delete UpdateItem.path;
       }
       commonDAO.updateItem(UpdateItem, function(err) {
         if (err) {
-          return console.log(err);
+          console.log(err);
+          return callback(err);
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function() {
+        repo.repoCommit(chPath, [desFilePath], null, "ch", function(err) {
+          if(err){
+            return callback(err);
+          }
           addInTAGS(oTags, sUri, function(err) {
             if (err) {
               return callback(err);
@@ -834,6 +808,9 @@ exports.rmInTAGS = rmInTAGS;
  *
  */
 function addInTAGS(oTags, sUri, callback) {
+  if (oTags == '' || oTags == null) {
+    return callback(null);
+  }
   var oItems = [];
   for (var tag in oTags) {
     var oItem = {
