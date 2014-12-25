@@ -225,6 +225,7 @@ var ShowFiles = Class.extend({
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
   getCallBackData:function(files){
+    console.log(files);
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     var returnContent = _globalSelf.showFilesNormal(files);
@@ -624,10 +625,27 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来算时间差，然后按照时间排序
-  dateDifference:function(lastModifyTime){
-    var date = new Date(lastModifyTime);
+  dateDifference:function(file){
+    var lastModifyTime = new Date(file['lastModifyTime']);
+    var lastAccessTime = new Date(file['lastAccessTime']);
+    var createTime = new Date(file['createTime']);
     var today = new Date();
-    var dateDifference = (today- date)/(60*60*1000);
+    if(lastModifyTime > lastAccessTime){
+      if(lastModifyTime > createTime){
+        var dateDifference = (today- lastModifyTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
+    else{
+      if(lastAccessTime > createTime){
+        var dateDifference = (today- lastAccessTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
     return dateDifference;
   },
 
@@ -777,7 +795,7 @@ var ShowFiles = Class.extend({
       }
       var fileURI = _globalSelf.findURIByDiv(div);
       var file = _globalSelf.findFileByURI(fileURI);
-      var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
+      var timeDifference = _globalSelf.dateDifference(file);
       if(timeDifference >=0 && timeDifference <=24){
         today.append(div);
       }
