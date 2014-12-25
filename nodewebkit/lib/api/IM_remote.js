@@ -20,13 +20,11 @@
  *  string，新注册的应用名称，该名称用来区分消息的归属应用
  *
  */
-function registerApp(AppCallBack, AppName,ws) {
+function registerIMApp(AppCallBack,ws) {
     var msg = {
     'Action': 'on',
     'Event': 'imChat'
   };
   ws.send(JSON.stringify(msg));
 }
-exports.registerApp = registerApp;
-
-
+exports.registerIMApp = registerIMApp;

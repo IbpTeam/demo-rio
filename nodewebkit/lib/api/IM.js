@@ -47,6 +47,11 @@ exports.getLocalData = getLocalData;
  *
  */
 function registerApp(AppCallBack, AppName) {
+  FuncObj.registerFunc(AppCallBack, AppName);
+}
+exports.registerApp = registerApp;
+
+function registerIMApp(AppCallBack) {
   FuncObj.registerFunc(function(recMsg) {
     AppCallBack(recMsg);
     router.wsNotify({
@@ -54,9 +59,9 @@ function registerApp(AppCallBack, AppName) {
       'Event': 'imChat',
       'Data': recMsg
     });
-  }, AppName);
+  }, 'imChat');
 }
-exports.registerApp = registerApp;
+exports.registerIMApp = registerIMApp;
 
 /**
  * @method startIMService
@@ -94,6 +99,49 @@ function startIMService(StartCb,Flag) {
 exports.startIMService = startIMService;
 
 /**
+ * @method sendAppMsg
+ *  该函数用来给目的机器的指定应用程序发送消息
+ *
+ * @param SentCallBack
+ *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
+ *  @param1
+ *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ * @param MsgObj
+ *   JSON,待发送的消息结构体，其中：
+ *  MsgObj.IP 表示接收方的IP地址
+ *  MsgObj.UID 表示接收方的UUID
+ *  MsgObj.Account表示接收方的帐号
+ *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“”，表示无组别;msg为发送消息内容
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
+ *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
+ *  MsgOb举例如下：
+ *  var msgobj = {
+  IP: "192.168.1.100",
+  UID: "fyfrio1997rio",
+  Account: "fyf",
+  Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
+  App: "app1"
+  rsaflag: "true"
+};
+ *
+ */
+function sendAppMsg(SentCallBack, MsgObj) {
+  var ipset = {};
+  if (!net.isIP(MsgObj.IP)) {
+    console.log('Input IP Format Error!:::', MsgObj.IP);
+    return;
+  };
+  ipset["IP"] = MsgObj.IP;
+  ipset["UID"] = MsgObj.UID;
+  if (MsgObj.rsaflag === "true") {
+    IMRsa.sendMSGbyUID(ipset,MsgObj.Account,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+  }else{
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+  }
+}
+exports.sendAppMsg = sendAppMsg;
+
+/**
  * @method sendAppMsgByDevice
  *  该函数用来给目的机器的指定应用程序发送消息
  *
@@ -121,11 +169,6 @@ exports.startIMService = startIMService;
  *
  */
 function sendAppMsgByDevice(SentCallBack, MsgObj) {
-    router.wsNotify({
-      'Action': 'notify',
-      'Event': 'imChat',
-      'Data': MsgObj
-    });
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -243,7 +286,13 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
  *
  */
 function sendIMMsg(SentCallBack, MsgObj){
+  console.log('ok==================');
   if(MsgObj.group===''){
+    router.wsNotify({
+      'Action': 'notify',
+      'Event': 'imChat',
+      'Data': MsgObj
+    });
     sendAppMsgByDevice(SentCallBack, MsgObj);
   }else{
     sendAppMsgByAccount(SentCallBack, MsgObj);
