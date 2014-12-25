@@ -115,7 +115,7 @@ var ShowFiles = Class.extend({
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
             if(this._index ==1){
               $('#outWaterFall').show();
-            }     
+            }
             $('#'+this._contentIds[this._index]).show();
           }
           else{
@@ -626,10 +626,27 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来算时间差，然后按照时间排序
-  dateDifference:function(lastModifyTime){
-    var date = new Date(lastModifyTime);
+  dateDifference:function(file){
+    var lastModifyTime = new Date(file['lastModifyTime']);
+    var lastAccessTime = new Date(file['lastAccessTime']);
+    var createTime = new Date(file['createTime']);
     var today = new Date();
-    var dateDifference = (today- date)/(60*60*1000);
+    if(lastModifyTime > lastAccessTime){
+      if(lastModifyTime > createTime){
+        var dateDifference = (today- lastModifyTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
+    else{
+      if(lastAccessTime > createTime){
+        var dateDifference = (today- lastAccessTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
     return dateDifference;
   },
 
@@ -779,7 +796,7 @@ var ShowFiles = Class.extend({
       }
       var fileURI = _globalSelf.findURIByDiv(div);
       var file = _globalSelf.findFileByURI(fileURI);
-      var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
+      var timeDifference = _globalSelf.dateDifference(file);
       if(timeDifference >=0 && timeDifference <=24){
         today.append(div);
       }
