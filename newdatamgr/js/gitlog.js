@@ -71,6 +71,7 @@ var GitLog = Class.extend({
 
   setContent:function(category_){
     var _this = this;
+    var _revertedCommitIDs = {};
     DataAPI.getGitLog(function(err,result){
       if (err||!result) {
         console.log(err);
@@ -81,6 +82,13 @@ var GitLog = Class.extend({
       var j = 0;
       var _oldText = '';
       for(var _commitID in _this._gitresults){
+        if(_this._gitresults[_commitID]['content']['op'] === 'revert'){
+          _revertedCommitIDs[_this._gitresults[_commitID]['content']['revertedCommitID']] = true;
+          continue ;
+        }
+        if(_revertedCommitIDs[_commitID]){
+          continue ;
+        }
         ++j;
         var _date = _this._gitresults[_commitID]['Date'];
         var _dateObj = new Date(_date);
@@ -170,6 +178,21 @@ var GitLog = Class.extend({
           return 0;
         }
         $button_.parent().remove();
+        switch(category_){
+          case 'contact':
+            contact.refresh();
+            break ;
+          case 'document':
+            break;
+          case 'picture':
+            break;
+          case 'video':
+            break;
+          case 'music':
+            break;
+          case 'other':
+            break;
+        }
       },category_,commitID_);
     });
   },

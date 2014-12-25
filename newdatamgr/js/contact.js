@@ -382,6 +382,11 @@ var Contact = Class.extend({
     this._ContactContainer.show();
   },
 
+  refresh:function(){
+    this._contactsList.children('ul').remove();
+    this.setContactsList();
+  },
+
   bindDrag:function(target_){
     target_.ondragover = this.dragover;
     target_.ondrop = this.drop;
