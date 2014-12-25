@@ -371,7 +371,7 @@ var ShowFiles = Class.extend({
           genDiv.append(F5Button);
           genDiv.append('<br>');
           genDiv.append(UpButton);
-          genDiv.append('<br>');
+          // genDiv.append('<br>');
           genDiv.append(DownButton);
           genDiv.append('<br>');
           genDiv.append(StopButton);
