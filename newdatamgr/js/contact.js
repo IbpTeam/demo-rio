@@ -36,19 +36,25 @@ var Contact = Class.extend({
     }, 'Contact');
   },
 
-  loadContactsList:function(_index){
+  loadContactsList:function(_index, showList){
+    var _showList;
+    if(showList != null){
+      _showList = showList;
+    } else {
+      _showList = this._contacts;
+    }
     this.removeContactList();
     var family_name_json = {};
-    for(var i = 0; i < this._contacts.length; i ++){
-      var family_name = this._contacts[i]['name'][0];
+    for(var i = 0; i < _showList.length; i ++){
+      var family_name = _showList[i]['name'][0];
       if(family_name_json.hasOwnProperty(family_name)){
         family_name_json[family_name].push({
-          name: this._contacts[i]['name'],
+          name: _showList[i]['name'],
           id: i
         });
       } else {
         family_name_json[family_name] = [{
-          name: this._contacts[i]['name'],
+          name: _showList[i]['name'],
           id: i
         }];
       }
@@ -74,9 +80,9 @@ var Contact = Class.extend({
     }
 
     this.removeHead();
-    this.setHead(this._contacts[_index]);
+    this.setHead(_showList[_index]);
     this.removeDetails();
-    this.setDetails(this._contacts[_index]);
+    this.setDetails(_showList[_index]);
     this.bindAction();
   },
 
@@ -379,6 +385,11 @@ var Contact = Class.extend({
 
   show:function(){
     this._ContactContainer.show();
+  },
+
+  refresh:function(){
+    this._contactsList.children('ul').remove();
+    this.setContactsList();
   },
 
   bindDrag:function(target_){

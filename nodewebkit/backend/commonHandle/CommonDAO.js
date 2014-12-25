@@ -32,7 +32,7 @@ var prepDb;
  *    The database object.
  */
 function openDB(){
-  console.log("config database path: " + config.DATABASEPATH);
+  //console.log("config database path: " + config.DATABASEPATH);
   return new sqlite3.Database(config.DATABASEPATH);
 }
 
@@ -557,7 +557,7 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
 
   // Make query string
   sQueryStr = sColStr + sTablesStr + sCondStr + sExtraStr;
-  console.log("SELECT Prepare SQL is :" + sQueryStr);
+  //console.log("SELECT Prepare SQL is :" + sQueryStr);
 
   // Runs the SQL query
   allSQL(sQueryStr,callback);
