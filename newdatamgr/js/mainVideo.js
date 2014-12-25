@@ -30,32 +30,48 @@ var MainVideoView = Class.extend({
     this._videoContainer.append(this._videoMiddleBtn);
     this._videoContainer.append(this._videoLeftBtn);
     this._videoContainer.append(this._videoRightBtn);
-    this._listVideo = {
-      'imgPath': 'img/show.jpg',
-      'name': 'Sea'
-    };
-    this._listVideo1 = {
-      'imgPath': 'img/heaven.jpg',
-      'name': 'heaven'
-    };
-        this._listVideo2 = {
-      'imgPath': 'img/vword.jpg',
-      'name': 'desktop'
-    };
-    this.addVideo(this._listVideo);
-    this.addVideo(this._listVideo1);
-    this.addVideo(this._listVideo2);
-    this._testTags=[['name','flower','water'],
-      ['light','home-school','name','flower','water'],
-      ['flower','name','flower','water']];
-    this._tagView = TagView.create({
-      position: 'listview',
-      max: 5,
-      background_color: 'rgb(232,114,114)'
-    });
-    this._tagView.setParent(this._videoContent);
-    this._tagView.addTags(this._testTags[0]);
-    this.addUnslider();
+    var _this = this;
+    _this._tags = [];
+    DataAPI.getRecentAccessData(function(err_, video_json_){
+      if(err_){
+        console.log(err_);
+        return;
+      }
+      var _count = 0;
+      for(var i = 0; i < video_json_.length; i ++){
+        if(video_json_[i].hasOwnProperty('filename') && video_json_[i].hasOwnProperty('URI')){
+          _this.addVideo(video_json_[i]);
+          DataAPI.getTagsByUri(function(result_){
+            _this._tags.push(result_);
+            _count ++;
+            if(_count == video_json_.length){
+              _this._tagView = TagView.create({
+                position: 'listview',
+                max: 5,
+                background_color: 'rgb(232,114,114)'
+              });
+              _this._tagView.setParent(_this._videoContent);
+              _this._tagView.addTags(_this._tags[0]);
+              _this.addUnslider();
+            }
+          }, video_json_[i]['URI']);
+        }
+      }
+    }, 'video', 3);   
+  },
+
+  getVideoPicData:function(file){
+    DataAPI.getVideoThumbnail(function(err,result){
+      if(err){
+        console.log(err);
+        return;
+      }
+      else{
+        var videoPictureSrc = 'data:image/jpeg;base64,' + result;
+        var fileImg = document.getElementsByName(file['URI']);
+        fileImg[0].src = videoPictureSrc;
+      }
+    },file['path']);  
   },
 
   bindEvent:function(){
@@ -84,9 +100,13 @@ var MainVideoView = Class.extend({
   addVideo:function(video_){
     var _li = $('<li>',{
       'class': 'video-img',
-      'text': video_.name
-    })
-    _li.css('background-image', "url('"+video_.imgPath+"')");
+      'text': video_['filename']
+    });
+    var _img = $('<img>', {
+      'name' : video_['URI']
+    });
+    this.getVideoPicData(video_);
+    _li.append(_img);
     this._ul.append(_li);
   },
 
@@ -98,7 +118,7 @@ var MainVideoView = Class.extend({
         delay: 3000,              // 轮播延时
         begin: function(index_) {
           _this._tagView.refresh(function(){
-            _this._tagView.addTags(_this._testTags[index_]);
+            _this._tagView.addTags(_this._tags[index_]);
           });
         },  // 完成轮播时的响应函数
         keys: true,               // 支持左右按键转换图片

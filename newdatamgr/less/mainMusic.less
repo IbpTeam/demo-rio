@@ -54,36 +54,54 @@
           background-position: center;
           position: relative;
           border:7px solid #e2e2e2;
-          box-shadow: 0px 0px 0px 4px rgba(255,255,255,1) inset;
-          &:after,&:before{
+          overflow: hidden;
+          -webkit-box-shadow: 0px 0px 4px rgba(255,255,255,1) inset;
+          img {
+            position:absolute;
+            width:100%;
+            height:150px;
+            left:0;
+            top:0;
+          }
+          &:after {
             content: "";
             width: 30px;
             height: 30px;
             border-radius: 50%;
             position: absolute;
             background-color: #e2e2e2;
-            margin-left: -44px;
             margin-top: 51px;
+            margin-left: -41px;
             box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.4) inset;
+            z-index: 5;
           }
-          &:before{
-            background-color: transparent;
-            border: 4px solid rgba(0,0,0,0.3);
+          &:before {
+            content: "";
             width: 42px;
             height: 42px;
-            margin-left:6px;
+            height: 42px;
+            position: absolute;
+            background-color: transparent;
+            border: 4px solid rgba(0,0,0,0.3);
+            border-radius: 50%;
+            margin-left:7px;
             margin-top: 45px;
             box-shadow: none;
-          }
-          &:nth-child(2):before{
-            margin-left: 10px;
+            z-index: 5;
           }
           &:last-child:before{
-            margin-left:-8px;
+            margin-left:16px;
           }
           &:last-child:after{
-            left: 94px;
+            margin-left: -50px;
           }
+          /*span {
+            font-size: 12px;
+            color:black;
+            z-index: 5;
+            width: 40px;
+            position: absolute;
+          }*/
         }
       }
       #music-button-content{

@@ -113,7 +113,9 @@ var ShowFiles = Class.extend({
       switch(this._showNormal[this._index]){
         case 0:
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
-            $('#outWaterFall').show();
+            if(this._index ==1){
+              $('#outWaterFall').show();
+            }     
             $('#'+this._contentIds[this._index]).show();
           }
           else{
