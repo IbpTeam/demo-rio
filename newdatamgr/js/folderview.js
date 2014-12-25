@@ -73,7 +73,6 @@ var ShowFiles = Class.extend({
     this._choice.append(line);
     this._choice.append(shownormalButton);
     this._choice.append(sortbyButton);
-    this._choice.append(testButton);
     showlistButton.click(function(){
       shownormalButton.removeClass('normalButtonFocus');
       showlistButton.addClass('showlistButtonFocus');
