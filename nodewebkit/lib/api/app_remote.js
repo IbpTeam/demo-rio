@@ -120,8 +120,8 @@ exports.startApp = function(startAppCB, appInfo, params) {
   try {
     var win = createWindow(appInfo);
     // if this app is genarate from a URL, do something
-    if(appInfo_.url) {
-      win.appendHtml(appInfo_.main);
+    if(appInfo.url) {
+      win.appendHtml(appInfo.main);
     } else {
       win.appendHtml("/callapp/" + appInfo.id + '/' + appInfo.main
         + (p_ === null ? "" : ("?" + p_)));
@@ -149,7 +149,8 @@ exports.addListener = function(addListenerCB, listener, ws) {
     'Action': 'on',
     'Event': 'app'
   };
-  ws.send(JSON.stringify(msg))
+  ws.send(JSON.stringify(msg));
+  addListenerCB(null);
 }
 
 /**
@@ -170,5 +171,6 @@ exports.removeListner = function(removeListnerCB, listener, ws) {
     'Event': 'app'
   };
   ws.send(JSON.stringify(msg))
+  removeListenerCB(null);
 }
 

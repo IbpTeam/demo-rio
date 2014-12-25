@@ -3,13 +3,13 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     &::-webkit-scrollbar{
-      width: 0px; 
+      width: 1px; 
     }
     &::-webkit-scrollbar-thumb{
       background: transparent;
     }
     &:hover::-webkit-scrollbar-thumb{
-      background: #c8ced6;
+      background: rgba(45, 60, 67, 0.6);;
     }
 }
 
@@ -27,9 +27,21 @@
 }
 
 .transition(...){
-    -webkit-transition: @arguments;
+  -webkit-transition: @arguments;
   -moz-transition: @arguments;
   -ms-transition: @arguments;
   -o-transition: @arguments;
   transition: @arguments;
 }
+
+
+// [radius: 设置圆角]
+//  {[px]} 四个参数分别为四个圆角的大小参数，默认为6px
+.radius(@topLeft:6px,...){
+  -webkit-border-radius: @arguments;
+  -moz-border-radius: @arguments;
+  -ms-border-radius: @arguments;
+  -o-border-radius: @arguments;
+  border-radius: @arguments;
+}
+

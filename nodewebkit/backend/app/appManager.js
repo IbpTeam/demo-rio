@@ -9,19 +9,6 @@ var fs = require('fs'),
     AppList = {},
     listeners = [];
 
-function readJSONFile(path_, callback_) {
-  var cb_ = callback_ || function() {};
-  fs.readFile(path_, 'utf8', function(err_, data_) {
-    if(err_) return cb_('Fail to load file: ' + err_);
-    try {
-      json = JSON.parse(data_);
-      return cb_(null, json);
-    } catch(e) {
-      return cb_(e);
-    }
-  });
-}
-
 // load registered HTML5 apps from system
 exports.loadAppList = function(callback_) {
   var cb_ = callback_ || function() {};
@@ -30,7 +17,7 @@ exports.loadAppList = function(callback_) {
     utils.series([
       {
         fn: function(pera_, callback_) {
-          readJSONFile(pera_.arg0, function(err_, data_) {
+          utils.readJSONFile(pera_.arg0, function(err_, data_) {
             if(err_) return callback_(null);
             AppList = data_;
             for(var key in AppList) AppList[key].local = true;
@@ -43,7 +30,7 @@ exports.loadAppList = function(callback_) {
       },
       {
         fn: function(pera_, callback_) {
-          readJSONFile(pera_.arg0, function(err_, data_) {
+          utils.readJSONFile(pera_.arg0, function(err_, data_) {
             if(err_) return callback_(err_);
             for(var key in data_) {
               if(typeof AppList[key] === 'undefined') {
@@ -63,18 +50,6 @@ exports.loadAppList = function(callback_) {
     });
   } else {
     console.log("Not a linux system! Not supported now!");
-  }
-}
-
-function writeJSONFile(path_, json_, callback_) {
-  var cb_ = callback_ || function() {};
-  try {
-    fs.writeFile(path_, JSON.stringify(json_, null, 2), function(err_) {
-      if(err_) return cb_(err_);
-      cb_(null);
-    });
-  } catch(e) {
-    return cb_(e);
   }
 }
 
@@ -109,7 +84,7 @@ function save(local_, callback_) {
         }
       }
     }
-    writeJSONFile(p, d, function(err_) {
+    utils.writeJSONFile(p, d, function(err_) {
       if(err_) return cb_(err_);
       cb_(null);
     });
@@ -226,7 +201,7 @@ exports.getRegistedInfo = function(appID_) {
 
 function parsePackageJSON(path_, callback_) {
   var cb_ = callback_ || function() {};
-  readJSONFile(path_, function(err_, data_) {
+  utils.readJSONFile(path_, function(err_, data_) {
     if(err_) return cb_(err_);
     if(typeof data_['main'] === 'undefined'
       || typeof data_['name'] === 'undefined'
@@ -484,7 +459,7 @@ function generateOnlineApp(url_, callback_) {
           url: true
         };
     // generate the package.json of this app
-    writeJSONFile(dst_ + '/package.json', pJson, function(err_) {
+    utils.writeJSONFile(dst_ + '/package.json', pJson, function(err_) {
       if(err_) return cb_(err_);
     });
     // generate the icon of this app

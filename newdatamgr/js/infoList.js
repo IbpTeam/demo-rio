@@ -51,8 +51,8 @@ var InfoList = Class.extend({
       var _options = {
         'left': $(this).offset().left,
         'top' : $(this).offset().top,
-        'width': 100,
-        'height': 20,
+        'width': 22,
+        'height': 22,
         'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
         'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
           if(newtext_){
@@ -68,6 +68,10 @@ var InfoList = Class.extend({
         }
       }
       _this._inputer.show(_options);
+      _this._inputer.$input.animate({
+        width:'100px',
+        opacity:'1'
+      },800);
     });
   },
 
@@ -149,6 +153,9 @@ var InfoList = Class.extend({
     _a.append(_text);
     _a.append(_num);
     this._add.before(_a);
+    _a.click(function(e){
+      search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
+    })
     this.bindDrag(_a[0]);
   },
 
@@ -178,10 +185,13 @@ var InfoList = Class.extend({
     DataAPI.getAllTagsByCategory(function(result){
       _this.removeTags();
       _this._info = result;
+      var _tagTextList = [];
       if(_this._info['tags'].length > 0){
         for(var key = 0; key < _this._info['tags'].length; key ++){
+          _tagTextList.push(_this._info['tags'][key]);
           _this.addTag(_this._info['tags'][key],_this._info['tagFiles'][_this._info['tags'][key]].length);
         }
+        search.bindSuggestion(_tagTextList);
       }
     }, _this.getCategoryName(_this._index));
     DataAPI.getRecentAccessData(function(err_, result_){
@@ -243,13 +253,7 @@ var InfoList = Class.extend({
       }
     }
     if(this._index == 0){
-      if(contact._first === true){
-        contact.attach($('#contentDiv'));
-        contact.setContactsList();
-        contact._ContactContainer.show();
-      }else{
-        contact._ContactContainer.show();
-      }
+      contact._ContactContainer.show();
     }
   },
 

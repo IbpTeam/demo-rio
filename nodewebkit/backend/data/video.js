@@ -52,6 +52,7 @@ function readVideoMetadata(sPath, callback) {
       probeData.metadata = {}
     }
     var extraInfo = {
+      filename: probeData.filename,
       format_long_name: probeData.format.format_long_name || '',
       width: audioInfo.width || '',
       height: audioInfo.height || '',
@@ -71,30 +72,40 @@ function readVideoThumbnail(sPath, callback) {
     if (err) {
       return callback(err, null);
     }
-    readVideoMetadata(sPath, function(err, data) {
+    var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
+    fs_extra.ensureDir(tmpBaseDir, function(err) {
       if (err) {
         return callback(err, null);
       }
-      var duration = data.duration;
-      var time = (String(duration).lastIndexOf('.') - 1);
-      //get the last digit to make sure the frame is in duration
-      var tmpDir = pathModule.join(utils.getHomeDir(), '/tmp/snapshot.png');
-      thumbler.extract(sPath, tmpDir, '00:00:0' + time, '640x360', function() {
+      var date = new Date();
+      var surfix = '_duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_snapshot.png';
+      var name = utils.getFileNameByPath(sPath) + surfix;
+      var tmpDir = pathModule.join(tmpBaseDir, name);
+      thumbler.extract(sPath, tmpDir, '00:00:03', '640x360', function() {
         var option = {
           encoding: 'base64'
         }
         fs.readFile(tmpDir, option, function(err, buffer_base64) {
           if (err) {
-            return callback(err, null);
+            //if thumbnail read err, then read a backup icon in local.
+            var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/video_320_180.png');
+            fs.readFile(backup_icon, option, function(err, buffer_base64) {
+              if (err) {
+                return callback(err, null);
+              }
+              return callback(null, buffer_base64);
+            })
+          } else {
+            //remove tmp thumbnail file after scuccessfully get it.
+            fs_extra.remove(tmpDir, function(err) {
+              if (err) {
+                return callback(err, null);
+              }
+              return callback(null, buffer_base64);
+            })
           }
-          fs_extra.remove(tmpDir, function(err) {
-            if (err) {
-              return callback(err, null);
-            }
-            callback(null, buffer_base64);
-          })
         })
-      });
+      })
     })
   })
 }

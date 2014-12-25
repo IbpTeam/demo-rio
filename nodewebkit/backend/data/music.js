@@ -664,8 +664,19 @@ function getMusicPicData(filePath, callback) {
       if (result.picture != '') {
         var picData = result.picture[0].data;
         return callback(null, (picData).toString('base64'));
+      } else {
+        //if no music thumbnail found, then read a backup icon in local.
+        var option = {
+          encoding: 'base64'
+        }
+        var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
+        fs.readFile(backup_icon, option, function(err, buffer_base64) {
+          if (err) {
+            return callback(err, null);
+          }
+          return callback(null, buffer_base64);
+        })
       }
-      callback(null, null);
     });
     parser.on('done', function(err) {
       if (err) {
