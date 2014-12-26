@@ -100,9 +100,7 @@ function cb_get_ppt_source_file(data_json){
 
 function sendKeyToWindow(windowname, key){
     console.log("sendkey " + key + " To Window " + windowname);
-    // AppAPI.sendKeyToApp(function(){}, windowname, key);
     WDC.requireAPI(['app'],function(app){
-        console.log("app:" + app);
         _app = app;
         _app.sendKeyToApp(function(){}, windowname, key);
     });
