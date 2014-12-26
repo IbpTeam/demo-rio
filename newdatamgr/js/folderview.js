@@ -3,6 +3,7 @@ var ShowFiles = Class.extend({
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     this._index = 0;
+    this._contextMenuDivID = '';
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
@@ -14,7 +15,6 @@ var ShowFiles = Class.extend({
     this._showNormal = [0,0,0,0,0,0];
     this._pictureContentReady = false;
     this._currentCategory = ['contact','picture','video','document','music','other'];
-    this._wantFiles = ['contact','Picture','Video','Document','Music','Other'];
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
     this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
@@ -28,6 +28,7 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
     this.setChoice();
+    this.setDataContextMenu();
     _globalSelf = this 
   },
 
@@ -50,6 +51,48 @@ var ShowFiles = Class.extend({
     contextMenu.attachToMenu('#'+id_,
       contextMenu.getMenuByHeader('document menu'),
       function(){});
+  },
+
+  setDataContextMenu:function(){
+    contextMenu.addCtxMenu([
+      {header: 'data menu'},
+      {text:'Open',action:function(){
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        _globalSelf.openFileByUri(modifyURI);
+      }},
+      {text:'Rename',action:function(){
+        _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
+      }},
+      {text:'Delete',action:function(){
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+      }},
+      {text:'Tag', subMenu:[
+        {header: 'tag'},
+        {text: 'Add',action:function(){
+
+        }},
+        {text: 'Remove', action:function(){
+
+        }}
+      ]},
+      {text: 'Detail',action:function(){
+
+      }}
+    ]);
+  },
+
+  attachDataMenu:function(id_){
+    contextMenu.attachToMenu('#'+id_,
+      contextMenu.getMenuByHeader('data menu'),
+      function(ID_){
+        _globalSelf._contextMenuDivID = ID_;
+      }
+    );
   },
 
   //此函数用来设置选择界面看按照哪种方式显示
@@ -106,7 +149,7 @@ var ShowFiles = Class.extend({
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
     if(!this._getFiles[this._index]){
-      DataAPI.getAllDataByCate(this.getCallBackData,this._wantFiles[this._index]);
+      DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
     }
     else{
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
@@ -115,7 +158,7 @@ var ShowFiles = Class.extend({
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
             if(this._index ==1){
               $('#outWaterFall').show();
-            }     
+            }
             $('#'+this._contentIds[this._index]).show();
           }
           else{
@@ -253,8 +296,8 @@ var ShowFiles = Class.extend({
   findURIByDiv:function(div){
     var divId = div.attr('id');
     var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
-    var URI = divId.substr(divId.indexOf('rio'),URILength);
-    return URI;
+    var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+    return modifyURI;
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
@@ -419,7 +462,7 @@ var ShowFiles = Class.extend({
           genDiv.append(F5Button);
           genDiv.append('<br>');
           genDiv.append(UpButton);
-          genDiv.append('<br>');
+          // genDiv.append('<br>');
           genDiv.append(DownButton);
           genDiv.append('<br>');
           genDiv.append(StopButton);
@@ -482,6 +525,7 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
+
           //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
           if(!$(this).attr('tabindex')){
             $(this).blur(function() {
@@ -501,6 +545,7 @@ var ShowFiles = Class.extend({
           }
           break;
         case 3:
+          $(this).addClass('selected').siblings().removeClass('selected');
           break;  
       }
     });
@@ -611,6 +656,11 @@ var ShowFiles = Class.extend({
           }
           $("#"+modifyURI_+'div').remove();
           $("#"+modifyURI_+'tr').remove();
+          if(_globalSelf._index ==1){
+            $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
+              numOfCol:5
+            }); 
+          }
         }
         else{
           window.alert('Delete file failed');
@@ -626,10 +676,27 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来算时间差，然后按照时间排序
-  dateDifference:function(lastModifyTime){
-    var date = new Date(lastModifyTime);
+  dateDifference:function(file){
+    var lastModifyTime = new Date(file['lastModifyTime']);
+    var lastAccessTime = new Date(file['lastAccessTime']);
+    var createTime = new Date(file['createTime']);
     var today = new Date();
-    var dateDifference = (today- date)/(60*60*1000);
+    if(lastModifyTime > lastAccessTime){
+      if(lastModifyTime > createTime){
+        var dateDifference = (today- lastModifyTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
+    else{
+      if(lastAccessTime > createTime){
+        var dateDifference = (today- lastAccessTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
     return dateDifference;
   },
 
@@ -682,6 +749,7 @@ var ShowFiles = Class.extend({
             break;
         }
       }
+      _globalSelf.attachDataMenu(bodytr[0].id);
       return bodytr;
     }
     
@@ -779,7 +847,7 @@ var ShowFiles = Class.extend({
       }
       var fileURI = _globalSelf.findURIByDiv(div);
       var file = _globalSelf.findFileByURI(fileURI);
-      var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
+      var timeDifference = _globalSelf.dateDifference(file);
       if(timeDifference >=0 && timeDifference <=24){
         today.append(div);
       }
@@ -826,6 +894,7 @@ var ShowFiles = Class.extend({
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'pictureContainerWaterFall',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'pictureHolderWaterFall'
@@ -835,7 +904,7 @@ var ShowFiles = Class.extend({
             'class':'picturedescriptionWaterFall',
             'text':file['filename']
           });
-          Holder.append($('<img src="' + file['path'] + '"></img>'));
+          Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);
@@ -849,11 +918,22 @@ var ShowFiles = Class.extend({
               });
             }
           };
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(110,204,188)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 2:
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'videoContainer',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'videoHolder'
@@ -864,21 +944,34 @@ var ShowFiles = Class.extend({
             'text':file['filename']
           });
           var img = $('<img>',{
-            'id':file['URI']
+            'id':file['URI'],
+            'draggable':false
           });
           _globalSelf.getVideoPicData(file);
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
-          returnContent.append(Container);       
+          returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(204,51,51)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 3:
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'doc-icon',
+            'draggable': true
           });
           var img = $('<img>',{
-            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png'
+            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+            'draggable':false
           });
           Container.append(img);
           var p = $('<p>',{
@@ -886,15 +979,27 @@ var ShowFiles = Class.extend({
           });
           Container.append(p);
           returnContent.append(Container);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(120,78,100)',
+            max:2
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
           _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'musicContainer',
+            'draggable': true
           });
           var Holder = $('<div>',{
-            'class':'musicHolder'
+            'class':'musicHolder',
+            'draggable':false
           });
           //用来定义最后描述的名字.
           var description = $('<p>',{
@@ -902,20 +1007,33 @@ var ShowFiles = Class.extend({
             'text':file['filename']
           });
           var musicImg = $('<img>',{
-             'id':file['URI']
+             'id':file['URI'],
+             'draggable':false
           });
           Holder.append(musicImg);
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(51,153,102)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
           var Container = $('<div>',{
             'id':file['URI'].replace('#','').replace('#','')+'div',
             'class':'doc-icon',
+            'draggable': true
           });
           var img = $('<img>',{
-            'src':'icons/Other.png'
+            'src':'icons/Other.png',
+            'draggable':false
           });
           Container.append(img);
           var p = $('<p>',{
@@ -923,6 +1041,16 @@ var ShowFiles = Class.extend({
           });
           Container.append(p);
           returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(200,200,200)',
+            max:1
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         default:
       }
@@ -983,6 +1111,15 @@ var ShowFiles = Class.extend({
         return 'gz';
       default:
         return 'Other';
+    }
+  },
+
+  bindDrag:function(file_){
+    file_.ondragstart = function(ev){
+      $(ev.currentTarget).fadeTo(0,0.4);
+      $(ev.currentTarget).fadeTo(20,1);
+      ev.dataTransfer.setData('uri',_globalSelf.findURIByDiv($(ev.currentTarget)));
+      ev.dataTransfer.setData('category',_globalSelf._currentCategory[_globalSelf._index]);
     }
   }
 })
