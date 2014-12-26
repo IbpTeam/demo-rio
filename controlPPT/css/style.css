@@ -257,26 +257,3 @@ padding: 3px 15px;*/
   font-size:20px; 
   top:20%;
 }
-/*
-.show-grid {
-    border: 1px red solid;
-}
-.show-grid div,ul{
-    border: 1px red solid;
-}
-*/
-/*
-* {
-  -webkit-box-sizing: content-box;
-     -moz-box-sizing: content-box;
-          box-sizing: content-box;
-}
-*:before,
-*:after {
-  -webkit-box-sizing: content-box;
-     -moz-box-sizing: content-box;
-          box-sizing: content-box;
-}
-*/
-/*border-box*/
-

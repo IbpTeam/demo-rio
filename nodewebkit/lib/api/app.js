@@ -134,8 +134,6 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
   //  pstree -pn 25372 |grep -o "([[:digit:]]*)" |grep -o "[[:digit:]]*" | while read pid ; do xdotool search --pid $pid --onlyvisible ; done 2>/dev/null
   // xdotool send key command： xdotool windowactivate --sync 46137380 & xdotool key --clearmodifiers --window 46137380 Ctrl+w
   var exec = require('child_process').exec;
-  console.log();
-  console.log(" from command:" + "xdotool search --name \"" + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort");
   var getpid=exec("xdotool search --name \"" + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort", function (error, stdout, stderr) {
     if (error !== null) {
       console.log('stderr: ' + stderr);
