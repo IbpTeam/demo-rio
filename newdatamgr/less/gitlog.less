@@ -39,13 +39,14 @@
       position: relative;
       color: #93c2cc;
       border:1px solid rgba(0,1,1,0);
+
       &#gitcontent-list1{
         background-color: rgba(147, 194, 204, 0.05);  
         &:after{
           content: "";
           position: absolute;
           width: 1px;
-          height: 130px;
+          height: 140px;
           background-color: #93c2cc;
           left: 170px;
           top: 0px;
@@ -54,16 +55,22 @@
           height: 80%;
           top: 28px;
         }
+        &:last-child:after{
+          height: 20px;
+        }
       }
       &#gitcontent-list2{
         &:after{
           content: "";
           position: absolute;
           width: 1px;
-          height: 130px;
+          height: 140px;
           background-color: #93c2cc;
           left: 170px;
           top: 0px;
+        }
+        &:last-child:after{
+          height: 20px;
         }
       }
       #date-info{
@@ -116,8 +123,8 @@
         position: absolute;
         background: transparent;
         border: 0px;
-        left:410px;
-        top:55px;
+        left:440px;
+        top:53px;
         line-height: 35px;
       }
       #recover-button{
@@ -130,9 +137,11 @@
         color: #6b9091;
         .radius(30px);
         font-size: 12px;
+        line-height: 20px;
         .transition(background-color,0.4s);
         &:hover{
           background-color: #34454c;
+          cursor: pointer;
         }
         &:active{
           background-color: #2a383d;

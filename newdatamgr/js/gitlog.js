@@ -129,7 +129,7 @@ var GitLog = Class.extend({
         _li.append(_photo);
         var _op = $('<span>',{
            'id':'_op',
-           'text':_this._gitresults[_commitID]['content']['op']
+           'text':(_this._gitresults[_commitID]['content']['op'] === 'ch')?'change':_this._gitresults[_commitID]['content']['op']
          });   
          _li.append(_op);
         var _device = $('<span>',{
