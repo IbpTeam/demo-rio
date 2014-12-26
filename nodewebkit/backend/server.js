@@ -47,7 +47,10 @@ function start(route, handle) {
   var WebSocketServer = require('ws').Server;
   var wsServer = new WebSocketServer({server: server, path: config.WEBSOCKETPATH});
   wsServer.on('connection', function(client) {
-    client.send('This is a message from the server! ' + new Date().getTime());
+    client.send(JSON.stringify({
+      msg: 'This is a message from the server! ' + new Date().getTime(),
+      sessionID: client._socket._handle.fd
+    }));
     client.on('message', function(message){
         console.log('received: %s', message);
         route(handle, config.WEBSOCKETPATH, client, message);

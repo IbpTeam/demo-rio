@@ -54,10 +54,16 @@
       bottom: 0px;
       left: 0px;
       width: 100%;
-      padding-top: 15px;
+      //padding-top: 15px;
+      margin-top: 15px;
       //border: 1px solid rgba(0,0,0,0);
       //margin-left: 8px;
+      overflow-x: hidden;
       .scroll();
+      #outWaterFall{
+        margin-left: 13px;
+        position: relative;
+      }
       .pictureContainerWaterFall {
         width: 100%;
         min-height:100px; 
@@ -94,24 +100,33 @@
           text-overflow:ellipsis;
         }
       }
-      .selected {
-        background-color: #717677;
-      }
+
+
       .sortByTime {
         border: 1px solid #ff0;
         width: 100%;
         display: inline-block;
+        position: relative;
+        span {
+          position: absolute;
+          top: 2px;
+          left: 2px
+        }
       }
       .musicContainer {
-        width:188px;
-        height:188px; 
+        height:165px; 
         padding:auto; 
-        margin:30px; 
         font-size:12px; 
         float:left;
         position: relative;
         vertical-align:center;
         cursor: pointer; 
+        padding-bottom: 60px;
+        position: relative;
+        color: #706f6f;
+        //width: 21%;
+        //margin: 10px 2% 10px 1.5%;
+        //padding-bottom: 18%;
         &:hover {
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
@@ -119,15 +134,37 @@
           filter: brightness(1.2);
         }
         .musicHolder img{
-          max-width:98%;
-          max-height:98%;
+          width:125px;
+          height:125px;
           background:#ccc;
           display:block;
+          position: relative;
+          z-index: 3;
+        }
+        &:after {
+          content: "";
+          width: 110px;
+          height: 110px;
+          border-radius: 50%;
+          background-color: rgba(45, 60, 67, 0.1);
+          position: absolute;
+          right: 4px;
+          top:7px;
+        }
+        &:before {
+          content: "";
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          background-color: #edefef;
+          position: absolute;
+          right: 42px;
+          top:42px;
+          z-index: 2;
         }
         .musicdescription {
-          text-align:center;
+          //text-align: center;
           font-weight:normal;
-          width:150px;
           font-size:12px;
           margin:10px 5px 10px 5px;
         }
@@ -153,7 +190,7 @@
             overflow: hidden;
             position: relative;
             border-radius: 3px;
-            padding-bottom: 60%;
+            padding-bottom: 55%;
           }
           .videoHolder img{
             width:100%;
@@ -174,12 +211,11 @@
         position: relative;
         width:188px;
         height:188px; 
-        padding:auto; 
         margin:30px; 
         font-size:12px; 
         float:left;
-        vertical-align:center;
         cursor: pointer; 
+        padding-bottom: 30px;
         &:hover {
           z-index: 1;
           -webkit-filter: brightness(1.2);
@@ -188,17 +224,19 @@
           filter: brightness(1.2);
         }
         .pictureHolder img{
-          max-width:100%;
-          max-height:100%;
-          background:#ccc;
-          display:block;
+          max-width: 100%;
+          max-height: 100%;
+          background: #ccc;
+          display: block;
+          margin: 0 auto;
         }
         .picturedescription {
-          text-align:center;
-          font-weight:normal;
-          width:150px;
-          font-size:12px;
-          margin:10px 5px 10px 5px;
+          text-align: center;
+          font-weight: normal;
+          width: 150px;
+          font-size: 12px;
+          margin: 0 auto;
+          margin-top: 10px;
         }
       }
       .tableContainer{
@@ -290,15 +328,15 @@
           tr{
             cursor: default;
             &:focus{
-              background-color: rgba(45, 60, 67, 1);
+              //background-color: rgba(45, 60, 67, 1);
               color: white;
               border: none;
               outline: none;
             }
             &:nth-child(odd){
-            background-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.5);
               &:focus{
-                background-color: rgba(45, 60, 67, 1);
+                background-color: #d8d8d8;
               }
             }
           }
@@ -310,9 +348,6 @@
               width: 40%;
               min-width: 250px;
               color:rgba(45, 60, 67, 1)
-              &:focus{
-                color: white;
-              }
             }
             &:nth-child(2){
               width: 25%;
@@ -335,6 +370,11 @@
                 color: white;
               }
             }
+          }
+
+          .selected {
+            background-color: #d8d8d8;
+            color:white;
           }
         }
       }

@@ -18,7 +18,7 @@
 
   var test_uri = "32a365a5ee8e6e27eeb342ae1837b665#7fd0182cc6ae55d049f4#document";
   var test_uri1 = "rio25216rio#b509dd897da10d9161eb#contact";
-  var test_uri2 = "rio20119rio#fc06764f9db7ead25131#contact";
+  var test_uri2 = "rio18926rio#4fd885e2fe4ce3974275#document";
   var test_uri3 = "32a365a5ee8e6e27eeb342ae1837b665#104250bc84de4cbab0c7#picture";
 
   function print(win,something){
@@ -89,7 +89,7 @@
   }
   function test_setTagByUri(setTagByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ['my','good','tag'];
+      var oTags = ['asdawfwf'];
       var oUri = test_uri2;
       data.setTagByUri(setTagByUriCb,oTags,oUri);
     });    
@@ -145,7 +145,7 @@
   }
   function test_getCategoryFilesByTag(getCategoryFilesByTagCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = 'test111';
+      var oTags = 'documents';
       data.getCategoryFilesByTag(getCategoryFilesByTagCb,'picture',oTags);
     });  
   }
@@ -213,7 +213,7 @@
 </div>
 </div>
 
-<h2 onclick="show('setTagByUri')">setTagByUri(setTagByUriCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUri" id="test_getAllTagsByCategory" onclick="test_setTagByUri(setTagByUriCb)">test</a></span></h2>
+<h2 onclick="show('setTagByUri')">setTagByUri(setTagByUriCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUri" id="test_setTagByUri" onclick="test_setTagByUri(setTagByUriCb)">test</a></span></h2>
 <div id="setTagByUri" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -245,7 +245,7 @@
 </div>
 </div>
 
-<h2 onclick="show('setTagByUriMulti')">setTagByUriMulti(setTagByUriMultiCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUriMulti" id="test_getAllTagsByCategory" onclick="test_setTagByUriMulti(setTagByUriMultiCb)">test</a></span></h2>
+<h2 onclick="show('setTagByUriMulti')">setTagByUriMulti(setTagByUriMultiCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUriMulti" id="test_setTagByUriMulti" onclick="test_setTagByUriMulti(setTagByUriMultiCb)">test</a></span></h2>
 <div id="setTagByUriMulti" style="display:none;">
 <div style="color:#930000">
   <pre>
