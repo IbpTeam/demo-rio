@@ -117,18 +117,19 @@ var main = function(params_){
           }
         },[_tag],_uri);
       }else if(_uri && !_tag){  //drag file to remove
-        DataAPI.rmDataByUri(function(err_){
-          if(err_ !== null){
-            console.log('Delect file failed:' + err_);
-            return 0;
-          }
-          switch(_category){
-            case 'mainDoc':
-              if(!homePage._doc.removeFile(_uri)){
-                alert('remove doc div error');
-              }
-          }
-        },_uri);
+        if (_category === 'mainDoc') {
+          DataAPI.rmDataByUri(function(err_){
+            if(err_ !== null){
+              console.log('Delect file failed:' + err_);
+              return 0;
+            }
+            if(!homePage._doc.removeFile(_uri)){
+              alert('remove doc div error');
+            }
+          },_uri);
+        }else{
+
+        }
       }
     }
     //analyse and performance params

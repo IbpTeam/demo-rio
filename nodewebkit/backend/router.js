@@ -168,12 +168,24 @@ function handleWSMsg(client, msg) {
       for(i = 0; i < eventList[jMsg.Event].length; ++i) {
         if(eventList[jMsg.Event][i] == client) break;
       }
-      if(i == eventList[jMsg.Event].length) eventList[jMsg.Event].push(client);
-      client.send(JSON.stringify({
-        'Status': 'ok',
-        'Data': 'register success',
-        'Event': jMsg.Event
-      }));
+      if(i == eventList[jMsg.Event].length) {
+        eventList[jMsg.Event].push(client);
+        client.send(JSON.stringify({
+          'Status': 'OK',
+          'Data': {
+            'msg': 'register success'
+          },
+          'Event': jMsg.Event
+        }));
+      } else {
+        client.send(JSON.stringify({
+          'Status': 'ERROR',
+          'Data': {
+            'msg': 'registered already'
+          },
+          'Event': jMsg.Event
+        }));
+      }
       break;
     case 'off':
       // remove a client object from a event presented by jMsg.Event
@@ -185,6 +197,7 @@ function handleWSMsg(client, msg) {
       // send a notify message to client objects registed to jMsg.Event
       if(typeof eventList[jMsg.Event] !== 'undefined') {
         for(var i = 0; i < eventList[jMsg.Event].length; ++i) {
+          if(jMsg.SessionID == eventList[jMsg.Event][i]._socket._handle.fd) continue;
           eventList[jMsg.Event][i].send(msg);
         }
       }
@@ -226,8 +239,9 @@ exports.removeWSListeners = removeWSListeners;
  *  'Action': 'notify',
  *  'Event': a string to describe the event type,
  *  'Data': a json object,
- *  'Status': ('ok'|'error')
- * }.
+ *  'Status': ('ok'|'error'),
+ *  'SessionID': the ID of session who want to notify others and will not be notified
+ * }
  */
 function wsNotify(msg) {
   if(typeof msg.Action === 'undefined' || msg.Action != 'notify')
@@ -299,7 +313,8 @@ function route(handle, pathname, response, postData) {
       // }
     /* } */
 
-    var runapp = appManager.getRegistedInfo(sAppID);
+    var runapp = appManager.getRegistedInfo(sAppID),
+        rootPath = (runapp.local ? '' : config.APPBASEPATH);
     if(runapp === null) {
       console.log("Error no app " + sAppID);
       response.writeHead(404, {
@@ -311,15 +326,15 @@ function route(handle, pathname, response, postData) {
     }
 
     if(sFilename === "index.html") {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
+      getRealFile(path.join(rootPath, runapp.path, sFilename), response);
     } else if(sFilename === "lib/api.js") {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path, "lib/api_remote.js"), response);
+      getRealFile(path.join(rootPath, runapp.path, "lib/api_remote.js"), response);
     } else if(sFilename.lastIndexOf("lib/api/", 0) === 0 
         && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
       var modulename = sFilename.substring(8, sFilename.length - 3);
       getRemoteAPIFile(handle, modulename, response);
     } else {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
+      getRealFile(path.join(rootPath, runapp.path, sFilename), response);
     }
     return;
   } else {

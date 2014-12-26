@@ -70,7 +70,7 @@ var MainPicView = Class.extend({
     };
     this._tagView.setParent(_picContent,pic_.uri);
     this._tagView.addTags(pic_.tags);
-
+    this._tagView.bindDrop(_picContent[0]);
   },
 
   removePicture:function(index_){
