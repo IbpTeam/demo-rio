@@ -82,7 +82,17 @@ var ShowFiles = Class.extend({
         }}
       ]},
       {text: 'Detail',action:function(){
-
+        var _modifyUri = '';
+        var _id = _globalSelf._contextMenuDivID;
+        if(_id.substr(_id.length-3,3) === 'div'){
+          _modifyUri = _id.substr(0,_id.length-3);
+        }else if(_id.substring(_id.length-2,2) === 'tr'){
+          _modifyUri = _id.substr(0,_id.length - 2);
+        }
+        var _file = _globalSelf.findFileByURI(_modifyUri);
+        _globalSelf._propertyView.loadData(_file);
+        var _img = $('#'+_id).find('img');
+        _globalSelf._propertyView.setImg(_img[0].src);
       }}
     ]);
   },

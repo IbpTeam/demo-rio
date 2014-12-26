@@ -1,6 +1,6 @@
 var PropertyView = Class.extend({
   init:function(){
-    var _windowOption = {
+    this._windowOption = {
       'close':true,
       'max':false,
       'min':false,
@@ -23,7 +23,7 @@ var PropertyView = Class.extend({
     this._json = {};
   },
   loadData:function(json_){
-    this._window = Window.create('property-window','property',_windowOption);
+    this._window = Window.create('property-window','property',this._windowOption);
     var _window_div = $('<div>',{
       'class':'window-div',
     });
@@ -67,13 +67,16 @@ var PropertyView = Class.extend({
     var _window_img = $('<div>',{
       'class':'window-img',
     });
-    var _content_img = $('<img>',{
+    this._content_img = $('<img>',{
       'class':'content-img',
     })
-    _window_img.append(_content_img);
+    _window_img.append(this._content_img);
     _window_div.append(_content_div);
     _window_div.append(_window_img);
     this._window.append(_window_div);
+  },
+  setImg:function(src_){
+    this._content_img[0].src = src_;
   },
   show:function(){
     this._window.show();
