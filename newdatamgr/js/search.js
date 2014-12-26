@@ -14,9 +14,6 @@ var Search = Class.extend({
     this._qrcodeContainer.hide();
 
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
-    this.bindRemove(function(){
-      alert('sdfjaskdl');
-    });
     this.bindEvent();
   },
 
@@ -84,7 +81,6 @@ var Search = Class.extend({
       if (callback_) {
         callback_(e,value_);
       };
-      alert(value_);
     });
   },
   /**
