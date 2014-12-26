@@ -65,17 +65,13 @@
         position: relative;
       }
       .pictureContainerWaterFall {
-        //width:188px; 
         width: 100%;
         min-height:100px; 
-        //padding: 15px; 
-        //margin:8px; 
         font-size:12px; 
         float:left; 
         cursor: pointer; 
         background-color:white;
         border-radius: 3px;
-        overflow: hidden;
         box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2); 
         -moz-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2); 
         -webkit-box-shadow: 0 1px 3px rgba(34, 25, 25, 0.2);
@@ -84,6 +80,7 @@
         -o-transition: top 1s ease, left 1s ease;
         -ms-transition: top 1s ease, left 1s ease; 
         &:hover {
+          z-index: 1;
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
           -ms-filter: brightness(1.2);
@@ -91,7 +88,6 @@
         }
         .pictureHolderWaterFall img{
           width:100%;
-          //min-height: 100%; 
           background:#ccc; 
           display:block; 
         }
@@ -122,6 +118,7 @@
         padding:auto; 
         font-size:12px; 
         float:left;
+        position: relative;
         vertical-align:center;
         cursor: pointer; 
         padding-bottom: 60px;
@@ -176,6 +173,7 @@
         .scroll();
         padding-bottom: 100px;
         .videoContainer {
+          position: relative;
           height: 0;
           font-size:12px; 
           float:left;
@@ -210,6 +208,7 @@
         }
       }
       .pictureContainer {
+        position: relative;
         width:188px;
         height:188px; 
         margin:30px; 
@@ -218,6 +217,7 @@
         cursor: pointer; 
         padding-bottom: 30px;
         &:hover {
+          z-index: 1;
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
           -ms-filter: brightness(1.2);

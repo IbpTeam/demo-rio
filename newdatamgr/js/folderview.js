@@ -909,6 +909,14 @@ var ShowFiles = Class.extend({
             }
           };
           _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(110,204,188)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 2:
@@ -935,6 +943,14 @@ var ShowFiles = Class.extend({
           Container.append(description);
           returnContent.append(Container);
           _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(204,51,51)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 3:
@@ -953,6 +969,14 @@ var ShowFiles = Class.extend({
           });
           Container.append(p);
           returnContent.append(Container);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(120,78,100)',
+            max:2
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
           _globalSelf.bindDrag(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -981,6 +1005,14 @@ var ShowFiles = Class.extend({
           Container.append(description);
           returnContent.append(Container);
           _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(51,153,102)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
@@ -1000,6 +1032,14 @@ var ShowFiles = Class.extend({
           Container.append(p);
           returnContent.append(Container);
           _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(200,200,200)',
+            max:1
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         default:
