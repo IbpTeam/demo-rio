@@ -36,6 +36,7 @@ var MainPicView = Class.extend({
   setPicture:function(pic_){
     if (pic_) {
       var _picContent = $('<div>',{
+        'id': pic_.uri.replace(/#/g,'-')+'div',
         'class':'pic-content'
       });
       this._picContainer.append(_picContent);
