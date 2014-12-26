@@ -4,6 +4,7 @@ var ShowFiles = Class.extend({
   init:function(){
     this._index = 0;
     this._contextMenuDivID = '';
+    this._propertyView = PropertyView.create();
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
@@ -72,7 +73,7 @@ var ShowFiles = Class.extend({
 
         }},
         {text: 'Remove', action:function(){
-
+          
         }}
       ]},
       {text: 'Detail',action:function(){
