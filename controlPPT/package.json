@@ -3,6 +3,13 @@
   "main": "index.html",
   "description": "APP for controlling PPT",
   "version": "0.0.1",
+  "window": {
+    "icon": "icons/powerpointicon.png",
+    "toolbar": true,
+    "frame": false,
+    "width": 660,
+    "height": 500
+  },
   "dependencies": {
     "demo-rio": "~0.0.1"
    }
