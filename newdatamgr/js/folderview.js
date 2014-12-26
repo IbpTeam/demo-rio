@@ -301,7 +301,7 @@ var ShowFiles = Class.extend({
     var file = false;
     if(all.length){
       for(var i =0;i<all.length;i++){
-        if(all[i]['URI'] && all[i]['URI'].replace('#','').replace('#','') == URI){
+        if(all[i]['URI'] && _globalSelf.uriToModifyUri(all[i]['URI']) == URI){
           file = all[i];
           break;
         }
@@ -698,7 +698,7 @@ var ShowFiles = Class.extend({
     //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
     function GenerateBodyTr(file,theadMessage){
       var bodytr = $('<tr>',{
-        'id':file['URI'].replace('#','').replace('#','')+'tr',
+        'id':_globalSelf.uriToModifyUri(file['URI'])+'tr',
         'class':'bodytr'
       });
       for(var i =0;i<theadMessage.length;i++){
@@ -882,7 +882,7 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'id':file['URI'].replace('#','').replace('#','')+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'pictureContainerWaterFall',
             'draggable': true
           });
@@ -921,7 +921,7 @@ var ShowFiles = Class.extend({
           break;
         case 2:
           var Container = $('<div>',{
-            'id':file['URI'].replace('#','').replace('#','')+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'videoContainer',
             'draggable': true
           });
@@ -955,7 +955,7 @@ var ShowFiles = Class.extend({
           break;
         case 3:
           var Container = $('<div>',{
-            'id':file['URI'].replace('#','').replace('#','')+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'doc-icon',
             'draggable': true
           });
@@ -983,7 +983,7 @@ var ShowFiles = Class.extend({
         case 4:
           _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
-            'id':file['URI'].replace('#','').replace('#','')+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'musicContainer',
             'draggable': true
           });
@@ -1017,7 +1017,7 @@ var ShowFiles = Class.extend({
           break;
         case 5:
           var Container = $('<div>',{
-            'id':file['URI'].replace('#','').replace('#','')+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'doc-icon',
             'draggable': true
           });
@@ -1104,11 +1104,21 @@ var ShowFiles = Class.extend({
     }
   },
 
+  uriToModifyUri:function(uri_){
+    return uri_.replace(/#/g,'-');
+  },
+
+  modifyUriToUri:function(modifyURI_){
+    return modifyURI_.replace(/-/g,'#');
+  },
+
   bindDrag:function(file_){
+    var _this = this;
     file_.ondragstart = function(ev){
       $(ev.currentTarget).fadeTo(0,0.4);
       $(ev.currentTarget).fadeTo(20,1);
-      ev.dataTransfer.setData('uri',_globalSelf.findURIByDiv($(ev.currentTarget)));
+      var _uri = _this.modifyUriToUri(ev.currentTarget.id);
+      ev.dataTransfer.setData('uri',_uri.substring(0,_uri.length -3));
       ev.dataTransfer.setData('category',_globalSelf._currentCategory[_globalSelf._index]);
     }
   }
