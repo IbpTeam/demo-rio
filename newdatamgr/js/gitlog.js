@@ -43,25 +43,25 @@ var GitLog = Class.extend({
     var _text = '';
     switch(true){
       case _days === 0:
-        _text = 'today';
+        _text = 'Today';
         break;
       case _days ===1:
-        _text = 'yesterday';
+        _text = 'Yesterday';
         break;
       case _days <= 7 :
-        _text = 'previous' + _days + 'days';
+        _text = 'Previous ' + _days + ' Days';
         break;
       case ((_days > 7)&&(_days <= 30)) :
-         _text = 'within 1 month';
+         _text = 'Within 1 month';
         break;
       case ((_days > 30)&&(_days <= 90)) :
-        _text = 'within 3 months';
+        _text = 'Within 3 months';
         break;
       case ((_days > 90)&&(_days <= 180)) :
-        _text = 'within half a year';
+        _text = 'Within half a year';
         break;
       case ((_days > 180)&&(_days <= 365)) :
-        _text = 'within 1 year';
+        _text = 'Within 1 year';
         break;
       default:
          _text = 'Earlier';
@@ -123,10 +123,10 @@ var GitLog = Class.extend({
           _li.append(_date_dis);
           _oldText = _text;
         }
-        var _avatar = $('<a>',{
-          'id': 'avatar'
+        var _photo = $('<a>',{
+          'id': 'photo'
         });
-        _li.append(_avatar);
+        _li.append(_photo);
         var _op = $('<span>',{
            'id':'_op',
            'text':_this._gitresults[_commitID]['content']['op']
