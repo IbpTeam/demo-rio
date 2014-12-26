@@ -465,21 +465,46 @@ exports.sendFileTransferStart = sendFileTransferStart;
           msg: "I want to get the file"
         };
  */
-function transferFileProcess(transferFileCb, msgObj) {
-  fileTransferClient.transferFileProcess(msgObj,function(err, rst) { //传输文件    
+function transferFileProcess(transferFileCb, msgObj, sendMsg,isLocal) {
+  fileTransferClient.transferFileProcess(msgObj, function(err, rst) { //传输文件    
     if (err) { //传输文件失败------------界面显示      
       msgObj['state'] = 0;
-      msgObj['option']=0x0002;
-      msgObj['ratio']=0;
+      msgObj['option'] = 0x0002;
+      msgObj['ratio'] = 0;
       msgObj['msg'] = 'transfering error:' + rst;
-    }else{
-      msgObj=rst;
+    } else {
+      msgObj = rst;
     }
-    transferFileCb(err,msgObj);
+    console.log('transferFileProcess============' + JSON.stringify(sendMsg));
+    transferFileCb(err, msgObj);
+    if (msgObj.initFile === undefined && !isLocal) {
+      console.log('isLocal============' + msgObj.initFile+'   '+isLocal);
+      var sendM = {};
+      var CalBakMsg = {};
+      sendM['from'] = config.ACCOUNT;
+      sendM['uuid'] = config.uniqueID;
+      sendM['to'] = sendMsg.Account;
+      sendM['message'] = JSON.stringify({
+        'group': sendMsg.group,
+        'msg': msgObj
+      });
+      CalBakMsg['MsgObj'] = sendM;
+      CalBakMsg['IP'] = sendMsg.IP;
+      sendM['destInfo'] = {
+        'Account': sendMsg.Account,
+        'UID': sendMsg.UID,
+        'IP': sendMsg.IP
+      };
+      console.log(JSON.stringify(CalBakMsg));
+      router.wsNotify({
+        'Action': 'notify',
+        'Event': 'imChat',
+        'Data': CalBakMsg
+      });
+    }
   });
 }
 exports.transferFileProcess = transferFileProcess;
-
 /**
  * @method transferCancelSender
  *  发送端中止文件传输
