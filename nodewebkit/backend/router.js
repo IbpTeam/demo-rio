@@ -313,7 +313,8 @@ function route(handle, pathname, response, postData) {
       // }
     /* } */
 
-    var runapp = appManager.getRegistedInfo(sAppID);
+    var runapp = appManager.getRegistedInfo(sAppID),
+        rootPath = (runapp.local ? '' : config.APPBASEPATH);
     if(runapp === null) {
       console.log("Error no app " + sAppID);
       response.writeHead(404, {
@@ -325,15 +326,15 @@ function route(handle, pathname, response, postData) {
     }
 
     if(sFilename === "index.html") {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
+      getRealFile(path.join(rootPath, runapp.path, sFilename), response);
     } else if(sFilename === "lib/api.js") {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path, "lib/api_remote.js"), response);
+      getRealFile(path.join(rootPath, runapp.path, "lib/api_remote.js"), response);
     } else if(sFilename.lastIndexOf("lib/api/", 0) === 0 
         && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
       var modulename = sFilename.substring(8, sFilename.length - 3);
       getRemoteAPIFile(handle, modulename, response);
     } else {
-      getRealFile(path.join(config.APPBASEPATH, runapp.path, sFilename), response);
+      getRealFile(path.join(rootPath, runapp.path, sFilename), response);
     }
     return;
   } else {
