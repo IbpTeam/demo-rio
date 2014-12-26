@@ -123,10 +123,10 @@ var GitLog = Class.extend({
           _li.append(_date_dis);
           _oldText = _text;
         }
-        var _avatar = $('<a>',{
-          'id': 'avatar'
+        var _photo = $('<a>',{
+          'id': 'photo'
         });
-        _li.append(_avatar);
+        _li.append(_photo);
         var _op = $('<span>',{
            'id':'_op',
            'text':_this._gitresults[_commitID]['content']['op']
