@@ -2,7 +2,7 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = ['Contacts','Images','Videos','Documents','Musics','Others'];
+    this._title = ['Contacts','Images','Videos','Documents','Music','Others'];
     this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(224,214,229,1)'];
 
     this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays','Recent Visit'];
@@ -300,7 +300,6 @@ var InfoList = Class.extend({
   loadData:function(){
     if(this._index >0 && this._index <6){
       if(this._isFirstRequset){
-        showfiles = ShowFiles.create();
         showfiles.setIndex(this._index);
         this._isFirstRequset = false;
       }
