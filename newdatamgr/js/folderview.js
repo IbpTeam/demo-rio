@@ -15,7 +15,6 @@ var ShowFiles = Class.extend({
     this._showNormal = [0,0,0,0,0,0];
     this._pictureContentReady = false;
     this._currentCategory = ['contact','picture','video','document','music','other'];
-    this._wantFiles = ['contact','Picture','Video','Document','Music','Other'];
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
     this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
@@ -58,13 +57,19 @@ var ShowFiles = Class.extend({
     contextMenu.addCtxMenu([
       {header: 'data menu'},
       {text:'Open',action:function(){
-        console.log(_globalSelf._contextMenuDivID);
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        _globalSelf.openFileByUri(modifyURI);
       }},
       {text:'Rename',action:function(){
-
+        _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
       }},
       {text:'Delete',action:function(){
-
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
       }},
       {text:'Tag', subMenu:[
         {header: 'tag'},
@@ -144,7 +149,7 @@ var ShowFiles = Class.extend({
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
     if(!this._getFiles[this._index]){
-      DataAPI.getAllDataByCate(this.getCallBackData,this._wantFiles[this._index]);
+      DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
     }
     else{
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
@@ -291,8 +296,8 @@ var ShowFiles = Class.extend({
   findURIByDiv:function(div){
     var divId = div.attr('id');
     var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
-    var URI = divId.substr(divId.indexOf('rio'),URILength);
-    return URI;
+    var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+    return modifyURI;
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
@@ -651,6 +656,11 @@ var ShowFiles = Class.extend({
           }
           $("#"+modifyURI_+'div').remove();
           $("#"+modifyURI_+'tr').remove();
+          if(_globalSelf._index ==1){
+            $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
+              numOfCol:5
+            }); 
+          }
         }
         else{
           window.alert('Delete file failed');
