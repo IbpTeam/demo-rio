@@ -58,7 +58,7 @@ var ShowFiles = Class.extend({
       {header: 'data menu'},
       {text:'Open',action:function(){
         var divId = _globalSelf._contextMenuDivID;
-        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         _globalSelf.openFileByUri(modifyURI);
       }},
@@ -67,7 +67,7 @@ var ShowFiles = Class.extend({
       }},
       {text:'Delete',action:function(){
         var divId = _globalSelf._contextMenuDivID;
-        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
       }},
@@ -237,7 +237,7 @@ var ShowFiles = Class.extend({
   showFileByTag:function(fileURIS){
     _globalSelf._showFilesBytag = fileURIS;
     for(var i =0;i<fileURIS.length;i++){
-      var fileURI = fileURIS[i].replace('#','').replace('#','');
+      var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
       var div = $("#"+fileURI+'div');
       var tr = $("#"+fileURI+'tr');
       div.addClass('showFileByTag');
@@ -295,7 +295,7 @@ var ShowFiles = Class.extend({
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
     var divId = div.attr('id');
-    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length -2;
+    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
     var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
     return modifyURI;
   },
