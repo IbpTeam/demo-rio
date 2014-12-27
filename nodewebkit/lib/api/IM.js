@@ -172,7 +172,7 @@ exports.sendAppMsg = sendAppMsg;
 };
  *
  */
-function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
+function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   var ipset = {};
   if (!net.isIP(MsgObj.IP)) {
     console.log('Input IP Format Error!:::', MsgObj.IP);
@@ -185,13 +185,15 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
       SentCallBack(rstMsg);
       if(rstMsg.MsgObj.message.msg.type==='file')
         return;
-      rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-      router.wsNotify({
-        'Action': 'notify',
-        'Event': 'imChat',
-        'Data': rstMsg,
-        'SessionID':wsID
-      });
+      if(flag){
+        rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+        router.wsNotify({
+          'Action': 'notify',
+          'Event': 'imChat',
+          'Data': rstMsg,
+          'SessionID':wsID
+        });
+      }
     });
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
@@ -200,13 +202,15 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID) {
     //  var m=JSON.parse(m);
    //   if(m.msg.type==='file')
     //    return;
-      rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-      router.wsNotify({
-        'Action': 'notify',
-        'Event': 'imChat',
-        'Data': rstMsg,
-        'SessionID':wsID
-      });
+    if(flag){
+        rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+        router.wsNotify({
+          'Action': 'notify',
+          'Event': 'imChat',
+          'Data': rstMsg,
+          'SessionID':wsID
+        });
+      }
     });
   }
 }
@@ -239,7 +243,7 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
 };
  *
  */
-function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
+function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
@@ -251,13 +255,15 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
       len -= 1;
       if (countFlag === len) {
         SentCallBack(msgRst);
-        msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-        router.wsNotify({
-          'Action': 'notify',
-          'Event': 'imChat',
-          'Data': msgRst,
-          'SessionID':wsID
-        });
+        if(flag){
+          msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+          router.wsNotify({
+            'Action': 'notify',
+            'Event': 'imChat',
+            'Data': msgRst,
+            'SessionID':wsID
+          });
+        }
       }
       continue;
     } else {
@@ -272,13 +278,15 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
               msgRst = msg;
             if ((++countFlag) === len) {
               SentCallBack(msg);
-              msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-              router.wsNotify({
-                'Action': 'notify',
-                'Event': 'imChat',
-                'Data': msg,
-                'SessionID':wsID
-              });
+              if(flag){
+                msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+                router.wsNotify({
+                  'Action': 'notify',
+                  'Event': 'imChat',
+                  'Data': msg,
+                  'SessionID':wsID
+                });
+              }    
             }
           });
         } else {
@@ -287,13 +295,15 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID) {
               msgRst = msg;
             if ((++countFlag) === len) {
               SentCallBack(msg);
-              msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-              router.wsNotify({
-                'Action': 'notify',
-                'Event': 'imChat',
-                'Data': msg,
-                'SessionID':wsID
-              });
+              if(flag){
+                msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+                router.wsNotify({
+                  'Action': 'notify',
+                  'Event': 'imChat',
+                  'Data': msg,
+                  'SessionID':wsID
+                });
+              }
             }
           });
         }
@@ -336,12 +346,12 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
 };
  *
  */
-function sendIMMsg(SentCallBack, MsgObj,wsID){
+function sendIMMsg(SentCallBack, MsgObj,wsID,flag){
   console.log('ok==================');
   if(MsgObj.group===''){
-    sendAppMsgByDevice(SentCallBack, MsgObj,wsID);
+    sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag);
   }else{
-    sendAppMsgByAccount(SentCallBack, MsgObj,wsID);
+    sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag);
   }
 }
 exports.sendIMMsg = sendIMMsg;
@@ -490,7 +500,7 @@ function transferFileProcess(transferFileCb, msgObj, sendMsg,isLocal) {
       });
       CalBakMsg['MsgObj'] = sendM;
       CalBakMsg['IP'] = sendMsg.IP;
-      sendM['destInfo'] = {
+      CalBakMsg['destInfo'] = {
         'Account': sendMsg.Account,
         'UID': sendMsg.UID,
         'IP': sendMsg.IP
@@ -530,8 +540,8 @@ exports.transferFileProcess = transferFileProcess;
  * @param3 boolean
  *  是否完全中断传输
  */
-function transferCancelSender(transferCancelSenderCb,msgObj,flag){//接收端取消传输文件-----界面显示
-  fileTransfer.transferFileCancel(msgObj,function (){
+function transferCancelSender(transferCancelSenderCb,msgObj,state){//接收端取消传输文件-----界面显示
+  fileTransfer.transferFileCancel(msgObj,state,function (){
     if(flag)
       serverAndMapHandler(msgObj.key);
     transferCancelSenderCb(msgObj);
