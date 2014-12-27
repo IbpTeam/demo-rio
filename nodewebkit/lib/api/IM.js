@@ -540,7 +540,7 @@ exports.transferFileProcess = transferFileProcess;
  * @param3 boolean
  *  是否完全中断传输
  */
-function transferCancelSender(transferCancelSenderCb,msgObj,state){//接收端取消传输文件-----界面显示
+function transferCancelSender(transferCancelSenderCb,msgObj,flag,state){//接收端取消传输文件-----界面显示
   fileTransfer.transferFileCancel(msgObj,state,function (){
     if(flag)
       serverAndMapHandler(msgObj.key);
