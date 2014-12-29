@@ -161,7 +161,6 @@ var ShowFiles = Class.extend({
     _globalSelf._showContent.show();
     if(!_globalSelf._showFilesBytag){
       $(".showFileByTag").siblings().show();
-      $(".sortByTime").show();
     }
     _globalSelf._showContent.children().hide();
     if(!this._getFiles[this._index]){
@@ -234,12 +233,18 @@ var ShowFiles = Class.extend({
               var sortByTimeDivs = returnshow.children('.sortByTime');
               for(var i =0;i<sortByTimeDivs.length;i++){
                 var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(_globalSelf._showFilesBytagUris.length >0 && sortByTimeDiv.children('.showFileByTag').length == 0){
+                if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
                   sortByTimeDiv.hide();
+                }
+                if(!_globalSelf._showFilesBytag){
+                  if(sortByTimeDiv.children('div').length >0){
+                    sortByTimeDiv.children('div').show();
+                    sortByTimeDiv.show();
+                  }
                 }
               }
               _globalSelf._showContent.append(returnshow);
-              if(this._index ==1 && _globalSelf._showFilesBytagUris.length >0){
+              if(this._index ==1 && _globalSelf._showFilesBytag){
                 _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
               }
             }
