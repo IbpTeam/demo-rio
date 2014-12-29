@@ -10,7 +10,8 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
-    this._showFilesBytag = [];
+    this._showFilesBytag = false;
+    this._showFilesBytagUris = [];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -149,7 +150,7 @@ var ShowFiles = Class.extend({
   setIndex:function(index_){
     if (typeof index_ === 'number' && index_ >0 && index_ <6) {
       this._index = index_;
-      this._showFilesBytag = [];
+      this._showFilesBytag = false;
     }
     _globalSelf.showFile();
   },
@@ -158,6 +159,10 @@ var ShowFiles = Class.extend({
   showFile:function(){
     _globalSelf._choice.show();
     _globalSelf._showContent.show();
+    if(!_globalSelf._showFilesBytag){
+      $(".showFileByTag").siblings().show();
+      $(".sortByTime").show();
+    }
     _globalSelf._showContent.children().hide();
     if(!this._getFiles[this._index]){
       DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
@@ -168,9 +173,9 @@ var ShowFiles = Class.extend({
         case 0:
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
             if(this._index ==1){
-              $('#outWaterFall').show();
+              $('#outWaterFall').show();              
             }
-            $('#'+this._contentIds[this._index]).show();
+            $('#'+this._contentIds[this._index]).show();           
           }
           else{
             var sortByTime = $('#'+this._contentIdsSortByTime[this._index]).children('div');
@@ -210,8 +215,8 @@ var ShowFiles = Class.extend({
             }
             else {
               _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-              if(_globalSelf._showFilesBytag.length >0){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              if(_globalSelf._showFilesBytag){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
               }
             }
             break;
@@ -229,13 +234,13 @@ var ShowFiles = Class.extend({
               var sortByTimeDivs = returnshow.children('.sortByTime');
               for(var i =0;i<sortByTimeDivs.length;i++){
                 var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(_globalSelf._showFilesBytag.length >0 && sortByTimeDiv.children('.showFileByTag').length == 0){
+                if(_globalSelf._showFilesBytagUris.length >0 && sortByTimeDiv.children('.showFileByTag').length == 0){
                   sortByTimeDiv.hide();
                 }
               }
               _globalSelf._showContent.append(returnshow);
-              if(this._index ==1 && _globalSelf._showFilesBytag.length >0){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              if(this._index ==1 && _globalSelf._showFilesBytagUris.length >0){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
               }
             }
             break;
@@ -246,7 +251,9 @@ var ShowFiles = Class.extend({
 
   //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
   showFileByTag:function(fileURIS){
-    _globalSelf._showFilesBytag = fileURIS;
+    _globalSelf._showFilesBytag = true;
+    _globalSelf._showFilesBytagUris = fileURIS;
+    $('.showFileByTag').removeClass('showFileByTag');
     for(var i =0;i<fileURIS.length;i++){
       var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
       var div = $("#"+fileURI+'div');
