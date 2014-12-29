@@ -1,4 +1,4 @@
-/*! ui-lib - v0.0.1 - 2014-12-10
+/*! ui-lib - v0.0.1 - 2014-12-26
 * Copyright (c) 2014 */
 function Class() {}
 
@@ -1411,7 +1411,12 @@ var ListView = Class.extend({
         actionID = 'event' + actiond.getTime() * Math.floor(Math.random() * 100000),
         eventAction = data.clkaction;
         $item.find('a').attr('id', actionID);
-        $(document).on('click', '#' + actionID, data.clkaction);
+        if (typeof data.clkaction_p !== 'undefined'){
+          $(document).on('click', '#' + actionID, data.clkaction_p, data.clkaction);
+        }
+        else{
+          $(document).on('click', '#' + actionID, data.clkaction);
+        }
     }
 
     if (typeof data.dblclkaction !== 'undefined'){
@@ -1419,7 +1424,12 @@ var ListView = Class.extend({
         actionID = 'event' + actiond.getTime() * Math.floor(Math.random() * 100000),
         eventAction = data.dblclkaction;
         $item.find('a').attr('id', actionID);
-        $(document).on('dblclick', '#' + actionID, data.dblclkaction);
+        if (typeof data.dblclkaction_p !== 'undefined'){
+          $(document).on('dblclick', '#' + actionID, data.dblclkaction_p, data.dblclkaction);
+        }
+        else {
+          $(document).on('dblclick', '#' + actionID, data.dblclkaction);
+        }
     }
 
     if (typeof $ul_ === 'undefined') {
@@ -2901,6 +2911,247 @@ window.Messenger.Events = (function() {
   };
 
 }).call(this);
+var MiniTip = Class.extend({
+  init: function(id_, options_) {
+    // declare the default option values
+    this._options = {
+      title: '', // if left blank, no title bar will show
+      content: 'blank', // the content of the tooltip
+      delay: 300, // how long to wait before showing and hiding the tooltip (ms)
+      anchor: 'n', // n (top), s (bottom), e (right), w (left)
+      event: 'custom', // can be 'hover' , 'click' or 'custom'
+      fadeIn: 200, // speed of fade in animation (ms)
+      fadeOut: 200, // speed of fade out animation (ms)
+      aHide: true, // set to false to only hide when the mouse moves away from the anchor and tooltip
+      maxW: '250px', // max width of tooltip
+      offset: 5 // offset in pixels of stem from anchor
+    };
+
+    //set options
+    if (options_) {
+      for (var key in options_) {
+        this._options[key] = options_[key];
+      }
+    };
+    
+    this._id = id_; // record id
+    var $attach = $('#' + this._id);
+    $attach.miniTip(this._options);
+
+    if (this._options.event === 'hover') {
+      $attach.hover(function() {
+        $attach.hello();
+      }, function() {
+        $attach.bye();
+      });
+    } else if (this._options.event === 'click') {
+      $attach.click(function() {
+        $attach.hello();
+        var tt_w = $('#miniTip');
+        $('html').unbind('click').click(function(e) {
+          if (tt_w.css('display') == 'block' && !$(e.target).closest('#miniTip').length) {
+            $('html').unbind('click');
+            $attach.bye();
+          }
+        });
+      });
+    } 
+  },
+
+  show: function(options_) {
+    var $attach = $('#' + this._id);
+    if (options_ !== undefined) {
+      $attach.change(options_);
+    }
+    $attach.hello();
+  },
+
+  hide: function() {
+    var $attach = $('#' + this._id);
+    $attach.bye();
+  }
+});
+
+
+
+(function($) {
+  $.fn.miniTip = function(o) {
+    this.data('o', o);
+
+    // declare the delay variable and make sure it is global
+    window.delay = false;
+
+    // add the tip elements to the DOM
+    if (!$('#miniTip')[0]) {
+      $('body').append('<div id="miniTip"><div id="miniTip_t"></div><div id="miniTip_c"></div><div id="miniTip_a"></div></div>');
+    }
+  }
+
+  $.fn.hello = function() {
+    var o = this.data('o');
+    var el = $(this);
+
+    var tt_w = $('#miniTip');
+    var tt_t = $('#miniTip_t');
+    var tt_c = $('#miniTip_c');
+    var tt_a = $('#miniTip_a');
+
+    // add in the content
+    tt_c.html(o.content);
+
+    // insert the title (or hide if none is set)
+    if (o.title != '')
+      tt_t.html(o.title).show();
+    else
+      tt_t.hide();
+
+    // reset arrow position
+    tt_a.removeAttr('class');
+
+    // make sure the tooltip is the right width even if the anchor is flush to the right of the screen
+    // set the max width
+    tt_w.hide().width('').width(tt_w.width()).css('max-width', o.maxW);
+
+    // add support for image maps
+    var isArea = el.is('area');
+    if (isArea) {
+      // declare variables to determine coordinates
+      var i,
+        x = [],
+        y = [],
+        c = el.attr('coords').split(',');
+
+      // sortin funciton for coordinates
+      function num(a, b) {
+        return a - b;
+      }
+
+      // loop through the coordinates and populate x & y arrays
+      for (i = 0; i < c.length; i++) {
+        x.push(c[i++]);
+        y.push(c[i]);
+      }
+
+      // get the center coordinates of the area
+      var mapImg = el.parent().attr('name'),
+        mapOff = $('img[usemap=\\#' + mapImg + ']').offset(),
+        left = parseInt(mapOff.left, 10) + parseInt((parseInt(x.sort(num)[0], 10) + parseInt(x.sort(num)[x.length - 1], 10)) / 2, 10),
+        top = parseInt(mapOff.top, 10) + parseInt((parseInt(y.sort(num)[0], 10) + parseInt(y.sort(num)[y.length - 1], 10)) / 2, 10);
+    } else {
+      // get the coordinates of the element
+      var top = parseInt(el.offset().top, 10),
+        left = parseInt(el.offset().left, 10);
+    }
+
+    // get width and height of the anchor element
+    var elW = isArea ? 0 : parseInt(el.outerWidth(), 10),
+      elH = isArea ? 0 : parseInt(el.outerHeight(), 10),
+
+      // get width and height of the tooltip
+      tipW = tt_w.outerWidth(),
+      tipH = tt_w.outerHeight(),
+
+      // calculate position for tooltip
+      mLeft = Math.round(left + Math.round((elW - tipW) / 2)),
+      mTop = Math.round(top + elH + o.offset + 8),
+
+      // position of the arrow
+      aLeft = (Math.round(tipW - 16) / 2) - parseInt(tt_w.css('borderLeftWidth'), 10),
+      aTop = 0,
+
+      // figure out if the tooltip will go off of the screen
+      eOut = (left + elW + tipW + o.offset + 8) > parseInt($(window).width(), 10),
+      wOut = (tipW + o.offset + 8) > left,
+      nOut = (tipH + o.offset + 8) > top - $(window).scrollTop(),
+      sOut = (top + elH + tipH + o.offset + 8) > parseInt($(window).height() + $(window).scrollTop(), 10),
+
+      // default anchor position
+      elPos = o.anchor;
+
+    // calculate where the anchor should be (east & west)
+    if (wOut || o.anchor == 'e' && !eOut) {
+      if (o.anchor == 'w' || o.anchor == 'e') {
+        elPos = 'e';
+        aTop = Math.round((tipH / 2) - 8 - parseInt(tt_w.css('borderRightWidth'), 10));
+        aLeft = -8 - parseInt(tt_w.css('borderRightWidth'), 10);
+        mLeft = left + elW + o.offset + 8;
+        mTop = Math.round((top + elH / 2) - (tipH / 2));
+      }
+    } else if (eOut || o.anchor == 'w' && !wOut) {
+      if (o.anchor == 'w' || o.anchor == 'e') {
+        elPos = 'w';
+        aTop = Math.round((tipH / 2) - 8 - parseInt(tt_w.css('borderLeftWidth'), 10));
+        aLeft = tipW - parseInt(tt_w.css('borderLeftWidth'), 10);
+        mLeft = left - tipW - o.offset - 8;
+        mTop = Math.round((top + elH / 2) - (tipH / 2));
+      }
+    }
+
+    // calculate where the anchor should be (north & south)
+    if (sOut || o.anchor == 'n' && !nOut) {
+      if (o.anchor == 'n' || o.anchor == 's') {
+        elPos = 'n';
+        aTop = tipH - parseInt(tt_w.css('borderTopWidth'), 10);
+        mTop = top - (tipH + o.offset + 8);
+      }
+    } else if (nOut || o.anchor == 's' && !sOut) {
+      if (o.anchor == 'n' || o.anchor == 's') {
+        elPos = 's';
+        aTop = -8 - parseInt(tt_w.css('borderBottomWidth'), 10);
+        mTop = top + elH + o.offset + 8;
+      }
+    }
+
+    // if it is going to go off on the sides, use corner
+    if (o.anchor == 'n' || o.anchor == 's') {
+      if ((tipW / 2) > left) {
+        mLeft = mLeft < 0 ? aLeft + mLeft : aLeft;
+        aLeft = 0;
+      } else if ((left + tipW / 2) > parseInt($(window).width(), 10)) {
+        mLeft -= aLeft;
+        aLeft *= 2;
+      }
+    } else {
+      if (nOut) {
+        mTop = mTop + aTop
+        aTop = 0;
+      } else if (sOut) {
+        mTop -= aTop;
+        aTop *= 2;
+      }
+    }
+
+    // position the arrow
+    tt_a.css({
+      'margin-left': aLeft + 'px',
+      'margin-top': aTop + 'px'
+    }).attr('class', elPos);
+
+    // clear delay timer if exists
+    if (delay) clearTimeout(delay);
+
+    // position the tooltip and show it
+    delay = setTimeout(function() {
+      tt_w.css({
+        "margin-left": mLeft + "px",
+        "margin-top": mTop + 'px'
+      }).stop(true, true).fadeIn(o.fadeIn);
+    }, o.delay);
+
+  }
+
+  $.fn.bye = function() {
+    var o = this.data('o');
+    var tt_w = $('#miniTip');
+    tt_w.stop(true, true).fadeOut(o.fadeOut);
+  }
+
+  $.fn.change = function(o) {
+    for (var key in o) {
+      this.data('o')[key] = o[key];
+    }
+  }
+})(jQuery);
 var ModalBox = Class.extend({
   init:function($obj_, options_){
     this._options = {
@@ -3732,7 +3983,9 @@ var Window = Class.extend({
       resize: false,           //设置是否可重新调整窗口的大小
       minWidth: 200,            //设置窗口的最小宽度
       minHeight:200,            //设置窗口的最小高度
-      fullScreen: false        //双击内容全屏显示
+      fullScreen: false,        //双击内容全屏显示
+      left_top_color: 'grey',    //标题栏左上角的颜色
+      title_align: 'center'      //标题对齐方式，left或者center
     };
 
     //set options
@@ -3766,9 +4019,21 @@ var Window = Class.extend({
     });
     this._window.append(this._titleDiv);
 
-    this._titleText= '<div class="window-title">'+this._title+'</div>';
+    this._leftTop = $('<div>', {
+      'class': 'window-left-top',
+    });
+    if (options_ && options_['left_top_color'] !== undefined){
+      this._leftTop.css({
+        'background-color': options_['left_top_color']
+      });
+    }
+    this._titleDiv.append(this._leftTop);
+
+    this._titleText = $('<div>', {
+      'class': 'window-title'
+    });
+    this._titleText.append(this._title);
     this._titleDiv.append(this._titleText);
-    this._titleText = $(this._titleDiv.children('.window-title')[0]);
 
     this._titleButton = $('<div>',{
       'class': 'window-title-button'
@@ -3777,13 +4042,15 @@ var Window = Class.extend({
 
     if (this._options.contentDiv) {
       this._windowContent = $('<div>',{
-        'class':'window-content'
+        'class':'window-content window-div'
       });
       this._window.append(this._windowContent);
     } else if (this._options.iframe) {
       this._windowContent = $('<iframe>',{
-        'class':'window-content'
-      })
+        'class':'window-content window-iframe',
+        'frameborder':'no',
+        'border':'none'
+      });
       this._window.append(this._windowContent);
     };
 
@@ -3798,6 +4065,13 @@ var Window = Class.extend({
     append(this._window);
     
     this.setOptions();
+    if (options_ && options_['title_align'] !== undefined && options_['title_align'] === 'left'){
+      this._titleText.addClass('window-title-left');
+      this._titleText.css('padding-left', '68px');
+      if (options_['left_top_color']  === undefined){
+        this._titleText.css('padding-left', '16px');
+      }
+    }
     if (this._options.hideWindow === false){
       this.show();
     }else {
@@ -3818,37 +4092,43 @@ var Window = Class.extend({
    */
   setOptions:function(){
     var _this = this;
+    var _count = 0;
     for(var key in _this._options) {
       switch(key){
         case 'close':
           if (_this._options[key] == true) {
-            _this._titleButton.append("<a id='window-"+_this._id+"-close' class='window-button-close' href='#'><i class='icon-remove'></i></a>");
+            _this._titleButton.append("<a id='window-"+_this._id+"-close' class='window-button-close close' href='#'><i class='icon-remove'></i></a>");
             _this.bindButton($(_this._titleButton.children('.window-button-close')[0]),_this.closeWindow, _this);
-            $('.window-button-'+key).addClass('active');
+            _count++;
           }
           break;
         case 'max':
           if (_this._options[key] == true) {
-            _this._titleButton.append("<a id='window-"+_this._id+"-max' class='window-button-max' href='#'><i class='icon-resize-full'></i></a>");
+            _this._titleButton.append("<a id='window-"+_this._id+"-max' class='window-button-max max' href='#'><i class='icon-plus'></i></a>");
             _this.bindButton($(_this._titleButton.children('.window-button-max')[0]),_this.maxWindow, _this);
-            $('.window-button-'+key).addClass('active');
+            _count++;
           }
           break;
         case 'min':
           if (_this._options[key] == true) {
-            _this._titleButton.append("<a id='window-"+_this._id+"-min' class='window-button-min' href='#'><i class='icon-minus'></i></a>");
-            $('.window-button-'+key).addClass('active');
+            _this._titleButton.append("<a id='window-"+_this._id+"-min' class='window-button-min min' href='#'><i class='icon-minus'></i></a>");
+            _count++;
           }
           break;
         case 'hide':
           if (_this._options[key] == true) {
-            _this._titleButton.append("<a id='window-"+_this._id+"-hide' class='window-button-hide' href='#'><i class='icon-double-angle-up'></i></a>");
+            _this._titleButton.append("<a id='window-"+_this._id+"-hide' class='window-button-hide hide' href='#'><i class='icon-double-angle-up'></i></a>");
             _this.bindButton($(_this._titleButton.children('.window-button-hide')[0]),_this.hideDiv, _this);
-            $('.window-button-'+key).addClass('active');
+            _count++;
           }
           break;
       }
     }
+    var title_btn_width = _count * 24;
+    _this._titleText.css({
+      'padding-left': (title_btn_width + 'px'),
+      'right': (title_btn_width + 'px')
+    })
     this.setWindowPos(this._options);
     this.resizeWindow(this._options);
   },
@@ -3866,11 +4146,13 @@ var Window = Class.extend({
     }).mouseup(function(ev){
       eventAction_(windowObj_);
       ev.stopPropagation();
-    })
-    .click(function(ev) {
+    }).click(function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
-    });
+    }).dblclick(function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+    })
   },
 
   bindCloseButton:function(eventAction_, arg_){
@@ -3950,13 +4232,24 @@ var Window = Class.extend({
       _this._isMouseOnTitleDown = true;
       _this._offsetX = ev.clientX - _this._window.position().left;
       _this._offsetY = ev.clientY - _this._window.position().top;
-        _this._window.fadeTo(20, 0.8);
+      _this._window.fadeTo(20, 0.8);
+      _this._titleDiv.css('cursor','move');
     }).mouseup(function(ev){
       _this._isMouseOnTitleDown = false;
       _this._window.fadeTo(20, 1);
+      _this._titleDiv.css('cursor','default');
     }).dblclick(function(){
       _this.toggleMaxWindow();
-    })
+    });
+    $(document).mousemove(function(ev){
+      if(_this._isMouseOnTitleDown){ 
+        var x = ev.clientX - _this._offsetX; 
+        var y = ev.clientY - _this._offsetY; 
+        _this.setWindowPos({left:x, top: y});
+        _this._options.top = y;
+        _this._options.left = x;
+      }
+    });
 
     //resize window
     if (typeof this._dragDiv !== 'undefined') {
@@ -3966,39 +4259,36 @@ var Window = Class.extend({
         };
         _this._isMouseResizeDown = true;
         _this._window.fadeTo(20, 0.9);
-      }).mouseup(function(ev){
+      })
+      $(document).mouseup(function(ev){
         if (!_this._isMouseResizeDown) {
           return ;
         }
         _this._isMouseResizeDown = false;
         _this._options.width = _this._window.width();
         _this._options.height = _this._window.height();
+        _this.resizeWindow(_this._options);
         _this._window.fadeTo(20, 1);
       });
-    }
-    $(document).mousemove(function(ev){
-      if(_this._isMouseOnTitleDown){ 
-        var x = ev.clientX - _this._offsetX; 
-        var y = ev.clientY - _this._offsetY; 
-        _this.setWindowPos({left:x, top: y});
-        _this._options.top = y;
-        _this._options.left = x;
-        _this._titleDiv.css('cursor','move');
-      }else if (_this._isMouseResizeDown && _this._options.resize) {
-        var _width = ev.clientX - _this._window.position().left + 5;
-        var _height = ev.clientY - _this._window.position().top + 5;
-        if (_width < _this._options.minWidth){
-          _width = _this._options.minWidth;
-        } 
-        if (_height < _this._options.minHeight) {
-          _height = _this._options.minHeight;
+      $(document).mousemove(function(ev){
+        ev.stopPropagation();
+        ev.preventDefault();
+        if (_this._isMouseResizeDown){
+          var _width = ev.clientX - _this._window.position().left + 3;
+          var _height = ev.clientY - _this._window.position().top + 3;
+          if (_width < _this._options.minWidth){
+            _width = _this._options.minWidth;
+          } 
+          if (_height < _this._options.minHeight) {
+            _height = _this._options.minHeight;
+          }
+          _this._options.width = _width;
+          _this._options.height = _height;
+          _this.resizeWindow(_this._options);
         }
-        _this._options.width = _width;
-        _this._options.height = _height;
-        _this.resizeWindow(_this._options);
-        _this._dragDiv.css('cursor', 'se-resie');
-      };
-    });
+      })
+    }
+
     if (_this._options.fullscreen) {
       _this._windowContent.dblclick(function(ev){
         _this.togglefullScreen();
@@ -4014,7 +4304,6 @@ var Window = Class.extend({
       };
       ev.stopPropagation();
     }).mouseup(function(ev){
-      ev.stopPropagation();
     });
   },
   /**
@@ -4024,14 +4313,9 @@ var Window = Class.extend({
    */
   resizeWindow:function(size_){
     var _this = this;
-    var _tmp = size_.width-2;
-    _this._titleDiv.css({'width': _tmp+'px'});
-    _tmp = size_.width-130;
-    _this._titleText.css({'width': _tmp+'px'});
-    _tmp = size_.width -10;
-    var _tmp1 = size_.height - 50;
+    _this._titleDiv.css({'width': size_.width+'px'});
     if(typeof _this._windowContent !== 'undefined')
-      _this._windowContent.css({'width':_tmp+'px', 'height': _tmp1+'px'});
+      _this._windowContent.css({'width': size_.width + 'px', 'height': (size_.height - 34)+'px'});
   },
   /**
    * [resizeWindowWithAnimate resize window with animate]
@@ -4042,14 +4326,9 @@ var Window = Class.extend({
   resizeWindowWithAnimate:function(size_, pos_){
     var _this = this;
     _this._window.animate({left: pos_.left + 'px', top: pos_.top + 'px'},_this._options.fadeSpeed);
-    var _tmp = size_.width-2;
-    _this._titleDiv.animate({width: _tmp+'px'},_this._options.fadeSpeed);
-    _tmp = size_.width-130;
-    _this._titleText.animate({width: _tmp+'px'}, _this._options.fadeSpeed);
-    _tmp = size_.width -10;
-    var _tmp1 = size_.height - 50;
+    _this._titleDiv.animate({width: size_.width+'px'},_this._options.fadeSpeed);
     if(typeof _this._windowContent !== 'undefined'){
-      _this._windowContent.animate({width:_tmp+'px', height: _tmp1+'px'},_this._options.fadeSpeed);
+      _this._windowContent.animate({width:size_.width + 'px', height: (size_.height - 34)+'px'},_this._options.fadeSpeed);
     } 
   },
   /**
