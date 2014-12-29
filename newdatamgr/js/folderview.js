@@ -159,9 +159,6 @@ var ShowFiles = Class.extend({
   showFile:function(){
     _globalSelf._choice.show();
     _globalSelf._showContent.show();
-    if(!_globalSelf._showFilesBytag){
-      $(".showFileByTag").siblings().show();
-    }
     _globalSelf._showContent.children().hide();
     if(!this._getFiles[this._index]){
       DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
@@ -207,6 +204,9 @@ var ShowFiles = Class.extend({
           if(this._index ==2){
               $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
           }
+          if(!_globalSelf._showFilesBytag){
+            $('#'+this._contentIds[this._index]).children('div').show();
+          }
           break;
         case 1:
             if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
@@ -214,9 +214,12 @@ var ShowFiles = Class.extend({
             }
             else {
               _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-              if(_globalSelf._showFilesBytag){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
-              }
+            }
+            if(_globalSelf._showFilesBytag){
+              _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+            }
+            else{
+              $('.bodytr').show();
             }
             break;
         case 2:
@@ -242,6 +245,16 @@ var ShowFiles = Class.extend({
                 _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
               }
             }
+            if(!_globalSelf._showFilesBytag){
+              var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
+              for(var i =0;i<sortByTimeDivs.length;i++){
+                var sortByTimeDiv = sortByTimeDivs.eq(i);
+                if(sortByTimeDiv.children('div').length > 0){
+                  sortByTimeDiv.children('div').show();
+                  sortByTimeDiv.show();
+                }
+              }
+            }
             break;
         default:
       }
@@ -257,8 +270,8 @@ var ShowFiles = Class.extend({
       var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
       var div = $("#"+fileURI+'div');
       var tr = $("#"+fileURI+'tr');
-      div.addClass('showFileByTag');
-      tr.addClass('showFileByTag');
+      div.addClass('showFileByTag').show();
+      tr.addClass('showFileByTag').show();
     }
     div.siblings('div:not(.showFileByTag)').hide();
     tr.siblings('tr:not(.showFileByTag)').hide();
@@ -275,6 +288,9 @@ var ShowFiles = Class.extend({
         }
         if(sortBytimeDivs.eq(i).children('.showFileByTag').length == 0){
           sortBytimeDivs.eq(i).hide();
+        }
+        else{
+          sortBytimeDivs.eq(i).show();
         }
       }
     }
