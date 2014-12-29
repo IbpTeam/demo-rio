@@ -236,12 +236,6 @@ var ShowFiles = Class.extend({
                 if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
                   sortByTimeDiv.hide();
                 }
-                if(!_globalSelf._showFilesBytag){
-                  if(sortByTimeDiv.children('div').length >0){
-                    sortByTimeDiv.children('div').show();
-                    sortByTimeDiv.show();
-                  }
-                }
               }
               _globalSelf._showContent.append(returnshow);
               if(this._index ==1 && _globalSelf._showFilesBytag){
