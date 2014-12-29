@@ -6,8 +6,8 @@
   "window": {
     "icon": "icons/powerpointicon.png",
     "toolbar": true,
-    "frame": false,
-    "width": 660,
+    "frame": true,
+    "width": 680,
     "height": 500
   },
   "dependencies": {

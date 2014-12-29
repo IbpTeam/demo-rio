@@ -104,12 +104,16 @@
     padding: 9px;
 }
 #qrcode {
-    display: inline-block;
-    float: right;
+    position: absolute;
     color:black;
     padding: 0px;
-    margin: 2px;
-    font-size: 30px;
+    font-size: 50px;
+    top:45px;
+    right: 20px;
+    height: 50px;
+    border: 0px;
+    outline: none;
+    background-color: #F5F5F5;
 }
 #main{
     padding-right: 20px;
@@ -229,6 +233,7 @@ padding: 3px 15px;*/
   height:30%;
   right:55%;
   top: 55%;
+  font-size:50px;
 }
 #control #upbutton{
   position: absolute;
@@ -236,6 +241,7 @@ padding: 3px 15px;*/
   height:30%;
   left:55%;
   bottom: 50%;
+  font-size:50px;
 }
 #control #downbutton{
   position: absolute;
@@ -243,6 +249,7 @@ padding: 3px 15px;*/
   height:30%;
   left:55%;
   top: 55%;
+  font-size:50px;
 }
 #control #escbutton{
   position: absolute;
@@ -250,10 +257,75 @@ padding: 3px 15px;*/
   height:30%;
   right:55%;
   bottom: 50%;
+  font-size:50px;
 }
 #control #pptname{
   font-style: oblique;
   font-weight:bold;
   font-size:20px; 
   top:20%;
+}
+.qrcode-container{
+  z-index:98;
+  position:absolute;
+  top: 100px;
+  right: 25px;
+  width:170px;
+  height:210px;
+  border: 1px solid #999;
+  border-radius:6px;
+}
+
+.qrcode-container .qrcode-triangle{
+  position: absolute;
+  display:block;
+  width:0px;
+  height:0px;
+  right:10px;
+  border:11px;
+  overflow:hidden;
+  border-style: dashed dashed solid;
+}
+.qrcode-container .qrcode-triangle.qrcode-down{
+  top:-22px;
+  border-color: transparent transparent #999;
+  z-index: 10;
+}
+.qrcode-container .qrcode-triangle.qrcode-top{
+  top:-21px;
+  border-color: transparent transparent #fff;
+  z-index:11;
+}
+
+.qrcode-container .qrcode-title{
+  position:absolute;
+  top: 0;
+  width:100%;
+  padding:5px 3px;
+  height: 40px;
+  font-size:20px;
+  font-weight: bold;
+  background-color:#fff;
+  border-bottom:1px solid #999;
+  border-radius:6px 6px 0 0;
+  text-align: center;
+  line-height: 40px;
+}
+.qrcode-container .qrcode-content{
+  position:absolute;
+  width: 100%;
+  top: 40px;
+  bottom: 0;
+  background-color:#fff;
+  border-radius:6px;
+  text-align: center;
+}
+.qrcode-container .qrcode-content canvas{
+  margin-top: 10px; 
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; 
 }

@@ -1,29 +1,35 @@
 <!DOCTYPE html>
-<html>
+<html manifest = "viewppt.appcache">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>ControlPPT</title>
   
-    <link rel="stylesheet" type="text/css" href="./lib/css/demoUI.css"/>
+    <link rel="stylesheet" type="text/css" href="lib/css/demoUI.css"/>
     <link rel="stylesheet" type="text/css" href="lib/css/demoUItheme.css"/>
     <link rel="stylesheet" type="text/css" href="lib/css/demoUIFont.css"/>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
-    <script type="text/javascript" src="./lib/jquery.js"></script>
-    <script type="text/javascript" src="./lib/require.js"></script>
-    <script type="text/javascript" src="./lib/api.js"></script>
-    <script type="text/javascript" src="./js/viewPPT.js"></script>
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/require.js"></script>
+    <script type="text/javascript" src="lib/api.js"></script>
+    <script type="text/javascript" src="js/viewPPT.js"></script>
+    <script type="text/javascript" src="js/lib/jquery.qrcode.min.js"></script>
     <script>
       function onStart(){
         console.log("starting app ...");
         getAllDataByCate();
+        genQrcode();
       }
     </script>
    
   </head>
   <body> 
-      <h2 align = "center" size = "30px" style = "background: #F5F5F5">
+      <div class = "row">  
+        <h2 align = "center"  style = "background: #F5F5F5;font-size: 50px;">
           PPt list in the Datamgr.
-      </h2>
+        </h2>
+        <button id="qrcode" type="button" class="btn btn-default" data-toggle="popover"><span class="glyphicon icon-qrcode"></span></button>
+      </div>
+
       <div  class = "row" style = "height:85%; background: #FFF; -webkit-border-radius: 2px; overflow: auto">
           <ul id="pptlist" style="margin: 5px; padding: 0px"></ul>
       </div>

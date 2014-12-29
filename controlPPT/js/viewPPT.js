@@ -105,3 +105,66 @@ function sendKeyToWindow(windowname, key){
         _app.sendKeyToApp(function(){}, windowname, key);
     });
 }
+
+
+function genQrcode(){
+    _isQrc = false;
+    addQrcode();
+    _qrcodeContainer.hide();
+    bindEvent();
+}
+
+function bindEvent(){
+        // var _this = this;
+    var hideQrc = function(ev){
+      if(_qrcodeContainer){
+        _qrcodeContainer.hide('fast', function() {
+            $('body').unbind('click',hideQrc);
+        });
+      }
+    }
+    $('#qrcode').click(function(ev) {
+      if (_isQrc === false) {
+        WDC.requireAPI(['data'],function(data){
+            console.log("data"+data);
+            data.getServerAddress(function(serverAddr_){
+                var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/index.html#';
+                console.log("_hostLink of the qrcode is " + _hostLink);
+                _qrcodeContainer.children('.qrcode-content') .qrcode({
+                    text: _hostLink,
+                    width:150,
+                    height: 150
+                });
+                _isQrc = true;
+            });
+        });
+      }
+      _qrcodeContainer.show('fast', function() {
+        $('body').click(hideQrc);
+      });
+    });
+}
+
+function addQrcode(){
+    _qrcodeContainer = $('<div>',{
+        'class': 'qrcode-container'
+    });
+    var _qrcodeTriangle = $('<div>',{
+        'class':'qrcode-triangle qrcode-down'
+    })
+    var _qrcodeTriangleCover = $('<i>',{
+        'class':'qrcode-triangle qrcode-top'
+    })
+    var _qrcodeTitle = $('<div>',{
+        'class':'qrcode-title',
+        'text': '二维码显示'
+    })
+    var _qrcodeContent = $('<div>',{
+        'class': 'qrcode-content'
+    });
+    _qrcodeContainer.append(_qrcodeTriangle);
+    _qrcodeContainer.append(_qrcodeTriangleCover);
+    _qrcodeContainer.append(_qrcodeTitle);
+    _qrcodeContainer.append(_qrcodeContent);
+    $('body').append(_qrcodeContainer);
+}
