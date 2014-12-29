@@ -52,7 +52,7 @@ var GitLog = Class.extend({
         _text = 'Previous ' + _days + ' Days';
         break;
       case ((_days > 7)&&(_days <= 30)) :
-         _text = 'Within 1 month';
+         _text = 'Within 1 Month';
         break;
       case ((_days > 30)&&(_days <= 90)) :
         _text = 'Within 3 months';
