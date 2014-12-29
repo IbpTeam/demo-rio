@@ -302,22 +302,32 @@ var ShowFiles = Class.extend({
   //此函数用来刷新特有的一个文件,传入一个文件路径，获取所有信息，并且添加显示.
   refreshByPath:function(filePath_){
     var file = {
-    "URI": "rio16469rio#e9e1f674fc9b1586c0e3#picture",
-    "category": "picture",
+    "APIC": "e (image/jpeg, 60973 bytes)",
+    "COMM": "a='eng'=ting.baidu.com",
+    "TALB": "王菲2001",
+    "TDRC": "2001-10-01",
+    "TIT2": "打错了",
+    "TPE1": "王菲",
+    "TXXX": "Tagging time=2011-12-08T07:49:39",
+    "URI": "rio16469rio#049e53e2d6c612d6ea30#music",
+    "bit_rate": "128000",
+    "category": "music",
     "createDev": "rio16469rio",
     "createTime": "Thu Nov 27 2014 09:26:08 GMT+0800 (CST)",
-    "filename": "girl1",
-    "id": 13,
+    "filename": "test",
+    "format": "MPEG 1 layer 3",
+    "frequency": "44100",
+    "id": 2,
     "is_delete": 0,
     "lastAccessDev": "rio16469rio",
-    "lastAccessTime": "2014-12-25T06:45:30.203Z",
+    "lastAccessTime": "2014-12-25T02:44:08.149Z",
     "lastModifyDev": "rio16469rio",
-    "lastModifyTime": "Thu Nov 27 2014 09:26:08 GMT+0800 (CST)",
-    "location": "Mars",
-    "others": "pictures",
-    "path": "/home/sxy/.resources/picture/data/girl1.jpg",
-    "postfix": "jpg",
-    "size": "22648"
+    "lastModifyTime": "Sat Dec 20 2014 20:01:34 GMT+0800 (CST)",
+    "others": "musics",
+    "path": "/home/sxy/.resources/music/data/test.mp3",
+    "postfix": "mp3",
+    "size": "3119702",
+    "track": "191.09"
 };
     var index = $.inArray(file['category'], _globalSelf._currentCategory);
     switch(index){
@@ -422,7 +432,6 @@ var ShowFiles = Class.extend({
         _globalSelf.attachDataMenu(Container[0].id);
         break;
       case 4:
-        _globalSelf.getMusicPicData(file);
         var Container = $('<div>',{
           'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
           'class':'musicContainer refreshDiv',
@@ -444,7 +453,7 @@ var ShowFiles = Class.extend({
         Holder.append(musicImg);
         Container.append(Holder);
         Container.append(description);
-        // returnContent.append(Container);
+        _globalSelf.getMusicPicData(file);
         _globalSelf.bindDrag(Container[0]);
         var _tagView = TagView.create({
           position: 'listview',
