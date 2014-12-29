@@ -808,9 +808,8 @@ exports.rmInTAGS = rmInTAGS;
  *
  */
 function addInTAGS(oTags, sUri, callback) {
-  if (oTags == '' || oTags = null) {
-    var _err = 'bad input tags ...';
-    return callback(_err);
+  if (oTags == '' || oTags == null) {
+    return callback(null);
   }
   var oItems = [];
   for (var tag in oTags) {

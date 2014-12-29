@@ -3,17 +3,19 @@ var ShowFiles = Class.extend({
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     this._index = 0;
+    this._contextMenuDivID = '';
+    this._propertyView = PropertyView.create();
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
+    this._showFilesBytag = [];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
     this._pictureContentReady = false;
     this._currentCategory = ['contact','picture','video','document','music','other'];
-    this._wantFiles = ['contact','Picture','Video','Document','Music','Other'];
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
     this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
@@ -27,6 +29,7 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
     this.setChoice();
+    this.setDataContextMenu();
     _globalSelf = this 
   },
 
@@ -49,6 +52,58 @@ var ShowFiles = Class.extend({
     contextMenu.attachToMenu('#'+id_,
       contextMenu.getMenuByHeader('document menu'),
       function(){});
+  },
+
+  setDataContextMenu:function(){
+    contextMenu.addCtxMenu([
+      {header: 'data menu'},
+      {text:'Open',action:function(){
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        _globalSelf.openFileByUri(modifyURI);
+      }},
+      {text:'Rename',action:function(){
+        _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
+      }},
+      {text:'Delete',action:function(){
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+      }},
+      {text:'Tag', subMenu:[
+        {header: 'tag'},
+        {text: 'Add',action:function(){
+
+        }},
+        {text: 'Remove', action:function(){
+          
+        }}
+      ]},
+      {text: 'Detail',action:function(){
+        var _modifyUri = '';
+        var _id = _globalSelf._contextMenuDivID;
+        if(_id.substr(_id.length-3,3) === 'div'){
+          _modifyUri = _id.substr(0,_id.length-3);
+        }else if(_id.substring(_id.length-2,2) === 'tr'){
+          _modifyUri = _id.substr(0,_id.length - 2);
+        }
+        var _file = _globalSelf.findFileByURI(_modifyUri);
+        _globalSelf._propertyView.loadData(_file);
+        var _img = $('#'+_id).find('img');
+        _globalSelf._propertyView.setImg(_img[0].src);
+      }}
+    ]);
+  },
+
+  attachDataMenu:function(id_){
+    contextMenu.attachToMenu('#'+id_,
+      contextMenu.getMenuByHeader('data menu'),
+      function(ID_){
+        _globalSelf._contextMenuDivID = ID_;
+      }
+    );
   },
 
   //此函数用来设置选择界面看按照哪种方式显示
@@ -94,6 +149,7 @@ var ShowFiles = Class.extend({
   setIndex:function(index_){
     if (typeof index_ === 'number' && index_ >0 && index_ <6) {
       this._index = index_;
+      this._showFilesBytag = [];
     }
     _globalSelf.showFile();
   },
@@ -104,13 +160,16 @@ var ShowFiles = Class.extend({
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
     if(!this._getFiles[this._index]){
-      DataAPI.getAllDataByCate(this.getCallBackData,this._wantFiles[this._index]);
+      DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
     }
     else{
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
+            if(this._index ==1){
+              $('#outWaterFall').show();
+            }
             $('#'+this._contentIds[this._index]).show();
           }
           else{
@@ -133,11 +192,12 @@ var ShowFiles = Class.extend({
               }
             }
             $('#'+ this._contentIdsSortByTime[this._index]).remove();
+            $('#outWaterFall').show();
+            $('#'+this._contentIds[this._index]).show();
           }
-          $('#'+this._contentIds[this._index]).show();
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
-              numOfCol:5
+                numOfCol:5
             }); 
           }
           if(this._index ==2){
@@ -145,11 +205,14 @@ var ShowFiles = Class.extend({
           }
           break;
         case 1:
-            if($('#'+ this._contentIdsList[this._index]).children('table').length >0){
+            if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
               $('#'+ this._contentIdsList[this._index]).show();
             }
             else {
               _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
+              if(_globalSelf._showFilesBytag.length >0){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              }
             }
             break;
         case 2:
@@ -163,12 +226,57 @@ var ShowFiles = Class.extend({
               if(this._index ==2){
                 returnshow.attr('class', 'videoContent');; 
               }
+              var sortByTimeDivs = returnshow.children('.sortByTime');
+              for(var i =0;i<sortByTimeDivs.length;i++){
+                var sortByTimeDiv = sortByTimeDivs.eq(i);
+                if(_globalSelf._showFilesBytag.length >0 && sortByTimeDiv.children('.showFileByTag').length == 0){
+                  sortByTimeDiv.hide();
+                }
+              }
               _globalSelf._showContent.append(returnshow);
+              if(this._index ==1 && _globalSelf._showFilesBytag.length >0){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              }
             }
             break;
         default:
       }
     } 
+  },
+
+  //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
+  showFileByTag:function(fileURIS){
+    _globalSelf._showFilesBytag = fileURIS;
+    for(var i =0;i<fileURIS.length;i++){
+      var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
+      var div = $("#"+fileURI+'div');
+      var tr = $("#"+fileURI+'tr');
+      div.addClass('showFileByTag');
+      tr.addClass('showFileByTag');
+    }
+    div.siblings('div:not(.showFileByTag)').hide();
+    tr.siblings('tr:not(.showFileByTag)').hide();
+    var divParent = div.parent('.sortByTime');
+    if(divParent.length >0){
+      var sortBytimeDivs = divParent.parent('div').children('.sortByTime');
+      for(var i =0;i<sortBytimeDivs.length;i++){
+        var sortByTimeDiv = sortBytimeDivs.eq(i).children('div');
+        for(var j =0;j<sortByTimeDiv.length;j++){
+          var innerDiv = sortByTimeDiv.eq(j);
+          if(innerDiv.attr('class').indexOf('showFileByTag') == -1){
+            innerDiv.hide();
+          }
+        }
+        if(sortBytimeDivs.eq(i).children('.showFileByTag').length == 0){
+          sortBytimeDivs.eq(i).hide();
+        }
+      }
+    }
+    if(_globalSelf._index ==1){
+      $('#'+this._contentIds[this._index]).BlocksIt({
+        numOfCol:5
+      }); 
+    }
   },
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
@@ -180,42 +288,36 @@ var ShowFiles = Class.extend({
     if(_globalSelf._index ==2){
       returnContent.attr('class', 'videoContent');
     }
-    _globalSelf._showContent.append(returnContent);
+    if(_globalSelf._index ==1){
+      var outWaterFall = $('<div>',{
+        'id':'outWaterFall'
+      });
+      outWaterFall.append(returnContent);
+      _globalSelf._showContent.append(outWaterFall);
+    }
+    else{
+      _globalSelf._showContent.append(returnContent);
+    }
     if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
   },
 
-  //此函数用来通过文件的路径找到具体的文件，方便以后打开时或者加标签等使用
-  findFileByPath:function(filePath){
-    var all = _globalSelf._getFiles[_globalSelf._index];
-    var file = false;
-    if(all.length){
-      for(var i =0;i<all.length;i++){
-        if(all[i]['path'] && all[i]['path']== filePath){
-          file = all[i];
-          break;
-        }
-      }
-    }
-    return file;
+  //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
+  findURIByDiv:function(div){
+    var divId = div.attr('id');
+    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+    var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+    return modifyURI;
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
-  findURIByDiv:function(div){
-    var divClass = div.attr('class');
-    var URILength = _globalSelf._getFiles[_globalSelf._index][0].length;
-    var URI = divClass.substr(divClass.indexOf(' ')+1,URILength);
-    return URI;
-  },
-
-    //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findFileByURI:function(URI){
     var all = _globalSelf._getFiles[_globalSelf._index];
     var file = false;
     if(all.length){
       for(var i =0;i<all.length;i++){
-        if(all[i]['URI'] && all[i]['URI']== URI){
+        if(all[i]['URI'] && _globalSelf.uriToModifyUri(all[i]['URI']) == URI){
           file = all[i];
           break;
         }
@@ -371,7 +473,7 @@ var ShowFiles = Class.extend({
           genDiv.append(F5Button);
           genDiv.append('<br>');
           genDiv.append(UpButton);
-          genDiv.append('<br>');
+          // genDiv.append('<br>');
           genDiv.append(DownButton);
           genDiv.append('<br>');
           genDiv.append(StopButton);
@@ -402,10 +504,9 @@ var ShowFiles = Class.extend({
 
   //此函数用来获得视频截图图片，并且保存在本地
   getVideoPicData:function(file){
-    // window.alert(file['path']);
     DataAPI.getVideoThumbnail(function(err,result){
       if(err){
-        window.alert(err);
+        console.log(err);
       }
       else{
         var videoPictureSrc = 'data:image/jpeg;base64,' + result;
@@ -430,101 +531,49 @@ var ShowFiles = Class.extend({
   addClickEvent:function(jQueryElement,whichClass){
     //一个JQuery元素代表的是一系列文件
     this.files = jQueryElement;
-    var self = this;
     //增加单击和右击事件,1是单击，3是右击
     this.files.delegate(whichClass,'mousedown',function(e){
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-          // $(this).delegate($(this),'mousedown',function(e){
-          // })
-          $(this).attr('tabindex', 1).keydown(function(e) {
-              if($(this).attr('data-path')){
-                var file = _globalSelf.findFileByPath($(this).attr('data-path'));
-                var filePath = $(this).attr('data-path'); 
+
+          //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
+          if(!$(this).attr('tabindex')){
+            $(this).blur(function() {
+              $(this).removeClass('selected');
+            });
+            $(this).attr('tabindex','1').keydown(function(e) {
+              if(e.which == 46){
+                //触发的是键盘的delete事件,表示删除
+                var modifyURI_ = _globalSelf.findURIByDiv($(this));
+                _globalSelf.deleteFileByUri(modifyURI_);
               }
-              else{
-                var file = _globalSelf.findFileByPath($(this).attr('id'));
-                var filePath = $(this).attr('id');
+              else if(e.which == 113){
+                //按下F2键，表示要重命名
+                _globalSelf.renameFileByDivId($(this).attr('id'));
               }
-            if(e.which == 46){
-              //触发的是键盘的delete事件,表示删除
-              var toDelete = $(this);
-              DataAPI.rmDataByUri(function(err,result){
-                if(result == 'success'){
-                  toDelete.remove();
-                  for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-                    if(_globalSelf._getFiles[_globalSelf._index][i]['path'] == filePath){
-                      _globalSelf._getFiles[_globalSelf._index].splice(i,1);
-                      break;
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div').length >0){
-                    var div = $('#'+ _globalSelf._contentIds[_globalSelf._index]).children('div');
-                    for(var i=0;i<div.length;i++){
-                      if($(div[i]).attr('data-path') == filePath){
-                        $(div[i]).remove();
-                      }
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div').length >0){
-                    var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
-                    var sortDivs = $('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).children('div');
-                    var whichDiv = 0;
-                    if(timeDifference >=0 && timeDifference <=24){
-                      whichDiv =0;
-                    }
-                    else if(timeDifference>24 && timeDifference <=24*7){
-                      whichDiv =1;
-                    }
-                    else if(timeDifference >24*7 && timeDifference <24*30){
-                      whichDiv =2;
-                    }
-                    else {
-                      whichDiv =3;
-                    }
-                    var div = $(sortDivs[whichDiv]).children('div');
-                    for(var i=0;i<div.length;i++){
-                      if($(div[i]).attr('data-path') == filePath){
-                        $(div[i]).remove();
-                      }
-                    }
-                  }
-                  if($('#'+ _globalSelf._contentIdsList[_globalSelf._index]).children('table').length >0){
-                    $('table,tr').each(function(index, el) {
-                      if($(this).attr('id') == filePath){
-                        $(this).remove();
-                      }
-                    });
-                  }
-                  _globalSelf.showFile();
-                }
-                else{
-                  window.alert('Delete file failed');
-                }
-              },file['URI']);
-            }
-            else if(e.which == 113){
-              //按下F2键，表示要重命名
-            }
-          });
+            });
+          }
           break;
         case 3:
+          $(this).addClass('selected').siblings().removeClass('selected');
           break;  
       }
-      e.stopPropagation();
     });
+    //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
-      if($(this).attr('data-path')){
-        var file = _globalSelf.findFileByPath($(this).attr('data-path')); 
-      }
-      else{
-        var file = _globalSelf.findFileByPath($(this).attr('id'));
-      }
-      if(!file){
-        window.alert('the file is not found !');
-        return false;
-      }
+      var fileModifyURI = _globalSelf.findURIByDiv($(this));
+      _globalSelf.openFileByUri(fileModifyURI);
+    });
+  },
+
+  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFileByUri:function(modifyURI_){
+    var file = _globalSelf.findFileByURI(modifyURI_);
+    if(!file){
+      window.alert('the file is not found');
+    }
+    else{
       if(file.URI.indexOf('#') != -1){
         if(file.postfix == 'pdf'){
           function cbViewPdf(){
@@ -540,7 +589,95 @@ var ShowFiles = Class.extend({
           DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
         }
       }
-    });
+    }
+  },
+
+  //此函数用来对文件重命名，传入的是文件的对应的div的ID，因为也要找到名字存在的位置然后产生inputer
+  //还要把本地的获取的文件的名字修改，同时所有现存的div的名字选项也要修改
+  renameFileByDivId:function(DivId_){
+    var modifyURI = _globalSelf.findURIByDiv($('#'+DivId_));
+    var file = _globalSelf.findFileByURI(modifyURI);
+    if(!file){
+      window.alert('the file is not found');
+    }
+    else{
+      if(_globalSelf._showNormal[_globalSelf._index] == 1){
+        var renameTh = $('#'+DivId_).children('th').eq(0);
+        if(_globalSelf._index == 3){
+          var rename = renameTh.children('p');
+        }
+        else{
+          var rename = renameTh;
+        }
+      }
+      else {
+        var rename = $('#'+DivId_).children('p')
+      }
+      var inputer = Inputer.create('button-name');
+      var options = {
+        'left': rename.offset().left,
+        'top': rename.offset().top,
+        'width': 80,
+        'height': 25,
+        'oldtext': file['filename'],
+        'callback': function(newtext){
+          DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], 
+            file['URI'], newtext+'.'+file['postfix'], 
+            function(err, result){
+              if(result == 'success'){
+                $('#'+modifyURI+'div').children('p').html(newtext);
+                if(_globalSelf._index ==3){
+                  $('#'+modifyURI+'tr').children('th').eq(0).children('p').html(newtext);
+                }
+                else{
+                  $('#'+modifyURI+'tr').children('th').eq(0).html(newtext);
+                }
+                for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+                  if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']){
+                    _globalSelf._getFiles[_globalSelf._index][i]['filename'] = newtext;
+                  break;
+                  }
+                }
+              }
+              else{
+                window.alert("Rename failed!");
+              }
+          });
+        }
+      }
+      inputer.show(options); 
+    }
+  },
+
+  //此函数用来删除一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的,
+  //删除以后还要进行本地的一些操作，把有的div给删除掉，本地的获取文件也删除掉
+  deleteFileByUri:function(modifyURI_){
+    var file = _globalSelf.findFileByURI(modifyURI_);
+    if(!file){
+      window.alert('the file is not found');
+    }
+    else{
+      DataAPI.rmDataByUri(function(err,result){
+        if(result == 'success'){
+          for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+            if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']){
+              _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+              break;
+            }
+          }
+          $("#"+modifyURI_+'div').remove();
+          $("#"+modifyURI_+'tr').remove();
+          if(_globalSelf._index ==1){
+            $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
+              numOfCol:5
+            }); 
+          }
+        }
+        else{
+          window.alert('Delete file failed');
+        }
+      },file['URI']);
+    }
   },
 
   //此函数用来转换时间
@@ -550,10 +687,27 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来算时间差，然后按照时间排序
-  dateDifference:function(lastModifyTime){
-    var date = new Date(lastModifyTime);
+  dateDifference:function(file){
+    var lastModifyTime = new Date(file['lastModifyTime']);
+    var lastAccessTime = new Date(file['lastAccessTime']);
+    var createTime = new Date(file['createTime']);
     var today = new Date();
-    var dateDifference = (today- date)/(60*60*1000);
+    if(lastModifyTime > lastAccessTime){
+      if(lastModifyTime > createTime){
+        var dateDifference = (today- lastModifyTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
+    else{
+      if(lastAccessTime > createTime){
+        var dateDifference = (today- lastAccessTime)/(60*60*1000);
+      }
+      else {
+        var dateDifference = (today- createTime)/(60*60*1000);
+      }
+    }
     return dateDifference;
   },
 
@@ -565,22 +719,14 @@ var ShowFiles = Class.extend({
     //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
     function GenerateBodyTr(file,theadMessage){
       var bodytr = $('<tr>',{
-        'id':file['path'],
-        'class':'bodytr '+file['URI']
+        'id':_globalSelf.uriToModifyUri(file['URI'])+'tr',
+        'class':'bodytr'
       });
-      if(file['filename'].indexOf(' ') != -1 ||
-        file['filename'].indexOf('\'' != -1)){
-        var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-      }
-      else{
-          var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-      }
       for(var i =0;i<theadMessage.length;i++){
         switch(i){
           case 0:
             if(_globalSelf._index == 3){
               var thP = $('<P>',{
-                // 'class':id,
                 'text':file[theadMessage[i]]
               });
               var thPicture = $('<img>',{
@@ -595,7 +741,6 @@ var ShowFiles = Class.extend({
             }
             else{
               var th = $('<th>',{
-                // 'class':id,
                 'text':file[theadMessage[i]]
               });
               bodytr.append(th);
@@ -615,6 +760,7 @@ var ShowFiles = Class.extend({
             break;
         }
       }
+      _globalSelf.attachDataMenu(bodytr[0].id);
       return bodytr;
     }
     
@@ -681,10 +827,26 @@ var ShowFiles = Class.extend({
     var previousOneYear = $('<div>',{
       'class':'sortByTime'
     });
+    var todaySpan = $('<span>',{
+      'text':'Today'
+    });
+    var previous7DaysSpan = $('<span>',{
+      'text':'previous7Days'
+    });
+    var previous30DaysSpan = $('<span>',{
+      'text':'previous30Days'
+    });
+    var previousOneYearSpan = $('<span>',{
+      'text':'previousOneYear'
+    });
+    today.append(todaySpan);
+    previous7Days.append(previous7DaysSpan);
+    previous30Days.append(previous30DaysSpan);
+    previousOneYear.append(previousOneYearSpan);
     for(var i =0;i<Divs.length;i++){
       var div = Divs.eq(i);
       if(_globalSelf._index == 1){
-        div.removeClass('pictureContainerWaterFall');
+        div.removeClass('pictureContainerWaterFall')
         div[0].style.cssText = '';
         var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
@@ -696,7 +858,7 @@ var ShowFiles = Class.extend({
       }
       var fileURI = _globalSelf.findURIByDiv(div);
       var file = _globalSelf.findFileByURI(fileURI);
-      var timeDifference = _globalSelf.dateDifference(file['lastModifyTime']);
+      var timeDifference = _globalSelf.dateDifference(file);
       if(timeDifference >=0 && timeDifference <=24){
         today.append(div);
       }
@@ -710,10 +872,10 @@ var ShowFiles = Class.extend({
         previousOneYear.append(div);
       }
     }
-    if(today.children('div').length ==0){
+    if(today.children('div').length ==0 ){
       today.hide();
     }
-    if(previous7Days.children('div').length ==0){
+    if(previous7Days.children('div').length ==0 ){
       previous7Days.hide();
     }
     if(previous30Days.children('div').length ==0){
@@ -741,27 +903,19 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'class':'pictureContainerWaterFall '+file['URI'],
-            'data-path':file['path']
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'pictureContainerWaterFall',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'pictureHolderWaterFall'
           });
           //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<p>',{
-              'class':'picturedescriptionWaterFall',
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<p>',{
-              'class':'picturedescriptionWaterFall',
-              'text':file['filename']
-            });
-          }
-          Holder.append($('<img src="' + file['path'] + '"></img>'));
+          var description = $('<p>',{
+            'class':'picturedescriptionWaterFall',
+            'text':file['filename']
+          });
+          Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);
@@ -775,116 +929,139 @@ var ShowFiles = Class.extend({
               });
             }
           };
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(110,204,188)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 2:
           var Container = $('<div>',{
-            'class':'videoContainer '+ file['URI'],
-            'data-path':file['path']
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'videoContainer',
+            'draggable': true
           });
           var Holder = $('<div>',{
             'class':'videoHolder'
           });
           //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<p>',{
-              'class':'videodescription',
-              'text':file['filename']
-            });
-          }else{
-            var description = $('<p>',{
-              'class':'videodescription',
-              'text':file['filename']
-            });
-          };
+          var description = $('<p>',{
+            'class':'videodescription',
+            'text':file['filename']
+          });
           var img = $('<img>',{
-            'id':file['URI']
+            'id':file['URI'],
+            'draggable':false
           });
           _globalSelf.getVideoPicData(file);
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
-          returnContent.append(Container);       
+          returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(204,51,51)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 3:
           var Container = $('<div>',{
-            'class':'doc-icon '+file['URI'],
-            'data-path':file['path']
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'doc-icon',
+            'draggable': true
           });
           var img = $('<img>',{
-            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png'
+            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+            'draggable':false
           });
           Container.append(img);
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var p = $('<p>',{
-              'text':file['filename']
-            });
-            Container.append(p);
-          }else{
-            var p = $('<p>',{
-              'text':file['filename']
-            });
-            Container.append(p);
-          }
+          var p = $('<p>',{
+            'text':file['filename']
+          });
+          Container.append(p);
           returnContent.append(Container);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(120,78,100)',
+            max:2
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
           _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
-            'class':'musicContainer '+file['URI'],
-            'data-path':file['path']
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'musicContainer',
+            'draggable': true
           });
           var Holder = $('<div>',{
-            'class':'musicHolder'
+            'class':'musicHolder',
+            'draggable':false
           });
           //用来定义最后描述的名字.
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var description = $('<p>',{
-              'class':'musicdescription',
-              'text':file['filename']
+          var description = $('<p>',{
+            'class':'musicdescription',
+            'text':file['filename']
           });
-          }else{
-            var description = $('<p>',{
-              'class':'musicdescription',
-              'text':file['filename']
-            });
-          }
           var musicImg = $('<img>',{
-             'id':file['URI']
+             'id':file['URI'],
+             'draggable':false
           });
           Holder.append(musicImg);
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(51,153,102)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
           var Container = $('<div>',{
-            'class':'doc-icon '+file['URI'],
-            'data-path':file['path']
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'doc-icon',
+            'draggable': true
           });
           var img = $('<img>',{
-            'src':'icons/Other.png'
+            'src':'icons/Other.png',
+            'draggable':false
           });
           Container.append(img);
-          if(file['filename'].indexOf(' ') != -1 ||
-            file['filename'].indexOf('\'' != -1)){
-            var id = file['filename'].replace(/\s+/g, '_').replace(/'/g, '');
-            var p = $('<p>',{
-              'text':file['filename']
-            });
-            Container.append(p);
-          }else{
-            var p = $('<p>',{
-              'text':file['filename']
-            });
-            Container.append(p);
-          }
+          var p = $('<p>',{
+            'text':file['filename']
+          });
+          Container.append(p);
           returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(200,200,200)',
+            max:1
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
           break;
         default:
       }
@@ -945,6 +1122,25 @@ var ShowFiles = Class.extend({
         return 'gz';
       default:
         return 'Other';
+    }
+  },
+
+  uriToModifyUri:function(uri_){
+    return uri_.replace(/#/g,'-');
+  },
+
+  modifyUriToUri:function(modifyURI_){
+    return modifyURI_.replace(/-/g,'#');
+  },
+
+  bindDrag:function(file_){
+    var _this = this;
+    file_.ondragstart = function(ev){
+      $(ev.currentTarget).fadeTo(0,0.4);
+      $(ev.currentTarget).fadeTo(20,1);
+      var _uri = _this.modifyUriToUri(ev.currentTarget.id);
+      ev.dataTransfer.setData('uri',_uri.substring(0,_uri.length -3));
+      ev.dataTransfer.setData('category',_globalSelf._currentCategory[_globalSelf._index]);
     }
   }
 })

@@ -1,0 +1,193 @@
+#gitlog-container{
+  margin-left: 0px;
+  border: 0px solid rgba(0,0,0,0);
+  background-color: #202a2d;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  min-width: 300px;  
+  #gitselect-content{
+    margin-left: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height:55px;
+    position: relative;
+    select{
+      background-color: #2d3c43;
+      position: absolute;
+      border: 1px solid #dddddd;
+      left: 0px;
+      top: 6px;
+      width: 50%;
+      padding-left: 15px;
+    }
+  }
+  .git-content{
+    .scroll(5px,#6e9196);
+    overflow-y:auto;
+    border: 0px solid rgba(0,0,0,0);
+    position: absolute;
+    top: 80px;
+    bottom: 0px;
+    width: 100%;
+    left: 0px;
+    li{
+      font-size: 15px;
+      height:125px;
+      display: block;
+      position: relative;
+      color: #93c2cc;
+      border:1px solid rgba(0,1,1,0);
+
+      &#gitcontent-list1{
+        background-color: rgba(147, 194, 204, 0.05);  
+        &:after{
+          content: "";
+          position: absolute;
+          width: 1px;
+          height: 140px;
+          background-color: #93c2cc;
+          left: 170px;
+          top: 0px;
+        }
+        &:first-child:after{
+          height: 80%;
+          top: 28px;
+        }
+        &:last-child:after{
+          height: 20px;
+        }
+      }
+      &#gitcontent-list2{
+        &:after{
+          content: "";
+          position: absolute;
+          width: 1px;
+          height: 140px;
+          background-color: #93c2cc;
+          left: 170px;
+          top: 0px;
+        }
+        &:last-child:after{
+          height: 20px;
+        }
+      }
+      #date-info{
+        position: absolute;
+        left: 210px;
+        top:13px;
+       }
+       #time-info{
+        position: absolute;
+        left:210px;
+        top:33px;
+        font-size: 12px;
+       }
+      #date-dis{
+        position: absolute;
+        left:10px;
+        top:20px;
+        width: 120px;
+        text-align: right;
+      }
+      #_op{
+        position: absolute;
+        left:380px;
+        top:62px;
+        &:after{
+          content: "";
+          position: absolute;
+          width: 18px;
+          height: 18px;
+          left: -30px;
+          top:1px;
+          background: url(../img/opicon.svg);
+        }
+      }
+      #device{
+        position: absolute;
+        left:380px;
+        top:20px;
+        &:after{
+          content: "";
+          position: absolute;
+          width: 24px;
+          height: 24px;
+          left: -33px;
+          top:-2px;
+          background: url(../img/computer.svg);
+        }
+      }
+      select{
+        position: absolute;
+        background: transparent;
+        border: 0px;
+        left:440px;
+        top:53px;
+        line-height: 35px;
+      }
+      #recover-button{
+        position: absolute;
+        outline: none;
+        right:40px;
+        bottom: 10px;
+        background-color: transparent;
+        border: 1px solid rgba(147, 194, 204, 0.2);
+        color: #6b9091;
+        .radius(30px);
+        font-size: 12px;
+        line-height: 20px;
+        .transition(background-color,0.4s);
+        &:hover{
+          background-color: #34454c;
+          cursor: pointer;
+        }
+        &:active{
+          background-color: #2a383d;
+        }
+      }
+      #photo{
+        position:relative;
+        width: 40px;
+        height: 40px;
+        left:150px;
+        top:10px;
+        background: url(../img/localhost.jpg);
+        background-size: cover;
+        .radius(50%);
+        overflow: hidden;
+        display: block;
+        border:1px solid #93c2cc;
+        transition:border-color 0.6s ease 0s;
+        z-index: 3;
+        &:hover{
+           border-color: #a54242;
+        } 
+      }
+    }   
+  }
+ }
+
+.gitselect{
+  outline: none;
+  color: #93c2cc;
+  border-radius: 4px;
+  font-size: 1em;
+  height: 31px;
+  -moz-appeatance:none;
+  -o-appeatance:none;
+  -webkit-appearance: none;
+  appearance:none;
+  font-size: 13px;
+  .select-option{
+    .scroll;
+    position:relative;
+    border: 1px solid #dddddd;
+    background-color: #2d3c43;
+    color: #999;
+    border-radius: 4px;
+    .radius(4px);
+    font-size: 1em;
+  }
+}

@@ -215,7 +215,7 @@ var TagView = Class.extend({
    * @type {[type]}
    */
   addTags:function(arrTags_, callback_){
-    for (var i = 0; i < arrTags_.length; i++) {
+    for (var i = arrTags_.length -1 ;i >= 0 ;i--) {
       this.addTag(arrTags_[i]);
     };
     if(this._options.animate){
@@ -240,6 +240,7 @@ var TagView = Class.extend({
               var _newtag = this.newTag(this._tagTextList[this._options.max-1]);
               this.setPosition(_newtag,this._options.max);
               this._parent.append(_newtag);
+              this.bindDrag(_newtag[0]);
               this._tagList.push(_newtag);
             }else{
               this._index--;
@@ -357,6 +358,11 @@ var TagView = Class.extend({
       $obj_.addClass('rotate');
     }
   },
+  /**
+   * [bindDrag bind drag Event]
+   * @param  {[type]} tag_ [description]
+   * @return {[type]}      [description]
+   */
   bindDrag:function(tag_){
     var _this = this;
     tag_.ondragstart = function(ev){
@@ -373,7 +379,32 @@ var TagView = Class.extend({
     }
     tag_.ondragend = this.dragEnd;
   },
+
   dragEnd:function(ev){
     $(ev.currentTarget).removeClass('no-rotate');
+  },
+
+  bindDrop:function(target_){
+    var _this = this;
+    var drop = function(ev){
+      var _tag = ev.dataTransfer.getData('tag');
+      var _id = ev.currentTarget.id;
+      var _uri = showfiles.modifyUriToUri(_id).substring(0,_id.length - 3);
+      if (typeof _tag === 'string' && _tag.length > 0) {
+        DataAPI.setTagByUri(function(err){
+          if (err === null) {
+            infoList.fixTagNum(_tag,1);
+            _this.addPreTag(_tag);
+          };
+        },[_tag],_uri);
+      };
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
+    var dragOver = function(ev){
+      ev.preventDefault();
+    }
+    target_.ondrop = drop;
+    target_.ondragover = dragOver;
   }
 });

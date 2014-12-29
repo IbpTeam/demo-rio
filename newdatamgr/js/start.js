@@ -16,6 +16,7 @@ var main = function(params_){
     search = Search.create();
     contact = Contact.create();
     infoList = InfoList.create();
+    gitLog = GitLog.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
     infoList._infoList.hide();
@@ -23,6 +24,8 @@ var main = function(params_){
     content    = $('#contentDiv');
     search.attach($('#searchDiv'));
     homePage.attach(content);
+    gitLog.attach(container);
+    gitLog.hide();
     contact.attach($('#contentDiv'));
     contact.setContactsList();
     contact.hide();
@@ -37,6 +40,9 @@ var main = function(params_){
     var clickHandler = function(k) {
       return function() {
         $(this).addClass('active').siblings().removeClass('active');
+        gitLog.hide();
+        $('#searchDiv').show();
+        content.show();
         content.children('div').hide();
         search.clearTags();
         if(k == 1){
@@ -61,6 +67,16 @@ var main = function(params_){
       $('#js-label' + i).on('click', clickHandler(i));
       $('#js-label' + i)[0].ondragenter = clickHandler(i);
     }
+
+    //bind gitLog button
+    $('#tags__bottom').on('click',function(){
+      infoList._infoList.hide();
+      container.removeClass('move-right');
+      $('#tags__ul').children('li').removeClass('active');
+      container.children('div').hide();
+      gitLog.getLogShow();
+    });
+
 
     //bind drag event
     $('#tags__bottom')[0].ondragover = function(ev){
@@ -101,18 +117,19 @@ var main = function(params_){
           }
         },[_tag],_uri);
       }else if(_uri && !_tag){  //drag file to remove
-        DataAPI.rmDataByUri(function(err_){
-          if(err_ !== null){
-            console.log('Delect file failed:' + err_);
-            return 0;
-          }
-          switch(_category){
-            case 'mainDoc':
-              if(!homePage._doc.removeFile(_uri)){
-                alert('remove doc div error');
-              }
-          }
-        },_uri);
+        if (_category === 'mainDoc') {
+          DataAPI.rmDataByUri(function(err_){
+            if(err_ !== null){
+              console.log('Delect file failed:' + err_);
+              return 0;
+            }
+            if(!homePage._doc.removeFile(_uri)){
+              alert('remove doc div error');
+            }
+          },_uri);
+        }else{
+          showfiles.deleteFileByUri(showfiles.uriToModifyUri(_uri));
+        }
       }
     }
     //analyse and performance params

@@ -365,7 +365,7 @@
     if(self.val().length == 0){
       self.removeTag(lastTag);
       if(lastTag){
-        self.trigger(EVENT_TAG_REMOVE,lastTag.data(CSS_TAG));
+        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG));//data(CSS_TAG));
       }
     }
   };
@@ -430,7 +430,7 @@
     {
       self.removeTag(source.parents(CSS_DOT_TAG + ':first'));
       var _tag = source.parents(CSS_DOT_TAG + ':first')
-      self.trigger(EVENT_TAG_REMOVE,_tag.data(CSS_TAG));
+      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG));
       focus = 1;
     }
     else if(source.is(CSS_DOT_LABEL))
@@ -691,7 +691,7 @@
       ;
 
     node.find('.text-label').text(self.itemManager().itemToString(tag));
-    node.data(CSS_TAG, tag);
+    node.attr('data-'+CSS_TAG,tag);//data(CSS_TAG, tag);
     return node;
   };
 })(jQuery);

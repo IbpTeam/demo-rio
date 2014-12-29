@@ -60,6 +60,12 @@
 .icon-icon-facetime-video:before {
   content: "\e608";
 }
+.icon-others:before{
+  content: "\e60f";
+  font-size: 0.8em;
+}
+
+
 
 .icon-plus:after{
   content: "\e60a";
