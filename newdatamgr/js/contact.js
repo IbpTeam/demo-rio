@@ -407,6 +407,8 @@ var Contact = Class.extend({
           }
           contact._contacts[contact._selectId]['others'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
+          var _tagedFile = [contact._contacts[contact._selectId]['URI']];
+          infoList._info['tagFiles'][_tag].push(_tagedFile);
         };
       },[_tag],contact._tagView._uri);
     };
