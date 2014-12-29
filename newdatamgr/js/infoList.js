@@ -156,12 +156,12 @@ var InfoList = Class.extend({
     _a.append(_num);
     this._add.before(_a);
     var _this = this;
-    if(num_ > 0){
-      _a.click(function(e){
+    _a.click(function(e){
+      if($(this).children('.il__num')[0].textContent > 0){
         _this.showTagFilterData(this.id);
         search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
-      });
-    }
+      }
+    });
     this.bindDrag(_a[0]);
   },
 

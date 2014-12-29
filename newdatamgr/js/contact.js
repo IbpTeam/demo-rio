@@ -408,7 +408,13 @@ var Contact = Class.extend({
           contact._contacts[contact._selectId]['others'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
           var _tagedFile = [contact._contacts[contact._selectId]['URI']];
-          infoList._info['tagFiles'][_tag].push(_tagedFile);
+          if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
+            infoList._info['tagFiles'][_tag].push(_tagedFile);
+          } else {
+            infoList._info['tagFiles'][_tag] = [_tagedFile];
+            infoList._info['tags'].push(_tag);
+          }
+          
         };
       },[_tag],contact._tagView._uri);
     };
