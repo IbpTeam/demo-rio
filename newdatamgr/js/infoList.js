@@ -156,10 +156,12 @@ var InfoList = Class.extend({
     _a.append(_num);
     this._add.before(_a);
     var _this = this;
-    _a.click(function(e){
-      _this.showTagFilterData(this.id);
-      search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
-    });
+    if(num_ > 0){
+      _a.click(function(e){
+        _this.showTagFilterData(this.id);
+        search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
+      });
+    }
     this.bindDrag(_a[0]);
   },
 
@@ -241,7 +243,9 @@ var InfoList = Class.extend({
     if(_this._firstShowFilterData == true){
       _this._firstShowFilterData = false;
       DataAPI.getFilesByTagsInCategory(function(err_, result_){
-        _this.loadFilterData(result_);
+        if(result_ != null){
+          _this.loadFilterData(result_);
+        }
       }, _this.getCategoryName(_this._index), _tag);
     } else {
       var _dataJsons = [];
@@ -260,7 +264,9 @@ var InfoList = Class.extend({
         }
       }
       if(_this._index == 0){
-        _this.loadFilterData(_dataJsons);
+        if(_dataJsons != null){
+          _this.loadFilterData(_dataJsons);
+        }
       } else {
         showfiles.showFileByTag(_dataUris);
       }
