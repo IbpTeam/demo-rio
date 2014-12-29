@@ -17,7 +17,6 @@ var main = function(params_){
     contact = Contact.create();
     infoList = InfoList.create();
     gitLog = GitLog.create();
-    showfiles = ShowFiles.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
     infoList._infoList.hide();

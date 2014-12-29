@@ -300,6 +300,7 @@ var InfoList = Class.extend({
   loadData:function(){
     if(this._index >0 && this._index <6){
       if(this._isFirstRequset){
+        showfiles = ShowFiles.create();
         showfiles.setIndex(this._index);
         this._isFirstRequset = false;
       }
