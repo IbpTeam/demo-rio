@@ -13,9 +13,18 @@ var Port = 7777;
 var fileServer;
 var pathMap;
 
-/*
-*getLocalData
-*/
+/**
+ * @method getLocalData
+ *  获得设备信息，包括设备用户名和UID
+ *
+ * @param getLocalDataCb
+ *   回调函数，返回设备信息
+ *  @cbparam1
+ *   JSON，表示设备信息，其中
+ *   account字段表示设备的用户名
+ *   UID字段表示设备的UUID
+ *
+ */
 function getLocalData(getLocalDataCb){
   var localJson={};
   localJson['account']=config.ACCOUNT;
@@ -33,14 +42,14 @@ exports.getLocalData = getLocalData;
  *
  * @param AppCallBack
  *   回调函数，为新应用添加的接收消息回调函数
- *  @param1
+ *  @cbparam1
  *   JSON, 表示注册的状态，其中
  *   IP字段表示发送方的IP地址
- *  MsgObj字段表示收到消息的详细信息，其中
- *  MsgObj.message为收到的具体信息
- *  MsgObj.time表示发送时间，具体使用方法见测试
- *  MsgObj.from表示发送方的账户信息
- *  MsgObj.uuid表示发送方的设备UUID
+ *   MsgObj字段表示收到消息的详细信息，其中
+ *   MsgObj.message为收到的具体信息
+ *   MsgObj.time表示发送时间，具体使用方法见测试
+ *   MsgObj.from表示发送方的账户信息
+ *   MsgObj.uuid表示发送方的设备UUID
  *  
  * @param AppName
  *  string，新注册的应用名称，该名称用来区分消息的归属应用
@@ -51,6 +60,25 @@ function registerApp(AppCallBack, AppName) {
 }
 exports.registerApp = registerApp;
 
+/**
+ * @method registerIMApp
+ *  在本机消息接收端口上添加即时通信监听回调函数
+ *
+ * @param AppCallBack
+ *   回调函数，为即时通信添加的接收消息回调函数
+ *  @cbparam1
+ *   JSON，表示注册的App收到的消息内容，其中
+ *    IP字段表示发送方的IP地址
+ *    MsgObj字段表示收到消息的详细信息，其中
+ *    MsgObj.message为收到的具体信息
+ *    MsgObj.time表示发送时间，具体使用方法见测试
+ *    MsgObj.from表示发送方的账户信息
+ *    MsgObj.uuid表示发送方的设备UUID
+ *  
+ * @param ws
+ *  Object，设备显示终端的webSocket连接
+ *
+ */
 function registerIMApp(AppCallBack,ws) {
   var msg = {
     'Action': 'on',
@@ -70,12 +98,12 @@ exports.registerIMApp = registerIMApp;
 /**
  * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启
- * 一个消息接收端口，用于通信，收到的消息交付registerApp函数
- * 注册的回调函数处理
+ *  一个消息接收端口，用于通信，收到的消息交付registerApp函数
+ *  注册的回调函数处理
  *
  * @param StartCb
  *   回调函数，用来表示开启监听服务的状态
- *  @param1
+ *  @cbparam1
  *   bool, 表示服务开启是否成功，若成功则为true，否则为false
  * 
  * @param Flag
@@ -108,10 +136,10 @@ exports.startIMService = startIMService;
  *
  * @param SentCallBack
  *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
- *  @param1
- *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ *  @cbparam1
+ *   string， 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
  * @param MsgObj
- *   JSON,待发送的消息结构体，其中：
+ *   JSON，待发送的消息结构体，其中：
  *  MsgObj.IP 表示接收方的IP地址
  *  MsgObj.UID 表示接收方的UUID
  *  MsgObj.Account表示接收方的帐号
@@ -120,13 +148,13 @@ exports.startIMService = startIMService;
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-  IP: "192.168.1.100",
-  UID: "fyfrio1997rio",
-  Account: "fyf",
-  Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
-  App: "app1"
-  rsaflag: "true"
-};
+      IP: "192.168.1.100",
+      UID: "fyfrio1997rio",
+      Account: "fyf",
+      Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
+      App: "app1"
+      rsaflag: "true"
+    };
  *
  */
 function sendAppMsg(SentCallBack, MsgObj) {
@@ -150,26 +178,40 @@ exports.sendAppMsg = sendAppMsg;
  *  该函数用来给目的机器的指定应用程序发送消息
  *
  * @param SentCallBack
- *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
- *  @param1
- *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ *   回调函数，当消息发送成功时，调用该函数，并传参接收端收到后封装的消息
+ *  @cbparam1
+ *   JSON， 表示发送的消息经接收端封装后的消息内容，其中
+ *    IP字段表示发送方的IP地址
+ *    destInfo表示发送方的信息内容，其中
+ *    destInfo.Account表示接收端的账户信息
+ *    destInfo.UID表示接收端的设备UUID
+ *    destInfo.IP表示接收端的IP地址
+ *    MsgObj字段表示接收端收到消息的详细信息，其中
+ *    MsgObj.message为接收端应该接收的具体信息
+ *    MsgObj.time表示发送时间，具体使用方法见测试
+ *    MsgObj.from表示发送方的账户信息
+ *    MsgObj.uuid表示发送方的设备UUID
  * @param MsgObj
- *   JSON,待发送的消息结构体，其中：
+ *  JSON，待发送的消息结构体，其中：
  *  MsgObj.IP 表示接收方的IP地址
  *  MsgObj.UID 表示接收方的UUID
  *  MsgObj.Account表示接收方的帐号
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“”，表示无组别;msg为发送消息内容
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerIMApp中的AppName对应，此处为imChat
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-  IP: "192.168.1.100",
-  UID: "fyfrio1997rio",
-  Account: "fyf",
-  Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
-  App: "app1"
-  rsaflag: "true"
-};
+      IP: "192.168.1.100",
+      UID: "fyfrio1997rio",
+      Account: "fyf",
+      Msg: "{'group':'','msg':'Hi  this is in IMSender test'}",
+      App: "app1"
+      rsaflag: "true"
+    };
+ * @param wsID
+ * string，发送端的webSocket连接的sessionID
+ * @param flag
+ * boolean，是否需要发送端发送给其显示终端，true表示需要发送，false表示不需要发送
  *
  */
 function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
@@ -198,10 +240,6 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-   //   var m=rstMsg.MsgObj.message;
-    //  var m=JSON.parse(m);
-   //   if(m.msg.type==='file')
-    //    return;
     if(flag){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
@@ -221,26 +259,38 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
  *  该函数用来给目的帐号（一个帐号下的设备组）的指定应用程序发送消息
  *
  * @param SentCallBack
- *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
+ *   回调函数，当消息发送成功时，调用该函数，并传参接收端收到后封装的消息
  *  @cbparam1
- *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ *   JSON， 表示发送的消息经接收端封装后的消息内容，其中
+ *    IP字段表示发送方的IP地址
+ *    destInfo表示发送方的信息内容，其中
+ *    destInfo.Account表示接收端的账户信息
+ *    MsgObj字段表示接收端收到消息的详细信息，其中
+ *    MsgObj.message为接收端应该接收的具体信息
+ *    MsgObj.time表示发送时间，具体使用方法见测试
+ *    MsgObj.from表示发送方的账户信息
+ *    MsgObj.uuid表示发送方的设备UUID
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.toAccList 表示接收方的IP以及UID集合
  *  MsgObj.Account表示接收方的帐号
  *  MsgObj.localUID表示正在登录帐号的对应设备的UID
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerIMApp中的AppName对应，此处为imChat
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-  toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
-  Account: "fyf",
-  localUID: "fyfrio1997rio",
-  Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
-  App: "app1"
-  rsaflag: "true"
-};
+      toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+      Account: "fyf",
+      localUID: "fyfrio1997rio",
+      Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
+      App: "app1"
+      rsaflag: "true"
+    };
+ * @param wsID
+ * string，发送端的webSocket连接的sessionID
+ * @param flag
+ * boolean，是否需要发送端发送给其显示终端，true表示需要发送，false表示不需要发送
  *
  */
 function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
@@ -318,9 +368,7 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
  *  该函数用来给目的帐号（与一组设备）或者设备的指定应用程序发送消息
  *
  * @param SentCallBack
- *   回调函数，当所有设备的消息发送成功时，调用该函数，并传参发送的消息
- *  @cbparam1
- *   string, 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ *   回调函数，作为调用具体发送函数sendAppMsgByDevice或者sendAppMsgByAccount的参数
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.IP 表示接收方的IP地址
@@ -330,24 +378,27 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
  *  MsgObj.localUID表示正在登录帐号的对应设备的UID
  *  MsgObj.group表示消息发送以及接收端群组名称
  *  MsgObj.Msg表示要发送给指定应用的消息,为JSON转化的string类型。其中group表示对应组别，此处为“fyf”，表示组别为fyf;msg为发送消息内容
- *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerIMApp中的AppName对应，此处为imChat
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-  IP: "",
-  UID: "",
-  toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
-  Account: "fyf",
-  localUID: "fyfrio1997rio",
-  group: "fyf",
-  Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
-  App: "app1"
-  rsaflag: "true"
-};
+      IP: "",
+      UID: "",
+      toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+      Account: "fyf",
+      localUID: "fyfrio1997rio",
+      group: "fyf",
+      Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
+      App: "app1"
+      rsaflag: "true"
+    };
+ * @param wsID
+ * string，发送端的webSocket连接的sessionID
+ * @param flag
+ * boolean，是否需要发送端发送给其显示终端，true表示需要发送，false表示不需要发送
  *
  */
 function sendIMMsg(SentCallBack, MsgObj,wsID,flag){
-  console.log('ok==================');
   if(MsgObj.group===''){
     sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag);
   }else{
@@ -360,29 +411,27 @@ exports.sendIMMsg = sendIMMsg;
  * @method sendFileTransferRequest
  *  发送端发送传输文件请求
  *
- * @param1 callback function
+ * @param sendFileTransferRequestCb
  *   回调函数
  *   @cbparam1
- *      boolean, 返回操作出错与否，出错则返回true,无错则返回false
+ *      boolean，返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
- *      JSON, 返回待传输的文件信息MsgObj或者出错信息
-
- * @param2 MsgObj
- *   启动程序参数，json格式封装
-   *   JSON,待发送的消息结构体，其中：
-   *  MsgObj.IP 表示接收方的IP地址
-   *  MsgObj.UID 表示接收方的UUID
-   *  MsgObj.Account表示接收方的帐号
-   *  MsgObj.Msg表示代传输文件的路径
-   *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerApp中的AppName对应
-   *  MsgOb举例如下：
-   *  var msgobj = {
-          IP: "192.168.1.100",
-          UID: "2312324323dsfseferfgdghf",
-          Account: "USER2",
-          Msg: "/media/fyf/BACKUP/test.txt",
-          App: "app1"
-        };
+ *      JSON，返回待传输的文件信息MsgObj或者出错信息
+ * @param MsgObj
+ *   启动程序参数，json格式封装，其中：
+ *  MsgObj.IP 表示接收方的IP地址
+ *  MsgObj.UID 表示接收方的UUID
+ *  MsgObj.Account表示接收方的帐号
+ *  MsgObj.Msg表示代传输文件的路径
+ *  MsgObj.App表示接收方的预先注册的接收该信息的应用名称，和registerIMApp中的AppName对应，此处为imChat
+ *  MsgOb举例如下：
+ *  var msgobj = {
+      IP: "192.168.1.100",
+      UID: "2312324323dsfseferfgdghf",
+      Account: "USER2",
+      Msg: "/media/fyf/BACKUP/test.txt",
+      App: "app1"
+    };
  */
 function sendFileTransferRequest(sendFileTransferRequestCb, MsgObj) {
   fileTransfer.fileTransferInit(MsgObj.Msg,function(err,msg){
@@ -402,28 +451,27 @@ exports.sendFileTransferRequest = sendFileTransferRequest;
  * @method sendFileTransferStart
  *  收到接收端同意接收请求后，发送端发送传输文件请求
  *
- * @param1 callback function
+ * @param sendFileTransferStartCb
  *   回调函数
  *   @cbparam1
- *      boolean, 返回操作出错与否，出错则返回true,无错则返回false
+ *      boolean， 返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
- *      JSON, 返回待传输的文件信息MsgObj
-
- * @param2 MsgObj
- *   启动程序参数，json格式封装
-   *   JSON,待发送的消息结构体，其中：
-   *  MsgOb举例如下：
-   *  var msgobj = {
-          type: "file",
-          option: 0x0000,
-          state: "1",//"0"表示拒绝接收文件
-          fileName: "test.txt",
-          key:"57374caa837997035b5fbc1d7732a66b",
-          fileSize: "1024",
-          msg: "I want to get the file"
-        };
- * @param3 path
- *   启动程序参数，待传输文件的路径，例如“/media/fyf/BACKUP/test.txt”
+ *      JSON， 返回待传输的文件信息MsgObj
+ * @param MsgObj 
+ *   启动程序参数，json格式封装，待发送的消息结构体，其中：
+ *  MsgOb举例如下：
+ *  var msgobj = {
+       type: "file",
+       option: 0x0000,
+       state: "1",//"0"表示拒绝接收文件
+       fileName: "test.txt",
+       key:"57374caa837997035b5fbc1d7732a66b",
+       fileSize: "1024",
+       msg: "I want to get the file"
+     };
+ * @param path  
+ *   启动程序参数，待传输文件的路径，例如'/media/fyf/BACKUP/test.txt'
+ * 
  */
 function sendFileTransferStart(sendFileTransferStartCb, msgObj,path) {
   fileTransferServer.transferFile(fileServer, function(err, msg, server) { //发送端初始化传输信息
@@ -455,25 +503,39 @@ exports.sendFileTransferStart = sendFileTransferStart;
  * @method transferFileProcess
  *  接收端收到发送端可以进行文件传输消息后，开始文件传输
  *
- * @param1 callback function
+ * @param transferFileCb
  *   回调函数
  *   @cbparam1
- *      boolean, 返回操作出错与否，出错则返回true,无错则返回false
+ *      boolean， 返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
- *      JSON, 返回待传输的文件信息MsgObj
-
- * @param2 MsgObj
- *   启动程序参数，json格式封装
-   *   JSON,待发送的消息结构体，其中：
-   *  MsgOb举例如下：
-   *  var msgobj = {
-          type: "file",
-          option: 0x0001,
-          fileName: "test.txt",
-          key:"57374caa837997035b5fbc1d7732a66b",
-          fileSize: "1024",
-          msg: "I want to get the file"
-        };
+ *      JSON， 返回待传输的文件信息MsgObj
+ * @param MsgObj 
+ *   启动程序参数，JSON，待发送的消息结构体，其中：
+ *  MsgOb举例如下：
+ *  var msgobj = {
+       type: "file",
+       option: 0x0001,
+       fileName: "test.txt",
+       key:"57374caa837997035b5fbc1d7732a66b",
+       fileSize: "1024",
+       msg: "I want to get the file"
+     };
+ * @param sendMsg 
+ * JSON，接收端的信息结构体，其中：
+ *  sendMsg.IP 表示接收方的IP地址
+ *  sendMsg.UID 表示接收方的UUID
+ *  sendMsg.Account表示接收方的帐号
+ *  sendMsg.group表示消息发送以及接收端群组名称
+ *  MsgOb举例如下：
+ *  var msgobj = {
+      IP: "192.168.1.100",
+      UID: "fyfrio1997rio",
+      Account: "fyf",
+      group:'fyf'
+    };
+ * @param isLocal 
+ * boolean，是否为设备本地操作，true表示为设备本地，false表示为浏览器操作
+ * 
  */
 function transferFileProcess(transferFileCb, msgObj, sendMsg,isLocal) {
   fileTransferClient.transferFileProcess(msgObj, function(err, rst) { //传输文件    
@@ -518,27 +580,27 @@ exports.transferFileProcess = transferFileProcess;
 /**
  * @method transferCancelSender
  *  发送端中止文件传输
- *
- * @param1 callback function
+ * 
+ * @param transferCancelSenderCb
  *   回调函数
  *   @cbparam1
  *      JSON, 返回中止传输的文件信息MsgObj
-
- * @param2 MsgObj
- *   启动程序参数，json格式封装
-   *   JSON,待发送的消息结构体，其中：
-   *  MsgOb举例如下：
-   *  var msgobj = {
-          type: "file",
-          option: 0x0000,
-          fileName: "test.txt",
-          key:"57374caa837997035b5fbc1d7732a66b",
-          fileSize: "1024",
-          msg: "do you  want to get the file"
-        };
-
- * @param3 boolean
- *  是否完全中断传输
+ * @param MsgObj 
+ *   启动程序参数，JSON，待发送的消息结构体，其中：
+ *  MsgOb举例如下：
+ *  var msgobj = {
+       type: "file",
+       option: 0x0000,
+       fileName: "test.txt",
+       key:"57374caa837997035b5fbc1d7732a66b",
+       fileSize: "1024",
+       msg: "do you  want to get the file"
+     };
+ * @param flag 
+ *  boolean，是否中断传输
+ * @param state 
+ *  int，帐号（设备组）通信窗口下，0表示发送方取消传输文件;1表示帐号下某个设备接收文件时，发送方取消对其他设备传输文件;2表示帐号下某个设备拒绝接收文件时，发送方取消对其他设备传输文件
+ *  
  */
 function transferCancelSender(transferCancelSenderCb,msgObj,flag,state){//接收端取消传输文件-----界面显示
   fileTransfer.transferFileCancel(msgObj,state,function (){
@@ -552,12 +614,10 @@ exports.transferCancelSender=transferCancelSender;
 /**
  * @method transferCancelReciever
  *  接收端取消文件接收
- *
- * @param1 callback function
+ * @param transferCancelRecieverCb
  *   回调函数
-
- * @param2 string
- *   启动程序参数，正在接手文件的key值（一串MD5值），例如57374caa837997035b5fbc1d7732a66b
+ * @param key
+ *   string，启动程序参数，正在接手文件的key值（一串MD5值），例如57374caa837997035b5fbc1d7732a66b
  */
 function transferCancelReciever(transferCancelRecieverCb,key){//接收端取消传输文件-----界面显示
   fileTransferClient.cancelTransfer(key,function (){
@@ -568,24 +628,24 @@ exports.transferCancelReciever=transferCancelReciever;
 
 /**
  * @method transferProcessing
- *  发送端收到接收端发送的传输文件进度信息
- *
- * @param1 callback function
+ *  发送端收到接收端发送的传输文件进度信息后台处理函数
+ * 
+ * @param transferProcessingCb
  *   回调函数
-
- * @param2 msgObj
+ * @param msgObj 
  *   启动程序参数，json格式封装
-   *   JSON,待发送的消息结构体，其中：
-   *  MsgOb举例如下：
-   *  var msgobj = {
-          type: "file",
-          option: 0x0002,
-          fileName: "test.txt",
-          fileSize: "1024",
-          key:"57374caa837997035b5fbc1d7732a66b",
-          ratio:0.1234,
-          msg: "I want to get the file"
-        };
+ *   JSON,待发送的消息结构体，其中：
+ *  MsgOb举例如下：
+ *  var msgobj = {
+       type: "file",
+       option: 0x0002,
+       fileName: "test.txt",
+       fileSize: "1024",
+       key:"57374caa837997035b5fbc1d7732a66b",
+       ratio:0.1234,
+       msg: "I want to get the file"
+     };
+ *  
  */
 function transferProcessing(transferProcessingCb,msgObj){ 
   //此处调用显示进度等传输问题的信息
@@ -602,11 +662,14 @@ exports.transferProcessing = transferProcessing;
 /**
  * @method deleteTmpFile
  *  接收端将接收到并存储于临时目录下的文件删除
- *
- * @param1 callback function
+ * 
+ * @param deleteTmpFileCb
  *   回调函数
-
- * @param2 tmpFilePath
+ *   @cbparam1
+ *       boolean， 返回操作出错与否，出错则返回true,无错则返回false
+ *   @cbparam2
+ *       string， 返回操作结果消息提示
+ * @param tmpFilePath 
  *   启动程序参数，string，文件存储的临时路径
  */
 function deleteTmpFile(deleteTmpFileCb,tmpFilePath){ 
