@@ -331,7 +331,7 @@ var ShowFiles = Class.extend({
     $("#popupDialog").remove();
     var headerButton = $('<button>',{
       'type':'button',
-      'class':'close',
+      'class':'myclose',
       'data-dismiss':'modal',
       'aria-hidden':'true',
       'text':'x'
@@ -993,7 +993,7 @@ var ShowFiles = Class.extend({
           var _tagView = TagView.create({
             position: 'listview',
             background_color: 'rgb(120,78,100)',
-            max:2
+            max:0
           });
           _tagView.setParent(Container,file['URI']);
           _tagView.addTags(file['others'].split(','));

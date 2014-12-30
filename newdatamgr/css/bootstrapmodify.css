@@ -1,8 +1,7 @@
 .alert-danger .alert-link {
   color: #843534;
 }
-
-.close {
+.modal-dialog .myclose {
   float: right;
   font-size: 21px;
   font-weight: bold;
@@ -12,15 +11,15 @@
   filter: alpha(opacity=20);
   opacity: .2;
 }
-.close:hover,
-.close:focus {
+.modal-dialog .myclose:hover,
+.modal-dialog .myclose:focus {
   color: #000;
   text-decoration: none;
   cursor: pointer;
   filter: alpha(opacity=50);
   opacity: .5;
 }
-button.close {
+button.myclose {
   -webkit-appearance: none;
   padding: 0;
   cursor: pointer;
