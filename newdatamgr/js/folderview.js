@@ -331,7 +331,7 @@ var ShowFiles = Class.extend({
     $("#popupDialog").remove();
     var headerButton = $('<button>',{
       'type':'button',
-      'class':'myclose',
+      'class':'close',
       'data-dismiss':'modal',
       'aria-hidden':'true',
       'text':'x'
