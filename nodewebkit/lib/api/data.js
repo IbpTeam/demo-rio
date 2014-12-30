@@ -377,8 +377,9 @@ exports.getDataByUri = getDataByUri;
 //返回具体数据类型对象
 function getDataByPath(getDataByPathCb, sPath) {
   console.log("Request handler 'getDataByPath' was called.");
-  var reg_md = new RegExp('$.md')
-  sPath = sPath.replace(reg_md, '');
+  if(sPath.substr(sPath.length-3,sPath.length-1) === '.md'){
+    sPath = sPath.substr(0,sPath.length-3);
+  }
   var cate = utils.getCategoryByPath(sPath);
   var category = cate.category;
   var filename = cate.filename;
@@ -388,7 +389,7 @@ function getDataByPath(getDataByPathCb, sPath) {
     if (err) {
       return getDataByPathCb(err, null);
     } else if (result == '' || result === null) {
-      return getDataByPathCb('not found in database ...', null);
+      return getDataByPathCb(sPath + ': not found in database ...', null);
     }
     var uri = result[0].URI;
     var cateObject = utils.getCategoryObject(category);
