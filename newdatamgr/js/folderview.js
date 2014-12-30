@@ -196,6 +196,9 @@ var ShowFiles = Class.extend({
             $('#outWaterFall').show();
             $('#'+this._contentIds[this._index]).show();
           }
+          if(!_globalSelf._showFilesBytag){
+            $('#'+this._contentIds[this._index]).children('div').show();
+          }
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
                 numOfCol:5
@@ -203,9 +206,6 @@ var ShowFiles = Class.extend({
           }
           if(this._index ==2){
               $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
-          }
-          if(!_globalSelf._showFilesBytag){
-            $('#'+this._contentIds[this._index]).children('div').show();
           }
           break;
         case 1:
