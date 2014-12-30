@@ -118,8 +118,8 @@ var MainVideoView = Class.extend({
     var _this = this;
     if (!this._unslider) {
       this._unslider = Unslider.create(this._banner, {
-        speed: 500,               // 轮播动画速度
-        delay: 3000,              // 轮播延时
+        speed: 800,               // 轮播动画速度
+        delay: 5000,              // 轮播延时
         begin: function(index_) {
           _this._tagView.refresh(function(){
             _this._tagView.addTags(_this._tags[index_]);
