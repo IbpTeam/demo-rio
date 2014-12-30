@@ -13,14 +13,41 @@
     margin-bottom: 10px;
     height:55px;
     position: relative;
-    select{
+    input{
       background-color: #2d3c43;
       position: absolute;
       border: 1px solid #dddddd;
       left: 0px;
       top: 6px;
       width: 50%;
-      padding-left: 15px;
+      height:30px;
+    }
+    div{
+      background-color: #2d3c43;
+      position: absolute;
+      left: 0px;
+      top: 35px;
+      width: 50%;
+      height:auto;
+      z-index: 100;
+      .gitlog-ul{
+        position: relative;
+        margin: 0px;
+        width: 100%;
+        border: 1px solid #cccccc;
+        background-color: #5f5f5f;
+        padding-left: 0px;
+        -webkit-padding-start: 0px;
+        .gitlog-li{
+          padding-left: 10px;
+          font-size: 20px;
+          display: block;
+          height:30px;
+          left:0px;
+          border: 1px solid #dddddd;
+          cursor: pointer;
+        }
+      }
     }
   }
   .git-content{
