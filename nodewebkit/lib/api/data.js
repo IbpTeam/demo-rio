@@ -373,7 +373,7 @@ function getDataByUri(getDataByUriCb, uri) {
 }
 exports.getDataByUri = getDataByUri;
 
-//API getDataByUri:通过Uri查看数据所有信息
+//API getDataByPath:通过path查看数据所有信息
 //返回具体数据类型对象
 function getDataByPath(getDataByPathCb, sPath) {
   console.log("Request handler 'getDataByPath' was called.");
