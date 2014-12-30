@@ -280,7 +280,18 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-      toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+      toAccList: {
+        "fyfrio1997rio":{
+          "toIP":'192.168.121.12',
+          "toUID":'fyfrio1997rio',
+          "toAccount":"fyf"
+        },
+        "fyfrio1998rio":{
+            "toIP":'192.168.121.13',
+            "toUID":'fyfrio1998rio',
+            "toAccount":"fyf"
+        }
+      },
       Account: "fyf",
       localUID: "fyfrio1997rio",
       Msg: "{'group':'fyf','msg':'Hi  this is in IMSender test'}",
@@ -382,9 +393,18 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
  *  MsgObj.rsaflag表示发送方是否启用加密发送，若为“true” 注意，是string类型，不是bool类型。则启用加密发送。
  *  MsgOb举例如下：
  *  var msgobj = {
-      IP: "",
-      UID: "",
-      toAccList: {"fyfrio1997rio":{"toIP":'192.168.121.12',"toUID":'fyfrio1997rio',"toAccount":"fyf"},"fyfrio1998rio":{"toIP":'192.168.121.13',"toUID":'fyfrio1998rio',"toAccount":"fyf"}}
+      toAccList: {
+        "fyfrio1997rio":{
+          "toIP":'192.168.121.12',
+          "toUID":'fyfrio1997rio',
+          "toAccount":"fyf"
+        },
+        "fyfrio1998rio":{
+            "toIP":'192.168.121.13',
+            "toUID":'fyfrio1998rio',
+            "toAccount":"fyf"
+        }
+      },
       Account: "fyf",
       localUID: "fyfrio1997rio",
       group: "fyf",
