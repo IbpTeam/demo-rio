@@ -19,7 +19,9 @@ var Contact = Class.extend({
     });
     this._first = true;
     this._ContactContainer.append(this._contactDetails);
-    this._tagView = TagView.create();
+    this._tagView = TagView.create({
+      category:'contact'
+    });
     this._tagView.setParent(this._contactHead);
     this._selectId = 0;
     this.bindDrag(this._contactHead[0]);
