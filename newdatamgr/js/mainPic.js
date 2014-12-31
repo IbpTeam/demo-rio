@@ -6,6 +6,7 @@ var MainPicView = Class.extend({
     var _this = this;
     _this._tagView = TagView.create({
       position: 'listview',
+      category: 'picture',
       background_color: 'rgb(110,204,188)'
     });
     DataAPI.getRecentAccessData(function(err_, picture_json_){
