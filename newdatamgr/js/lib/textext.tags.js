@@ -364,7 +364,7 @@
 
     if(self.val().length == 0){
       self.removeTag(lastTag);
-      if(lastTag){
+      if(lastTag.length > 0){
         self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG));//data(CSS_TAG));
       }
     }
@@ -603,7 +603,7 @@
     for(i = 0; i < tags.length; i++)
     {
       tag = tags[i];
-
+      if(self.getTagElement(tag) !== false) return 0;
       if(tag && self.isTagAllowed(tag))
         container.append(self.renderTag(tag));
     }
@@ -611,6 +611,7 @@
     self.updateFormCache();
     core.getFormData();
     core.invalidateBounds();
+    return 1;
   };
 
   /**
@@ -632,9 +633,13 @@
       i, item
       ;
 
-    for(i = 0; i < list.length, item = $(list[i]); i++)
-      if(self.itemManager().compareItems(item.data(CSS_TAG), tag))
+    for(i = 0; i < list.length; i++){
+      item = $(list[i]);
+      if(self.itemManager().compareItems(item.data(CSS_TAG), tag)){
         return item;
+      }
+    }
+    return false;
   };
 
   /**
