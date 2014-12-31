@@ -121,8 +121,6 @@ function transferFileRatio(flag, msgObj, ratio, callback) {
 }
 exports.transferFileRatio = transferFileRatio;
 
-
-
 function transferFileCancel(msgObj, state,callback) {
   var msg = msgObj;
   msg['option'] = 0x0003;
@@ -130,4 +128,3 @@ function transferFileCancel(msgObj, state,callback) {
   callback(msg);
 }
 exports.transferFileCancel = transferFileCancel;
-

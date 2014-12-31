@@ -719,6 +719,13 @@ function deleteTmpFile(deleteTmpFileCb,tmpFilePath){
 }
 exports.deleteTmpFile = deleteTmpFile;
 
+function transferFileOutOfDate(transferFileOutOfDateCb,msgObj) {
+  var msg = msgObj;
+  msg['option'] = 0x0004;
+  transferFileOutOfDateCb(msg);
+}
+exports.transferFileOutOfDate = transferFileOutOfDate;
+
 function serverAndMapHandler(path) {
   if(pathMap===undefined)
     return;
