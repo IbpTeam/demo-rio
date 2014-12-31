@@ -28,7 +28,7 @@
         content: "\e603";
       }
       .showlistButtonFocus:after, .normalButtonFocus:after{
-        color: #f48989;
+        color: #2e3d44;
       }
       .normalButtonFocus:after{
         font-family: 'icomoon';
@@ -54,15 +54,13 @@
       bottom: 0px;
       left: 0px;
       width: 100%;
-      //padding-top: 15px;
       margin-top: 15px;
-      //border: 1px solid rgba(0,0,0,0);
-      //margin-left: 8px;
       overflow-x: hidden;
       .scroll();
       #outWaterFall{
         margin-left: 13px;
         position: relative;
+        overflow-x: hidden;
       }
       .pictureContainerWaterFall {
         width: 100%;
@@ -103,15 +101,21 @@
 
 
       .sortByTime {
-        border: 1px solid #ff0;
+        border-top: 1px solid #cecece;
         width: 100%;
         display: inline-block;
         position: relative;
+        padding-top: 40px;
         span {
           position: absolute;
-          top: 2px;
-          left: 2px
+          top: 8px;
+          left: 12px;
+          font-size: 13px;
+          color: #b5b5b5;
         }
+      }
+      #musicContentSortByTime{
+        overflow-x: hidden;
       }
       .musicContainer {
         height:165px; 
@@ -124,9 +128,7 @@
         padding-bottom: 60px;
         position: relative;
         color: #706f6f;
-        //width: 21%;
-        //margin: 10px 2% 10px 1.5%;
-        //padding-bottom: 18%;
+        //overflow: auto;
         &:hover {
           -webkit-filter: brightness(1.2);
           -moz-filter: brightness(1.2);
