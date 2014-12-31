@@ -954,6 +954,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
+            category: 'picture',
             background_color: 'rgb(110,204,188)',
             max:3
           });
@@ -988,6 +989,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
+            category: 'video',
             background_color: 'rgb(132,204,117)',
             max:3
           });
@@ -1014,8 +1016,8 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(155,146,69)',
-            max:2
+            background_color: 'rgb(120,78,100)',
+            max:0
           });
           _tagView.setParent(Container,file['URI']);
           _tagView.addTags(file['others'].split(','));
@@ -1050,6 +1052,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
+            category: 'music',
             background_color: 'rgb(237,148,148)',
             max:3
           });
