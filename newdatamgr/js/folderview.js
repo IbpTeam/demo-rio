@@ -10,7 +10,8 @@ var ShowFiles = Class.extend({
     this._getFiles = {};
     this._musicPicture ={};
     this._videoPicture = {};
-    this._showFilesBytag = [];
+    this._showFilesBytag = false;
+    this._showFilesBytagUris = [];
     this._imgReady;
     this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
@@ -24,7 +25,7 @@ var ShowFiles = Class.extend({
     });
     this._showContent = $('<div>',{
       'id':'showContent',
-      'style':'overflow:auto'
+      //'style':'overflow:auto'
     });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
@@ -125,7 +126,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'sortby'
+      'text':'sortby Time'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
@@ -157,7 +158,7 @@ var ShowFiles = Class.extend({
   setIndex:function(index_){
     if (typeof index_ === 'number' && index_ >0 && index_ <6) {
       this._index = index_;
-      this._showFilesBytag = [];
+      this._showFilesBytag = false;
     }
     _globalSelf.showFile();
   },
@@ -176,9 +177,9 @@ var ShowFiles = Class.extend({
         case 0:
           if($('#'+this._contentIds[this._index]).children('div') .length >0){
             if(this._index ==1){
-              $('#outWaterFall').show();
+              $('#outWaterFall').show();              
             }
-            $('#'+this._contentIds[this._index]).show();
+            $('#'+this._contentIds[this._index]).show();           
           }
           else{
             var sortByTime = $('#'+this._contentIdsSortByTime[this._index]).children('div');
@@ -203,6 +204,9 @@ var ShowFiles = Class.extend({
             $('#outWaterFall').show();
             $('#'+this._contentIds[this._index]).show();
           }
+          if(!_globalSelf._showFilesBytag){
+            $('#'+this._contentIds[this._index]).children('div').show();
+          }
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
                 numOfCol:5
@@ -218,9 +222,12 @@ var ShowFiles = Class.extend({
             }
             else {
               _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-              if(_globalSelf._showFilesBytag.length >0){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
-              }
+            }
+            if(_globalSelf._showFilesBytag){
+              _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+            }
+            else{
+              $('.bodytr').show();
             }
             break;
         case 2:
@@ -237,13 +244,23 @@ var ShowFiles = Class.extend({
               var sortByTimeDivs = returnshow.children('.sortByTime');
               for(var i =0;i<sortByTimeDivs.length;i++){
                 var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(_globalSelf._showFilesBytag.length >0 && sortByTimeDiv.children('.showFileByTag').length == 0){
+                if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
                   sortByTimeDiv.hide();
                 }
               }
               _globalSelf._showContent.append(returnshow);
-              if(this._index ==1 && _globalSelf._showFilesBytag.length >0){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytag);
+              if(this._index ==1 && _globalSelf._showFilesBytag){
+                _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+              }
+            }
+            if(!_globalSelf._showFilesBytag){
+              var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
+              for(var i =0;i<sortByTimeDivs.length;i++){
+                var sortByTimeDiv = sortByTimeDivs.eq(i);
+                if(sortByTimeDiv.children('div').length > 0){
+                  sortByTimeDiv.children('div').show();
+                  sortByTimeDiv.show();
+                }
               }
             }
             break;
@@ -254,13 +271,15 @@ var ShowFiles = Class.extend({
 
   //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
   showFileByTag:function(fileURIS){
-    _globalSelf._showFilesBytag = fileURIS;
+    _globalSelf._showFilesBytag = true;
+    _globalSelf._showFilesBytagUris = fileURIS;
+    $('.showFileByTag').removeClass('showFileByTag');
     for(var i =0;i<fileURIS.length;i++){
       var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
       var div = $("#"+fileURI+'div');
       var tr = $("#"+fileURI+'tr');
-      div.addClass('showFileByTag');
-      tr.addClass('showFileByTag');
+      div.addClass('showFileByTag').show();
+      tr.addClass('showFileByTag').show();
     }
     div.siblings('div:not(.showFileByTag)').hide();
     tr.siblings('tr:not(.showFileByTag)').hide();
@@ -277,6 +296,9 @@ var ShowFiles = Class.extend({
         }
         if(sortBytimeDivs.eq(i).children('.showFileByTag').length == 0){
           sortBytimeDivs.eq(i).hide();
+        }
+        else{
+          sortBytimeDivs.eq(i).show();
         }
       }
     }
@@ -1065,13 +1087,13 @@ var ShowFiles = Class.extend({
       'text':'Today'
     });
     var previous7DaysSpan = $('<span>',{
-      'text':'previous7Days'
+      'text':'Previous 7 Days'
     });
     var previous30DaysSpan = $('<span>',{
-      'text':'previous30Days'
+      'text':'Previous 30 Days'
     });
     var previousOneYearSpan = $('<span>',{
-      'text':'previousOneYear'
+      'text':'Previous One Year'
     });
     today.append(todaySpan);
     previous7Days.append(previous7DaysSpan);
@@ -1131,7 +1153,7 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
-    var returnContent = $('<div style= "overflow:auto"></div>');
+    var returnContent = $('<div style= "overflow-x:hidden"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
       switch(_globalSelf._index){
@@ -1200,7 +1222,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(204,51,51)',
+            background_color: 'rgb(132,204,117)',
             max:3
           });
           _tagView.setParent(Container,file['URI']);
@@ -1226,7 +1248,7 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(120,78,100)',
+            background_color: 'rgb(155,146,69)',
             max:2
           });
           _tagView.setParent(Container,file['URI']);
@@ -1262,7 +1284,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(51,153,102)',
+            background_color: 'rgb(237,148,148)',
             max:3
           });
           _tagView.setParent(Container,file['URI']);

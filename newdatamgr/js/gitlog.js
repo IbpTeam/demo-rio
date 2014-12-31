@@ -17,6 +17,9 @@ var GitLog = Class.extend({
     this._ul = $('<ul>',{
       'class': 'gitlog-ul'
     })
+    this._selectArrow = $('<div>',{
+      'id': 'arrow'
+    })
     this._gitcontent = $('<div>',{
      'class':'git-content'
     })
@@ -29,22 +32,24 @@ var GitLog = Class.extend({
       });
       this._ul.append(_option);
     };
+    this._selectList.append(this._selectArrow);
     this._selectList.append(this._ul);
     this._gitLogContainer.append(this._gitselect);
     this._gitselect.append(this._select);
     this._gitselect.append(this._selectList);
     this._gitLogContainer.append(this._gitcontent);
-    this._selectList.hide();
+    //this._selectList.hide();
     this.bindEvent();
   },
   bindEvent:function(){
     var _this = this;
     this._select.click(function(ev){
-      if(_this._selectList.is(":hidden")){
+      /*if(_this._selectList.is(":hidden")){
         _this._selectList.show();
       }else{
-          _this._selectList.hide();
-      }
+          _this._selectList.hidden();
+      }*/
+      _this._selectList.slideToggle("normal");
     });
     this._ul.children('li').click(function(ev){
       _this._gitcontent.children().remove();
@@ -53,9 +58,10 @@ var GitLog = Class.extend({
       _this._selectList.hide(); 
     });
     _this._select.blur(function(){ 
-      setTimeout(function(){
+      /*setTimeout(function(){
         _this._selectList.hide();
-      },200); 
+      },200); */
+    _this._selectList.slideToggle("normal");
     });         
   },
 
@@ -76,7 +82,7 @@ var GitLog = Class.extend({
         _text = 'Previous ' + _days + ' Days';
         break;
       case ((_days > 7)&&(_days <= 30)) :
-         _text = 'Within 1 month';
+         _text = 'Within 1 Month';
         break;
       case ((_days > 30)&&(_days <= 90)) :
         _text = 'Within 3 months';
