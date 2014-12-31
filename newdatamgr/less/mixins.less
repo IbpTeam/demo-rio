@@ -47,3 +47,11 @@
   border-radius: @arguments;
 }
 
+//set background-color of Tag 
+.setColorSaturate(@tagClass, @tagColor, @n, @i: 0) when (@i <= @n) {
+  .@{tagClass}-@{i} {
+    background-color: spin(desaturate(@tagColor,5% * @i),-10*@i);
+    color:spin(desaturate(@tagColor,5% * @i),-10*@i);
+  }
+  .setColorSaturate(@tagClass,@tagColor,@n,(@i+1));
+}
