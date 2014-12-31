@@ -25,7 +25,7 @@ var ShowFiles = Class.extend({
     });
     this._showContent = $('<div>',{
       'id':'showContent',
-      'style':'overflow:auto'
+      //'style':'overflow:auto'
     });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
@@ -122,7 +122,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'sortby'
+      'text':'sortby Time'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
@@ -853,13 +853,13 @@ var ShowFiles = Class.extend({
       'text':'Today'
     });
     var previous7DaysSpan = $('<span>',{
-      'text':'previous7Days'
+      'text':'Previous 7 Days'
     });
     var previous30DaysSpan = $('<span>',{
-      'text':'previous30Days'
+      'text':'Previous 30 Days'
     });
     var previousOneYearSpan = $('<span>',{
-      'text':'previousOneYear'
+      'text':'Previous One Year'
     });
     today.append(todaySpan);
     previous7Days.append(previous7DaysSpan);
@@ -919,7 +919,7 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
-    var returnContent = $('<div style= "overflow:auto"></div>');
+    var returnContent = $('<div style= "overflow-x:hidden"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
       switch(_globalSelf._index){
@@ -988,7 +988,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(204,51,51)',
+            background_color: 'rgb(132,204,117)',
             max:3
           });
           _tagView.setParent(Container,file['URI']);
@@ -1014,7 +1014,7 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(120,78,100)',
+            background_color: 'rgb(155,146,69)',
             max:2
           });
           _tagView.setParent(Container,file['URI']);
@@ -1050,7 +1050,7 @@ var ShowFiles = Class.extend({
           _globalSelf.bindDrag(Container[0]);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(51,153,102)',
+            background_color: 'rgb(237,148,148)',
             max:3
           });
           _tagView.setParent(Container,file['URI']);

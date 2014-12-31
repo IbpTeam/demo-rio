@@ -12,9 +12,9 @@ var MainVideoView = Class.extend({
     this._ul = $('<ul>',{
     })
 
-    this._videoMiddleBtn = $('<a>',{
+    /*this._videoMiddleBtn = $('<a>',{
       'class': 'video-middle-btn',
-    });
+    });*/
 
     this._videoLeftBtn= $('<a>',{
       'class': 'video-left-btn',
@@ -27,7 +27,7 @@ var MainVideoView = Class.extend({
     this._videoContainer.append(this._videoContent);
     this._videoContent.append(this._banner);
     this._banner.append(this._ul);
-    this._videoContainer.append(this._videoMiddleBtn);
+    //this._videoContainer.append(this._videoMiddleBtn);
     this._videoContainer.append(this._videoLeftBtn);
     this._videoContainer.append(this._videoRightBtn);
     var _this = this;
@@ -105,8 +105,12 @@ var MainVideoView = Class.extend({
     var _img = $('<img>', {
       'name' : video_['URI']
     });
+    var _videoMiddleBtn = $('<a>',{
+          'class': 'video-middle-btn',
+        });
     this.getVideoPicData(video_);
     _li.append(_img);
+    _li.append(_videoMiddleBtn);
     this._ul.append(_li);
   },
 
@@ -114,8 +118,8 @@ var MainVideoView = Class.extend({
     var _this = this;
     if (!this._unslider) {
       this._unslider = Unslider.create(this._banner, {
-        speed: 500,               // 轮播动画速度
-        delay: 3000,              // 轮播延时
+        speed: 800,               // 轮播动画速度
+        delay: 5000,              // 轮播延时
         begin: function(index_) {
           _this._tagView.refresh(function(){
             _this._tagView.addTags(_this._tags[index_]);
