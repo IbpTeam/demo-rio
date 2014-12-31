@@ -166,6 +166,21 @@
     });
   }
 
+  function getDataByPathCb(result){
+    var win = window.open(''); 
+    win.document.write("test API getDataByPath()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_getDataByPath(getDataByPathCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = '/home/xiquan/.resources/document/data/ReleaseNoteFor基础版1.0.txt';
+      data.getDataByPath(getDataByPathCb,path);
+    });
+  }
+
   function openDataByUriCb(result){
     var win = window.open(''); 
     win.document.write("test API getDataSourceByUri()");
@@ -613,6 +628,33 @@
         data.getDataSourceByUri(getDataSourceCb, id);
       });        
     } 
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('getDataByPath')">getDataByPath(getDataByPathCb, uri)<span><a class="mark" href="#test_getDataByPath" id="test_getDataByPath" onclick="test_getDataByPath(getDataByPathCb)">test</a></span></h2>
+<div id="getDataByPath" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+    function getDataByPathCb(result){
+      var win = window.open('');
+      win.document.write("test API getDataByPath()");
+      win.document.write("&lt;br/&gt;");
+      win.document.write("callback result: "+result);
+      win.document.write("&lt;br/&gt;");   
+    }
+
+    function test_getDataByPath(getDataByPathCb){
+      WDC.requireAPI(['data'], function(data){
+        var path;
+        data.test_getDataSourceByUri(getDataByPathCb,path);
+      });
+    }  
   </pre>
 </div>
 </div>
