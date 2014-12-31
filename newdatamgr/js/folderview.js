@@ -119,10 +119,6 @@ var ShowFiles = Class.extend({
       'id':'_shownormalButton',
       'class':'normalButtonFocus shownormalButton'
     });
-    var refreshButton = $('<div>',{
-      'id':'refreshButton',
-      'text':'refreshButton'
-    });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
       'text':'sortby Time'
@@ -130,7 +126,6 @@ var ShowFiles = Class.extend({
     this._choice.append(showlistButton);
     this._choice.append(line);
     this._choice.append(shownormalButton);
-    this._choice.append(refreshButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
       shownormalButton.removeClass('normalButtonFocus');
@@ -147,10 +142,6 @@ var ShowFiles = Class.extend({
     sortbyButton.click(function(){
       _globalSelf._showNormal[_globalSelf._index] = 2;
       _globalSelf.showFile();
-    });
-    refreshButton.click(function(){
-      _globalSelf.refreshByPath('/home/sxy/.resources/video/data/movie.ogg');
-      // _globalSelf.refreshByCategory();
     });
   },
   
@@ -329,10 +320,6 @@ var ShowFiles = Class.extend({
       var index = $.inArray(category, _globalSelf._currentCategory);
       if(_globalSelf._getFiles[index]){
         _globalSelf._getFiles[index].push(file);
-        var divId = _globalSelf.uriToModifyUri(file['URI'])+'div';
-        var trID = _globalSelf.uriToModifyUri(file['URI'])+'tr';
-        $('#'+divId).remove();
-        $('#'+trID).remove();
         switch(index){
           case 1:
             var Container = $('<div>',{
@@ -488,7 +475,6 @@ var ShowFiles = Class.extend({
             break;
           default:
         }
-        //_globalSelf.addClickEvent(Container,'.refreshDiv');
         if($('#'+_globalSelf._contentIds[index]).children('div') .length >0){
           $('#'+_globalSelf._contentIds[index]).prepend(Container);
         }
@@ -512,7 +498,6 @@ var ShowFiles = Class.extend({
           var theadMessage = _globalSelf.getShowMessage();
           var refreshTr = _globalSelf.generateBodyTr(file,theadMessage);
           refreshTr.addClass('refreshTr');
-          //_globalSelf.addClickEvent(refreshTr,'.refreshTr');
           var tableBody =$('#'+ _globalSelf._contentIdsList[index]).children('.returnTableBody');
           var tbody = tableBody.children('.tableBody').children('tbody');
           tbody.prepend(refreshTr);
