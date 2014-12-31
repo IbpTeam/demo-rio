@@ -305,9 +305,11 @@ var ShowFiles = Class.extend({
     var trID = _globalSelf.uriToModifyUri('rio23060rio#a083188709744d22cdb1#video')+'tr';
     $('#'+divId).remove();
     $('#'+trID).remove();
-    DataAPI.getDataByPath(function(file){
-      console.log(file);
-      var index = $.inArray(file['category'], _globalSelf._currentCategory);
+    DataAPI.getDataByPath(function(file_){
+      console.log(file_[0]);
+      var file = file_[0];
+      var category = file['URI'].substring(file['URI'].lastIndexOf('#')+1,file['URI'].length);
+      var index = $.inArray(category, _globalSelf._currentCategory);
       switch(index){
         case 1:
           var Container = $('<div>',{
@@ -501,9 +503,13 @@ var ShowFiles = Class.extend({
         var tbody = tableBody.children('.tableBody').children('tbody');
         tbody.prepend(refreshTr);
       }
-      window.alert(_globalSelf._getFiles[index]);
-      window.alert(file);
-      //_globalSelf._getFiles[index].push(file); 
+      // console.log(_globalSelf._getFiles[index]);
+      // console.log(file);
+      window.alert(_globalSelf._getFiles[index].length);
+      if(_globalSelf._getFiles[index].length >0){
+        _globalSelf._getFiles[index].push(file); 
+      }
+      window.alert(_globalSelf._getFiles[index].length);
     },filePath_);
   },
 
