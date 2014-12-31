@@ -149,7 +149,7 @@ var ShowFiles = Class.extend({
       _globalSelf.showFile();
     });
     refreshButton.click(function(){
-      _globalSelf.refreshByPath('thisistest');
+      _globalSelf.refreshByPath('/home/sxy/.resources/video/data/mov_bbb.ogg');
     });
   },
   
@@ -301,7 +301,12 @@ var ShowFiles = Class.extend({
 
   //此函数用来刷新特有的一个文件,传入一个文件路径，获取所有信息，并且添加显示.
   refreshByPath:function(filePath_){
+    var divId = _globalSelf.uriToModifyUri('rio23060rio#a083188709744d22cdb1#video')+'div';
+    var trID = _globalSelf.uriToModifyUri('rio23060rio#a083188709744d22cdb1#video')+'tr';
+    $('#'+divId).remove();
+    $('#'+trID).remove();
     DataAPI.getDataByPath(function(file){
+      console.log(file);
       var index = $.inArray(file['category'], _globalSelf._currentCategory);
       switch(index){
         case 1:
@@ -467,12 +472,12 @@ var ShowFiles = Class.extend({
           break;
         default:
       }
-      _globalSelf.addClickEvent(Container,'.refreshDiv');
-      if($('#'+this._contentIds[this._index]).children('div') .length >0){
-        $('#'+this._contentIds[this._index]).append(Container);
+      //_globalSelf.addClickEvent(Container,'.refreshDiv');
+      if($('#'+_globalSelf._contentIds[index]).children('div') .length >0){
+        $('#'+_globalSelf._contentIds[index]).append(Container);
       }
-      if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
-        var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
+      if($('#'+ _globalSelf._contentIdsSortByTime[index]).children('div').length >0){
+        var sortByTimeDivs = $('#'+ _globalSelf._contentIdsSortByTime[index]).children('div');
         var timeDifference = _globalSelf.dateDifference(file);
         if(timeDifference >=0 && timeDifference <=24){
           sortByTimeDivs.eq(0).prepend(Container);
@@ -487,16 +492,18 @@ var ShowFiles = Class.extend({
           sortByTimeDivs.eq(3).prepend(Container);
         }
       }
-      if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
-        var theadMessage = this.getShowMessage();
+      if($('#'+ _globalSelf._contentIdsList[index]).children('div').length >0){
+        var theadMessage = _globalSelf.getShowMessage();
         var refreshTr = _globalSelf.generateBodyTr(file,theadMessage);
         refreshTr.addClass('refreshTr');
-        _globalSelf.addClickEvent(refreshTr,'.refreshTr');
-        var tableBody =$('#'+ this._contentIdsList[this._index]).children('.returnTableBody');
+        //_globalSelf.addClickEvent(refreshTr,'.refreshTr');
+        var tableBody =$('#'+ _globalSelf._contentIdsList[index]).children('.returnTableBody');
         var tbody = tableBody.children('.tableBody').children('tbody');
         tbody.prepend(refreshTr);
       }
-      _globalSelf._getFiles[index].push(file); 
+      window.alert(_globalSelf._getFiles[index]);
+      window.alert(file);
+      //_globalSelf._getFiles[index].push(file); 
     },filePath_);
   },
 
