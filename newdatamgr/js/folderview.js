@@ -1014,8 +1014,8 @@ var ShowFiles = Class.extend({
           returnContent.append(Container);
           var _tagView = TagView.create({
             position: 'listview',
-            background_color: 'rgb(155,146,69)',
-            max:2
+            background_color: 'rgb(120,78,100)',
+            max:0
           });
           _tagView.setParent(Container,file['URI']);
           _tagView.addTags(file['others'].split(','));
