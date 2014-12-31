@@ -119,6 +119,10 @@ var ShowFiles = Class.extend({
       'id':'_shownormalButton',
       'class':'normalButtonFocus shownormalButton'
     });
+    var refreshButton = $('<div>',{
+      'id':'refreshButton',
+      'text':'refreshButton'
+    });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
       'text':'sortby'
@@ -126,6 +130,7 @@ var ShowFiles = Class.extend({
     this._choice.append(showlistButton);
     this._choice.append(line);
     this._choice.append(shownormalButton);
+    this._choice.append(refreshButton);
     this._choice.append(sortbyButton);
     showlistButton.click(function(){
       shownormalButton.removeClass('normalButtonFocus');
@@ -142,6 +147,9 @@ var ShowFiles = Class.extend({
     sortbyButton.click(function(){
       _globalSelf._showNormal[_globalSelf._index] = 2;
       _globalSelf.showFile();
+    });
+    refreshButton.click(function(){
+      _globalSelf.refreshByPath('thisistest');
     });
   },
   
@@ -241,7 +249,7 @@ var ShowFiles = Class.extend({
             break;
         default:
       }
-    } 
+    }
   },
 
   //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
@@ -278,6 +286,220 @@ var ShowFiles = Class.extend({
       }); 
     }
   },
+
+  //此函数用来刷新当前展示的文件.
+  refreshByCategory:function(){
+    $('#'+ this._contentIdsList[this._index]).remove();
+    $('#'+ this._contentIds[this._index]).remove();
+    $('#'+ this._contentIdsSortByTime[this._index]).remove();
+    if(this._index ==1){
+      $('#outWaterFall').remove();
+    }
+    this._getFiles[this._index] = '';
+    _globalSelf.showFile();
+  },
+
+  //此函数用来刷新特有的一个文件,传入一个文件路径，获取所有信息，并且添加显示.
+  refreshByPath:function(filePath_){
+    DataAPI.getDataByPath(function(file){
+      var index = $.inArray(file['category'], _globalSelf._currentCategory);
+      switch(index){
+        case 1:
+          var Container = $('<div>',{
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'pictureContainerWaterFall refreshDiv',
+            'draggable': true
+          });
+          var Holder = $('<div>',{
+            'class':'pictureHolderWaterFall'
+          });
+          //用来定义最后描述的名字.
+          var description = $('<p>',{
+            'class':'picturedescriptionWaterFall',
+            'text':file['filename']
+          });
+          Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
+          Container.append(Holder);
+          Container.append(description);
+          // returnContent.append(Container);
+          // returnContent.hide();
+          Holder.children('img')[0].onload = function(){
+            // _globalSelf._imgReady = _globalSelf._imgReady - 1;
+            // if(_globalSelf._imgReady ==0){
+            //   returnContent.show();
+              $('#pictureContent').BlocksIt({
+                numOfCol:5
+              });
+            // }
+          };
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(110,204,188)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        case 2:
+          var Container = $('<div>',{
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'videoContainer refreshDiv',
+            'draggable': true
+          });
+          var Holder = $('<div>',{
+            'class':'videoHolder'
+          });
+          //用来定义最后描述的名字.
+          var description = $('<p>',{
+            'class':'videodescription',
+            'text':file['filename']
+          });
+          var img = $('<img>',{
+            'id':file['URI'],
+            'draggable':false
+          });
+          _globalSelf.getVideoPicData(file);
+          Holder.append(img);
+          Container.append(Holder);
+          Container.append(description);
+          // returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(204,51,51)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        case 3:
+          var Container = $('<div>',{
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'doc-icon refreshDiv',
+            'draggable': true
+          });
+          var img = $('<img>',{
+            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+            'draggable':false
+          });
+          Container.append(img);
+          var p = $('<p>',{
+            'text':file['filename']
+          });
+          Container.append(p);
+          // returnContent.append(Container);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(120,78,100)',
+            max:2
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.bindDrag(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        case 4:
+          var Container = $('<div>',{
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'musicContainer refreshDiv',
+            'draggable': true
+          });
+          var Holder = $('<div>',{
+            'class':'musicHolder',
+            'draggable':false
+          });
+          //用来定义最后描述的名字.
+          var description = $('<p>',{
+            'class':'musicdescription',
+            'text':file['filename']
+          });
+          var musicImg = $('<img>',{
+             'id':file['URI'],
+             'draggable':false
+          });
+          Holder.append(musicImg);
+          Container.append(Holder);
+          Container.append(description);
+          _globalSelf.getMusicPicData(file);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(51,153,102)',
+            max:3
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        case 5:
+          var Container = $('<div>',{
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
+            'class':'doc-icon refreshDiv',
+            'draggable': true
+          });
+          var img = $('<img>',{
+            'src':'icons/Other.png',
+            'draggable':false
+          });
+          Container.append(img);
+          var p = $('<p>',{
+            'text':file['filename']
+          });
+          Container.append(p);
+          // returnContent.append(Container);
+          _globalSelf.bindDrag(Container[0]);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(200,200,200)',
+            max:1
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        default:
+      }
+      _globalSelf.addClickEvent(Container,'.refreshDiv');
+      if($('#'+this._contentIds[this._index]).children('div') .length >0){
+        $('#'+this._contentIds[this._index]).append(Container);
+      }
+      if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
+        var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
+        var timeDifference = _globalSelf.dateDifference(file);
+        if(timeDifference >=0 && timeDifference <=24){
+          sortByTimeDivs.eq(0).prepend(Container);
+        }
+        else if(timeDifference>24 && timeDifference <=24*7){
+          sortByTimeDivs.eq(1).prepend(Container);
+        }
+        else if(timeDifference >24*7 && timeDifference <24*30){
+          sortByTimeDivs.eq(2).prepend(Container);
+        }
+        else {
+          sortByTimeDivs.eq(3).prepend(Container);
+        }
+      }
+      if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
+        var theadMessage = this.getShowMessage();
+        var refreshTr = _globalSelf.generateBodyTr(file,theadMessage);
+        refreshTr.addClass('refreshTr');
+        _globalSelf.addClickEvent(refreshTr,'.refreshTr');
+        var tableBody =$('#'+ this._contentIdsList[this._index]).children('.returnTableBody');
+        var tbody = tableBody.children('.tableBody').children('tbody');
+        tbody.prepend(refreshTr);
+      }
+      _globalSelf._getFiles[index].push(file); 
+    },filePath_);
+  },
+
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
   getCallBackData:function(files){
@@ -711,60 +933,59 @@ var ShowFiles = Class.extend({
     return dateDifference;
   },
 
+  //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
+  generateBodyTr:function(file,theadMessage){
+    var bodytr = $('<tr>',{
+      'id':_globalSelf.uriToModifyUri(file['URI'])+'tr',
+      'class':'bodytr'
+    });
+    for(var i =0;i<theadMessage.length;i++){
+      switch(i){
+        case 0:
+          if(_globalSelf._index == 3){
+            var thP = $('<P>',{
+              'text':file[theadMessage[i]]
+            });
+            var thPicture = $('<img>',{
+              'style':'float:left',
+              'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png'
+            });
+            var thName = $('<th>');
+            thName.append(thPicture);
+            thName.append('</br>');
+            thName.append(thP);
+            bodytr.append(thName);
+          }
+          else{
+            var th = $('<th>',{
+              'text':file[theadMessage[i]]
+            });
+            bodytr.append(th);
+          }
+          break;
+        case 1:
+          bodytr.append($('<th>'+_globalSelf.changeDate(file[theadMessage[i]])+ '</th>'));
+          break;
+        case 2:
+          bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
+          break;
+        case 3:
+          bodytr.append($('<th>'+_globalSelf.changeDate(file[theadMessage[i]]) + '</th>'));
+          break;
+        default:
+          window.alert('The theadMessage does not exist.');
+          break;
+      }
+    }
+    _globalSelf.attachDataMenu(bodytr[0].id);
+    return bodytr;
+  },
+
   //此函数用来列表输出所有的文件，包括图片，音乐，视频和文档.
   showFilesList:function(files){
     if(!files.length){
       return '';
-    }
-    //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
-    function GenerateBodyTr(file,theadMessage){
-      var bodytr = $('<tr>',{
-        'id':_globalSelf.uriToModifyUri(file['URI'])+'tr',
-        'class':'bodytr'
-      });
-      for(var i =0;i<theadMessage.length;i++){
-        switch(i){
-          case 0:
-            if(_globalSelf._index == 3){
-              var thP = $('<P>',{
-                'text':file[theadMessage[i]]
-              });
-              var thPicture = $('<img>',{
-                'style':'float:left',
-                'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png'
-              });
-              var thName = $('<th>');
-              thName.append(thPicture);
-              thName.append('</br>');
-              thName.append(thP);
-              bodytr.append(thName);
-            }
-            else{
-              var th = $('<th>',{
-                'text':file[theadMessage[i]]
-              });
-              bodytr.append(th);
-            }
-            break;
-          case 1:
-            bodytr.append($('<th>'+_globalSelf.changeDate(file[theadMessage[i]])+ '</th>'));
-            break;
-          case 2:
-            bodytr.append($('<th>'+file[theadMessage[i]] + '</th>'));
-            break;
-          case 3:
-            bodytr.append($('<th>'+_globalSelf.changeDate(file[theadMessage[i]]) + '</th>'));
-            break;
-          default:
-            window.alert('The theadMessage does not exist.');
-            break;
-        }
-      }
-      _globalSelf.attachDataMenu(bodytr[0].id);
-      return bodytr;
-    }
-    
-
+    }    
     //整个div中的信息用表格来显示，其中thead是表头，tbody代表表格内的具体内容,表头和表主体放在了两个表格里，为了表头固定
     var tableHead = $('<table>',{
       'class':'tableHead',
@@ -789,7 +1010,7 @@ var ShowFiles = Class.extend({
     thead.append(theadtr);
     //设置表格内具体内容
     for(var i =0;i<files.length;i++){
-      tbody.append(GenerateBodyTr(files[i],theadMessage));
+      tbody.append(_globalSelf.generateBodyTr(files[i],theadMessage));
     }
     tableHead.append(thead);
     tableBody.append(tbody);
