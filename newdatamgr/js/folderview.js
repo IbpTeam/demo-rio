@@ -25,7 +25,6 @@ var ShowFiles = Class.extend({
     });
     this._showContent = $('<div>',{
       'id':'showContent',
-      //'style':'overflow:auto'
     });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
@@ -150,7 +149,8 @@ var ShowFiles = Class.extend({
       _globalSelf.showFile();
     });
     refreshButton.click(function(){
-      _globalSelf.refreshByPath('/home/sxy/.resources/video/data/mov_bbb.ogg');
+      _globalSelf.refreshByPath('/home/sxy/.resources/video/data/movie.ogg');
+      // _globalSelf.refreshByCategory();
     });
   },
   
@@ -311,29 +311,28 @@ var ShowFiles = Class.extend({
 
   //此函数用来刷新当前展示的文件.
   refreshByCategory:function(){
-    $('#'+ this._contentIdsList[this._index]).remove();
-    $('#'+ this._contentIds[this._index]).remove();
-    $('#'+ this._contentIdsSortByTime[this._index]).remove();
-    if(this._index ==1){
+    $('#'+ _globalSelf._contentIdsList[_globalSelf._index]).remove();
+    $('#'+ _globalSelf._contentIds[_globalSelf._index]).remove();
+    $('#'+ _globalSelf._contentIdsSortByTime[_globalSelf._index]).remove();
+    if(_globalSelf._index ==1){
       $('#outWaterFall').remove();
     }
-    this._getFiles[this._index] = '';
+    _globalSelf._getFiles[_globalSelf._index] = '';
     _globalSelf.showFile();
   },
 
   //此函数用来刷新特有的一个文件,传入一个文件路径，获取所有信息，并且添加显示.
   refreshByPath:function(filePath_){
-    var divId = _globalSelf.uriToModifyUri('rio23060rio#a083188709744d22cdb1#video')+'div';
-    var trID = _globalSelf.uriToModifyUri('rio23060rio#a083188709744d22cdb1#video')+'tr';
-    $('#'+divId).remove();
-    $('#'+trID).remove();
     DataAPI.getDataByPath(function(file_){
-      console.log(file_[0]);
       var file = file_[0];
       var category = file['URI'].substring(file['URI'].lastIndexOf('#')+1,file['URI'].length);
       var index = $.inArray(category, _globalSelf._currentCategory);
       if(_globalSelf._getFiles[index]){
         _globalSelf._getFiles[index].push(file);
+        var divId = _globalSelf.uriToModifyUri(file['URI'])+'div';
+        var trID = _globalSelf.uriToModifyUri(file['URI'])+'tr';
+        $('#'+divId).remove();
+        $('#'+trID).remove();
         switch(index){
           case 1:
             var Container = $('<div>',{
@@ -352,16 +351,10 @@ var ShowFiles = Class.extend({
             Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
             Container.append(Holder);
             Container.append(description);
-            // returnContent.append(Container);
-            // returnContent.hide();
             Holder.children('img')[0].onload = function(){
-              // _globalSelf._imgReady = _globalSelf._imgReady - 1;
-              // if(_globalSelf._imgReady ==0){
-              //   returnContent.show();
-                $('#pictureContent').BlocksIt({
-                  numOfCol:5
-                });
-              // }
+              $('#pictureContent').BlocksIt({
+                numOfCol:5
+              });
             };
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
@@ -396,11 +389,10 @@ var ShowFiles = Class.extend({
             Holder.append(img);
             Container.append(Holder);
             Container.append(description);
-            // returnContent.append(Container);
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
               position: 'listview',
-              background_color: 'rgb(204,51,51)',
+              background_color: 'rgb(132,204,117)',
               max:3
             });
             _tagView.setParent(Container,file['URI']);
@@ -423,10 +415,9 @@ var ShowFiles = Class.extend({
               'text':file['filename']
             });
             Container.append(p);
-            // returnContent.append(Container);
             var _tagView = TagView.create({
               position: 'listview',
-              background_color: 'rgb(120,78,100)',
+              background_color: 'rgb(155,146,69)',
               max:2
             });
             _tagView.setParent(Container,file['URI']);
@@ -461,7 +452,7 @@ var ShowFiles = Class.extend({
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
               position: 'listview',
-              background_color: 'rgb(51,153,102)',
+              background_color: 'rgb(237,148,148)',
               max:3
             });
             _tagView.setParent(Container,file['URI']);
@@ -484,7 +475,6 @@ var ShowFiles = Class.extend({
               'text':file['filename']
             });
             Container.append(p);
-            // returnContent.append(Container);
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
               position: 'listview',
@@ -500,7 +490,7 @@ var ShowFiles = Class.extend({
         }
         //_globalSelf.addClickEvent(Container,'.refreshDiv');
         if($('#'+_globalSelf._contentIds[index]).children('div') .length >0){
-          $('#'+_globalSelf._contentIds[index]).append(Container);
+          $('#'+_globalSelf._contentIds[index]).prepend(Container);
         }
         if($('#'+ _globalSelf._contentIdsSortByTime[index]).children('div').length >0){
           var sortByTimeDivs = $('#'+ _globalSelf._contentIdsSortByTime[index]).children('div');
@@ -527,10 +517,6 @@ var ShowFiles = Class.extend({
           var tbody = tableBody.children('.tableBody').children('tbody');
           tbody.prepend(refreshTr);
         }
-        // console.log(_globalSelf._getFiles[index]);
-        // console.log(file);
-        window.alert(_globalSelf._getFiles[index].length);
-        window.alert(_globalSelf._getFiles[index].length); 
       }
     },filePath_);
   },
