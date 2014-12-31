@@ -33,7 +33,6 @@ function getLocalData(getLocalDataCb){
 }
 exports.getLocalData = getLocalData;
 
-
 /**
  * @method registerApp
  *  在本机消息接收端口上添加新应用监听回调函数，本方法意在将多个
@@ -86,7 +85,6 @@ function registerIMApp(AppCallBack,ws) {
   };
   ws.send(JSON.stringify(msg));
   FuncObj.registerFunc(function(recMsg) {
-    //AppCallBack(recMsg);
     router.wsNotify({
       'Action': 'notify',
       'Event': 'imChat',
@@ -95,6 +93,7 @@ function registerIMApp(AppCallBack,ws) {
   }, 'imChat');
 }
 exports.registerIMApp = registerIMApp;
+
 /**
  * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启
@@ -138,6 +137,7 @@ exports.startIMService = startIMService;
  *   回调函数，当消息发送成功时，调用该函数，并传参发送的消息
  *  @cbparam1
  *   string， 表示发送了的消息，具体为MsgObj.Msg，关于MsgObj下文有介绍
+ *  
  * @param MsgObj
  *   JSON，待发送的消息结构体，其中：
  *  MsgObj.IP 表示接收方的IP地址
@@ -191,6 +191,7 @@ exports.sendAppMsg = sendAppMsg;
  *    MsgObj.time表示发送时间，具体使用方法见测试
  *    MsgObj.from表示发送方的账户信息
  *    MsgObj.uuid表示发送方的设备UUID
+ *  
  * @param MsgObj
  *  JSON，待发送的消息结构体，其中：
  *  MsgObj.IP 表示接收方的IP地址
@@ -208,8 +209,10 @@ exports.sendAppMsg = sendAppMsg;
       App: "app1"
       rsaflag: "true"
     };
+ *  
  * @param wsID
  * string，发送端的webSocket连接的sessionID
+ *  
  * @param flag
  * boolean，是否需要发送端发送给其显示终端，true表示需要发送，false表示不需要发送
  *
@@ -225,8 +228,6 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   if (MsgObj.rsaflag === "true") {
     IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(rstMsg.MsgObj.message.msg.type==='file')
-        return;
       if(flag){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
@@ -240,7 +241,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-    if(flag){
+      if(flag){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -270,6 +271,7 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
  *    MsgObj.time表示发送时间，具体使用方法见测试
  *    MsgObj.from表示发送方的账户信息
  *    MsgObj.uuid表示发送方的设备UUID
+ *  
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.toAccList 表示接收方的IP以及UID集合
@@ -298,8 +300,10 @@ exports.sendAppMsgByDevice = sendAppMsgByDevice;
       App: "app1"
       rsaflag: "true"
     };
+ *  
  * @param wsID
  * string，发送端的webSocket连接的sessionID
+ *  
  * @param flag
  * boolean，是否需要发送端发送给其显示终端，true表示需要发送，false表示不需要发送
  *
@@ -317,7 +321,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
       if (countFlag === len) {
         SentCallBack(msgRst);
         if(flag){
-          msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+          msgRst['destInfo']={'Account':MsgObj.Account};
           router.wsNotify({
             'Action': 'notify',
             'Event': 'imChat',
@@ -340,7 +344,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if ((++countFlag) === len) {
               SentCallBack(msg);
               if(flag){
-                msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+                msg['destInfo']={'Account':MsgObj.Account};
                 router.wsNotify({
                   'Action': 'notify',
                   'Event': 'imChat',
@@ -357,7 +361,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if ((++countFlag) === len) {
               SentCallBack(msg);
               if(flag){
-                msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+                msg['destInfo']={'Account':MsgObj.Account};
                 router.wsNotify({
                   'Action': 'notify',
                   'Event': 'imChat',
@@ -379,7 +383,8 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
  *  该函数用来给目的帐号（与一组设备）或者设备的指定应用程序发送消息
  *
  * @param SentCallBack
- *   回调函数，作为调用具体发送函数sendAppMsgByDevice或者sendAppMsgByAccount的参数
+ *   回调函数，作为调用具体发送函数sendAppMsgByDevice或者sendAppMsgByAccount的参数\
+ * 
  * @param MsgObj
  *   JSON,待发送的消息结构体，其中：
  *  MsgObj.IP 表示接收方的IP地址
@@ -412,8 +417,10 @@ exports.sendAppMsgByAccount = sendAppMsgByAccount;
       App: "app1"
       rsaflag: "true"
     };
+ * 
  * @param wsID
  * string，发送端的webSocket连接的sessionID
+ * 
  * @param flag
  * boolean，是否需要发送端发送给其显示终端，true表示需要发送，false表示不需要发送
  *
@@ -437,6 +444,7 @@ exports.sendIMMsg = sendIMMsg;
  *      boolean，返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
  *      JSON，返回待传输的文件信息MsgObj或者出错信息
+ * 
  * @param MsgObj
  *   启动程序参数，json格式封装，其中：
  *  MsgObj.IP 表示接收方的IP地址
@@ -477,6 +485,7 @@ exports.sendFileTransferRequest = sendFileTransferRequest;
  *      boolean， 返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
  *      JSON， 返回待传输的文件信息MsgObj
+ * 
  * @param MsgObj 
  *   启动程序参数，json格式封装，待发送的消息结构体，其中：
  *  MsgOb举例如下：
@@ -489,6 +498,7 @@ exports.sendFileTransferRequest = sendFileTransferRequest;
        fileSize: "1024",
        msg: "I want to get the file"
      };
+ * 
  * @param path  
  *   启动程序参数，待传输文件的路径，例如'/media/fyf/BACKUP/test.txt'
  * 
@@ -529,6 +539,7 @@ exports.sendFileTransferStart = sendFileTransferStart;
  *      boolean， 返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
  *      JSON， 返回待传输的文件信息MsgObj
+ * 
  * @param MsgObj 
  *   启动程序参数，JSON，待发送的消息结构体，其中：
  *  MsgOb举例如下：
@@ -540,6 +551,7 @@ exports.sendFileTransferStart = sendFileTransferStart;
        fileSize: "1024",
        msg: "I want to get the file"
      };
+ * 
  * @param sendMsg 
  * JSON，接收端的信息结构体，其中：
  *  sendMsg.IP 表示接收方的IP地址
@@ -553,6 +565,7 @@ exports.sendFileTransferStart = sendFileTransferStart;
       Account: "fyf",
       group:'fyf'
     };
+ * 
  * @param isLocal 
  * boolean，是否为设备本地操作，true表示为设备本地，false表示为浏览器操作
  * 
@@ -605,6 +618,7 @@ exports.transferFileProcess = transferFileProcess;
  *   回调函数
  *   @cbparam1
  *      JSON, 返回中止传输的文件信息MsgObj
+ * 
  * @param MsgObj 
  *   启动程序参数，JSON，待发送的消息结构体，其中：
  *  MsgOb举例如下：
@@ -616,8 +630,10 @@ exports.transferFileProcess = transferFileProcess;
        fileSize: "1024",
        msg: "do you  want to get the file"
      };
+ * 
  * @param flag 
  *  boolean，是否中断传输
+ * 
  * @param state 
  *  int，帐号（设备组）通信窗口下，0表示发送方取消传输文件;1表示帐号下某个设备接收文件时，发送方取消对其他设备传输文件;2表示帐号下某个设备拒绝接收文件时，发送方取消对其他设备传输文件
  *  
@@ -634,8 +650,10 @@ exports.transferCancelSender=transferCancelSender;
 /**
  * @method transferCancelReciever
  *  接收端取消文件接收
+ * 
  * @param transferCancelRecieverCb
  *   回调函数
+ * 
  * @param key
  *   string，启动程序参数，正在接手文件的key值（一串MD5值），例如57374caa837997035b5fbc1d7732a66b
  */
@@ -652,6 +670,7 @@ exports.transferCancelReciever=transferCancelReciever;
  * 
  * @param transferProcessingCb
  *   回调函数
+ * 
  * @param msgObj 
  *   启动程序参数，json格式封装
  *   JSON,待发送的消息结构体，其中：
@@ -689,6 +708,7 @@ exports.transferProcessing = transferProcessing;
  *       boolean， 返回操作出错与否，出错则返回true,无错则返回false
  *   @cbparam2
  *       string， 返回操作结果消息提示
+ * 
  * @param tmpFilePath 
  *   启动程序参数，string，文件存储的临时路径
  */
