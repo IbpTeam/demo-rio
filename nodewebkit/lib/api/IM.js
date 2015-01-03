@@ -580,10 +580,8 @@ function transferFileProcess(transferFileCb, msgObj, sendMsg,isLocal) {
     } else {
       msgObj = rst;
     }
-    console.log('transferFileProcess============' + JSON.stringify(sendMsg));
     transferFileCb(err, msgObj);
     if (msgObj.initFile === undefined && !isLocal) {
-      console.log('isLocal============' + msgObj.initFile+'   '+isLocal);
       var sendM = {};
       var CalBakMsg = {};
       sendM['from'] = config.ACCOUNT;
@@ -600,7 +598,6 @@ function transferFileProcess(transferFileCb, msgObj, sendMsg,isLocal) {
         'UID': sendMsg.UID,
         'IP': sendMsg.IP
       };
-      console.log(JSON.stringify(CalBakMsg));
       router.wsNotify({
         'Action': 'notify',
         'Event': 'imChat',
