@@ -229,7 +229,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
     IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
       if(flag){
-        rstMsg['destInfo']={'Account':rstMsg.MsgObj.from,'UID':rstMsg.MsgObj.uuid,'IP':rstMsg.IP};
+        rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
           'Event': 'imChat',
@@ -242,7 +242,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
       if(flag){
-        rstMsg['destInfo']={'Account':rstMsg.MsgObj.from,'UID':rstMsg.MsgObj.uuid,'IP':rstMsg.IP};
+        rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
           'Event': 'imChat',
@@ -321,7 +321,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
       if (countFlag === len) {
         SentCallBack(msgRst);
         if(flag){
-          msgRst['destInfo']={'Account':msgRst.MsgObj.from,'UID':msgRst.MsgObj.uuid,'IP':msgRst.IP};
+          msgRst['destInfo']={'Account':accSetItem.toAccount};
           router.wsNotify({
             'Action': 'notify',
             'Event': 'imChat',
@@ -344,7 +344,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if ((++countFlag) === len) {
               SentCallBack(msg);
               if(flag){
-                msg['destInfo']={'Account':msg.MsgObj.from,'UID':msg.MsgObj.uuid,'IP':msg.IP};
+                msg['destInfo']={'Account':accSetItem.toAccount};
                 router.wsNotify({
                   'Action': 'notify',
                   'Event': 'imChat',
@@ -361,7 +361,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if ((++countFlag) === len) {
               SentCallBack(msg);
               if(flag){
-                msg['destInfo']={'Account':msg.MsgObj.from,'UID':msg.MsgObj.uuid,'IP':msg.IP};
+                msg['destInfo']={'Account':accSetItem.toAccount};
                 router.wsNotify({
                   'Action': 'notify',
                   'Event': 'imChat',
