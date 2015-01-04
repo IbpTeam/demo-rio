@@ -118,7 +118,16 @@ var Contact = Class.extend({
         }}
       ]},
       {text: 'Remove Contact', action:function(){
-
+        console.log(_this._contacts[_this._selectId]['URI']);
+        DataAPI.rmDataByUri(function(err, result){
+          if(result == "success"){
+            _this._contacts.splice(_this._selectId, 1);
+            _this.loadContactsList(0);
+            infoList.setContent();
+          }else{
+            window.alert("Delete file failed!");
+          }
+        },_this._contacts[_this._selectId]['URI']);
       }},
       {text: 'Edit Contact',action:function(){
         _this.editDetails(_this._contacts[_this._selectId], _this._selectId);
@@ -210,12 +219,6 @@ var Contact = Class.extend({
       'value' : 'Edit'
     });
     _buttonsDiv.append(_editButton);
-    var _deleteButton = $('<input>', {
-      'type' : 'button',
-      'id': 'delete-button',
-      'value': 'Delete'
-    });
-    _buttonsDiv.append(_deleteButton);
     _this._contactDetails.append(_buttonsDiv);
     $('#add-button').on('click', function(){
       _this.addContact();
