@@ -285,9 +285,11 @@ var InfoList = Class.extend({
 
   showFilesByTags:function(_tags){
     var _this = this;
-    DataAPI.getFilesByTags(function(err_, files_){
-      console.log("files_=====", files_);
-    }, _tags);
+    DataAPI.getFilesByTagsInCategory(function(err_, files_){
+      if(files_ != null && files_.length > 0){
+        _this.loadFilterData(files_);
+      }
+    }, _this.getCategoryName(_this._index), _tags);
   },
 
   removeTags:function(){
