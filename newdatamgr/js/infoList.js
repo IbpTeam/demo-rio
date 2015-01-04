@@ -43,8 +43,13 @@ var InfoList = Class.extend({
     this._firstShowFilterData = true;
     var _this = this;
     search.bindRemove(function(ev, value_, values_){
-      if(values_ != null && values_.length > 0){
-        _this.showFilesByTags(values_);
+      if(values_ != null){
+        if(values_.length > 0){
+          _this.showFilesByTags(values_);
+        } else if(values_.length == 0){
+          _this.setContent();
+          _this.loadData();
+        }
       }
     });
   },
@@ -241,7 +246,9 @@ var InfoList = Class.extend({
     }
     var _this = this;
     DataAPI.getTagsByUris(function(tags_){
-      _this.showTags(tags_);
+      if(tags_ != null){
+        _this.showTags(tags_);
+      }
     }, _dataUris);
   },
 
@@ -253,7 +260,7 @@ var InfoList = Class.extend({
         if(result_ != null){
           _this.loadFilterData(result_);
         }
-      }, _this.getCategoryName(_this._index), _tag);
+      }, _this.getCategoryName(_this._index), [_tag]);
     } else {
       var _dataJsons = [];
       var _dataUris = [];
