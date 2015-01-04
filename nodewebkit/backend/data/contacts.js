@@ -133,7 +133,7 @@ function getAllContacts(getAllCb) {
           name: each.name,
           sex: each.sex,
           age: each.age,
-          photoPath: each.path,
+          photoPath: each.photoPath,
           phone: each.phone,
           email: each.email,
           others: each.others
