@@ -24,8 +24,7 @@ var ShowFiles = Class.extend({
       'id':'choice'
     });
     this._showContent = $('<div>',{
-      'id':'showContent',
-      //'style':'overflow:auto'
+      'id':'showContent'
     });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
@@ -90,7 +89,7 @@ var ShowFiles = Class.extend({
         }else if(_id.substring(_id.length-2,2) === 'tr'){
           _modifyUri = _id.substr(0,_id.length - 2);
         }
-        var _file = _globalSelf.findFileByURI(_modifyUri);
+        var _file = _globalSelf.findFileByURI(_modifyUri,_globalSelf._index);
         _globalSelf._propertyView.loadData(_file);
         var _img = $('#'+_id).find('img');
         _globalSelf._propertyView.setImg(_img[0].src);
@@ -334,8 +333,8 @@ var ShowFiles = Class.extend({
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
-  findFileByURI:function(URI){
-    var all = _globalSelf._getFiles[_globalSelf._index];
+  findFileByURI:function(URI, index_){
+    var all = _globalSelf._getFiles[index_];
     var file = false;
     if(all.length){
       for(var i =0;i<all.length;i++){
@@ -591,7 +590,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
   openFileByUri:function(modifyURI_){
-    var file = _globalSelf.findFileByURI(modifyURI_);
+    var file = _globalSelf.findFileByURI(modifyURI_,_globalSelf._index);
     if(!file){
       window.alert('the file is not found');
     }
@@ -618,7 +617,7 @@ var ShowFiles = Class.extend({
   //还要把本地的获取的文件的名字修改，同时所有现存的div的名字选项也要修改
   renameFileByDivId:function(DivId_){
     var modifyURI = _globalSelf.findURIByDiv($('#'+DivId_));
-    var file = _globalSelf.findFileByURI(modifyURI);
+    var file = _globalSelf.findFileByURI(modifyURI,_globalSelf._index);
     if(!file){
       window.alert('the file is not found');
     }
@@ -674,7 +673,7 @@ var ShowFiles = Class.extend({
   //此函数用来删除一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的,
   //删除以后还要进行本地的一些操作，把有的div给删除掉，本地的获取文件也删除掉
   deleteFileByUri:function(modifyURI_){
-    var file = _globalSelf.findFileByURI(modifyURI_);
+    var file = _globalSelf.findFileByURI(modifyURI_,_globalSelf._index);
     if(!file){
       window.alert('the file is not found');
     }
@@ -879,7 +878,7 @@ var ShowFiles = Class.extend({
         div.addClass('pictureContainer');
       }
       var fileURI = _globalSelf.findURIByDiv(div);
-      var file = _globalSelf.findFileByURI(fileURI);
+      var file = _globalSelf.findFileByURI(fileURI,_globalSelf._index);
       var timeDifference = _globalSelf.dateDifference(file);
       if(timeDifference >=0 && timeDifference <=24){
         today.append(div);
@@ -1160,12 +1159,16 @@ var ShowFiles = Class.extend({
 
   bindDrag:function(file_){
     var _this = this;
+    var _tags = undefined;
     file_.ondragstart = function(ev){
       $(ev.currentTarget).fadeTo(0,0.4);
       $(ev.currentTarget).fadeTo(20,1);
-      var _uri = _this.modifyUriToUri(ev.currentTarget.id);
-      ev.dataTransfer.setData('uri',_uri.substring(0,_uri.length -3));
+      var _uri = ev.currentTarget.id.substring(0,ev.currentTarget.id.length-3);
+      ev.dataTransfer.setData('uri',_this.modifyUriToUri(_uri));
       ev.dataTransfer.setData('category',_globalSelf._currentCategory[_globalSelf._index]);
+      _tags = $(ev.currentTarget).find('.tag-container');
+      _tags.hide();
+      _tags.show(10);
     }
   }
 })
