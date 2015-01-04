@@ -1,6 +1,8 @@
 var path = require("path");
 var fs = require('fs');
 var exec = require('child_process').exec;
+var events = require('events');
+var util = require('util');
 var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
@@ -528,6 +530,27 @@ function parallel1(peraArr_, fn_, callback_) {
   parallel(fnArr, callback_);
 }
 exports.parallel1 = parallel1;
+
+// Event 'lines'
+function LineReader(file_, separetor_) {
+  this._separetor = separetor_ || /\r?\n|\r/;
+  this._rStream = fs.createReadStream(file_, {encoding: 'utf8'});
+  events.EventEmitter.call(this);
+
+  this._rStream.on('open', function() {
+  }).on('data', function(data_) {
+    this.parseData(data);
+  }).on('error', function(err_) {
+    this.emit('error', err_);
+  }).on('end', function() {
+    this.emit('end');
+  });
+
+  function parseData(data_) {
+    var lines = data_.split(this._separetor);
+  } 
+}
+util.inherits(LineReader, events.EventEmitter);
   
 function readJSONFile(path_, callback_) {
   var cb_ = callback_ || function() {};
