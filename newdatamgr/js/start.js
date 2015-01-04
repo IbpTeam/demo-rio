@@ -53,13 +53,13 @@ var main = function(params_){
           homePage.show();
           search.bindSuggestion([]);
         } else {
+          container.addClass('move-right');
           infoList.setIndex(k);
           infoList.setContent();
           infoList.setTitle();
           infoList.show();
           infoList.loadData();
           homePage.hide();
-          container.addClass('move-right');
         }
       }
     };
