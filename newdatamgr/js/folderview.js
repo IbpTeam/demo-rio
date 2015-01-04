@@ -24,11 +24,7 @@ var ShowFiles = Class.extend({
       'id':'choice'
     });
     this._showContent = $('<div>',{
-<<<<<<< HEAD
-      'id':'showContent',
-=======
       'id':'showContent'
->>>>>>> dev
     });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
