@@ -1,7 +1,6 @@
 #info-list{
   width: 164px;
   height: 100%;
-  background: rgba(250, 0, 0, 0.95);
   border-right: 1px solid #e5e8ec;
   float: left;
   position: relative;
@@ -12,7 +11,10 @@
   user-select: none;
   color: #2e3d44;
   transition:background-color 0.8s ease 0s;
-
+  &.hidden{
+    width:0px;
+    .transition(width,0.8s);
+  }
   #title-form {
     width: 100%;
     text-align: center;
