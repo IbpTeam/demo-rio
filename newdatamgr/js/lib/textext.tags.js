@@ -365,9 +365,20 @@
     if(self.val().length == 0){
       self.removeTag(lastTag);
       if(lastTag.length > 0){
-        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG));//data(CSS_TAG));
+        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG),self.getTags());
       }
     }
+  };
+
+  p.getTags=function(){
+    var self = this,
+      tags = self.tagElements(),
+      tagsArr = []
+      ;
+    for (var i = 0; i < tags.length; i++) {
+      tagsArr.push($(tags[i]).attr('data-'+CSS_TAG));
+    };
+    return tagsArr;
   };
 
   /**
@@ -430,7 +441,7 @@
     {
       self.removeTag(source.parents(CSS_DOT_TAG + ':first'));
       var _tag = source.parents(CSS_DOT_TAG + ':first')
-      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG));
+      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG),self.getTags());
       focus = 1;
     }
     else if(source.is(CSS_DOT_LABEL))

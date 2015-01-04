@@ -293,11 +293,11 @@ var InfoList = Class.extend({
   },
 
   show:function(){
-    this._infoList.show();    
+    this._infoList.removeClass('hidden');  
   },
   
   hide:function(){
-    this._infoList.hide();
+    this._infoList.addClass('hidden');
   },
 
   isShow:function(){
