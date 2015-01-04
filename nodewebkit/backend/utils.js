@@ -535,33 +535,48 @@ exports.parallel1 = parallel1;
 function LineReader(file_, separetor_) {
   this._separetor = separetor_ || /\r?\n|\r/;
   this._rStream = fs.createReadStream(file_, {encoding: 'utf8'});
+  this._remain = '';
   events.EventEmitter.call(this);
 
+  var _this = this;
   this._rStream.on('open', function() {
   }).on('data', function(data_) {
-    this.parseData(data);
+    _this.parseData(data_);
   }).on('error', function(err_) {
-    this.emit('error', err_);
+    _this.emit('error', err_);
   }).on('end', function() {
-    this.emit('end');
+    if(_this._remain != '')
+      _this.emit('lines', [_this._remain]);
+    _this.emit('end');
   });
-
-  function parseData(data_) {
-    var lines = data_.split(this._separetor);
-  } 
 }
 util.inherits(LineReader, events.EventEmitter);
+
+LineReader.prototype.parseData = function(data_) {
+  var lines = data_.split(this._separetor);
+  lines[0] = this._remain + lines[0];
+  this._remain = lines.pop();
+  this.emit('lines', lines);
+}
+exports.LineReader = LineReader;
   
 function readJSONFile(path_, callback_) {
-  var cb_ = callback_ || function() {};
-  fs.readFile(path_, 'utf8', function(err_, data_) {
-    if(err_) return cb_('Fail to load file: ' + err_);
+  var cb_ = callback_ || function() {},
+      lr = new LineReader(path_),
+      content = [];
+  lr.on('lines', function(lines_) {
+    for(var i in lines_) {
+      if(lines_[i].match(/^\s*#/) == null) content.push(lines_[i]);
+    }
+  }).on('end', function(){
     try {
-      json = JSON.parse(data_);
+      json = JSON.parse(content.join(''));
       return cb_(null, json);
     } catch(e) {
       return cb_(e);
     }
+  }).on('error', function(err_) {
+    cb_('Fail to load file: ' + err_);
   });
 }
 exports.readJSONFile = readJSONFile;
