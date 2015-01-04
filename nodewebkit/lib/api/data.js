@@ -1665,3 +1665,32 @@ function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;
+
+
+/** 
+ * @Method: repoSearch
+ *    search key matches in git log
+ *
+ * @param: repoSearchCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        object, result in object, as example in getGitLog() above
+ *
+ *  @param2: category
+ *    string, category name.
+ *
+ *  @param2: sKey
+ *    string, a piece of specific string.
+ *
+ *
+ **/
+function repoSearch(repoSearchCb, category, sKey) {
+  console.log("Request handler 'repoSearch' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoSearch(repoSearchCb, sKey);
+}
+exports.repoSearch = repoSearch;

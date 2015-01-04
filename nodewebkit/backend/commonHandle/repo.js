@@ -496,14 +496,24 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
 
 exports.repoSearch = function(category, sKey, callback) {
   var sRepoPath = utils.getRepoDir(category);
-  getGitLog(sRepoPath, function(err, result){
-    if(err){
-      return callback(err,null);
+  getGitLog(sRepoPath, function(err, result) {
+    if (err) {
+      return callback(err, null);
     }
-    if()
-    for(var item in result){
-
+    var _result = {};
+    for (var k in result) {
+      var oFiles = result[k].content.file;
+      for (var p in oFiles) {
+        var reg_key = new RegExp(sKey, 'g');
+        if (oFiles.length > 2) {
+          break;
+        }
+        if (reg_key.test(oFiles[p])) {
+          _result[k] = result[k];
+          break;
+        }
+      }
     }
-
+    callback(null, _result);
   })
 }

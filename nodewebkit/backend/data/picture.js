@@ -516,3 +516,9 @@ function getFilesByTag(sTag, callback) {
   tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
 }
 exports.getFilesByTag = getFilesByTag;
+
+
+function repoSearch(repoSearchCb, sKey) {
+  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
+}
+exports.repoSearch = repoSearch;

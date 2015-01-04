@@ -480,3 +480,9 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
+
+
+function repoSearch(repoSearchCb, sKey) {
+  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
+}
+exports.repoSearch = repoSearch;
