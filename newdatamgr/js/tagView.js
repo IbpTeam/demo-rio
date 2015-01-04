@@ -393,7 +393,6 @@ var TagView = Class.extend({
   },
 
   dragEnd:function(ev){
-    ev.preventDefault();
     ev.stopPropagation();
     $(ev.currentTarget).removeClass('no-rotate');
   },
