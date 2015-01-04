@@ -352,7 +352,25 @@ function getFilesByTagsInCategory(callback, category, oTags) {
         var _err = 'not found in data base ...';
         return callback(_err, null);
       }
-      callback(null, result);
+      //filter files to pick out files all tags in oTags by walk the result and check
+      //if its tags have all tags in oTags.
+      var _result = [];
+      for (var k in result) {
+        var NotMatch = false;
+        var oTagsAll = result[k].others.split(',');
+        for (var l in oTags) {
+          //break if item doesn't have target tag
+          if (!utils.isExist(oTags[l], oTagsAll)) {
+            NotMatch = true;
+            break;
+          }
+        }
+        //if all tags match 
+        if (!NotMatch) {
+          _result.push(result[k]);
+        }
+      }
+      callback(null, _result);
     })
   });
 }
