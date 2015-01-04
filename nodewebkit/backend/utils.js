@@ -531,9 +531,17 @@ function parallel1(peraArr_, fn_, callback_) {
 }
 exports.parallel1 = parallel1;
 
-// Event 'lines'
-function LineReader(file_, separetor_) {
-  this._separetor = separetor_ || /\r?\n|\r/;
+// Event:
+//  'lines': emitted when some lines are OK to read
+//    callback: function(lines)
+//      @param lines: array of some lines of file
+//  'end': emitted when file read completed
+//    callback: function()
+//  'error': emitted when error occured
+//    callback: function(err)
+//      @param err: error description
+function LineReader(file_, separator_) {
+  this._separator = separator_ || /\r?\n|\r/;
   this._rStream = fs.createReadStream(file_, {encoding: 'utf8'});
   this._remain = '';
   events.EventEmitter.call(this);
@@ -553,7 +561,7 @@ function LineReader(file_, separetor_) {
 util.inherits(LineReader, events.EventEmitter);
 
 LineReader.prototype.parseData = function(data_) {
-  var lines = data_.split(this._separetor);
+  var lines = data_.split(this._separator);
   lines[0] = this._remain + lines[0];
   this._remain = lines.pop();
   this.emit('lines', lines);
