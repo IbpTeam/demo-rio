@@ -41,6 +41,12 @@ var InfoList = Class.extend({
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
     this._firstShowFilterData = true;
+    var _this = this;
+    search.bindRemove(function(ev, value_, values_){
+      if(values_ != null && values_.length > 0){
+        _this.showFilesByTags(values_);
+      }
+    });
   },
   /**
    * [bindEvent bind event include click add button]
@@ -270,8 +276,18 @@ var InfoList = Class.extend({
         }
       } else {
         showfiles.showFileByTag(_dataUris);
+        DataAPI.getTagsByUris(function(tags_){
+          _this.showTags(tags_);
+        }, _dataUris);
       }
     }
+  },
+
+  showFilesByTags:function(_tags){
+    var _this = this;
+    DataAPI.getFilesByTags(function(err_, files_){
+      console.log("files_=====", files_);
+    }, _tags);
   },
 
   removeTags:function(){
