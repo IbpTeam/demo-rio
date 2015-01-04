@@ -158,8 +158,9 @@ var InfoList = Class.extend({
     var _this = this;
     _a.click(function(e){
       if($(this).children('.il__num')[0].textContent > 0){
-        _this.showTagFilterData(this.id);
-        search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
+        if(search._textTag.textext()[0]._plugins['tags'].addTags([tag_])){
+          _this.showTagFilterData(this.id);
+        }
       }
     });
     this.bindDrag(_a[0]);
@@ -292,11 +293,11 @@ var InfoList = Class.extend({
   },
 
   show:function(){
-    this._infoList.show();    
+    this._infoList.removeClass('hidden');  
   },
   
   hide:function(){
-    this._infoList.hide();
+    this._infoList.addClass('hidden');
   },
 
   isShow:function(){

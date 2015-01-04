@@ -301,9 +301,22 @@ May improve it in futre.
 // }
 // exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
-function getFilesByTagsInCategory(callback, category, sTag) {
-  var condition = ["tag='" + sTag + "'"];
-  commonDAO.findItems(null, ['tags'], condition, null, function(err, result) {
+function getFilesByTagsInCategory(callback, category, oTags) {
+  var condition = [];
+  if (oTags == "" || oTags == null) {
+    var _err = 'no input tags ...';
+    return callback(_err, null);
+  } else if (typeof oTags === "string") {
+    condition = ["tag='" + oTags + "'"];
+  } else {
+    for (var i = 0; i < oTags.length; i++) {
+      if (oTags[i] != null && oTags[i] != "") {
+        condition.push("tag='" + oTags[i] + "'");
+      }
+    }
+    condition = [condition.join(' or ')];
+  }
+  commonDAO.findItems(null, 'tags', condition, null, function(err, result) {
     if (err) {
       console.log(err);
       return callback(err, null);
@@ -320,13 +333,16 @@ function getFilesByTagsInCategory(callback, category, sTag) {
     var oCondition = [];
     for (var j = 0; j < oUris.length; j++) {
       var pos = oUris[j].lastIndexOf('#');
-      var _category = oUris[j].substr(pos+1);
+      var _category = oUris[j].substr(pos + 1);
       if (_category === category) {
         var tmpCondition = "uri='" + oUris[j] + "'";
         oCondition.push(tmpCondition);
       }
     }
-    console.log(oCondition)
+    if (oCondition == "") {
+      var _err = 'no matched items ...';
+      return callback(_err, null);
+    }
     var sCondition = oCondition.join(' or ');
     commonDAO.findItems(null, category, [sCondition], null, function(err, result) {
       if (err) {

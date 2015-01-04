@@ -1,0 +1,14 @@
+CACHE MANIFEST
+# 2014-12-29 v0.01
+./index.html
+./css/style.css
+./js/viewPPT.js
+./js/lib/jquery.qrcode.min.js
+./icons/powerpoint.png
+./icons/powerpointicon.png
+
+NETWORK
+*
+
+FALLBACK
+./index.html  ./index.html
