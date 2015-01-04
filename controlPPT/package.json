@@ -1,0 +1,16 @@
+{
+  "name": "controlPPT",
+  "main": "index.html",
+  "description": "APP for controlling PPT",
+  "version": "0.0.1",
+  "window": {
+    "icon": "icons/powerpointicon.png",
+    "toolbar": true,
+    "frame": true,
+    "width": 680,
+    "height": 500
+  },
+  "dependencies": {
+    "demo-rio": "~0.0.1"
+   }
+}
