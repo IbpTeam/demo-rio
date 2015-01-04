@@ -491,3 +491,19 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
     })
   })
 }
+
+
+
+exports.repoSearch = function(category, sKey, callback) {
+  var sRepoPath = utils.getRepoDir(category);
+  getGitLog(sRepoPath, function(err, result){
+    if(err){
+      return callback(err,null);
+    }
+    if()
+    for(var item in result){
+
+    }
+
+  })
+}
