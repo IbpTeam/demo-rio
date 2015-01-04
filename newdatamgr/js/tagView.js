@@ -387,11 +387,13 @@ var TagView = Class.extend({
         ev.dataTransfer.setData("category", 'contact');
       }
       tagDragged = _this;
+      ev.stopPropagation();
     }
     tag_.ondragend = this.dragEnd;
   },
 
   dragEnd:function(ev){
+    ev.stopPropagation();
     $(ev.currentTarget).removeClass('no-rotate');
   },
 
