@@ -83,6 +83,12 @@ var MainVideoView = Class.extend({
     this._videoRightBtn.click(function(ev){
       _this._unslider.next();
     });
+
+    this._videoMiddleBtn.click(function(ev){
+      console.log("open");
+      var uri = _this._ul.children('div');
+       console.log(uri);
+    });
   },
 
   attach:function($parent_){
@@ -132,6 +138,29 @@ var MainVideoView = Class.extend({
   },
   show:function(){
     this._videoContainer.show();
+  },
+
+  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFile:function(file_){
+    console.log(file_);
+    if(!file_){
+      window.alert('the file is not found');
+    }
+    else{
+      if(file_.type == 'PDF'){
+        function cbViewPdf(){
+        }
+        AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+          if (err) {
+            return console.log(err);
+          }
+          AppAPI.startApp(cbViewPdf, appInfo, file_.path);
+        }, "viewerPDF-app");
+      }
+      else{
+        DataAPI.openDataByUri(this.cbGetDataSourceFile, file_.uri);
+      }
+    }
   }
 
 });

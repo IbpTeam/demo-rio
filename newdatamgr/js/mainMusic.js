@@ -71,6 +71,7 @@ var MainMusicView = Class.extend({
         }
       }
     }, 'music', 3);
+    //_this.addClickEvent(this._musicContent,'music-content');
   },
 
   getMusicPicData:function(file){
@@ -89,7 +90,7 @@ var MainMusicView = Class.extend({
 
   addMusic:function(music_){
     var _li = $('<li>',{
-      'class': 'video-img'
+      'class': 'music-img'
     });
     var _name = $('<span>',{
       'text':music_['filename']
@@ -144,5 +145,23 @@ var MainMusicView = Class.extend({
     this._musicRightBtn.click(function(ev){
       _this._unslider.move(2);
     });
+
+    $('.music-img').dblclick(function(ev){
+      file=_this._img.name;
+      console.log(file);
+      //_this.openFile(file);
+    });
+
+  },
+
+  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFile:function(file_){
+    console.log(file_);
+    if(!file_){
+      window.alert('the file is not found');
+    }
+    else{
+      DataAPI.openDataByUri(this.cbGetDataSourceFile, file_.uri);
+    }
   }
 })

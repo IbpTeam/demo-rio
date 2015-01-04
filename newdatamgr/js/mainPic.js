@@ -27,6 +27,7 @@ var MainPicView = Class.extend({
         _this.setPicture(_this._picData);
       }
     }, 'picture', 1);
+    this.bindEvent();
   },
 
   attach:function($parent_){
@@ -106,5 +107,12 @@ var MainPicView = Class.extend({
   },
   dragOver:function(ev){
     ev.preventDefault();
+  },
+  bindEvent:function(){
+    $('.pic-content').click(function(ev){
+      console.log("dbclick");
+      //file=$('.pic-content').id;
+      //console.log(file);
+    });
   }
 });
