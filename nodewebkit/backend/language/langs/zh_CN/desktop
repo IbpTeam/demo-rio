@@ -1,6 +1,10 @@
+#Chinese version for desktop
 {
   "launcher": "应用启动器",
   "dock": "快捷启动",
+
+  #Context menu
+  #Desktop menu
   "c_txt": "新建文本文档",
   "script": "脚本执行",
   "terminal": "终端",
@@ -19,10 +23,14 @@
   "bottom": "正下方",
   "max_messages": "最大消息条数",
   "switch_motion": "切换动画",
+
+  #Plugin menu
   "zoom_in": "放大",
   "zoom_out": "缩小",
   "remove": "删除",
   "show_clock": "显示时钟",
+
+  #Entry menu
   "run": "运行",
   "open": "打开",
   "open_with": "用...打开",
@@ -37,10 +45,16 @@
   "success": "成功",
   "fail": "失败",
   "space": "",
+
+  #Launcher menu
   "add2desktop": "添加到桌面",
   "add2dock": "添加到快速启动栏",
+
+  #Dock menu
   "add_reflect": "添加reflect",
   "remove_reflect": "删除reflect",
+
+  #Launcher entry
   "All": "全部应用",
   "AudioVideo": "多媒体",
   "Audio": "多媒体",
@@ -56,6 +70,8 @@
   "System": "系统",
   "Utility": "附件",
   "Other": "其他",
+
+  #Login dialog
   "account": "账户",
   "passwd": "密码",
   "sure_passwd": "确认密码",
