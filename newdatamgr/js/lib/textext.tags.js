@@ -364,8 +364,8 @@
 
     if(self.val().length == 0){
       self.removeTag(lastTag);
-      if(lastTag){
-        self.trigger(EVENT_TAG_REMOVE,lastTag.data(CSS_TAG));
+      if(lastTag.length > 0){
+        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG));//data(CSS_TAG));
       }
     }
   };
@@ -430,7 +430,7 @@
     {
       self.removeTag(source.parents(CSS_DOT_TAG + ':first'));
       var _tag = source.parents(CSS_DOT_TAG + ':first')
-      self.trigger(EVENT_TAG_REMOVE,_tag.data(CSS_TAG));
+      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG));
       focus = 1;
     }
     else if(source.is(CSS_DOT_LABEL))
@@ -603,7 +603,7 @@
     for(i = 0; i < tags.length; i++)
     {
       tag = tags[i];
-
+      if(self.getTagElement(tag) !== false) return 0;
       if(tag && self.isTagAllowed(tag))
         container.append(self.renderTag(tag));
     }
@@ -611,6 +611,7 @@
     self.updateFormCache();
     core.getFormData();
     core.invalidateBounds();
+    return 1;
   };
 
   /**
@@ -632,9 +633,13 @@
       i, item
       ;
 
-    for(i = 0; i < list.length, item = $(list[i]); i++)
-      if(self.itemManager().compareItems(item.data(CSS_TAG), tag))
+    for(i = 0; i < list.length; i++){
+      item = $(list[i]);
+      if(self.itemManager().compareItems(item.data(CSS_TAG), tag)){
         return item;
+      }
+    }
+    return false;
   };
 
   /**
@@ -691,7 +696,7 @@
       ;
 
     node.find('.text-label').text(self.itemManager().itemToString(tag));
-    node.data(CSS_TAG, tag);
+    node.attr('data-'+CSS_TAG,tag);//data(CSS_TAG, tag);
     return node;
   };
 })(jQuery);

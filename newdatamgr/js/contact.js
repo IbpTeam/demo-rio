@@ -1,6 +1,7 @@
 var Contact = Class.extend({
   init:function(){
     this._contacts = [];
+    this._showList = [];
     this._ContactContainer = $('<div>',{
       'id': 'contact-container'
     })
@@ -18,7 +19,9 @@ var Contact = Class.extend({
     });
     this._first = true;
     this._ContactContainer.append(this._contactDetails);
-    this._tagView = TagView.create();
+    this._tagView = TagView.create({
+      category:'contact'
+    });
     this._tagView.setParent(this._contactHead);
     this._selectId = 0;
     this.bindDrag(this._contactHead[0]);
@@ -37,24 +40,23 @@ var Contact = Class.extend({
   },
 
   loadContactsList:function(_index, showList){
-    var _showList;
     if(showList != null){
-      _showList = showList;
+      this._showList = showList;
     } else {
-      _showList = this._contacts;
+      this._showList = this._contacts;
     }
     this.removeContactList();
     var family_name_json = {};
-    for(var i = 0; i < _showList.length; i ++){
-      var family_name = _showList[i]['name'][0];
+    for(var i = 0; i < this._showList.length; i ++){
+      var family_name = this._showList[i]['name'][0];
       if(family_name_json.hasOwnProperty(family_name)){
         family_name_json[family_name].push({
-          name: _showList[i]['name'],
+          name: this._showList[i]['name'],
           id: i
         });
       } else {
         family_name_json[family_name] = [{
-          name: _showList[i]['name'],
+          name: this._showList[i]['name'],
           id: i
         }];
       }
@@ -80,9 +82,9 @@ var Contact = Class.extend({
     }
 
     this.removeHead();
-    this.setHead(_showList[_index]);
+    this.setHead(this._showList[_index]);
     this.removeDetails();
-    this.setDetails(_showList[_index]);
+    this.setDetails(this._showList[_index]);
     this.bindAction();
   },
 
@@ -91,8 +93,8 @@ var Contact = Class.extend({
     $('.li-name').on('click', function(){
       _this.removeHead();
       _this.removeDetails();
-      _this.setHead(_this._contacts[this.id]);
-      _this.setDetails(_this._contacts[this.id], this.id);
+      _this.setHead(_this._showList[this.id]);
+      _this.setDetails(_this._showList[this.id], this.id);
       _this._selectId = this.id;
     });
 
@@ -108,7 +110,6 @@ var Contact = Class.extend({
     contextMenu.addCtxMenu([
       {header: 'contact menu'},
       {text:'Tag', subMenu:[
-        {header: 'Tag'},
         {text: 'Add',action:function(){
 
         }},
@@ -117,7 +118,16 @@ var Contact = Class.extend({
         }}
       ]},
       {text: 'Remove Contact', action:function(){
-
+        console.log(_this._contacts[_this._selectId]['URI']);
+        DataAPI.rmDataByUri(function(err, result){
+          if(result == "success"){
+            _this._contacts.splice(_this._selectId, 1);
+            _this.loadContactsList(0);
+            infoList.setContent();
+          }else{
+            window.alert("Delete file failed!");
+          }
+        },_this._contacts[_this._selectId]['URI']);
       }},
       {text: 'Edit Contact',action:function(){
         _this.editDetails(_this._contacts[_this._selectId], _this._selectId);
@@ -164,7 +174,6 @@ var Contact = Class.extend({
       'id':'contact-back-red'
     });
     this._contactHead.append(_contactHeadBackRed);
-
   },
 
   setDetails: function(contact_, id){
@@ -210,12 +219,6 @@ var Contact = Class.extend({
       'value' : 'Edit'
     });
     _buttonsDiv.append(_editButton);
-    var _deleteButton = $('<input>', {
-      'type' : 'button',
-      'id': 'delete-button',
-      'value': 'Delete'
-    });
-    _buttonsDiv.append(_deleteButton);
     _this._contactDetails.append(_buttonsDiv);
     $('#add-button').on('click', function(){
       _this.addContact();
@@ -401,6 +404,8 @@ var Contact = Class.extend({
     ev.preventDefault();
     ev.stopPropagation();
     var _tag = ev.dataTransfer.getData('tag');
+    var _category = ev.dataTransfer.getData('category');
+    var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
       DataAPI.setTagByUri(function(err_){
         if (err_ === null) {
@@ -409,9 +414,31 @@ var Contact = Class.extend({
           }
           contact._contacts[contact._selectId]['others'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
+          var _tagedFile = [contact._contacts[contact._selectId]['URI']];
+          if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
+            infoList._info['tagFiles'][_tag].push(_tagedFile);
+          } else {
+            infoList._info['tagFiles'][_tag] = [_tagedFile];
+            infoList._info['tags'].push(_tag);
+          }
+          
         };
       },[_tag],contact._tagView._uri);
-    };
+    }else if(_uri && _category === 'picture'){
+      var _modalUri = showfiles.uriToModifyUri(_uri);
+      var _file = showfiles.findFileByURI(_modalUri,1);  //index = 1 is picture
+      var _path = _file['path'];
+      var _contactJson = contact._contacts[contact._selectId];
+      _contactJson['photoPath'] = _path;
+      _contactJson['category'] = 'contact';
+      DataAPI.updateDataValue(function(result_){
+        if(result_ == 'success'){
+          contact._contacts[contact._selectId] = _contactJson;
+          contact.removeHead();
+          contact.setHead(_contactJson);
+        }
+      },[_contactJson]);
+    }
   },
   dragover:function(ev){
     ev.preventDefault();  

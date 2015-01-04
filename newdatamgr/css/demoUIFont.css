@@ -60,6 +60,12 @@
 .icon-icon-facetime-video:before {
   content: "\e608";
 }
+.icon-others:before{
+  content: "\e60f";
+  font-size: 0.8em;
+}
+
+
 
 .icon-plus:after{
   content: "\e60a";
@@ -84,6 +90,25 @@
   top:-1px;
   left:1px;
 }
+
+#contactCheckBox:checked + label:after {
+  font-family: 'icomoon';
+  content:"\e60d";
+  font-size: 0.8em;
+  position: absolute;
+  top:0px;
+  left:2px;
+}
+
+#dataCheckBox:checked + label:after {
+  font-family: 'icomoon';
+  content:"\e60d";
+  font-size: 0.8em;
+  position: absolute;
+  top:0px;
+  left:2px;
+}
+
 
 /*
 .black_bj:after{

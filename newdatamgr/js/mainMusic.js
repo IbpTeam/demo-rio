@@ -36,12 +36,14 @@ var MainMusicView = Class.extend({
     this._dots.push(this._musicLeftBtn);
     this._dots.push(this._musicMiddleBtn);
     this._dots.push(this._musicRightBtn);
+
     var _this = this;
     _this._tags = [];
     DataAPI.getRecentAccessData(function(err_, music_json_){
       if(err_){
         console.log(err_);
         return;
+
       }
       var _count = 0;
       for(var i = 0; i < music_json_.length; i ++){
@@ -55,7 +57,8 @@ var MainMusicView = Class.extend({
                 position: 'listview',
                 direction:'up',
                 max:3,
-                background_color: 'rgb(51,153,102)',
+                category:'music',
+                background_color: 'rgb(88,204,82)',
                 positions:{
                   bottom:10,
                   step: 30
@@ -87,13 +90,16 @@ var MainMusicView = Class.extend({
 
   addMusic:function(music_){
     var _li = $('<li>',{
-      'class': 'video-img',
-      'text': music_['filename']
+      'class': 'video-img'
+    });
+    var _name = $('<span>',{
+      'text':music_['filename']
     });
     var _img = $('<img>', {
       'name' : music_['URI']
     });
     this.getMusicPicData(music_);
+    _li.append(_name);
     _li.append(_img);
     this._ul.append(_li);
   },

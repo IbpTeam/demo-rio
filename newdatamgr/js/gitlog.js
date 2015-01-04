@@ -6,33 +6,63 @@ var GitLog = Class.extend({
     this._gitselect = $('<div>',{
       'id':'gitselect-content'
     });
-    this._select = $('<select>',{
+    this._select = $('<input>',{
      'class': 'gitselect',
+     'value': 'contact',
+     'readonly': 'readonly'
     });
+    this._selectList = $('<div>',{
+      'class': 'gitlog-list'
+    });
+    this._ul = $('<ul>',{
+      'class': 'gitlog-ul'
+    })
+    this._selectArrow = $('<div>',{
+      'id': 'arrow'
+    })
     this._gitcontent = $('<div>',{
      'class':'git-content'
     })
     this._category = ['contact', 'picture','video','document','music','other'];
     for (var i = 0; i <= this._category.length - 1; i++) {
-      var _option = $('<option>',{
-        'class':'select-option',
+      var _option = $('<li>',{
+        'class':'gitlog-li',
         'text':this._category[i],
         'value': this._category[i]
       });
-      this._select.append(_option);
+      this._ul.append(_option);
     };
+    this._selectList.append(this._selectArrow);
+    this._selectList.append(this._ul);
     this._gitLogContainer.append(this._gitselect);
     this._gitselect.append(this._select);
+    this._gitselect.append(this._selectList);
     this._gitLogContainer.append(this._gitcontent);
+    //this._selectList.hide();
     this.bindEvent();
   },
   bindEvent:function(){
     var _this = this;
-    this._select.change(function(){
-      var val_ = this.options[this.options.selectedIndex].value;
-       _this._gitcontent.children('li').remove();
-       _this.setContent(val_);
+    this._select.click(function(ev){
+      /*if(_this._selectList.is(":hidden")){
+        _this._selectList.show();
+      }else{
+          _this._selectList.hidden();
+      }*/
+      _this._selectList.slideToggle("normal");
     });
+    this._ul.children('li').click(function(ev){
+      _this._gitcontent.children().remove();
+      _this.setContent($(this).html());
+      _this._select.val($(this).html()); 
+      _this._selectList.hide(); 
+    });
+    _this._select.blur(function(){ 
+      /*setTimeout(function(){
+        _this._selectList.hide();
+      },200); */
+    _this._selectList.slideToggle("normal");
+    });         
   },
 
   getTimeDiff:function(date_){
@@ -43,25 +73,25 @@ var GitLog = Class.extend({
     var _text = '';
     switch(true){
       case _days === 0:
-        _text = 'today';
+        _text = 'Today';
         break;
       case _days ===1:
-        _text = 'yesterday';
+        _text = 'Yesterday';
         break;
       case _days <= 7 :
-        _text = 'previous' + _days + 'days';
+        _text = 'Previous ' + _days + ' Days';
         break;
       case ((_days > 7)&&(_days <= 30)) :
-         _text = 'within 1 month';
+         _text = 'Within 1 Month';
         break;
       case ((_days > 30)&&(_days <= 90)) :
-        _text = 'within 3 months';
+        _text = 'Within 3 months';
         break;
       case ((_days > 90)&&(_days <= 180)) :
-        _text = 'within half a year';
+        _text = 'Within half a year';
         break;
       case ((_days > 180)&&(_days <= 365)) :
-        _text = 'within 1 year';
+        _text = 'Within 1 year';
         break;
       default:
          _text = 'Earlier';
@@ -123,13 +153,13 @@ var GitLog = Class.extend({
           _li.append(_date_dis);
           _oldText = _text;
         }
-        var _avatar = $('<a>',{
-          'id': 'avatar'
+        var _photo = $('<a>',{
+          'id': 'photo'
         });
-        _li.append(_avatar);
+        _li.append(_photo);
         var _op = $('<span>',{
            'id':'_op',
-           'text':_this._gitresults[_commitID]['content']['op']
+           'text':(_this._gitresults[_commitID]['content']['op'] === 'ch')?'change':_this._gitresults[_commitID]['content']['op']
          });   
          _li.append(_op);
         var _device = $('<span>',{

@@ -6,6 +6,7 @@ var MainPicView = Class.extend({
     var _this = this;
     _this._tagView = TagView.create({
       position: 'listview',
+      category: 'picture',
       background_color: 'rgb(110,204,188)'
     });
     DataAPI.getRecentAccessData(function(err_, picture_json_){
@@ -36,6 +37,7 @@ var MainPicView = Class.extend({
   setPicture:function(pic_){
     if (pic_) {
       var _picContent = $('<div>',{
+        'id': pic_.uri.replace(/#/g,'-')+'div',
         'class':'pic-content'
       });
       this._picContainer.append(_picContent);
@@ -70,7 +72,7 @@ var MainPicView = Class.extend({
     };
     this._tagView.setParent(_picContent,pic_.uri);
     this._tagView.addTags(pic_.tags);
-
+    this._tagView.bindDrop(_picContent[0]);
   },
 
   removePicture:function(index_){

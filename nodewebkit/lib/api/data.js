@@ -373,6 +373,31 @@ function getDataByUri(getDataByUriCb, uri) {
 }
 exports.getDataByUri = getDataByUri;
 
+//API getDataByPath:通过path查看数据所有信息
+//返回具体数据类型对象
+function getDataByPath(getDataByPathCb, sPath) {
+  console.log("Request handler 'getDataByPath' was called.");
+  if(sPath.substr(sPath.length-3,sPath.length-1) === '.md'){
+    sPath = sPath.substr(0,sPath.length-3);
+  }
+  var cate = utils.getCategoryByPath(sPath);
+  var category = cate.category;
+  var filename = cate.filename;
+  var postfix = cate.postfix;
+  var sCondition = ["postfix='" + postfix + "'", "filename='" + filename + "'"];
+  commonDAO.findItems(null, category, sCondition, null, function(err, result) {
+    if (err) {
+      return getDataByPathCb(err, null);
+    } else if (result == '' || result === null) {
+      return getDataByPathCb(sPath + ': not found in database ...', null);
+    }
+    var uri = result[0].URI;
+    var cateObject = utils.getCategoryObject(category);
+    cateObject.getByUri(uri, getDataByPathCb);
+  })
+}
+exports.getDataByPath = getDataByPath;
+
 /**
  * @method openDataByUri
  *   打开URI对应的数据

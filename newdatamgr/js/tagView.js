@@ -3,10 +3,11 @@ var TagView = Class.extend({
     this._options = {
       direction: 'down',
       position: 'random',  //listView
+      category: undefined,
       background_color: 'rgb(255,125,125)',
-      opacity: 0.9,
-      opacity_step:0.2,
       color: 'rgb(255,255,255)',
+      opacity:0.9,
+      opacity_step:0.2,
       max: 6,
       animate: true,
       random_positions: [{left:15,top:20},{left:70,top:60},{left:10,top:50},{left:70,top:30},{left:18,top:110},{left:65,top:90}],
@@ -65,16 +66,26 @@ var TagView = Class.extend({
    * @param {[type]} index_   [index of tags]
    */
   setColorOpacity:function($target_, index_){
-    $target_.children('.tag-background').css({
-      'background-color': this._options.background_color,
-      'opacity': this._options.opacity - index_*this._options.opacity_step
-    });
+    var _reg = new RegExp("\\b"+this._options.category+"-*?\\b");
+    var _tagBg = $target_.children('.tag-background');
+    var _tagTri = $target_.children('.tag-triangle');
+    if(this._options.category){
+      _tagBg[0].className = _tagBg[0].className.replace(_reg, '');
+      _tagTri[0].className = _tagTri[0].className.replace(_reg, '');
+      _tagBg.addClass(this._options.category+'-'+index_);
+      _tagTri.addClass(this._options.category+'-'+index_);
+    }else{
+      $target_.children('.tag-background').css({
+        'background-color': this._options.background_color,
+        'opacity': this._options.opacity - index_*this._options.opacity_step
+      });
+      $target_.children('.tag-triangle').css({
+        'color': this._options.background_color,
+        'opacity': this._options.opacity - index_*this._options.opacity_step
+      });
+    }
     $target_.children('.tag-text').css({
       'color': this._options.color,
-    });
-    $target_.children('.tag-triangle').css({
-      'color': this._options.background_color,
-      'opacity': this._options.opacity - index_*this._options.opacity_step
     });
   },
   /**
@@ -215,7 +226,7 @@ var TagView = Class.extend({
    * @type {[type]}
    */
   addTags:function(arrTags_, callback_){
-    for (var i = 0; i < arrTags_.length; i++) {
+    for (var i = arrTags_.length -1 ;i >= 0 ;i--) {
       this.addTag(arrTags_[i]);
     };
     if(this._options.animate){
@@ -240,6 +251,7 @@ var TagView = Class.extend({
               var _newtag = this.newTag(this._tagTextList[this._options.max-1]);
               this.setPosition(_newtag,this._options.max);
               this._parent.append(_newtag);
+              this.bindDrag(_newtag[0]);
               this._tagList.push(_newtag);
             }else{
               this._index--;
@@ -357,6 +369,11 @@ var TagView = Class.extend({
       $obj_.addClass('rotate');
     }
   },
+  /**
+   * [bindDrag bind drag Event]
+   * @param  {[type]} tag_ [description]
+   * @return {[type]}      [description]
+   */
   bindDrag:function(tag_){
     var _this = this;
     tag_.ondragstart = function(ev){
@@ -373,7 +390,32 @@ var TagView = Class.extend({
     }
     tag_.ondragend = this.dragEnd;
   },
+
   dragEnd:function(ev){
     $(ev.currentTarget).removeClass('no-rotate');
+  },
+
+  bindDrop:function(target_){
+    var _this = this;
+    var drop = function(ev){
+      var _tag = ev.dataTransfer.getData('tag');
+      var _id = ev.currentTarget.id;
+      var _uri = showfiles.modifyUriToUri(_id).substring(0,_id.length - 3);
+      if (typeof _tag === 'string' && _tag.length > 0) {
+        DataAPI.setTagByUri(function(err){
+          if (err === null) {
+            infoList.fixTagNum(_tag,1);
+            _this.addPreTag(_tag);
+          };
+        },[_tag],_uri);
+      };
+      ev.preventDefault();
+      ev.stopPropagation();
+    };
+    var dragOver = function(ev){
+      ev.preventDefault();
+    }
+    target_.ondrop = drop;
+    target_.ondragover = dragOver;
   }
 });

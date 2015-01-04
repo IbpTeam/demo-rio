@@ -5,17 +5,22 @@
   line-height: 20px;
   text-align: center;
   cursor: pointer;
-  z-index: 222;
-
+  z-index: 88;
+  outline: none;
+  .setColorSaturate(picture,rgb(110,204,188),5,0);
+  .setColorSaturate(video,rgb(132,204,117),5,0);
+  .setColorSaturate(music,rgb(237,148,148),5,0);
+  .setColorSaturate(contact,rgb(255,125,125),5,1);
+  .setColorSaturate(contact,rgb(110,204,188),0,0);
   .transition(right, 0.5s);
   &.rotate{
-    right:-45px;
+    right:-30px;
     .rotate(-15deg);
     &:hover{
-      right:-55px;
+      right:-50px;
     }
     &.no-rotate{
-      right:-85px;
+      right:-80px;
       .rotate(0deg);
     }
   }
