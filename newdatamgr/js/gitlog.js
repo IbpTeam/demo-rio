@@ -11,6 +11,11 @@ var GitLog = Class.extend({
      'value': 'contact',
      'readonly': 'readonly'
     });
+    this._selectsearch = $('<input>',{
+     'class': 'gitselect',
+     'value': 'hahah',
+     'readonly': 'readonly'
+    });
     this._selectList = $('<div>',{
       'class': 'gitlog-list'
     });
@@ -34,7 +39,7 @@ var GitLog = Class.extend({
     };
     this._selectList.append(this._selectArrow);
     this._selectList.append(this._ul);
-    this._gitLogContainer.append(this._gitselect);
+    this._gitLogContainer.append(this._gitselect,this._selectsearch);
     this._gitselect.append(this._select);
     this._gitselect.append(this._selectList);
     this._gitLogContainer.append(this._gitcontent);
