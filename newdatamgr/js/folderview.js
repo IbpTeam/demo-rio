@@ -319,6 +319,15 @@ var ShowFiles = Class.extend({
       var category = file['URI'].substring(file['URI'].lastIndexOf('#')+1,file['URI'].length);
       var index = $.inArray(category, _globalSelf._currentCategory);
       if(_globalSelf._getFiles[index]){
+        for(var i =0;i<_globalSelf._getFiles[index].length;i++){
+          if(_globalSelf._getFiles[index][i]['URI'] == file['URI']){
+            _globalSelf._getFiles[index].splice(i,1);
+            break;
+          }
+        }
+        _globalSelf._getFiles[index].push(file);
+        $('#'+_globalSelf.uriToModifyUri(file['URI'])+'div').remove();
+        $('#'+_globalSelf.uriToModifyUri(file['URI'])+'tr').remove();
         _globalSelf._getFiles[index].push(file);
         switch(index){
           case 1:
