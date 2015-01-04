@@ -352,8 +352,8 @@ function getFilesByTagsInCategory(callback, category, oTags) {
         var _err = 'not found in data base ...';
         return callback(_err, null);
       }
-      //filter files to pick out files all tags in oTags by walk the result and check
-      //if its tags have all tags in oTags.
+      //filter files to pick out those contains tag in oTags by walking 'result' 
+      //and comparing the tags. 
       var _result = [];
       for (var k in result) {
         var NotMatch = false;
