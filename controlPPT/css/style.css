@@ -1,0 +1,331 @@
+* {
+  -webkit-user-select: none;
+}
+
+/*body {
+  background-image: url('images/htmlbg.png')
+}*/
+
+.files {
+  padding: 0;
+  margin: 0;
+}
+
+.file {
+  padding: 2px;
+  margin: 2px;
+  width: 200px;
+  display: inline-block;
+  text-align: center;
+  vertical-align: top;
+}
+.file:hover {
+  cursor: pointer;
+  background：#000000;
+  border:1px solid #000000;
+}
+
+.file.focus {
+  background-color: #08C;
+  -webkit-border-radius: 4px;
+}
+
+.file .name {
+  width: 200px;
+  word-wrap: break-word;
+}
+
+.file.focus .name {
+  color: white;
+}
+
+.file .icon {
+  margin: auto;
+  margin-top: 0;
+  width: 200px;
+}
+.file .icon img{
+  width:100%;
+}
+
+.file.focus .icon {
+  -webkit-filter: invert(20%);
+}
+/*for file-big*/
+.file-big {
+  width: 400px;
+  display: inline-block;
+  text-align: left;
+}
+.file-big .icon-big {
+  padding: 8px;
+  margin-top: 0;
+  width: 128px;
+  display: inline-block;
+}
+.file-big .file-props {
+  margin-top: 0;
+  width: 256px;
+  display: inline-block;
+}
+.file-big p {
+  margin-bottom: 0px;
+}
+
+.file-big .icon-big img{
+  width:100%;
+}
+
+.file-big.focus .icon-big {
+  -webkit-filter: invert(20%);
+}
+/*****modify for bootstrap-3.1.1*****/
+.breadcrumb .active a {
+  color: #333333;
+}
+.dropdown-menu li > a:hover,
+.dropdown-menu .active > a,
+.dropdown-menu .active > a:hover {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #0088cc;
+}
+/*****add later by wangyu*****/
+
+/*****add later by xifei*****/
+#frontend .row {
+    background: #FFF;
+    -webkit-border-radius: 2px;
+    margin-bottom: 8px;
+    line-height:1;
+}
+
+#sidebar {
+    padding: 9px;
+}
+#qrcode {
+    position: absolute;
+    color:black;
+    padding: 0px;
+    font-size: 50px;
+    top:45px;
+    right: 20px;
+    height: 50px;
+    border: 0px;
+    outline: none;
+    background-color: #F5F5F5;
+}
+#main{
+    padding-right: 20px;
+    padding-left: 20px;
+    height: 100%;
+    font-size: 13px;
+}
+#main .breadcrumb {
+  margin-bottom: 0px;
+}
+
+#addressbar {
+  display: inline-block;
+}
+
+#div-setting {
+    background: none;
+}
+
+#liststyle {
+    width: 30%;
+}
+#liststyle .ui-slider-range {
+    background: #08c;
+}
+#liststyle .ui-slider-handle {
+    border-color: #08c; 
+}
+
+a {
+    color: #0088cc;
+}
+.glyphicon {
+    color: black;
+}
+.nav .nav-header {
+   /* display: block;
+padding: 3px 15px;*/
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 18px;
+  color: #999999;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.nav-list {
+/*  padding-right: 8px;
+  padding-left: 8px;
+  */
+  margin-bottom: 0;
+}
+
+.nav-list > li > a,
+.nav-list .nav-header {
+/*
+  margin-right: -9px;
+  margin-left: -9px;
+  */
+  font-size: 13px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.nav-list  li  a {
+  padding: 3px 9px;
+}
+
+.nav-list  .active  a,
+.nav-list  .active  a:hover {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background-color: #0088cc;
+}
+
+.nav-list [class^="glyphicon-"] {
+  margin-right: 6px;
+}
+
+.nav-list .divider {
+  *width: 100%;
+  height: 2px;
+  margin: 8px 1px;
+  *margin: -5px 0 5px;
+  overflow: hidden;
+  color: #333333;
+  background-color: #e5e5e5;
+  border-bottom: 1px solid #ffffff;
+  display: list-item;
+  text-align: -webkit-match-parent;
+}
+
+.panel .table tbody th {
+    font-weight: normal;
+}
+/*.panel .table a,*/
+.panel .table tr:hover {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+  background-color: #0088cc;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#control{
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height:100%;
+  z-index: 1000;
+  background: #00FF7F;
+}
+
+#control #palybutton{
+  position: absolute;
+  width:30%;
+  height:30%;
+  right:55%;
+  top: 55%;
+  font-size:50px;
+}
+#control #upbutton{
+  position: absolute;
+  width:30%;
+  height:30%;
+  left:55%;
+  bottom: 50%;
+  font-size:50px;
+}
+#control #downbutton{
+  position: absolute;
+  width:30%;
+  height:30%;
+  left:55%;
+  top: 55%;
+  font-size:50px;
+}
+#control #escbutton{
+  position: absolute;
+  width:30%;
+  height:30%;
+  right:55%;
+  bottom: 50%;
+  font-size:50px;
+}
+#control #pptname{
+  font-style: oblique;
+  font-weight:bold;
+  font-size:20px; 
+  top:20%;
+}
+.qrcode-container{
+  z-index:98;
+  position:absolute;
+  top: 100px;
+  right: 25px;
+  width:170px;
+  height:210px;
+  border: 1px solid #999;
+  border-radius:6px;
+}
+
+.qrcode-container .qrcode-triangle{
+  position: absolute;
+  display:block;
+  width:0px;
+  height:0px;
+  right:10px;
+  border:11px;
+  overflow:hidden;
+  border-style: dashed dashed solid;
+}
+.qrcode-container .qrcode-triangle.qrcode-down{
+  top:-22px;
+  border-color: transparent transparent #999;
+  z-index: 10;
+}
+.qrcode-container .qrcode-triangle.qrcode-top{
+  top:-21px;
+  border-color: transparent transparent #fff;
+  z-index:11;
+}
+
+.qrcode-container .qrcode-title{
+  position:absolute;
+  top: 0;
+  width:100%;
+  padding:5px 3px;
+  height: 40px;
+  font-size:20px;
+  font-weight: bold;
+  background-color:#fff;
+  border-bottom:1px solid #999;
+  border-radius:6px 6px 0 0;
+  text-align: center;
+  line-height: 40px;
+}
+.qrcode-container .qrcode-content{
+  position:absolute;
+  width: 100%;
+  top: 40px;
+  bottom: 0;
+  background-color:#fff;
+  border-radius:6px;
+  text-align: center;
+}
+.qrcode-container .qrcode-content canvas{
+  margin-top: 10px; 
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; 
+}
