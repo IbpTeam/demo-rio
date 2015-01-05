@@ -432,6 +432,9 @@ var ShowFiles = Class.extend({
               'class':'musicHolder',
               'draggable':false
             });
+            var tagHolder = $('<div>',{
+              'class':'tagHolder',
+            });
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'musicdescription',
@@ -442,6 +445,7 @@ var ShowFiles = Class.extend({
                'draggable':false
             });
             Holder.append(musicImg);
+            Holder.append(tagHolder);
             Container.append(Holder);
             Container.append(description);
             _globalSelf.getMusicPicData(file);
@@ -451,9 +455,9 @@ var ShowFiles = Class.extend({
               background_color: 'rgb(237,148,148)',
               max:3
             });
-            _tagView.setParent(Container,file['URI']);
+            _tagView.setParent(tagHolder,file['URI']);
             _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
+            _tagView.bindDrop(tagHolder[0]);
             _globalSelf.attachDataMenu(Container[0].id);
             break;
           case 5:
@@ -1250,6 +1254,9 @@ var ShowFiles = Class.extend({
             'class':'musicHolder',
             'draggable':false
           });
+          var tagHolder = $('<div>',{
+            'class':'tagHolder'
+          });
           //用来定义最后描述的名字.
           var description = $('<p>',{
             'class':'musicdescription',
@@ -1260,6 +1267,7 @@ var ShowFiles = Class.extend({
              'draggable':false
           });
           Holder.append(musicImg);
+          Holder.append(tagHolder);
           Container.append(Holder);
           Container.append(description);
           returnContent.append(Container);
@@ -1270,9 +1278,9 @@ var ShowFiles = Class.extend({
             background_color: 'rgb(237,148,148)',
             max:3
           });
-          _tagView.setParent(Container,file['URI']);
+          _tagView.setParent(tagHolder,file['URI']);
           _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
+          _tagView.bindDrop(tagHolder[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
