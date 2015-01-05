@@ -121,7 +121,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'sortby Time'
+      'text':'Sort by Time'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
