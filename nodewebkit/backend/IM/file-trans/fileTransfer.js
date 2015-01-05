@@ -110,8 +110,24 @@ function fileTransferStart(err,filePort,msgObj,fileTransferStartCb){
 }
 exports.fileTransferStart=fileTransferStart;
 
+function transferFileInitInfo(msgObj,fileName, filePath, callback) {
+  var msg = msgObj;
+  delete msg['state'];
+  msg['type'] = 'file';
+  msg['option'] = 0x0002;
+  msg['initFile'] = 1;
+  msg['fileNameLocal']=fileName;
+  msg['filePath']=filePath;
+  msg['msg'] = 'file-transfer transferRatio of file init opertion is ok' + msgObj.key;
+  callback(msg);
+}
+exports.transferFileInitInfo = transferFileInitInfo;
+
 function transferFileRatio(flag, msgObj, ratio, callback) {
   var msg = msgObj;
+  delete msg['initFile'];
+  delete msg['fileLocalName'];
+  delete msg['filePath'];
   msg['type'] = 'file';
   msg['option'] = 0x0002;
   msg['ratio'] = ratio;

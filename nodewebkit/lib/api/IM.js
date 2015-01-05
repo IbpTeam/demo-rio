@@ -581,7 +581,7 @@ function transferFileProcess(transferFileCb, msgObj, sendMsg,isLocal) {
       msgObj = rst;
     }
     transferFileCb(err, msgObj);
-    if (msgObj.initFile === undefined && !isLocal) {
+    if (!isLocal) {
       var sendM = {};
       var CalBakMsg = {};
       sendM['from'] = config.ACCOUNT;
