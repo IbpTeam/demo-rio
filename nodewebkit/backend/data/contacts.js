@@ -483,6 +483,6 @@ exports.getRecentAccessData = getRecentAccessData;
 
 
 function repoSearch(repoSearchCb, sKey) {
-  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
+  repo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
 }
 exports.repoSearch = repoSearch;
