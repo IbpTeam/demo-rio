@@ -23,16 +23,7 @@
       top:20px;
       z-index: 6;
     }
-    // &:after{
-    //   content: "";
-    //   width: 1px;
-    //   height: 20px;
-    //   position: absolute;
-    //   left: 115px;
-    //   top:11px;
-    //   background-color: #435051;
-    // }
-    input{
+    .gitselect{
       background-color: #202a2d;
       position: absolute;
       border: 1px solid #405657;
@@ -44,17 +35,39 @@
       padding-left: 15px;
       color:#547072;
     }
-    input{
+    .gitselectinput{
       background-color: #202a2d;
       position: absolute;
       border: 1px solid #405657;
       .radius(60px);
-      left: 10px;
+      left: 130px;
       top: 6px;
-      width: 110px;
+      width: 60%;
       height:30px;
       padding-left: 15px;
       color:#547072;
+    }
+    #search-button{
+      position: absolute;
+      outline: none;
+      right:40px;
+      top: 10px;
+      width: 40px;
+      height:30px;
+      background-color: transparent;
+      border: 1px solid rgba(147, 194, 204, 0.2);
+      color: #6b9091;
+      .radius(30px);
+      font-size: 12px;
+      line-height: 20px;
+      .transition(background-color,0.4s);
+      &:hover{
+        background-color: #34454c;
+        cursor: pointer;
+      }
+      &:active{
+        background-color: #2a383d;
+      }
     }
     div{
       position: absolute;
