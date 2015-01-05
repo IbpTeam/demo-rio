@@ -14,9 +14,9 @@ var Search = Class.extend({
     this._qrcodeContainer.hide();
 
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
-    this.bindRemove(function(ev,value_){
-      alert(value_);
-    })
+   /* this.bindRemove(function(ev,value_,values_){
+      alert('remove:'+value_+'\nstay:'+values_.toString());
+    })*/
     this.bindEvent();
   },
 
@@ -80,9 +80,9 @@ var Search = Class.extend({
    * @return {[type]}           [description]
    */
   bindRemove:function(callback_){
-    this._textTag.bind('tagRemove',function(e,value_){
+    this._textTag.bind('tagRemove',function(e,value_,values_){
       if (callback_) {
-        callback_(e,value_);
+        callback_(e,value_,values_);
       };
     });
   },

@@ -191,8 +191,9 @@ var GitLog = Class.extend({
           var _name = _names[_names.length -1];
           var _file_option = $('<option>',{
             'class':'select-option',
-            'text': _name.substr(0,_name.length-3),
-            'value': _this._gitresults[_commitID]['content']['file'][key]
+            'text': _name,
+            'value': _this._gitresults[_commitID]['content']['file'][key],
+            'data-path':_this._gitresults[_commitID]['content']['file'][key]
           });
           _file_select.append(_file_option);
           _num++;
@@ -216,20 +217,15 @@ var GitLog = Class.extend({
           console.log(err_);
           return 0;
         }
+        var _select = $button_.parent('li').children('select');
+        var _path = _select.find("option:selected").attr('data-path');
         $button_.parent().remove();
         switch(category_){
           case 'contact':
             contact.refresh();
             break ;
-          case 'document':
-            break;
-          case 'picture':
-            break;
-          case 'video':
-            break;
-          case 'music':
-            break;
-          case 'other':
+          default :
+            showfiles.refreshByPath(_path);
             break;
         }
       },category_,commitID_);

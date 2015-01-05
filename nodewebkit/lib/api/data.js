@@ -761,33 +761,26 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
-
-function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag) {
-  console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag);
-}
-exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
 /**
- * @method getCategoryFilesByTags
+ * @method getFilesByTagsInCategory
  *   get all files with specific tags
  *
- * @param1 getFilesCb
+ * @param1 getFilesByTagsInCategoryCb
  *    all result in array
  *
  * @param2 category
  *    string, a category name.
  *
- * @param3 sTags
- *    string, a tag name.
+ * @param3 oTags
+ *    string || object, a tag name or array of names.
  *
  */
-function getCategoryFilesByTag(getFilesCb, category, sTag) {
-  console.log("Request handler 'getCategoryFilesByTag' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getFilesByTag(sTag, getFilesCb);
+function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
+  console.log("Request handler 'getFilesByTagsInCategory' was called.");
+  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
 }
-exports.getCategoryFilesByTag = getCategoryFilesByTag;
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
+
 
 /**
  * @method rmTagsAll
