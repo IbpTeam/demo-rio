@@ -23,6 +23,15 @@
       top:20px;
       z-index: 6;
     }
+    &:after{
+        content: "";
+        width: 1px;
+        height: 20px;
+        position: absolute;
+        right: 125px;
+        top:10px;
+        background-color: #435051;
+      }
     .gitselect{
       background-color: #202a2d;
       position: absolute;
@@ -41,11 +50,45 @@
       border: 1px solid #405657;
       .radius(60px);
       left: 130px;
+      right: 220px;
       top: 6px;
-      width: 60%;
       height:30px;
       padding-left: 15px;
       color:#547072;
+    }
+    .fakeback{
+      background-color: #202a2d;
+      position: absolute;
+      border: 1px solid #405657;
+      .radius(60px);
+      right:40px;
+      top: 6px;
+      width: 170;
+      height:30px;
+      padding-left: 15px;
+      color:#547072;
+    }
+    #back-button{
+      position: absolute;
+      outline: none;
+      right: 130px;
+      top: 6px;
+      width: 80px;
+      height:30px;
+      background-color: transparent;
+      border: 1px solid transparent;
+      color: #6b9091;
+      .radius(30px);
+      font-size: 12px;
+      line-height: 20px;
+      .transition(background-color,0.4s);
+      &:hover{
+        background-color: #34454c;
+        cursor: pointer;
+      }
+      &:active{
+        background-color: #2a383d;
+      }
     }
     #search-button{
       position: absolute;
@@ -55,7 +98,7 @@
       width: 80px;
       height:30px;
       background-color: transparent;
-      border: 1px solid rgba(147, 194, 204, 0.2);
+      border: 1px solid transparent;
       color: #6b9091;
       .radius(30px);
       font-size: 12px;

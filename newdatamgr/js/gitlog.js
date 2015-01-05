@@ -14,9 +14,17 @@ var GitLog = Class.extend({
     this._selectsearch = $('<input>',{
      'class': 'gitselectinput'
     });
+    this._buttonfakeback = $('<input>',{
+     'class': 'fakeback',
+     'readonly': 'readonly'
+    });
     this._search_button = $('<button>',{
       'id':'search-button',
       'text':'search'
+    });
+    this._back_button = $('<button>',{
+      'id':'back-button',
+      'text':'back'
     });
     this._selectList = $('<div>',{
       'class': 'gitlog-list'
@@ -43,8 +51,8 @@ var GitLog = Class.extend({
     this._selectList.append(this._ul);
     this._gitLogContainer.append(this._gitselect);
     this._gitselect.append(this._select);
-    this._gitselect.append(this._selectsearch);
-    this._gitselect.append(this._search_button);
+    this._gitselect.append(this._selectsearch,this._buttonfakeback);
+    this._gitselect.append(this._search_button,this._back_button);
     this._gitselect.append(this._selectList);
     this._gitLogContainer.append(this._gitcontent);
     //this._selectList.hide();
@@ -55,6 +63,9 @@ var GitLog = Class.extend({
     this._search_button.click(function(ev){
       _this.bindSearchEvent($('.gitselect').val(),$('.gitselectinput').val());
     });
+    this._back_button.click(function(ev){
+      _this.getLogShow($('.gitselect').val());
+    })
     this._select.click(function(ev){
       /*if(_this._selectList.is(":hidden")){
         _this._selectList.show();
@@ -238,9 +249,12 @@ var GitLog = Class.extend({
   attach:function($parent_){
     $parent_.append(this._gitLogContainer);
   },
-  getLogShow:function(){
+  getLogShow:function(category_){
+    if(!category_){
+      var category_ = 'contact';
+    }
     this._gitcontent.children('li').remove();
-    this.setContent('contact');
+    this.setContent(category_);
     this._gitLogContainer.show();
   },    
   hide:function(){
