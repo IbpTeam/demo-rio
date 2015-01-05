@@ -170,7 +170,8 @@ var ShowFiles = Class.extend({
             if(this._index ==1){
               $('#outWaterFall').show();              
             }
-            $('#'+this._contentIds[this._index]).show();           
+            $('#'+this._contentIds[this._index]).show();
+            _globalSelf.refreshWaterFall();          
           }
           else{
             var sortByTime = $('#'+this._contentIdsSortByTime[this._index]).children('div');
@@ -199,9 +200,10 @@ var ShowFiles = Class.extend({
             $('#'+this._contentIds[this._index]).children('div').show();
           }
           if(this._index ==1){
-              $('#'+this._contentIds[this._index]).BlocksIt({
-                numOfCol:5
-            }); 
+            //   $('#'+this._contentIds[this._index]).BlocksIt({
+            //     numOfCol:5
+            // }); 
+            _globalSelf.refreshWaterFall();
           }
           if(this._index ==2){
               $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
@@ -260,6 +262,46 @@ var ShowFiles = Class.extend({
     }
   },
 
+  //此函数用来等窗口的大小改变之后，来刷新瀑布流的显示
+  refreshWaterFall:function(){
+    // var debounce = function(func,threshold,execAsap){
+    //   var timeout;
+    //   return function debounced(){
+    //     var obj = this, args = arguments;
+    //     function delayed(){
+    //       if(!execAsap){
+    //         func.apply(obj,args);
+    //         timeout = null;
+    //       }
+    //     };
+    //     if(timeout){
+    //       clearTimeout(timeout);
+    //     }
+    //     else if(execAsap){
+    //       func.apply(obj,args);
+    //     }
+    //     timeout = setTimeout(delayed,threshold || 500);
+    //   };
+    // };
+    // // window.onresize = debounce(function(){
+    //   window.onresize = debounce(function(){
+      // $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
+      //   numOfCol:5
+      // });
+    //   //window.alert('the div has changed');
+    // },500,false);
+    $('#pictureContent').gridalicious({
+      gutter:20,
+      width:300,
+      animate:true,
+      animationOptions:{
+        speed:150,
+        duration:400,
+        complete:function(data){}
+      },
+    });
+  },
+
   //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
   showFileByTag:function(fileURIS){
     _globalSelf._showFilesBytag = true;
@@ -294,9 +336,10 @@ var ShowFiles = Class.extend({
       }
     }
     if(_globalSelf._index ==1){
-      $('#'+this._contentIds[this._index]).BlocksIt({
-        numOfCol:5
-      }); 
+      // $('#'+this._contentIds[this._index]).BlocksIt({
+      //   numOfCol:5
+      // }); 
+      _globalSelf.refreshWaterFall();
     }
   },
 
@@ -348,9 +391,10 @@ var ShowFiles = Class.extend({
             Container.append(Holder);
             Container.append(description);
             Holder.children('img')[0].onload = function(){
-              $('#pictureContent').BlocksIt({
-                numOfCol:5
-              });
+              // $('#pictureContent').BlocksIt({
+              //   numOfCol:5
+              // });
+              _globalSelf.refreshWaterFall();
             };
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
@@ -909,9 +953,10 @@ var ShowFiles = Class.extend({
           $("#"+modifyURI_+'div').remove();
           $("#"+modifyURI_+'tr').remove();
           if(_globalSelf._index ==1){
-            $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
-              numOfCol:5
-            }); 
+            // $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
+            //   numOfCol:5
+            // }); 
+            _globalSelf.refreshWaterFall();
           }
         }
         else{
@@ -1164,9 +1209,10 @@ var ShowFiles = Class.extend({
             _globalSelf._imgReady = _globalSelf._imgReady - 1;
             if(_globalSelf._imgReady ==0){
               returnContent.show();
-              $('#pictureContent').BlocksIt({
-                numOfCol:5
-              });
+              // $('#pictureContent').BlocksIt({
+              //   numOfCol:5
+              // });
+              _globalSelf.refreshWaterFall();
             }
           };
           _globalSelf.bindDrag(Container[0]);
