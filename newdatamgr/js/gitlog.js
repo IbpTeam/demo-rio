@@ -13,10 +13,7 @@ var GitLog = Class.extend({
     });
     this._selectsearch = $('<input>',{
      'class': 'gitselectinput',
-    });
-    this._buttonfakeback = $('<input>',{
-     'class': 'fakeback',
-     'readonly': 'readonly'
+     'type':'text'
     });
     this._search_button = $('<button>',{
       'id':'search-button',
@@ -58,6 +55,14 @@ var GitLog = Class.extend({
     var _this = this;
     this._search_button.click(function(ev){
       _this.bindSearchEvent($('.gitselect').val(),$('.gitselectinput').val());
+    });
+    this._selectsearch.keyup(function(ev){
+      var sKey = $('.gitselectinput').val();
+      if(sKey === ""){
+        _this.getLogShow($('.gitselect').val());
+      }else{
+        _this.bindSearchEvent($('.gitselect').val(),$('.gitselectinput').val());
+      }
     });
     this._select.click(function(ev){
       /*if(_this._selectList.is(":hidden")){

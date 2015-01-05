@@ -23,15 +23,6 @@
       top:20px;
       z-index: 6;
     }
-    // &:after{
-    //     content: "";
-    //     width: 1px;
-    //     height: 20px;
-    //     position: absolute;
-    //     right: 125px;
-    //     top:10px;
-    //     background-color: #435051;
-    //   }
     .gitselect{
       background-color: #202a2d;
       position: absolute;
@@ -55,6 +46,9 @@
       height:30px;
       padding-left: 15px;
       color:#547072;
+      &:focus {
+        outline:none;
+      }
     }
     #search-button{
       position:absolute;
@@ -71,6 +65,9 @@
       &:hover{
         color: #555;
         cursor: pointer;
+      }
+      &:focus {
+        outline:none;
       }
     }
     div{
