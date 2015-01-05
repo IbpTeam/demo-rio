@@ -6,33 +6,63 @@ var GitLog = Class.extend({
     this._gitselect = $('<div>',{
       'id':'gitselect-content'
     });
-    this._select = $('<select>',{
+    this._select = $('<input>',{
      'class': 'gitselect',
+     'value': 'contact',
+     'readonly': 'readonly'
     });
+    this._selectList = $('<div>',{
+      'class': 'gitlog-list'
+    });
+    this._ul = $('<ul>',{
+      'class': 'gitlog-ul'
+    })
+    this._selectArrow = $('<div>',{
+      'id': 'arrow'
+    })
     this._gitcontent = $('<div>',{
      'class':'git-content'
     })
     this._category = ['contact', 'picture','video','document','music','other'];
     for (var i = 0; i <= this._category.length - 1; i++) {
-      var _option = $('<option>',{
-        'class':'select-option',
+      var _option = $('<li>',{
+        'class':'gitlog-li',
         'text':this._category[i],
         'value': this._category[i]
       });
-      this._select.append(_option);
+      this._ul.append(_option);
     };
+    this._selectList.append(this._selectArrow);
+    this._selectList.append(this._ul);
     this._gitLogContainer.append(this._gitselect);
     this._gitselect.append(this._select);
+    this._gitselect.append(this._selectList);
     this._gitLogContainer.append(this._gitcontent);
+    //this._selectList.hide();
     this.bindEvent();
   },
   bindEvent:function(){
     var _this = this;
-    this._select.change(function(){
-      var val_ = this.options[this.options.selectedIndex].value;
-       _this._gitcontent.children('li').remove();
-       _this.setContent(val_);
+    this._select.click(function(ev){
+      /*if(_this._selectList.is(":hidden")){
+        _this._selectList.show();
+      }else{
+          _this._selectList.hidden();
+      }*/
+      _this._selectList.slideToggle("normal");
     });
+    this._ul.children('li').click(function(ev){
+      _this._gitcontent.children().remove();
+      _this.setContent($(this).html());
+      _this._select.val($(this).html()); 
+      _this._selectList.hide(); 
+    });
+    _this._select.blur(function(){ 
+      /*setTimeout(function(){
+        _this._selectList.hide();
+      },200); */
+    _this._selectList.slideToggle("normal");
+    });         
   },
 
   getTimeDiff:function(date_){
@@ -52,7 +82,7 @@ var GitLog = Class.extend({
         _text = 'Previous ' + _days + ' Days';
         break;
       case ((_days > 7)&&(_days <= 30)) :
-         _text = 'Within 1 month';
+         _text = 'Within 1 Month';
         break;
       case ((_days > 30)&&(_days <= 90)) :
         _text = 'Within 3 months';
@@ -152,8 +182,9 @@ var GitLog = Class.extend({
           var _name = _names[_names.length -1];
           var _file_option = $('<option>',{
             'class':'select-option',
-            'text': _name.substr(0,_name.length-3),
-            'value': _this._gitresults[_commitID]['content']['file'][key]
+            'text': _name,
+            'value': _this._gitresults[_commitID]['content']['file'][key],
+            'data-path':_this._gitresults[_commitID]['content']['file'][key]
           });
           _file_select.append(_file_option);
           _num++;
@@ -177,20 +208,15 @@ var GitLog = Class.extend({
           console.log(err_);
           return 0;
         }
+        var _select = $button_.parent('li').children('select');
+        var _path = _select.find("option:selected").attr('data-path');
         $button_.parent().remove();
         switch(category_){
           case 'contact':
             contact.refresh();
             break ;
-          case 'document':
-            break;
-          case 'picture':
-            break;
-          case 'video':
-            break;
-          case 'music':
-            break;
-          case 'other':
+          default :
+            showfiles.refreshByPath(_path);
             break;
         }
       },category_,commitID_);

@@ -373,6 +373,31 @@ function getDataByUri(getDataByUriCb, uri) {
 }
 exports.getDataByUri = getDataByUri;
 
+//API getDataByPath:通过path查看数据所有信息
+//返回具体数据类型对象
+function getDataByPath(getDataByPathCb, sPath) {
+  console.log("Request handler 'getDataByPath' was called.");
+  if(sPath.substr(sPath.length-3,sPath.length-1) === '.md'){
+    sPath = sPath.substr(0,sPath.length-3);
+  }
+  var cate = utils.getCategoryByPath(sPath);
+  var category = cate.category;
+  var filename = cate.filename;
+  var postfix = cate.postfix;
+  var sCondition = ["postfix='" + postfix + "'", "filename='" + filename + "'"];
+  commonDAO.findItems(null, category, sCondition, null, function(err, result) {
+    if (err) {
+      return getDataByPathCb(err, null);
+    } else if (result == '' || result === null) {
+      return getDataByPathCb(sPath + ': not found in database ...', null);
+    }
+    var uri = result[0].URI;
+    var cateObject = utils.getCategoryObject(category);
+    cateObject.getByUri(uri, getDataByPathCb);
+  })
+}
+exports.getDataByPath = getDataByPath;
+
 /**
  * @method openDataByUri
  *   打开URI对应的数据
@@ -736,33 +761,26 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
-
-function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag) {
-  console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag);
-}
-exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
 /**
- * @method getCategoryFilesByTags
+ * @method getFilesByTagsInCategory
  *   get all files with specific tags
  *
- * @param1 getFilesCb
+ * @param1 getFilesByTagsInCategoryCb
  *    all result in array
  *
  * @param2 category
  *    string, a category name.
  *
- * @param3 sTags
- *    string, a tag name.
+ * @param3 oTags
+ *    string || object, a tag name or array of names.
  *
  */
-function getCategoryFilesByTag(getFilesCb, category, sTag) {
-  console.log("Request handler 'getCategoryFilesByTag' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getFilesByTag(sTag, getFilesCb);
+function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
+  console.log("Request handler 'getFilesByTagsInCategory' was called.");
+  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
 }
-exports.getCategoryFilesByTag = getCategoryFilesByTag;
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
+
 
 /**
  * @method rmTagsAll

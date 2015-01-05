@@ -7,6 +7,11 @@
   cursor: pointer;
   z-index: 88;
   outline: none;
+  .setColorSaturate(picture,rgb(110,204,188),5,0);
+  .setColorSaturate(video,rgb(132,204,117),5,0);
+  .setColorSaturate(music,rgb(237,148,148),5,0);
+  .setColorSaturate(contact,rgb(255,125,125),5,1);
+  .setColorSaturate(contact,rgb(110,204,188),0,0);
   .transition(right, 0.5s);
   &.rotate{
     right:-30px;
@@ -32,6 +37,7 @@
     z-index: 223;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 11px;
   }
   .tag-background{
     position: absolute;

@@ -99,8 +99,9 @@ var UsrInfoView = Class.extend({
       'id' : 'loadContactDiv'
     });
     var _contactLabel = $('<label>',{
-      'id' : 'contactLabel',
-      'text' : 'Contacts'
+      //'id' : 'contactLabel',
+      //'text' : 'Contacts',
+      'for': 'contactCheckBox'
     });
     var _contactCheckBox = $('<input>',{
       'id' : 'contactCheckBox',
@@ -112,6 +113,7 @@ var UsrInfoView = Class.extend({
     });
     _loadContactDiv.append(_contactCheckBox);
     _loadContactDiv.append(_contactLabel);
+    _loadContactDiv.append('<span class="contactSpan">Contacts</span>');
     _loadContactBg.append(_loadContactDiv);
 
     var _loadDataBg = $('<div>',{
@@ -121,8 +123,9 @@ var UsrInfoView = Class.extend({
       'id' : 'loadDataDiv'
     });
     var _dataLabel = $('<label>',{
-      'id' : 'dataLabel',
-      'text' : 'Data'
+      //'id' : 'dataLabel',
+      //'text' : 'Data'
+      'for': 'dataCheckBox'
     });
     var _dataCheckBox = $('<input>',{
       'id' : 'dataCheckBox',
@@ -133,6 +136,7 @@ var UsrInfoView = Class.extend({
     });
     _loadDataDiv.append(_dataCheckBox);
     _loadDataDiv.append(_dataLabel);
+    _loadDataDiv.append('<span class="dataSpan">Datas</span>');
     _loadDataBg.append(_loadDataDiv);
 
     var _uploadDiv = $('<div>',{

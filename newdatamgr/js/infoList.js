@@ -40,6 +40,18 @@ var InfoList = Class.extend({
     this._isFirstRequset = true;
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
+    this._firstShowFilterData = true;
+    var _this = this;
+    search.bindRemove(function(ev, value_, values_){
+      if(values_ != null){
+        if(values_.length > 0){
+          _this.showFilesByTags(values_);
+        } else if(values_.length == 0){
+          _this.setContent();
+          _this.loadData();
+        }
+      }
+    });
   },
   /**
    * [bindEvent bind event include click add button]
@@ -156,9 +168,12 @@ var InfoList = Class.extend({
     this._add.before(_a);
     var _this = this;
     _a.click(function(e){
-      _this.showTagFilterData(this.id);
-      search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
-    })
+      if($(this).children('.il__num')[0].textContent > 0){
+        if(search._textTag.textext()[0]._plugins['tags'].addTags([tag_])){
+          _this.showTagFilterData(this.id);
+        }
+      }
+    });
     this.bindDrag(_a[0]);
   },
 
@@ -183,19 +198,23 @@ var InfoList = Class.extend({
     return -1;
   },
 
+  showTags:function(tags_){
+    this.removeTags();
+    this._info = tags_;
+    var _tagTextList = [];
+    if(this._info['tags'].length > 0){
+      for(var key = 0; key < this._info['tags'].length; key ++){
+        _tagTextList.push(this._info['tags'][key]);
+        this.addTag(this._info['tags'][key],this._info['tagFiles'][this._info['tags'][key]].length);
+      }
+      search.bindSuggestion(_tagTextList);
+    }
+  },
+
   setContent:function(){
 	  var _this = this;
     DataAPI.getAllTagsByCategory(function(result_){
-      _this.removeTags();
-      _this._info = result_;
-      var _tagTextList = [];
-      if(_this._info['tags'].length > 0){
-        for(var key = 0; key < _this._info['tags'].length; key ++){
-          _tagTextList.push(_this._info['tags'][key]);
-          _this.addTag(_this._info['tags'][key],_this._info['tagFiles'][_this._info['tags'][key]].length);
-        }
-        search.bindSuggestion(_tagTextList);
-      }
+      _this.showTags(result_);
     }, _this.getCategoryName(_this._index));
     DataAPI.getRecentAccessData(function(err_, result_){
       if(result_ != null){
@@ -214,14 +233,70 @@ var InfoList = Class.extend({
     }, _this.getCategoryName(_this._index), 10);
   },
 
+  loadFilterData:function(_dataJsons){
+    var _dataUris = [];
+    for(var i = 0; i < _dataJsons.length; i ++){
+      _dataUris.push(_dataJsons[i]['URI']);
+    }
+    if(this._index == 0){
+      contact.loadContactsList(0, _dataJsons);
+      contact._first = true;
+    } else if(this._index > 0 && this._index < 6){
+      showfiles.showFileByTag(_dataUris);
+    }
+    var _this = this;
+    DataAPI.getTagsByUris(function(tags_){
+      if(tags_ != null){
+        _this.showTags(tags_);
+      }
+    }, _dataUris);
+  },
+
   showTagFilterData:function(_tag){
     var _this = this;
-    DataAPI.getFilesByTagsInCategory(function(err_, result_){
-      console.log("result_=====", result_);
-      if(_this._index == 0){
-        
+    if(_this._firstShowFilterData == true){
+      _this._firstShowFilterData = false;
+      DataAPI.getFilesByTagsInCategory(function(err_, result_){
+        if(result_ != null){
+          _this.loadFilterData(result_);
+        }
+      }, _this.getCategoryName(_this._index), [_tag]);
+    } else {
+      var _dataJsons = [];
+      var _dataUris = [];
+      for(var i = 0; i < _this._info['tagFiles'][_tag].length; i ++){
+        if(_this._info['tagFiles'][_tag][i][0] != '' && _this._info['tagFiles'][_tag][i][0].indexOf('#') != -1){
+          if(_this._index == 0){
+            for(var j = 0; j < contact._contacts.length; j ++){
+              if(contact._contacts[j]['URI'] == _this._info['tagFiles'][_tag][i][0]){
+                _dataJsons.push(contact._contacts[j]);
+              }
+            }
+          } else{
+            _dataUris.push(_this._info['tagFiles'][_tag][i][0]);
+          }
+        }
       }
-    }, _this.getCategoryName(_this._index), _tag);
+      if(_this._index == 0){
+        if(_dataJsons != null){
+          _this.loadFilterData(_dataJsons);
+        }
+      } else {
+        showfiles.showFileByTag(_dataUris);
+        DataAPI.getTagsByUris(function(tags_){
+          _this.showTags(tags_);
+        }, _dataUris);
+      }
+    }
+  },
+
+  showFilesByTags:function(_tags){
+    var _this = this;
+    DataAPI.getFilesByTagsInCategory(function(err_, files_){
+      if(files_ != null && files_.length > 0){
+        _this.loadFilterData(files_);
+      }
+    }, _this.getCategoryName(_this._index), _tags);
   },
 
   removeTags:function(){
@@ -243,11 +318,11 @@ var InfoList = Class.extend({
   },
 
   show:function(){
-    this._infoList.show();    
+    this._infoList.removeClass('hidden');  
   },
   
   hide:function(){
-    this._infoList.hide();
+    this._infoList.addClass('hidden');
   },
 
   isShow:function(){
@@ -266,7 +341,12 @@ var InfoList = Class.extend({
       }
     }
     if(this._index == 0){
-      contact._ContactContainer.show();
+      if(contact._first == true){
+        contact.setContactsList();
+        contact._ContactContainer.show();
+      } else {
+        contact._ContactContainer.show();
+      }
     }
   },
 

@@ -2,13 +2,13 @@
   #contentDiv{
     #video-container{
       position: absolute;
-      bottom: 40px;
-      height: 200px;
+      bottom: 14px;
+      height: 158px;
       //left: 42px;
-      width:280px;
+      width:227px;
       border: 1px solid #d6d6d6;
-      border-radius: 3px;
-      background-color: white;
+      .radius(6px);
+      background-color: #2e3d44;
       box-shadow: 0px 1px 1px rgba(209,209,209,0.85);
       &:after,&:before{
         font-family: 'icomoon';
@@ -16,13 +16,14 @@
         width: 270px;
         height: 20px;
         overflow: hidden;
-        font-size: 1em;
-        left: 0px;
+        font-size: 11.5px;
+        left: -1px;
         position: absolute;
         color: #e5e5e5;
+        z-index: 3;
       }
       &:before{
-        bottom: 3px;
+        bottom: 0px;
       }
       > div{
         border-radius: 6px;
@@ -32,27 +33,28 @@
         bottom: 20px;
         background: rgba(255, 255, 255, 0.5);
         &.video-content{
-          left: 30px;
-          right: 30px;
-          top:25px;
-          bottom:25px;
+          left: 0px;
+          right: 0px;
+          top:21px;
+          bottom:21px;
         }
         .banner{
           overflow: hidden;
           height: 100%;
-          border-radius:6px; 
           line-height: 50px;
         }
         .banner ul li{
           position:relative;
-          max-width: 218px;
+          max-width: 280px;
           padding: 0px;
           img {
             position:absolute;
             width:100%;
-            height:150px;
+            height:114px;
             left:0;
             top:0;
+            border-left:10px solid #2e3d44;
+            border-right: 10px solid #2e3d44;
           }
         }
       }
@@ -67,27 +69,29 @@
         &.video-middle-btn{
           left:50%;
           background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMTMuNSAxMy41IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMy41IDEzLjUiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTExLjcsNS4yYzEuMiwwLjcsMS4yLDIuNSwwLDMuMmwtNCwyLjNsLTQsMi4zYy0xLjIsMC43LTIuNy0wLjItMi43LTEuNlY2LjhWMi4xYzAtMS40LDEuNS0yLjMsMi43LTEuNg0KCWw0LDIuM0wxMS43LDUuMnoiLz4NCjwvc3ZnPg0K);
-          width: 30px;
-          height: 30px;
-          margin-left: -15px;
-          top:84px;
+          background-size: 10%;
+          background-repeat: no-repeat;
+          background-position: center;
+          width: 210px;
+          height: 112px;
+          //margin-left: -15px;
+          top:0px;
+          left: 10px;
+          opacity: 0.4;
           &:hover{
-            background-size: 105%;
-            top:83px;
-            margin-left: -16px;
+            opacity: 0.8;
+            background-color: rgba(175,175,175,0.1);
           }
         }
         &.video-left-btn{
           left: 0px;
-          background-color: #f4f4f4;
+          background-color: black;
           display: block;
-          height: 150px;
-          width: 20px;
+          height: 106px;
+          width: 50px;
           top: 25px;
-          border-top-right-radius: 10px;
-          border-bottom-right-radius: 10px;
-          border: 1px solid #d6d6d6;
           border-left: none;
+          opacity: 0;
           &:after{
             content: "";
             background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMTMuNSAxMy41IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMy41IDEzLjUiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gZmlsbD0iIzJFM0Q0NCIgcG9pbnRzPSIxMS4zLDEyLjkgMi4yLDYuOCAxMS4zLDAuNiA4LjMsNi44ICIvPg0KPC9zdmc+DQo=);
@@ -96,24 +100,23 @@
             height: 16px;
             top:50%;
             margin-top: -10px;
-            left:0px;
+            left:17px;
             position: absolute;
           }
           &:hover{
             background-color: #e8e8e8;
+            opacity: 0.3;
           }
         }
         &.video-right-btn{
           right: 0px;
-          background-color: #f4f4f4;
+          background-color: black;
           display: block;
-          height: 150px;
-          width: 20px;
+          height: 106px;
+          width: 50px;
           top: 25px;
-          border-top-left-radius: 10px;
-          border-bottom-left-radius: 10px;
-          border: 1px solid #d6d6d6;
           border-right: none;
+          opacity: 0;
           &:after{
             content: "";
             background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMTMuNSAxMy41IiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMy41IDEzLjUiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gZmlsbD0iIzJFM0Q0NCIgcG9pbnRzPSIyLjIsMTIuOSAxMS4zLDYuOCAyLjIsMC42IDUuMiw2LjggIi8+DQo8L3N2Zz4NCg==);
@@ -122,11 +125,12 @@
             height: 16px;
             top:50%;
             margin-top: -10px;
-            left:0px;
+            left:17px;
             position: absolute;
           }
           &:hover{
             background-color: #e8e8e8;
+            opacity: 0.3;
           }
         }
       }

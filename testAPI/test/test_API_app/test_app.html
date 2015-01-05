@@ -62,22 +62,22 @@
     });
   }
 
-  function startAppByNameCb(result){
+  function startAppCb(result){
     var win = window.open('');
-    win.document.write("test API startAppByName()");
+    win.document.write("test API startApp()");
     win.document.write("<br/>");
     win.document.write("callback result: " + result);
     win.document.write("<br/>");
   }
 
-  function startAppByName(startAppByNameCb) {
+  function startApp(startAppCb) {
     WDC.requireAPI(['app'], function(app) {
       var _url = '/home/xiquan/Documents/books/SEP/JavaScript设计模式.pdf';
       app.getRegisteredAppInfo(function(err, appInfo) {
         if (err) {
           return console.log(err);
         }
-        app.startApp(startAppByNameCb, appInfo, _url);
+        app.startApp(startAppCb, appInfo, _url);
       }, "viewerPDF-app")
     });
   }
@@ -124,11 +124,11 @@
 </div>
 </div>
 
-<h2 onclick="show('startAppByName')">startAppByName(startAppByNameCb)<span><a class="mark" href="#test_startAppByName" id="test_startAppByName" onclick="startAppByName(startAppByNameCb)">test</a></span></h2>
-<div id="startAppByName" style="display:none;">
+<h2 onclick="show('startApp')">startApp(startAppCb)<span><a class="mark" href="#test_startAppByName" id="test_startAppByName" onclick="startApp(startAppCb)">test</a></span></h2>
+<div id="startApp" style="display:none;">
 <div style="color:#930000">
   <pre>
-@method startAppByName
+@method startApp
   根据应用名字打开应用
 
 @param1 callback function
@@ -149,18 +149,23 @@
 <div style="color:#004B97">
   <pre>
     具体实现：<br>
-  function startAppByNameCb(result){
+  function startAppCb(result){
     var win = window.open('');
-    win.document.write("test API startAppByName()");
+    win.document.write("test API startApp()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
     print(win,result);
   }
 
-  function startAppByName(startAppByNameCb){
+  function startApp(startAppCb){
     WDC.requireAPI(['app'], function(app){
-      app.startAppByName(startAppByNameCb, "example", null);
+      app.getRegisteredAppInfo(function(err, appInfo) {
+        if (err) {
+          return console.log(err);
+        }
+        app.startApp(startAppCb, "example", null);
+      }
     });
   }
 </pre>

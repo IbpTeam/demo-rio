@@ -134,7 +134,7 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
   //  pstree -pn 25372 |grep -o "([[:digit:]]*)" |grep -o "[[:digit:]]*" | while read pid ; do xdotool search --pid $pid --onlyvisible ; done 2>/dev/null
   // xdotool send key command： xdotool windowactivate --sync 46137380 & xdotool key --clearmodifiers --window 46137380 Ctrl+w
   var exec = require('child_process').exec;
-  var getpid=exec("xdotool search --name \"" + windowname + "\" | sort", function (error, stdout, stderr) {
+  var getpid=exec("xdotool search --name \"" + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort", function (error, stdout, stderr) {
     if (error !== null) {
       console.log('stderr: ' + stderr);
       console.log('exec error: ' + error);
@@ -145,7 +145,7 @@ function sendKeyToApp(sendKeyToAppCb, windowname, key){
     var nHead=stdout.lastIndexOf("\n", stdout.length - 2);
     nHead=nHead<0?0:nHead+1;
     if(nTail != stdout.length - 1 || nHead >= nTail){
-      console.log("Error: stdout is illegal! : " + stdout);
+      console.log("Error: stdout is illegal! : " + stdout + " from command:" + "xdotool search --name \"" + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort");
       sendKeyToAppCb(false);
       return;
     }
