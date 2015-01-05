@@ -135,13 +135,23 @@
           -ms-filter: brightness(1.2);
           filter: brightness(1.2);
         }
-        .musicHolder img{
-          width:125px;
-          height:125px;
-          background:#ccc;
-          display:block;
+        .musicHolder {
           position: relative;
-          z-index: 3;
+          img{
+            width:125px;
+            height:125px;
+            background:#ccc;
+            display:block;
+            position: relative;
+            z-index: 3;
+          }
+          .tagHolder{
+            width: 125px;
+            height:125px;
+            position: absolute;
+            top:0;
+            left:0;
+          }
         }
         &:after {
           content: "";
