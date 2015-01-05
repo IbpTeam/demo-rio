@@ -3,10 +3,11 @@ var TagView = Class.extend({
     this._options = {
       direction: 'down',
       position: 'random',  //listView
+      category: undefined,
       background_color: 'rgb(255,125,125)',
-      opacity: 0.9,
-      opacity_step:0.2,
       color: 'rgb(255,255,255)',
+      opacity:0.9,
+      opacity_step:0.2,
       max: 6,
       animate: true,
       random_positions: [{left:15,top:20},{left:70,top:60},{left:10,top:50},{left:70,top:30},{left:18,top:110},{left:65,top:90}],
@@ -65,16 +66,26 @@ var TagView = Class.extend({
    * @param {[type]} index_   [index of tags]
    */
   setColorOpacity:function($target_, index_){
-    $target_.children('.tag-background').css({
-      'background-color': this._options.background_color,
-      'opacity': this._options.opacity - index_*this._options.opacity_step
-    });
+    var _reg = new RegExp("\\b"+this._options.category+"-*?\\b");
+    var _tagBg = $target_.children('.tag-background');
+    var _tagTri = $target_.children('.tag-triangle');
+    if(this._options.category){
+      _tagBg[0].className = _tagBg[0].className.replace(_reg, '');
+      _tagTri[0].className = _tagTri[0].className.replace(_reg, '');
+      _tagBg.addClass(this._options.category+'-'+index_);
+      _tagTri.addClass(this._options.category+'-'+index_);
+    }else{
+      $target_.children('.tag-background').css({
+        'background-color': this._options.background_color,
+        'opacity': this._options.opacity - index_*this._options.opacity_step
+      });
+      $target_.children('.tag-triangle').css({
+        'color': this._options.background_color,
+        'opacity': this._options.opacity - index_*this._options.opacity_step
+      });
+    }
     $target_.children('.tag-text').css({
       'color': this._options.color,
-    });
-    $target_.children('.tag-triangle').css({
-      'color': this._options.background_color,
-      'opacity': this._options.opacity - index_*this._options.opacity_step
     });
   },
   /**
@@ -376,11 +387,13 @@ var TagView = Class.extend({
         ev.dataTransfer.setData("category", 'contact');
       }
       tagDragged = _this;
+      ev.stopPropagation();
     }
     tag_.ondragend = this.dragEnd;
   },
 
   dragEnd:function(ev){
+    ev.stopPropagation();
     $(ev.currentTarget).removeClass('no-rotate');
   },
 

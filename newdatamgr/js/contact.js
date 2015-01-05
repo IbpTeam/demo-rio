@@ -19,7 +19,9 @@ var Contact = Class.extend({
     });
     this._first = true;
     this._ContactContainer.append(this._contactDetails);
-    this._tagView = TagView.create();
+    this._tagView = TagView.create({
+      category:'contact'
+    });
     this._tagView.setParent(this._contactHead);
     this._selectId = 0;
     this.bindDrag(this._contactHead[0]);
@@ -116,7 +118,16 @@ var Contact = Class.extend({
         }}
       ]},
       {text: 'Remove Contact', action:function(){
-
+        console.log(_this._contacts[_this._selectId]['URI']);
+        DataAPI.rmDataByUri(function(err, result){
+          if(result == "success"){
+            _this._contacts.splice(_this._selectId, 1);
+            _this.loadContactsList(0);
+            infoList.setContent();
+          }else{
+            window.alert("Delete file failed!");
+          }
+        },_this._contacts[_this._selectId]['URI']);
       }},
       {text: 'Edit Contact',action:function(){
         _this.editDetails(_this._contacts[_this._selectId], _this._selectId);
@@ -208,12 +219,6 @@ var Contact = Class.extend({
       'value' : 'Edit'
     });
     _buttonsDiv.append(_editButton);
-    var _deleteButton = $('<input>', {
-      'type' : 'button',
-      'id': 'delete-button',
-      'value': 'Delete'
-    });
-    _buttonsDiv.append(_deleteButton);
     _this._contactDetails.append(_buttonsDiv);
     $('#add-button').on('click', function(){
       _this.addContact();
@@ -399,6 +404,8 @@ var Contact = Class.extend({
     ev.preventDefault();
     ev.stopPropagation();
     var _tag = ev.dataTransfer.getData('tag');
+    var _category = ev.dataTransfer.getData('category');
+    var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
       DataAPI.setTagByUri(function(err_){
         if (err_ === null) {
@@ -417,7 +424,21 @@ var Contact = Class.extend({
           
         };
       },[_tag],contact._tagView._uri);
-    };
+    }else if(_uri && _category === 'picture'){
+      var _modalUri = showfiles.uriToModifyUri(_uri);
+      var _file = showfiles.findFileByURI(_modalUri,1);  //index = 1 is picture
+      var _path = _file['path'];
+      var _contactJson = contact._contacts[contact._selectId];
+      _contactJson['photoPath'] = _path;
+      _contactJson['category'] = 'contact';
+      DataAPI.updateDataValue(function(result_){
+        if(result_ == 'success'){
+          contact._contacts[contact._selectId] = _contactJson;
+          contact.removeHead();
+          contact.setHead(_contactJson);
+        }
+      },[_contactJson]);
+    }
   },
   dragover:function(ev){
     ev.preventDefault();  

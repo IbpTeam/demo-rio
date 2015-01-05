@@ -41,6 +41,17 @@ var InfoList = Class.extend({
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
     this._firstShowFilterData = true;
+    var _this = this;
+    search.bindRemove(function(ev, value_, values_){
+      if(values_ != null){
+        if(values_.length > 0){
+          _this.showFilesByTags(values_);
+        } else if(values_.length == 0){
+          _this.setContent();
+          _this.loadData();
+        }
+      }
+    });
   },
   /**
    * [bindEvent bind event include click add button]
@@ -158,8 +169,9 @@ var InfoList = Class.extend({
     var _this = this;
     _a.click(function(e){
       if($(this).children('.il__num')[0].textContent > 0){
-        _this.showTagFilterData(this.id);
-        search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
+        if(search._textTag.textext()[0]._plugins['tags'].addTags([tag_])){
+          _this.showTagFilterData(this.id);
+        }
       }
     });
     this.bindDrag(_a[0]);
@@ -234,7 +246,9 @@ var InfoList = Class.extend({
     }
     var _this = this;
     DataAPI.getTagsByUris(function(tags_){
-      _this.showTags(tags_);
+      if(tags_ != null){
+        _this.showTags(tags_);
+      }
     }, _dataUris);
   },
 
@@ -246,7 +260,7 @@ var InfoList = Class.extend({
         if(result_ != null){
           _this.loadFilterData(result_);
         }
-      }, _this.getCategoryName(_this._index), _tag);
+      }, _this.getCategoryName(_this._index), [_tag]);
     } else {
       var _dataJsons = [];
       var _dataUris = [];
@@ -269,8 +283,20 @@ var InfoList = Class.extend({
         }
       } else {
         showfiles.showFileByTag(_dataUris);
+        DataAPI.getTagsByUris(function(tags_){
+          _this.showTags(tags_);
+        }, _dataUris);
       }
     }
+  },
+
+  showFilesByTags:function(_tags){
+    var _this = this;
+    DataAPI.getFilesByTagsInCategory(function(err_, files_){
+      if(files_ != null && files_.length > 0){
+        _this.loadFilterData(files_);
+      }
+    }, _this.getCategoryName(_this._index), _tags);
   },
 
   removeTags:function(){
@@ -292,11 +318,11 @@ var InfoList = Class.extend({
   },
 
   show:function(){
-    this._infoList.show();    
+    this._infoList.removeClass('hidden');  
   },
   
   hide:function(){
-    this._infoList.hide();
+    this._infoList.addClass('hidden');
   },
 
   isShow:function(){
