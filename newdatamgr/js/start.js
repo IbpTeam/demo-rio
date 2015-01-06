@@ -4,7 +4,7 @@ var main = function(params_){
     console.log("data:" +  data + " app:" + app);
     DataAPI=data;
     AppAPI=app;
-    var _params = undefined;
+    _params = undefined;
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
@@ -19,7 +19,7 @@ var main = function(params_){
     gitLog = GitLog.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
-    infoList._infoList.hide();
+    infoList.hide();
     var container  = $('#container'),
     content    = $('#contentDiv');
     search.attach($('#searchDiv'));
@@ -45,8 +45,8 @@ var main = function(params_){
         content.show();
         content.children('div').hide();
         search.clearTags();
+        infoList.hide();
         if(k == 1){
-          infoList._infoList.hide();
           infoList.removeTags();
           infoList.removeRecent();
           container.removeClass('move-right');
@@ -56,7 +56,7 @@ var main = function(params_){
           infoList.setIndex(k);
           infoList.setContent();
           infoList.setTitle();
-          infoList._infoList.show();
+          infoList.show();
           infoList.loadData();
           homePage.hide();
           container.addClass('move-right');
@@ -70,7 +70,7 @@ var main = function(params_){
 
     //bind gitLog button
     $('#tags__bottom').on('click',function(){
-      infoList._infoList.hide();
+      infoList.hide();
       container.removeClass('move-right');
       $('#tags__ul').children('li').removeClass('active');
       container.children('div').hide();

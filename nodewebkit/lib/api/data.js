@@ -761,33 +761,26 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
-
-function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag) {
-  console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, sTag);
-}
-exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
 /**
- * @method getCategoryFilesByTags
+ * @method getFilesByTagsInCategory
  *   get all files with specific tags
  *
- * @param1 getFilesCb
+ * @param1 getFilesByTagsInCategoryCb
  *    all result in array
  *
  * @param2 category
  *    string, a category name.
  *
- * @param3 sTags
- *    string, a tag name.
+ * @param3 oTags
+ *    string || object, a tag name or array of names.
  *
  */
-function getCategoryFilesByTag(getFilesCb, category, sTag) {
-  console.log("Request handler 'getCategoryFilesByTag' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getFilesByTag(sTag, getFilesCb);
+function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
+  console.log("Request handler 'getFilesByTagsInCategory' was called.");
+  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
 }
-exports.getCategoryFilesByTag = getCategoryFilesByTag;
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
+
 
 /**
  * @method rmTagsAll
@@ -1665,3 +1658,32 @@ function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;
+
+
+/** 
+ * @Method: repoSearch
+ *    search key matches in git log
+ *
+ * @param: repoSearchCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        object, result in object, as example in getGitLog() above
+ *
+ *  @param2: category
+ *    string, category name.
+ *
+ *  @param2: sKey
+ *    string, a piece of specific string.
+ *
+ *
+ **/
+function repoSearch(repoSearchCb, category, sKey) {
+  console.log("Request handler 'repoSearch' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoSearch(repoSearchCb, sKey);
+}
+exports.repoSearch = repoSearch;

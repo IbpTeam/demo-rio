@@ -36,11 +36,27 @@ var InfoList = Class.extend({
     this._infoBottom = $('<nav>',{
       'id':'il__bottom'
     });
+    this._globalSelf;
     this._infoList.append(this._infoBottom);
     this._isFirstRequset = true;
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
     this._firstShowFilterData = true;
+    var _this = this;
+    search.bindTagChange(function(ev, values_){
+      if(values_ != null){
+        if(values_.length > 0){
+          _this.showFilesByTags(values_);
+        } else if(values_.length == 0){
+          _this.setContent();
+          _this.loadData();
+        }
+      }
+      if(_params&&_params['tag']){
+        _params['tag'] = undefined;
+      }
+    });
+    _globalSelf = this ;
   },
   /**
    * [bindEvent bind event include click add button]
@@ -158,8 +174,9 @@ var InfoList = Class.extend({
     var _this = this;
     _a.click(function(e){
       if($(this).children('.il__num')[0].textContent > 0){
-        _this.showTagFilterData(this.id);
-        search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
+        if(search._textTag.textext()[0]._plugins['tags'].addTags([tag_])){
+          _this.showTagFilterData(this.id);
+        }
       }
     });
     this.bindDrag(_a[0]);
@@ -200,7 +217,7 @@ var InfoList = Class.extend({
   },
 
   setContent:function(){
-	  var _this = this;
+	var _this = this;
     DataAPI.getAllTagsByCategory(function(result_){
       _this.showTags(result_);
     }, _this.getCategoryName(_this._index));
@@ -212,9 +229,15 @@ var InfoList = Class.extend({
           for(var i = 0; i < _this._btmInfo.length; i ++){
             var _a = $('<a>',{
               'class':'bil__a',
-              'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename']
+              'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename'],
+              'id':JSON.stringify(_this._btmInfo[i])
+            });
+            _a.click(function(ev){
+              var file=JSON.parse(this.id);
+              _this.openFile(file);
             });
             _this._infoBottom.append(_a);
+
           }
         }
       }
@@ -234,7 +257,9 @@ var InfoList = Class.extend({
     }
     var _this = this;
     DataAPI.getTagsByUris(function(tags_){
-      _this.showTags(tags_);
+      if(tags_ != null){
+        _this.showTags(tags_);
+      }
     }, _dataUris);
   },
 
@@ -246,7 +271,7 @@ var InfoList = Class.extend({
         if(result_ != null){
           _this.loadFilterData(result_);
         }
-      }, _this.getCategoryName(_this._index), _tag);
+      }, _this.getCategoryName(_this._index), [_tag]);
     } else {
       var _dataJsons = [];
       var _dataUris = [];
@@ -269,8 +294,20 @@ var InfoList = Class.extend({
         }
       } else {
         showfiles.showFileByTag(_dataUris);
+        DataAPI.getTagsByUris(function(tags_){
+          _this.showTags(tags_);
+        }, _dataUris);
       }
     }
+  },
+
+  showFilesByTags:function(_tags){
+    var _this = this;
+    DataAPI.getFilesByTagsInCategory(function(err_, files_){
+      if(files_ != null && files_.length > 0){
+        _this.loadFilterData(files_);
+      }
+    }, _this.getCategoryName(_this._index), _tags);
   },
 
   removeTags:function(){
@@ -292,11 +329,11 @@ var InfoList = Class.extend({
   },
 
   show:function(){
-    this._infoList.show();    
+    this._infoList.removeClass('hidden');  
   },
   
   hide:function(){
-    this._infoList.hide();
+    this._infoList.addClass('hidden');
   },
 
   isShow:function(){
@@ -324,6 +361,11 @@ var InfoList = Class.extend({
     }
   },
 
+  clickTag:function(tag_){
+    var _tag = this._infoContent.children('#'+tag_);
+    _tag.trigger('click');
+  },
+
   bindDrag:function(tag_){
     tag_.ondragstart = this.drag;
     tag_.ondragend = this.dragEnd;
@@ -336,6 +378,145 @@ var InfoList = Class.extend({
   },
   dragEnd:function(ev){
     $(ev.currentTarget).removeClass('ondrag');
-  }
+  },
+     //此函数用来通过json格式找到数据库中的源文件
+  cbGetDataSourceFile:function(file){
+    if(!file['openmethod'] || !file['content']){
+      window.alert('openmethod or content not found.');
+      return false;
+    }
+    var method = file['openmethod'];
+    var content = file['content'];
+    switch(method){
+      case 'alert':
+        window.alert(content);
+        break;
+      case 'html':
+        var fileContent;
+        var format = file['format'];
+        switch(format){
+          case 'audio':
+            fileContent = $('<audio>',{
+              'controls':'controls',
+              'src':content,
+              'type':'audio/mpeg'
+            });
+            break;
+          case 'video':
+            fileContent = $('<video>',{
+              'controls':'controls',
+              'width':'400',
+              'height':'300',
+              'src':content,
+              'type':'video/ogg'
+            });
+            break;
+          case 'div':
+            fileContent = content;
+            break;
+          case 'txtfile':
+            fileContent = $("<p></p>").load(content);
+            break;
+          default:
+            fileContent = content;
+            break;
+        }
 
+        var title = file['title'];
+        if (!file['windowname']){
+          if(typeof(fileContent) == 'string' &&fileContent.match("成功打开文件")){
+            break;
+          }
+          else{
+            _globalSelf.genPopupDialog(title, fileContent);    
+          }
+        }
+        else{
+          var F5Button = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'PLAY'
+          });
+          F5Button.click(function(){
+             AppAPI.sendKeyToApp(function(){},file['windowname'],'F5')
+          });
+          var UpButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'UP'
+          });
+          UpButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Up')
+          });
+          var DownButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'DOWN'
+          });
+          DownButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Down')
+          });
+          var StopButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'STOP'
+          });
+          StopButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Escape')
+          });
+          var genDiv = $('<div></div>');
+          genDiv.append(F5Button);
+          genDiv.append('<br>');
+          genDiv.append(UpButton);
+          // genDiv.append('<br>');
+          genDiv.append(DownButton);
+          genDiv.append('<br>');
+          genDiv.append(StopButton);
+          genDiv.append('<br>');
+          _globalSelf.genPopupDialog("窗口控制",genDiv);
+        }
+        break;
+      default:
+        break;
+    }
+    return; 
+  },
+
+//此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFile:function(file_){
+    if(!file_){
+      window.alert('the file is not found');
+    }
+    else{
+      if(file_.URI.substring(file_.URI.lastIndexOf('#')+1)=='contact'){
+        var id=-1;
+        for(var index in contact._showList){
+          if(contact._showList[index].URI==file_.URI){
+            id=index;
+            break;
+          }
+        }
+        contact.removeHead();
+        contact.removeDetails();
+        contact.setHead(contact._showList[id]);
+        contact.setDetails(contact._showList[id], id);
+        contact._selectId = id;
+      }
+      else{
+       if(file_.postfix == 'pdf'){
+         function cbViewPdf(){
+          }
+          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+            if (err) {
+              return console.log(err);
+            }
+            AppAPI.startApp(cbViewPdf, appInfo, file_.path);
+          }, "viewerPDF-app");
+        }
+        else{
+          DataAPI.openDataByUri(this.cbGetDataSourceFile, file_.URI);
+        }
+      }
+    }
+  }
 })

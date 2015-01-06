@@ -156,7 +156,7 @@
      * @id TextExtTags.events.tagClick
      */
     EVENT_TAG_CLICK = 'tagClick',
-    EVENT_TAG_REMOVE = 'tagRemove',
+    EVENT_TAG_CHANGE = 'tagChange',
 
     DEFAULT_OPTS = {
       tags : {
@@ -364,10 +364,21 @@
 
     if(self.val().length == 0){
       self.removeTag(lastTag);
-      if(lastTag){
-        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG));//data(CSS_TAG));
+      if(lastTag.length > 0){
+        self.trigger(EVENT_TAG_CHANGE,self.getTags());
       }
     }
+  };
+
+  p.getTags=function(){
+    var self = this,
+      tags = self.tagElements(),
+      tagsArr = []
+      ;
+    for (var i = 0; i < tags.length; i++) {
+      tagsArr.push($(tags[i]).attr('data-'+CSS_TAG));
+    };
+    return tagsArr;
   };
 
   /**
@@ -430,7 +441,7 @@
     {
       self.removeTag(source.parents(CSS_DOT_TAG + ':first'));
       var _tag = source.parents(CSS_DOT_TAG + ':first')
-      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG));
+      self.trigger(EVENT_TAG_CHANGE,self.getTags());
       focus = 1;
     }
     else if(source.is(CSS_DOT_LABEL))
@@ -603,7 +614,7 @@
     for(i = 0; i < tags.length; i++)
     {
       tag = tags[i];
-
+      if(self.getTagElement(tag) !== false) return 0;
       if(tag && self.isTagAllowed(tag))
         container.append(self.renderTag(tag));
     }
@@ -611,6 +622,8 @@
     self.updateFormCache();
     core.getFormData();
     core.invalidateBounds();
+    self.trigger(EVENT_TAG_CHANGE,self.getTags());
+    return 1;
   };
 
   /**
@@ -632,9 +645,13 @@
       i, item
       ;
 
-    for(i = 0; i < list.length, item = $(list[i]); i++)
-      if(self.itemManager().compareItems(item.data(CSS_TAG), tag))
+    for(i = 0; i < list.length; i++){
+      item = $(list[i]);
+      if(self.itemManager().compareItems(item.data(CSS_TAG), tag)){
         return item;
+      }
+    }
+    return false;
   };
 
   /**

@@ -123,7 +123,6 @@
         id:"",
         URI:test_uri,
         category:"document",
-        is_delete:0,
         others:null,
         filename:"testFile",
         path:"/home/xiquan/resources/documents/Teaching/11/章节介绍.txt",
@@ -308,7 +307,7 @@
   }
   function test_getVideoThumbnail(getVideoThumbnailCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = '/home/xiquan/testFile/music/救火英雄.mp4';
+      var path = '/home/v1/dde/resources/video/movie.ogg';
       data.getVideoThumbnail(getVideoThumbnailCb, path);
     });
   }
@@ -510,7 +509,6 @@
           category:"Documents",
           commit_id: null,
           version:null,
-          is_delete:0,
           others:null,
           filename:"testFile",
           postfix:"txt",

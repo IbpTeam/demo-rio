@@ -12,12 +12,11 @@ var Search = Class.extend({
     this._isQrc = false;
     this.addQrcode();
     this._qrcodeContainer.hide();
-
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
-    this.bindRemove(function(ev,value_){
-      alert(value_);
-    })
     this.bindEvent();
+    this.bindTagChange(function(e,tags_){
+      alert(tags_);
+    })
   },
 
   attach:function($parent_){
@@ -74,17 +73,17 @@ var Search = Class.extend({
     });
   },
   /**
-   * [bindRemove 当点击删除或点击退格键删除标签时触发callback_]
-  * 触发回调函数时传回两个参数e鼠标或键盘的点击事件，value_是标签字符串
+   * [bindTagChange 当点击new标签时触发]
+   * 触发回调函数时传入参数tags_为All标签
    * @param  {[type]} callback_ [description]
    * @return {[type]}           [description]
    */
-  bindRemove:function(callback_){
-    this._textTag.bind('tagRemove',function(e,value_){
-      if (callback_) {
-        callback_(e,value_);
-      };
-    });
+  bindTagChange:function(callback_){
+    this._textTag.bind('tagChange',function(e,tags_){
+      if(callback_){
+        callback_(e,tags_);
+      }
+    })
   },
   /**
    * [bindClick 绑定点击事件，向回调函数中传回四个参数]

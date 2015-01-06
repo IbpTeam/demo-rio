@@ -2,9 +2,9 @@
   #contentDiv{
     #doc-container{
       position: absolute;
-      top: 20px;
-      left: 40px;
-      bottom: 280px;
+      top: 7px;
+      left: 31px;
+      bottom: 202px;
       border: 1px solid #d6d6d6;
       border-radius: 3px;
       overflow: hidden;
@@ -22,33 +22,34 @@
       #doc-title-content{
         position: relative;
         width: 100%;
-        height: 50px;
+        height: 40px;
         border-bottom: 1px solid rgba(229,229,229,0.75);
         #doc-title-tag{
           position: absolute;
           left: 0px;
-          height: 20px;
-          width: 5px;
-          top:15px;
+          height: 14px;
+          width: 3px;
+          top:12px;
           background: #e24444;
         }
         #doc-title-text{
           position: absolute;
-          left: 15px;
-          top: 12px;
-          font-size: 20px;
-          color: #afafaf;
+          left: 13px;
+          top: 8px;
+          font-size: 17px;
+          color: #919191;
           font-weight: bold;
           letter-spacing: 1px;
         }
         #doc-select-div{
           position: absolute;
-          top:15px;
-          right: 10px;
+          top: 9px;
+          right: 0px;
           width: 230px;
           height: 20px;
           border: 1px solid rgba(0,0,0,0);
           font-size: 10px;
+          color: grey;
           //display: none;
           .doc-select{
             margin-left: 10px;
@@ -66,9 +67,9 @@
           .regular-checkbox + label {
             background-color: #fff;
             border: 1px solid #ff8383;
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
+            width: 13px;
+            height: 13px;
+            border-radius: 2px;
             position: relative;
             display: inline-block;
             margin-left: 15px;
@@ -85,7 +86,7 @@
       #doc-content{
         position: absolute;
         .scroll();
-        top:50px;
+        top:40px;
         bottom: 0px;
         width: 100%;
         border: 1px solid rgba(0,0,0,0);
@@ -95,9 +96,9 @@
 }
 
 .doc-icon {
-  width: 100px;
-  height: 90px;
-  margin: 20px 9px 0px;
+  //width: 18%;
+  height: 87px;
+  margin: 10px 0.3% 0px 1.1%;
   outline: none;
   float: left;
   position: relative;
@@ -108,42 +109,40 @@
   -webkit-box-align: center;
   cursor: pointer;
   &:hover {
-  -webkit-filter: brightness(1.2);
-  -moz-filter: brightness(1.2);
-  -ms-filter: brightness(1.2);
-  filter: brightness(1.2);
+    background-color: rgba(167,167,167,0.1);
+    .radius(3px);
+    cursor: pointer;
   }
-
   img {
-    width: 35px;
+    width: 28px;
     z-index: 98;
   }
 
   p {
-    width: 100px;
-    height: 30px;
+    width: 82%;
+    height: 37px;
     margin: 2px 0px;
-    font-size: 11px;
+    font-size: 12px;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     z-index: 99;
     border: 1px solid rgba(0,0,0,0);
-    
+    color: #64717f;
+    letter-spacing: 1.1px;
     &:hover {
-      cursor: default;
+      cursor: pointer;
     }
   }
 
   &:focus {
-    outline: black auto 5px;
+    outline: none;
     background-clip: content-box;
-    background-color: #A9A9A9;
-    opacity: 0.5;
+    background-color: rgba(169,169,169, 0.2);
+    .radius(3px);
     p {
       background-clip: content-box;
-      background-color: #A9A9A9;
-      opacity: 0.5;
+      background-color: 64717f;
     }
   }
 }

@@ -35,6 +35,7 @@ var MainPicView = Class.extend({
   },
 
   setPicture:function(pic_){
+    var _this = this;
     if (pic_) {
       var _picContent = $('<div>',{
         'id': pic_.uri.replace(/#/g,'-')+'div',
@@ -73,6 +74,10 @@ var MainPicView = Class.extend({
     this._tagView.setParent(_picContent,pic_.uri);
     this._tagView.addTags(pic_.tags);
     this._tagView.bindDrop(_picContent[0]);
+    _picContent.dblclick(function(ev){
+      console.log(pic_.uri);
+      _this.openFile(pic_.uri);
+    });
   },
 
   removePicture:function(index_){
@@ -107,5 +112,117 @@ var MainPicView = Class.extend({
   },
   dragOver:function(ev){
     ev.preventDefault();
+  },
+  //此函数用来通过json格式找到数据库中的源文件
+  cbGetDataSourceFile:function(file){
+    if(!file['openmethod'] || !file['content']){
+      window.alert('openmethod or content not found.');
+      return false;
+    }
+    var method = file['openmethod'];
+    var content = file['content'];
+    switch(method){
+      case 'alert':
+        window.alert(content);
+        break;
+      case 'html':
+        var fileContent;
+        var format = file['format'];
+        switch(format){
+          case 'audio':
+            fileContent = $('<audio>',{
+              'controls':'controls',
+              'src':content,
+              'type':'audio/mpeg'
+            });
+            break;
+          case 'video':
+            fileContent = $('<video>',{
+              'controls':'controls',
+              'width':'400',
+              'height':'300',
+              'src':content,
+              'type':'video/ogg'
+            });
+            break;
+          case 'div':
+            fileContent = content;
+            break;
+          case 'txtfile':
+            fileContent = $("<p></p>").load(content);
+            break;
+          default:
+            fileContent = content;
+            break;
+        }
+
+        var title = file['title'];
+        if (!file['windowname']){
+          if(typeof(fileContent) == 'string' &&fileContent.match("成功打开文件")){
+            break;
+          }
+          else{
+            _globalSelf.genPopupDialog(title, fileContent);    
+          }
+        }
+        else{
+          var F5Button = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'PLAY'
+          });
+          F5Button.click(function(){
+             AppAPI.sendKeyToApp(function(){},file['windowname'],'F5')
+          });
+          var UpButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'UP'
+          });
+          UpButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Up')
+          });
+          var DownButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'DOWN'
+          });
+          DownButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Down')
+          });
+          var StopButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'STOP'
+          });
+          StopButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Escape')
+          });
+          var genDiv = $('<div></div>');
+          genDiv.append(F5Button);
+          genDiv.append('<br>');
+          genDiv.append(UpButton);
+          // genDiv.append('<br>');
+          genDiv.append(DownButton);
+          genDiv.append('<br>');
+          genDiv.append(StopButton);
+          genDiv.append('<br>');
+          _globalSelf.genPopupDialog("窗口控制",genDiv);
+        }
+        break;
+      default:
+        break;
+    }
+    return; 
+  },
+  //此函数用来打开一个文件，传入的是文件的URI
+  openFile:function(uri_){
+    console.log(uri_);
+    if(!uri_){
+      window.alert('the file is not found');
+    }
+    else{
+      DataAPI.openDataByUri(this.cbGetDataSourceFile, uri_);
+    }
   }
 });

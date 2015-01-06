@@ -159,7 +159,6 @@ function createData(items, callback) {
             id: null,
             URI: uri + "#" + category,
             category: category,
-            is_delete: 0,
             others: someTags.join(","),
             filename: itemFilename,
             postfix: itemPostfix,
@@ -231,7 +230,6 @@ function createData(items, callback) {
                     id: null,
                     URI: uri + "#" + category,
                     category: category,
-                    is_delete: 0,
                     others: someTags.join(","),
                     filename: itemFilename,
                     postfix: itemPostfix,
@@ -614,3 +612,9 @@ function getFilesByTag(sTag, callback) {
   tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
 }
 exports.getFilesByTag = getFilesByTag;
+
+
+function repoSearch(repoSearchCb, sKey) {
+  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
+}
+exports.repoSearch = repoSearch;

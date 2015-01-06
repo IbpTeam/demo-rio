@@ -170,7 +170,6 @@ function createData(items, callback) {
             id: null,
             URI: uri + "#" + category,
             category: category,
-            is_delete: 0,
             others: someTags.join(","),
             filename: itemFilename,
             postfix: itemPostfix,
@@ -244,7 +243,6 @@ function createData(items, callback) {
                     id: null,
                     URI: uri + "#" + category,
                     category: category,
-                    is_delete: 0,
                     others: someTags.join(","),
                     filename: itemFilename,
                     postfix: itemPostfix,
@@ -688,3 +686,9 @@ function getMusicPicData(filePath, callback) {
   })
 }
 exports.getMusicPicData = getMusicPicData;
+
+
+function repoSearch(repoSearchCb, sKey) {
+  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
+}
+exports.repoSearch = repoSearch;
