@@ -34,6 +34,9 @@ var Contact = Class.extend({
       _this._contacts = contact_json_;
       if(_this._contacts != null && _this._contacts.length > 0){
         _this.loadContactsList(0);
+        if(_params&&_params['tag']){
+          infoList.clickTag(_params['tag']);
+        }
       }
       _this._first = false;
     }, 'Contact');
