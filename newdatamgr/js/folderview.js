@@ -121,7 +121,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'sortby Time'
+      'text':'Sort by Time'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
@@ -586,6 +586,9 @@ var ShowFiles = Class.extend({
     if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
+    if(_params&&_params['tag']){
+      infoList.clickTag(_params['tag']);
+    }
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用

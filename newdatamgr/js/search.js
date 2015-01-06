@@ -12,12 +12,11 @@ var Search = Class.extend({
     this._isQrc = false;
     this.addQrcode();
     this._qrcodeContainer.hide();
-
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
-   /* this.bindRemove(function(ev,value_,values_){
-      alert('remove:'+value_+'\nstay:'+values_.toString());
-    })*/
     this.bindEvent();
+    this.bindAddTag(function(e,tag_){
+      alert(tag_);
+    })
   },
 
   attach:function($parent_){
@@ -75,7 +74,7 @@ var Search = Class.extend({
   },
   /**
    * [bindRemove 当点击删除或点击退格键删除标签时触发callback_]
-  * 触发回调函数时传回两个参数e鼠标或键盘的点击事件，value_是标签字符串
+  * 触发回调函数时传回三个参数e鼠标或键盘的点击事件，value_是标签字符串，values_是剩余标签的数组。
    * @param  {[type]} callback_ [description]
    * @return {[type]}           [description]
    */
@@ -85,6 +84,19 @@ var Search = Class.extend({
         callback_(e,value_,values_);
       };
     });
+  },
+  /**
+   * [bindAddTag 当点击new标签时触发]
+   * 触发回调函数时传入参数参数tag_为新添加的标签
+   * @param  {[type]} callback_ [description]
+   * @return {[type]}           [description]
+   */
+  bindAddTag:function(callback_){
+    this._textTag.bind('tagAdd',function(e,tag_){
+      if(callback_){
+        callback_(e,tag_);
+      }
+    })
   },
   /**
    * [bindClick 绑定点击事件，向回调函数中传回四个参数]

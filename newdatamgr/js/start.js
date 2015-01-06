@@ -4,7 +4,7 @@ var main = function(params_){
     console.log("data:" +  data + " app:" + app);
     DataAPI=data;
     AppAPI=app;
-    var _params = undefined;
+    _params = undefined;
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
