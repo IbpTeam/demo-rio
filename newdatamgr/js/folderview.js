@@ -166,12 +166,11 @@ var ShowFiles = Class.extend({
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
-          if($('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall') .length >0){
+          if($('#'+this._contentIds[this._index]).children('div').length >0){
             if(this._index ==1){
-              $('#outWaterFall').show();              
+              $('#outWaterFall').show();            
             }
-            $('#'+this._contentIds[this._index]).show();
-            _globalSelf.refreshWaterFall();          
+            $('#'+this._contentIds[this._index]).show();       
           }
           else{
             var sortByTime = $('#'+this._contentIdsSortByTime[this._index]).children('div');
@@ -193,17 +192,20 @@ var ShowFiles = Class.extend({
               }
             }
             $('#'+ this._contentIdsSortByTime[this._index]).remove();
-            $('#outWaterFall').show();
+            if(this._index ==1){
+              $('#outWaterFall').show();
+            }
             $('#'+this._contentIds[this._index]).show();
-          }
-          if(!_globalSelf._showFilesBytag){
-            $('#'+this._contentIds[this._index]).children('div').show();
-          }
-          if(this._index ==1){
             _globalSelf.refreshWaterFall();
           }
+          if(!_globalSelf._showFilesBytag){
+            if(this._index ==1){
+              _globalSelf.refreshWaterFall();
+            }
+            $('#'+this._contentIds[this._index]).children('div').show();
+          }
           if(this._index ==2){
-              $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
+            $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
           }
           break;
         case 1:
@@ -225,7 +227,13 @@ var ShowFiles = Class.extend({
               $('#'+ this._contentIdsSortByTime[this._index]).show();
             }
             else {
-              var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
+              if(this._index ==1){
+                var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
+                $('#'+this._contentIds[this._index]).children('div').remove();
+              }
+              else{
+                var fileDivs = $('#'+this._contentIds[this._index]).children('div');
+              }
               var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
               returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
               if(this._index ==2){
@@ -280,7 +288,7 @@ var ShowFiles = Class.extend({
     $('.showFileByTag').removeClass('showFileByTag');
     for(var i =0;i<fileURIS.length;i++){
       var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
-      var div = $("#"+fileURI+'div');
+      var div = $('#showContent').find('#'+fileURI+'div');
       var tr = $("#"+fileURI+'tr');
       div.addClass('showFileByTag').show();
       tr.addClass('showFileByTag').show();
@@ -306,10 +314,16 @@ var ShowFiles = Class.extend({
         }
       }
     }
-    if(_globalSelf._index ==1){
-      // $('#'+this._contentIds[this._index]).BlocksIt({
-      //   numOfCol:5
-      // }); 
+    if(_globalSelf._index ==1 && _globalSelf._showNormal[1] == 0){
+      var showFileByTag =$('#pictureContent').find('.showFileByTag');
+      var notShowFileByTag = $('#pictureContent').find('.pictureContainerWaterFall:not(.showFileByTag)');
+      $('#pictureContent').children('div').remove();
+      for(var i =0;i<showFileByTag.length;i++){
+        $('#pictureContent').append(showFileByTag);
+      }
+      for(var i =0;i<notShowFileByTag.length;i++){
+        $('#pictureContent').append(notShowFileByTag.hide());
+      }
       _globalSelf.refreshWaterFall();
     }
   },
@@ -930,7 +944,7 @@ var ShowFiles = Class.extend({
             // $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
             //   numOfCol:5
             // }); 
-            _globalSelf.refreshWaterFall();
+            //_globalSelf.refreshWaterFall();
           }
         }
         else{
@@ -1110,6 +1124,8 @@ var ShowFiles = Class.extend({
         var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
+        var picture = pictureDiv.children('img')[0];
+        picture.style.cssText = '';
         var pDiv = div.children('p');
         pDiv.removeClass('picturedescriptionWaterFall');
         pDiv.addClass('picturedescription');
