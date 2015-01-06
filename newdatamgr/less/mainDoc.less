@@ -98,7 +98,7 @@
 .doc-icon {
   //width: 18%;
   height: 87px;
-  margin: 10px 4px 0px;
+  margin: 10px 0.3% 0px 1.1%;
   outline: none;
   float: left;
   position: relative;
@@ -109,42 +109,40 @@
   -webkit-box-align: center;
   cursor: pointer;
   &:hover {
-  -webkit-filter: brightness(1.2);
-  -moz-filter: brightness(1.2);
-  -ms-filter: brightness(1.2);
-  filter: brightness(1.2);
+    background-color: rgba(167,167,167,0.1);
+    .radius(3px);
+    cursor: pointer;
   }
-
   img {
     width: 28px;
     z-index: 98;
   }
 
   p {
-    width: 100%;
-    height: 30px;
+    width: 82%;
+    height: 37px;
     margin: 2px 0px;
-    font-size: 9px;
+    font-size: 12px;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     z-index: 99;
     border: 1px solid rgba(0,0,0,0);
-    
+    color: #64717f;
+    letter-spacing: 1.1px;
     &:hover {
-      cursor: default;
+      cursor: pointer;
     }
   }
 
   &:focus {
-    outline: black auto 5px;
+    outline: none;
     background-clip: content-box;
-    background-color: #A9A9A9;
-    opacity: 0.5;
+    background-color: rgba(169,169,169, 0.2);
+    .radius(3px);
     p {
       background-clip: content-box;
-      background-color: #A9A9A9;
-      opacity: 0.5;
+      background-color: 64717f;
     }
   }
 }
