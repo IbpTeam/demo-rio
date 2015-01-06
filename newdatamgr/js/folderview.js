@@ -198,11 +198,20 @@ var ShowFiles = Class.extend({
             $('#'+this._contentIds[this._index]).show();
             _globalSelf.refreshWaterFall();
           }
-          if(!_globalSelf._showFilesBytag){
+          var showFileByTag = $('#'+this._contentIds[this._index]).find('.showFileByTag');
+          if(!_globalSelf._showFilesBytag && showFileByTag.length>0){
             if(this._index ==1){
+              var pictureWaterFall = $('#pictureContent').find('.pictureContainerWaterFall');
+              $('#pictureContent').children('div').remove();
+              $('#pictureContent').append(pictureWaterFall.show());
               _globalSelf.refreshWaterFall();
             }
             $('#'+this._contentIds[this._index]).children('div').show();
+          }
+          var refreshDiv = $('#'+this._contentIds[this._index]).find('.refreshDiv');
+          if(this._index == 1 && refreshDiv.length>0){
+            refreshDiv.removeClass('refreshDiv');
+            _globalSelf.refreshWaterFall();
           }
           if(this._index ==2){
             $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
@@ -267,6 +276,11 @@ var ShowFiles = Class.extend({
     }
   },
 
+  //test
+  test123:function(){
+    window.alert($('#pictureContent').children('div').length);
+  },
+
   //此函数用来等窗口的大小改变之后，来刷新瀑布流的显示
   refreshWaterFall:function(){
     $('#pictureContent').gridalicious({
@@ -318,12 +332,8 @@ var ShowFiles = Class.extend({
       var showFileByTag =$('#pictureContent').find('.showFileByTag');
       var notShowFileByTag = $('#pictureContent').find('.pictureContainerWaterFall:not(.showFileByTag)');
       $('#pictureContent').children('div').remove();
-      for(var i =0;i<showFileByTag.length;i++){
-        $('#pictureContent').append(showFileByTag);
-      }
-      for(var i =0;i<notShowFileByTag.length;i++){
-        $('#pictureContent').append(notShowFileByTag.hide());
-      }
+      $('#pictureContent').append(showFileByTag);
+      $('#pictureContent').append(notShowFileByTag.hide());
       _globalSelf.refreshWaterFall();
     }
   },
@@ -375,12 +385,9 @@ var ShowFiles = Class.extend({
             Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
             Container.append(Holder);
             Container.append(description);
-            Holder.children('img')[0].onload = function(){
-              // $('#pictureContent').BlocksIt({
-              //   numOfCol:5
-              // });
-              _globalSelf.refreshWaterFall();
-            };
+            // Holder.children('img')[0].onload = function(){
+            //   _globalSelf.refreshWaterFall();
+            // };
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
               position: 'listview',
@@ -518,7 +525,18 @@ var ShowFiles = Class.extend({
           default:
         }
         if($('#'+_globalSelf._contentIds[index]).children('div') .length >0){
-          $('#'+_globalSelf._contentIds[index]).prepend(Container);
+          if(index == 1){
+            var pictureWaterFall = $('#pictureContent').find('.pictureContainerWaterFall');
+            $('#pictureContent').children('div').remove();
+            $('#pictureContent').append(Container);
+            $('#pictureContent').append(pictureWaterFall);
+            //为什么这的瀑布流没有显示呢？？
+            //_globalSelf.refreshWaterFall();
+            _globalSelf.test123();
+          }
+          else{
+            $('#'+_globalSelf._contentIds[index]).prepend(Container);
+          }
         }
         if($('#'+ _globalSelf._contentIdsSortByTime[index]).children('div').length >0){
           var sortByTimeDivs = $('#'+ _globalSelf._contentIdsSortByTime[index]).children('div');
@@ -746,7 +764,6 @@ var ShowFiles = Class.extend({
           genDiv.append(F5Button);
           genDiv.append('<br>');
           genDiv.append(UpButton);
-          // genDiv.append('<br>');
           genDiv.append(DownButton);
           genDiv.append('<br>');
           genDiv.append(StopButton);
@@ -940,11 +957,8 @@ var ShowFiles = Class.extend({
           }
           $("#"+modifyURI_+'div').remove();
           $("#"+modifyURI_+'tr').remove();
-          if(_globalSelf._index ==1){
-            // $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
-            //   numOfCol:5
-            // }); 
-            //_globalSelf.refreshWaterFall();
+          if(_globalSelf._index ==1 && _globalSelf._showNormal[1] ==0){
+            //查看是否瀑布流删除之后进行操作，待定？
           }
         }
         else{
