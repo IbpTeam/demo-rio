@@ -14,8 +14,8 @@ var Search = Class.extend({
     this._qrcodeContainer.hide();
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
     this.bindEvent();
-    this.bindAddTag(function(e,tag_){
-      alert(tag_);
+    this.bindTagChange(function(e,tags_){
+      alert(tags_);
     })
   },
 
@@ -73,28 +73,15 @@ var Search = Class.extend({
     });
   },
   /**
-   * [bindRemove 当点击删除或点击退格键删除标签时触发callback_]
-  * 触发回调函数时传回三个参数e鼠标或键盘的点击事件，value_是标签字符串，values_是剩余标签的数组。
+   * [bindTagChange 当点击new标签时触发]
+   * 触发回调函数时传入参数tags_为All标签
    * @param  {[type]} callback_ [description]
    * @return {[type]}           [description]
    */
-  bindRemove:function(callback_){
-    this._textTag.bind('tagRemove',function(e,value_,values_){
-      if (callback_) {
-        callback_(e,value_,values_);
-      };
-    });
-  },
-  /**
-   * [bindAddTag 当点击new标签时触发]
-   * 触发回调函数时传入参数参数tag_为新添加的标签
-   * @param  {[type]} callback_ [description]
-   * @return {[type]}           [description]
-   */
-  bindAddTag:function(callback_){
-    this._textTag.bind('tagAdd',function(e,tag_){
+  bindTagChange:function(callback_){
+    this._textTag.bind('tagChange',function(e,tags_){
       if(callback_){
-        callback_(e,tag_);
+        callback_(e,tags_);
       }
     })
   },
