@@ -42,7 +42,7 @@ var InfoList = Class.extend({
     this.bindEvent();
     this._firstShowFilterData = true;
     var _this = this;
-    search.bindRemove(function(ev, value_, values_){
+    search.bindTagChange(function(ev, values_){
       if(values_ != null){
         if(values_.length > 0){
           _this.showFilesByTags(values_);

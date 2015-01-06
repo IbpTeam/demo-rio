@@ -156,8 +156,7 @@
      * @id TextExtTags.events.tagClick
      */
     EVENT_TAG_CLICK = 'tagClick',
-    EVENT_TAG_REMOVE = 'tagRemove',
-    EVENT_TAG_ADD = 'tagAdd',
+    EVENT_TAG_CHANGE = 'tagChange',
 
     DEFAULT_OPTS = {
       tags : {
@@ -366,7 +365,7 @@
     if(self.val().length == 0){
       self.removeTag(lastTag);
       if(lastTag.length > 0){
-        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG),self.getTags());
+        self.trigger(EVENT_TAG_CHANGE,self.getTags());
       }
     }
   };
@@ -442,7 +441,7 @@
     {
       self.removeTag(source.parents(CSS_DOT_TAG + ':first'));
       var _tag = source.parents(CSS_DOT_TAG + ':first')
-      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG),self.getTags());
+      self.trigger(EVENT_TAG_CHANGE,self.getTags());
       focus = 1;
     }
     else if(source.is(CSS_DOT_LABEL))
@@ -623,7 +622,7 @@
     self.updateFormCache();
     core.getFormData();
     core.invalidateBounds();
-    self.trigger(EVENT_TAG_ADD,tags[0]);
+    self.trigger(EVENT_TAG_CHANGE,self.getTags());
     return 1;
   };
 
