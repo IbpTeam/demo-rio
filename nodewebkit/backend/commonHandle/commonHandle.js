@@ -60,15 +60,39 @@ function watcherStop(category,callback){
 }
 exports.watcherStop = watcherStop;
 
-function copyFile(oldPath, newPath, callback) {
-  fs_extra.copy(oldPath, newPath, function(err) {
-    if (err) {
-      console.log(err);
-      callback(err);
-    } else {
-      callback('success');
+// function copyFile(oldPath, newPath, callback) {
+//   fs_extra.copy(oldPath, newPath, function(err) {
+//     if (err) {
+//       console.log(err);
+//       callback(err);
+//     } else {
+//       callback('success');
+//     }
+//   })
+// }
+
+function copyFile(source, target, cb) {
+  var cbCalled = false;
+
+  var rd = fs_extra.createReadStream(source);
+  rd.on("error", function(err) {
+    done(err);
+  });
+  var wr = fs_extra.createWriteStream(target);
+  wr.on("error", function(err) {
+    done(err);
+  });
+  wr.on("close", function(ex) {
+    done();
+  });
+  rd.pipe(wr);
+
+  function done(err) {
+    if (!cbCalled) {
+      cb(err);
+      cbCalled = true;
     }
-  })
+  }
 }
 
 /**
@@ -223,11 +247,12 @@ function createDataAll(items, callback) {
         var sFilePath = path.join(sRealDir, sFileName);
         var sDesFilePath = path.join(sDesDir, sFileName + '.md');
         _item.path = sFilePath;
-        copyFile(sOriginPath, sFilePath, function(result) {
-          if (result !== 'success') {
-            console.log(result);
+        copyFile(sOriginPath, sFilePath, function(err) {
+          if (err) {
+            console.log(err);
             return;
           }
+          console.log(sOriginPath)
           dataDes.createItem(_item, sDesDir, function() {
             allItems.push(_item);
             allItemPath.push(sFilePath);

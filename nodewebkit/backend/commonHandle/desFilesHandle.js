@@ -73,7 +73,7 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs.writeFile(sPath, sItem,function (err) {
+  fs_extra.writeFile(sPath, sItem,function (err) {
     if(err){
       //console.log("writeFile error!");
       console.log(err);
