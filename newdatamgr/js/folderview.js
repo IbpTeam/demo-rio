@@ -166,7 +166,7 @@ var ShowFiles = Class.extend({
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
-          if($('#'+this._contentIds[this._index]).children('div') .length >0){
+          if($('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall') .length >0){
             if(this._index ==1){
               $('#outWaterFall').show();              
             }
@@ -200,9 +200,6 @@ var ShowFiles = Class.extend({
             $('#'+this._contentIds[this._index]).children('div').show();
           }
           if(this._index ==1){
-            //   $('#'+this._contentIds[this._index]).BlocksIt({
-            //     numOfCol:5
-            // }); 
             _globalSelf.refreshWaterFall();
           }
           if(this._index ==2){
@@ -228,7 +225,7 @@ var ShowFiles = Class.extend({
               $('#'+ this._contentIdsSortByTime[this._index]).show();
             }
             else {
-              var fileDivs = $('#'+this._contentIds[this._index]).children('div');
+              var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
               var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
               returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
               if(this._index ==2){
@@ -264,32 +261,6 @@ var ShowFiles = Class.extend({
 
   //此函数用来等窗口的大小改变之后，来刷新瀑布流的显示
   refreshWaterFall:function(){
-    // var debounce = function(func,threshold,execAsap){
-    //   var timeout;
-    //   return function debounced(){
-    //     var obj = this, args = arguments;
-    //     function delayed(){
-    //       if(!execAsap){
-    //         func.apply(obj,args);
-    //         timeout = null;
-    //       }
-    //     };
-    //     if(timeout){
-    //       clearTimeout(timeout);
-    //     }
-    //     else if(execAsap){
-    //       func.apply(obj,args);
-    //     }
-    //     timeout = setTimeout(delayed,threshold || 500);
-    //   };
-    // };
-    // // window.onresize = debounce(function(){
-    //   window.onresize = debounce(function(){
-      // $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
-      //   numOfCol:5
-      // });
-    //   //window.alert('the div has changed');
-    // },500,false);
     $('#pictureContent').gridalicious({
       gutter:20,
       width:300,
@@ -1212,9 +1183,6 @@ var ShowFiles = Class.extend({
             _globalSelf._imgReady = _globalSelf._imgReady - 1;
             if(_globalSelf._imgReady ==0){
               returnContent.show();
-              // $('#pictureContent').BlocksIt({
-              //   numOfCol:5
-              // });
               _globalSelf.refreshWaterFall();
             }
           };
