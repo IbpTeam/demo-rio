@@ -192,7 +192,9 @@ var ShowFiles = Class.extend({
               }
             }
             $('#'+ this._contentIdsSortByTime[this._index]).remove();
-            $('#outWaterFall').show();
+            if(this._index ==1){
+              $('#outWaterFall').show();
+            }
             $('#'+this._contentIds[this._index]).show();
           }
           if(!_globalSelf._showFilesBytag){
@@ -200,7 +202,7 @@ var ShowFiles = Class.extend({
           }
           if(this._index ==1){
               $('#'+this._contentIds[this._index]).BlocksIt({
-                numOfCol:5
+                numOfCol:3
             }); 
           }
           if(this._index ==2){
@@ -295,7 +297,7 @@ var ShowFiles = Class.extend({
     }
     if(_globalSelf._index ==1){
       $('#'+this._contentIds[this._index]).BlocksIt({
-        numOfCol:5
+        numOfCol:3
       }); 
     }
   },
@@ -349,7 +351,7 @@ var ShowFiles = Class.extend({
             Container.append(description);
             Holder.children('img')[0].onload = function(){
               $('#pictureContent').BlocksIt({
-                numOfCol:5
+                numOfCol:3
               });
             };
             _globalSelf.bindDrag(Container[0]);
@@ -913,7 +915,7 @@ var ShowFiles = Class.extend({
           $("#"+modifyURI_+'tr').remove();
           if(_globalSelf._index ==1){
             $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
-              numOfCol:5
+              numOfCol:3
             }); 
           }
         }
@@ -1168,7 +1170,7 @@ var ShowFiles = Class.extend({
             if(_globalSelf._imgReady ==0){
               returnContent.show();
               $('#pictureContent').BlocksIt({
-                numOfCol:5
+                numOfCol:3
               });
             }
           };

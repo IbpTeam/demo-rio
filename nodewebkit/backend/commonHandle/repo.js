@@ -491,3 +491,30 @@ exports.repoRenameCommit = function(sOrigin, sNew, repoPath, desRepoPath, callba
     })
   })
 }
+
+
+
+exports.repoSearch = function(category, sKey, callback) {
+  var sRepoPath = utils.getDesRepoDir(category);
+  getGitLog(sRepoPath, function(err, result) {
+    if (err) {
+      return callback(err, null);
+    }
+    var _result = {};
+    for (var k in result) {
+      var oFiles = result[k].content.file;
+      for (var p in oFiles) {
+        var filename = path.basename(oFiles[p])
+        var reg_key = new RegExp(sKey, 'ig');
+        if (oFiles.length > 2) {
+          break;
+        }
+        if (reg_key.test(filename)) {
+          _result[k] = result[k];
+          break;
+        }
+      }
+    }
+    callback(null, _result);
+  })
+}
