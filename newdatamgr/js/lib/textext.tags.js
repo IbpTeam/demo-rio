@@ -157,6 +157,7 @@
      */
     EVENT_TAG_CLICK = 'tagClick',
     EVENT_TAG_REMOVE = 'tagRemove',
+    EVENT_TAG_ADD = 'tagAdd',
 
     DEFAULT_OPTS = {
       tags : {
@@ -622,6 +623,7 @@
     self.updateFormCache();
     core.getFormData();
     core.invalidateBounds();
+    self.trigger(EVENT_TAG_ADD,tags[0]);
     return 1;
   };
 

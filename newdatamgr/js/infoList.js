@@ -51,6 +51,9 @@ var InfoList = Class.extend({
           _this.loadData();
         }
       }
+      if(_params&&_params['tag']){
+        _params['tag'] = undefined;
+      }
     });
   },
   /**
@@ -348,6 +351,11 @@ var InfoList = Class.extend({
         contact._ContactContainer.show();
       }
     }
+  },
+
+  clickTag:function(tag_){
+    var _tag = this._infoContent.children('#'+tag_);
+    _tag.trigger('click');
   },
 
   bindDrag:function(tag_){
