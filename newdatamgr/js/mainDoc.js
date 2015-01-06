@@ -80,10 +80,12 @@ var MainDocView = Class.extend({
         _this.appendFile({
           'uri': document_json_[i]['URI'],
           'type': _this.getType(document_json_[i]['postfix']),
-          'name': document_json_[i]['filename'] + document_json_[i]['postfix']
+          'name': document_json_[i]['filename'] + document_json_[i]['postfix'],
+          'path': document_json_[i]['path']
         });
       }
     }, 'document', 30);
+    _this.addClickEvent(this._docContent,'.doc-icon');
   },
 
   setIcon:function(){
@@ -109,6 +111,7 @@ var MainDocView = Class.extend({
   appendFile:function(file_){
     var _fileView = $('<div>',{
       'class': 'doc-icon',
+      'id':JSON.stringify(file_),
       'draggable': true
     });
     _fileView.data('uri',file_.uri);
@@ -151,6 +154,176 @@ var MainDocView = Class.extend({
     file_.ondragstart = function(ev){
       ev.dataTransfer.setData('uri',$(ev.currentTarget).data('uri'));
       ev.dataTransfer.setData('category','mainDoc');
+    }
+  },
+
+  addClickEvent:function(jQueryElement,whichClass){
+    //一个JQuery元素代表的是一系列文件
+    this.files = jQueryElement;
+    var _this = this;
+    //增加单击和右击事件,1是单击，3是右击
+    this.files.delegate(whichClass,'mousedown',function(e){
+      /*switch(e.which){
+        case 1:
+          $(this).addClass('selected').siblings().removeClass('selected');
+
+          //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
+          if(!$(this).attr('tabindex')){
+            $(this).blur(function() {
+              $(this).removeClass('selected');
+            });
+            $(this).attr('tabindex','1').keydown(function(e) {
+              if(e.which == 46){
+                //触发的是键盘的delete事件,表示删除
+                var modifyURI_ = _globalSelf.findURIByDiv($(this));
+                _globalSelf.deleteFileByUri(modifyURI_);
+              }
+              else if(e.which == 113){
+                //按下F2键，表示要重命名
+                _globalSelf.renameFileByDivId($(this).attr('id'));
+              }
+            });
+          }
+          break;
+        case 3:
+          $(this).addClass('selected').siblings().removeClass('selected');
+          break;  
+      }*/
+      console.log("mousedown!");
+    });
+    //绑定双击事件
+    this.files.delegate(whichClass,'dblclick',function(e){
+      file=JSON.parse(this.id)
+      console.log(file.uri);
+      _this.openFile(file);
+      console.log("dblclick!");
+    });
+
+  },
+
+   //此函数用来通过json格式找到数据库中的源文件
+  cbGetDataSourceFile:function(file){
+    if(!file['openmethod'] || !file['content']){
+      window.alert('openmethod or content not found.');
+      return false;
+    }
+    var method = file['openmethod'];
+    var content = file['content'];
+    switch(method){
+      case 'alert':
+        window.alert(content);
+        break;
+      case 'html':
+        var fileContent;
+        var format = file['format'];
+        switch(format){
+          case 'audio':
+            fileContent = $('<audio>',{
+              'controls':'controls',
+              'src':content,
+              'type':'audio/mpeg'
+            });
+            break;
+          case 'video':
+            fileContent = $('<video>',{
+              'controls':'controls',
+              'width':'400',
+              'height':'300',
+              'src':content,
+              'type':'video/ogg'
+            });
+            break;
+          case 'div':
+            fileContent = content;
+            break;
+          case 'txtfile':
+            fileContent = $("<p></p>").load(content);
+            break;
+          default:
+            fileContent = content;
+            break;
+        }
+
+        var title = file['title'];
+        if (!file['windowname']){
+          if(typeof(fileContent) == 'string' &&fileContent.match("成功打开文件")){
+            break;
+          }
+          else{
+            _globalSelf.genPopupDialog(title, fileContent);    
+          }
+        }
+        else{
+          var F5Button = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'PLAY'
+          });
+          F5Button.click(function(){
+             AppAPI.sendKeyToApp(function(){},file['windowname'],'F5')
+          });
+          var UpButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'UP'
+          });
+          UpButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Up')
+          });
+          var DownButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'DOWN'
+          });
+          DownButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Down')
+          });
+          var StopButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'STOP'
+          });
+          StopButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Escape')
+          });
+          var genDiv = $('<div></div>');
+          genDiv.append(F5Button);
+          genDiv.append('<br>');
+          genDiv.append(UpButton);
+          // genDiv.append('<br>');
+          genDiv.append(DownButton);
+          genDiv.append('<br>');
+          genDiv.append(StopButton);
+          genDiv.append('<br>');
+          _globalSelf.genPopupDialog("窗口控制",genDiv);
+        }
+        break;
+      default:
+        break;
+    }
+    return; 
+  },
+
+//此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFile:function(file_){
+    console.log(file_);
+    if(!file_){
+      window.alert('the file is not found');
+    }
+    else{
+      if(file_.type == 'PDF'){
+        function cbViewPdf(){
+        }
+        AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+          if (err) {
+            return console.log(err);
+          }
+          AppAPI.startApp(cbViewPdf, appInfo, file_.path);
+        }, "viewerPDF-app");
+      }
+      else{
+        DataAPI.openDataByUri(this.cbGetDataSourceFile, file_.uri);
+      }
     }
   }
 });

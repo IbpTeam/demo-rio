@@ -81,7 +81,6 @@ function createData(items, callback) {
         var itemInfo = {
           URI: uri + "#" + category,
           category: category,
-          is_delete: 0,
           others: someTags.join(","),
           postfix: itemPostfix,
           filename: itemFilename,
@@ -138,7 +137,6 @@ function createData(items, callback) {
                 var itemInfo = {
                   URI: uri + "#" + category,
                   category: category,
-                  is_delete: 0,
                   others: someTags.join(","),
                   postfix: itemPostfix,
                   filename: itemFilename,

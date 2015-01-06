@@ -48,7 +48,6 @@ var GitLog = Class.extend({
     this._gitselect.append(this._search_button);
     this._gitselect.append(this._selectList);
     this._gitLogContainer.append(this._gitcontent);
-    //this._selectList.hide();
     this.bindEvent();
   },
   bindEvent:function(){
@@ -65,11 +64,6 @@ var GitLog = Class.extend({
       }
     });
     this._select.click(function(ev){
-      /*if(_this._selectList.is(":hidden")){
-        _this._selectList.show();
-      }else{
-          _this._selectList.hidden();
-      }*/
       _this._selectList.slideToggle("normal");
     });
     this._ul.children('li').click(function(ev){
@@ -80,9 +74,6 @@ var GitLog = Class.extend({
 
     });
     _this._select.blur(function(){ 
-      /*setTimeout(function(){
-        _this._selectList.hide();
-      },200); */
     _this._selectList.slideToggle("normal");
     });         
   },
