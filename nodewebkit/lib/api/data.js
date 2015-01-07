@@ -164,7 +164,7 @@ function loadResources(loadResourcesCb, path) {
             walk(path + '/' + item);
           }
         }
-      } else if (fs.statSync(path + '/' + item).isFile()) {
+      } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
         if (sPos != 'csv' && sPos != 'CSV') {
