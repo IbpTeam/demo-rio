@@ -95,6 +95,12 @@ function getnit(initType) {
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
+    var _controlppt_app = {}
+    _controlppt_app.id = "controlPPT";
+    _controlppt_app.path = pathModule.join(utils.getHomeDir(), 'webde', 'app/demo-rio/controlPPT'); //change 'WORK_DIRECTORY' into local.
+    _controlppt_app.iconPath = pathModule.join(utils.getHomeDir(), 'webde', '/app/demo-rio/controlPPT/icons/powerpointicon.png');
+    _controlppt_app.name = "控制PPT";
+    _controlppt_app.type = "inside-app";
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
@@ -158,6 +164,7 @@ function getnit(initType) {
           "launcher-app": _launcher_app,
           "login-app": _login_app,
           "flash-app": _flash_app,
+          "controlPPT-app": _controlppt_app,
         }
       }, {
         "insideApp": {
