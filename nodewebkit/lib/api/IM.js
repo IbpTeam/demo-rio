@@ -322,7 +322,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
       if (countFlag === len) {
         SentCallBack(msgRst);
         if(flag){
-          msgRst['destInfo']={'Account':accSetItem.toAccount};
+          msgRst['destInfo']={'Account':MsgObj.toAccount};
           router.wsNotify({
             'Action': 'notify',
             'Event': 'imChat',
@@ -345,7 +345,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if ((++countFlag) === len) {
               SentCallBack(msg);
               if(flag){
-                msg['destInfo']={'Account':accSetItem.toAccount};
+                msg['destInfo']={'Account':MsgObj.toAccount};
                 router.wsNotify({
                   'Action': 'notify',
                   'Event': 'imChat',
@@ -362,7 +362,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if ((++countFlag) === len) {
               SentCallBack(msg);
               if(flag){
-                msg['destInfo']={'Account':accSetItem.toAccount};
+                msg['destInfo']={'Account':MsgObj.toAccount};
                 router.wsNotify({
                   'Action': 'notify',
                   'Event': 'imChat',
