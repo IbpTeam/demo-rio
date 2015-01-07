@@ -15,7 +15,8 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var git = require("nodegit");
-var fs = require('fs');
+var fs = require('../fixed_fs');
+//var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
@@ -60,25 +61,14 @@ function watcherStop(category,callback){
 }
 exports.watcherStop = watcherStop;
 
-// function copyFile(oldPath, newPath, callback) {
-//   fs_extra.copy(oldPath, newPath, function(err) {
-//     if (err) {
-//       console.log(err);
-//       callback(err);
-//     } else {
-//       callback('success');
-//     }
-//   })
-// }
 
 function copyFile(source, target, cb) {
   var cbCalled = false;
-
-  var rd = fs_extra.createReadStream(source);
+  var rd = fs.createReadStream(source);
   rd.on("error", function(err) {
     done(err);
   });
-  var wr = fs_extra.createWriteStream(target);
+  var wr = fs.createWriteStream(target);
   wr.on("error", function(err) {
     done(err);
   });
@@ -252,7 +242,6 @@ function createDataAll(items, callback) {
             console.log(err);
             return;
           }
-          console.log(sOriginPath)
           dataDes.createItem(_item, sDesDir, function() {
             allItems.push(_item);
             allItemPath.push(sFilePath);
