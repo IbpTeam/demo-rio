@@ -166,11 +166,11 @@ var ShowFiles = Class.extend({
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
-          if($('#'+this._contentIds[this._index]).children('div') .length >0){
+          if($('#'+this._contentIds[this._index]).children('div').length >0){
             if(this._index ==1){
-              $('#outWaterFall').show();              
+              $('#outWaterFall').show();            
             }
-            $('#'+this._contentIds[this._index]).show();           
+            $('#'+this._contentIds[this._index]).show();       
           }
           else{
             var sortByTime = $('#'+this._contentIdsSortByTime[this._index]).children('div');
@@ -196,17 +196,30 @@ var ShowFiles = Class.extend({
               $('#outWaterFall').show();
             }
             $('#'+this._contentIds[this._index]).show();
+            if(_globalSelf.showFileByTag && this._index ==1){
+              var showFileByTag = $('#pictureContent').find('.showFileByTag');
+              var notShowFileByTag = $('#pictureContent').find('.pictureContainerWaterFall:not(.showFileByTag)');
+              $('#pictureContent').children('div').remove();
+              $('#pictureContent').append(showFileByTag).append(notShowFileByTag);
+              _globalSelf.refreshWaterFall();
+            }  
           }
           if(!_globalSelf._showFilesBytag){
+            if(this._index ==1){
+              var pictureWaterFall = $('#pictureContent').find('.pictureContainerWaterFall');
+              $('#pictureContent').children('div').remove();
+              $('#pictureContent').append(pictureWaterFall.show());
+              _globalSelf.refreshWaterFall();
+            }
             $('#'+this._contentIds[this._index]).children('div').show();
           }
-          if(this._index ==1){
-              $('#'+this._contentIds[this._index]).BlocksIt({
-                numOfCol:3
-            }); 
+          var refreshDiv = $('#'+this._contentIds[this._index]).find('.refreshDiv');
+          if(this._index == 1 && refreshDiv.length>0){
+            refreshDiv.removeClass('refreshDiv');
+            _globalSelf.refreshWaterFall();
           }
           if(this._index ==2){
-              $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
+            $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
           }
           break;
         case 1:
@@ -228,7 +241,13 @@ var ShowFiles = Class.extend({
               $('#'+ this._contentIdsSortByTime[this._index]).show();
             }
             else {
-              var fileDivs = $('#'+this._contentIds[this._index]).children('div');
+              if(this._index ==1){
+                var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
+                $('#'+this._contentIds[this._index]).children('div').remove();
+              }
+              else{
+                var fileDivs = $('#'+this._contentIds[this._index]).children('div');
+              }
               var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
               returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
               if(this._index ==2){
@@ -262,20 +281,45 @@ var ShowFiles = Class.extend({
     }
   },
 
+  //test
+  test123:function(){
+    window.alert($('#pictureContent').children('div').length);
+  },
+
+  //此函数用来等窗口的大小改变之后，来刷新瀑布流的显示
+  refreshWaterFall:function(){
+    $('#pictureContent').gridalicious({
+      gutter:20,
+      width:300,
+      animate:true,
+      animationOptions:{
+        speed:150,
+        duration:400,
+        complete:function(data){}
+      },
+    });
+  },
+
   //此函数就是外面调用函数的接口，传入想要展示的文件的URI信息，然后进行展示.
   showFileByTag:function(fileURIS){
     _globalSelf._showFilesBytag = true;
     _globalSelf._showFilesBytagUris = fileURIS;
     $('.showFileByTag').removeClass('showFileByTag');
-    for(var i =0;i<fileURIS.length;i++){
-      var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
-      var div = $("#"+fileURI+'div');
-      var tr = $("#"+fileURI+'tr');
-      div.addClass('showFileByTag').show();
-      tr.addClass('showFileByTag').show();
+    if(fileURIS.length >0){
+      for(var i =0;i<fileURIS.length;i++){
+        var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
+        var div = $('#showContent').find('#'+fileURI+'div');
+        var tr = $("#"+fileURI+'tr');
+        div.addClass('showFileByTag').show();
+        tr.addClass('showFileByTag').show();
+      }
+      div.siblings('div:not(.showFileByTag)').hide();
+      tr.siblings('tr:not(.showFileByTag)').hide();
     }
-    div.siblings('div:not(.showFileByTag)').hide();
-    tr.siblings('tr:not(.showFileByTag)').hide();
+    else{
+      $('#'+_globalSelf._contentIds[_globalSelf._index]).children('div').hide();
+      $('.bodytr').hide();
+    }
     var divParent = div.parent('.sortByTime');
     if(divParent.length >0){
       var sortBytimeDivs = divParent.parent('div').children('.sortByTime');
@@ -295,10 +339,13 @@ var ShowFiles = Class.extend({
         }
       }
     }
-    if(_globalSelf._index ==1){
-      $('#'+this._contentIds[this._index]).BlocksIt({
-        numOfCol:3
-      }); 
+    if(_globalSelf._index ==1 && _globalSelf._showNormal[1] == 0){
+      var showFileByTag =$('#pictureContent').find('.showFileByTag');
+      var notShowFileByTag = $('#pictureContent').find('.pictureContainerWaterFall:not(.showFileByTag)');
+      $('#pictureContent').children('div').remove();
+      $('#pictureContent').append(showFileByTag);
+      $('#pictureContent').append(notShowFileByTag.hide());
+      _globalSelf.refreshWaterFall();
     }
   },
 
@@ -349,11 +396,6 @@ var ShowFiles = Class.extend({
             Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
             Container.append(Holder);
             Container.append(description);
-            Holder.children('img')[0].onload = function(){
-              $('#pictureContent').BlocksIt({
-                numOfCol:3
-              });
-            };
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
               position: 'listview',
@@ -491,7 +533,15 @@ var ShowFiles = Class.extend({
           default:
         }
         if($('#'+_globalSelf._contentIds[index]).children('div') .length >0){
-          $('#'+_globalSelf._contentIds[index]).prepend(Container);
+          if(index == 1){
+            var pictureWaterFall = $('#pictureContent').find('.pictureContainerWaterFall');
+            $('#pictureContent').children('div').remove();
+            $('#pictureContent').append(Container);
+            $('#pictureContent').append(pictureWaterFall);
+          }
+          else{
+            $('#'+_globalSelf._contentIds[index]).prepend(Container);
+          }
         }
         if($('#'+ _globalSelf._contentIdsSortByTime[index]).children('div').length >0){
           var sortByTimeDivs = $('#'+ _globalSelf._contentIdsSortByTime[index]).children('div');
@@ -719,7 +769,6 @@ var ShowFiles = Class.extend({
           genDiv.append(F5Button);
           genDiv.append('<br>');
           genDiv.append(UpButton);
-          // genDiv.append('<br>');
           genDiv.append(DownButton);
           genDiv.append('<br>');
           genDiv.append(StopButton);
@@ -913,10 +962,8 @@ var ShowFiles = Class.extend({
           }
           $("#"+modifyURI_+'div').remove();
           $("#"+modifyURI_+'tr').remove();
-          if(_globalSelf._index ==1){
-            $('#'+_globalSelf._contentIds[_globalSelf._index]).BlocksIt({
-              numOfCol:3
-            }); 
+          if(_globalSelf._index ==1 && _globalSelf._showNormal[1] ==0){
+            //查看是否瀑布流删除之后进行操作，待定？
           }
         }
         else{
@@ -1096,6 +1143,8 @@ var ShowFiles = Class.extend({
         var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
+        var picture = pictureDiv.children('img')[0];
+        picture.style.cssText = '';
         var pDiv = div.children('p');
         pDiv.removeClass('picturedescriptionWaterFall');
         pDiv.addClass('picturedescription');
@@ -1169,9 +1218,7 @@ var ShowFiles = Class.extend({
             _globalSelf._imgReady = _globalSelf._imgReady - 1;
             if(_globalSelf._imgReady ==0){
               returnContent.show();
-              $('#pictureContent').BlocksIt({
-                numOfCol:3
-              });
+              _globalSelf.refreshWaterFall();
             }
           };
           _globalSelf.bindDrag(Container[0]);
