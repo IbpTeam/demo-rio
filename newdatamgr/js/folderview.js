@@ -858,7 +858,14 @@ var ShowFiles = Class.extend({
     //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
       var fileModifyURI = _globalSelf.findURIByDiv($(this));
-      _globalSelf.openFileByUri(fileModifyURI);
+      var file = _globalSelf.findFileByURI(fileModifyURI,_globalSelf._index);
+      if(file){
+        openfile.openFile(file);
+      }
+      else{
+        window.alert('what are you gong!!!');
+      }
+      //_globalSelf.openFileByUri(fileModifyURI);
     });
   },
 
