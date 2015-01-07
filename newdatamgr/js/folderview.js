@@ -196,10 +196,15 @@ var ShowFiles = Class.extend({
               $('#outWaterFall').show();
             }
             $('#'+this._contentIds[this._index]).show();
-            _globalSelf.refreshWaterFall();
+            if(_globalSelf.showFileByTag && this._index ==1){
+              var showFileByTag = $('#pictureContent').find('.showFileByTag');
+              var notShowFileByTag = $('#pictureContent').find('.pictureContainerWaterFall:not(.showFileByTag)');
+              $('#pictureContent').children('div').remove();
+              $('#pictureContent').append(showFileByTag).append(notShowFileByTag);
+              _globalSelf.refreshWaterFall();
+            }  
           }
-          var showFileByTag = $('#'+this._contentIds[this._index]).find('.showFileByTag');
-          if(!_globalSelf._showFilesBytag && showFileByTag.length>0){
+          if(!_globalSelf._showFilesBytag){
             if(this._index ==1){
               var pictureWaterFall = $('#pictureContent').find('.pictureContainerWaterFall');
               $('#pictureContent').children('div').remove();
@@ -300,15 +305,21 @@ var ShowFiles = Class.extend({
     _globalSelf._showFilesBytag = true;
     _globalSelf._showFilesBytagUris = fileURIS;
     $('.showFileByTag').removeClass('showFileByTag');
-    for(var i =0;i<fileURIS.length;i++){
-      var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
-      var div = $('#showContent').find('#'+fileURI+'div');
-      var tr = $("#"+fileURI+'tr');
-      div.addClass('showFileByTag').show();
-      tr.addClass('showFileByTag').show();
+    if(fileURIS.length >0){
+      for(var i =0;i<fileURIS.length;i++){
+        var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
+        var div = $('#showContent').find('#'+fileURI+'div');
+        var tr = $("#"+fileURI+'tr');
+        div.addClass('showFileByTag').show();
+        tr.addClass('showFileByTag').show();
+      }
+      div.siblings('div:not(.showFileByTag)').hide();
+      tr.siblings('tr:not(.showFileByTag)').hide();
     }
-    div.siblings('div:not(.showFileByTag)').hide();
-    tr.siblings('tr:not(.showFileByTag)').hide();
+    else{
+      $('#'+_globalSelf._contentIds[_globalSelf._index]).children('div').hide();
+      $('.bodytr').hide();
+    }
     var divParent = div.parent('.sortByTime');
     if(divParent.length >0){
       var sortBytimeDivs = divParent.parent('div').children('.sortByTime');
@@ -385,9 +396,6 @@ var ShowFiles = Class.extend({
             Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
             Container.append(Holder);
             Container.append(description);
-            // Holder.children('img')[0].onload = function(){
-            //   _globalSelf.refreshWaterFall();
-            // };
             _globalSelf.bindDrag(Container[0]);
             var _tagView = TagView.create({
               position: 'listview',
@@ -530,9 +538,6 @@ var ShowFiles = Class.extend({
             $('#pictureContent').children('div').remove();
             $('#pictureContent').append(Container);
             $('#pictureContent').append(pictureWaterFall);
-            //为什么这的瀑布流没有显示呢？？
-            //_globalSelf.refreshWaterFall();
-            _globalSelf.test123();
           }
           else{
             $('#'+_globalSelf._contentIds[index]).prepend(Container);
