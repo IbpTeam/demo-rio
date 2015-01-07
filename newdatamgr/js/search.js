@@ -14,9 +14,6 @@ var Search = Class.extend({
     this._qrcodeContainer.hide();
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
     this.bindEvent();
-    this.bindTagChange(function(e,tags_){
-      alert(tags_);
-    })
   },
 
   attach:function($parent_){

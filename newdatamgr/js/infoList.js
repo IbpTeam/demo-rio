@@ -174,9 +174,7 @@ var InfoList = Class.extend({
     var _this = this;
     _a.click(function(e){
       if($(this).children('.il__num')[0].textContent > 0){
-        if(search._textTag.textext()[0]._plugins['tags'].addTags([tag_])){
-          _this.showTagFilterData(this.id);
-        }
+        search._textTag.textext()[0]._plugins['tags'].addTags([tag_]);
       }
     });
     this.bindDrag(_a[0]);
@@ -245,22 +243,35 @@ var InfoList = Class.extend({
   },
 
   loadFilterData:function(_dataJsons){
-    var _dataUris = [];
-    for(var i = 0; i < _dataJsons.length; i ++){
-      _dataUris.push(_dataJsons[i]['URI']);
-    }
-    if(this._index == 0){
-      contact.loadContactsList(0, _dataJsons);
-      contact._first = true;
-    } else if(this._index > 0 && this._index < 6){
-      showfiles.showFileByTag(_dataUris);
-    }
     var _this = this;
-    DataAPI.getTagsByUris(function(tags_){
-      if(tags_ != null){
-        _this.showTags(tags_);
+    if(_dataJsons == null || _dataJsons.length == 0){
+      if(this._index == 0){
+        contact.removeContactList();
+        contact.removeHead();
+        contact.removeDetails();
+        this.removeTags();
+        contact._first = true;
+      } else if(this._index > 0 && this._index < 6){
+        showfiles.showFileByTag([]);
+        this.removeTags();
       }
-    }, _dataUris);
+    } else {
+      var _dataUris = [];
+      for(var i = 0; i < _dataJsons.length; i ++){
+        _dataUris.push(_dataJsons[i]['URI']);
+      }
+      if(this._index == 0){
+        contact.loadContactsList(0, _dataJsons);
+        contact._first = true;
+      } else if(this._index > 0 && this._index < 6){
+        showfiles.showFileByTag(_dataUris);
+      }
+      DataAPI.getTagsByUris(function(tags_){
+        if(tags_ != null){
+          _this.showTags(tags_);
+        }
+      }, _dataUris);
+    }
   },
 
   showTagFilterData:function(_tag){
@@ -304,9 +315,10 @@ var InfoList = Class.extend({
   showFilesByTags:function(_tags){
     var _this = this;
     DataAPI.getFilesByTagsInCategory(function(err_, files_){
-      if(files_ != null && files_.length > 0){
-        _this.loadFilterData(files_);
+      if(files_ == null || files_.length == 0){
+        files_ = [];
       }
+      _this.loadFilterData(files_);
     }, _this.getCategoryName(_this._index), _tags);
   },
 
