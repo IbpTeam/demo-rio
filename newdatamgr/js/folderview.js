@@ -281,11 +281,6 @@ var ShowFiles = Class.extend({
     }
   },
 
-  //test
-  test123:function(){
-    window.alert($('#pictureContent').children('div').length);
-  },
-
   //此函数用来等窗口的大小改变之后，来刷新瀑布流的显示
   refreshWaterFall:function(){
     $('#pictureContent').gridalicious({
