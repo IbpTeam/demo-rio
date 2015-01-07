@@ -166,7 +166,7 @@ var Basic = Class.extend({
     return; 
   },
 
-  //按照URI搜索本地文件的功能，和folderView的不同
+  //按照URI搜索本地文件的功能，传入的是修改之后的URI
   findFileByURI:function(URI, files){
     var file = false;
     if(files.length){
@@ -187,7 +187,7 @@ var Basic = Class.extend({
   modifyUriToUri:function(modifyURI_){
     return modifyURI_.replace(/-/g,'#');
   },
-  
+
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
   openFile:function(file){
     var _this = this;
