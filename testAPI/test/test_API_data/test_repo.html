@@ -90,6 +90,26 @@
     });        
   }
 
+  function repoSearchCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoSearch()");
+    win.document.write("<br/>"); 
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoSearch(repoSearchCb){
+    WDC.requireAPI(['data'], function(data){
+      var sKey = 'boy';
+      data.repoSearch(repoSearchCb,'picture',sKey);
+    });        
+  }
+
+
   </script>
 
 <h2 onclick="show('getGitLog')">getGitLog(getGitLogCb)<span><a class="mark" href="#test_getGitLog" id="test_getGitLog" onclick="test_getGitLog(getGitLogCb)">test</a></span></h2>
@@ -175,6 +195,37 @@
   function test_repoResetFile(repoResetFileCb){
     WDC.requireAPI(['data'], function(data){
       data.repoResetFile(repoResetFileCb,'document',commit_id);
+    });        
+  }
+  </pre>
+</div>
+</div>
+
+<h2 onclick="show('repoSearch')">repoSearch(repoSearchCb)<span><a class="mark" href="#test_repoSearch" id="test_repoSearch" onclick="test_repoSearch(repoSearchCb)">test</a></span></h2>
+<div id="repoSearch" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function repoSearchCb(err,result){
+    var win = window.open('');
+    if(err){
+      print(win,err);
+      return;
+    }
+    win.document.write("test API repoSearch()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_repoSearch(repoSearchCb){
+    WDC.requireAPI(['data'], function(data){
+      var sKey = 'txt';
+      data.repoSearch(repoSearchCb,'document',sKey);
     });        
   }
   </pre>

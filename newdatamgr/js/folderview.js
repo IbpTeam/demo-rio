@@ -192,7 +192,9 @@ var ShowFiles = Class.extend({
               }
             }
             $('#'+ this._contentIdsSortByTime[this._index]).remove();
-            $('#outWaterFall').show();
+            if(this._index ==1){
+              $('#outWaterFall').show();
+            }
             $('#'+this._contentIds[this._index]).show();
           }
           if(!_globalSelf._showFilesBytag){
