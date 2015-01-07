@@ -1,4 +1,9 @@
-var OpenFileFunction = Class.extend({
+var Basic = Class.extend({
+
+  //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
+  init:function(){
+    _globalSelf = this 
+  },
 
   //此函数用来产生一个和用户交互的界面
   genPopupDialog:function(title, message, files){
@@ -162,20 +167,25 @@ var OpenFileFunction = Class.extend({
 
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
   openFile:function(file){
-    if(file.URI.indexOf('#') != -1){
-      if(file.postfix == 'pdf'){
-        function cbViewPdf(){
-        }
-        AppAPI.getRegisteredAppInfo(function(err, appInfo) {
-          if (err) {
-            return console.log(err);
+    if(file){
+      if(file.URI.indexOf('#') != -1){
+        if(file.postfix == 'pdf'){
+          function cbViewPdf(){
           }
-          AppAPI.startApp(cbViewPdf, appInfo, file.path);
-        }, "viewerPDF-app");
+          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+            if (err) {
+              return console.log(err);
+            }
+            AppAPI.startApp(cbViewPdf, appInfo, file.path);
+          }, "viewerPDF-app");
+        }
+        else {
+          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+        }
       }
-      else {
-        DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
-      }
+    }
+    else{
+      window.alert('the file is not found');
     }
   }
 })
