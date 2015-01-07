@@ -48,6 +48,13 @@ var AppList=[
     win:null,
     win2:null,
     path:"demo-rio/viewerPDF/index.html"
+  },
+  {
+    id:"app_controlPPT",
+    name:"controlPPT",
+    win:null,
+    win2:null,
+    path:"demo-rio/controlPPT/index.html"
   }
 ];
 exports.AppList = AppList;
