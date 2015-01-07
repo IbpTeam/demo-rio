@@ -2,7 +2,7 @@ var Basic = Class.extend({
 
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
-    _globalSelf = this 
+    basic = this;
   },
 
   //此函数用来产生一个和用户交互的界面
@@ -65,6 +65,7 @@ var Basic = Class.extend({
 
   //此函数用来通过json格式找到数据库中的源文件
   cbGetDataSourceFile:function(file){
+    var _this = this;
     if(!file['openmethod'] || !file['content']){
       window.alert('openmethod or content not found.');
       return false;
@@ -112,7 +113,7 @@ var Basic = Class.extend({
             break;
           }
           else{
-            _globalSelf.genPopupDialog(title, fileContent);    
+            basic.genPopupDialog(title, fileContent);    
           }
         }
         else{
@@ -156,7 +157,7 @@ var Basic = Class.extend({
           genDiv.append('<br>');
           genDiv.append(StopButton);
           genDiv.append('<br>');
-          _globalSelf.genPopupDialog("窗口控制",genDiv);
+          basic.genPopupDialog("窗口控制",genDiv);
         }
         break;
       default:
@@ -165,8 +166,31 @@ var Basic = Class.extend({
     return; 
   },
 
+  //按照URI搜索本地文件的功能，和folderView的不同
+  findFileByURI:function(URI, files){
+    var file = false;
+    if(files.length){
+      for(var i =0;i<files.length;i++){
+        if(files[i]['URI'] && basic.uriToModifyUri(files[i]['URI']) == URI){
+          file = files[i];
+          break;
+        }
+      }
+    }
+    return file;
+  },
+
+  uriToModifyUri:function(uri_){
+    return uri_.replace(/#/g,'-');
+  },
+
+  modifyUriToUri:function(modifyURI_){
+    return modifyURI_.replace(/-/g,'#');
+  },
+  
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
   openFile:function(file){
+    var _this = this;
     if(file){
       if(file.URI.indexOf('#') != -1){
         if(file.postfix == 'pdf'){
@@ -180,7 +204,7 @@ var Basic = Class.extend({
           }, "viewerPDF-app");
         }
         else {
-          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+          DataAPI.openDataByUri(basic.cbGetDataSourceFile, file.URI);
         }
       }
     }
