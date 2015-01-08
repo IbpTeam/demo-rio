@@ -88,8 +88,8 @@ var Search = Class.extend({
     })
   },
     /**
-   * [bindTagRemove 当点击标签时触发]
-   * 触发回调函数时传入参数tag_为Remove标签
+   * [bindTagRemove 当点击标签上删除按钮或退格键删除标签时触发]
+   * 触发回调函数时传入参数tag_为删除的标签text内容。
    * @param  {[type]} callback_ [description]
    * @return {[type]}           [description]
    */
