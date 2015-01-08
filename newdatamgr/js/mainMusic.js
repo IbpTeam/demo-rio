@@ -43,7 +43,12 @@ var MainMusicView = Class.extend({
       if(err_){
         console.log(err_);
         return;
-
+      }
+      if(music_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
       }
       var _count = 0;
       for(var i = 0; i < music_json_.length; i ++){

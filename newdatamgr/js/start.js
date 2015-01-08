@@ -46,6 +46,7 @@ var main = function(params_){
         content.children('div').hide();
         search.clearTags();
         infoList.hide();
+        infoList.setIndex(k);
         if(k == 1){
           infoList.removeTags();
           infoList.removeRecent();
@@ -54,11 +55,9 @@ var main = function(params_){
           search.bindSuggestion([]);
         } else {
           container.addClass('move-right');
-          infoList.setIndex(k);
           infoList.setContent();
           infoList.setTitle();
           infoList.show();
-          infoList.loadData();
           homePage.hide();
         }
       }
