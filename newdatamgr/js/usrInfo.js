@@ -88,6 +88,7 @@ var UsrInfoView = Class.extend({
     }
   },
   setExtraLoad:function(){
+    var _this = this;
     var _extraLoadDiv = $('<div>',{
       'id' : 'extraLoadDiv'
     });
@@ -145,21 +146,28 @@ var UsrInfoView = Class.extend({
     var _fileUpLoad = $('<input>',{
       'id' : 'fileUpLoad',
       'type' : 'file',
-      'nwdirectory' : 'true',
-      'change' : function(){
+      'nwdirectory' : 'true'
+    });
+    _fileUpLoad.on('change',function(){
+        var _modalBoxObj = _this._modalBox;
+        _modalBoxObj.forbidClose(true);
+        document.body.style.cursor = "wait";
+        $('#closeDiv').on('click',function(){
+        });
         var resourcePath = this.value;
         if ($('#contactCheckBox')[0].checked) {
           DataAPI.loadContacts(function(err,result){
-            alert(result);
+            document.body.style.cursor = "default";
+            _modalBoxObj.forbidClose(false);
           },resourcePath);
         }else if ($('#dataCheckBox')[0].checked) {
           DataAPI.loadResources(function(result){
-            alert(result);
+            document.body.style.cursor = "default";
+            _modalBoxObj.forbidClose(false);
           },resourcePath);
         }else{
           //ToDo-err handle
         }
-      }
     });
     _uploadDiv.append(_fileUpLoad);
 
