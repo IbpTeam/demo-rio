@@ -24,7 +24,7 @@ exports.getDeviceList = getDeviceList;
 function getServerAddress(getServerAddressCb){
   console.log("Request handler 'getServerAddress' was called.");
   var address={
-    ip:config.SERVERIP,
+    ip:config.getIPAddress(),
     port:config.SERVERPORT
   };
   getServerAddressCb(address);
@@ -139,7 +139,7 @@ function deviceInfo(callback) {
   try {
     var oInfo = {
       resources_path: config.RESOURCEPATH,
-      server_ip: config.SERVERIP,
+      server_ip: config.getIPAddress(),
       server_name: config.SERVERNAME,
       local_account: config.ACCOUNT,
       local_id: config.uniqueID
