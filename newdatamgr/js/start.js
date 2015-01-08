@@ -16,6 +16,9 @@ var main = function(params_){
     search = Search.create();
     contact = Contact.create();
     infoList = InfoList.create();
+    //打开文件操作的设置
+    //basic = Basic.create();
+    Basic.create();
     gitLog = GitLog.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
