@@ -8,12 +8,9 @@ var ShowFiles = Class.extend({
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
-    this._musicPicture ={};
-    this._videoPicture = {};
     this._showFilesBytag = false;
     this._showFilesBytagUris = [];
     this._imgReady;
-    this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
     this._pictureContentReady = false;
     this._currentCategory = ['contact','picture','video','document','music','other'];
@@ -599,7 +596,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
-    var divId = div.attr('id');
+    var d1ivId = div.attr('id');
     var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
     var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
     return modifyURI;
