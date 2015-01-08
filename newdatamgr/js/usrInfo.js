@@ -17,6 +17,7 @@ var UsrInfoView = Class.extend({
     this._usrInfoContainer.append(this._usrInfoDiv);
     this._usrInfoContainer.append(this._usrExtraDiv);
     this._modalBox = undefined;
+    this._isLoadedResources = false;
     //this.setUsrInfo();
     //this.setUsrExtra('load');
   },
@@ -159,11 +160,13 @@ var UsrInfoView = Class.extend({
           DataAPI.loadContacts(function(err,result){
             document.body.style.cursor = "default";
             _modalBoxObj.forbidClose(false);
+            _this._isLoadedResources = true;
           },resourcePath);
         }else if ($('#dataCheckBox')[0].checked) {
           DataAPI.loadResources(function(result){
             document.body.style.cursor = "default";
             _modalBoxObj.forbidClose(false);
+            _this._isLoadedResources = true;
           },resourcePath);
         }else{
           //ToDo-err handle
@@ -177,10 +180,16 @@ var UsrInfoView = Class.extend({
     this._usrExtraDiv.append(_extraLoadDiv);
   },
   showUsrInfo:function(){
+    var _this = this;
     this._modalBox = ModalBox.create($('#usrInfo-container'),{
       iconClose: false,                
       keyClose:true,                      
-      bodyClose:true                    
+      bodyClose:true,
+      onClose: function(){
+        if(_this._isLoadedResources){
+          parent.location.reload();
+        }
+      }                    
     });
     var _modalBoxObj = this._modalBox;
     this._closeDiv.on('click',function(){
