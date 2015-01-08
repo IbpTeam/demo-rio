@@ -128,7 +128,7 @@ function bindEvent(){
         WDC.requireAPI(['data'],function(data){
             console.log("data"+data);
             data.getServerAddress(function(serverAddr_){
-                var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/index.html#';
+                var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/callapp/app-controlPPT/index.html#';
                 console.log("_hostLink of the qrcode is " + _hostLink);
                 _qrcodeContainer.children('.qrcode-content') .qrcode({
                     text: _hostLink,

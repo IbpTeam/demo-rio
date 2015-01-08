@@ -90,7 +90,7 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = 'demo-rio/datamgr'; //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.path = 'demo-rio/newdatamgr'; //change 'WORK_DIRECTORY' into local.
     _datamgr_app.iconPath = 'icons/datamgr.png';
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
@@ -119,6 +119,13 @@ function getnit(initType) {
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
+    var _controlPPT_app = {}
+    _controlPPT_app.id = "app-controlPPT";
+    _controlPPT_app.path = "demo-rio/controlPPT";
+    _controlPPT_app.iconPath = "icons/powerpointicon.png";
+    _controlPPT_app.name = "播放PPT";
+    _controlPPT_app.type = "inside-app";
+    _controlPPT_app.idx = 3;
 
     var _test_app = {}
     _test_app.id = "test-app";
@@ -151,6 +158,7 @@ function getnit(initType) {
           "launcher-app": _launcher_app,
           "login-app": _login_app,
           "flash-app": _flash_app,
+          "controlPPT_app": _controlPPT_app,
         }
       }, {
         "insideApp": {

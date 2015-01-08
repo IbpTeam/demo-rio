@@ -9,7 +9,7 @@
   },
   "datamgr-app": {
     "id": "datamgr-app",
-    "path": "demo-rio/datamgr"
+    "path": "demo-rio/newdatamgr"
   },
   "app-register": {
     "id": "app-register",
@@ -18,9 +18,5 @@
   "flash-app": {
     "id": "flash-app",
     "path": "demo-webde/nw/app/flash"
-  },
-  "viewerPDF-app": {
-    "id": "viewerPDF-app",
-    "path": "demo-rio/viewerPDF"
   }
 }
