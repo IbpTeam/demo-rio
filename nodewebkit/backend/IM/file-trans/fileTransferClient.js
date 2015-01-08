@@ -128,8 +128,9 @@ function transferFile(msgObj, callback) {
             setTimeout(callback(false, rstObj), 0);
           });
         });
-        var filePathMsg={'initFile':1,'fileName':fileName,'filePath':output};
-        setTimeout(callback(false,filePathMsg), 0);
+        fileTransfer.transferFileInitInfo(msgObj, fileName, output,function(rstObj) {
+          setTimeout(callback(false, rstObj), 0);
+        });
       });
     });
   } catch (e) {
