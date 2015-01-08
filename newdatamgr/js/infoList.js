@@ -52,9 +52,6 @@ var InfoList = Class.extend({
           _this.loadData();
         }
       }
-      if(_params&&_params['tag']){
-        _params['tag'] = undefined;
-      }
     });
     _globalSelf = this ;
   },
@@ -218,6 +215,7 @@ var InfoList = Class.extend({
 	var _this = this;
     DataAPI.getAllTagsByCategory(function(result_){
       _this.showTags(result_);
+      _this.loadData();
     }, _this.getCategoryName(_this._index));
     DataAPI.getRecentAccessData(function(err_, result_){
       if(result_ != null){
@@ -369,13 +367,15 @@ var InfoList = Class.extend({
         contact._ContactContainer.show();
       } else {
         contact._ContactContainer.show();
+        this.searchTag(_params);
       }
     }
   },
 
-  clickTag:function(tag_){
-    var _tag = this._infoContent.children('#'+tag_);
-    _tag.trigger('click');
+  searchTag:function(params_){
+    if(params_&&params_['tag']&&this._index>=0){
+      search._textTag.textext()[0]._plugins['tags'].addTags([params_['tag']]);
+    }
   },
 
   bindDrag:function(tag_){

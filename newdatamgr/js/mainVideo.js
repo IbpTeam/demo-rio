@@ -37,6 +37,12 @@ var MainVideoView = Class.extend({
         console.log(err_);
         return;
       }
+      if(video_json_.length === 0){
+        homePage._noneData++;
+        if (homePage._noneData === homePage._dataClasses) {
+          $('#avatar')[0].click();
+        };
+      }
       var _count = 0;
       for(var i = 0; i < video_json_.length; i ++){
         if(video_json_[i].hasOwnProperty('filename') && video_json_[i].hasOwnProperty('URI')){

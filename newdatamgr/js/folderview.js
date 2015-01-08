@@ -163,12 +163,13 @@ var ShowFiles = Class.extend({
       DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
     }
     else{
+      infoList.searchTag(_params);
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
           if($('#'+this._contentIds[this._index]).children('div').length >0){
             if(this._index ==1){
-              $('#outWaterFall').show();            
+              $('#outWaterFall').show(); 
             }
             $('#'+this._contentIds[this._index]).show();       
           }
@@ -591,9 +592,7 @@ var ShowFiles = Class.extend({
     if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
-    if(_params&&_params['tag']){
-      infoList.clickTag(_params['tag']);
-    }
+    infoList.searchTag(_params);
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
@@ -1352,7 +1351,7 @@ var ShowFiles = Class.extend({
           var _tagView = TagView.create({
             position: 'listview',
             background_color: 'rgb(200,200,200)',
-            max:1
+            max:0
           });
           _tagView.setParent(Container,file['URI']);
           _tagView.addTags(file['others'].split(','));
