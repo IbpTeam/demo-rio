@@ -103,14 +103,6 @@ function getnit(initType) {
     _launcher_app.type = "inside-app";
     _launcher_app.idx = 0;
 
-    // var _login_app = {}
-    // _login_app.id = "login-app";
-    // _login_app.path = "demo-webde/nw";
-    // _login_app.iconPath = "img/Login-icon.png";
-    // _login_app.name = "登录";
-    // _login_app.type = "inside-app";
-    // _login_app.idx = 1;
-
     var _flash_app = {}
     _flash_app.id = "flash-app";
     _flash_app.path = "demo-webde/nw/app/flash";
@@ -149,7 +141,6 @@ function getnit(initType) {
         "insideApp": {
           "datamgr-app": _datamgr_app,
           "launcher-app": _launcher_app,
-          // "login-app": _login_app,
           "flash-app": _flash_app,
         }
       }, {
@@ -168,7 +159,6 @@ function getnit(initType) {
     }
     result.dock = {
       "launcher-app": _launcher_app,
-      // "login-app": _login_app
     }
   }
   return result;
