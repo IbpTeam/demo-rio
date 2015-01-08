@@ -11,7 +11,8 @@
  **/
 var config = require("../config");
 var uniqueID = require("../uniqueID");
-var fs = require('fs');
+var fs = require('../fixed_fs');
+//var fs = require('fs');
 var fs_extra = require('fs-extra');
 var path = require("path");
 var commonDAO = require("./CommonDAO");
@@ -73,7 +74,7 @@ function createDesFile(newItem,itemDesPath,callback){
     }
   }
   var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs.writeFile(sPath, sItem,function (err) {
+  fs_extra.writeFile(sPath, sItem,function (err) {
     if(err){
       //console.log("writeFile error!");
       console.log(err);
