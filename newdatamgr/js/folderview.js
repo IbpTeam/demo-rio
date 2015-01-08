@@ -596,7 +596,7 @@ var ShowFiles = Class.extend({
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
-    var d1ivId = div.attr('id');
+    var divId = div.attr('id');
     var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
     var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
     return modifyURI;
