@@ -608,36 +608,6 @@ var ShowFiles = Class.extend({
     return modifyURI;
   },
 
-  //此函数用来获得音乐的专辑图片，并且保存在本地
-  getMusicPicData:function(file){
-    DataAPI.getMusicPicData(function(err,result){
-      if(err){
-        window.alert(err);
-      }
-      else{
-        var musciPictureSrc = 'data:image/jpeg;base64,' + result;
-        _globalSelf._musicPicture[file['path']] = musciPictureSrc;
-        var filep = document.getElementById(file['URI']);
-        filep.src = musciPictureSrc;
-      }
-    },file['path']);  
-  },
-
-  //此函数用来获得视频截图图片，并且保存在本地
-  getVideoPicData:function(file){
-    DataAPI.getVideoThumbnail(function(err,result){
-      if(err){
-        console.log(err);
-      }
-      else{
-        var videoPictureSrc = 'data:image/jpeg;base64,' + result;
-        _globalSelf._videoPicture[file['path']] = videoPictureSrc;
-        var fileImg = document.getElementById(file['URI']);
-        fileImg.src = videoPictureSrc;
-      }
-    },file['path']);  
-  },
-
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
   getShowMessage:function(){
     var theadMessage = [];
@@ -1056,10 +1026,10 @@ var ShowFiles = Class.extend({
             'text':file['filename']
           });
           var img = $('<img>',{
-            'id':file['URI'],
+            'id':file['URI']+'showvideo',
             'draggable':false
           });
-          _globalSelf.getVideoPicData(file);
+          basic.getVideoPicData(file,img.attr('id'));
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
@@ -1104,7 +1074,6 @@ var ShowFiles = Class.extend({
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
-          _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
             'id':basic.uriToModifyUri(file['URI'])+'div',
             'class':'musicContainer',
@@ -1123,9 +1092,10 @@ var ShowFiles = Class.extend({
             'text':file['filename']
           });
           var musicImg = $('<img>',{
-             'id':file['URI'],
+             'id':file['URI']+'showMusicPic',
              'draggable':false
           });
+          basic.getMusicPicData(file,musicImg.attr('id'));
           Holder.append(musicImg);
           Holder.append(tagHolder);
           Container.append(Holder);

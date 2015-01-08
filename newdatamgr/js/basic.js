@@ -211,5 +211,34 @@ var Basic = Class.extend({
     else{
       window.alert('the file is not found');
     }
+  },
+
+  //用于获取视频截图，传入一个文件json，和截图的要放的ID
+  getVideoPicData:function(file,imgID){
+    DataAPI.getVideoThumbnail(function(err,result){
+      if(err){
+        console.log(err);
+      }
+      else{
+        var videoPictureSrc = 'data:image/jpeg;base64,' + result;
+        var fileImg = document.getElementById(imgID);
+        //var fileImg = $(imgID);
+        fileImg.src = videoPictureSrc;
+      }
+    },file['path']);  
+  },
+
+  //此函数用来获得音乐的专辑图片，传入的是一个json和截图的id
+  getMusicPicData:function(file,imgID){
+    DataAPI.getMusicPicData(function(err,result){
+      if(err){
+        window.alert(err);
+      }
+      else{
+        var musciPictureSrc = 'data:image/jpeg;base64,' + result;
+        var filep = document.getElementById(imgID);
+        filep.src = musciPictureSrc;
+      }
+    },file['path']);  
   }
 })
