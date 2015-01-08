@@ -275,11 +275,11 @@ exports.getByUri = getByUri;
  * @param1 loadContactsCb
  *   回调函数, call back when load ends
  *
- * @param2 resourcePath
- *   string, the resource path
- *
+ * @param2 sItemPath
+ *   string, the resource path + csvFilename
  */
-function initContacts(loadContactsCb, resourcePath) {
+function initContacts(loadContactsCb, sItemPath) {
+  /*
   config.riolog("initContacts ..............");
   var dirCSV = fs.readdirSync(resourcePath);
   if (dirCSV.length != 1) {
@@ -287,7 +287,7 @@ function initContacts(loadContactsCb, resourcePath) {
     return;
   }
   var csvFilename = dirCSV[0];
-  var sItemPath = resourcePath + "/" + csvFilename;
+  var sItemPath = resourcePath + "/" + csvFilename;*/
 
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
