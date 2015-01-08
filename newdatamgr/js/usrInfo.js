@@ -188,6 +188,7 @@ var UsrInfoView = Class.extend({
       onClose: function(){
         if(_this._isLoadedResources){
           parent.location.reload();
+          _this._isLoadedResources = false;
         }
       }                    
     });
