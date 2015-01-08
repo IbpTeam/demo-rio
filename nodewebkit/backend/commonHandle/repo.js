@@ -3,7 +3,6 @@ var git = require("nodegit");
 var config = require("../config");
 var events = require('events');
 var utils = require('../utils');
-var transfer = require('../Transfer/msgTransfer');
 
 var repos=[
   {name:"contactDes",status:"empty"},
@@ -76,7 +75,6 @@ function repoCommit(repoPath, files, commitID, op, callback) {
     else {
       console.log("Git add success");
       callback(null,'success');
-      transfer.syncOnlineReq(repoPath);
     }
   });
 }
@@ -102,7 +100,6 @@ function repoResetCommit (repoPath, file, commitID,oriOp,revertedCommitID, callb
     } else {
       console.log("Git revert success");
       callback(null,'success');
-      transfer.syncOnlineReq(repoPath);
     }
   });
 }

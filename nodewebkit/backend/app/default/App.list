@@ -9,7 +9,7 @@
   },
   "datamgr-app": {
     "id": "datamgr-app",
-    "path": "demo-rio/datamgr"
+    "path": "demo-rio/newdatamgr"
   },
   "app-register": {
     "id": "app-register",

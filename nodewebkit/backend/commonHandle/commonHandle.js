@@ -30,7 +30,6 @@ var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
 var repo = require("./repo");
-var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar'); 
 
 var writeDbNum = 0;
