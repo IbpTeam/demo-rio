@@ -13,6 +13,11 @@ var Search = Class.extend({
     this.addQrcode();
     this._qrcodeContainer.hide();
     this._textTag = $('#search_input').textext({ plugins : 'prompt tags autocomplete' });
+    this.bindTagRemove(function(ev,tag_){
+      if(_params&&_params['tag'] === tag_){
+        _params['tag'] = undefined;
+      }
+    });
     this.bindEvent();
   },
 
@@ -79,6 +84,19 @@ var Search = Class.extend({
     this._textTag.bind('tagChange',function(e,tags_){
       if(callback_){
         callback_(e,tags_);
+      }
+    })
+  },
+    /**
+   * [bindTagRemove 当点击标签上删除按钮或退格键删除标签时触发]
+   * 触发回调函数时传入参数tag_为删除的标签text内容。
+   * @param  {[type]} callback_ [description]
+   * @return {[type]}           [description]
+   */
+  bindTagRemove:function(callback_){
+    this._textTag.bind('tagRemove',function(e,tag_){
+      if(callback_){
+        callback_(e,tag_);
       }
     })
   },
