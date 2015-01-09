@@ -8,9 +8,12 @@ var ShowFiles = Class.extend({
     this._globalSelf;
     this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
+    this._musicPicture ={};
+    this._videoPicture = {};
     this._showFilesBytag = false;
     this._showFilesBytagUris = [];
     this._imgReady;
+    this._copiedFilepath = '';
     this._showNormal = [0,0,0,0,0,0];
     this._pictureContentReady = false;
     this._currentCategory = ['contact','picture','video','document','music','other'];
@@ -58,8 +61,7 @@ var ShowFiles = Class.extend({
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
-        var file = basic.findFileByURI(modifyURI,_globalSelf._getFiles[_globalSelf._index]);
-        basic.openFile(file);
+        _globalSelf.openFileByUri(modifyURI);
       }},
       {text:'Rename',action:function(){
         _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
@@ -73,37 +75,26 @@ var ShowFiles = Class.extend({
       {text:'Tag', subMenu:[
         {header: 'tag'},
         {text: 'Add',action:function(){
-          var _id = _globalSelf._contextMenuDivID;
-          var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
-          var _target = _globalSelf._showContent.find('#'+_id);
-          basic.addTagView(_target,_uri,'no-contact');
+
         }},
         {text: 'Remove', action:function(){
-          var _id = _globalSelf._contextMenuDivID;
-          var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
-          var _target = _globalSelf._showContent.find('#'+_id);
-          basic.removeTagView(_target,_uri,'no-contact');
+          
         }}
       ]},
       {text: 'Detail',action:function(){
+        var _modifyUri = '';
         var _id = _globalSelf._contextMenuDivID;
-        var _modifyUri = _globalSelf.getModifyUriById(_id);
-        var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);
+        if(_id.substr(_id.length-3,3) === 'div'){
+          _modifyUri = _id.substr(0,_id.length-3);
+        }else if(_id.substring(_id.length-2,2) === 'tr'){
+          _modifyUri = _id.substr(0,_id.length - 2);
+        }
+        var _file = _globalSelf.findFileByURI(_modifyUri,_globalSelf._index);
         _globalSelf._propertyView.loadData(_file);
         var _img = $('#'+_id).find('img');
         _globalSelf._propertyView.setImg(_img[0].src);
       }}
     ]);
-  },
-
-  getModifyUriById:function(id_){
-    var _modifyUri = '';
-    if(id_.substr(id_.length-3,3) === 'div'){
-      _modifyUri = id_.substr(0,id_.length-3);
-    }else if(id_.substring(id_.length-2,2) === 'tr'){
-      _modifyUri = id_.substr(0,id_.length - 2);
-    }
-    return _modifyUri;
   },
 
   attachDataMenu:function(id_){
@@ -172,13 +163,12 @@ var ShowFiles = Class.extend({
       DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
     }
     else{
-      infoList.searchTag(_params);
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
           if($('#'+this._contentIds[this._index]).children('div').length >0){
             if(this._index ==1){
-              $('#outWaterFall').show(); 
+              $('#outWaterFall').show();            
             }
             $('#'+this._contentIds[this._index]).show();       
           }
@@ -190,7 +180,7 @@ var ShowFiles = Class.extend({
                 var div = sortByTimeDiv.eq(j);
                 if(this._index ==1){
                   div.removeClass('pictureContainer');
-                  var pictureDiv = div.children('.pictureHolder').eq(0);
+                  var pictureDiv = div.children('div').eq(0);
                   pictureDiv.removeClass('pictureHolder');
                   pictureDiv.attr('class', 'pictureHolderWaterFall');
                   var pDiv = div.children('p');
@@ -295,7 +285,7 @@ var ShowFiles = Class.extend({
   refreshWaterFall:function(){
     $('#pictureContent').gridalicious({
       gutter:20,
-      width:300,
+      width:200,
       animate:true,
       animationOptions:{
         speed:150,
@@ -312,7 +302,7 @@ var ShowFiles = Class.extend({
     $('.showFileByTag').removeClass('showFileByTag');
     if(fileURIS.length >0){
       for(var i =0;i<fileURIS.length;i++){
-        var fileURI = basic.uriToModifyUri(fileURIS[i]);
+        var fileURI = _globalSelf.uriToModifyUri(fileURIS[i]);
         var div = $('#showContent').find('#'+fileURI+'div');
         var tr = $("#"+fileURI+'tr');
         div.addClass('showFileByTag').show();
@@ -382,13 +372,13 @@ var ShowFiles = Class.extend({
           }
         }
         _globalSelf._getFiles[index].push(file);
-        $('#'+basic.uriToModifyUri(file['URI'])+'div').remove();
-        $('#'+basic.uriToModifyUri(file['URI'])+'tr').remove();
+        $('#'+_globalSelf.uriToModifyUri(file['URI'])+'div').remove();
+        $('#'+_globalSelf.uriToModifyUri(file['URI'])+'tr').remove();
         _globalSelf._getFiles[index].push(file);
         switch(index){
           case 1:
             var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
+              'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
               'class':'pictureContainerWaterFall refreshDiv',
               'draggable': true
             });
@@ -417,7 +407,7 @@ var ShowFiles = Class.extend({
             break;
           case 2:
             var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
+              'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
               'class':'videoContainer refreshDiv',
               'draggable': true
             });
@@ -451,7 +441,7 @@ var ShowFiles = Class.extend({
             break;
           case 3:
             var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
+              'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
               'class':'doc-icon refreshDiv',
               'draggable': true
             });
@@ -478,7 +468,7 @@ var ShowFiles = Class.extend({
             break;
           case 4:
             var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
+              'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
               'class':'musicContainer refreshDiv',
               'draggable': true
             });
@@ -517,7 +507,7 @@ var ShowFiles = Class.extend({
             break;
           case 5:
             var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
+              'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
               'class':'doc-icon refreshDiv',
               'draggable': true
             });
@@ -606,7 +596,9 @@ var ShowFiles = Class.extend({
     if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
-    infoList.searchTag(_params);
+    if(_params&&_params['tag']){
+      infoList.clickTag(_params['tag']);
+    }
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
@@ -615,6 +607,211 @@ var ShowFiles = Class.extend({
     var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
     var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
     return modifyURI;
+  },
+
+  //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
+  findFileByURI:function(URI, index_){
+    var all = _globalSelf._getFiles[index_];
+    var file = false;
+    if(all.length){
+      for(var i =0;i<all.length;i++){
+        if(all[i]['URI'] && _globalSelf.uriToModifyUri(all[i]['URI']) == URI){
+          file = all[i];
+          break;
+        }
+      }
+    }
+    return file;
+  },
+
+  //此函数用来产生一个和用户交互的界面
+  genPopupDialog:function(title, message, files){
+    $("#popupDialog").remove();
+    var headerButton = $('<button>',{
+      'type':'button',
+      'class':'close',
+      'data-dismiss':'modal',
+      'aria-hidden':'true',
+      'text':'x'
+    });
+    var headerTitle = $('<h4>',{
+      'class':'modal-title',
+      'text':title
+    });
+    var header = $('<div>',{
+      'class':'modal-header'
+    });
+    header.append(headerButton).append(headerTitle);
+    var body = $('<div>',{
+      'class':'modal-body',
+      'html':message
+    });
+  
+    var footer = $('<div>',{
+      'class':'modal-footer'
+    });
+    var footerButton = $('<button>',{
+      'type':'button',
+      'class':'btn btn-default',
+      'data-dismiss':'modal',
+      'text':'Close'
+    });
+    footer.append(footerButton);
+  
+    var content = $('<div>',{
+      'class':'modal-content'
+    });
+    content.append(header);
+    content.append(body);
+    content.append(footer);
+  
+    dialog = $('<div>',{
+      'class':'modal-dialog'
+    });
+    dialog.append(content);
+    var div = $('<div>',{
+      'id':'popupDialog',
+      'class':'modal fade',
+      'data-backdrop':'false'
+    });
+    div.append(dialog);
+    $('body').append(div);
+    $("#popupDialog").modal('show');
+    $('#popupDialog').on('hidden.bs.modal', function(){
+      $(this).remove();
+    });
+  },
+
+  //此函数用来通过json格式找到数据库中的源文件
+  cbGetDataSourceFile:function(file){
+    if(!file['openmethod'] || !file['content']){
+      window.alert('openmethod or content not found.');
+      return false;
+    }
+    var method = file['openmethod'];
+    var content = file['content'];
+    switch(method){
+      case 'alert':
+        window.alert(content);
+        break;
+      case 'html':
+        var fileContent;
+        var format = file['format'];
+        switch(format){
+          case 'audio':
+            fileContent = $('<audio>',{
+              'controls':'controls',
+              'src':content,
+              'type':'audio/mpeg'
+            });
+            break;
+          case 'video':
+            fileContent = $('<video>',{
+              'controls':'controls',
+              'width':'400',
+              'height':'300',
+              'src':content,
+              'type':'video/ogg'
+            });
+            break;
+          case 'div':
+            fileContent = content;
+            break;
+          case 'txtfile':
+            fileContent = $("<p></p>").load(content);
+            break;
+          default:
+            fileContent = content;
+            break;
+        }
+
+        var title = file['title'];
+        if (!file['windowname']){
+          if(typeof(fileContent) == 'string' &&fileContent.match("成功打开文件")){
+            break;
+          }
+          else{
+            _globalSelf.genPopupDialog(title, fileContent);    
+          }
+        }
+        else{
+          var F5Button = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'PLAY'
+          });
+          F5Button.click(function(){
+             AppAPI.sendKeyToApp(function(){},file['windowname'],'F5')
+          });
+          var UpButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'UP'
+          });
+          UpButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Up')
+          });
+          var DownButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'DOWN'
+          });
+          DownButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Down')
+          });
+          var StopButton = $('<button>',{
+            'type':'button',
+            'class':'btn btn-success',
+            'text':'STOP'
+          });
+          StopButton.click(function(){
+            AppAPI.sendKeyToApp(function(){},file['windowname'],'Escape')
+          });
+          var genDiv = $('<div></div>');
+          genDiv.append(F5Button);
+          genDiv.append('<br>');
+          genDiv.append(UpButton);
+          genDiv.append(DownButton);
+          genDiv.append('<br>');
+          genDiv.append(StopButton);
+          genDiv.append('<br>');
+          _globalSelf.genPopupDialog("窗口控制",genDiv);
+        }
+        break;
+      default:
+        break;
+    }
+    return; 
+  },
+  
+  //此函数用来获得音乐的专辑图片，并且保存在本地
+  getMusicPicData:function(file){
+    DataAPI.getMusicPicData(function(err,result){
+      if(err){
+        window.alert(err);
+      }
+      else{
+        var musciPictureSrc = 'data:image/jpeg;base64,' + result;
+        _globalSelf._musicPicture[file['path']] = musciPictureSrc;
+        var filep = document.getElementById(file['URI']);
+        filep.src = musciPictureSrc;
+      }
+    },file['path']);  
+  },
+
+  //此函数用来获得视频截图图片，并且保存在本地
+  getVideoPicData:function(file){
+    DataAPI.getVideoThumbnail(function(err,result){
+      if(err){
+        console.log(err);
+      }
+      else{
+        var videoPictureSrc = 'data:image/jpeg;base64,' + result;
+        _globalSelf._videoPicture[file['path']] = videoPictureSrc;
+        var fileImg = document.getElementById(file['URI']);
+        fileImg.src = videoPictureSrc;
+      }
+    },file['path']);  
   },
 
   //此函数用来获得在列表显示时的表头信息。就是想要表现的的是什么及表头信息,返回的是一个数组
@@ -663,21 +860,40 @@ var ShowFiles = Class.extend({
     //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
       var fileModifyURI = _globalSelf.findURIByDiv($(this));
-      var file = basic.findFileByURI(fileModifyURI,_globalSelf._getFiles[_globalSelf._index]);
-      if(file){
-        basic.openFile(file);
-      }
-      else{
-        window.alert('what are you gong!!!');
-      }
+      _globalSelf.openFileByUri(fileModifyURI);
     });
+  },
+
+  //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
+  openFileByUri:function(modifyURI_){
+    var file = _globalSelf.findFileByURI(modifyURI_,_globalSelf._index);
+    if(!file){
+      window.alert('the file is not found');
+    }
+    else{
+      if(file.URI.indexOf('#') != -1){
+        if(file.postfix == 'pdf'){
+          function cbViewPdf(){
+          }
+          AppAPI.getRegisteredAppInfo(function(err, appInfo) {
+            if (err) {
+              return console.log(err);
+            }
+            AppAPI.startApp(cbViewPdf, appInfo, file.path);
+          }, "viewerPDF-app");
+        }
+        else {
+          DataAPI.openDataByUri(_globalSelf.cbGetDataSourceFile, file.URI);
+        }
+      }
+    }
   },
 
   //此函数用来对文件重命名，传入的是文件的对应的div的ID，因为也要找到名字存在的位置然后产生inputer
   //还要把本地的获取的文件的名字修改，同时所有现存的div的名字选项也要修改
   renameFileByDivId:function(DivId_){
     var modifyURI = _globalSelf.findURIByDiv($('#'+DivId_));
-    var file = basic.findFileByURI(modifyURI,_globalSelf._getFiles[_globalSelf._index]);
+    var file = _globalSelf.findFileByURI(modifyURI,_globalSelf._index);
     if(!file){
       window.alert('the file is not found');
     }
@@ -692,8 +908,7 @@ var ShowFiles = Class.extend({
         }
       }
       else {
-        var selectDiv = $('#showContent').find('#'+DivId_);
-        var rename = selectDiv.children('p')
+        var rename = $('#'+DivId_).children('p')
       }
       var inputer = Inputer.create('button-name');
       var options = {
@@ -734,7 +949,7 @@ var ShowFiles = Class.extend({
   //此函数用来删除一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的,
   //删除以后还要进行本地的一些操作，把有的div给删除掉，本地的获取文件也删除掉
   deleteFileByUri:function(modifyURI_){
-    var file = basic.findFileByURI(modifyURI_,_globalSelf._getFiles[_globalSelf._index]);
+    var file = _globalSelf.findFileByURI(modifyURI_,_globalSelf._index);
     if(!file){
       window.alert('the file is not found');
     }
@@ -794,7 +1009,7 @@ var ShowFiles = Class.extend({
   //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
   generateBodyTr:function(file,theadMessage){
     var bodytr = $('<tr>',{
-      'id':basic.uriToModifyUri(file['URI'])+'tr',
+      'id':_globalSelf.uriToModifyUri(file['URI'])+'tr',
       'class':'bodytr'
     });
     for(var i =0;i<theadMessage.length;i++){
@@ -928,7 +1143,7 @@ var ShowFiles = Class.extend({
       if(_globalSelf._index == 1){
         div.removeClass('pictureContainerWaterFall')
         div[0].style.cssText = '';
-        var pictureDiv = div.children('.pictureHolderWaterFall');
+        var pictureDiv = div.children('div').eq(0);
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
         var picture = pictureDiv.children('img')[0];
@@ -939,7 +1154,7 @@ var ShowFiles = Class.extend({
         div.addClass('pictureContainer');
       }
       var fileURI = _globalSelf.findURIByDiv(div);
-      var file = basic.findFileByURI(fileURI,_globalSelf._getFiles[_globalSelf._index]);
+      var file = _globalSelf.findFileByURI(fileURI,_globalSelf._index);
       var timeDifference = _globalSelf.dateDifference(file);
       if(timeDifference >=0 && timeDifference <=24){
         today.append(div);
@@ -985,7 +1200,7 @@ var ShowFiles = Class.extend({
       switch(_globalSelf._index){
         case 1:
           var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'pictureContainerWaterFall',
             'draggable': true
           });
@@ -1024,7 +1239,7 @@ var ShowFiles = Class.extend({
           break;
         case 2:
           var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'videoContainer',
             'draggable': true
           });
@@ -1038,10 +1253,10 @@ var ShowFiles = Class.extend({
             'title':file['filename']
           });
           var img = $('<img>',{
-            'id':file['URI']+'showvideo',
+            'id':file['URI'],
             'draggable':false
           });
-          basic.getVideoPicData(file,img.attr('id'));
+          _globalSelf.getVideoPicData(file);
           Holder.append(img);
           Container.append(Holder);
           Container.append(description);
@@ -1060,7 +1275,7 @@ var ShowFiles = Class.extend({
           break;
         case 3:
           var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'doc-icon',
             'draggable': true
           });
@@ -1087,8 +1302,9 @@ var ShowFiles = Class.extend({
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
+          _globalSelf.getMusicPicData(file);
           var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'musicContainer',
             'draggable': true
           });
@@ -1105,10 +1321,9 @@ var ShowFiles = Class.extend({
             'text':file['filename']
           });
           var musicImg = $('<img>',{
-             'id':file['URI']+'showMusicPic',
+             'id':file['URI'],
              'draggable':false
           });
-          basic.getMusicPicData(file,musicImg.attr('id'));
           Holder.append(musicImg);
           Holder.append(tagHolder);
           Container.append(Holder);
@@ -1128,7 +1343,7 @@ var ShowFiles = Class.extend({
           break;
         case 5:
           var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
+            'id':_globalSelf.uriToModifyUri(file['URI'])+'div',
             'class':'doc-icon',
             'draggable': true
           });
@@ -1147,7 +1362,7 @@ var ShowFiles = Class.extend({
           var _tagView = TagView.create({
             position: 'listview',
             background_color: 'rgb(200,200,200)',
-            max:0
+            max:1
           });
           _tagView.setParent(Container,file['URI']);
           _tagView.addTags(file['others'].split(','));
@@ -1216,6 +1431,14 @@ var ShowFiles = Class.extend({
     }
   },
 
+  uriToModifyUri:function(uri_){
+    return uri_.replace(/#/g,'-');
+  },
+
+  modifyUriToUri:function(modifyURI_){
+    return modifyURI_.replace(/-/g,'#');
+  },
+
   bindDrag:function(file_){
     var _this = this;
     var _tags = undefined;
@@ -1223,7 +1446,7 @@ var ShowFiles = Class.extend({
       $(ev.currentTarget).fadeTo(0,0.4);
       $(ev.currentTarget).fadeTo(20,1);
       var _uri = ev.currentTarget.id.substring(0,ev.currentTarget.id.length-3);
-      ev.dataTransfer.setData('uri',basic.modifyUriToUri(_uri));
+      ev.dataTransfer.setData('uri',_this.modifyUriToUri(_uri));
       ev.dataTransfer.setData('category',_globalSelf._currentCategory[_globalSelf._index]);
       _tags = $(ev.currentTarget).find('.tag-container');
       _tags.hide();
