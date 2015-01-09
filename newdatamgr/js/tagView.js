@@ -226,7 +226,7 @@ var TagView = Class.extend({
    * @type {[type]}
    */
   addTags:function(arrTags_, callback_){
-    for (var i =  0;i <  arrTags_.length -1;i++) {
+    for (var i =  0;i <  arrTags_.length;i++) {
       this.addTag(arrTags_[i]);
     };
     if(this._options.animate){
