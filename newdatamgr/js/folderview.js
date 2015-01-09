@@ -404,7 +404,8 @@ var ShowFiles = Class.extend({
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'picturedescriptionWaterFall',
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
             Container.append(Holder);
@@ -432,7 +433,8 @@ var ShowFiles = Class.extend({
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'videodescription',
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             var img = $('<img>',{
               'id':file['URI'],
@@ -465,7 +467,8 @@ var ShowFiles = Class.extend({
             });
             Container.append(img);
             var p = $('<p>',{
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             Container.append(p);
             var _tagView = TagView.create({
@@ -495,7 +498,8 @@ var ShowFiles = Class.extend({
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'musicdescription',
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             var musicImg = $('<img>',{
                'id':file['URI'],
@@ -529,7 +533,8 @@ var ShowFiles = Class.extend({
             });
             Container.append(img);
             var p = $('<p>',{
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             Container.append(p);
             _globalSelf.bindDrag(Container[0]);
@@ -803,7 +808,8 @@ var ShowFiles = Class.extend({
         case 0:
           if(_globalSelf._index == 3){
             var thP = $('<P>',{
-              'text':file[theadMessage[i]]
+              'text':file[theadMessage[i]],
+              'title':file[theadMessage[i]]
             });
             var thPicture = $('<img>',{
               'style':'float:left',
@@ -997,7 +1003,8 @@ var ShowFiles = Class.extend({
           //用来定义最后描述的名字.
           var description = $('<p>',{
             'class':'picturedescriptionWaterFall',
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
           Container.append(Holder);
@@ -1035,7 +1042,8 @@ var ShowFiles = Class.extend({
           //用来定义最后描述的名字.
           var description = $('<p>',{
             'class':'videodescription',
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           var img = $('<img>',{
             'id':file['URI']+'showvideo',
@@ -1070,7 +1078,8 @@ var ShowFiles = Class.extend({
           });
           Container.append(img);
           var p = $('<p>',{
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           Container.append(p);
           returnContent.append(Container);
@@ -1137,7 +1146,8 @@ var ShowFiles = Class.extend({
           });
           Container.append(img);
           var p = $('<p>',{
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           Container.append(p);
           returnContent.append(Container);

@@ -426,8 +426,8 @@ var Contact = Class.extend({
         };
       },[_tag],contact._tagView._uri);
     }else if(_uri && _category === 'picture'){
-      var _modalUri = showfiles.uriToModifyUri(_uri);
-      var _file = showfiles.findFileByURI(_modalUri,1);  //index = 1 is picture
+      var _modalUri = basic.uriToModifyUri(_uri);
+      var _file = basic.findFileByURI(_modalUri,_globalSelf._getFiles[1]);  //index = 1 is picture
       var _path = _file['path'];
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
