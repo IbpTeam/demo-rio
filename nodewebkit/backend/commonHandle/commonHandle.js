@@ -150,7 +150,7 @@ function createData(item, callback) {
                 console.log(err);
                 return callback(err, null);
               }
-
+             callback('success',sFilePath);
             })
           } else {
             callback('success', sFilePath);
