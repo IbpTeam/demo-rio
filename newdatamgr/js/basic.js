@@ -274,7 +274,8 @@ var Basic = Class.extend({
             try{
               basic._uri = uri_;
               basic._tag = _newTag;
-              this_.trigger('ondrop');
+              infoList.fixTagNum(_newTag,1);
+              _this._tagDragged.addPreTag(_newTag);
             }catch(e){
               console.log(e);
             }
