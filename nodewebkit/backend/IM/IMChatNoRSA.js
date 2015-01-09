@@ -51,8 +51,8 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
     c.on('data', function(msgStri) {
       //console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
-      var msgStr = JSON.parse(msgStri);
       try {
+        var msgStr = JSON.parse(msgStri);
         var decrypteds = msgStr[0].content;
         var msgObj = JSON.parse(decrypteds);
         //console.log('MSG type:' + msgObj.type);
@@ -126,9 +126,13 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   var count = 0;
   var id = 0;
   var tmpenmsg =  SENDMSG;
-  var MSG = JSON.parse(SENDMSG);
-  var dec = MSG[0].content;
-  var pat = JSON.parse(dec);
+  try{
+    var MSG = JSON.parse(SENDMSG);
+    var dec = MSG[0].content;
+    var pat = JSON.parse(dec);
+  }catch(e){
+    console.log('JSON.parse error:'+e);
+  }
 
   if (!net.isIP(IP)) {
     console.log('Input IP Format Error!',IP);
@@ -176,9 +180,14 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.on('connect', innerrply);
 
   client.on('data', function(REPLY) {
-    //console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
+      //console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
 
-    var RPLY = JSON.parse(REPLY);
+    try {
+      var RPLY = JSON.parse(REPLY);
+    } catch (e) {
+      console.log('JSON.parse error:' + e);
+    }
+    
     switch (RPLY[0].type) {
       case 'Reply':
         {
@@ -191,7 +200,10 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
                 if (msg.message == MD5(pat.message)) {
                   var msgtp = pat;
                   //console.log('msg rply MD5 received: ' + msg.message);
-                  setTimeout(SentCallBack(msgtp.message), 0);
+                  var CalBakMsg = {};
+                  CalBakMsg['MsgObj'] = msgtp;
+                  CalBakMsg['IP'] = IP; 
+                  setTimeout(SentCallBack(CalBakMsg), 0);
                   clearInterval(id);
                   client.end();
                 };

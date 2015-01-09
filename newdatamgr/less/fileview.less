@@ -51,6 +51,10 @@
         margin-right: 14px;
         color: #b6b6b6;
         font-size: 0.9em;
+        &:hover{
+          cursor: pointer;
+          color: #9b9b9b;
+        }
       }
       #line{
         width: 1px;
@@ -71,7 +75,7 @@
       overflow-x: hidden;
       .scroll();
       #outWaterFall{
-        margin-left: 13px;
+        //margin-left: 13px;
         position: relative;
         overflow-x: hidden;
       }
@@ -79,6 +83,7 @@
         width: 100%;
         font-size:12px; 
         float:left; 
+        position: relative;
         cursor: pointer; 
         background-color:white;
         .radius(3px);
@@ -136,8 +141,9 @@
           margin-left: 15px;
           overflow: hidden;
           text-overflow:ellipsis;
-          //width: 90%;
-          bottom: 5px;
+          width: 90%;
+          bottom: 8px;
+          font-size: 13px;
         }
       }
 
@@ -160,8 +166,9 @@
         overflow-x: hidden;
       }
       .musicContainer {
-        height:165px; 
-        padding:auto; 
+        height:142px; 
+        //padding:auto; 
+        padding: 3px 2px 3px 3px;
         font-size:12px; 
         float:left;
         position: relative;
@@ -172,15 +179,15 @@
         color: #706f6f;
         //overflow: auto;
         &:hover {
-          -webkit-filter: brightness(1.2);
-          -moz-filter: brightness(1.2);
-          -ms-filter: brightness(1.2);
-          filter: brightness(1.2);
+          background-color: rgba(167,167,167,0.2);
+          .radius(3px);
         }
-
-
+        &:focus {
+          background-color: rgba(167,167,167,0.2);
+          outline: none;
+          .radius(3px);
+        }
         .musicHolder {
-
           position: relative;
           img{
             width:107px;
@@ -286,11 +293,11 @@
           background-color: rgba(169, 169, 169, 0.2);
         }
         .pictureHolder img{
-          max-width: 100%;
-          max-height: 100%;
           background: #ccc;
           display: block;
           margin: 0 auto;
+          max-width: 100%;
+          max-height: 100%;
           &:hover{
             box-shadow: 0px 0px 3px white;
           }

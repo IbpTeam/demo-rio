@@ -70,7 +70,8 @@ var FILEPORT=8080;
 exports.FILEPORT=FILEPORT;
 var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
-var SERVERIP;
+//SERVERIP has been decpreted, you should use config.getIPAddress();
+var SERVERIP=getIPAddress();
 exports.SERVERIP = SERVERIP;
 var SERVERNAME;
 exports.SERVERNAME = SERVERNAME;
@@ -97,25 +98,26 @@ exports.EMAIL = EMAIL;
 
 /*
  * Network API
+ *   获取本地IP地址（仅针对IPv4）
  * */
-function getAddr(){
-  var IPv4;
-  //var os = require('os');
-  var getip = require('../node_modules/getip/build/Release/hello.node');
-  //console.log("getttttttttt"+getip.hello());
-  //console.log(os.networkInterfaces());
-  IPv4=getip.hello();
-  if(IPv4==''){
-    for(var i=0;i<os.networkInterfaces().lo.length;i++){
-      if(os.networkInterfaces().lo[i].family=='IPv4'){
-        IPv4=os.networkInterfaces().lo[i].address;
+function getIPAddress(){
+  var ifaces = os.networkInterfaces();
+  var IPv4=null;
+  var IPifname=null;
+
+  Object.keys(ifaces).forEach(function (ifname) {
+    ifaces[ifname].forEach(function (iface) {
+      if (null!==IPv4){return};
+      if ('IPv4' !== iface.family || iface.internal !== false) {
+        return;
       }
-    }
-  }
-  console.log("IPv4="+IPv4);
+      IPv4=iface.address;
+    });
+  });
+
   return IPv4;
 }
-exports.getAddr = getAddr;
+exports.getIPAddress = getIPAddress;
 
 
 /*

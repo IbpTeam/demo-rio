@@ -34,10 +34,8 @@ var Contact = Class.extend({
       _this._contacts = contact_json_;
       if(_this._contacts != null && _this._contacts.length > 0){
         _this.loadContactsList(0);
-        if(_params&&_params['tag']){
-          infoList.clickTag(_params['tag']);
-        }
       }
+      infoList.searchTag(_params);
       _this._first = false;
     }, 'Contact');
   },
@@ -107,21 +105,20 @@ var Contact = Class.extend({
       ev.preventDefault();
     });
   },
-
+  
   setContextMenu:function(){
     var _this = this;
     contextMenu.addCtxMenu([
       {header: 'contact menu'},
       {text:'Tag', subMenu:[
         {text: 'Add',action:function(){
-
+          basic.addTagView(_this,_this._contacts[_this._selectId]['URI'],'contact');
         }},
         {text: 'Remove', action:function(){
-
+          basic.removeTagView(_this._contactHead,_this._contacts[_this._selectId]['URI'],'contact');
         }}
       ]},
       {text: 'Remove Contact', action:function(){
-        console.log(_this._contacts[_this._selectId]['URI']);
         DataAPI.rmDataByUri(function(err, result){
           if(result == "success"){
             _this._contacts.splice(_this._selectId, 1);
@@ -138,7 +135,9 @@ var Contact = Class.extend({
     ]);
     contextMenu.attachToMenu('#contact-container',
       contextMenu.getMenuByHeader('contact menu'),
-      function(){});
+      function(){
+        basic._tagDragged = _this._tagView; 
+      });
   },
 
   setHead: function(contact_){
@@ -424,12 +423,11 @@ var Contact = Class.extend({
             infoList._info['tagFiles'][_tag] = [_tagedFile];
             infoList._info['tags'].push(_tag);
           }
-          
         };
       },[_tag],contact._tagView._uri);
     }else if(_uri && _category === 'picture'){
-      var _modalUri = showfiles.uriToModifyUri(_uri);
-      var _file = showfiles.findFileByURI(_modalUri,1);  //index = 1 is picture
+      var _modalUri = basic.uriToModifyUri(_uri);
+      var _file = basic.findFileByURI(_modalUri,_globalSelf._getFiles[1]);  //index = 1 is picture
       var _path = _file['path'];
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
@@ -446,5 +444,4 @@ var Contact = Class.extend({
   dragover:function(ev){
     ev.preventDefault();  
   }
-
 });
