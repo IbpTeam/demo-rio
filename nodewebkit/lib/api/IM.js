@@ -1,6 +1,5 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
-var IMRsa = require("../../backend/IM/IMChat.js");
 var config = require("../../backend/config.js");
 var router = require('../../backend/router.js');
 var net = require('net');
@@ -114,9 +113,7 @@ exports.registerIMApp = registerIMApp;
 function startIMService(StartCb,Flag) {
   try {
     if (Flag === "true") {
-      IMRsa.initIMServer(Port, function(AppType,msgobj){
-        FuncObj.takeMsg(AppType,msgobj);
-      });
+      
     }else{
       IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
       FuncObj.takeMsg(AppType, msgobj);
@@ -167,7 +164,7 @@ function sendAppMsg(SentCallBack, MsgObj) {
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
-    IMRsa.sendMSGbyUID(ipset,MsgObj.Account,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+
   }else{
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
   }
@@ -342,22 +339,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
         ipset["IP"] = accSetItem.toIP;
         ipset["UID"] = accSetItem.toUID;
         if (MsgObj.rsaflag === "true") {
-          IMRsa.sendMSGbyUID(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
-            if (msgRst === undefined)
-              msgRst = msg;
-            if ((++countFlag) === len) {
-              SentCallBack(msg);
-              if(flag){
-                msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-                router.wsNotify({
-                  'Action': 'notify',
-                  'Event': 'imChat',
-                  'Data': msg,
-                  'SessionID':wsID
-                });
-              }    
-            }
-          });
+
         } else {
           IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
             if (msgRst === undefined)

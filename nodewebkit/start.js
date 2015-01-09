@@ -10,13 +10,13 @@
  * @version:0.2.1
  **/
 
+var initRio = require("./backend/initRio");
 var config = require("./backend/config");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
 var device = require("./backend/data/device");
-var msgTransfer = require("./backend/Transfer/msgTransfer");
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
@@ -74,8 +74,6 @@ function startApp(){
     }
     initializeApp(sFullPath);
   });
-  // MSG transfer server initialize
-  msgTransfer.initServer();
   server.start(router.route, handle);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
