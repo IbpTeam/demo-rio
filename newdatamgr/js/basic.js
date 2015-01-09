@@ -3,6 +3,10 @@ var Basic = Class.extend({
   //这是一个初始化的函数，用来初始化一些数据，比如index索引.索引用来表示要展示的内容，1代表图片，2代表视频，3代表文档，4代表音乐.
   init:function(){
     basic = this;
+    this._uri = undefined;   
+    this._tag = undefined;
+    //用于记录被拖拽的标签的对象，被tagview.js设置
+    this._tagDragged = undefined;
   },
 
   //此函数用来产生一个和用户交互的界面
@@ -106,7 +110,6 @@ var Basic = Class.extend({
             fileContent = content;
             break;
         }
-
         var title = file['title'];
         if (!file['windowname']){
           if(typeof(fileContent) == 'string' &&fileContent.match("成功打开文件")){
@@ -179,11 +182,11 @@ var Basic = Class.extend({
     }
     return file;
   },
-
+//转换uri与可用于id的uri
   uriToModifyUri:function(uri_){
     return uri_.replace(/#/g,'-');
   },
-
+//转换uri与可用于id的uri
   modifyUriToUri:function(modifyURI_){
     return modifyURI_.replace(/-/g,'#');
   },
@@ -240,5 +243,141 @@ var Basic = Class.extend({
         filep.src = musciPictureSrc;
       }
     },file['path']);  
+  },
+
+  //显示添加标签界面
+  addTagView:function(this_,uri_,category_){
+    var _this = this;
+    var _addTagForm = $('<form>', {
+      'id': 'add-tag-form'
+    });
+    var _addTagInput = $('<input>', {
+      'id':'new-tag',
+      'type':'text'
+    });
+    _addTagForm.append(_addTagInput);
+    var _addTagButton = $('<input>', {
+      'type': 'button',
+      'id': 'add-tag-button',
+      'value': 'Add'
+    });
+    _addTagForm.append(_addTagButton);
+    _this.genPopupDialog('Add Tag', _addTagForm);
+    $('#add-tag-button').on('click', function(){
+      var _newTag = document.getElementById('new-tag').value;
+      DataAPI.setTagByUri(function(err){
+        if(err === null){
+          if(category_ === 'contact'){
+            this_._tagView.addTag(_newTag);
+            infoList.setContent();
+          }else{
+            try{
+              basic._uri = uri_;
+              basic._tag = _newTag;
+              this_.trigger('ondrop');
+            }catch(e){
+              console.log(e);
+            }
+          }
+          $('#popupDialog').remove();
+        }else{
+          window.alert("Add tags failed!");
+        }
+      }, [_newTag], uri_);
+    });
+  },
+//显示删除标签界面
+  removeTagView:function(this_,uri_,category_){
+    var _this = this;
+    DataAPI.getTagsByUri(function(tags_){
+      if(tags_ != null && tags_.length > 0 && tags_[0] != ""){
+        var _deleteTagForm = $('<form>', {
+          'id': 'delete-tag-form'
+        });
+        for(var i = 0; i < tags_.length; i ++){
+          var _deleteTagInput = $('<input>', {
+            'id':'delete-tag-input',
+            'name':'tags',
+            'value': tags_[i],
+            'type':'checkbox'
+          });
+          _deleteTagForm.append(_deleteTagInput);
+          _deleteTagForm.append(tags_[i]+'</br>');
+        }
+        _deleteTagForm.append('</br>');
+        var _deleteTagButton = $('<input>', {
+          'id':'delete-tag-button',
+          'type':'button',
+          'value':'Delete'
+        });
+        _deleteTagForm.append(_deleteTagButton);
+        var _tagsToDelete = [];
+        _this.genPopupDialog('Delete Tag', _deleteTagForm);
+        $('#delete-tag-button').on('click', function(){
+          var _webtags = document.getElementsByName("tags");
+          for (var i = 0; i < _webtags.length; ++i){
+            if(_webtags[i].checked){
+              _tagsToDelete.push(_webtags[i].value);
+            }
+          }
+          if(_tagsToDelete != null && _tagsToDelete.length > 0){
+            basic.removeTagsOrFile(_tagsToDelete, uri_, category_);
+            $('#popupDialog').remove();
+          }
+        });
+      }else{
+        window.alert("There is no tag to delete!");
+      }
+    }, uri_);
+  },
+//删除标签和删除文件的执行函数
+  removeTagsOrFile:function(tags_,uri_,category_){
+    var _tags = (typeof tags_ === 'string')?[tags_]:tags_;
+    var _uri = uri_;
+    var _category = category_;
+    if(_tags && _uri){
+      DataAPI.rmTagsByUri(function(result){
+        if (result === 'commit') {
+          if(basic._tagDragged){
+            basic._tagDragged.removeTagByText(_tags);
+            basic._tagDragged = undefined;
+          }
+          for (var i = 0; i < _tags.length; i++) {
+            if (infoList.isShow()) {
+              infoList.fixTagNum(_tags[i],-1);
+            };
+            if (_category === 'contact') {
+              var _tagsArr = contact._contacts[contact._selectId]['others'].split(',');
+              var _others = '';
+              for (var j = 0; j < _tagsArr.length; j++) {
+                if (_tagsArr[j] == _tags[i]) continue;
+                if(_others === '') {
+                  _others = _tagsArr[j];
+                }else{
+                  _others += ','+_tagsArr[j];
+                }
+              };
+              contact._contacts[contact._selectId]['others'] = _others;
+            };
+          }
+        }else{
+          console.log('Delect tags failed!');
+        }
+      },_tags,_uri);
+    }else if(_uri && !_tags){  //drag file to remove
+      if (_category === 'mainDoc') {
+        DataAPI.rmDataByUri(function(err_){
+          if(err_ !== null){
+            console.log('Delect file failed:' + err_);
+            return 0;
+          }
+          if(!homePage._doc.removeFile(_uri)){
+            alert('remove doc div error');
+          }
+        },_uri);
+      }else{
+        showfiles.deleteFileByUri(showfiles.uriToModifyUri(_uri));
+      }
+    }
   }
 })

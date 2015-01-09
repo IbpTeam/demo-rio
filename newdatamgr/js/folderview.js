@@ -73,26 +73,37 @@ var ShowFiles = Class.extend({
       {text:'Tag', subMenu:[
         {header: 'tag'},
         {text: 'Add',action:function(){
-
+          var _id = _globalSelf._contextMenuDivID;
+          var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
+          var _target = _globalSelf._showContent.find('#'+_id);
+          basic.addTagView(_target,_uri,'no-contact');
         }},
         {text: 'Remove', action:function(){
-          
+          var _id = _globalSelf._contextMenuDivID;
+          var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
+          var _target = _globalSelf._showContent.find('#'+_id);
+          basic.removeTagView(_target,_uri,'no-contact');
         }}
       ]},
       {text: 'Detail',action:function(){
-        var _modifyUri = '';
         var _id = _globalSelf._contextMenuDivID;
-        if(_id.substr(_id.length-3,3) === 'div'){
-          _modifyUri = _id.substr(0,_id.length-3);
-        }else if(_id.substring(_id.length-2,2) === 'tr'){
-          _modifyUri = _id.substr(0,_id.length - 2);
-        }
+        var _modifyUri = _globalSelf.getModifyUriById(_id);
         var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);
         _globalSelf._propertyView.loadData(_file);
         var _img = $('#'+_id).find('img');
         _globalSelf._propertyView.setImg(_img[0].src);
       }}
     ]);
+  },
+
+  getModifyUriById:function(id_){
+    var _modifyUri = '';
+    if(id_.substr(id_.length-3,3) === 'div'){
+      _modifyUri = id_.substr(0,id_.length-3);
+    }else if(id_.substring(id_.length-2,2) === 'tr'){
+      _modifyUri = id_.substr(0,id_.length - 2);
+    }
+    return _modifyUri;
   },
 
   attachDataMenu:function(id_){

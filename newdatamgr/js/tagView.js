@@ -226,7 +226,7 @@ var TagView = Class.extend({
    * @type {[type]}
    */
   addTags:function(arrTags_, callback_){
-    for (var i = arrTags_.length -1 ;i >= 0 ;i--) {
+    for (var i =  0;i <  arrTags_.length -1;i++) {
       this.addTag(arrTags_[i]);
     };
     if(this._options.animate){
@@ -234,12 +234,15 @@ var TagView = Class.extend({
     }
   },
   /**
-   * [removeTagByText remove a tag by tag content]
+   * [removeTagByText remove a tags Arrey by tag content]
    * @type {[type]}
    */
   removeTagByText:function(tag_){
+    if(typeof tag_ === 'string'){
+      tag_ = [tag_];
+    }
     for (var i = 0; i < this._tagTextList.length; i++) {
-      if(this._tagTextList[i] === tag_){
+      if(this.strInArr(this._tagTextList[i],tag_)){
         if(i >= this._options.max){
           this._tagTextList.splice(i,1);
         }else{
@@ -247,6 +250,7 @@ var TagView = Class.extend({
             this._tagList[i].remove();
             this._tagList.splice(i,1);
             this._tagTextList.splice(i,1);
+            i--;
             if(this._tagList.length < this._tagTextList.length){
               var _newtag = this.newTag(this._tagTextList[this._options.max-1]);
               this.setPosition(_newtag,this._options.max);
@@ -264,6 +268,14 @@ var TagView = Class.extend({
         }
       }
     };
+  },
+
+  strInArr:function(str_,arr_){
+    for (var i = 0; i < arr_.length; i++) {
+      if(str_ === arr_[i])
+        return true;
+    };
+    return false;
   },
   /**
    * [setParent set element witch would be tagged]
@@ -377,6 +389,8 @@ var TagView = Class.extend({
   bindDrag:function(tag_){
     var _this = this;
     tag_.ondragstart = function(ev){
+      basic._tagDragged = _this;
+      if(!ev) return 0;
       $(ev.currentTarget).addClass('no-rotate');
       var _tagText = $(ev.currentTarget).children('.tag-text')[0].textContent;
       ev.dataTransfer.setData("tag", _tagText);
@@ -386,7 +400,6 @@ var TagView = Class.extend({
       if(_this._parent[0].id === 'contact-head'){
         ev.dataTransfer.setData("category", 'contact');
       }
-      tagDragged = _this;
       ev.stopPropagation();
     }
     tag_.ondragend = this.dragEnd;
@@ -400,9 +413,16 @@ var TagView = Class.extend({
   bindDrop:function(target_){
     var _this = this;
     var drop = function(ev){
-      var _tag = ev.dataTransfer.getData('tag');
-      var _id = ev.currentTarget.id;
-      var _uri = showfiles.modifyUriToUri(_id).substring(0,_id.length - 3);
+      var _tag = undefined;
+      var _uri = undefined;
+      if(!ev){
+        _tag = basic._tag;
+        _uri = basic._uri;
+      }else{
+        var _tag = ev.dataTransfer.getData('tag');
+        var _id = ev.currentTarget.id;
+        var _uri = basic.modifyUriToUri(_id).substring(0,_id.length - 3);
+      }
       if (typeof _tag === 'string' && _tag.length > 0) {
         DataAPI.setTagByUri(function(err){
           if (err === null) {
@@ -419,5 +439,8 @@ var TagView = Class.extend({
     }
     target_.ondrop = drop;
     target_.ondragover = dragOver;
+    target_.onmousedown = function(e){
+      basic._tagDragged = _this;
+    }
   }
 });
