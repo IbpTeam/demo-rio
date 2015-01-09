@@ -139,6 +139,7 @@ var TagView = Class.extend({
           this.showTags();
           return 0;
         }else{    //has the tag but not in the show
+          if(this._options.max === 0) return 0;
           var _tag = this._tagList.splice((this._options.max-1),1)[0];
           _tag.children('.tag-text')[0].text = tag_;
           this._tagList.unshift(_tag);
@@ -413,14 +414,13 @@ var TagView = Class.extend({
   bindDrop:function(target_){
     var _this = this;
     var drop = function(ev){
-      var _tag = undefined;
+      var _tag = ev.dataTransfer.getData('tag');
       var _uri = undefined;
-      if(!ev){
-        _tag = basic._tag;
-        _uri = basic._uri;
+      if($(ev.currentTarget).parent('div').parent('.musicContainer').length>0){
+        var _id =  $(target_).parent('div').parent('.musicContainer')[0].id;
+        _uri = basic.modifyUriToUri(_id).substring(0,_id.length - 3);
       }else{
-        _tag = ev.dataTransfer.getData('tag');
-        _id = ev.currentTarget.id;
+        var _id = ev.currentTarget.id;
         _uri = basic.modifyUriToUri(_id).substring(0,_id.length - 3);
       }
       if (typeof _tag === 'string' && _tag.length > 0) {
@@ -439,8 +439,13 @@ var TagView = Class.extend({
     }
     target_.ondrop = drop;
     target_.ondragover = dragOver;
-    target_.onmousedown = function(e){
+    var getTagObj = function(){
       basic._tagDragged = _this;
+    }
+    if($(target_).parent('div').parent('.musicContainer').length>0){
+      $(target_).parent('div').parent('.musicContainer').on('contextmenu' ,getTagObj); 
+    }else{
+      target_.oncontextmenu = getTagObj;
     }
   }
 });
