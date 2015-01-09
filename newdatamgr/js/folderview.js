@@ -176,6 +176,8 @@ var ShowFiles = Class.extend({
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
+          $('#showlistButton').removeClass('showlistButtonFocus');
+          $('#_shownormalButton').addClass('normalButtonFocus');
           if($('#'+this._contentIds[this._index]).children('div').length >0){
             if(this._index ==1){
               $('#outWaterFall').show(); 
@@ -233,59 +235,63 @@ var ShowFiles = Class.extend({
           }
           break;
         case 1:
-            if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
-              $('#'+ this._contentIdsList[this._index]).show();
-            }
-            else {
-              _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-            }
-            if(_globalSelf._showFilesBytag){
-              _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+          $('#_shownormalButton').removeClass('normalButtonFocus');
+          $('#showlistButton').addClass('showlistButtonFocus');
+          if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
+            $('#'+ this._contentIdsList[this._index]).show();
+          }
+          else {
+            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
+          }
+          if(_globalSelf._showFilesBytag){
+            _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+          }
+          else{
+            $('.bodytr').show();
+          }
+          break;
+        case 2:
+          $('#showlistButton').removeClass('showlistButtonFocus');
+          $('#_shownormalButton').addClass('normalButtonFocus');
+          if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
+            $('#'+ this._contentIdsSortByTime[this._index]).show();
+          }
+          else {
+            if(this._index ==1){
+              var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
+              $('#'+this._contentIds[this._index]).children('div').remove();
             }
             else{
-              $('.bodytr').show();
+              var fileDivs = $('#'+this._contentIds[this._index]).children('div');
             }
-            break;
-        case 2:
-            if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
-              $('#'+ this._contentIdsSortByTime[this._index]).show();
+            var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
+            returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
+            if(this._index ==2){
+              returnshow.attr('class', 'videoContent');; 
             }
-            else {
-              if(this._index ==1){
-                var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
-                $('#'+this._contentIds[this._index]).children('div').remove();
-              }
-              else{
-                var fileDivs = $('#'+this._contentIds[this._index]).children('div');
-              }
-              var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
-              returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
-              if(this._index ==2){
-                returnshow.attr('class', 'videoContent');; 
-              }
-              var sortByTimeDivs = returnshow.children('.sortByTime');
-              for(var i =0;i<sortByTimeDivs.length;i++){
-                var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
-                  sortByTimeDiv.hide();
-                }
-              }
-              _globalSelf._showContent.append(returnshow);
-              if(this._index ==1 && _globalSelf._showFilesBytag){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+            var sortByTimeDivs = returnshow.children('.sortByTime');
+            for(var i =0;i<sortByTimeDivs.length;i++){
+              var sortByTimeDiv = sortByTimeDivs.eq(i);
+              if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
+                sortByTimeDiv.hide();
               }
             }
-            if(!_globalSelf._showFilesBytag){
-              var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
-              for(var i =0;i<sortByTimeDivs.length;i++){
-                var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(sortByTimeDiv.children('div').length > 0){
-                  sortByTimeDiv.children('div').show();
-                  sortByTimeDiv.show();
-                }
+            _globalSelf._showContent.append(returnshow);
+            if(this._index ==1 && _globalSelf._showFilesBytag){
+              _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+            }
+          }
+          if(!_globalSelf._showFilesBytag){
+            var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
+            for(var i =0;i<sortByTimeDivs.length;i++){
+              var sortByTimeDiv = sortByTimeDivs.eq(i);
+              if(sortByTimeDiv.children('div').length > 0){
+                sortByTimeDiv.children('div').show();
+                sortByTimeDiv.show();
               }
             }
-            break;
+          }
+          break;
         default:
       }
     }
@@ -973,6 +979,8 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
+    $('#showlistButton').removeClass('showlistButtonFocus');
+    $('#_shownormalButton').addClass('normalButtonFocus');
     var returnContent = $('<div style= "overflow-x:hidden"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
