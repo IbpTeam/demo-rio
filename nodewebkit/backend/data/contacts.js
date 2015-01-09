@@ -275,19 +275,10 @@ exports.getByUri = getByUri;
  * @param1 loadContactsCb
  *   回调函数, call back when load ends
  *
- * @param2 resourcePath
- *   string, the resource path
- *
+ * @param2 sItemPath
+ *   string, the resource path + csvFilename
  */
-function initContacts(loadContactsCb, resourcePath) {
-  config.riolog("initContacts ..............");
-  var dirCSV = fs.readdirSync(resourcePath);
-  if (dirCSV.length != 1) {
-    console.log("CSV file error!");
-    return;
-  }
-  var csvFilename = dirCSV[0];
-  var sItemPath = resourcePath + "/" + csvFilename;
+function initContacts(loadContactsCb, sItemPath) {
 
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
