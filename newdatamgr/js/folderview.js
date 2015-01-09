@@ -179,7 +179,7 @@ var ShowFiles = Class.extend({
                 var div = sortByTimeDiv.eq(j);
                 if(this._index ==1){
                   div.removeClass('pictureContainer');
-                  var pictureDiv = div.children('div').eq(0);
+                  var pictureDiv = div.children('.pictureHolder').eq(0);
                   pictureDiv.removeClass('pictureHolder');
                   pictureDiv.attr('class', 'pictureHolderWaterFall');
                   var pDiv = div.children('p');
@@ -911,7 +911,7 @@ var ShowFiles = Class.extend({
       if(_globalSelf._index == 1){
         div.removeClass('pictureContainerWaterFall')
         div[0].style.cssText = '';
-        var pictureDiv = div.children('div').eq(0);
+        var pictureDiv = div.children('.pictureHolderWaterFall');
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
         var picture = pictureDiv.children('img')[0];
