@@ -34,10 +34,8 @@ var Contact = Class.extend({
       _this._contacts = contact_json_;
       if(_this._contacts != null && _this._contacts.length > 0){
         _this.loadContactsList(0);
-        if(_params&&_params['tag']){
-          infoList.clickTag(_params['tag']);
-        }
       }
+      infoList.searchTag(_params);
       _this._first = false;
     }, 'Contact');
   },
@@ -107,149 +105,17 @@ var Contact = Class.extend({
       ev.preventDefault();
     });
   },
-
-  genPopupDialog:function(title, message, files){
-    $("#popupDialog").remove();
-    var headerButton = $('<button>',{
-      'type':'button',
-      'class':'close',
-      'data-dismiss':'modal',
-      'aria-hidden':'true',
-      'text':'x'
-    });
-    var headerTitle = $('<h4>',{
-      'class':'modal-title',
-      'text':title
-    });
-    var header = $('<div>',{
-      'class':'modal-header'
-    });
-    header.append(headerButton).append(headerTitle);
-    var body = $('<div>',{
-      'class':'modal-body',
-      'html':message
-    });
   
-    var footer = $('<div>',{
-      'class':'modal-footer'
-    });
-    var footerButton = $('<button>',{
-      'type':'button',
-      'class':'btn btn-default',
-      'data-dismiss':'modal',
-      'text':'Close'
-    });
-    footer.append(footerButton);
-  
-    var content = $('<div>',{
-      'class':'modal-content'
-    });
-    content.append(header);
-    content.append(body);
-    content.append(footer);
-  
-    dialog = $('<div>',{
-      'class':'modal-dialog'
-    });
-    dialog.append(content);
-    var div = $('<div>',{
-      'id':'popupDialog',
-      'class':'modal fade',
-      'data-backdrop':'false'
-    });
-    div.append(dialog);
-    $('body').append(div);
-    $("#popupDialog").modal('show');
-    $('#popupDialog').on('hidden.bs.modal', function(){
-      $(this).remove();
-    });
-  },
-
   setContextMenu:function(){
     var _this = this;
     contextMenu.addCtxMenu([
       {header: 'contact menu'},
       {text:'Tag', subMenu:[
         {text: 'Add',action:function(){
-          var _addTagForm = $('<form>', {
-            'id': 'add-tag-form'
-          });
-          var _addTagInput = $('<input>', {
-            'id':'new-tag',
-            'type':'text'
-          });
-          _addTagForm.append(_addTagInput);
-          var _addTagButton = $('<input>', {
-            'type': 'button',
-            'id': 'add-tag-button',
-            'value': 'Add'
-          });
-          _addTagForm.append(_addTagButton);
-          _this.genPopupDialog('Add Tag', _addTagForm);
-          $('#add-tag-button').on('click', function(){
-            var _newTag = document.getElementById('new-tag').value;
-            DataAPI.setTagByUri(function(err){
-              if(err === null){
-                _this._tagView.addTag(_newTag);
-                infoList.setContent();
-                $('#popupDialog').remove();
-              }
-              else{
-                window.alert("Add tags failed!");
-              }
-            }, [_newTag], _this._contacts[_this._selectId]['URI']);
-          });
+          basic.addTagView(_this,_this._contacts[_this._selectId]['URI'],'contact');
         }},
         {text: 'Remove', action:function(){
-          DataAPI.getTagsByUri(function(tags_){
-            if(tags_ != null && tags_.length > 0 && tags_[0] != ""){
-              var _deleteTagForm = $('<form>', {
-                'id': 'delete-tag-form'
-              });
-              for(var i = 0; i < tags_.length; i ++){
-                var _deleteTagInput = $('<input>', {
-                  'id':'delete-tag-input',
-                  'name':'tags',
-                  'value': tags_[i],
-                  'type':'checkbox'
-                });
-                _deleteTagForm.append(_deleteTagInput);
-                _deleteTagForm.append(tags_[i]+'</br>');
-              }
-              _deleteTagForm.append('</br>');
-              var _deleteTagButton = $('<input>', {
-                'id':'delete-tag-button',
-                'type':'button',
-                'value':'Delete'
-              });
-              _deleteTagForm.append(_deleteTagButton);
-              var _tagsToDelete = [];
-              _this.genPopupDialog('Delete Tag', _deleteTagForm);
-              $('#delete-tag-button').on('click', function(){
-                var _webtags = document.getElementsByName("tags");
-                for (var i = 0; i < _webtags.length; ++i){
-                  if(_webtags[i].checked){
-                    _tagsToDelete.push(_webtags[i].value);
-                  }
-                }
-                if(_tagsToDelete != null && _tagsToDelete.length > 0){
-                  DataAPI.rmTagsByUri(function(result_){
-                    if(result_ == 'commit'){
-                      for(var i = 0; i < _tagsToDelete.length; i ++){
-                        _this._tagView.removeTagByText(_tagsToDelete[i]);
-                      }
-                      infoList.setContent();
-                      $('#popupDialog').remove();
-                    }else{
-                      window.alert("Delete tags failed!");
-                    }
-                  }, _tagsToDelete, _this._contacts[_this._selectId]['URI']);
-                }
-              });
-            }else{
-              window.alert("There is no tag to delete!");
-            }
-          }, _this._contacts[_this._selectId]['URI']);
+          basic.removeTagView(_this._contactHead,_this._contacts[_this._selectId]['URI'],'contact');
         }}
       ]},
       {text: 'Remove Contact', action:function(){
@@ -269,7 +135,9 @@ var Contact = Class.extend({
     ]);
     contextMenu.attachToMenu('#contact-container',
       contextMenu.getMenuByHeader('contact menu'),
-      function(){});
+      function(){
+        basic._tagDragged = _this._tagView; 
+      });
   },
 
   setHead: function(contact_){
@@ -555,12 +423,11 @@ var Contact = Class.extend({
             infoList._info['tagFiles'][_tag] = [_tagedFile];
             infoList._info['tags'].push(_tag);
           }
-          
         };
       },[_tag],contact._tagView._uri);
     }else if(_uri && _category === 'picture'){
-      var _modalUri = showfiles.uriToModifyUri(_uri);
-      var _file = showfiles.findFileByURI(_modalUri,1);  //index = 1 is picture
+      var _modalUri = basic.uriToModifyUri(_uri);
+      var _file = basic.findFileByURI(_modalUri,_globalSelf._getFiles[1]);  //index = 1 is picture
       var _path = _file['path'];
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
@@ -577,5 +444,4 @@ var Contact = Class.extend({
   dragover:function(ev){
     ev.preventDefault();  
   }
-
 });

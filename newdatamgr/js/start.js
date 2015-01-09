@@ -1,5 +1,6 @@
 
 var main = function(params_){
+    //basic = Basic.create();
   WDC.requireAPI(['data', 'app'], function(data, app){
     console.log("data:" +  data + " app:" + app);
     DataAPI=data;
@@ -8,14 +9,19 @@ var main = function(params_){
     if (params_) {
       _params = eval('(' + params_ + ')');   
     };
-    //用于记录被拖拽的标签的对象，被tagview.js设置
-    tagDragged = undefined;
+    //基础公共函数类，提供公共调用的函数
+    Basic.create();
     //右键菜单
     contextMenu = ContextMenu.create();
+    //主页显示
     homePage = HomePage.create();
+    //搜索框
     search = Search.create();
+    //联系人
     contact = Contact.create();
+    //标签列表，最近打开列表
     infoList = InfoList.create();
+    //版本恢复
     gitLog = GitLog.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
@@ -29,7 +35,7 @@ var main = function(params_){
     contact.attach($('#contentDiv'));
     contact.setContactsList();
     contact.hide();
-
+    //用户信息与数据导入页面
     usrInfo = UsrInfoView.create();
     usrInfo.attach(container);
     usrInfo.hide();
@@ -46,6 +52,7 @@ var main = function(params_){
         content.children('div').hide();
         search.clearTags();
         infoList.hide();
+        infoList.setIndex(k);
         if(k == 1){
           infoList.removeTags();
           infoList.removeRecent();
@@ -54,11 +61,9 @@ var main = function(params_){
           search.bindSuggestion([]);
         } else {
           container.addClass('move-right');
-          infoList.setIndex(k);
           infoList.setContent();
           infoList.setTitle();
           infoList.show();
-          infoList.loadData();
           homePage.hide();
         }
       }
@@ -88,49 +93,7 @@ var main = function(params_){
       var _tag = ev.dataTransfer.getData('tag');
       var _uri = ev.dataTransfer.getData('uri');
       var _category = ev.dataTransfer.getData('category');
-      //drag tag operation
-      if(_tag && _uri){
-        DataAPI.rmTagsByUri(function(result){
-          if (result === 'commit') {
-            if(tagDragged){
-              tagDragged.removeTagByText(_tag);
-              tagDragged = undefined;
-            }
-            if (infoList.isShow()) {
-              infoList.fixTagNum(_tag,-1);
-            };
-            if (_category === 'contact') {
-              var _tags = contact._contacts[contact._selectId]['others'].split(',');
-              var _others = '';
-              for (var i = 0; i < _tags.length; i++) {
-                  if (_tags[i] == _tag) continue;
-                  if(_others === '') {
-                    _others = _tags[i];
-                  }else{
-                    _others += ','+_tags[i];
-                  }
-              };
-              contact._contacts[contact._selectId]['others'] = _others;
-            };
-          }else{
-            console.log('Delect tags failed!');
-          }
-        },[_tag],_uri);
-      }else if(_uri && !_tag){  //drag file to remove
-        if (_category === 'mainDoc') {
-          DataAPI.rmDataByUri(function(err_){
-            if(err_ !== null){
-              console.log('Delect file failed:' + err_);
-              return 0;
-            }
-            if(!homePage._doc.removeFile(_uri)){
-              alert('remove doc div error');
-            }
-          },_uri);
-        }else{
-          showfiles.deleteFileByUri(showfiles.uriToModifyUri(_uri));
-        }
-      }
+      basic.removeTagsOrFile(_tag,_uri,_category);
     }
     //analyse and performance params
     if (_params) {

@@ -127,16 +127,16 @@ function createData(item, callback) {
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
-  copyFile(sOriginPath, sFilePath, function(result) {
-    if (result !== 'success') {
-      console.log(result);
-      return;
+  copyFile(sOriginPath, sFilePath, function(err) {
+    if (err) {
+      console.log(err);
+      return callback(err);
     }
     dataDes.createItem(item, sDesDir, function() {
       commonDAO.createItem(item, function(err) {
         if (err) {
           console.log(err);
-          return;
+          return callback(err);
         }
         repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
           if (err) {
@@ -150,7 +150,7 @@ function createData(item, callback) {
                 console.log(err);
                 return callback(err, null);
               }
-
+              callback('success', sFilePath);
             })
           } else {
             callback('success', sFilePath);
@@ -240,7 +240,7 @@ function createDataAll(items, callback) {
         copyFile(sOriginPath, sFilePath, function(err) {
           if (err) {
             console.log(err);
-            return;
+            return callback(err);
           }
           dataDes.createItem(_item, sDesDir, function() {
             allItems.push(_item);

@@ -59,7 +59,6 @@ function startApp(){
     console.log('init server pubkey failed!!!');
  });
   startonce = true;
-  config.SERVERIP = config.getAddr();
   config.SERVERNAME = os.hostname();
   var sFullPath = path.join(HOME_DIR, process.env['USER'], DEMO_RIO);
   config.USERCONFIGPATH = sFullPath;

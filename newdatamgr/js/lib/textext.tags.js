@@ -156,6 +156,7 @@
      * @id TextExtTags.events.tagClick
      */
     EVENT_TAG_CLICK = 'tagClick',
+    EVENT_TAG_REMOVE = 'tagRemove',
     EVENT_TAG_CHANGE = 'tagChange',
 
     DEFAULT_OPTS = {
@@ -365,6 +366,7 @@
     if(self.val().length == 0){
       self.removeTag(lastTag);
       if(lastTag.length > 0){
+        self.trigger(EVENT_TAG_REMOVE,lastTag.attr('data-'+CSS_TAG));
         self.trigger(EVENT_TAG_CHANGE,self.getTags());
       }
     }
@@ -441,6 +443,7 @@
     {
       self.removeTag(source.parents(CSS_DOT_TAG + ':first'));
       var _tag = source.parents(CSS_DOT_TAG + ':first')
+      self.trigger(EVENT_TAG_REMOVE,_tag.attr('data-'+CSS_TAG));
       self.trigger(EVENT_TAG_CHANGE,self.getTags());
       focus = 1;
     }

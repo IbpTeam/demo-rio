@@ -1,4 +1,4 @@
-/*! ui-lib - v0.0.1 - 2015-01-04
+/*! ui-lib - v0.0.1 - 2015-01-07
 * Copyright (c) 2015 */
 function Class() {}
 
@@ -1501,6 +1501,145 @@ var ListView = Class.extend({
   }
 });
 
+var MessageBox = Class.extend({
+  init: function(id_, options_) {
+    if ($('#win' + this._id)[0]) {
+      return;
+    }
+    var _this = this;
+    this._options = {
+      width: 400,
+      height: 250,
+      close: true,
+      max: false,
+      min: false,
+      hide: false,
+      resize: false,
+      fixed_pos: true,
+      z_index: 9999,
+      title: 'title',
+      hideWindow: true,
+      buttons: [{
+        text: '确  定',
+        clkaction: function() {
+          _this.hide();
+        }
+      }, {
+        text: '取  消',
+        clkaction: function() {
+          _this.hide();
+        }
+      }]
+    };
+    //set options
+    if (options_) {
+      for (var key in options_) {
+        this._options[key] = options_[key];
+      }
+    };
+    this._id = id_; // record id
+
+    this._win = Window.create('win' + this._id, this._options['title'], this._options);
+    var marginLeft = $('#win' + this._id).outerWidth() / 2;
+    var marginTop = $('#win' + this._id).outerHeight() / 2;
+    $('#win' + this._id).css({
+      top: '50%',
+      left: '50%',
+      position: 'fixed',
+      'margin-left': -marginLeft,
+      'margin-top': -marginTop,
+      'z-index': '99999'
+    });
+
+    this._overlay = $('<div>', {
+      'id': 'overlay_' + this._id,
+      'class': "iw-modalOverlay"
+    });
+    $('body').append(this._overlay);
+    this._overlay.hide();
+    this._overlay.css({
+      width: '100%',
+      height: '100%',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      'z-index': '1000'
+    });
+
+    this._overlay.bind('mousedown', function(ev) {
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
+
+    if (this._options['close']) {
+      var $closeBtn = $('#window-win' + this._id + '-close');
+      $closeBtn.unbind().bind('click', function() {
+        _this.hide();
+      });
+    }
+    this.setButton(this._options['buttons']);
+  },
+
+  setButton: function(btns_) {
+    if (btns_ === undefined || btns_.length === 0 || btns_.length > 3) {
+      console.log('Error: parameters of function setButton are illegal.');
+      return;
+    }
+
+    if (btns_.length === 1) {
+      this._win.append('<div class="messageBox-btn"><button class="btn active" id="' + this._id + '_firstBtn">' + btns_[0].text + '</button></div>');
+      $(document).on('click', '#' + this._id + '_firstBtn', btns_[0].clkaction);
+    } else if (btns_.length === 2) {
+      this._win.append('<div class="messageBox-btn two-btns first"><button class="btn active" id="' + this._id + '_firstBtn">' + btns_[0].text + '</button></div>');
+      $(document).on('click', '#' + this._id + '_firstBtn', btns_[0].clkaction);
+
+      this._win.append('<div class="messageBox-btn two-btns second"><button class="btn active" id="' + this._id +
+        '_secondBtn">' + btns_[1].text + '</button></div>');
+      $(document).on('click', '#' + this._id + '_secondBtn', btns_[1].clkaction);
+    } else {
+      this._win.append('<div class="messageBox-btn three-btns first"><button class="btn active" id="' + this._id + '_firstBtn">' + btns_[0].text + '</button></div>');
+      $(document).on('click', '#' + this._id + '_firstBtn', btns_[0].clkaction);
+
+      this._win.append('<div class="messageBox-btn three-btns second"><button class="btn active" id="' + this._id +
+        '_secondBtn">' + btns_[1].text + '</button></div>');
+      $(document).on('click', '#' + this._id + '_secondBtn', btns_[1].clkaction);
+
+      this._win.append('<div class="messageBox-btn three-btns third"><button class="btn active" id="' +
+        this._id + '_thirdBtn">' + btns_[2].text + '</button></div>');
+      $(document).on('click', '#' + this._id + '_thirdBtn', btns_[2].clkaction);
+    }
+  },
+
+  post: function(content_) {
+    if (typeof content_ === 'string'){
+      this._content = $('<p>', {
+        class: 'messageBox-content'
+      });
+      this._content.append(content_);
+      this._win.append(this._content);
+    }else{
+      this._win.append(content_);
+      this._content = content_;
+    }
+    this.show();
+  },
+
+  hide: function() {
+    this._win.hide();
+    this._overlay.hide();
+    this._content.remove();
+  },
+
+  show: function() {
+    this._win.show();
+    this._overlay.show();
+  },
+
+  close: function() {
+    this._win.close();
+    this._overlay.remove();
+  }
+});
 /*! messenger 1.4.1 */
 /*
  * This file begins the output concatenated into messenger.js
@@ -3164,11 +3303,12 @@ var ModalBox = Class.extend({
       keyClose: true,
       bodyClose: true,
       iconImg: 'img/close.png',
-      //callback function
       onOpen: function () {},
       onClose: function () {}
     }
 
+    this._forbidClose = false;
+    this._keydown = undefined;
     if (options_) {
       for(var key in options_)
       	  this._options[key] = options_[key];
@@ -3269,6 +3409,9 @@ var ModalBox = Class.extend({
 
   close:function(){
     var _this = this;
+    if(_this._forbidClose){
+      return 0;
+    }
     if (_this._obj.hasClass('iw-modalBox')) {
       var imgId = _this._obj.attr('closeImg');
       if (imgId) {
@@ -3285,18 +3428,20 @@ var ModalBox = Class.extend({
       if ($('.iw-modalBox').length === 0) {
       	  $('.iw-modalOverlay').remove();
       	  $(document).unbind('resize.iw-modalBox');
+         $(document).unbind('keydown',_this._keydown);
       };
     };
   },
 
   keyEvent:function(){
     var _this = this;
-    $(document).keydown(function(e){
+    _this._keydown = function(e){
       var key = e.which;
       if(key === 27){
-        _this.close();
+        _this.close.call(_this);
       }
-    });
+    };
+    $(document).bind('keydown',this._keydown);
   },
   
   addOverlay:function(){
@@ -3321,6 +3466,10 @@ var ModalBox = Class.extend({
       position: 'fixed',
       'z-index': '99999'
     });
+  },
+
+  forbidClose:function(isForbid_){
+    this._forbidClose = isForbid_;
   }
 });
 //this ui is for reflection for img
@@ -3984,6 +4133,8 @@ var Window = Class.extend({
       minWidth: 200,            //设置窗口的最小宽度
       minHeight:200,            //设置窗口的最小高度
       fullScreen: false,        //双击内容全屏显示
+      z_index: 100,              //层叠深度
+      fixed_pos: false,          //是否固定位置
       left_top_color: 'grey',    //标题栏左上角的颜色
       title_align: 'center'      //标题对齐方式，left或者center
     };
@@ -4007,7 +4158,6 @@ var Window = Class.extend({
     this._saveWindowCss = '';
     this._saveWinContentCss = '';
     this._focusCallback = undefined;    //获取聚焦时的回调函数
-    this._INDEX = 100;
 
     this._window = $('<div>',{
       'id': this._id,
@@ -4180,11 +4330,11 @@ var Window = Class.extend({
   },
 
   focus:function(){
-    this._window.css('z-index' , this._INDEX +1);
+    this._window.css('z-index' , this._options['z_index'] +1);
   },
 
   blur:function(){
-    this._window.css('z-index' , this._INDEX);
+    this._window.css('z-index' , this._options['z_index']);
   },
 
   onfocus:function(callback_){
@@ -4226,7 +4376,7 @@ var Window = Class.extend({
     //drag window
     this._titleDiv.mousedown(function(ev){
       ev.preventDefault();
-      if (_this._isMax) {
+      if (_this._isMax || _this._options.fixed_pos) {
         return ;
       };
       _this._isMouseOnTitleDown = true;
@@ -4239,7 +4389,8 @@ var Window = Class.extend({
       _this._window.fadeTo(20, 1);
       _this._titleDiv.css('cursor','default');
     }).dblclick(function(){
-      _this.toggleMaxWindow();
+      if (_this._options.resize)
+        _this.toggleMaxWindow();
     });
     $(document).mousemove(function(ev){
       if(_this._isMouseOnTitleDown){ 
@@ -4556,6 +4707,15 @@ var Window = Class.extend({
 
   togglefullScreen:function(){
     this.fullScreen(!this._fullScreen);
+  },
+
+  setBackGroundImage: function(path_){
+    this._window.css({
+      'background-image': 'url(' + path_ + ')',
+      'background-size': '100% 100%'
+    });
+    this._windowContent.css('background-color', "transparent");
+    this._titleDiv.css('background-color', "transparent");
   }
 
 });
