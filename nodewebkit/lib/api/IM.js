@@ -29,7 +29,7 @@ function getLocalData(getLocalDataCb){
   var localJson={};
   localJson['account']=config.ACCOUNT;
   localJson['UID']=config.uniqueID;
-  localJson['IP']=config.getAddr();
+  localJson['IP']=config.getIPAddress();
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
