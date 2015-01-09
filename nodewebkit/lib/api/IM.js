@@ -29,7 +29,7 @@ function getLocalData(getLocalDataCb){
   var localJson={};
   localJson['account']=config.ACCOUNT;
   localJson['UID']=config.uniqueID;
-  localJson['IP']=config.getAddr();
+  localJson['IP']=config.getIPAddress();
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
@@ -323,6 +323,9 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
         SentCallBack(msgRst);
         if(flag){
           msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+          if(msgRst.MsgObj===undefined){
+            msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
+          }
           router.wsNotify({
             'Action': 'notify',
             'Event': 'imChat',
@@ -458,6 +461,8 @@ exports.sendIMMsg = sendIMMsg;
       IP: "192.168.1.100",
       UID: "2312324323dsfseferfgdghf",
       Account: "USER2",
+      group:'',
+      localUID:'rio000rio',
       Msg: "/media/fyf/BACKUP/test.txt",
       App: "app1"
     };
