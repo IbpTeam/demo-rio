@@ -291,7 +291,7 @@ var ShowFiles = Class.extend({
   refreshWaterFall:function(){
     $('#pictureContent').gridalicious({
       gutter:20,
-      width:200,
+      width:190,
       animate:true,
       animationOptions:{
         speed:150,
