@@ -17,6 +17,7 @@ var UsrInfoView = Class.extend({
     this._usrInfoContainer.append(this._usrInfoDiv);
     this._usrInfoContainer.append(this._usrExtraDiv);
     this._modalBox = undefined;
+    this._isLoadedResources = false;
     //this.setUsrInfo();
     //this.setUsrExtra('load');
   },
@@ -88,6 +89,7 @@ var UsrInfoView = Class.extend({
     }
   },
   setExtraLoad:function(){
+    var _this = this;
     var _extraLoadDiv = $('<div>',{
       'id' : 'extraLoadDiv'
     });
@@ -145,21 +147,30 @@ var UsrInfoView = Class.extend({
     var _fileUpLoad = $('<input>',{
       'id' : 'fileUpLoad',
       'type' : 'file',
-      'nwdirectory' : 'true',
-      'change' : function(){
+      'nwdirectory' : 'true'
+    });
+    _fileUpLoad.on('change',function(){
+        var _modalBoxObj = _this._modalBox;
+        _modalBoxObj.forbidClose(true);
+        document.body.style.cursor = "wait";
+        $('#closeDiv').on('click',function(){
+        });
         var resourcePath = this.value;
         if ($('#contactCheckBox')[0].checked) {
           DataAPI.loadContacts(function(err,result){
-            alert(result);
+            document.body.style.cursor = "default";
+            _modalBoxObj.forbidClose(false);
+            _this._isLoadedResources = true;
           },resourcePath);
         }else if ($('#dataCheckBox')[0].checked) {
           DataAPI.loadResources(function(result){
-            alert(result);
+            document.body.style.cursor = "default";
+            _modalBoxObj.forbidClose(false);
+            _this._isLoadedResources = true;
           },resourcePath);
         }else{
           //ToDo-err handle
         }
-      }
     });
     _uploadDiv.append(_fileUpLoad);
 
@@ -169,10 +180,17 @@ var UsrInfoView = Class.extend({
     this._usrExtraDiv.append(_extraLoadDiv);
   },
   showUsrInfo:function(){
+    var _this = this;
     this._modalBox = ModalBox.create($('#usrInfo-container'),{
       iconClose: false,                
       keyClose:true,                      
-      bodyClose:true                    
+      bodyClose:true,
+      onClose: function(){
+        if(_this._isLoadedResources){
+          parent.location.reload();
+          _this._isLoadedResources = false;
+        }
+      }                    
     });
     var _modalBoxObj = this._modalBox;
     this._closeDiv.on('click',function(){
