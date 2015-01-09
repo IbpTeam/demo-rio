@@ -127,9 +127,9 @@ function createData(item, callback) {
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
-  copyFile(sOriginPath, sFilePath, function(result) {
-    if (result !== 'success') {
-      console.log(result);
+  copyFile(sOriginPath, sFilePath, function(err) {
+    if (err) {
+      console.log(err);
       return;
     }
     dataDes.createItem(item, sDesDir, function() {
