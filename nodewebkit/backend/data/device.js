@@ -1,5 +1,4 @@
 var commonDAO = require("../commonHandle/CommonDAO");
-var msgTransfer = require("../Transfer/msgTransfer");
 var config = require("../config");
 var ds = require("../../lib/api/device_service");
 
@@ -114,7 +113,6 @@ function listenDeviceCallback(deviceObj){
   if(deviceObj.flag === "up"){
     console.log("device up:", device);
     addDevice(device);
-    msgTransfer.serviceUp(device);
   }
   if(deviceObj.flag === "down"){
     console.log("device down:", device);  
