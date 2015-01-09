@@ -9,7 +9,6 @@
  *
  * @version:0.2.1
  **/
-//var imchat = require("../IM/IMChat.js");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');

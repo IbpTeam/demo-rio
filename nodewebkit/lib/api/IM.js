@@ -1,6 +1,5 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
-var IMRsa = require("../../backend/IM/IMChat.js");
 var config = require("../../backend/config.js");
 var net = require('net');
 var fileTransfer = require("../../backend/IM/file-trans/fileTransfer");
@@ -69,9 +68,7 @@ exports.registerApp = registerApp;
 function startIMService(StartCb,Flag) {
   try {
     if (Flag === "true") {
-      IMRsa.initIMServer(Port, function(AppType,msgobj){
-        FuncObj.takeMsg(AppType,msgobj);
-      });
+      
     }else{
       IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
       FuncObj.takeMsg(AppType, msgobj);
@@ -121,7 +118,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj) {
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
-    IMRsa.sendMSGbyUID(ipset,MsgObj.Account,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+
   }else{
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
   }
@@ -175,10 +172,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj) {
         ipset["IP"] = accSetItem.toIP;
         ipset["UID"] = accSetItem.toUID;
         if (MsgObj.rsaflag === "true") {
-          IMRsa.sendMSGbyUID(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
-            if ((++countFlag) === len)
-              SentCallBack(msg);
-          });
+
         } else {
           IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
             if ((++countFlag) === len)
