@@ -419,9 +419,9 @@ var TagView = Class.extend({
         _tag = basic._tag;
         _uri = basic._uri;
       }else{
-        var _tag = ev.dataTransfer.getData('tag');
-        var _id = ev.currentTarget.id;
-        var _uri = basic.modifyUriToUri(_id).substring(0,_id.length - 3);
+        _tag = ev.dataTransfer.getData('tag');
+        _id = ev.currentTarget.id;
+        _uri = basic.modifyUriToUri(_id).substring(0,_id.length - 3);
       }
       if (typeof _tag === 'string' && _tag.length > 0) {
         DataAPI.setTagByUri(function(err){
