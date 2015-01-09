@@ -461,6 +461,8 @@ exports.sendIMMsg = sendIMMsg;
       IP: "192.168.1.100",
       UID: "2312324323dsfseferfgdghf",
       Account: "USER2",
+      group:'',
+      localUID:'rio000rio',
       Msg: "/media/fyf/BACKUP/test.txt",
       App: "app1"
     };
