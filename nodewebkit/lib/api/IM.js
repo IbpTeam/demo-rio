@@ -323,6 +323,9 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
         SentCallBack(msgRst);
         if(flag){
           msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+          if(msgRst.MsgObj===undefined){
+            msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
+          }
           router.wsNotify({
             'Action': 'notify',
             'Event': 'imChat',
