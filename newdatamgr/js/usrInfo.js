@@ -116,7 +116,7 @@ var UsrInfoView = Class.extend({
     });
     _loadContactDiv.append(_contactCheckBox);
     _loadContactDiv.append(_contactLabel);
-    _loadContactDiv.append('<span class="contactSpan">Contacts</span>');
+    _loadContactDiv.append('<label class="contactSpan" for="contactCheckBox">Contacts</label>');
     _loadContactBg.append(_loadContactDiv);
 
     var _loadDataBg = $('<div>',{
@@ -142,7 +142,7 @@ var UsrInfoView = Class.extend({
     });
     _loadDataDiv.append(_dataCheckBox);
     _loadDataDiv.append(_dataLabel);
-    _loadDataDiv.append('<span class="dataSpan">Datas</span>');
+    _loadDataDiv.append('<label class="dataSpan" for="dataCheckBox">Datas</label>');
     _loadDataBg.append(_loadDataDiv);
 
     var _uploadDiv = $('<div>',{
