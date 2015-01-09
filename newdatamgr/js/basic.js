@@ -332,7 +332,7 @@ var Basic = Class.extend({
   },
 //删除标签和删除文件的执行函数
   removeTagsOrFile:function(tags_,uri_,category_){
-    var _tags = (typeof tags_ === 'string')?[tags_]:tags_;
+    var _tags = (typeof tags_ === 'string' && tags_)?[tags_]:tags_;
     var _uri = uri_;
     var _category = category_;
     if(_tags && _uri){
@@ -376,7 +376,7 @@ var Basic = Class.extend({
           }
         },_uri);
       }else{
-        showfiles.deleteFileByUri(showfiles.uriToModifyUri(_uri));
+        showfiles.deleteFileByUri(basic.uriToModifyUri(_uri));
       }
     }
   }
