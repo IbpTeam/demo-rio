@@ -90,14 +90,14 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = 'demo-rio/newdatamgr'; //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.path = '../../app/newdatamgr'; //change 'WORK_DIRECTORY' into local.
     _datamgr_app.iconPath = 'icons/datamgr.png';
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
-    _launcher_app.path = "demo-webde/nw";
+    _launcher_app.path = "./";
     _launcher_app.iconPath = "img/launcher.png";
     _launcher_app.name = "应用启动器";
     _launcher_app.type = "inside-app";
@@ -105,7 +105,7 @@ function getnit(initType) {
 
     var _flash_app = {}
     _flash_app.id = "flash-app";
-    _flash_app.path = "demo-webde/nw/app/flash";
+    _flash_app.path = "app/flash";
     _flash_app.iconPath = "img/video.png";
     _flash_app.name = "视频播放器";
     _flash_app.type = "inside-app";
@@ -114,7 +114,7 @@ function getnit(initType) {
     var result = {}
     result.layout = {
       "type": "grid",
-      "num": 3,
+      "num": 1,
       "main": 0,
       "widget": [{
         "plugin": {
