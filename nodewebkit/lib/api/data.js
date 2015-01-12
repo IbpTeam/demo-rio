@@ -61,8 +61,18 @@ exports.sendIMMsg = sendIMMsg;
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  var sPosIndex = (sFilePath).lastIndexOf(".");
-  var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
+  var itemFullname = path.basename(sFilePath);
+  var sPos = path.extname(itemFullname);
+  if (sPos === '') {
+    sPos = 'none';
+  } else if(sPos[0] === '.') {
+    sPos = sPos.substring(1, sPos.length);
+  } else{
+    sPos = 'other';
+    console.log('some wrong with the postfix ...');
+  }
+  // var sPosIndex = (sFilePath).lastIndexOf(".");
+  // var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
   var category = null;
   if (sPos != 'csv' && sPos != 'CSV') {
     if (sPos == 'none' ||
