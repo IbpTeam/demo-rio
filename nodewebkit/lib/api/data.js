@@ -153,7 +153,7 @@ function loadResources(loadResourcesCb, path) {
       if (fs.lstatSync(path + '/' + item).isSymbolicLink()) {
         console.log('SymbolicLink: ' + path + '/' + item);
       } else if (fs.statSync(path + '/' + item).isDirectory()) {
-        if (item != '.git' && item != '.des' && item != 'contacts') {
+        if (item != '.git' && item != '.des' && item != 'contacts' && item[0] != '.') {
           if (item == 'html5ppt') {
             /*var html5pptList = fs.readdirSync(path + '/' + item);
             for (var i = 0; i < html5pptList.length; i++) {
