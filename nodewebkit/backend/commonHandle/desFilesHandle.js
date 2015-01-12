@@ -62,21 +62,18 @@ exports.getAttrFromFile = function (path,callback){
  *    @param: isLoadEnd
  *    boolean
  **/
-function createDesFile(newItem,itemDesPath,callback){
-  var sItem = JSON.stringify(newItem,null,4);
+function createDesFile(newItem, itemDesPath, callback) {
+  var sItem = JSON.stringify(newItem, null, 4);
   var sFileName = newItem.filename || newItem.name;
   var itemPath = newItem.path;
-  var sPos = "";
-  if(itemPath){
-    var sPosIndex = itemPath.lastIndexOf('.');
-    if(sPosIndex > 0){
-      sPos = itemPath.substring(sPosIndex,itemPath.length);
-    }
+  var sPos = '';
+  if (itemPath) {
+    sPos = newItem.postfix;
+    sPos = (sPos === 'none') ? '' : '.' + sPos;
   }
-  var sPath = itemDesPath+'/'+sFileName+sPos+'.md';
-  fs_extra.writeFile(sPath, sItem,function (err) {
-    if(err){
-      //console.log("writeFile error!");
+  var sPath = itemDesPath + '/' + sFileName + sPos + '.md';
+  fs_extra.writeFile(sPath, sItem, function(err) {
+    if (err) {
       console.log(err);
       return;
     }

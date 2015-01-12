@@ -106,7 +106,7 @@ function createData(item, callback) {
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
-  utils.copyFile(sOriginPath, sFilePath, function(err) {
+  utils.copyFileSync(sOriginPath, sFilePath, function(err) {
     if (err) {
       console.log(err);
       return callback(err);
@@ -206,7 +206,7 @@ function createDataAll(items, callback) {
         })
       }
       var sOriginPath = _item.path;
-      var sFileName = _item.filename + '.' + _item.postfix;
+      var sFileName = (_item.postfix === 'none') ? _item.filename : _item.filename + '.' + _item.postfix;
       var category = _item.category;
       var sRealRepoDir = utils.getRepoDir(category);
       var sDesRepoDir = utils.getDesRepoDir(category);
@@ -215,7 +215,7 @@ function createDataAll(items, callback) {
       var sFilePath = path.join(sRealDir, sFileName);
       var sDesFilePath = path.join(sDesDir, sFileName + '.md');
       _item.path = sFilePath;
-      utils.copyFile(sOriginPath, sFilePath, function(err) {
+      utils.copyFileSync(sOriginPath, sFilePath, function(err) {
         if (err) {
           console.log(err);
           return callback(err);
