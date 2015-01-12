@@ -111,23 +111,6 @@ function getnit(initType) {
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
-
-    var _test_app = {}
-    _test_app.id = "test-app";
-    _test_app.path = "demo-webde/nw/app/test-app";
-    _test_app.iconPath = "img/test-app2.png";
-    _test_app.name = "新浪NBA";
-    _test_app.type = "inside-app";
-    _test_app.idx = -1;
-
-    var _wiki_app = {}
-    _wiki_app.id = "wiki-app";
-    _wiki_app.path = "demo-webde/nw/app/wiki-app";
-    _wiki_app.iconPath = "img/icon.jpg";
-    _wiki_app.name = "维基百科";
-    _wiki_app.type = "inside-app";
-    _wiki_app.idx = -1;
-
     var result = {}
     result.layout = {
       "type": "grid",
@@ -143,19 +126,16 @@ function getnit(initType) {
           "launcher-app": _launcher_app,
           "flash-app": _flash_app,
         }
-      }, {
-        "insideApp": {
-          "test-app": _test_app
-        },
+      }, 
+      {
         "plugin": {},
         "dentry": {}
-      }, {
-        "insideApp": {
-          "wiki-app": _wiki_app
-        },
+      }, 
+      {
         "plugin": {},
         "dentry": {}
-      }]
+      }
+      ]
     }
     result.dock = {
       "launcher-app": _launcher_app,
