@@ -62,28 +62,7 @@ function watcherStop(category,callback){
 exports.watcherStop = watcherStop;
 
 
-function copyFile(source, target, cb) {
-  var cbCalled = false;
-  var rd = fs.createReadStream(source);
-  rd.on("error", function(err) {
-    done(err);
-  });
-  var wr = fs.createWriteStream(target);
-  wr.on("error", function(err) {
-    done(err);
-  });
-  wr.on("close", function(ex) {
-    done();
-  });
-  rd.pipe(wr);
 
-  function done(err) {
-    if (!cbCalled) {
-      cb(err);
-      cbCalled = true;
-    }
-  }
-}
 
 /**
  * @method createData
@@ -127,7 +106,7 @@ function createData(item, callback) {
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
-  copyFile(sOriginPath, sFilePath, function(err) {
+  utils.copyFile(sOriginPath, sFilePath, function(err) {
     if (err) {
       console.log(err);
       return callback(err);
@@ -236,7 +215,7 @@ function createDataAll(items, callback) {
       var sFilePath = path.join(sRealDir, sFileName);
       var sDesFilePath = path.join(sDesDir, sFileName + '.md');
       _item.path = sFilePath;
-      copyFile(sOriginPath, sFilePath, function(err) {
+      utils.copyFile(sOriginPath, sFilePath, function(err) {
         if (err) {
           console.log(err);
           return callback(err);

@@ -601,3 +601,28 @@ function writeJSONFile(path_, json_, callback_) {
   }
 }
 exports.writeJSONFile = writeJSONFile;
+
+function copyFile(source, target, cb) {
+  var _fs = require('./fixed_fs');
+  var cbCalled = false;
+  var rd = _fs.createReadStream(source);
+  rd.on("error", function(err) {
+    done(err);
+  });
+  var wr = _fs.createWriteStream(target);
+  wr.on("error", function(err) {
+    done(err);
+  });
+  wr.on("close", function(ex) {
+    done();
+  });
+  rd.pipe(wr);
+
+  function done(err) {
+    if (!cbCalled) {
+      cb(err);
+      cbCalled = true;
+    }
+  }
+}
+exports.copyFile = copyFile;
