@@ -71,8 +71,6 @@ function loadFile(loadFileCb, sFilePath) {
     sPos = 'other';
     console.log('some wrong with the postfix ...');
   }
-  // var sPosIndex = (sFilePath).lastIndexOf(".");
-  // var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
   var category = null;
   if (sPos != 'csv' && sPos != 'CSV') {
     if (sPos == 'none' ||
