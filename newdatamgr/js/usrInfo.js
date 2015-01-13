@@ -17,7 +17,7 @@ var UsrInfoView = Class.extend({
     this._usrInfoContainer.append(this._usrInfoDiv);
     this._usrInfoContainer.append(this._usrExtraDiv);
     this._modalBox = undefined;
-    this._isLoadedResources = true;
+    this._isLoadedResources = false;
     //this.setUsrInfo();
     //this.setUsrExtra('load');
   },
@@ -194,8 +194,8 @@ var UsrInfoView = Class.extend({
           }else{
             try{
               _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
-              var test = _window._windowContent;
-              alert(222222);
+              var _dataMgrIfm = _window._windowContent[0];
+              _dataMgrIfm.src = _dataMgrIfm.src;
             } catch(e){
               console.log(e);
             }
