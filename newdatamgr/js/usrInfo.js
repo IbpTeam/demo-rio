@@ -17,7 +17,7 @@ var UsrInfoView = Class.extend({
     this._usrInfoContainer.append(this._usrInfoDiv);
     this._usrInfoContainer.append(this._usrExtraDiv);
     this._modalBox = undefined;
-    this._isLoadedResources = false;
+    this._isLoadedResources = true;
     //this.setUsrInfo();
     //this.setUsrExtra('load');
   },
@@ -188,7 +188,18 @@ var UsrInfoView = Class.extend({
       bodyClose:true,
       onClose: function(){
         if(_this._isLoadedResources){
-          parent.location.reload();
+          var _window = undefined;
+          if (window == top){
+            parent.location.reload();
+          }else{
+            try{
+              _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+              var test = _window._windowContent;
+              alert(222222);
+            } catch(e){
+              console.log(e);
+            }
+          }
           _this._isLoadedResources = false;
         }
       }                    
