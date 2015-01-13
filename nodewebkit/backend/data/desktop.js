@@ -90,14 +90,14 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = 'demo-rio/newdatamgr'; //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.path = '../../app/newdatamgr'; //change 'WORK_DIRECTORY' into local.
     _datamgr_app.iconPath = 'icons/datamgr.png';
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
-    _launcher_app.path = "demo-webde/nw";
+    _launcher_app.path = "./";
     _launcher_app.iconPath = "img/launcher.png";
     _launcher_app.name = "应用启动器";
     _launcher_app.type = "inside-app";
@@ -105,33 +105,16 @@ function getnit(initType) {
 
     var _flash_app = {}
     _flash_app.id = "flash-app";
-    _flash_app.path = "demo-webde/nw/app/flash";
+    _flash_app.path = "app/flash";
     _flash_app.iconPath = "img/video.png";
     _flash_app.name = "视频播放器";
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
-
-    var _test_app = {}
-    _test_app.id = "test-app";
-    _test_app.path = "demo-webde/nw/app/test-app";
-    _test_app.iconPath = "img/test-app2.png";
-    _test_app.name = "新浪NBA";
-    _test_app.type = "inside-app";
-    _test_app.idx = -1;
-
-    var _wiki_app = {}
-    _wiki_app.id = "wiki-app";
-    _wiki_app.path = "demo-webde/nw/app/wiki-app";
-    _wiki_app.iconPath = "img/icon.jpg";
-    _wiki_app.name = "维基百科";
-    _wiki_app.type = "inside-app";
-    _wiki_app.idx = -1;
-
     var result = {}
     result.layout = {
       "type": "grid",
-      "num": 3,
+      "num": 1,
       "main": 0,
       "widget": [{
         "plugin": {
@@ -143,19 +126,16 @@ function getnit(initType) {
           "launcher-app": _launcher_app,
           "flash-app": _flash_app,
         }
-      }, {
-        "insideApp": {
-          "test-app": _test_app
-        },
+      }, 
+      {
         "plugin": {},
         "dentry": {}
-      }, {
-        "insideApp": {
-          "wiki-app": _wiki_app
-        },
+      }, 
+      {
         "plugin": {},
         "dentry": {}
-      }]
+      }
+      ]
     }
     result.dock = {
       "launcher-app": _launcher_app,

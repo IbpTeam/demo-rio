@@ -188,7 +188,7 @@ var Contact = Class.extend({
       'class':'ul-details'
     });
     for(var key in contact_){
-      if(key == 'URI') continue;
+      if(key == 'URI'||key == 'others') continue;
       var _li = $('<li>',{
         'class': 'li-details'
       });
@@ -233,7 +233,7 @@ var Contact = Class.extend({
   addContact: function(){
     var _this = this;
     _this.removeDetails();
-    var keys = ['name', 'phone', 'email', 'sex', 'age', 'others'];
+    var keys = ['name', 'phone', 'email', 'sex', 'age'];
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
@@ -307,7 +307,7 @@ var Contact = Class.extend({
       'class':'ul-details'
     });
     for(var key in contact_){
-      if(key == 'URI') continue;
+      if(key === 'URI' || key === 'others') continue;
       var _li = $('<li>',{
         'class': 'li-details'
       });
@@ -342,7 +342,7 @@ var Contact = Class.extend({
     $('#save-button').on('click', function(){
       var _newContact = {};
       for(var key in contact_){
-        if(key == 'URI') continue;
+        if(key == 'URI' || key == 'others') continue;
         var _newValue = document.getElementById(key).value;
         _newContact[key] = _newValue;
       }
