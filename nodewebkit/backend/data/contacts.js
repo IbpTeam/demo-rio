@@ -25,8 +25,6 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
 
@@ -75,27 +73,21 @@ function createData(item, callback) {
           if (err) {
             return callback(err, null);
           }
-          var sDesFilePath = pathModule.join(DES_DIR, oNewItem.name + '.md');
-          repo.repoCommit(DES_REPO_DIR, [sDesFilePath], null, 'add', function(err) {
-            if (err) {
-              return callback(err, null);
-            }
-            if (item.others != '' && item.others != null) {
-              var oTags = item.others.split(',');
-              tagsHandle.addInTAGS(oTags, uri, function(err) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
-            } else {
+          if (item.others != '' && item.others != null) {
+            var oTags = item.others.split(',');
+            tagsHandle.addInTAGS(oTags, uri, function(err) {
+              if (err) {
+                return callback(err, null);
+              }
               callback(null, 'success');
-            }
-          })
-        })
+            });
+          } else {
+            callback(null, 'success');
+          }
+        });
       });
-    })
-  })
+    });
+  });
 }
 exports.createData = createData;
 
@@ -243,10 +235,7 @@ function removeByUri(uri, callback) {
             callback("error");
             return;
           }
-          //Git commit
-          var aDesFiles = [sDesFullPath];
-          var sDesDir = utils.getDesDir(CATEGORY_NAME);
-          repo.repoCommit(sDesDir, aDesFiles, null, "rm", callback);
+          callback(null,'success');
         });
       }
     });
@@ -292,7 +281,7 @@ function initContacts(loadContactsCb, sItemPath) {
     }
 
     function isEndCallback(_oDesFiles) {
-      repo.repoCommit(contactsPath, _oDesFiles, null, "add", loadContactsCb);
+      callback(null,'success');
     }
     for (var k = 0; k < oContacts.length; k++) {
       var isContactEnd = (k == (oContacts.length - 1));
@@ -369,9 +358,3 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
-
-
-function repoSearch(repoSearchCb, sKey) {
-  repo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
-}
-exports.repoSearch = repoSearch;

@@ -14,13 +14,11 @@ var http = require("http");
 var url = require("url");
 var sys = require('sys');
 var pathModule = require('path');
-var git = require("nodegit");
 var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
 var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
 var events = require('events');
@@ -35,8 +33,6 @@ var dataDes = require('../commonHandle/desFilesHandle');
 //@const
 var CATEGORY_NAME = "music";
 var DES_NAME = "musicDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 
@@ -315,7 +311,6 @@ function removeByUri(uri, callback) {
       } else {
         //Remove Des file
         //Delete in db
-        //Git commit
         commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
       }
     });
@@ -465,22 +460,20 @@ function openDataByUri(openDataByUriCb, uri) {
       var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
       util.log("desPath=" + desFilePath);
       dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"open", function() {
-          updateItem.category = CATEGORY_NAME;
-          var updateItems = new Array();
-          var condition = [];
-          condition.push("URI='" + item.URI + "'");
-          updateItems.conditions = condition;
-          updateItems.push(updateItem);
-          readId3FromMp3(item.path,function(err,tags){
-                  console.log("read mp3 "+item);
-                  console.log(err);
-                  console.log(tags);
-                });
-          commonDAO.updateItems(updateItems, function(result) {
-            console.log(result);
-            openDataByUriCb(source);
-          });
+        updateItem.category = CATEGORY_NAME;
+        var updateItems = new Array();
+        var condition = [];
+        condition.push("URI='" + item.URI + "'");
+        updateItems.conditions = condition;
+        updateItems.push(updateItem);
+        readId3FromMp3(item.path,function(err,tags){
+          console.log("read mp3 "+item);
+          console.log(err);
+          console.log(tags);
+        });
+        commonDAO.updateItems(updateItems, function(result) {
+          console.log(result);
+          openDataByUriCb(source);
         });
       });
     }
@@ -495,120 +488,6 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
-
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param resourcesPath
- *    Repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
-  commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
-}
-exports.pullRequest = pullRequest;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        array, result of git log
- *
- **/
-function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
-  resourceRepo.getGitLog(DES_REPO_DIR, callback);
-}
-exports.getGitLog = getGitLog;
-
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(commitID, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID!="null") {
-        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } 
-          else {
-            resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  callback({
-                    'document': err
-                  }, null);
-                } 
-                else {
-                  console.log('reset success!')
-                  callback(null, result)
-                }
-              });
-            });
-          }
-        })
-      } 
-      else {
-        resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } 
-          else {
-            console.log('reset success!')
-            callback(null, result)
-          }
-        });
-      }
-    }
-  });
-}
-exports.repoReset = repoReset;
 
 function rename(sUri, sNewName, callback) {
   commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
@@ -686,9 +565,3 @@ function getMusicPicData(filePath, callback) {
   })
 }
 exports.getMusicPicData = getMusicPicData;
-
-
-function repoSearch(repoSearchCb, sKey) {
-  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
-}
-exports.repoSearch = repoSearch;
