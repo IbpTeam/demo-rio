@@ -31,7 +31,9 @@ var PropertyView = Class.extend({
       'class':'content-div',
     });
     this._json = json_;
-    var _json_arys = ['createDev','postfix','actorName','location','TALB','TPE1','TIT2','size','createTime','lastAccessTime','lastModifyTime','lastAccessDev','lastModifyDev','others'];
+    var _json_arys = ['createDev','postfix','actorName','location','TALB','TPE1','TIT2'
+          ,'size','createTime','lastAccessTime','lastModifyTime','lastAccessDev'
+          ,'lastModifyDev'];
     var text;
     for(var key = 0; key<=_json_arys.length-1;key++){
       if((this._json[_json_arys[key]] != null)&&(this._json[_json_arys[key]] != 'null')) {
@@ -64,6 +66,22 @@ var PropertyView = Class.extend({
           continue; 
       }
     }
+    var _window_text = $('<li>',{
+      'class':'window-text',
+    });
+    var _text_title = $('<span>',{
+      'class':'text-title',
+      'text':'tags:'
+    });
+    var _tag_area = $('<textarea>',{
+      'class':'tag-area',
+      'readonly':'readonly'
+    });
+    _tag_area[0].innerHTML = json_['others'].replace(/,/g,', ');
+    _window_text.append(_text_title);
+    _window_text.append(_tag_area);
+    _content_div.append(_window_text);
+
     var _window_img = $('<div>',{
       'class':'window-img',
     });
