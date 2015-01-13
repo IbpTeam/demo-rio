@@ -88,7 +88,7 @@
      */
   
     DEFAULT_OPTS = {
-      prompt : 'Search...',
+      prompt : '搜索...',
 
       html : {
         prompt : '<div class="text-prompt"/>'

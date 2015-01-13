@@ -8,7 +8,7 @@ var GitLog = Class.extend({
     });
     this._select = $('<input>',{
      'class': 'gitselect',
-     'value': 'contact',
+     'value': '联系人',
      'readonly': 'readonly'
     });
     this._selectsearch = $('<input>',{
@@ -31,7 +31,7 @@ var GitLog = Class.extend({
     this._gitcontent = $('<div>',{
      'class':'git-content'
     })
-    this._category = ['contact', 'picture','video','document','music','other'];
+    this._category = ['联系人', '图片','视频','文档','音乐','其他类型'];
     for (var i = 0; i <= this._category.length - 1; i++) {
       var _option = $('<li>',{
         'class':'gitlog-li',
@@ -180,7 +180,7 @@ var GitLog = Class.extend({
       _li.append(_file_select);
       var _recover_button = $('<button>', {
         'id': 'recover-button',
-        'text': 'Confirm Recover'
+        'text': '确认恢复'
       });
       _li.append(_recover_button);
       var _num = 0;

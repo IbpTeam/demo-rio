@@ -22,7 +22,7 @@ var MainContactView = Class.extend({
     this._ContactsTitleContent.append(this._ContactsTitleTag);
     this._ContactsTitleText = $('<span>',{
       'id': 'contacts-title-text',
-      'text': 'Contacts'
+      'text': '联系人'
     })
     this._ContactsTitleContent.append(this._ContactsTitleText);
     this._titlebutton = $('<div>',{

@@ -130,7 +130,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'Sort by Time'
+      'text':'按时间排序'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
