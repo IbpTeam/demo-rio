@@ -1889,7 +1889,7 @@ function copyFile(callback, oldPath, newPath) {
   var oldFullpath = configPath + oldPath;
   var newFullpath = configPath + newPath;
   console.log(oldFullpath, newFullpath);
-  fs_extra.copy(oldFullpath, newFullpath, function(err) {
+  utils.copyFile(oldFullpath, newFullpath, function(err) {
     if (err) {
       console.log(err);
       var _err = 'copyFile : copy error';
