@@ -649,41 +649,41 @@ function getFilesByTag(sTag, callback) {
 exports.getFilesByTag = getFilesByTag;
 
 function getMusicPicData(filePath, callback) {
-  var mm = require('musicmetadata');
-  var category = utils.getCategoryByPath(filePath).category;
-  if (category !== 'music') {
-    var _err = 'BAD TYPE: not a music file ...';
-    return callback(_err, null);
-  }
-  fs.open(filePath, 'r', function(err) {
-    if (err) {
-      return callback(err, null);
+  var ID3 = require('id3v2-parser');
+  var stream = require('fs').createReadStream(filePath);
+  var parser = stream.pipe(new ID3());
+  var noPic = true;
+
+  function backupIcon(callback) {
+    var option = {
+      encoding: 'base64'
     }
-    var parser = mm(fs.createReadStream(filePath));
-    parser.on('metadata', function(result) {
-      if (result.picture != '') {
-        var picData = result.picture[0].data;
-        return callback(null, (picData).toString('base64'));
-      } else {
-        //if no music thumbnail found, then read a backup icon in local.
-        var option = {
-          encoding: 'base64'
-        }
-        var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
-        fs.readFile(backup_icon, option, function(err, buffer_base64) {
-          if (err) {
-            return callback(err, null);
-          }
-          return callback(null, buffer_base64);
-        })
-      }
-    });
-    parser.on('done', function(err) {
+    var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
+    fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
         return callback(err, null);
       }
-    });
-  })
+      return callback(null, buffer_base64);
+    })
+  }
+
+  parser.on('error', function() {
+    //if error, then read a backup icon in local.
+    return backupIcon(callback);
+  });
+  parser.on('data', function(tag) {
+    if (tag.type == 'APIC') {
+      noPic = false;
+      var picData = tag.value.data;
+      return callback(null, (picData).toString('base64'));
+    }
+  });
+  stream.on('close', function() {
+    if (noPic) {
+      //if no music thumbnail found, then read a backup icon in local.
+      return backupIcon(callback);
+    }
+  });
 }
 exports.getMusicPicData = getMusicPicData;
 
