@@ -144,6 +144,10 @@ var UsrInfoView = Class.extend({
     var _uploadDiv = $('<div>',{
       'id' : 'uploadDiv'
     });
+    var _upLoadName = $('<span>',{
+      'id' : 'uploadName',
+      'text': 'Import'
+    });
     var _fileUpLoad = $('<input>',{
       'id' : 'fileUpLoad',
       'type' : 'file',
@@ -173,7 +177,7 @@ var UsrInfoView = Class.extend({
         }
     });
     _uploadDiv.append(_fileUpLoad);
-
+    _uploadDiv.append(_upLoadName);
     _extraLoadDiv.append(_loadContactBg);
     _extraLoadDiv.append(_loadDataBg);
     _extraLoadDiv.append(_uploadDiv);

@@ -86,6 +86,7 @@
       #doc-content{
         position: absolute;
         .scroll();
+        overflow: auto;
         top:40px;
         bottom: 0px;
         width: 100%;
@@ -103,10 +104,10 @@
   float: left;
   position: relative;
   border :1px solid rgba(0,0,0,0);
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-box-pack: center;
-  -webkit-box-align: center;
+  //display: -webkit-box;
+  //-webkit-box-orient: vertical;
+  //-webkit-box-pack: center;
+  //-webkit-box-align: center;
   cursor: pointer;
   &:hover {
     background-color: rgba(167,167,167,0.1);
@@ -114,14 +115,17 @@
     cursor: pointer;
   }
   img {
-    width: 28px;
+    width: 35px;
     z-index: 98;
+    display:block;
+    margin: 0px auto;
+    margin-top: 5px;
   }
 
   p {
     width: 82%;
     height: 37px;
-    margin: 2px 0px;
+    margin: 2px auto;
     font-size: 12px;
     text-align: center;
     overflow: hidden;

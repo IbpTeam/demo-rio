@@ -85,6 +85,10 @@ var MainDocView = Class.extend({
           'path': document_json_[i]['path']
         });
       }
+      /*$("#doc-content").mCustomScrollbar({
+        theme:"minimal",
+        axis:"y"
+      });*/
     }, 'document', 30);
   },
 
@@ -136,6 +140,7 @@ var MainDocView = Class.extend({
     this._docContainer.show();
   },
 
+
   getType:function(postfix_){
     if(postfix_ == 'ppt' || postfix_ == 'pptx'){
       return 'Powerpoint';
@@ -160,10 +165,11 @@ var MainDocView = Class.extend({
     }
   },
 
+
   doubleClickEvent:function(jQueryElement,whichClass){
     //一个JQuery元素代表的是一系列文件
     this.files = jQueryElement;
-    var _this = this;
+    var _this = this;f
     //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
       file=JSON.parse(this.id)
@@ -173,3 +179,7 @@ var MainDocView = Class.extend({
     });
   }
 });
+
+
+
+
