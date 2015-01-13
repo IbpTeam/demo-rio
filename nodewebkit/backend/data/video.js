@@ -24,6 +24,7 @@ var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
 var probe = require('node-ffprobe');
 var thumbler = require('video-thumb');
+var exec = require('child_process').exec;
 
 //@const
 var CATEGORY_NAME = "video";
@@ -35,36 +36,57 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 
 function readVideoMetadata(sPath, callback) {
-  probe(sPath, function(err, probeData) {
-    if (err) {
-      return callback(err, null);
+    var oMetadata = {
+      filename: '',
+      format_long_name: '',
+      width: '',
+      height: '',
+      display_aspect_ratio: '',
+      pix_fmt: '',
+      duration: '',
+      major_brand: '',
+      minor_version: '',
+      compatible_brands: '',
     }
-    var audioInfo = {};
-    for (var type in probeData.streams) {
-      if (probeData.streams[type].codec_type === "video") {
-        audioInfo = probeData.streams[type];
+    var sCommand = ''
+    exec(sCommand, function(err, stdout, stderr) {
+      if (err) {
+        return callback(null, oMetadata);
       }
-    }
-    if (!probeData.format) {
-      probeData.format = {}
-    }
-    if (!probeData.metadata) {
-      probeData.metadata = {}
-    }
-    var extraInfo = {
-      filename: probeData.filename,
-      format_long_name: probeData.format.format_long_name || '',
-      width: audioInfo.width || '',
-      height: audioInfo.height || '',
-      display_aspect_ratio: audioInfo.display_aspect_ratio || '',
-      pix_fmt: audioInfo.pix_fmt || '',
-      duration: audioInfo.duration || probeData.format.duration || '',
-      major_brand: probeData.metadata.major_brand || '',
-      minor_version: probeData.metadata.minor_version || '',
-      compatible_brands: probeData.metadata.compatible_brands || '',
-    }
-    callback(null, extraInfo);
-  });
+
+    })
+
+
+  // probe(sPath, function(err, probeData) {
+  //   if (err) {
+  //     return callback(err, null);
+  //   }
+  //   var audioInfo = {};
+  //   for (var type in probeData.streams) {
+  //     if (probeData.streams[type].codec_type === "video") {
+  //       audioInfo = probeData.streams[type];
+  //     }
+  //   }
+  //   if (!probeData.format) {
+  //     probeData.format = {}
+  //   }
+  //   if (!probeData.metadata) {
+  //     probeData.metadata = {}
+  //   }
+  //   var extraInfo = {
+  //     filename: probeData.filename,
+  //     format_long_name: probeData.format.format_long_name || '',
+  //     width: audioInfo.width || '',
+  //     height: audioInfo.height || '',
+  //     display_aspect_ratio: audioInfo.display_aspect_ratio || '',
+  //     pix_fmt: audioInfo.pix_fmt || '',
+  //     duration: audioInfo.duration || probeData.format.duration || '',
+  //     major_brand: probeData.metadata.major_brand || '',
+  //     minor_version: probeData.metadata.minor_version || '',
+  //     compatible_brands: probeData.metadata.compatible_brands || '',
+  //   }
+  //   callback(null, extraInfo);
+  // });
 }
 
 function readVideoThumbnail(sPath, callback) {
