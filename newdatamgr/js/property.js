@@ -23,7 +23,7 @@ var PropertyView = Class.extend({
     this._json = {};
   },
   loadData:function(json_){
-    this._window = Window.create('property-window','property',this._windowOption);
+    this._window = Window.create('property-window','属性',this._windowOption);
     var _window_div = $('<div>',{
       'class':'window-div',
     });
