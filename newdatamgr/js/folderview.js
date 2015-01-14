@@ -54,38 +54,38 @@ var ShowFiles = Class.extend({
   setDataContextMenu:function(){
     contextMenu.addCtxMenu([
       {header: 'data menu'},
-      {text:'Open',action:function(){
+      {text:'打开',action:function(){
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         var file = basic.findFileByURI(modifyURI,_globalSelf._getFiles[_globalSelf._index]);
         basic.openFile(file);
       }},
-      {text:'Rename',action:function(){
+      {text:'重命名',action:function(){
         _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
       }},
-      {text:'Delete',action:function(){
+      {text:'删除',action:function(){
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
       }},
-      {text:'Tag', subMenu:[
+      {text:'标签', subMenu:[
         {header: 'tag'},
-        {text: 'Add',action:function(){
+        {text: '增加',action:function(){
           var _id = _globalSelf._contextMenuDivID;
           var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
           var _target = _globalSelf._showContent.find('#'+_id);
           basic.addTagView(_target,_uri,'no-contact');
         }},
-        {text: 'Remove', action:function(){
+        {text: '删除', action:function(){
           var _id = _globalSelf._contextMenuDivID;
           var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
           var _target = _globalSelf._showContent.find('#'+_id);
           basic.removeTagView(_target,_uri,'no-contact');
         }}
       ]},
-      {text: 'Detail',action:function(){
+      {text: '详细信息',action:function(){
         var _id = _globalSelf._contextMenuDivID;
         var _modifyUri = _globalSelf.getModifyUriById(_id);
         var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);

@@ -110,15 +110,15 @@ var Contact = Class.extend({
     var _this = this;
     contextMenu.addCtxMenu([
       {header: 'contact menu'},
-      {text:'Tag', subMenu:[
-        {text: 'Add',action:function(){
+      {text:'标签', subMenu:[
+        {text: '增加',action:function(){
           basic.addTagView(_this,_this._contacts[_this._selectId]['URI'],'contact');
         }},
-        {text: 'Remove', action:function(){
+        {text: '删除', action:function(){
           basic.removeTagView(_this._contactHead,_this._contacts[_this._selectId]['URI'],'contact');
         }}
       ]},
-      {text: 'Remove Contact', action:function(){
+      {text: '删除联系人', action:function(){
         DataAPI.rmDataByUri(function(err, result){
           if(result == "success"){
             _this._contacts.splice(_this._selectId, 1);
@@ -129,7 +129,7 @@ var Contact = Class.extend({
           }
         },_this._contacts[_this._selectId]['URI']);
       }},
-      {text: 'Edit Contact',action:function(){
+      {text: '编辑联系人',action:function(){
         _this.editDetails(_this._contacts[_this._selectId], _this._selectId);
       }}
     ]);
