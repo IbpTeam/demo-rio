@@ -24,6 +24,7 @@ var cp = require('child_process');
 var path = require('path');
 var cryptoApp= require('./backend/crypto_app');
 var appManager = require('./backend/app/appManager');
+var IM = require("./backend/IM/IM");
 //var process = require('process');
 
 var handle = {}
@@ -75,6 +76,7 @@ function startApp(){
     initializeApp(sFullPath);
   });
   server.start(router.route, handle);
+  IM.startIMService(function(){},false);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
