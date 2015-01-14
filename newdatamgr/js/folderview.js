@@ -33,16 +33,16 @@ var ShowFiles = Class.extend({
   setDocumentContextMenu:function(id_){
     contextMenu.addCtxMenu([
       {header: 'document menu'},
-      {text:'New Text',action:function(){
+      {text:'新建文本文档',action:function(){
 
       }},
-      {text:'New Document',action:function(){
+      {text:'新建文档',action:function(){
 
       }},
-      {text:'New PPT',action:function(){
+      {text:'新建PPT',action:function(){
 
       }},
-      {text:'New Excel',action:function(){
+      {text:'新建Excel',action:function(){
 
       }},
     ]);
@@ -54,38 +54,38 @@ var ShowFiles = Class.extend({
   setDataContextMenu:function(){
     contextMenu.addCtxMenu([
       {header: 'data menu'},
-      {text:'Open',action:function(){
+      {text:'打开',action:function(){
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         var file = basic.findFileByURI(modifyURI,_globalSelf._getFiles[_globalSelf._index]);
         basic.openFile(file);
       }},
-      {text:'Rename',action:function(){
+      {text:'重命名',action:function(){
         _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
       }},
-      {text:'Delete',action:function(){
+      {text:'删除',action:function(){
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
       }},
-      {text:'Tag', subMenu:[
+      {text:'标签', subMenu:[
         {header: 'tag'},
-        {text: 'Add',action:function(){
+        {text: '增加',action:function(){
           var _id = _globalSelf._contextMenuDivID;
           var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
           var _target = _globalSelf._showContent.find('#'+_id);
           basic.addTagView(_target,_uri,'no-contact');
         }},
-        {text: 'Remove', action:function(){
+        {text: '删除', action:function(){
           var _id = _globalSelf._contextMenuDivID;
           var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
           var _target = _globalSelf._showContent.find('#'+_id);
           basic.removeTagView(_target,_uri,'no-contact');
         }}
       ]},
-      {text: 'Detail',action:function(){
+      {text: '详细信息',action:function(){
         var _id = _globalSelf._contextMenuDivID;
         var _modifyUri = _globalSelf.getModifyUriById(_id);
         var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);
@@ -130,7 +130,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'Sort by Time'
+      'text':'按时间排序'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
@@ -867,10 +867,10 @@ var ShowFiles = Class.extend({
     //设置表头的信息
     var theadtr = $('<tr></tr>');
     var theadMessage = this.getShowMessage();
-    theadtr.append($('<th>Name</th>'));
-    theadtr.append($('<th>Date Modified</th>'));
-    theadtr.append($('<th>Size</th>'));
-    theadtr.append($('<th>Date Added</th>'));
+    theadtr.append($('<th>名称</th>'));
+    theadtr.append($('<th>修改日期</th>'));
+    theadtr.append($('<th>大小</th>'));
+    theadtr.append($('<th>添加时间</th>'));
     theadtr.addClass('theadtr');
     thead.append(theadtr);
     //设置表格内具体内容
@@ -914,16 +914,16 @@ var ShowFiles = Class.extend({
       'class':'sortByTime'
     });
     var todaySpan = $('<span>',{
-      'text':'Today'
+      'text':'今天'
     });
     var previous7DaysSpan = $('<span>',{
-      'text':'Previous 7 Days'
+      'text':'7天以内'
     });
     var previous30DaysSpan = $('<span>',{
-      'text':'Previous 30 Days'
+      'text':'一个月以内'
     });
     var previousOneYearSpan = $('<span>',{
-      'text':'Previous One Year'
+      'text':'一年以内'
     });
     today.append(todaySpan);
     previous7Days.append(previous7DaysSpan);
