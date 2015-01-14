@@ -22,8 +22,6 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
-var probe = require('node-ffprobe');
-var thumbler = require('video-thumb');
 var exec = require('child_process').exec;
 
 //@const
