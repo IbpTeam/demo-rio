@@ -212,13 +212,13 @@ var Contact = Class.extend({
     var _addButton = $('<input>', {
       'type' : 'button',
       'id': 'add-button',
-      'value': 'Add'
+      'value': '添加'
     });
     _buttonsDiv.append(_addButton);
     var _editButton = $('<input>', {
       'type' : 'button',
       'id' : 'edit-button',
-      'value' : 'Edit'
+      'value' : '编辑'
     });
     _buttonsDiv.append(_editButton);
     _this._contactDetails.append(_buttonsDiv);
@@ -234,6 +234,7 @@ var Contact = Class.extend({
     var _this = this;
     _this.removeDetails();
     var keys = ['name', 'phone', 'email', 'sex', 'age'];
+	  var keys_chs = ['姓名','电话','邮件','性别','年龄'];
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
@@ -243,7 +244,7 @@ var Contact = Class.extend({
       });
       var _keyDiv = $('<div>', {
         'class': 'div-key',
-        'text': keys[i]
+        'text': keys_chs[i]
       });
       var _valueDiv = $('<div>', {
         'class': 'div-value',
@@ -264,7 +265,7 @@ var Contact = Class.extend({
     var _confirmAddButton = $('<input>', {
       'type' : 'button',
       'id' : 'confirm-add-button',
-      'value' : 'Add'
+      'value' : '添加'
     });
     _buttonsDiv.append(_confirmAddButton);
     _this._contactDetails.append(_buttonsDiv);
@@ -335,7 +336,7 @@ var Contact = Class.extend({
     var _saveButton = $('<input>', {
       'type' : 'button',
       'id' : 'save-button',
-      'value' : 'Save'
+      'value' : '保存'
     });
     _buttonsDiv.append(_saveButton);
     _this._contactDetails.append(_buttonsDiv);

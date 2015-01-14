@@ -33,16 +33,16 @@ var ShowFiles = Class.extend({
   setDocumentContextMenu:function(id_){
     contextMenu.addCtxMenu([
       {header: 'document menu'},
-      {text:'New Text',action:function(){
+      {text:'新建文本文档',action:function(){
 
       }},
-      {text:'New Document',action:function(){
+      {text:'新建文档',action:function(){
 
       }},
-      {text:'New PPT',action:function(){
+      {text:'新建PPT',action:function(){
 
       }},
-      {text:'New Excel',action:function(){
+      {text:'新建Excel',action:function(){
 
       }},
     ]);
@@ -914,16 +914,16 @@ var ShowFiles = Class.extend({
       'class':'sortByTime'
     });
     var todaySpan = $('<span>',{
-      'text':'Today'
+      'text':'今天'
     });
     var previous7DaysSpan = $('<span>',{
-      'text':'Previous 7 Days'
+      'text':'7天以内'
     });
     var previous30DaysSpan = $('<span>',{
-      'text':'Previous 30 Days'
+      'text':'一个月以内'
     });
     var previousOneYearSpan = $('<span>',{
-      'text':'Previous One Year'
+      'text':'一年以内'
     });
     today.append(todaySpan);
     previous7Days.append(previous7DaysSpan);
