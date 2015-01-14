@@ -51,19 +51,19 @@ var UsrInfoView = Class.extend({
     });
     var _usrName = $('<li>',{
       'class' : 'usrInfo-ul',
-      'text' : 'Name: ' + _tempName
+      'text' : '用户名: ' + _tempName
     });
     var _usrIp = $('<li>',{
       'class' : 'usrInfo-ul',
-      'text' : 'IP: ' + _tmpIp
+      'text' : 'IP地址: ' + _tmpIp
     });
     var _usrDevices = $('<li>',{
       'class' : 'usrInfo-ul',
-      'text' : 'Devices: ' + _tmpDevices
+      'text' : '设备ID: ' + _tmpDevices
     });
     var _usrOthers = $('<li>',{
       'class' : 'usrInfo-ul',
-      'text' : 'Others: ' + _tmpOthers
+      'text' : '其他: ' + _tmpOthers
     });
     _usrInfoUl.append(_usrName);
     _usrInfoUl.append(_usrIp);
@@ -116,7 +116,7 @@ var UsrInfoView = Class.extend({
     });
     _loadContactDiv.append(_contactCheckBox);
     _loadContactDiv.append(_contactLabel);
-    _loadContactDiv.append('<label class="contactSpan" for="contactCheckBox">Contacts</label>');
+    _loadContactDiv.append('<label class="contactSpan" for="contactCheckBox">联系人</label>');
     _loadContactBg.append(_loadContactDiv);
 
     var _loadDataBg = $('<div>',{
@@ -142,7 +142,7 @@ var UsrInfoView = Class.extend({
     });
     _loadDataDiv.append(_dataCheckBox);
     _loadDataDiv.append(_dataLabel);
-    _loadDataDiv.append('<label class="dataSpan" for="dataCheckBox">Datas</label>');
+    _loadDataDiv.append('<label class="dataSpan" for="dataCheckBox">数据</label>');
     _loadDataBg.append(_loadDataDiv);
 
     var _uploadDiv = $('<div>',{

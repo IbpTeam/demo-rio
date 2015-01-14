@@ -2,10 +2,10 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = ['Contacts','Images','Videos','Documents','Music','Others'];
+    this._title = ['联系人','图片','视频','文档','音乐','其他类型'];
     this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(224,214,229,1)'];
 
-    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays','Recent Visit'];
+    this._btmTitle = ['最近联系', '最近访问', '最近观看','最近访问','最近播放','最近访问'];
 
     this._index = -1;
     this._info = {};

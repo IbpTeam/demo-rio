@@ -1,4 +1,5 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
+var IM = require("../../backend/IM/IM.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
 var config = require("../../backend/config.js");
 var router = require('../../backend/router.js');
@@ -8,7 +9,6 @@ var fileTransferServer = require("../../backend/IM/file-trans/fileTransferServer
 var fileTransferClient= require("../../backend/IM/file-trans/fileTransferClient");
 var crypto = require('crypto');
 
-var Port = 7777;
 var fileServer;
 var pathMap;
 
@@ -111,19 +111,7 @@ exports.registerIMApp = registerIMApp;
  *
  */
 function startIMService(StartCb,Flag) {
-  try {
-    if (Flag === "true") {
-      
-    }else{
-      IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
-      FuncObj.takeMsg(AppType, msgobj);
-    });
-    } 
-    StartCb(true);
-  } catch (err) {
-    console.log(err);
-    StartCb(false);
-  }
+  IM.startIMService(StartCb,flag);
 }
 exports.startIMService = startIMService;
 
@@ -166,7 +154,7 @@ function sendAppMsg(SentCallBack, MsgObj) {
   if (MsgObj.rsaflag === "true") {
 
   }else{
-    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, SentCallBack);
   }
 }
 exports.sendAppMsg = sendAppMsg;
@@ -224,7 +212,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
-    IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+    IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
       if(flag){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
@@ -237,7 +225,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
       }
     });
   } else {
-    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
       if(flag){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
@@ -341,7 +329,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
         if (MsgObj.rsaflag === "true") {
 
         } else {
-          IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
+          IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, MsgObj.App, function(msg) {
             if (msgRst === undefined)
               msgRst = msg;
             if ((++countFlag) === len) {

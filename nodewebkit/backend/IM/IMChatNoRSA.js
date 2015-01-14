@@ -231,14 +231,14 @@ function senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK) {
   sendIMMsg(IPSET.IP, PORT, tmpmsg, SENTCALLBACK);
 }
 
-function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT,TOAPP, SENTCALLBACK) {
+function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG,TOAPP, SENTCALLBACK) {
   if (typeof IPSET.UID == "undefined") {
     //console.log("receiver uuid null");
     /*
     here are some server msg send functions!
     */
   };
-  senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK);
+  senderFunc(ACCOUNT, IPSET, config.IMPORT, MSG, TOAPP,SENTCALLBACK);
 }
 
 
