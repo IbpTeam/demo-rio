@@ -17,7 +17,6 @@ var config = require("../config");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var desFilesHandle = require("../commonHandle/desFilesHandle");
 var tagsHandle = require("../commonHandle/tagsHandle");
 var utils = require('../utils');
@@ -31,7 +30,6 @@ var configPath = config.RESOURCEPATH + "/desktop";
 var CATEGORY_NAME = "desktop";
 var DES_NAME = "desktopDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var REAL_APP_DIR = pathModule.join(REAL_DIR, 'applications');
 var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
@@ -201,14 +199,8 @@ function initDesktop(callback) {
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
                 buildDesFile('Theme', 'conf', pathTheme, function() {
                   buildDesFile('Widget', 'conf', pathWidget, function() {
-                    resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, [pathTheme, pathWidget], [sThemeDesDir, sWidgetDesDir], function(err, result) {
-                      if (err) {
-                        console.log(err)
-                        return callback(err, null);
-                      }
-                    })
-                  })
-                })
+                  });
+                });
               }
               buildLocalDesktopFile(function() {
                 buildAppMethodInfo('defaults.list', function(err, result) {
@@ -335,12 +327,7 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
+              callback(null, 'success');
             }
           });
         }
@@ -1348,12 +1335,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                 console.log('update ' + sFileName + ' des file error!\n', err);
                 return callback(err, null);
               }
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, "success");
-              })
+              callback(null, "success");
             });
           });
         }
