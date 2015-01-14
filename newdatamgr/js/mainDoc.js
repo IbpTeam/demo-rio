@@ -85,10 +85,6 @@ var MainDocView = Class.extend({
           'path': document_json_[i]['path']
         });
       }
-      /*$("#doc-content").mCustomScrollbar({
-        theme:"minimal",
-        axis:"y"
-      });*/
     }, 'document', 30);
   },
 
