@@ -165,7 +165,7 @@ var MainDocView = Class.extend({
   doubleClickEvent:function(jQueryElement,whichClass){
     //一个JQuery元素代表的是一系列文件
     this.files = jQueryElement;
-    var _this = this;f
+    var _this = this;
     //绑定双击事件
     this.files.delegate(whichClass,'dblclick',function(e){
       file=JSON.parse(this.id)
