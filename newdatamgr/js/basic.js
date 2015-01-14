@@ -39,7 +39,7 @@ var Basic = Class.extend({
       'type':'button',
       'class':'btn btn-default',
       'data-dismiss':'modal',
-      'text':'Close'
+      'text':'关闭'
     });
     footer.append(footerButton);
   
