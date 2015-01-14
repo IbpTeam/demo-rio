@@ -1013,7 +1013,7 @@ exports.shellExec = shellExec;
  **/
 function copyFile(copyFileCb, fromPath, toPath) {
   console.log("Request handler 'copyFile' was called.");
-  desktopConf.copyFile(copyFileCb, fromPath, toPath);
+  desktopConf.copyFile(fromPath, toPath,copyFileCb);
 }
 exports.copyFile = copyFile;
 
