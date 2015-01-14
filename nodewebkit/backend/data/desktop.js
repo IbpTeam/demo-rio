@@ -10,7 +10,7 @@
  * @version:0.1.1
  **/
 var pathModule = require('path');
-var fs = require('fs');
+var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
@@ -815,7 +815,7 @@ function findDesktopFile(callback, filename) {
           }
           var desktopFilePath = result[0];
           var sNewFilePath = pathModule.join(sAppPath, sFileName);
-          fs_extra.copy(desktopFilePath, sNewFilePath, function(err) {
+          utils.copyFile(desktopFilePath, sNewFilePath, function(err) {
             if (err) {
               console.log('copy file error!\n', err);
               return callback(err, null);
@@ -1198,7 +1198,7 @@ function buildLocalDesktopFile(callback) {
               }
               count++;
             } else {
-              fs_extra.copy(_sFileOriginPath, newPath, function(err) {
+              utils.copyFile(_sFileOriginPath, newPath, function(err) {
                 if (err) {
                   console.log('pass desktop file...', sFileName);
                   count++;
@@ -1867,7 +1867,7 @@ exports.moveFile = moveFile;
  *    (compare with a full path: '/home/xiquan/.resources/desktop/BadTheme.conf')
  *
  **/
-function copyFile(callback, oldPath, newPath) {
+function copyFile(oldPath, newPath,callback) {
   var oldFullpath = configPath + oldPath;
   var newFullpath = configPath + newPath;
   console.log(oldFullpath, newFullpath);
@@ -2102,7 +2102,7 @@ function moveToDesktopSingle(sFilePath, callback) {
         var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
         var sNewName = surfix + result;
         var sNewFilePath = pathModule.join(pathModule.dirname(sFilePath), sNewName);
-        fs_extra.copy(sFilePath, sNewFilePath, function(err) {
+        utils.copyFile(sFilePath, sNewFilePath, function(err) {
           if (err) {
             console.log(err, 'copy file', sFilePath, ' error!');
             return callback(err, null);
