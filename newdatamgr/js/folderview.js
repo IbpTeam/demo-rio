@@ -867,10 +867,10 @@ var ShowFiles = Class.extend({
     //设置表头的信息
     var theadtr = $('<tr></tr>');
     var theadMessage = this.getShowMessage();
-    theadtr.append($('<th>Name</th>'));
-    theadtr.append($('<th>Date Modified</th>'));
-    theadtr.append($('<th>Size</th>'));
-    theadtr.append($('<th>Date Added</th>'));
+    theadtr.append($('<th>名称</th>'));
+    theadtr.append($('<th>修改日期</th>'));
+    theadtr.append($('<th>大小</th>'));
+    theadtr.append($('<th>添加时间</th>'));
     theadtr.addClass('theadtr');
     thead.append(theadtr);
     //设置表格内具体内容
