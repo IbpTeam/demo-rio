@@ -31,7 +31,6 @@ var MainDocView = Class.extend({
       'class': 'regular-checkbox',
       'id':'checkbox-1',
       'checked': 'checked'
-
     })
     this._docSelectDiv.append(this._docSelectWord);
     this._docSelectWordLabel = $('<label>',{
@@ -85,6 +84,7 @@ var MainDocView = Class.extend({
           'path': document_json_[i]['path']
         });
       }
+      _this.bindEvent();
     }, 'document', 30);
   },
 
@@ -108,13 +108,72 @@ var MainDocView = Class.extend({
     return 0;
   },
 
+  bindEvent:function(){
+    var _this = this;
+    var getSelectArr = function(){
+      var _arr = [];
+      if(_this._docSelectWord[0].checked){
+        _arr.push('Word');
+      }
+      if(_this._docSelectExcel[0].checked){
+        _arr.push('Excel');
+      }
+      if(_this._docSelectPpt[0].checked){
+        _arr.push('Powerpoint');
+      }
+      return _arr;
+    }
+    this._docSelectPpt.change(function(){
+      var _arr = getSelectArr();
+      _this.showFliterData(_arr);
+    });
+    this._docSelectWord.change(function(){
+      var _arr = getSelectArr();
+      _this.showFliterData(_arr);
+    });
+    this._docSelectExcel.change(function(){
+      var _arr = getSelectArr();
+      _this.showFliterData(_arr);
+    });
+  },
+
+  /**
+   * [showFliterData description]
+   * @param  {[type]} arr_ [description]
+   * @return {[type]}      [description]
+   */
+  showFliterData:function(arr_){
+    var _files = this._docContent.children('.doc-icon');
+    if(arr_.length === 3){
+      _files.show();
+    }else if(arr_.length === 0){
+      for(var i = 0; i < _files.length; i++){
+        var _file = $(_files[i]);
+        if(basic.isStrInStrArr(_file.data('type'),['Powerpoint','Word','Excel'])){
+          _file.hide();
+        }else{
+          _file.show();
+        }
+      }
+    }else{
+      for (var i = 0; i < _files.length; i++) {
+        var _file = $(_files[i]);
+        if(basic.isStrInStrArr(_file.data('type'),arr_)){
+          _file.show();
+        }else{
+          _file.hide();
+        }
+      };
+    }
+  },
+
   appendFile:function(file_){
     var _fileView = $('<div>',{
       'class': 'doc-icon',
-      'id':JSON.stringify(file_),
       'draggable': true
     });
     _fileView.data('uri',file_.uri);
+    _fileView.data('type',file_.type);
     _fileView.html('<img draggable="false" src='
       + this.iconpath[file_.type]+' /><P title='+file_.name.replace(/ /g,'')+'>' + file_.name + '</P>');
     _fileView.dblclick(function(event) {
@@ -159,20 +218,6 @@ var MainDocView = Class.extend({
       ev.dataTransfer.setData('uri',$(ev.currentTarget).data('uri'));
       ev.dataTransfer.setData('category','mainDoc');
     }
-  },
-
-
-  doubleClickEvent:function(jQueryElement,whichClass){
-    //一个JQuery元素代表的是一系列文件
-    this.files = jQueryElement;
-    var _this = this;
-    //绑定双击事件
-    this.files.delegate(whichClass,'dblclick',function(e){
-      file=JSON.parse(this.id)
-      console.log(file.uri);
-      basic.openFile(file);
-      console.log("dblclick!");
-    });
   }
 });
 
