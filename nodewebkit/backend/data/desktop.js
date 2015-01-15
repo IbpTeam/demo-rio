@@ -10,14 +10,13 @@
  * @version:0.1.1
  **/
 var pathModule = require('path');
-var fs = require('fs');
+var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var desFilesHandle = require("../commonHandle/desFilesHandle");
 var tagsHandle = require("../commonHandle/tagsHandle");
 var utils = require('../utils');
@@ -31,7 +30,6 @@ var configPath = config.RESOURCEPATH + "/desktop";
 var CATEGORY_NAME = "desktop";
 var DES_NAME = "desktopDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var REAL_APP_DIR = pathModule.join(REAL_DIR, 'applications');
 var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
@@ -201,14 +199,8 @@ function initDesktop(callback) {
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
                 buildDesFile('Theme', 'conf', pathTheme, function() {
                   buildDesFile('Widget', 'conf', pathWidget, function() {
-                    resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, [pathTheme, pathWidget], [sThemeDesDir, sWidgetDesDir], function(err, result) {
-                      if (err) {
-                        console.log(err)
-                        return callback(err, null);
-                      }
-                    })
-                  })
-                })
+                  });
+                });
               }
               buildLocalDesktopFile(function() {
                 buildAppMethodInfo('defaults.list', function(err, result) {
@@ -335,12 +327,7 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
               console.log('update theme des file error!\n', err);
               callback(err, null);
             } else {
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
+              callback(null, 'success');
             }
           });
         }
@@ -828,7 +815,7 @@ function findDesktopFile(callback, filename) {
           }
           var desktopFilePath = result[0];
           var sNewFilePath = pathModule.join(sAppPath, sFileName);
-          fs_extra.copy(desktopFilePath, sNewFilePath, function(err) {
+          utils.copyFile(desktopFilePath, sNewFilePath, function(err) {
             if (err) {
               console.log('copy file error!\n', err);
               return callback(err, null);
@@ -1211,7 +1198,7 @@ function buildLocalDesktopFile(callback) {
               }
               count++;
             } else {
-              fs_extra.copy(_sFileOriginPath, newPath, function(err) {
+              utils.copyFile(_sFileOriginPath, newPath, function(err) {
                 if (err) {
                   console.log('pass desktop file...', sFileName);
                   count++;
@@ -1348,12 +1335,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
                 console.log('update ' + sFileName + ' des file error!\n', err);
                 return callback(err, null);
               }
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, "success");
-              })
+              callback(null, "success");
             });
           });
         }
@@ -1532,245 +1514,6 @@ function writeDesktopConfig(sFileName, oContent, callback) {
 }
 exports.writeDesktopConfig = writeDesktopConfig;
 
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//Base Class for every class in this project!!
-//
-function Class() {}
-
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//Use extend to realize inhrietion
-//
-Class.extend = function extend(props) {
-  var prototype = new this();
-  var _super = this.prototype;
-
-  for (var name in props) {
-    //if a function of subclass has the same name with super
-    //override it, not overwrite
-    //use this.callSuper to call the super's function
-    //
-    if (typeof props[name] == "function" && typeof _super[name] == "function") {
-      prototype[name] = (function(super_fn, fn) {
-        return function() {
-          var tmp = this.callSuper;
-          this.callSuper = super_fn;
-
-          var ret = fn.apply(this, arguments);
-
-          this.callSuper = tmp;
-
-          if (!this.callSuper) {
-            delete this.callSuper;
-          }
-
-          return ret;
-        }
-      })(_super[name], props[name])
-    } else {
-      prototype[name] = props[name];
-    }
-  }
-
-  var SubClass = function() {};
-
-  SubClass.prototype = prototype;
-  SubClass.prototype.constructor = SubClass;
-
-  SubClass.extend = extend;
-  //Use create to replace new
-  //we need give our own init function to do some initialization
-  //
-  SubClass.create = SubClass.prototype.create = function() {
-    var instance = new this();
-
-    if (instance.init) {
-      instance.init.apply(instance, arguments);
-    }
-
-    return instance;
-  }
-
-  return SubClass;
-}
-
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//Event base Class
-//Inherited from Node.js' EventEmitter
-//
-var Event = Class.extend(require('events').EventEmitter.prototype);
-
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//watch  dir :Default is desktop
-//dir_: dir is watched 
-// ignoreInitial_:
-var DirWatcher = Event.extend({
-  init: function(dir_, ignore_, callback) {
-    if (typeof dir_ == 'undefined' || dir_ == "") {
-      dir_ = '/data/desktop';
-    };
-    this._prev = 0;
-    this._watchDir = dir_;
-    this._oldName = null;
-    this._watcher = null;
-    this._evQueue = [];
-    this._timer = null;
-    this._ignore = ignore_ || /\.goutputstream/;
-
-    this._fs = fs;
-    this._chokidar = chokidar;
-    this._exec = require('child_process').exec;
-
-    var _this = this;
-    this._exec('echo $HOME', function(err, stdout, stderr) {
-      if (err) {
-        var _err = 'CreatWatcher : echo $HOME error!';
-        console.log(_err);
-        callback(_err);
-      } else {
-        var _dir = config.RESOURCEPATH + '/desktop' + _this._watchDir;
-        _this._fs.readdir(_dir, function(err, files) {
-          if (err) {
-            console.log("readdir error!")
-            console.log(err);
-            var _err = 'CreatWatcher : readdir error!';
-            callback(_err);
-          } else {
-            for (var i = 0; i < files.length; ++i) {
-              _this._prev++;
-            }
-            var optional = {
-              ignored: _this._ignore,
-              ignoreInitial: true
-            }
-
-            _this._watcher = _this._chokidar.watch(_dir, optional);
-            var evHandler = function() {
-              _this._watcher.on('add', function(path) {
-                console.log('add', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('unlink', function(path) {
-                console.log('unlink', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('change', function(path, stats) {
-                console.log('change', path, stats);
-              });
-              _this._watcher.on('addDir', function(path) {
-                console.log('addDir', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('unlinkDir', function(path) {
-                console.log('unlinkDir', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('error', function(err) {
-                console.log('watch error', err);
-                var _err = 'CreatWatcher : watch error!';
-                _this.emit('error', _err);
-              });
-            };
-            evHandler();
-            var evDistributor = function() {
-              var filepath = _this._evQueue.shift();
-              _this._fs.readdir(_dir, function(err, files) {
-                var cur = 0;
-                for (var i = 0; i < files.length; ++i) {
-                  cur++;
-                }
-                if (_this._prev < cur) {
-                  _this._fs.stat(filepath, function(err, stats) {
-                    _this.emit('add', filepath, stats);
-                  });
-                  _this._prev++;
-                } else if (_this._prev > cur) {
-                  _this.emit('delete', filepath);
-                  _this._prev--;
-                } else {
-                  if (_this._oldName == null) {
-                    _this._oldName = filepath;
-                    return;
-                  }
-                  if (_this._oldName == filepath) {
-                    return;
-                  }
-                  _this.emit('rename', _this._oldName, filepath);
-                  _this._oldName = null;
-                }
-                if (_this._evQueue.length != 0) evDistributor();
-              });
-            }
-            _this._timer = setInterval(function() {
-              if (_this._evQueue.length != 0) {
-                evDistributor();
-              }
-            }, 200);
-            callback();
-          }
-        });
-      }
-    });
-  },
-
-  //get dir 
-  getBaseDir: function() {
-    return REAL_REPO_DIR + this._watchDir;
-  },
-
-  //close watch()
-  close: function() {
-    this._watcher.close();
-    clearInterval(this._timer);
-  }
-});
-
-
-/** 
- * @Method: CreateWatcher
- *    To create a wacther with a dir. This wacther would listen on 3 type of ev-
- *    -ent:
- *      'add'   : a new file or dir is added;
- *      'delete': a file or dir is deleted;
- *      'rename': a file is renamed;
- *      'error' : something wrong with event.
- *
- * @param: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error   : "CreateWatcher : echo $HOME error!"
- *                read error   : "CreateWatcher : readdir error!"
- *
- *                A watcher on linstening would catch this type of err:
- *                _watcher.on('error',function(err){});
- *                watch error  :'CreateWatcher : watch error!'
- *
- * @param2: watchDir
- *    string, a dir under user path
- *    exmple: var watchDir = '=/desktop/desktopadwd'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/desktopadwd')
- *
- *
- **/
-function CreateWatcher(callback, watchDir) {
-  var _watcher = DirWatcher.create(watchDir, null, function(err) {
-    if (err) {
-      console.log('create Watcher failed!')
-      console.log(err);
-      callback(err, null);
-    } else {
-      callback(null, _watcher);
-    }
-  });
-}
-exports.CreateWatcher = CreateWatcher;
-
-
 /** 
  * @Method: shellExec
  *    execute a shell command
@@ -1885,11 +1628,11 @@ exports.moveFile = moveFile;
  *    (compare with a full path: '/home/xiquan/.resources/desktop/BadTheme.conf')
  *
  **/
-function copyFile(callback, oldPath, newPath) {
+function copyFile(oldPath, newPath,callback) {
   var oldFullpath = configPath + oldPath;
   var newFullpath = configPath + newPath;
   console.log(oldFullpath, newFullpath);
-  fs_extra.copy(oldFullpath, newFullpath, function(err) {
+  utils.copyFile(oldFullpath, newFullpath, function(err) {
     if (err) {
       console.log(err);
       var _err = 'copyFile : copy error';
@@ -2120,7 +1863,7 @@ function moveToDesktopSingle(sFilePath, callback) {
         var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
         var sNewName = surfix + result;
         var sNewFilePath = pathModule.join(pathModule.dirname(sFilePath), sNewName);
-        fs_extra.copy(sFilePath, sNewFilePath, function(err) {
+        utils.copyFile(sFilePath, sNewFilePath, function(err) {
           if (err) {
             console.log(err, 'copy file', sFilePath, ' error!');
             return callback(err, null);

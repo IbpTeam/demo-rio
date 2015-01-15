@@ -136,6 +136,7 @@ var MainDocView = Class.extend({
     this._docContainer.show();
   },
 
+
   getType:function(postfix_){
     if(postfix_ == 'ppt' || postfix_ == 'pptx'){
       return 'Powerpoint';
@@ -160,6 +161,7 @@ var MainDocView = Class.extend({
     }
   },
 
+
   doubleClickEvent:function(jQueryElement,whichClass){
     //一个JQuery元素代表的是一系列文件
     this.files = jQueryElement;
@@ -173,3 +175,7 @@ var MainDocView = Class.extend({
     });
   }
 });
+
+
+
+

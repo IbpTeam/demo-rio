@@ -30,7 +30,6 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandles = require("./tagsHandle");
 var utils = require("../utils")
-var repo = require("./repo");
 var chokidar = require('chokidar'); 
 
 var writeDbNum = 0;
@@ -61,28 +60,7 @@ function watcherStop(category,callback){
 exports.watcherStop = watcherStop;
 
 
-function copyFile(source, target, cb) {
-  var cbCalled = false;
-  var rd = fs.createReadStream(source);
-  rd.on("error", function(err) {
-    done(err);
-  });
-  var wr = fs.createWriteStream(target);
-  wr.on("error", function(err) {
-    done(err);
-  });
-  wr.on("close", function(ex) {
-    done();
-  });
-  rd.pipe(wr);
 
-  function done(err) {
-    if (!cbCalled) {
-      cb(err);
-      cbCalled = true;
-    }
-  }
-}
 
 /**
  * @method createData
@@ -119,14 +97,12 @@ function createData(item, callback) {
   var sOriginPath = item.path;
   var sFileName = utils.renameExists([item.filename + '.' + item.postfix])[0];
   var category = item.category;
-  var sRealRepoDir = utils.getRepoDir(category);
-  var sDesRepoDir = utils.getDesRepoDir(category);
   var sRealDir = utils.getRealDir(category);
   var sDesDir = utils.getDesDir(category);
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
-  copyFile(sOriginPath, sFilePath, function(err) {
+  utils.copyFileSync(sOriginPath, sFilePath, function(err) {
     if (err) {
       console.log(err);
       return callback(err);
@@ -137,25 +113,19 @@ function createData(item, callback) {
           console.log(err);
           return callback(err);
         }
-        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
-          if (err) {
-            console.log(result);
-            return callback(null);
-          }
-          if (item.others != '') {
-            var oTags = item.others.split(',');
-            tagsHandles.addInTAGS(oTags, item.URI, function(err) {
-              if (err) {
-                console.log(err);
-                return callback(err, null);
-              }
-              callback('success', sFilePath);
-            })
-          } else {
+        if (item.others != '') {
+          var oTags = item.others.split(',');
+          tagsHandles.addInTAGS(oTags, item.URI, function(err) {
+            if (err) {
+              console.log(err);
+              return callback(err, null);
+            }
             callback('success', sFilePath);
-          }
-        })
-      })
+          })
+        } else {
+          callback('success', sFilePath);
+        }
+      });
     });
   });
 }
@@ -207,76 +177,70 @@ function createDataAll(items, callback) {
   var allTagsInfo = [];
   var existsFils = [];
   var itemsRename = utils.renameExists(items);
-  for (var i = 0; i < itemsRename.length; i++) {
-    var item = itemsRename[i];
-    (function(_item) {
-      utils.isNameExists(_item.path, function(err, result) {
+
+  function doCreate(_item) {
+    utils.isNameExists(_item.path, function(err, result) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      if (result) {
+        var data = new Date();
+        var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
+        _item.filename = surfix + _item.filename;
+        console.log('file ' + result + ' exists ...');
+        existsFils.push({
+          origin_path: _item.path,
+          old_name: result,
+          re_name: surfix + _item.filename + '.' + _item.postfix
+        })
+      }
+      var sOriginPath = _item.path;
+      var sFileName = (_item.postfix === 'none') ? _item.filename : _item.filename + '.' + _item.postfix;
+      var category = _item.category;
+      var sDesDir = utils.getDesDir(category);
+      var sRealDir = utils.getRealDir(category);
+      var sFilePath = path.join(sRealDir, sFileName);
+      var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+      _item.path = sFilePath;
+      utils.copyFileSync(sOriginPath, sFilePath, function(err) {
         if (err) {
           console.log(err);
-          return callback(err, null);
+          return callback(err);
         }
-        if (result) {
-          var data = new Date();
-          var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
-          _item.filename = surfix + _item.filename;
-          console.log('file ' + result + ' exists ...');
-          existsFils.push({
-            origin_path: _item.path,
-            old_name: result,
-            re_name: surfix + _item.filename + '.' + _item.postfix
-          })
-        }
-        var sOriginPath = _item.path;
-        var sFileName = _item.filename + '.' + _item.postfix;
-        var category = _item.category;
-        var sRealRepoDir = utils.getRepoDir(category);
-        var sDesRepoDir = utils.getDesRepoDir(category);
-        var sDesDir = utils.getDesDir(category);
-        var sRealDir = utils.getRealDir(category);
-        var sFilePath = path.join(sRealDir, sFileName);
-        var sDesFilePath = path.join(sDesDir, sFileName + '.md');
-        _item.path = sFilePath;
-        copyFile(sOriginPath, sFilePath, function(err) {
-          if (err) {
-            console.log(err);
-            return callback(err);
-          }
-          dataDes.createItem(_item, sDesDir, function() {
-            allItems.push(_item);
-            allItemPath.push(sFilePath);
-            allDesPath.push(sDesFilePath);
-            if (_item.others) {
-              var oTags = _item.others.split(',');
-              for (var i = 0; i < oTags.length; i++) {
-                var oItem = {
-                  category: 'tags',
-                  tag: oTags[i],
-                  file_URI: _item.URI
-                }
-                allItems.push(oItem);
+        dataDes.createItem(_item, sDesDir, function() {
+          allItems.push(_item);
+          allItemPath.push(sFilePath);
+          allDesPath.push(sDesFilePath);
+          if (_item.others) {
+            var oTags = _item.others.split(',');
+            for (var i = 0; i < oTags.length; i++) {
+              var oItem = {
+                category: 'tags',
+                tag: oTags[i],
+                file_URI: _item.URI
               }
+              allItems.push(oItem);
             }
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
-              commonDAO.createItems(allItems, function(result) {
-                if (result === "rollback") {
-                  var _err = 'create tags info in data base rollback ...';
-                  return callback(_err, null);
-                }
-                repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
-                  if (err) {
-                    console.log(err);
-                    return callback(err, null);
-                  }
-                  callback(null, existsFils);
-                })
-              })
-            }
-            count++;
-          });
+          }
+          var isEnd = (count === lens - 1);
+          if (isEnd) {
+            commonDAO.createItems(allItems, function(result) {
+              if (result === "rollback") {
+                var _err = 'create tags info in data base rollback ...';
+                return callback(_err, null);
+              }
+              callback(null, existsFils);
+            });
+          }
+          count++;
         });
-      })
-    })(item)
+      });
+    })
+  }
+  for (var i = 0; i < itemsRename.length; i++) {
+    var item = itemsRename[i];
+    doCreate(item);
   }
 }
 exports.createDataAll = createDataAll;
@@ -317,10 +281,7 @@ exports.removeFile = function(category, item, callback) {
         callback("error");
         return;
       }
-      repo.repoCommitBoth('rm',
-        utils.getRepoDir(category),
-        utils.getDesRepoDir(category), [path.join(utils.getRealDir(category), sFullName)], [path.join(utils.getDesDir(category), sDesFullName)],
-        callback);
+      callback(null,"success");
     });
   });
 };
@@ -377,27 +338,6 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
 }
 
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
 exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
   function findItemsCb(err, items) {
     if (err) {
@@ -467,127 +407,6 @@ exports.updateDB = function(category, updateDBCb) {
   })
 }
 
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param category
- *    Category.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param repoPath
- *    Repository path.
- * @param desRepoPath
- *    Des repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(category, deviceId, address, account, repoPath, desRepoPath, callback) {
-  //First pull real file
-  //Second pull des file
-  //console.log("==============================" + repoPath);
-  //console.log("==============================" + desRepoPath);
-  repo.haveBranch(repoPath, deviceId, function(result) {
-    if (result == false) {
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
-      repo.addBranch(deviceId, address, account, repoPath, function(branchName) {
-        if (branchName != deviceId) {
-          console.log("addBranch error");
-        } else {
-          repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
-            repo.haveBranch(desRepoPath, deviceId, function(result) {
-              if (result == false) {
-                repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
-                  if (branchName != deviceId) {
-                    console.log("addBranch error");
-                  } else {
-                    repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                      var aFilePaths = new Array();
-                      var sDesPath = utils.getDesRepoDir(category);
-                      desFileNames.forEach(function(desFileName) {
-                        aFilePaths.push(path.join(sDesPath, desFileName));
-                      });
-                      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                      //TODO base on files, modify data in db
-                      dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                        dataDes.writeDesObjs2Db(desObjs, function(status) {
-                          callback(deviceId, address, account);
-                        });
-                      });
-                    });
-                  }
-                });
-              } else {
-                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                  var aFilePaths = new Array();
-                  var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName) {
-                    aFilePaths.push(path.join(sDesPath, desFileName));
-                  });
-                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                  //TODO base on files, modify data in db
-                  dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                    dataDes.writeDesObjs2Db(desObjs, function(status) {
-                      callback(deviceId, address, account);
-                    });
-                  });
-                });
-              }
-            });
-          });
-        }
-      });
-    } else {
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
-      repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
-        repo.haveBranch(desRepoPath, deviceId, function(result) {
-          if (result == false) {
-            repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
-              if (branchName != deviceId) {
-                console.log("addBranch error");
-              } else {
-                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                  var aFilePaths = new Array();
-                  var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName) {
-                    aFilePaths.push(path.join(sDesPath, desFileName));
-                  });
-                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                  //TODO base on files, modify data in db
-                  dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                    dataDes.writeDesObjs2Db(desObjs, function(status) {
-                      callback(deviceId, address, account);
-                    });
-                  });
-                });
-              }
-            });
-          } else {
-            repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-              var aFilePaths = new Array();
-              var sDesPath = utils.getDesRepoDir(category);
-              desFileNames.forEach(function(desFileName) {
-                aFilePaths.push(path.join(sDesPath, desFileName));
-              });
-              //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-              //TODO base on files, modify data in db
-              dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                dataDes.writeDesObjs2Db(desObjs, function(status) {
-                  callback(deviceId, address, account);
-                });
-              });
-            });
-          }
-        });
-      });
-    }
-  });
-}
-exports.pullRequest = pullRequest;
-
 function renameDataByUri(category, sUri, sNewName, callback) {
   var sCondition = "URI = '" + sUri + "'";
   commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
@@ -649,11 +468,7 @@ function renameDataByUri(category, sUri, sNewName, callback) {
             }
             dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
               if (result === "success") {
-                var sRepoPath = utils.getRepoDir(category);
-                var sRepoDesPath = utils.getDesRepoDir(category);
-                repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
-                  callback(null, result);
-                })
+                callback(null, result);
               }
             })
           })

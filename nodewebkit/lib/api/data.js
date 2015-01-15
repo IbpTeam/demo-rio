@@ -15,7 +15,6 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var repo = require('../../backend/commonHandle/repo');
 
 /*
  *getLocalData
@@ -61,8 +60,16 @@ exports.sendIMMsg = sendIMMsg;
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  var sPosIndex = (sFilePath).lastIndexOf(".");
-  var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
+  var itemFullname = path.basename(sFilePath);
+  var sPos = path.extname(itemFullname);
+  if (sPos === '') {
+    sPos = 'none';
+  } else if(sPos[0] === '.') {
+    sPos = sPos.substring(1, sPos.length);
+  } else{
+    sPos = 'other';
+    console.log('some wrong with the postfix ...');
+  }
   var category = null;
   if (sPos != 'csv' && sPos != 'CSV') {
     if (sPos == 'none' ||
@@ -153,7 +160,7 @@ function loadResources(loadResourcesCb, path) {
       if (fs.lstatSync(path + '/' + item).isSymbolicLink()) {
         console.log('SymbolicLink: ' + path + '/' + item);
       } else if (fs.statSync(path + '/' + item).isDirectory()) {
-        if (item != '.git' && item != '.des' && item != 'contacts') {
+        if (item != '.git' && item != '.des' && item != 'contacts' && item[0] != '.') {
           if (item == 'html5ppt') {
             /*var html5pptList = fs.readdirSync(path + '/' + item);
             for (var i = 0; i < html5pptList.length; i++) {
@@ -912,43 +919,6 @@ function writeDesktopConfig(writeDesktopConfigCb, sFileName, oContent) {
 exports.writeDesktopConfig = writeDesktopConfig;
 
 /** 
- * @Method: CreateWatcher
- *    To create a wacther on a dir. This wacther would listen on 3 type of even-
- *    t:
- *      'add'   : a new file or dir is added;
- *      'delete': a file or dir is deleted;
- *      'rename': a file is renamed;
- *      'error' : something wrong with event.
- *
- * @param: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error   : "CreateWatcher : echo $HOME error!"
- *                read error   : "CreateWatcher : readdir error!"
- *
- *                A watcher on linstening would catch this type of err:
- *                _watcher.on('error',function(err){});
- *                watch error  :'CreateWatcher : watch error!'
- *
- *    @param2: result
- *        string, retrieve 'success' when success
- *
- * @param2: watchDir
- *    string, a dir under user path
- *    exmple: var watchDir = '/resources/.desktop/desktopadwd'
- *    (compare with a full path: '/home/xiquan/resources/.desktop/desktopadwd')
- *
- *
- **/
-function CreateWatcher(CreateWatcherCb, watchDir) {
-  console.log("Request handler 'CreateWatcher' was called.");
-  return desktopConf.CreateWatcher(CreateWatcherCb, watchDir);
-}
-exports.CreateWatcher = CreateWatcher;
-
-/** 
  * @Method: shellExec
  *    execute a shell command
  *
@@ -1005,7 +975,7 @@ exports.shellExec = shellExec;
  **/
 function copyFile(copyFileCb, fromPath, toPath) {
   console.log("Request handler 'copyFile' was called.");
-  desktopConf.copyFile(copyFileCb, fromPath, toPath);
+  desktopConf.copyFile(fromPath, toPath,copyFileCb);
 }
 exports.copyFile = copyFile;
 
@@ -1375,169 +1345,6 @@ function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
-function pullFromOtherRepoTest() {
-  repo.pullFromOtherRepoTest();
-}
-exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: getGitLogCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        object, result of git log; the preoperty would be commit id
- *
- *        example:
- *        {
- *            "8fa016846720fe5182113a1880b6623f9e9bec68": {
- *                "commitID": "8fa016846720fe5182113a1880b6623f9e9bec68",
- *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
- *                "Date": "   Fri Oct 31 13:42:43 2014 +0800",
- *                "content": {
- *                    "relateCommit": "acd5c16b0650dbfbfd20e36a53799a4f9cd40eaf",
- *                    "device": "ace6f9045d75a83682e76288f79dd824",
- *                    "op": "rm",
- *                    "file": [
- *                        "testfile.txt"
- *                    ]
- *                }
- *            },
- *            "dda06b7b042a8256aac6a37843539bd2e7a98821": {
- *                "commitID": "dda06b7b042a8256aac6a37843539bd2e7a98821",
- *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
- *                "Date": "   Fri Oct 31 11:19:49 2014 +0800",
- *                "content": {
- *                    "relateCommit": "0a14c542fabc48104673c7fbc631bf1e7a3128f6",
- *                    "device": "ace6f9045d75a83682e76288f79dd824",
- *                    "op": "add",
- *                    "file": [
- *                        "/home/xiquan/.resources/document/data/Release_note_0.7.txt",
- *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0RC.txt",
- *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0alpha.txt",
- *                    ]
- *                }
- *            }
- *        }
- *
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- **/
-function getGitLog(getGitLogCb, category) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getGitLog(getGitLogCb);
-}
-exports.getGitLog = getGitLog;
-
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(repoResetCb, category, commitID) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoReset(commitID, function(err, result) {
-    if (err) {
-      var _err = {
-        'data': err
-      }
-      console.log(_err);
-      repoResetCb(_err, null);
-    } else {
-      commonHandle.updateDB(category, function(err, result) {
-        if (err) {
-          var _err = {
-            'data': err
-          }
-          console.log(_err, null);
-        } else {
-          console.log('reset ' + category + ' repo success!');
-          repoResetCb(null, result);
-        }
-      })
-    }
-  });
-}
-exports.repoReset = repoReset;
-
-/** 
- * @Method: repoResetFile
- *    To reset a single file to a history commit version. This action would also
- *    reset des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- * @param4: file
- *    string, a file full path, as '/home/xiquan/document/test.txt'
- *
- **/
-function repoResetFile(repoResetFileCb, category, commitID, file) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoResetFile(commitID, function(err, result) {
-    if (err) {
-      var _err = {
-        'data': err
-      }
-      console.log(_err);
-      repoResetFileCb(_err, null);
-    } else {
-      commonHandle.updateDB(category, function(err, result) {
-        if (err) {
-          var _err = {
-            'data': err
-          }
-          console.log(_err, null);
-        } else {
-          console.log('reset ' + category + ' repo success!');
-          repoResetFileCb(null, result);
-        }
-      })
-    }
-  });
-}
-exports.repoResetFile = repoResetFile;
-
-
 /** 
  * @Method: renameDataByUri
  *    rename a file
@@ -1658,32 +1465,3 @@ function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;
-
-
-/** 
- * @Method: repoSearch
- *    search key matches in git log
- *
- * @param: repoSearchCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        object, result in object, as example in getGitLog() above
- *
- *  @param2: category
- *    string, category name.
- *
- *  @param2: sKey
- *    string, a piece of specific string.
- *
- *
- **/
-function repoSearch(repoSearchCb, category, sKey) {
-  console.log("Request handler 'repoSearch' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoSearch(repoSearchCb, sKey);
-}
-exports.repoSearch = repoSearch;

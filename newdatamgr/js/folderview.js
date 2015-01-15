@@ -90,7 +90,7 @@ var ShowFiles = Class.extend({
         var _modifyUri = _globalSelf.getModifyUriById(_id);
         var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);
         _globalSelf._propertyView.loadData(_file);
-        var _img = $('#'+_id).find('img');
+        var _img = $('#'+_modifyUri+'div').find('img');
         _globalSelf._propertyView.setImg(_img[0].src);
       }}
     ]);
@@ -100,7 +100,7 @@ var ShowFiles = Class.extend({
     var _modifyUri = '';
     if(id_.substr(id_.length-3,3) === 'div'){
       _modifyUri = id_.substr(0,id_.length-3);
-    }else if(id_.substring(id_.length-2,2) === 'tr'){
+    }else if(id_.substr(id_.length-2,2) === 'tr'){
       _modifyUri = id_.substr(0,id_.length - 2);
     }
     return _modifyUri;
