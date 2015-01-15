@@ -68,10 +68,11 @@ function readVideoMetadata(sPath, callback) {
 }
 
 function readVideoThumbnail(sPath, callback) {
-  fs.open(sPath, 'r', function(err) {
+  fs.open(sPath, 'r', function(err, fd) {
     if (err) {
       return callback(err, null);
     }
+    fs.closeSync(fd);
     var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
     fs_extra.ensureDir(tmpBaseDir, function(err) {
       if (err) {

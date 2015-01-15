@@ -655,10 +655,11 @@ function getMusicPicData(filePath, callback) {
     var _err = 'BAD TYPE: not a music file ...';
     return callback(_err, null);
   }
-  fs.open(filePath, 'r', function(err) {
+  fs.open(filePath, 'r', function(err, fd) {
     if (err) {
       return callback(err, null);
     }
+    fs.closeSync(fd);
     var parser = mm(fs.createReadStream(filePath));
     parser.on('metadata', function(result) {
       if (result.picture != '') {
