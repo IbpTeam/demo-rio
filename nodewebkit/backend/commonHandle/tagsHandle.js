@@ -5,7 +5,6 @@ var fs = require('fs');
 var config = require("../config");
 var dataDes = require("./desFilesHandle");
 var commonDAO = require("./CommonDAO");
-var repo = require("./repo");
 var utils = require("../utils");
 
 
@@ -450,17 +449,12 @@ function setTagByUri(callback, oTags, sUri) {
           return callback(err);
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function(err) {
-          if(err){
+        addInTAGS(oTags, sUri, function(err) {
+          if (err) {
             return callback(err);
           }
-          addInTAGS(oTags, sUri, function(err) {
-            if (err) {
-              return callback(err);
-            }
-            console.log('set tags des git committed!');
-            callback(null);
-          })
+          console.log('set tags des git committed!');
+          callback(null);
         });
       });
     });
@@ -564,15 +558,12 @@ function rmTagsByUri(callback, oTags, sUri) {
             console.log(result);
             return callback(result);
           }
-          var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-          repo.repoCommit(desPath, files, null, "ch", function() {
-            rmInTAGS(oTags, sUri, function(err) {
-              if (err) {
-                return callback(err);
-              }
-              console.log("rm tags: ", oTags, " success!");
-              callback(result);
-            })
+          rmInTAGS(oTags, sUri, function(err) {
+            if (err) {
+              return callback(err);
+            }
+            console.log("rm tags: ", oTags, " success!");
+            callback(result);
           });
         })
       } else {
@@ -645,10 +636,7 @@ function rmTagsAll(callback, oTags) {
                 }
                 files.push(desFilePath);
               }
-              var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-              repo.repoCommit(desPath, files, null, "ch", function() {
-                callback(result);
-              });
+              callback(result);
             } else {
               console.log("error in update des files");
               return;
@@ -765,15 +753,8 @@ function setRelativeTagByPath(sFilePath, sTags, callback) {
         if (err) {
           return callback(err, null);
         }
-        var chPath = utils.getDesRepoDir(category);
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function(result) {
-          if (result !== 'success') {
-            var _err = 'git ch commit error!';
-            return callback(_err, null);
-          }
-          console.log('set tags des git committed!');
-          callback(null, 'success');
-        });
+        console.log('set tags des git committed!');
+        callback(null, 'success');
       });
     });
   });
