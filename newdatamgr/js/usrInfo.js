@@ -17,6 +17,7 @@ var UsrInfoView = Class.extend({
     this._usrInfoContainer.append(this._usrInfoDiv);
     this._usrInfoContainer.append(this._usrExtraDiv);
     this._modalBox = undefined;
+    this._isLoadedResources = false;
     //this.setUsrInfo();
     //this.setUsrExtra('load');
   },
@@ -88,6 +89,7 @@ var UsrInfoView = Class.extend({
     }
   },
   setExtraLoad:function(){
+    var _this = this;
     var _extraLoadDiv = $('<div>',{
       'id' : 'extraLoadDiv'
     });
@@ -108,12 +110,13 @@ var UsrInfoView = Class.extend({
       'type' : 'checkbox',
       'checked' : 'checked',
       'click' : function(){
-        $('#dataCheckBox')[0].checked = false;
+      $('#dataCheckBox')[0].checked = false;
+      $('#fileUpLoad')[0].nwdirectory = false;
       }
     });
     _loadContactDiv.append(_contactCheckBox);
     _loadContactDiv.append(_contactLabel);
-    _loadContactDiv.append('<span class="contactSpan">Contacts</span>');
+    _loadContactDiv.append('<label class="contactSpan" for="contactCheckBox">Contacts</label>');
     _loadContactBg.append(_loadContactDiv);
 
     var _loadDataBg = $('<div>',{
@@ -131,48 +134,79 @@ var UsrInfoView = Class.extend({
       'id' : 'dataCheckBox',
       'type' : 'checkbox',
       'click' : function(){
-        $('#contactCheckBox')[0].checked = false;
+      $('#contactCheckBox')[0].checked = false;
+      //var _tmpObj = $('#fileUpLoad');
+      //alert(111);
+      $('#fileUpLoad')[0].nwdirectory = true;
       }
     });
     _loadDataDiv.append(_dataCheckBox);
     _loadDataDiv.append(_dataLabel);
-    _loadDataDiv.append('<span class="dataSpan">Datas</span>');
+    _loadDataDiv.append('<label class="dataSpan" for="dataCheckBox">Datas</label>');
     _loadDataBg.append(_loadDataDiv);
 
     var _uploadDiv = $('<div>',{
       'id' : 'uploadDiv'
     });
+    var _upLoadName = $('<span>',{
+      'id' : 'uploadName',
+      'text': 'Import'
+    });
     var _fileUpLoad = $('<input>',{
       'id' : 'fileUpLoad',
-      'type' : 'file',
-      'nwdirectory' : 'true',
-      'change' : function(){
+      'type' : 'file'
+    });
+    _fileUpLoad.on('change',function(){
+        var _modalBoxObj = _this._modalBox;
+        _modalBoxObj.forbidClose(true);
+        document.body.style.cursor = "wait";
         var resourcePath = this.value;
         if ($('#contactCheckBox')[0].checked) {
           DataAPI.loadContacts(function(err,result){
-            alert(result);
+            document.body.style.cursor = "default";
+            _modalBoxObj.forbidClose(false);
+            _this._isLoadedResources = true;
           },resourcePath);
         }else if ($('#dataCheckBox')[0].checked) {
           DataAPI.loadResources(function(result){
-            alert(result);
+            document.body.style.cursor = "default";
+            _modalBoxObj.forbidClose(false);
+            _this._isLoadedResources = true;
           },resourcePath);
         }else{
           //ToDo-err handle
         }
-      }
     });
     _uploadDiv.append(_fileUpLoad);
-
+    _uploadDiv.append(_upLoadName);
     _extraLoadDiv.append(_loadContactBg);
     _extraLoadDiv.append(_loadDataBg);
     _extraLoadDiv.append(_uploadDiv);
     this._usrExtraDiv.append(_extraLoadDiv);
   },
   showUsrInfo:function(){
+    var _this = this;
     this._modalBox = ModalBox.create($('#usrInfo-container'),{
       iconClose: false,                
       keyClose:true,                      
-      bodyClose:true                    
+      bodyClose:true,
+      onClose: function(){
+        if(_this._isLoadedResources){
+          var _window = undefined;
+          if (window == top){
+            parent.location.reload();
+          }else{
+            try{
+              _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+              var _dataMgrIfm = _window._windowContent[0];
+              _dataMgrIfm.src = _dataMgrIfm.src;
+            } catch(e){
+              console.log(e);
+            }
+          }
+          _this._isLoadedResources = false;
+        }
+      }                    
     });
     var _modalBoxObj = this._modalBox;
     this._closeDiv.on('click',function(){

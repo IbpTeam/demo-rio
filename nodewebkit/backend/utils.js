@@ -1,5 +1,6 @@
 var path = require("path");
 var fs = require('fs');
+var fixed_fs = require('./fixed_fs');
 var exec = require('child_process').exec;
 var events = require('events');
 var util = require('util');
@@ -31,16 +32,16 @@ function parsePath(path) {
 }
 exports.parsePath = parsePath;
 
-function getCategoryByPath(path) {
-  var pointIndex = path.lastIndexOf('.');
-  if (pointIndex == -1) {
-    var itemPostfix = "none";
-    var nameindex = path.lastIndexOf('/');
-    var itemFilename = path.substring(nameindex + 1, path.length);
-  } else {
-    var itemPostfix = path.substr(pointIndex + 1);
-    var nameindex = path.lastIndexOf('/');
-    var itemFilename = path.substring(nameindex + 1, pointIndex);
+function getCategoryByPath(path_) {
+  var itemFullname = path.basename(path_);
+  var itemPostfix = path.extname(itemFullname);
+  var itemFilename = path.basename(path_,itemPostfix);
+  if (itemPostfix === '') {
+    itemPostfix = 'none';
+  } else if(itemPostfix[0] === '.') {
+    itemPostfix = itemPostfix.substring(1, itemPostfix.length);
+  } else{
+    console.log('some wrong with the postfix ...');
   }
   if (itemPostfix == 'none' ||
     itemPostfix == 'ppt' ||
@@ -601,3 +602,52 @@ function writeJSONFile(path_, json_, callback_) {
   }
 }
 exports.writeJSONFile = writeJSONFile;
+
+function copyFile(source, target, cb) {
+  var cbCalled = false;
+  var rd = fixed_fs.createReadStream(source);
+  rd.on("error", function(err) {
+    done(err);
+  });
+  var wr = fixed_fs.createWriteStream(target);
+  wr.on("error", function(err) {
+    done(err);
+  });
+  wr.on("close", function(ex) {
+    done();
+  });
+  rd.pipe(wr);
+
+  function done(err) {
+    if (!cbCalled) {
+      cb(err);
+      cbCalled = true;
+    }
+  }
+}
+exports.copyFile = copyFile;
+
+function copyFileSync(source, target, cb) {
+  var BUF_LENGTH = 64 * 1024;
+  var buff = new Buffer(BUF_LENGTH);
+  var _err = null;
+  try {
+    var fdr = fixed_fs.openSync(source, 'r');
+    var fdw = fixed_fs.openSync(target, 'w');
+    var bytesRead = 1;
+    var pos = 0;
+    while (bytesRead > 0) {
+      bytesRead = fixed_fs.readSync(fdr, buff, 0, BUF_LENGTH, pos);
+      fixed_fs.writeSync(fdw, buff, 0, bytesRead);
+      pos += bytesRead;
+    }
+    fixed_fs.closeSync(fdr);
+    fixed_fs.closeSync(fdw);
+  } catch (err) {
+    console.log(source, target);
+    _err = err;
+  } finally {
+    cb(_err);
+  }
+}
+exports.copyFileSync = copyFileSync;

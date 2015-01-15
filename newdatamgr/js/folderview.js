@@ -73,26 +73,37 @@ var ShowFiles = Class.extend({
       {text:'Tag', subMenu:[
         {header: 'tag'},
         {text: 'Add',action:function(){
-
+          var _id = _globalSelf._contextMenuDivID;
+          var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
+          var _target = _globalSelf._showContent.find('#'+_id);
+          basic.addTagView(_target,_uri,'no-contact');
         }},
         {text: 'Remove', action:function(){
-          
+          var _id = _globalSelf._contextMenuDivID;
+          var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
+          var _target = _globalSelf._showContent.find('#'+_id);
+          basic.removeTagView(_target,_uri,'no-contact');
         }}
       ]},
       {text: 'Detail',action:function(){
-        var _modifyUri = '';
         var _id = _globalSelf._contextMenuDivID;
-        if(_id.substr(_id.length-3,3) === 'div'){
-          _modifyUri = _id.substr(0,_id.length-3);
-        }else if(_id.substring(_id.length-2,2) === 'tr'){
-          _modifyUri = _id.substr(0,_id.length - 2);
-        }
+        var _modifyUri = _globalSelf.getModifyUriById(_id);
         var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);
         _globalSelf._propertyView.loadData(_file);
-        var _img = $('#'+_id).find('img');
+        var _img = $('#'+_modifyUri+'div').find('img');
         _globalSelf._propertyView.setImg(_img[0].src);
       }}
     ]);
+  },
+
+  getModifyUriById:function(id_){
+    var _modifyUri = '';
+    if(id_.substr(id_.length-3,3) === 'div'){
+      _modifyUri = id_.substr(0,id_.length-3);
+    }else if(id_.substr(id_.length-2,2) === 'tr'){
+      _modifyUri = id_.substr(0,id_.length - 2);
+    }
+    return _modifyUri;
   },
 
   attachDataMenu:function(id_){
@@ -165,6 +176,8 @@ var ShowFiles = Class.extend({
       //判断要使用那种方式展示，0代表正常，1代表表格，2代表按时间排序
       switch(this._showNormal[this._index]){
         case 0:
+          $('#showlistButton').removeClass('showlistButtonFocus');
+          $('#_shownormalButton').addClass('normalButtonFocus');
           if($('#'+this._contentIds[this._index]).children('div').length >0){
             if(this._index ==1){
               $('#outWaterFall').show(); 
@@ -179,7 +192,7 @@ var ShowFiles = Class.extend({
                 var div = sortByTimeDiv.eq(j);
                 if(this._index ==1){
                   div.removeClass('pictureContainer');
-                  var pictureDiv = div.children('div').eq(0);
+                  var pictureDiv = div.children('.pictureHolder').eq(0);
                   pictureDiv.removeClass('pictureHolder');
                   pictureDiv.attr('class', 'pictureHolderWaterFall');
                   var pDiv = div.children('p');
@@ -222,59 +235,63 @@ var ShowFiles = Class.extend({
           }
           break;
         case 1:
-            if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
-              $('#'+ this._contentIdsList[this._index]).show();
-            }
-            else {
-              _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
-            }
-            if(_globalSelf._showFilesBytag){
-              _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+          $('#_shownormalButton').removeClass('normalButtonFocus');
+          $('#showlistButton').addClass('showlistButtonFocus');
+          if($('#'+ this._contentIdsList[this._index]).children('div').length >0){
+            $('#'+ this._contentIdsList[this._index]).show();
+          }
+          else {
+            _globalSelf._showContent.append(_globalSelf.showFilesList(_globalSelf._getFiles[_globalSelf._index]).attr('id',_globalSelf._contentIdsList[_globalSelf._index]));
+          }
+          if(_globalSelf._showFilesBytag){
+            _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+          }
+          else{
+            $('.bodytr').show();
+          }
+          break;
+        case 2:
+          $('#showlistButton').removeClass('showlistButtonFocus');
+          $('#_shownormalButton').addClass('normalButtonFocus');
+          if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
+            $('#'+ this._contentIdsSortByTime[this._index]).show();
+          }
+          else {
+            if(this._index ==1){
+              var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
+              $('#'+this._contentIds[this._index]).children('div').remove();
             }
             else{
-              $('.bodytr').show();
+              var fileDivs = $('#'+this._contentIds[this._index]).children('div');
             }
-            break;
-        case 2:
-            if($('#'+ this._contentIdsSortByTime[this._index]).children('div').length >0){
-              $('#'+ this._contentIdsSortByTime[this._index]).show();
+            var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
+            returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
+            if(this._index ==2){
+              returnshow.attr('class', 'videoContent');; 
             }
-            else {
-              if(this._index ==1){
-                var fileDivs = $('#'+this._contentIds[this._index]).find('.pictureContainerWaterFall');
-                $('#'+this._contentIds[this._index]).children('div').remove();
-              }
-              else{
-                var fileDivs = $('#'+this._contentIds[this._index]).children('div');
-              }
-              var returnshow = _globalSelf.showFilesSortByTime(fileDivs);
-              returnshow.attr('id', _globalSelf._contentIdsSortByTime[_globalSelf._index]);
-              if(this._index ==2){
-                returnshow.attr('class', 'videoContent');; 
-              }
-              var sortByTimeDivs = returnshow.children('.sortByTime');
-              for(var i =0;i<sortByTimeDivs.length;i++){
-                var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
-                  sortByTimeDiv.hide();
-                }
-              }
-              _globalSelf._showContent.append(returnshow);
-              if(this._index ==1 && _globalSelf._showFilesBytag){
-                _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+            var sortByTimeDivs = returnshow.children('.sortByTime');
+            for(var i =0;i<sortByTimeDivs.length;i++){
+              var sortByTimeDiv = sortByTimeDivs.eq(i);
+              if(_globalSelf._showFilesBytag && sortByTimeDiv.children('.showFileByTag').length == 0){
+                sortByTimeDiv.hide();
               }
             }
-            if(!_globalSelf._showFilesBytag){
-              var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
-              for(var i =0;i<sortByTimeDivs.length;i++){
-                var sortByTimeDiv = sortByTimeDivs.eq(i);
-                if(sortByTimeDiv.children('div').length > 0){
-                  sortByTimeDiv.children('div').show();
-                  sortByTimeDiv.show();
-                }
+            _globalSelf._showContent.append(returnshow);
+            if(this._index ==1 && _globalSelf._showFilesBytag){
+              _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
+            }
+          }
+          if(!_globalSelf._showFilesBytag){
+            var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
+            for(var i =0;i<sortByTimeDivs.length;i++){
+              var sortByTimeDiv = sortByTimeDivs.eq(i);
+              if(sortByTimeDiv.children('div').length > 0){
+                sortByTimeDiv.children('div').show();
+                sortByTimeDiv.show();
               }
             }
-            break;
+          }
+          break;
         default:
       }
     }
@@ -387,7 +404,8 @@ var ShowFiles = Class.extend({
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'picturedescriptionWaterFall',
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
             Container.append(Holder);
@@ -415,7 +433,8 @@ var ShowFiles = Class.extend({
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'videodescription',
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             var img = $('<img>',{
               'id':file['URI'],
@@ -448,7 +467,8 @@ var ShowFiles = Class.extend({
             });
             Container.append(img);
             var p = $('<p>',{
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             Container.append(p);
             var _tagView = TagView.create({
@@ -478,7 +498,8 @@ var ShowFiles = Class.extend({
             //用来定义最后描述的名字.
             var description = $('<p>',{
               'class':'musicdescription',
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             var musicImg = $('<img>',{
                'id':file['URI'],
@@ -512,7 +533,8 @@ var ShowFiles = Class.extend({
             });
             Container.append(img);
             var p = $('<p>',{
-              'text':file['filename']
+              'text':file['filename'],
+              'title':file['filename']
             });
             Container.append(p);
             _globalSelf.bindDrag(Container[0]);
@@ -786,7 +808,8 @@ var ShowFiles = Class.extend({
         case 0:
           if(_globalSelf._index == 3){
             var thP = $('<P>',{
-              'text':file[theadMessage[i]]
+              'text':file[theadMessage[i]],
+              'title':file[theadMessage[i]]
             });
             var thPicture = $('<img>',{
               'style':'float:left',
@@ -911,7 +934,7 @@ var ShowFiles = Class.extend({
       if(_globalSelf._index == 1){
         div.removeClass('pictureContainerWaterFall')
         div[0].style.cssText = '';
-        var pictureDiv = div.children('div').eq(0);
+        var pictureDiv = div.children('.pictureHolderWaterFall');
         pictureDiv.removeClass('pictureHolderWaterFall');
         pictureDiv.attr('class', 'pictureHolder');
         var picture = pictureDiv.children('img')[0];
@@ -962,6 +985,8 @@ var ShowFiles = Class.extend({
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
+    $('#showlistButton').removeClass('showlistButtonFocus');
+    $('#_shownormalButton').addClass('normalButtonFocus');
     var returnContent = $('<div style= "overflow-x:hidden"></div>');
     for(var i =0;i<files.length;i++){
       var file = files[i];
@@ -978,7 +1003,8 @@ var ShowFiles = Class.extend({
           //用来定义最后描述的名字.
           var description = $('<p>',{
             'class':'picturedescriptionWaterFall',
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
           Container.append(Holder);
@@ -1016,7 +1042,8 @@ var ShowFiles = Class.extend({
           //用来定义最后描述的名字.
           var description = $('<p>',{
             'class':'videodescription',
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           var img = $('<img>',{
             'id':file['URI']+'showvideo',
@@ -1051,7 +1078,8 @@ var ShowFiles = Class.extend({
           });
           Container.append(img);
           var p = $('<p>',{
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           Container.append(p);
           returnContent.append(Container);
@@ -1118,7 +1146,8 @@ var ShowFiles = Class.extend({
           });
           Container.append(img);
           var p = $('<p>',{
-            'text':file['filename']
+            'text':file['filename'],
+            'title':file['filename']
           });
           Container.append(p);
           returnContent.append(Container);

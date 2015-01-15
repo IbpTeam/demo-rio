@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "nodejs": true,
   "window": {
+    "icon": "icons/datamgr.png",
     "title": "test",
     "toolbar": true,
     "show_in_taskbar": true,

@@ -62,28 +62,7 @@ function watcherStop(category,callback){
 exports.watcherStop = watcherStop;
 
 
-function copyFile(source, target, cb) {
-  var cbCalled = false;
-  var rd = fs.createReadStream(source);
-  rd.on("error", function(err) {
-    done(err);
-  });
-  var wr = fs.createWriteStream(target);
-  wr.on("error", function(err) {
-    done(err);
-  });
-  wr.on("close", function(ex) {
-    done();
-  });
-  rd.pipe(wr);
 
-  function done(err) {
-    if (!cbCalled) {
-      cb(err);
-      cbCalled = true;
-    }
-  }
-}
 
 /**
  * @method createData
@@ -127,16 +106,16 @@ function createData(item, callback) {
   var sFilePath = path.join(sRealDir, sFileName);
   var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
-  copyFile(sOriginPath, sFilePath, function(result) {
-    if (result !== 'success') {
-      console.log(result);
-      return;
+  utils.copyFileSync(sOriginPath, sFilePath, function(err) {
+    if (err) {
+      console.log(err);
+      return callback(err);
     }
     dataDes.createItem(item, sDesDir, function() {
       commonDAO.createItem(item, function(err) {
         if (err) {
           console.log(err);
-          return;
+          return callback(err);
         }
         repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
           if (err) {
@@ -150,7 +129,7 @@ function createData(item, callback) {
                 console.log(err);
                 return callback(err, null);
               }
-
+              callback('success', sFilePath);
             })
           } else {
             callback('success', sFilePath);
@@ -208,76 +187,78 @@ function createDataAll(items, callback) {
   var allTagsInfo = [];
   var existsFils = [];
   var itemsRename = utils.renameExists(items);
-  for (var i = 0; i < itemsRename.length; i++) {
-    var item = itemsRename[i];
-    (function(_item) {
-      utils.isNameExists(_item.path, function(err, result) {
+
+  function doCreate(_item) {
+    utils.isNameExists(_item.path, function(err, result) {
+      if (err) {
+        console.log(err);
+        return callback(err, null);
+      }
+      if (result) {
+        var data = new Date();
+        var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
+        _item.filename = surfix + _item.filename;
+        console.log('file ' + result + ' exists ...');
+        existsFils.push({
+          origin_path: _item.path,
+          old_name: result,
+          re_name: surfix + _item.filename + '.' + _item.postfix
+        })
+      }
+      var sOriginPath = _item.path;
+      var sFileName = (_item.postfix === 'none') ? _item.filename : _item.filename + '.' + _item.postfix;
+      var category = _item.category;
+      var sRealRepoDir = utils.getRepoDir(category);
+      var sDesRepoDir = utils.getDesRepoDir(category);
+      var sDesDir = utils.getDesDir(category);
+      var sRealDir = utils.getRealDir(category);
+      var sFilePath = path.join(sRealDir, sFileName);
+      var sDesFilePath = path.join(sDesDir, sFileName + '.md');
+      _item.path = sFilePath;
+      utils.copyFileSync(sOriginPath, sFilePath, function(err) {
         if (err) {
           console.log(err);
-          return callback(err, null);
+          return callback(err);
         }
-        if (result) {
-          var data = new Date();
-          var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
-          _item.filename = surfix + _item.filename;
-          console.log('file ' + result + ' exists ...');
-          existsFils.push({
-            origin_path: _item.path,
-            old_name: result,
-            re_name: surfix + _item.filename + '.' + _item.postfix
-          })
-        }
-        var sOriginPath = _item.path;
-        var sFileName = _item.filename + '.' + _item.postfix;
-        var category = _item.category;
-        var sRealRepoDir = utils.getRepoDir(category);
-        var sDesRepoDir = utils.getDesRepoDir(category);
-        var sDesDir = utils.getDesDir(category);
-        var sRealDir = utils.getRealDir(category);
-        var sFilePath = path.join(sRealDir, sFileName);
-        var sDesFilePath = path.join(sDesDir, sFileName + '.md');
-        _item.path = sFilePath;
-        copyFile(sOriginPath, sFilePath, function(err) {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          dataDes.createItem(_item, sDesDir, function() {
-            allItems.push(_item);
-            allItemPath.push(sFilePath);
-            allDesPath.push(sDesFilePath);
-            if (_item.others) {
-              var oTags = _item.others.split(',');
-              for (var i = 0; i < oTags.length; i++) {
-                var oItem = {
-                  category: 'tags',
-                  tag: oTags[i],
-                  file_URI: _item.URI
-                }
-                allItems.push(oItem);
+        dataDes.createItem(_item, sDesDir, function() {
+          allItems.push(_item);
+          allItemPath.push(sFilePath);
+          allDesPath.push(sDesFilePath);
+          if (_item.others) {
+            var oTags = _item.others.split(',');
+            for (var i = 0; i < oTags.length; i++) {
+              var oItem = {
+                category: 'tags',
+                tag: oTags[i],
+                file_URI: _item.URI
               }
+              allItems.push(oItem);
             }
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
-              commonDAO.createItems(allItems, function(result) {
-                if (result === "rollback") {
-                  var _err = 'create tags info in data base rollback ...';
-                  return callback(_err, null);
+          }
+          var isEnd = (count === lens - 1);
+          if (isEnd) {
+            commonDAO.createItems(allItems, function(result) {
+              if (result === "rollback") {
+                var _err = 'create tags info in data base rollback ...';
+                return callback(_err, null);
+              }
+              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
+                if (err) {
+                  console.log(err);
+                  return callback(err, null);
                 }
-                repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
-                  if (err) {
-                    console.log(err);
-                    return callback(err, null);
-                  }
-                  callback(null, existsFils);
-                })
+                callback(null, existsFils);
               })
-            }
-            count++;
-          });
+            })
+          }
+          count++;
         });
-      })
-    })(item)
+      });
+    })
+  }
+  for (var i = 0; i < itemsRename.length; i++) {
+    var item = itemsRename[i];
+    doCreate(item);
   }
 }
 exports.createDataAll = createDataAll;

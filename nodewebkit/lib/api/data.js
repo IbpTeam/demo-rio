@@ -61,8 +61,16 @@ exports.sendIMMsg = sendIMMsg;
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  var sPosIndex = (sFilePath).lastIndexOf(".");
-  var sPos = sFilePath.slice(sPosIndex + 1, sFilePath.length);
+  var itemFullname = path.basename(sFilePath);
+  var sPos = path.extname(itemFullname);
+  if (sPos === '') {
+    sPos = 'none';
+  } else if(sPos[0] === '.') {
+    sPos = sPos.substring(1, sPos.length);
+  } else{
+    sPos = 'other';
+    console.log('some wrong with the postfix ...');
+  }
   var category = null;
   if (sPos != 'csv' && sPos != 'CSV') {
     if (sPos == 'none' ||
@@ -153,7 +161,7 @@ function loadResources(loadResourcesCb, path) {
       if (fs.lstatSync(path + '/' + item).isSymbolicLink()) {
         console.log('SymbolicLink: ' + path + '/' + item);
       } else if (fs.statSync(path + '/' + item).isDirectory()) {
-        if (item != '.git' && item != '.des' && item != 'contacts') {
+        if (item != '.git' && item != '.des' && item != 'contacts' && item[0] != '.') {
           if (item == 'html5ppt') {
             /*var html5pptList = fs.readdirSync(path + '/' + item);
             for (var i = 0; i < html5pptList.length; i++) {
@@ -1005,7 +1013,7 @@ exports.shellExec = shellExec;
  **/
 function copyFile(copyFileCb, fromPath, toPath) {
   console.log("Request handler 'copyFile' was called.");
-  desktopConf.copyFile(copyFileCb, fromPath, toPath);
+  desktopConf.copyFile(fromPath, toPath,copyFileCb);
 }
 exports.copyFile = copyFile;
 

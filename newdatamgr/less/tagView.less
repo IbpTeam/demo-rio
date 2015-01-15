@@ -1,8 +1,8 @@
 .tag-container{
   position: absolute;
-  width:80px;
-  height:20px;
-  line-height: 20px;
+  width:72px;
+  height:18px;
+  line-height: 16px;
   text-align: center;
   cursor: pointer;
   z-index: 88;
@@ -10,17 +10,17 @@
   .setColorSaturate(picture,rgb(110,204,188),5,0);
   .setColorSaturate(video,rgb(132,204,117),5,0);
   .setColorSaturate(music,rgb(237,148,148),5,0);
-  .setColorSaturate(contact,rgb(255,125,125),5,1);
-  .setColorSaturate(contact,rgb(110,204,188),0,0);
+  .setColorSaturate(contact,rgb(239,171,181),0,0);
+  .setColorSaturate(contact,rgb(150,226,226),5,1);
   .transition(right, 0.5s);
   &.rotate{
-    right:-30px;
+    right:-15px;
     .rotate(-15deg);
     &:hover{
-      right:-40px;
+      right:-20px;
     }
     &.no-rotate{
-      right:-50px;
+      right:-30px;
       .rotate(0deg);
     }
   }
@@ -31,8 +31,8 @@
   .tag-text{
     width:100%;
     height: 100%;
-    line-height: 20px;
-    padding: 0 10px;
+    line-height: 18px;
+    padding: 0 7px;
     opacity: 1.0;
     z-index: 223;
     overflow: hidden;
@@ -47,26 +47,29 @@
     left: 0;
     z-index: 1;
     border-radius: 20px;
+    opacity: 0.7;
+    margin-left: 5px;
   }
   .tag-triangle{
+    opacity: 0.7;
     &:after{
     font-family: 'icomoon';
     content: "\e61e";
     font-size: 1em;
     position: absolute;
-    width:20px;
-    height: 20px;
+    width:21px;
+    height: 21px;
     }
     left:40px;
     &.right-triangle{
-      left:70px;
-      top: 0px;
+      left:66px;
+      top:1px;
       position: absolute;
     }
     &.left-triangle{
       position: absolute;
-      left:10px;
-      top: 20px;
+      left:16px;
+      top: 17px;
       .rotate(180deg);
     }
     .transition(left,1s);
