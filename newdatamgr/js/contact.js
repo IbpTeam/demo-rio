@@ -6,9 +6,14 @@ var Contact = Class.extend({
       'id': 'contact-container'
     })
     this._contactsList = $('<div>', {
-      'id': 'contact-left'
+      'id': 'contact-left',
+      'class': 'nanoContact'
+    });
+    this._contactsListNano = $('<div>',{
+      'class': 'nano-content'
     });
     this._ContactContainer.append(this._contactsList);
+    this._contactsList.append(this._contactsListNano);
     this._contactHead = $('<div>', {
       'id': 'contact-head'
     });
@@ -79,9 +84,9 @@ var Contact = Class.extend({
         });
         _ul.append(_name);
       }
-      this._contactsList.append(_ul);
+      this._contactsListNano.append(_ul);
     }
-
+    //$(".nanoContact").nanoScroller();
     this.removeHead();
     this.setHead(this._showList[_index]);
     this.removeDetails();
@@ -100,7 +105,7 @@ var Contact = Class.extend({
     });
 
     //forbid context menu
-    $(document).on('contextmenu','#'+_this._contactsList[0].id, function(ev){
+    $(document).on('contextmenu','#'+_this._contactsListNano[0].id, function(ev){
       ev.stopPropagation();
       ev.preventDefault();
     });
@@ -375,7 +380,7 @@ var Contact = Class.extend({
   },
 
   removeContactList: function(){
-    var _list = this._contactsList.children();
+    var _list = this._contactsListNano.children();
     if(_list.length != 0){
       _list.remove();
     }
@@ -394,7 +399,7 @@ var Contact = Class.extend({
   },
 
   refresh:function(){
-    this._contactsList.children('ul').remove();
+    this._contactsListNano.children('ul').remove();
     this.setContactsList();
   },
 
