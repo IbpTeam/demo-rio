@@ -225,7 +225,7 @@ function initDesktop(callback) {
             var sWidgetDesDir = pathModule.join(DES_DIR, 'Widget.conf.md');
             var sRealDir = [];
             var sDesDir = [];
-            fs.open(pathTheme, 'r', function(err,fd) {
+            fs.open(pathTheme, 'r', function(err, fd) {
               if (err) {
                 fs_extra.outputFileSync(pathTheme, sItemTheme);
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
@@ -1234,7 +1234,7 @@ function buildLocalDesktopFile(callback) {
         if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
           var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
           var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
-          fs.open(_sFileOriginPath, 'r', function(err,fd) {
+          fs.open(_sFileOriginPath, 'r', function(err, fd) {
             if (err) {
               console.log('pass desktop file...', _sFileOriginPath)
               var isEnd = (count === lens - 1);
@@ -1243,7 +1243,7 @@ function buildLocalDesktopFile(callback) {
               }
               count++;
             } else {
-              if(fd) fs.closeSync(fd);
+              fs.closeSync(fd);
               utils.copyFile(_sFileOriginPath, newPath, function(err) {
                 if (err) {
                   console.log('pass desktop file...', sFileName);
