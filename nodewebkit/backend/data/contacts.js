@@ -281,7 +281,7 @@ function initContacts(loadContactsCb, sItemPath) {
     }
 
     function isEndCallback(_oDesFiles) {
-      callback(null,'success');
+      loadContactsCb(null,'success');
     }
     for (var k = 0; k < oContacts.length; k++) {
       var isContactEnd = (k == (oContacts.length - 1));

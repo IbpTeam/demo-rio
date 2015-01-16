@@ -1,15 +1,7 @@
 {
-  "sina-app": {
-    "id": "sina-app",
-    "path": "demo-webde/nw/app/test-app"
-  },
-  "wiki-app": {
-    "id": "wiki-app",
-    "path": "demo-webde/nw/app/wiki-app"
-  },
   "datamgr-app": {
     "id": "datamgr-app",
-    "path": "demo-rio/newdatamgr"
+    "path": "../../app/newdatamgr"
   },
   "app-register": {
     "id": "app-register",
