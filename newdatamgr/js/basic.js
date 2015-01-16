@@ -191,6 +191,13 @@ var Basic = Class.extend({
     return modifyURI_.replace(/-/g,'#');
   },
 
+  isStrInStrArr:function(str_,Arr_){
+    for(var _val in Arr_){
+      if(str_ === Arr_[_val]) return true;
+    }
+    return false;
+  },
+
   //此函数用来打开一个文件，传入的是文件的URI，传入的是自己修改过的，把#去掉的
   openFile:function(file){
     var _this = this;
