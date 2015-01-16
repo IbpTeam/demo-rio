@@ -443,7 +443,7 @@ function sendFileTransferRequest(sendFileTransferRequestCb, MsgObj) {
       sendFileTransferRequestCb(err,msg);
     }else{
       var id=MsgObj.group===''?MsgObj.Account+MsgObj.UID:MsgObj.group+MsgObj.localUID;
-      msg['key']=MD5(id + new Date().getTime());
+      msg['key']=MD5(id + MsgObj.Msg+new Date().getTime());
       MsgObj.Msg=msg;
       sendFileTransferRequestCb(err,MsgObj);
     }
