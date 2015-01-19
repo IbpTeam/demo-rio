@@ -324,7 +324,7 @@ exports.startApp = function(appInfo_, params_, callback_) {
       win.appendHtml(appInfo_.main);
     } else {
       win.appendHtml(path.join(appInfo_.path, appInfo_.main)
-        + (p_ === null ? "" : ("?" + p_)));
+        + '?id=' + appInfo_.id + (p_ === null ? "" : ("&" + p_)));
     }
     cb_(null, win);
   } catch(e) {

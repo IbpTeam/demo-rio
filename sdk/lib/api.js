@@ -13,8 +13,10 @@ try {
 $(document).ready(function(){
   if (typeof onStart === "function"){
     try{
-      var nIndex=window.location.href.lastIndexOf("?");
-      var sParam= nIndex<0?null:window.location.href.substring(nIndex + 1, window.location.href.length);
+      var search = window.location.search.substr(1),
+          tmps = search.split('&');
+      WDC.AppID = tmps[0].split('=')[1];
+      var sParam = (typeof tmps[1] === 'undefined') ? null : tmps[1];
       onStart(sParam);
     }catch(e){
       console.log("Warning: onStart should be supported :" + e.stack);

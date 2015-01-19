@@ -23,10 +23,20 @@ var UsrInfoView = Class.extend({
   },
   setUsrInfo:function(){
     var _headPhotoSrc = '';
-    var _tempName = 'Rio';
-    var _tmpIp = '192.168.162.7';
-    var _tmpDevices = 'deviceId';
-    var _tmpOthers = 'this is others';
+    var _tempName = '';
+    var _tmpIp = '';
+    var _tmpDevices = '';
+    var _tmpOthers = '';
+	 DataAPI.deviceInfo(function(err,res){
+	 _tempName = res.local_account;
+ 	 _tmpIp = res.server_ip;
+	 _tmpDevices = res.local_id;
+	 _tmpOthers = res.server_name;
+	 console.log(res.server_ip);
+	 console.log(res.server_name);
+	 console.log(res.local_account);
+	 console.log(res.local_id);
+});
     if(true)
       _headPhotoSrc = this._defaultHeadPhoto;
     var _usrHeadShow = $('<div>',{
