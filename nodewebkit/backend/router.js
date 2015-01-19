@@ -65,7 +65,7 @@ function getRemoteAPIFile(handle, modulename, response){
           * })
           */
         response.writeHead(200, {'Content-Type': content_type = 'application/javascript'});
-        var remotejs='define(function(){var o={};function sendrequest(a, ar){var sd = {};var cb=ar.shift();sd.api = a;sd.args = ar;$.ajax({      url: "/callapi", type: "post", contentType: "application/json;charset=utf-8", dataType: "json", data: JSON.stringify(sd), success: function(r) {setTimeout(cb.apply(null,r), 0);}, error: function(e) {throw e;} });};';
+        var remotejs='define(function(){var o={};o.sendrequest=function(a, ar){var sd = {};var cb=ar.shift();sd.api = a;sd.args = ar;$.ajax({      url: "/callapi", type: "post", contentType: "application/json;charset=utf-8", dataType: "json", data: JSON.stringify(sd), success: function(r) {setTimeout(cb.apply(null,r), 0);}, error: function(e) {throw e;} });};';
         response.write(remotejs, "binary");
         var func;
         for (func in onehandle) {
@@ -75,7 +75,7 @@ function getRemoteAPIFile(handle, modulename, response){
             response.write("=");
             response.write(handle_remote[func]+";");
           }else {
-            response.write('=function(){sendrequest("');
+            response.write('=function(){this.sendrequest("');
             response.write(modulename);
             response.write('.');
             response.write(func);
