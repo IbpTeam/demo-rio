@@ -8,13 +8,18 @@ var MainContactView = Class.extend({
     });
     this._ContactsContainer.append(this._ContactsTitleContent);
     this._ContactsContent = $('<div>',{
-      'id': 'contacts-content'
+      'id': 'contacts-content',
+      'class': 'nanoMaincontent'
+    });
+    this._ContactsContentNano = $('<div>',{
+      'class': 'nano-content'
     });
     this._contactslistContent = $('<ul>',{
       'id':'contacts-list-content'
     });
-    this._ContactsContent.append(this._contactslistContent);
+    this._ContactsContentNano.append(this._contactslistContent);
     this._ContactsContainer.append(this._ContactsContent);
+    this._ContactsContent.append(this._ContactsContentNano);
     //input title ui
     this._ContactsTitleTag = $('<div>',{
       'id': 'contacts-title-tag'
@@ -81,6 +86,7 @@ var MainContactView = Class.extend({
             })
           }
        }
+       _this.refreshScroll();
     },'contact');
   },
 
@@ -90,6 +96,11 @@ var MainContactView = Class.extend({
 
   show:function(){
     this._ContactsContainer.show();
+    this.refreshScroll();
+  },
+
+  refreshScroll:function(){
+    this._ContactsContent.nanoScroller();
   },
   
   hide:function(){
