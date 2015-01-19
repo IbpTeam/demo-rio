@@ -110,7 +110,7 @@ var Contact = Class.extend({
     });
 
     //forbid context menu
-    $(document).on('contextmenu','#'+_this._contactsListNano[0].id, function(ev){
+    $(document).on('contextmenu','#'+_this._contactsList[0].id, function(ev){
       ev.stopPropagation();
       ev.preventDefault();
     });
