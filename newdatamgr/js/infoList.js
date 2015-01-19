@@ -22,13 +22,18 @@ var InfoList = Class.extend({
     this._infoList.append(this._titleForm);
     this._titleForm.append(this._titleText);
     this._infoContent = $('<nav>',{
-      'id':'il__container'
+      'id':'il__container',
+      'class': 'nano'
     });
+    this._infoContentNano = $('<nav>',{
+      'class':'nano-content'
+    })
     this._infoList.append(this._infoContent);
+    this._infoContent.append(this._infoContentNano);
     this._add = $('<a>',{
       'class':'il__add icon-plus'
     })
-    this._infoContent.append(this._add);
+    this._infoContentNano.append(this._add);
     this._infoBtmTitle = $('<div>',{
       'id':'title-form-bottom'
     });
@@ -70,7 +75,7 @@ var InfoList = Class.extend({
         'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
         'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
           if(newtext_){
-            var _tags = _this._infoContent.children('.il__a');
+            var _tags = _this._infoContentNano.children('.il__a');
             for (var i = 0; i < _tags.length; i++) {
               var _tagText = $(_tags[i]).children('.il__title')[0].textContent;
               if(_tagText === newtext_) {
@@ -178,7 +183,7 @@ var InfoList = Class.extend({
   },
 
   fixTagNum:function(tag_, num_){
-    var _tags = this._infoContent.children('.il__a');
+    var _tags = this._infoContentNano.children('.il__a');
     for (var i = 0; i < _tags.length; i++) {
       if($(_tags[i]).children('.il__title')[0].textContent === tag_){
         var _num = $(_tags[i]).children('.il__num')[0].textContent;
@@ -209,6 +214,7 @@ var InfoList = Class.extend({
       }
       search.bindSuggestion(_tagTextList);
     }
+    $(".nano").nanoScroller();
   },
 
   setContent:function(){
@@ -308,6 +314,7 @@ var InfoList = Class.extend({
         }, _dataUris);
       }
     }
+
   },
 
   showFilesByTags:function(_tags){
@@ -321,7 +328,7 @@ var InfoList = Class.extend({
   },
 
   removeTags:function(){
-    var _list = this._infoContent.children('.il__a');
+    var _list = this._infoContentNano.children('.il__a');
     if (_list.length !== 0) {
       _list.remove();
     };

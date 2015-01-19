@@ -21,7 +21,8 @@ var ShowFiles = Class.extend({
       'id':'choice'
     });
     this._showContent = $('<div>',{
-      'id':'showContent'
+      'id':'showContent',
+      'class':'nanoshowContent'
     });
     $("#contentDiv").append(this._choice);
     $("#contentDiv").append(this._showContent);
@@ -277,6 +278,9 @@ var ShowFiles = Class.extend({
               }
             }
             _globalSelf._showContent.append(returnshow);
+
+          
+
             if(this._index ==1 && _globalSelf._showFilesBytag){
               _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
             }
@@ -294,6 +298,7 @@ var ShowFiles = Class.extend({
           break;
         default:
       }
+      //$(".nanoshowContent").nanoScroller();
     }
   },
 
@@ -601,7 +606,8 @@ var ShowFiles = Class.extend({
     }
     if(_globalSelf._index ==1){
       var outWaterFall = $('<div>',{
-        'id':'outWaterFall'
+        'id':'outWaterFall',
+        'class':'nano-content'
       });
       outWaterFall.append(returnContent);
       _globalSelf._showContent.append(outWaterFall);
@@ -613,6 +619,7 @@ var ShowFiles = Class.extend({
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
     infoList.searchTag(_params);
+    //$(".nanoshowContent").nanoScroller();
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用

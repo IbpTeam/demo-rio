@@ -7,10 +7,15 @@ var MainDocView = Class.extend({
       'id': 'doc-title-content'
     });
     this._docContent = $('<div>',{
-      'id': 'doc-content'
+      'id': 'doc-content',
+      'class':'nanoMaindoc'
     });
+    this._docContentNano = $('<div>',{
+      'class':'nano-content'
+    })
     this._docContainer.append(this._docTitleContent);
     this._docContainer.append(this._docContent);
+    this._docContent.append(this._docContentNano);
     //input title ui
     this._docTitleTag = $('<div>',{
       'id': 'doc-title-tag'
@@ -84,6 +89,8 @@ var MainDocView = Class.extend({
           'path': document_json_[i]['path']
         });
       }
+
+      $(".nanoMaindoc").nanoScroller();
       _this.bindEvent();
     }, 'document', 30);
   },
@@ -98,7 +105,7 @@ var MainDocView = Class.extend({
   },
 
   removeFile:function(uri_){
-    var _files = this._docContent.children('.doc-icon');
+    var _files = this._docContentNano.children('.doc-icon');
     for (var i = 0; i < _files.length; i++) {
       if($(_files[i]).data('uri') === uri_){
         $(_files[i]).remove();
@@ -179,7 +186,7 @@ var MainDocView = Class.extend({
     _fileView.dblclick(function(event) {
       basic.openFile(file_);
     });
-    this._docContent.append(_fileView);
+    this._docContentNano.append(_fileView);
     this.bindDrag(_fileView[0]);
   },
 
