@@ -11,7 +11,8 @@
 
 .nanoContact,
 .nanoContactDetails,
-.nanoshowContent{
+.nanoshowContent,
+.contactDetail,{
   position : absolute;
   overflow : hidden;
   top: 0px;
@@ -89,6 +90,18 @@
   opacity    : 0.99;
 }
 .nanoshowContent:hover > .nano-pane, .nano-pane.active, .nano-pane.flashed {
+  visibility : visible\9; /* Target only IE7 and IE8 with this hack */
+  opacity    : 0.99;
+}
+.contactDetail:hover > .nano-pane, .nano-pane.active, .nano-pane.flashed {
+  visibility : visible\9; /* Target only IE7 and IE8 with this hack */
+  opacity    : 0.99;
+}
+.resentContent:hover > .nano-pane, .nano-pane.active, .nano-pane.flashed {
+  visibility : visible\9; /* Target only IE7 and IE8 with this hack */
+  opacity    : 0.99;
+}
+.returnTableBody:hover > .nano-pane, .nano-pane.active, .nano-pane.flashed {
   visibility : visible\9; /* Target only IE7 and IE8 with this hack */
   opacity    : 0.99;
 }

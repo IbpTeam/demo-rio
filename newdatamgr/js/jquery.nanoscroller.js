@@ -358,7 +358,7 @@
       this.body = this.doc.find('body');
       this.$content = this.$el.children("." + options.contentClass);
       this.$content.attr('tabindex', this.options.tabIndex || 0);
-      this.content = this.$content[0];
+      this.content = this.$content[0]
       this.previousPosition = 0;
       if (this.options.iOSNativeScrolling && (this.el.style.WebkitOverflowScrolling != null)) {
         this.nativeScrolling();
@@ -927,6 +927,20 @@
         options = $.extend({}, defaults, settings);
         this.nanoscroller = scrollbar = new NanoScroll(this, options);
       }
+      var contents = $(this).children('.'+scrollbar.options.contentClass);
+      if(contents.length !== 1){
+        for (var i = 0; i < contents.length; i++) {
+          if($(contents[i]).is(":visible")){
+            scrollbar.removeEvents();
+            scrollbar.$content.removeAttr('tabindex');
+            scrollbar.content = contents[i];
+            scrollbar.$content = $(contents[i]);
+            scrollbar.$content.attr('tabindex', scrollbar.options.tabIndex || 0);
+            scrollbar.addEvents();
+          }
+        };
+      }
+
       if (settings && typeof settings === "object") {
         $.extend(scrollbar.options, settings);
         if (settings.scrollBottom != null) {

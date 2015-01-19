@@ -86,7 +86,7 @@ var MainContactView = Class.extend({
             })
           }
        }
-       $(".nanoMaincontent").nanoScroller();
+       _this.refreshScroll();
     },'contact');
   },
 
@@ -96,6 +96,11 @@ var MainContactView = Class.extend({
 
   show:function(){
     this._ContactsContainer.show();
+    this.refreshScroll();
+  },
+
+  refreshScroll:function(){
+    this._ContactsContent.nanoScroller();
   },
   
   hide:function(){

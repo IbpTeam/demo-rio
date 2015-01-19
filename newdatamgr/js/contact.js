@@ -20,10 +20,15 @@ var Contact = Class.extend({
     this._ContactContainer.append(this._contactHead);
     this._defaultPhoto = 'img/headphoto.svg';
     this._contactDetails = $('<div>', {
-      'id': 'contact-detail'
+      'id': 'contact-detail',
+      'class': 'contactDetail'
+    });
+    this._contactsDetailsNano = $('<div>',{
+      'class': 'nano-content'
     });
     this._first = true;
     this._ContactContainer.append(this._contactDetails);
+    this._contactDetails.append(this._contactsDetailsNano);
     this._tagView = TagView.create({
       category:'contact'
     });
@@ -86,12 +91,12 @@ var Contact = Class.extend({
       }
       this._contactsListNano.append(_ul);
     }
-    //$(".nanoContact").nanoScroller();
     this.removeHead();
     this.setHead(this._showList[_index]);
     this.removeDetails();
     this.setDetails(this._showList[_index]);
     this.bindAction();
+    this.refreshListScroll();
   },
 
   bindAction: function(){
@@ -209,8 +214,8 @@ var Contact = Class.extend({
       _li.append(_valueDiv);
       _ul.append(_li);
     }
-    this._contactDetails.append(_nameDiv);
-    this._contactDetails.append(_ul);
+    _this._contactsDetailsNano.append(_nameDiv);
+    _this._contactsDetailsNano.append(_ul);
     var _buttonsDiv = $('<div>', {
       'id' : 'buttons-div'
     });
@@ -233,6 +238,7 @@ var Contact = Class.extend({
     $('#edit-button').on('click', function(){
       _this.editDetails(contact_, id);
     });
+    _this.refreshDetailScroll();
   },
 
   addContact: function(){
@@ -262,7 +268,7 @@ var Contact = Class.extend({
       _li.append(_valueDiv);
       _ul.append(_li);
     }
-    _this._contactDetails.append(_ul);
+    _this._contactsDetailsNano.append(_ul);
     var _buttonsDiv = $('<div>', {
       'id' : 'buttons-div'
     });
@@ -333,7 +339,7 @@ var Contact = Class.extend({
       _li.append(_valueDiv);
       _ul.append(_li);
     }
-    _this._contactDetails.append(_ul);
+    _this._contactsDetailsNano.append(_ul);
     var _buttonsDiv = $('<div>', {
       'id' : 'buttons-div'
     });
@@ -373,10 +379,11 @@ var Contact = Class.extend({
   },
 
   removeDetails: function(){
-    var _list = this._contactDetails.children();
+    var _list = this._contactsDetailsNano.children();
     if(_list.length != 0){
       _list.remove();
     }
+    this._contactDetails.children('#buttons-div').remove();
   },
 
   removeContactList: function(){
@@ -396,11 +403,21 @@ var Contact = Class.extend({
 
   show:function(){
     this._ContactContainer.show();
+    this.refreshListScroll();
+    this.refreshDetailScroll();
   },
 
   refresh:function(){
     this._contactsListNano.children('ul').remove();
     this.setContactsList();
+  },
+
+  refreshListScroll:function(){
+    this._contactsList.nanoScroller();
+  },
+
+  refreshDetailScroll:function(){
+    this._contactDetails.nanoScroller();
   },
 
   bindDrag:function(target_){

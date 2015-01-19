@@ -234,6 +234,7 @@ var ShowFiles = Class.extend({
           if(this._index ==2){
             $('#'+this._contentIds[this._index]).attr('class', 'videoContent');; 
           }
+          $(".nanoshowContent").nanoScroller();
           break;
         case 1:
           $('#_shownormalButton').removeClass('normalButtonFocus');
@@ -250,6 +251,7 @@ var ShowFiles = Class.extend({
           else{
             $('.bodytr').show();
           }
+          $('.returnTableBody').nanoScroller();
           break;
         case 2:
           $('#showlistButton').removeClass('showlistButtonFocus');
@@ -278,12 +280,10 @@ var ShowFiles = Class.extend({
               }
             }
             _globalSelf._showContent.append(returnshow);
-
-          
-
             if(this._index ==1 && _globalSelf._showFilesBytag){
               _globalSelf.showFileByTag(_globalSelf._showFilesBytagUris);
             }
+            returnshow.addClass('nano-content');
           }
           if(!_globalSelf._showFilesBytag){
             var sortByTimeDivs = $('#'+ this._contentIdsSortByTime[this._index]).children('div');
@@ -295,10 +295,10 @@ var ShowFiles = Class.extend({
               }
             }
           }
+          $('.nanoshowContent').nanoScroller();
           break;
         default:
       }
-      //$(".nanoshowContent").nanoScroller();
     }
   },
 
@@ -311,7 +311,9 @@ var ShowFiles = Class.extend({
       animationOptions:{
         speed:150,
         duration:400,
-        complete:function(data){}
+        complete:function(data){
+          $(".nanoshowContent").nanoScroller();
+        }
       },
     });
   },
@@ -613,13 +615,14 @@ var ShowFiles = Class.extend({
       _globalSelf._showContent.append(outWaterFall);
     }
     else{
+      returnContent.addClass('nano-content');
       _globalSelf._showContent.append(returnContent);
+      $(".nanoshowContent").nanoScroller();
     }
     if (_globalSelf._contentIds[_globalSelf._index] === 'documentContent') {
       _globalSelf.setDocumentContextMenu(_globalSelf._contentIds[_globalSelf._index]);
     };
     infoList.searchTag(_params);
-    //$(".nanoshowContent").nanoScroller();
   },
 
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
@@ -864,7 +867,10 @@ var ShowFiles = Class.extend({
       "cellspacing":'0',
       'width':'100%'
     });
-     var tableBody = $('<table>',{
+    var nanoTableBody = $('<div>',{
+      'class':'nano-content'
+    });
+    var tableBody = $('<table>',{
       'class':'tableBody',
       "cellspacing":'0',
       'width':'100%'
@@ -886,6 +892,7 @@ var ShowFiles = Class.extend({
     }
     tableHead.append(thead);
     tableBody.append(tbody);
+    nanoTableBody.append(tableBody);
     var returnContent = $('<div>',{
       'class':'tableContainer'
     });
@@ -898,7 +905,7 @@ var ShowFiles = Class.extend({
     returnContent.append(returnHeadContent);
     returnContent.append(returnBodyContent);
     returnHeadContent.append(tableHead);
-    returnBodyContent.append(tableBody);
+    returnBodyContent.append(nanoTableBody);
     _globalSelf.addClickEvent(returnContent,'.bodytr');
     return returnContent;
   },

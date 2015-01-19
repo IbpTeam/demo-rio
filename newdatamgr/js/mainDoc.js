@@ -89,8 +89,7 @@ var MainDocView = Class.extend({
           'path': document_json_[i]['path']
         });
       }
-
-      $(".nanoMaindoc").nanoScroller();
+      _this.refreshScroll();
       _this.bindEvent();
     }, 'document', 30);
   },
@@ -200,8 +199,12 @@ var MainDocView = Class.extend({
 
   show:function(){
     this._docContainer.show();
+    this.refreshScroll();
   },
 
+  refreshScroll:function(){
+    this._docContent.nanoScroller();
+  },
 
   getType:function(postfix_){
     if(postfix_ == 'ppt' || postfix_ == 'pptx'){
