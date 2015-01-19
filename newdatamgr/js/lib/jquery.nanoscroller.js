@@ -937,10 +937,15 @@
             scrollbar.$content = $(contents[i]);
             scrollbar.$content.attr('tabindex', scrollbar.options.tabIndex || 0);
             scrollbar.addEvents();
+            scrollbar.reset();
+            if (scrollbar.options.iOSNativeScrolling && (scrollbar.el.style.WebkitOverflowScrolling != null)) {
+              scrollbar.nativeScrolling();
+            } else {
+              scrollbar.generate();
+            }
           }
         };
       }
-
       if (settings && typeof settings === "object") {
         $.extend(scrollbar.options, settings);
         if (settings.scrollBottom != null) {
