@@ -20,7 +20,6 @@ var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
 var commonDAO = require("./CommonDAO");
 var device = require("../data/device");
@@ -98,34 +97,30 @@ function createData(item, callback) {
   var sFileName = utils.renameExists([item.filename + '.' + item.postfix])[0];
   var category = item.category;
   var sRealDir = utils.getRealDir(category);
-  var sDesDir = utils.getDesDir(category);
   var sFilePath = path.join(sRealDir, sFileName);
-  var sDesFilePath = path.join(sDesDir, sFileName + '.md');
   item.path = sFilePath;
   utils.copyFileSync(sOriginPath, sFilePath, function(err) {
     if (err) {
       console.log(err);
       return callback(err);
     }
-    dataDes.createItem(item, sDesDir, function() {
-      commonDAO.createItem(item, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err);
-        }
-        if (item.others != '') {
-          var oTags = item.others.split(',');
-          tagsHandles.addInTAGS(oTags, item.URI, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            callback('success', sFilePath);
-          })
-        } else {
+    commonDAO.createItem(item, function(err) {
+      if (err) {
+        console.log(err);
+        return callback(err);
+      }
+      if (item.others != '') {
+        var oTags = item.others.split(',');
+        tagsHandles.addInTAGS(oTags, item.URI, function(err) {
+          if (err) {
+            console.log(err);
+            return callback(err, null);
+          }
           callback('success', sFilePath);
-        }
-      });
+        })
+      } else {
+        callback('success', sFilePath);
+      }
     });
   });
 }
@@ -173,7 +168,6 @@ function createDataAll(items, callback) {
   var lens = items.length;
   var allItems = [];
   var allItemPath = [];
-  var allDesPath = [];
   var allTagsInfo = [];
   var existsFils = [];
   var itemsRename = utils.renameExists(items);
@@ -198,43 +192,38 @@ function createDataAll(items, callback) {
       var sOriginPath = _item.path;
       var sFileName = (_item.postfix === 'none') ? _item.filename : _item.filename + '.' + _item.postfix;
       var category = _item.category;
-      var sDesDir = utils.getDesDir(category);
       var sRealDir = utils.getRealDir(category);
       var sFilePath = path.join(sRealDir, sFileName);
-      var sDesFilePath = path.join(sDesDir, sFileName + '.md');
       _item.path = sFilePath;
       utils.copyFileSync(sOriginPath, sFilePath, function(err) {
         if (err) {
           console.log(err);
           return callback(err);
         }
-        dataDes.createItem(_item, sDesDir, function() {
-          allItems.push(_item);
-          allItemPath.push(sFilePath);
-          allDesPath.push(sDesFilePath);
-          if (_item.others) {
-            var oTags = _item.others.split(',');
-            for (var i = 0; i < oTags.length; i++) {
-              var oItem = {
-                category: 'tags',
-                tag: oTags[i],
-                file_URI: _item.URI
-              }
-              allItems.push(oItem);
+        allItems.push(_item);
+        allItemPath.push(sFilePath);
+        if (_item.others) {
+          var oTags = _item.others.split(',');
+          for (var i = 0; i < oTags.length; i++) {
+            var oItem = {
+              category: 'tags',
+              tag: oTags[i],
+              file_URI: _item.URI
             }
+            allItems.push(oItem);
           }
-          var isEnd = (count === lens - 1);
-          if (isEnd) {
-            commonDAO.createItems(allItems, function(result) {
-              if (result === "rollback") {
-                var _err = 'create tags info in data base rollback ...';
-                return callback(_err, null);
-              }
-              callback(null, existsFils);
-            });
-          }
-          count++;
-        });
+        }
+        var isEnd = (count === lens - 1);
+        if (isEnd) {
+          commonDAO.createItems(allItems, function(result) {
+            if (result === "rollback") {
+              var _err = 'create tags info in data base rollback ...';
+              return callback(_err, null);
+            }
+            callback(null, existsFils);
+          });
+        }
+        count++;
       });
     })
   }
@@ -268,21 +257,12 @@ function deleteItemByUri(category, uri, callback) {
 exports.deleteItemByUri = deleteItemByUri;
 
 exports.removeFile = function(category, item, callback) {
-  //TODO delete desFile
-  var sFullName = path.basename(item.path);
-  var sDesFullName = sFullName + ".md";
-  var sDesPath = utils.getDesPath(category, sFullName);
-  fs.unlink(sDesPath, function(err) {
-    if (err)
-      console.log(err);
-    //TODO delete data from db
-    deleteItemByUri(category, item.URI, function(isSuccess) {
-      if (isSuccess == "rollback") {
-        callback("error");
-        return;
-      }
-      callback(null,"success");
-    });
+  deleteItemByUri(category, item.URI, function(isSuccess) {
+    if (isSuccess == "rollback") {
+      callback("error");
+      return;
+    }
+    callback(null,"success");
   });
 };
 
@@ -351,62 +331,6 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
   commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
 }
 
-exports.updateDB = function(category, updateDBCb) {
-  var desRepoDir = utils.getDesDir(category);
-  fs.readdir(desRepoDir, function(err, files) {
-    if (err) {
-      console.log(err);
-      updateDBCb({
-        'commonHandle': err
-      }, null);
-    } else {
-      var allFileInfo = [];
-      var count = 0;
-      var lens = files.length;
-      for (var i = 0; i < lens; i++) {
-        var fileItem = path.join(utils.getDesDir(category), files[i]);
-        var isEnd = (count === lens - 1);
-        (function(_fileItem, _isEnd) {
-          fs.readFile(_fileItem, 'utf8', function(err, data) {
-            try {
-              var oFileInfo = JSON.parse(data);
-            } catch (e) {
-              console.log(data)
-              throw e;
-            }
-            allFileInfo.push(oFileInfo);
-            if (_isEnd) {
-              var items = [{
-                category: category
-              }];
-              commonDAO.deleteItems(items, function(result) {
-                if (result == 'commit') {
-                  commonDAO.createItems(allFileInfo, function(result) {
-                    if (result == 'commit') {
-                      updateDBCb(null, 'success');
-                    } else {
-                      var _err = {
-                        'commonHandle': 'create items error!'
-                      }
-                      updateDBCb(_err, null);
-                    }
-                  })
-                } else {
-                  var _err = {
-                    'commonHandle': 'delete items error!'
-                  }
-                  updateDBCb(_err, null);
-                }
-              })
-            }
-          })
-          count++;
-        })(fileItem, isEnd)
-      }
-    }
-  })
-}
-
 function renameDataByUri(category, sUri, sNewName, callback) {
   var sCondition = "URI = '" + sUri + "'";
   commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
@@ -439,42 +363,29 @@ function renameDataByUri(category, sUri, sNewName, callback) {
           console.log(err);
           return callback(err, null);
         }
-        var reg_path = new RegExp('/' + category + '/');
-        var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
-        var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
-        fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
+        var currentTime = (new Date());
+        console.log(item);
+        var sUri = item.URI;
+        var oUpdataInfo = {
+          URI: sUri,
+          category: category,
+          filename: utils.getFileNameByPathShort(sNewPath),
+          postfix: utils.getPostfixByPathShort(sNewPath),
+          lastModifyTime: currentTime,
+          lastAccessTime: currentTime,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID,
+          path: sNewPath
+        }
+        commonDAO.updateItem(oUpdataInfo, function(err) {
           if (err) {
             console.log(err);
             return callback(err, null);
           }
-          var currentTime = (new Date());
-          console.log(item);
-          var sUri = item.URI;
-          var oUpdataInfo = {
-            URI: sUri,
-            category: category,
-            filename: utils.getFileNameByPathShort(sNewPath),
-            postfix: utils.getPostfixByPathShort(sNewPath),
-            lastModifyTime: currentTime,
-            lastAccessTime: currentTime,
-            lastModifyDev: config.uniqueID,
-            lastAccessDev: config.uniqueID,
-            path: sNewPath
-          }
-          commonDAO.updateItem(oUpdataInfo, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
-              if (result === "success") {
-                callback(null, result);
-              }
-            })
-          })
-        })
-      })
-    })
-  })
+          callback(null, "success");
+        });
+      });
+    });
+  });
 }
 exports.renameDataByUri = renameDataByUri;
