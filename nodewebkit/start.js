@@ -27,7 +27,8 @@ var appManager = require('./backend/app/appManager');
 var IM = require("./backend/IM/IM");
 //var process = require('process');
 
-var handle = {}
+var handle = {};
+exports.handle=handle;
 
 // @const
 var HOME_DIR = "/home";
@@ -58,8 +59,12 @@ function startApp(){
     }
     initializeApp(sFullPath);
   });
-  server.start(router.route, handle);
-  IM.startIMService(function(){},false);
+  server.start(function(done){
+    console.log('http server 8888 and WebSocketServer Start  SERVER'+done);
+  },router.route, handle);
+  IM.startIMService(function(done){
+    console.log('IM 7777 Start  SERVER'+done);
+  },false);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
