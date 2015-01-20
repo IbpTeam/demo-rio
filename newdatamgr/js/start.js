@@ -30,7 +30,7 @@ var main = function(params_){
   });
   try{
     process.on('uncaughtException',function(err){
-      msgBox.post("Are you want reload?");
+      msgBox.post("Do you want to reload?");
     });
   }catch(err){
     console.log('run in nw');
