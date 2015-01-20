@@ -26,11 +26,9 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "picture";
-var DES_NAME = "pictureDes";
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 
@@ -337,20 +335,15 @@ function openDataByUri(openDataByUriCb, uri) {
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       util.log("item.path=" + item.path);
-      var re = new RegExp('/' + CATEGORY_NAME + '/')
-      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
-      util.log("desPath=" + desFilePath);
-      dataDes.updateItem(desFilePath, updateItem, function() {
-        updateItem.category = CATEGORY_NAME;
-        var updateItems = new Array();
-        var condition = [];
-        condition.push("URI='" + item.URI + "'");
-        updateItems.conditions = condition;
-        updateItems.push(updateItem);
-        commonDAO.updateItems(updateItems, function(result) {
-          console.log(result);
-          openDataByUriCb(source);
-        });
+      updateItem.category = CATEGORY_NAME;
+      var updateItems = new Array();
+      var condition = [];
+      condition.push("URI='" + item.URI + "'");
+      updateItems.conditions = condition;
+      updateItems.push(updateItem);
+      commonDAO.updateItems(updateItems, function(result) {
+        console.log(result);
+        openDataByUriCb(source);
       });
     }
   }

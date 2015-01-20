@@ -250,14 +250,13 @@ function initContacts(loadContactsCb, sItemPath) {
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
     var oContacts = [];
-    var oDesFiles = [];
     for (var k in oJson) {
       if (oJson[k].hasOwnProperty("\u59D3")) {
         oContacts.push(oJson[k]);
       }
     }
 
-    function isEndCallback(_oDesFiles) {
+    function isEndCallback() {
       loadContactsCb(null,'success');
     }
     for (var k = 0; k < oContacts.length; k++) {
@@ -265,7 +264,7 @@ function initContacts(loadContactsCb, sItemPath) {
       addContact(oContacts[k], isContactEnd, function(isContactEnd, oContact) {
         commonDAO.createItem(oContact, function() {
           if (isContactEnd) {
-            isEndCallback(oDesFiles);
+            isEndCallback();
             console.log("succcess");
             console.log("initContacts is end!!!");
           }
