@@ -1,5 +1,5 @@
 var path = require('path');
-
+var config = require("config");
 /**
  * 产生公私钥的默认路径
  *  数据同步与即时通信共用私钥路径 prikeypath
@@ -8,11 +8,11 @@ var path = require('path');
  *  即时通信用户存储的其他用户公钥目录 SSHUSERPATH
  */
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
+//var DEMO_RIO = ".demo-rio";
 var SSH_DIR = ".ssh";
 var DOWNLOAD_DIR = ".download";
 var CURUSER = process.env['USER'];
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var USERCONFIGPATH = config.USERCONFIGPATH;//path.join(HOME_DIR, CURUSER, DEMO_RIO);
 var SSHPATH = path.join(USERCONFIGPATH, "key");
 var SSHUSERPATH = path.join(SSHPATH, "users");
 var SSHPATH_msg = path.join(HOME_DIR, CURUSER, SSH_DIR);
