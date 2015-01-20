@@ -31,10 +31,10 @@ var handle = {}
 
 // @const
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
-var CONFIG_JS = "config.js";
-var UNIQUEID_JS = "uniqueID.js";
-var DATABASENAME = "rio.sqlite3";
+//var DEMO_RIO = ".demo-rio";
+//var CONFIG_JS = "config.js";
+//var UNIQUEID_JS = "uniqueID.js";
+//var DATABASENAME = "rio.sqlite3";
 var NETLINKSTATUS = ".netlinkstatus"
 
 var startonce = false;
@@ -61,9 +61,11 @@ function startApp(){
  });
   startonce = true;
   config.SERVERNAME = os.hostname();
-  var sFullPath = path.join(HOME_DIR, process.env['USER'], DEMO_RIO);
-  config.USERCONFIGPATH = sFullPath;
-  config.DATABASEPATH = path.join(config.USERCONFIGPATH,DATABASENAME);
+  //var sFullPath = path.join(HOME_DIR, process.env['USER'], DEMO_RIO);
+  var sFullPath = config.USERCONFIGPATH;
+  console.log("config.USERCONFIGPATH: " + config.USERCONFIGPATH);
+  //config.USERCONFIGPATH = sFullPath;
+  //config.DATABASEPATH = path.join(config.USERCONFIGPATH,config.DATABASENAME);
   util.log('mkdir ' + sFullPath);
   fs.exists(sFullPath,function(rioExists){
     if(!rioExists){
@@ -85,10 +87,11 @@ function startApp(){
  * @Method: initializeApp
  *    initialize config/uniqueid.js.
  **/
-function initializeApp(sFullPath) {
-  config.USERCONFIGPATH = sFullPath;
-  var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
-  var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
+function initializeApp(sFullPath) {//sFullPath
+  //config.USERCONFIGPATH = sFullPath;
+  var sUniqueIDPath = path.join(config.USERCONFIGPATH, config.UNIQUEID_JS);
+  //var sDatabasePath = path.join(config.USERCONFIGPATH, config.DATABASENAME);
+  var sDatabasePath = config.DATABASEPATH;
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
   console.log("UniqueID Path is : " + sUniqueIDPath);
     /*
