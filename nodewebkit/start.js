@@ -91,14 +91,6 @@ function initializeApp(sFullPath) {
   var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
   console.log("UniqueID Path is : " + sUniqueIDPath);
-    /*
-     * TODO: desktop config part is not working now, will fix it later
-     */
-    // desktopConf.initConf(function(result) {
-    //   if (result !== "success") {
-    //     console.log("init config error");
-    //     return;
-    //   }
   fs.exists(sUniqueIDPath, function(uniqueExists) {
     if (!uniqueExists) {
       console.log("UniqueID.js is not exists, start to set sys uid.");
@@ -112,27 +104,6 @@ function initializeApp(sFullPath) {
     config.ACCOUNT  = require(sUniqueIDPath).Account;
     setSysUid(deviceID, sUniqueIDPath, function() {
       device.startDeviceDiscoveryService();
-      /***************
-      /*Temporary delete 
-      ****************/
-      /*fs.exists(sNetLinkStatusPath, function(netlinkExists) {
-        if (!netlinkExists) {
-          cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-            util.log("touch .netlinkstatus");
-            config.NETLINKSTATUSPATH = sNetLinkStatusPath;
-            cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-              util.log(sNetLinkStatusPath);
-              filesHandle.monitorNetlink(sNetLinkStatusPath);
-              });
-          });
-        } else {
-          config.NETLINKSTATUSPATH = sNetLinkStatusPath;
-          cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-            util.log(sNetLinkStatusPath);
-            filesHandle.monitorNetlink(sNetLinkStatusPath);
-          });
-        }
-      });*/
     });
   });
   // init HTML5 app manager

@@ -21,7 +21,6 @@ var os = require('os');
 var config = require("../config");
 var desktopConf = require("../data/desktop");
 var commonDAO = require("./CommonDAO");
-var device = require("../data/device");
 var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
@@ -294,27 +293,9 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
       console.log(err);
       return;
     }
-    var cates = new Array();
-    items.forEach(function(each) {
-      cates.push({
-        URI: each.URI,
-        version: each.version,
-        filename: each.filename,
-        postfix: each.postfix,
-        path: each.path
-      });
-    });
-    getAllDataByCateCb(cates);
-  }
-
-  function getAllDevicesCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
     getAllDataByCateCb(items);
   }
-  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
+  commonDAO.findItems(null, cate, null, null, getAllByCaterotyCb);
 }
 
 exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
