@@ -1,6 +1,41 @@
-
 var main = function(params_){
-    //basic = Basic.create();
+  var msgBox = MessageBox.create('errorDlg',{
+    title: 'Error',
+    width: 350,
+    height: 200,
+    close: true,
+    buttons: [{
+      text: '确  定',
+      clkaction: function() {
+         var _window = undefined;
+          if (window == top){
+            location.reload(true);
+          }else{
+            try{
+              _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+              var _dataMgrIfm = _window._windowContent[0];
+              _dataMgrIfm.src = _dataMgrIfm.src;
+            } catch(e){
+              console.log(e);
+            }
+          }
+        msgBox.hide();
+      }
+    }, {
+      text: '取  消',
+      clkaction: function() {
+        msgBox.hide();
+      }
+    }]
+  });
+  try{
+    process.on('uncaughtException',function(err){
+      msgBox.post("Are you want reload?");
+    });
+  }catch(err){
+    console.log('run in nw');
+  }
+
   WDC.requireAPI(['data', 'app'], function(data, app){
     console.log("data:" +  data + " app:" + app);
     DataAPI=data;

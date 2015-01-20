@@ -456,6 +456,7 @@ ul.messenger .messenger-spinner {
   background-color: #ffffff;
   position: relative;
   margin: 0 0 0 0;
+  font: 100 17px Avenir, sans-serif;
   -webkit-border-radius: 6px 6px 0px 0px;
   -moz-border-radius: 6px 6px 0px 0px;
   -ms-border-radius: 6px 6px 0px 0px;
@@ -515,7 +516,6 @@ ul.messenger .messenger-spinner {
 }
 .window .window-top .window-title-button div i:before,
 .window .window-top .window-title-button a i:before {
-  font-family: 'FontAwesome';
   margin-left: 0px;
 }
 .window .window-top .window-title-button div.close,
@@ -901,4 +901,98 @@ ul.messenger .messenger-spinner {
   border-top: 8px solid transparent;
   border-left: 8px solid #eae4b4;
   border-right: 0;
+}
+.messageBox-btn {
+  display: inline;
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  width: 100%;
+}
+.messageBox-btn.two-btns {
+  width: 40%;
+}
+.messageBox-btn.two-btns.first {
+  left: 10%;
+}
+.messageBox-btn.two-btns.second {
+  left: 50%;
+}
+.messageBox-btn.three-btns {
+  width: 28%;
+}
+.messageBox-btn.three-btns.first {
+  left: 8%;
+}
+.messageBox-btn.three-btns.second {
+  left: 36%;
+}
+.messageBox-btn.three-btns.third {
+  left: 64%;
+}
+.messageBox-content {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+}
+.nano {
+  position: absolute;
+  width: 100%;
+  overflow: hidden;
+  top: 0px;
+  bottom: 0px;
+}
+.nano-content {
+  position: absolute;
+  overflow: scroll;
+  overflow-x: hidden;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.nano-content:focus {
+  outline: thin dotted;
+}
+.nano-content::-webkit-scrollbar {
+  display: none;
+}
+.has-scrollbar > .nano-content::-webkit-scrollbar {
+  display: block;
+}
+.nano-pane {
+  background: rgba(255, 255, 255, 0);
+  position: absolute;
+  width: 6px;
+  right: 2px;
+  top: 3px;
+  bottom: 3px;
+  visibility: hidden\9;
+  /* Target only IE7 and IE8 with this hack */
+  opacity: .01;
+  -webkit-transition: .2s;
+  -moz-transition: .2s;
+  -o-transition: .2s;
+  transition: .2s;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  display: block;
+}
+.nano-pane > .nano-slider {
+  background: #444;
+  background: rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin: 0 1px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  z-index: 5;
+}
+.nano:hover > .nano-pane,
+.nano-pane.active,
+.nano-pane.flashed {
+  visibility: visible\9;
+  /* Target only IE7 and IE8 with this hack */
+  opacity: 0.99;
 }
