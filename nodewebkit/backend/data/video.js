@@ -22,8 +22,7 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
-var probe = require('node-ffprobe');
-var thumbler = require('video-thumb');
+var exec = require('child_process').exec;
 
 //@const
 var CATEGORY_NAME = "video";
@@ -35,72 +34,114 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 
 function readVideoMetadata(sPath, callback) {
-  probe(sPath, function(err, probeData) {
+  var oMetadata = {
+    filename: '',
+    format_long_name: '',
+    width: '',
+    height: '',
+    display_aspect_ratio: '',
+    pix_fmt: '',
+    duration: '',
+    major_brand: '',
+    minor_version: '',
+    compatible_brands: '',
+  }
+  var sCommand = 'avprobe ' + sPath;
+  exec(sCommand, function(err, stdout, stderr) {
+    var tmpFullname = pathModule.basename(sPath);
+    oMetadata.format_long_name = pathModule.extname(tmpFullname);
+    oMetadata.filename = pathModule.basename(sPath, oMetadata.pix_fmt);
     if (err) {
-      return callback(err, null);
+      return callback(null, oMetadata);
     }
-    var audioInfo = {};
-    for (var type in probeData.streams) {
-      if (probeData.streams[type].codec_type === "video") {
-        audioInfo = probeData.streams[type];
+    try {
+      var allContent = stderr.split('\n');
+      var reg_major_brand = /major_brand/gi;
+      var reg_minor_version = /minor_version/gi;
+      var reg_compatible_brands = /compatible_brands/gi;
+      var reg_duration = /Duration/gi;
+      var reg_Stream = /Stream*Video/gi;
+      var reg_creation_time = /creation_time/gi;
+      for (var i = 0; i < allContent.length; i++) {
+        var item = allContent[i];
+        if (reg_major_brand.test(item)) {
+          item = item.split(':');
+          oMetadata.major_brand = item[1];
+        } else if (reg_minor_version.test(item)) {
+          item = item.split(':');
+          oMetadata.minor_version = item[1];
+        } else if (reg_compatible_brands.test(item)) {
+          item = item.split(':');
+          oMetadata.compatible_brands = item[1];
+        } else if (reg_duration.test(item)) {
+          item = item.split('Duration:');
+          var tmp = item[1].split(',');
+          oMetadata.duration = tmp[0];
+        } else if (reg_Stream.test(item)) {
+          var tmp = item.split('Video:');
+          var content = tmp[1];
+          content = content.split(',');
+          oMetadata.pix_fmt = content[0];
+          for (var n in content) {
+            if ((/x/g).test(content[n])) {
+              var tmp = content[n].split(' ');
+              var ratio = tmp[0];
+              oMetadata.width = ratio[0];
+              oMetadata.height = ratio[1];
+              oMetadata.display_aspect_ratio = content[n];
+            }
+          }
+        }
       }
+    } catch (err) {
+      console.log('just ignore: ',err);
+    } finally {
+      return callback(null, oMetadata);
     }
-    if (!probeData.format) {
-      probeData.format = {}
-    }
-    if (!probeData.metadata) {
-      probeData.metadata = {}
-    }
-    var extraInfo = {
-      filename: probeData.filename,
-      format_long_name: probeData.format.format_long_name || '',
-      width: audioInfo.width || '',
-      height: audioInfo.height || '',
-      display_aspect_ratio: audioInfo.display_aspect_ratio || '',
-      pix_fmt: audioInfo.pix_fmt || '',
-      duration: audioInfo.duration || probeData.format.duration || '',
-      major_brand: probeData.metadata.major_brand || '',
-      minor_version: probeData.metadata.minor_version || '',
-      compatible_brands: probeData.metadata.compatible_brands || '',
-    }
-    callback(null, extraInfo);
-  });
+    return callback(null, oMetadata);
+  })
 }
 
 function readVideoThumbnail(sPath, callback) {
-  fs.open(sPath, 'r', function(err) {
+  function backupIcon(callback) {
+    //if thumbnail read err, then read a backup icon in local.
+    var option = {
+      encoding: 'base64'
+    }
+    var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/video_320_180.png');
+    fs.readFile(backup_icon, option, function(err, buffer_base64) {
+      if (err) {
+        return callback(err, null);
+      }
+      return callback(null, buffer_base64);
+    })
+  }
+  fs.open(sPath, 'r', function(err,fd) {
     if (err) {
       return callback(err, null);
     }
+    fs.closeSync(fd);
     var tmpBaseDir = pathModule.join(utils.getHomeDir(), '/tmp');
     fs_extra.ensureDir(tmpBaseDir, function(err) {
       if (err) {
         return callback(err, null);
       }
-      var date = new Date();
-      var surfix = '_duplicate_at_' + date.toLocaleString().replace(' ', '_') + '_snapshot.png';
-      var name = utils.getFileNameByPath(sPath) + surfix;
+      var name = pathModule.basename(sPath) + '_snapshot.png';
       var tmpDir = pathModule.join(tmpBaseDir, name);
-      thumbler.extract(sPath, tmpDir, '00:00:03', '640x360', function() {
+      var sCommand = 'avconv -i ' + sPath + ' -f image2 -ss 00:05 -vframes 1 -s 640X320 ' + tmpDir;
+      exec(sCommand, function(err) {
+        if (err) {
+          return backupIcon(callback);
+        }
         var option = {
           encoding: 'base64'
         }
         fs.readFile(tmpDir, option, function(err, buffer_base64) {
           if (err) {
-            //if thumbnail read err, then read a backup icon in local.
-            var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/video_320_180.png');
-            fs.readFile(backup_icon, option, function(err, buffer_base64) {
-              if (err) {
-                return callback(err, null);
-              }
-              return callback(null, buffer_base64);
-            })
+            return backupIcon(callback);
           } else {
             //remove tmp thumbnail file after scuccessfully get it.
             fs_extra.remove(tmpDir, function(err) {
-              if (err) {
-                return callback(err, null);
-              }
               return callback(null, buffer_base64);
             })
           }
