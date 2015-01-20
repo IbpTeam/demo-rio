@@ -788,28 +788,6 @@ function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
-
-/**
- * @method rmTagsAll
- *   remove tags from all data base and des files
- *
- * @param1 callback
- *    @result
- *    string, return 'sucess' if successed
- *
- * @param2 oTags
- *    array, an array of tags to be removed
- *
- *    oTags example:
- *    var oTags = ['documents','music','picture']
- *
- */
-function rmTagsAll(rmTagsAllCb, oTags) {
-  console.log("Request handler 'rmTagsAll' was called.");
-  tagsHandle.rmTagsAll(rmTagsAllCb, oTags);
-}
-exports.rmTagsAll = rmTagsAll;
-
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri

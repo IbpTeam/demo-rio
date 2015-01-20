@@ -19,14 +19,12 @@ var util = require('util');
 var utils = require('../utils');
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
 var probe = require('node-ffprobe');
 var thumbler = require('video-thumb');
 
 //@const
 var CATEGORY_NAME = "video";
-var DES_NAME = "videoDes";
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 function readVideoMetadata(sPath, callback) {
@@ -438,20 +436,15 @@ function openDataByUri(openDataByUriCb, uri) {
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       util.log("item.path=" + item.path);
-      var re = new RegExp('/' + CATEGORY_NAME + '/')
-      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
-      util.log("desPath=" + desFilePath);
-      dataDes.updateItem(desFilePath, updateItem, function() {
-        updateItem.category = CATEGORY_NAME;
-        var updateItems = new Array();
-        var condition = [];
-        condition.push("URI='" + item.URI + "'");
-        updateItems.conditions = condition;
-        updateItems.push(updateItem);
-        commonDAO.updateItems(updateItems, function(result) {
-          console.log(result);
-          openDataByUriCb(source);
-        });
+      updateItem.category = CATEGORY_NAME;
+      var updateItems = new Array();
+      var condition = [];
+      condition.push("URI='" + item.URI + "'");
+      updateItems.conditions = condition;
+      updateItems.push(updateItem);
+      commonDAO.updateItems(updateItems, function(result) {
+        console.log(result);
+        openDataByUriCb(source);
       });
     }
   }

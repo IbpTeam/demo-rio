@@ -26,11 +26,9 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 
 //@const
 var CATEGORY_NAME = "document";
-var DES_NAME = "documentDes";
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 var watcher;
@@ -235,8 +233,6 @@ exports.getByUri = getByUri;
 function changeData(filePath,uri, callback) {
   console.log("change data : "+filePath);
   var currentTime = (new Date());
-  var re = new RegExp('/' + CATEGORY_NAME + '/');
-  var desFilePath = filePath.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
   fs.stat(filePath, function(err, stat) {
     var updateItem = {
       URI:uri,
@@ -244,20 +240,16 @@ function changeData(filePath,uri, callback) {
       lastModifyDev : config.uniqueID,
       size:stat.size
     }
-    dataDes.updateItem(desFilePath, updateItem, function() {
-      var sRealRepoDir=utils.getRepoDir(CATEGORY_NAME);
-      var sDesRepoDir=utils.getDesRepoDir(CATEGORY_NAME);
-      updateItem.category = CATEGORY_NAME;
-      var updateItems = new Array();
-      updateItems.push(updateItem);
-      commonDAO.updateItems(updateItems, function(result) {
-        if(result!='commit'){
-          console.log("DB update error:");
-          console.log(result);
-          return;
-        }
-        callback(result);
-      });
+    updateItem.category = CATEGORY_NAME;
+    var updateItems = new Array();
+    updateItems.push(updateItem);
+    commonDAO.updateItems(updateItems, function(result) {
+      if(result!='commit'){
+        console.log("DB update error:");
+        console.log(result);
+        return;
+      }
+      callback(result);
     });
   });
 }
@@ -400,58 +392,53 @@ function openDataByUri(openDataByUriCb, uri) {
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
       util.log("item.path=" + item.path);
-      var re = new RegExp('/' + CATEGORY_NAME + '/')
-      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
-      util.log("desPath=" + desFilePath);
-      dataDes.updateItem(desFilePath, updateItem, function() {    
-        updateItem.category = CATEGORY_NAME;
-        var updateItems = new Array();
-        updateItems.push(updateItem);
-        commonDAO.updateItems(updateItems, function(result) {
-          if(result!='commit'){
-            console.log("DB update error:");
-            console.log(result);
-            return;
-          }           
-          //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
-          if(item.postfix=='ppt' ||
-           item.postfix=='pptx'||
-           item.postfix=='doc' ||
-           item.postfix=='docx'||
-           item.postfix=='xls' ||
-           item.postfix=='xlsx'){
-            if(watchFilesNum==0)
-            {
-              console.log(CATEGORY_NAME+" watcher started!!");
-              watchFilesNum++;
-              console.log("watchFilesNum = "+watchFilesNum);
-              openDataByUriCb(source);
-              commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
-                console.log(path+" : "+event);
-                if(event=='change'){
-                  var conditions = ["path = " + "'" + path + "'"];
-                  commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
-                    changeData(path,items[0].URI,function(result){
-                      if(result!='commit'){
-                        console.log("DB update error:");
-                        console.log(result);
-                        return;
-                      } 
-                    });
+      updateItem.category = CATEGORY_NAME;
+      var updateItems = new Array();
+      updateItems.push(updateItem);
+      commonDAO.updateItems(updateItems, function(result) {
+        if(result!='commit'){
+          console.log("DB update error:");
+          console.log(result);
+          return;
+        }           
+        //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
+        if(item.postfix=='ppt' ||
+         item.postfix=='pptx'||
+         item.postfix=='doc' ||
+         item.postfix=='docx'||
+         item.postfix=='xls' ||
+         item.postfix=='xlsx'){
+          if(watchFilesNum==0)
+          {
+            console.log(CATEGORY_NAME+" watcher started!!");
+            watchFilesNum++;
+            console.log("watchFilesNum = "+watchFilesNum);
+            openDataByUriCb(source);
+            commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
+              console.log(path+" : "+event);
+              if(event=='change'){
+                var conditions = ["path = " + "'" + path + "'"];
+                commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
+                  changeData(path,items[0].URI,function(result){
+                    if(result!='commit'){
+                      console.log("DB update error:");
+                      console.log(result);
+                      return;
+                    } 
                   });
-                }
-              });
-            }
-            else{
-              watchFilesNum++;
-              console.log("watchFilesNum = "+watchFilesNum);
-              openDataByUriCb(source);
-            }
+                });
+              }
+            });
           }
           else{
+            watchFilesNum++;
+            console.log("watchFilesNum = "+watchFilesNum);
             openDataByUriCb(source);
           }
-        });
+        }
+        else{
+          openDataByUriCb(source);
+        }
       });
     }
   }
