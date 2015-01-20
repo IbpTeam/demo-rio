@@ -1,14 +1,14 @@
 {
   "datamgr-app": {
     "id": "datamgr-app",
-    "path": "../../app/newdatamgr"
+    "path": "../app/newdatamgr"
   },
   "app-register": {
     "id": "app-register",
-    "path": "demo-webde/nw/app/app-register"
+    "path": "demo-webde/app/app-register"
   },
   "flash-app": {
     "id": "flash-app",
-    "path": "demo-webde/nw/app/flash"
+    "path": "demo-webde/app/flash"
   }
 }

@@ -14,7 +14,6 @@ var http = require("http");
 var url = require("url");
 var sys = require('sys');
 var path = require('path');
-var git = require("nodegit");
 var fs = require('../fixed_fs');
 //var fs = require('fs');
 var fs_extra = require('fs-extra');

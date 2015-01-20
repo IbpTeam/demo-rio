@@ -88,7 +88,7 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = '../../app/newdatamgr'; //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.path = '../app/newdatamgr'; //change 'WORK_DIRECTORY' into local.
     _datamgr_app.iconPath = 'icons/datamgr.png';
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
