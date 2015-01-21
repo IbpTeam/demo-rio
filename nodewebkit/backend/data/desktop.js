@@ -304,10 +304,6 @@ function readJSONFile(filePath, desFilePath, callback) {
         var _err = "readThemeConf : read config file error!";
         return callback(_err, null);
       }
-      if (!desFilePath) {
-        var json = JSON.parse(data);
-        return callback(null, json);
-      }
       var json = JSON.parse(data);
       callback(null, json);
     });
@@ -1214,8 +1210,8 @@ function buildLocalDesktopFile(callback) {
       if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
         var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
         var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
-        fs.open(_sFileOriginPath, 'r', function(err, fd) {
-          if (err) {
+        fs.stat(_sFileOriginPath, function(err, stat) {
+          if (err || stat.size == 0) {
             console.log('pass desktop file...', _sFileOriginPath)
             var isEnd = (count === lens - 1);
             if (isEnd) {
@@ -1227,6 +1223,10 @@ function buildLocalDesktopFile(callback) {
             utils.copyFile(_sFileOriginPath, newPath, function(err) {
               if (err) {
                 console.log('pass desktop file...', sFileName);
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                  callback();
+                }
                 count++;
               } else {
                 oRealFiles.push(newPath);
