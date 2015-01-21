@@ -729,6 +729,10 @@ function parseDesktopFile(callback, sPath) {
           console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
+        if(oAllDesktop == undefined){
+          var _err = "empty desktop content ...";
+          return callback(_err,null);
+        }
         callback(null, oAllDesktop);
       }
     });
@@ -1005,7 +1009,8 @@ function buildAppMethodInfo(targetFile, callback) {
     var count = 0;
     var reg_rsc = new RegExp('/.resources/');
     var reg_trash = new RegExp('/.local/share/Trash/');
-    function dobuild(){
+    var listContent_ = {};
+    function dobuild(listContent,filepath){
               if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
           fs.open(filepath, 'r', function(err,fd) {
             if (err) {
@@ -1050,9 +1055,7 @@ function buildAppMethodInfo(targetFile, callback) {
     }
     for (var i = 0; i < lens; i++) {
       var item = result[i];
-      (function(listContent, filepath) {
-
-      })(result_, item);
+      dobuild(listContent_,item);
     }
   })
 }
