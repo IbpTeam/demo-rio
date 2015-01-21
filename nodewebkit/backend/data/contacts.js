@@ -210,7 +210,7 @@ function addContact(Item, isContactEnd, callback) {
  *    The document's URI.
  * @param callback
  *    Callback
- */
+ 
 function removeByUri(uri, callback) {
   commonHandle.deleteItemByUri(CATEGORY_NAME, uri, function(isSuccess) {
     if (isSuccess == "rollback") {
@@ -218,6 +218,13 @@ function removeByUri(uri, callback) {
       return;
     }
     callback(null,'success');
+  });
+}
+exports.removeByUri = removeByUri;
+*/
+function removeByUri(uri, callback) {
+  getByUri(uri, function(items) {
+    commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
   });
 }
 exports.removeByUri = removeByUri;
