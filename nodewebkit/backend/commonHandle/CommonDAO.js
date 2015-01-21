@@ -556,7 +556,7 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
 
   // Make query string
   sQueryStr = sColStr + sTablesStr + sCondStr + sExtraStr;
-  //console.log("SELECT Prepare SQL is :" + sQueryStr);
+  console.log("SELECT Prepare SQL is :" + sQueryStr);
 
   // Runs the SQL query
   allSQL(sQueryStr,callback);
