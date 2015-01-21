@@ -124,7 +124,7 @@ exports.startApp = function(startAppCB, appInfo, params) {
       win.appendHtml(appInfo.main);
     } else {
       win.appendHtml("/callapp/" + appInfo.id + '/' + appInfo.main
-        + (p_ === null ? "" : ("?" + p_)));
+        + '?id=' + appInfo.id + (p_ === null ? "" : ("&" + p_)));
     }
     cb_(null, win);
   } catch(e) {

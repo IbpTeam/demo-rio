@@ -22,22 +22,32 @@ var InfoList = Class.extend({
     this._infoList.append(this._titleForm);
     this._titleForm.append(this._titleText);
     this._infoContent = $('<nav>',{
-      'id':'il__container'
+      'id':'il__container',
+      'class': 'nano'
     });
+    this._infoContentNano = $('<nav>',{
+      'class':'nano-content'
+    })
     this._infoList.append(this._infoContent);
+    this._infoContent.append(this._infoContentNano);
     this._add = $('<a>',{
       'class':'il__add icon-plus'
     })
-    this._infoContent.append(this._add);
+    this._infoContentNano.append(this._add);
     this._infoBtmTitle = $('<div>',{
       'id':'title-form-bottom'
     });
     this._infoList.append(this._infoBtmTitle);
     this._infoBottom = $('<nav>',{
-      'id':'il__bottom'
+      'id':'il__bottom',
+      'class': 'resentContent'
+    });
+    this._infoBottomNano = $('<nav>',{
+      'class':'nano-content'
     });
     this._globalSelf;
     this._infoList.append(this._infoBottom);
+    this._infoBottom.append(this._infoBottomNano);
     this._isFirstRequset = true;
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
@@ -49,7 +59,6 @@ var InfoList = Class.extend({
           _this.showFilesByTags(values_);
         } else if(values_.length == 0){
           _this.setContent();
-          _this.loadData();
         }
       }
     });
@@ -70,7 +79,7 @@ var InfoList = Class.extend({
         'oldtext': '',                 //用于初始显示时，显示在输入框的文字。
         'callback': function(newtext_){   //newtext输入框输入的文字，返回的文字。
           if(newtext_){
-            var _tags = _this._infoContent.children('.il__a');
+            var _tags = _this._infoContentNano.children('.il__a');
             for (var i = 0; i < _tags.length; i++) {
               var _tagText = $(_tags[i]).children('.il__title')[0].textContent;
               if(_tagText === newtext_) {
@@ -175,10 +184,11 @@ var InfoList = Class.extend({
       }
     });
     this.bindDrag(_a[0]);
+    this.refreshTagScroll();
   },
 
   fixTagNum:function(tag_, num_){
-    var _tags = this._infoContent.children('.il__a');
+    var _tags = this._infoContentNano.children('.il__a');
     for (var i = 0; i < _tags.length; i++) {
       if($(_tags[i]).children('.il__title')[0].textContent === tag_){
         var _num = $(_tags[i]).children('.il__num')[0].textContent;
@@ -209,6 +219,7 @@ var InfoList = Class.extend({
       }
       search.bindSuggestion(_tagTextList);
     }
+    this.refreshTagScroll();
   },
 
   setContent:function(){
@@ -232,10 +243,10 @@ var InfoList = Class.extend({
               var file=JSON.parse(this.id);
               basic.openFile(file);
             });
-            _this._infoBottom.append(_a);
-
+            _this._infoBottomNano.append(_a);
           }
         }
+        _this.refreshRecentScroll();
       }
     }, _this.getCategoryName(_this._index), 10);
   },
@@ -308,6 +319,7 @@ var InfoList = Class.extend({
         }, _dataUris);
       }
     }
+
   },
 
   showFilesByTags:function(_tags){
@@ -321,14 +333,14 @@ var InfoList = Class.extend({
   },
 
   removeTags:function(){
-    var _list = this._infoContent.children('.il__a');
+    var _list = this._infoContentNano.children('.il__a');
     if (_list.length !== 0) {
       _list.remove();
     };
   },  
 
   removeRecent:function(){
-    var _blist = this._infoBottom.children('.bil__a');
+    var _blist = this._infoBottomNano.children('.bil__a');
     if (_blist.length !== 0) {
       _blist.remove();
     };
@@ -339,7 +351,15 @@ var InfoList = Class.extend({
   },
 
   show:function(){
-    this._infoList.removeClass('hidden');  
+    this._infoList.removeClass('hidden'); 
+  },
+
+  refreshTagScroll:function(){
+    this._infoContent.nanoScroller();
+  },
+
+  refreshRecentScroll:function(){
+    this._infoBottom.nanoScroller();
   },
   
   hide:function(){
@@ -364,9 +384,9 @@ var InfoList = Class.extend({
     if(this._index == 0){
       if(contact._first == true){
         contact.setContactsList();
-        contact._ContactContainer.show();
+        contact.show();
       } else {
-        contact._ContactContainer.show();
+        contact.show();
         this.searchTag(_params);
       }
     }

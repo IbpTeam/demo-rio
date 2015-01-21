@@ -114,6 +114,5 @@ var main = function(params_){
     $('#avatar').on('click',function(){
       usrInfo.showUsrInfo();
     });
-
 });
 }
