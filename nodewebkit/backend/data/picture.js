@@ -179,7 +179,7 @@ exports.createData = createData;
  *    The Picture's URI.
  * @param callback
  *    Callback
- */
+
 function removeByUri(uri, callback) {
   getByUri(uri, function(items) {
     //Remove real file
@@ -194,6 +194,14 @@ function removeByUri(uri, callback) {
         commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
       }
     });
+  });
+}
+exports.removeByUri = removeByUri;
+ */
+
+function removeByUri(uri, callback) {
+  getByUri(uri, function(items) {
+    commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
   });
 }
 exports.removeByUri = removeByUri;

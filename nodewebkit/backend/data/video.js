@@ -325,18 +325,7 @@ exports.createData = createData;
  */
 function removeByUri(uri, callback) {
   getByUri(uri, function(items) {
-    //Remove real file
-    fs.unlink(items[0].path, function(err) {
-      if (err) {
-        console.log(err);
-        callback("error");
-      } else {
-        //Remove Des file
-        //Delete in db
-        //Git commit
-        commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
-      }
-    });
+    commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
   });
 }
 exports.removeByUri = removeByUri;
