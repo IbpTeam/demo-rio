@@ -11,7 +11,7 @@ var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
 var music = require("./data/music");
-var devices = require("./data/device");
+//var devices = require("./data/device");
 var other = require('./data/other')
 var commonDAO = require("./commonHandle/CommonDAO");
 //@const

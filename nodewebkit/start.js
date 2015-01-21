@@ -11,12 +11,13 @@
  **/
 
 var config = require("./backend/config");
+var initRio = require("./backend/initRio");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
-var device = require("./backend/data/device");
 var msgTransfer = require("./backend/Transfer/msgTransfer");
+var device;
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
@@ -138,6 +139,7 @@ function initializeApp(sFullPath) {//sFullPath
       });*/
     });
   });
+  device = require("./backend/data/device");
   // init HTML5 app manager
   appManager.loadAppList();
 }
