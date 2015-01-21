@@ -400,160 +400,19 @@ var ShowFiles = Class.extend({
         _globalSelf._getFiles[index].push(file);
         switch(index){
           case 1:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'pictureContainerWaterFall refreshDiv',
-              'draggable': true
-            });
-            var Holder = $('<div>',{
-              'class':'pictureHolderWaterFall'
-            });
-            //用来定义最后描述的名字.
-            var description = $('<p>',{
-              'class':'picturedescriptionWaterFall',
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
-            Container.append(Holder);
-            Container.append(description);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(110,204,188)',
-              max:3
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateWaterFallDiv(file);
             break;
           case 2:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'videoContainer refreshDiv',
-              'draggable': true
-            });
-            var Holder = $('<div>',{
-              'class':'videoHolder'
-            });
-            //用来定义最后描述的名字.
-            var description = $('<p>',{
-              'class':'videodescription',
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            var img = $('<img>',{
-              'id':file['URI'],
-              'draggable':false
-            });
-            _globalSelf.getVideoPicData(file);
-            Holder.append(img);
-            Container.append(Holder);
-            Container.append(description);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(132,204,117)',
-              max:3
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateVideoDiv(file);
             break;
           case 3:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'doc-icon refreshDiv',
-              'draggable': true
-            });
-            var img = $('<img>',{
-              'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
-              'draggable':false
-            });
-            Container.append(img);
-            var p = $('<p>',{
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            Container.append(p);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(155,146,69)',
-              max:2
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.bindDrag(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateDocumentOtherDiv(file);
             break;
           case 4:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'musicContainer refreshDiv',
-              'draggable': true
-            });
-            var Holder = $('<div>',{
-              'class':'musicHolder',
-              'draggable':false
-            });
-            var tagHolder = $('<div>',{
-              'class':'tagHolder',
-            });
-            //用来定义最后描述的名字.
-            var description = $('<p>',{
-              'class':'musicdescription',
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            var musicImg = $('<img>',{
-               'id':file['URI'],
-               'draggable':false
-            });
-            Holder.append(musicImg);
-            Holder.append(tagHolder);
-            Container.append(Holder);
-            Container.append(description);
-            _globalSelf.getMusicPicData(file);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(237,148,148)',
-              max:3
-            });
-            _tagView.setParent(tagHolder,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(tagHolder[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateMusicDiv(file);
             break;
           case 5:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'doc-icon refreshDiv',
-              'draggable': true
-            });
-            var img = $('<img>',{
-              'src':'icons/Other.png',
-              'draggable':false
-            });
-            Container.append(img);
-            var p = $('<p>',{
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            Container.append(p);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(200,200,200)',
-              max:1
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateDocumentOtherDiv(file);
             break;
           default:
         }
@@ -999,7 +858,36 @@ var ShowFiles = Class.extend({
   
   //根据传来的file，产生要展现的div。
   generateWaterFallDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'pictureContainerWaterFall',
+      'draggable': true
+    });
+    var Holder = $('<div>',{
+      'class':'pictureHolderWaterFall'
+    });
+    //用来定义最后描述的名字.
+    var description = $('<p>',{
+      'class':'picturedescriptionWaterFall',
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
+    Container.append(Holder);
+    Container.append(description);
+    _globalSelf.bindDrag(Container[0]);
+    var _tagView = TagView.create({
+      position: 'listview',
+      category: 'picture',
+      background_color: 'rgb(110,204,188)',
+      max:3
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id);
 
+    return Container;
   },
 
   generateVideoDiv:function(file){
@@ -1041,15 +929,105 @@ var ShowFiles = Class.extend({
   },
 
   generateMusicDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'musicContainer',
+      'draggable': true
+    });
+    var Holder = $('<div>',{
+      'class':'musicHolder',
+      'draggable':false
+    });
+    var tagHolder = $('<div>',{
+      'class':'tagHolder'
+    });
+    //用来定义最后描述的名字.
+    var description = $('<p>',{
+      'class':'musicdescription',
+      'text':file['filename']
+    });
+    var musicImg = $('<img>',{
+       'id':file['URI']+'showMusicPic',
+       'draggable':false
+    });
+    basic.getMusicPicData(file,musicImg.attr('id'));
+    Holder.append(musicImg);
+    Holder.append(tagHolder);
+    Container.append(Holder);
+    Container.append(description);
+    _globalSelf.bindDrag(Container[0]);
+    var _tagView = TagView.create({
+      position: 'listview',
+      category: 'music',
+      background_color: 'rgb(237,148,148)',
+      max:3
+    });
+    _tagView.setParent(tagHolder,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(tagHolder[0]);
+    _globalSelf.attachDataMenu(Container[0].id);
 
+    return Container;
   },
 
   generateDocumentOtherDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'doc-icon',
+      'draggable': true
+    });
+    var img = $('<img>',{
+      'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+      'draggable':false
+    });
+    Container.append(img);
+    var p = $('<p>',{
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    Container.append(p);
+    var _tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(120,78,100)',
+      max:0
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.bindDrag(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id);
 
+    return Container;
   },
 
   generateDeletedFilesDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'doc-icon deleted',
+      'draggable': true
+    });
+    var img = $('<img>',{
+      'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+      'draggable':false
+    });
+    Container.append(img);
+    var p = $('<p>',{
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    Container.append(p);
+    var _tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(120,78,100)',
+      max:0
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.bindDrag(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id);
 
+    return Container;
   },
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
@@ -1061,203 +1039,36 @@ var ShowFiles = Class.extend({
       var file = files[i];
       switch(_globalSelf._index){
         case 1:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'pictureContainerWaterFall',
-            'draggable': true
-          });
-          var Holder = $('<div>',{
-            'class':'pictureHolderWaterFall'
-          });
-          //用来定义最后描述的名字.
-          var description = $('<p>',{
-            'class':'picturedescriptionWaterFall',
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
-          Container.append(Holder);
-          Container.append(description);
+          var Container = _globalSelf.generateWaterFallDiv(file);
           returnContent.append(Container);
           returnContent.hide();
-          Holder.children('img')[0].onload = function(){
+          Container.find('img')[0].onload = function(){
             _globalSelf._imgReady = _globalSelf._imgReady - 1;
             if(_globalSelf._imgReady ==0){
               returnContent.show();
               _globalSelf.refreshWaterFall();
             }
           };
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            category: 'picture',
-            background_color: 'rgb(110,204,188)',
-            max:3
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 2:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'videoContainer',
-            'draggable': true
-          });
-          var Holder = $('<div>',{
-            'class':'videoHolder'
-          });
-          //用来定义最后描述的名字.
-          var description = $('<p>',{
-            'class':'videodescription',
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          var img = $('<img>',{
-            'id':file['URI']+'showvideo',
-            'draggable':false
-          });
-          basic.getVideoPicData(file,img.attr('id'));
-          Holder.append(img);
-          Container.append(Holder);
-          Container.append(description);
+          var Container = _globalSelf.generateVideoDiv(file);
           returnContent.append(Container);
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            category: 'video',
-            background_color: 'rgb(132,204,117)',
-            max:3
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 3:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'doc-icon',
-            'draggable': true
-          });
-          var img = $('<img>',{
-            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
-            'draggable':false
-          });
-          Container.append(img);
-          var p = $('<p>',{
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Container.append(p);
+          var Container = _globalSelf.generateDocumentOtherDiv(file);
           returnContent.append(Container);
-          var _tagView = TagView.create({
-            position: 'listview',
-            background_color: 'rgb(120,78,100)',
-            max:0
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.bindDrag(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'musicContainer',
-            'draggable': true
-          });
-          var Holder = $('<div>',{
-            'class':'musicHolder',
-            'draggable':false
-          });
-          var tagHolder = $('<div>',{
-            'class':'tagHolder'
-          });
-          //用来定义最后描述的名字.
-          var description = $('<p>',{
-            'class':'musicdescription',
-            'text':file['filename']
-          });
-          var musicImg = $('<img>',{
-             'id':file['URI']+'showMusicPic',
-             'draggable':false
-          });
-          basic.getMusicPicData(file,musicImg.attr('id'));
-          Holder.append(musicImg);
-          Holder.append(tagHolder);
-          Container.append(Holder);
-          Container.append(description);
+          var Container = _globalSelf.generateMusicDiv(file);
           returnContent.append(Container);
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            category: 'music',
-            background_color: 'rgb(237,148,148)',
-            max:3
-          });
-          _tagView.setParent(tagHolder,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(tagHolder[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'doc-icon',
-            'draggable': true
-          });
-          var img = $('<img>',{
-            'src':'icons/Other.png',
-            'draggable':false
-          });
-          Container.append(img);
-          var p = $('<p>',{
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Container.append(p);
+          var Container = _globalSelf.generateDocumentOtherDiv(file);
           returnContent.append(Container);
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            background_color: 'rgb(200,200,200)',
-            max:0
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 6:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'doc-icon',
-            'draggable': true
-          });
-          var img = $('<img>',{
-            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
-            'draggable':false
-          });
-          Container.append(img);
-          var p = $('<p>',{
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Container.append(p);
+          var Container = _globalSelf.generateDeletedFilesDiv(file);
           returnContent.append(Container);
-          var _tagView = TagView.create({
-            position: 'listview',
-            background_color: 'rgb(120,78,100)',
-            max:0
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.bindDrag(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         default:
       }
