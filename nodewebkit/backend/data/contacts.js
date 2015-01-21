@@ -135,7 +135,8 @@ function getAllContacts(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.findItems(null, [CATEGORY_NAME], null, null, getAllByCaterotyCb);
+  var condition = ["is_deleted != '1' "];
+  commonDAO.findItems(null, [CATEGORY_NAME], condition, null, getAllByCaterotyCb);
 }
 exports.getAllContacts = getAllContacts;
 

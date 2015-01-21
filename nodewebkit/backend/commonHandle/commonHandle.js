@@ -329,8 +329,9 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     var DataByNum = utils.getRecent(items, num);
     getRecentAccessDataCb(null, DataByNum);
   }
-  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc ";
-  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
+  var conditions = [" is_deleted != '1' "];
+  var sCondition = ["order by date(lastAccessTime) desc,  time(lastAccessTime) desc "];
+  commonDAO.findItems(null, category, conditions, sCondition, findItemsCb);
 }
 
 function renameDataByUri(category, sUri, sNewName, callback) {
