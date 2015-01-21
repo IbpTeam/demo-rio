@@ -98,10 +98,8 @@ exports.WEBSOCKETPATH = WEBSOCKETPATH;
  * */
 var ISSECURE=false;
 exports.ISSECURE = ISSECURE;
-// var KEYPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/key.pem");
 var KEYPATH=path.join(USERCONFIGPATH, "httpserver/key.pem");
 exports.KEYPATH = KEYPATH;
-// var CERTPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/cert.pem");
 var CERTPATH=path.join(USERCONFIGPATH, "httpserver/cert.pem");
 exports.CERTPATH = CERTPATH;
 
