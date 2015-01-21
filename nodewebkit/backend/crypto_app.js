@@ -39,8 +39,8 @@ exports.generateRsaKeypair = generateRsaKeypair;
 
 /**
  * @method generateKeypairCtn
- *  默认在路径/home/fyf/.demo-rio/key下生成公私钥，
- *  并生成存放其他用户公钥的目录/home/fyf/.demo-rio/key/users
+ *  默认在路径~/.custard/config/key下生成公私钥，
+ *  并生成存放其他用户公钥的目录~/.custard/config/key/users
  *  具体路径由cryptoConf.js读入
  *
  * @param1 callback function

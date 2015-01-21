@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var cp = require('child_process');
-var config = require('config');
+var config = require('./config');
 var fullPath = config.BASEPATH;//path.join("/home", process.env['USER'], ".demo-rio");
 
 if (!fs.existsSync(fullPath)) {
