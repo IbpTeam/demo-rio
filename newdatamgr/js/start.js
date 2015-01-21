@@ -69,13 +69,14 @@ var main = function(params_){
     }
 
     //bind gitLog button
-    $('#tags__bottom').on('click',function(){
-      infoList.hide();
-      container.removeClass('move-right');
-      $('#tags__ul').children('li').removeClass('active');
-      container.children('div').hide();
-      //gitLog.getLogShow();
-    });
+    // $('#tags__bottom').on('click',function(){
+    //   // infoList.hide();
+    //   // container.removeClass('move-right');
+    //   // $('#tags__ul').children('li').removeClass('active');
+    //   // container.children('div').hide();
+    //   //gitLog.getLogShow();
+    // });
+  $('#tags__bottom').on('click',clickHandler(8));
 
 
     //bind drag event

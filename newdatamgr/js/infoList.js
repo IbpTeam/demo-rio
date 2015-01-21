@@ -99,7 +99,7 @@ var InfoList = Class.extend({
   },
 
   setIndex:function(index_){
-    if(typeof index_ === 'number' && index_ > 0 && index_ < 8){
+    if(typeof index_ === 'number' && index_ > 0 && index_ < 9){
       this._index = index_-2;
     }
   },
@@ -157,6 +157,8 @@ var InfoList = Class.extend({
         return 'music';
       case 5:
         return 'other';
+      case 6:
+        return 'document';
     }
   },
 
@@ -371,7 +373,7 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
-    if(this._index >0 && this._index <6){
+    if(this._index >0 && this._index <7){
       if(this._isFirstRequset){
         showfiles = ShowFiles.create();
         showfiles.setIndex(this._index);

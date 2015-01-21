@@ -11,12 +11,12 @@ var ShowFiles = Class.extend({
     this._showFilesBytag = false;
     this._showFilesBytagUris = [];
     this._imgReady;
-    this._showNormal = [0,0,0,0,0,0];
+    this._showNormal = [0,0,0,0,0,0,0];
     this._pictureContentReady = false;
-    this._currentCategory = ['contact','picture','video','document','music','other'];
-    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
-    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
-    this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
+    this._currentCategory = ['contact','picture','video','document','music','other','document'];
+    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent','deleteContent'];
+    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList','deleteContentList'];
+    this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime','deleteContenSortByTime'];
     this._choice = $('<div>',{
       'id':'choice'
     });
@@ -157,7 +157,7 @@ var ShowFiles = Class.extend({
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
   setIndex:function(index_){
-    if (typeof index_ === 'number' && index_ >0 && index_ <6) {
+    if (typeof index_ === 'number' && index_ >0 && index_ <7) {
       this._index = index_;
       this._showFilesBytag = false;
     }
@@ -996,6 +996,61 @@ var ShowFiles = Class.extend({
     _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
+  
+  //根据传来的file，产生要展现的div。
+  generateWaterFallDiv:function(file){
+
+  },
+
+  generateVideoDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'videoContainer',
+      'draggable': true
+    });
+    var Holder = $('<div>',{
+      'class':'videoHolder'
+    });
+    //用来定义最后描述的名字.
+    var description = $('<p>',{
+      'class':'videodescription',
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    var img = $('<img>',{
+      'id':file['URI']+'showvideo',
+      'draggable':false
+    });
+    basic.getVideoPicData(file,img.attr('id'));
+    Holder.append(img);
+    Container.append(Holder);
+    Container.append(description);
+    _globalSelf.bindDrag(Container[0]);
+    var _tagView = TagView.create({
+      position: 'listview',
+      category: 'video',
+      background_color: 'rgb(132,204,117)',
+      max:3
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id);
+
+    return Container;
+  },
+
+  generateMusicDiv:function(file){
+
+  },
+
+  generateDocumentOtherDiv:function(file){
+
+  },
+
+  generateDeletedFilesDiv:function(file){
+
+  },
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
@@ -1174,6 +1229,34 @@ var ShowFiles = Class.extend({
           _tagView.setParent(Container,file['URI']);
           _tagView.addTags(file['others'].split(','));
           _tagView.bindDrop(Container[0]);
+          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        case 6:
+          var Container = $('<div>',{
+            'id':basic.uriToModifyUri(file['URI'])+'div',
+            'class':'doc-icon',
+            'draggable': true
+          });
+          var img = $('<img>',{
+            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+            'draggable':false
+          });
+          Container.append(img);
+          var p = $('<p>',{
+            'text':file['filename'],
+            'title':file['filename']
+          });
+          Container.append(p);
+          returnContent.append(Container);
+          var _tagView = TagView.create({
+            position: 'listview',
+            background_color: 'rgb(120,78,100)',
+            max:0
+          });
+          _tagView.setParent(Container,file['URI']);
+          _tagView.addTags(file['others'].split(','));
+          _tagView.bindDrop(Container[0]);
+          _globalSelf.bindDrag(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
         default:
