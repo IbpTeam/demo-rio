@@ -1219,7 +1219,6 @@ function buildLocalDesktopFile(callback) {
             }
             count++;
           } else {
-            fs.closeSync(fd);
             utils.copyFile(_sFileOriginPath, newPath, function(err) {
               if (err) {
                 console.log('pass desktop file...', sFileName);
