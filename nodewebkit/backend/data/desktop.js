@@ -26,7 +26,6 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
-var configPath = config.RESOURCEPATH + "/desktop";
 
 var CATEGORY_NAME = "desktop";
 var DES_NAME = "desktopDes";
@@ -41,6 +40,7 @@ var THEME_DES_PATH = pathModule.join(DES_DIR, 'Theme.conf.md');
 var WIGDET_PATH = pathModule.join(REAL_DIR, 'Widget.conf');
 var WIGDET_DES_PATH = pathModule.join(DES_DIR, 'Widget.conf.md');
 var RESOURCEPATH = config.RESOURCEPATH;
+var CONFIG_PATH = pathModule.join(config.RESOURCEPATH, "desktop");
 
 function getnit(initType) {
   if (initType === "theme") {
@@ -1666,8 +1666,8 @@ exports.moveFile = moveFile;
  *
  **/
 function copyFile(oldPath, newPath,callback) {
-  var oldFullpath = configPath + oldPath;
-  var newFullpath = configPath + newPath;
+  var oldFullpath = CONFIG_PATH + oldPath;
+  var newFullpath = CONFIG_PATH + newPath;
   console.log(oldFullpath, newFullpath);
   utils.copyFile(oldFullpath, newFullpath, function(err) {
     if (err) {
