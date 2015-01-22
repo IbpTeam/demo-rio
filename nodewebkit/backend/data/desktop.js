@@ -2696,7 +2696,7 @@ function createFile(sContent, callback) {
         return callback(err);
       }
       var cate = utils.getCategoryObject('document');
-      cate.createData(desPath, function(err, result, resultFile) {
+      cate.createData(desPath, function(err, resultFile) {
         if (err) {
           console.log(err, stdout, stderr);
           return callback(err);
@@ -2706,7 +2706,7 @@ function createFile(sContent, callback) {
             console.log(err, stdout, stderr);
             return callback(err);
           }
-          console.log(resultFile)
+          console.log(resultFile);
           var sCondition = ["path = '" + resultFile + "'"];
           commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
             if (err) {
