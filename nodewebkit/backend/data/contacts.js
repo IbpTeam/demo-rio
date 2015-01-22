@@ -254,33 +254,53 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
+  function findItemsCb(err, result) {
+    var oNames = [];
+    for(var item in result){
+      oNames.push(result[item]['name']);
+    }
+    function csvTojsonCb(json) {
+      var oJson = JSON.parse(json);
+      var oContacts = [];
+      if (result == '') {
+        for (var k in oJson) {
+          if (oJson[k].hasOwnProperty("姓")) {
+            oContacts.push(oJson[k]);
+          }
+        }
+      } else {
+        for (var k in oJson) {
+          if (oJson[k].hasOwnProperty("姓")) {
+            var sName = oJson[k]["姓"]+oJson[k]["名"];
+            if(!utils.isExist(sName, oNames)){
+              oContacts.push(oJson[k]);
+            }
+          }
+        }
+        if(oContacts == ''){
+          return loadContactsCb(null, 'success');
+        }
+      }
 
-  function csvTojsonCb(json) {
-    var oJson = JSON.parse(json);
-    var oContacts = [];
-    for (var k in oJson) {
-      if (oJson[k].hasOwnProperty("\u59D3")) {
-        oContacts.push(oJson[k]);
+      function isEndCallback() {
+        loadContactsCb(null, 'success');
+      }
+      for (var k = 0; k < oContacts.length; k++) {
+        var isContactEnd = (k == (oContacts.length - 1));
+        addContact(oContacts[k], isContactEnd, function(isContactEnd, oContact) {
+          commonDAO.createItem(oContact, function() {
+            if (isContactEnd) {
+              isEndCallback();
+              console.log("succcess");
+              console.log("initContacts is end!!!");
+            }
+          });
+        });
       }
     }
-
-    function isEndCallback() {
-      loadContactsCb(null,'success');
-    }
-    for (var k = 0; k < oContacts.length; k++) {
-      var isContactEnd = (k == (oContacts.length - 1));
-      addContact(oContacts[k], isContactEnd, function(isContactEnd, oContact) {
-        commonDAO.createItem(oContact, function() {
-          if (isContactEnd) {
-            isEndCallback();
-            console.log("succcess");
-            console.log("initContacts is end!!!");
-          }
-        });
-      });
-    }
+    csvtojson.csvTojson(sItemPath, csvTojsonCb);
   }
-  csvtojson.csvTojson(sItemPath, csvTojsonCb);
+  commonDAO.findItems(['name'], 'contact', null, null, findItemsCb);
 }
 exports.initContacts = initContacts;
 

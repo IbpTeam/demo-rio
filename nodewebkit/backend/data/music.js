@@ -190,7 +190,7 @@ function createData(items, callback) {
           console.log(itemInfo);
           commonHandle.createData(itemInfo, function(result, resultFile) {
             if (result === 'success') {
-              callback(null, result, resultFile);
+              callback(null, resultFile);
             } 
             else {
               var _err = 'createData: commonHandle createData error!';
