@@ -45,10 +45,8 @@ var InfoList = Class.extend({
     this._infoBottomNano = $('<nav>',{
       'class':'nano-content'
     });
-    this._globalSelf;
     this._infoList.append(this._infoBottom);
     this._infoBottom.append(this._infoBottomNano);
-    this._isFirstRequset = true;
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
     this._firstShowFilterData = true;
@@ -62,7 +60,6 @@ var InfoList = Class.extend({
         }
       }
     });
-    _globalSelf = this ;
   },
   /**
    * [bindEvent bind event include click add button]
@@ -243,7 +240,12 @@ var InfoList = Class.extend({
             });
             _a.click(function(ev){
               var file=JSON.parse(this.id);
-              basic.openFile(file);
+              if(_this._index == 6){
+                //改成搜索的操作
+              }
+              else{
+                basic.openFile(file);
+              }
             });
             _this._infoBottomNano.append(_a);
           }
@@ -374,14 +376,7 @@ var InfoList = Class.extend({
 
   loadData:function(){
     if(this._index >0 && this._index <7){
-      if(this._isFirstRequset){
-        showfiles = ShowFiles.create();
-        showfiles.setIndex(this._index);
-        this._isFirstRequset = false;
-      }
-      else {
-        showfiles.setIndex(this._index);
-      }
+      showfiles.setIndex(this._index);
     }
     if(this._index == 0){
       if(contact._first == true){

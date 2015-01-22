@@ -21,6 +21,8 @@ var main = function(params_){
     contact = Contact.create();
     //标签列表，最近打开列表
     infoList = InfoList.create();
+    //展示文件
+    showfiles = ShowFiles.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
     infoList.hide();
