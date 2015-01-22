@@ -122,13 +122,22 @@ var Contact = Class.extend({
       {header: 'contact menu'},
       {text:'标签', subMenu:[
         {text: '增加',action:function(){
-          basic.addTagView(_this,_this._contacts[_this._selectId]['URI'],'contact');
+          basic.addTagView(_this,_this._showList[_this._selectId]['URI'],'contact');
         }},
         {text: '删除', action:function(){
-          basic.removeTagView(_this._contactHead,_this._contacts[_this._selectId]['URI'],'contact');
+          basic.removeTagView(_this._contactHead,_this._showList[_this._selectId]['URI'],'contact');
         }}
       ]},
       {text: '删除联系人', action:function(){
+        DataAPI.rmDataByUri(function(err, result){
+          if(result == "success"){
+            _this._showList.splice(_this._selectId, 1);
+            _this.loadContactsList(0);
+            infoList.setContent();
+          }else{
+            window.alert("Delete file failed!");
+          }
+        },_this._showList[_this._selectId]['URI']);
         DataAPI.rmDataByUri(function(err, result){
           if(result == "success"){
             _this._contacts.splice(_this._selectId, 1);
@@ -138,8 +147,9 @@ var Contact = Class.extend({
             window.alert("Delete file failed!");
           }
         },_this._contacts[_this._selectId]['URI']);
+        
       }},
-      {text: '编辑联系人',action:function(){
+      {text: '编辑联系人',action:function(){        
         _this.editDetails(_this._contacts[_this._selectId], _this._selectId);
       }}
     ]);
@@ -197,14 +207,24 @@ var Contact = Class.extend({
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
+    var keys = ['name', 'phone', 'email', 'sex', 'age'];
+    var keys_chs = ['姓名','电话','邮件','性别','年龄'];
     for(var key in contact_){
+      var posinKeys = -1;
+      for(var i =0; i < keys.length;i++){
+        if(key == keys[i]){
+          posinKeys = i;
+          break;
+        }
+      }
+      if(posinKeys == -1) continue;
       if(key == 'URI'||key == 'others') continue;
       var _li = $('<li>',{
         'class': 'li-details'
       });
       var _keyDiv = $('<div>', {
         'class': 'div-key',
-        'text': key
+        'text': keys_chs[posinKeys]
       });
       var _valueDiv = $('<div>', {
         'class': 'div-value',
@@ -234,6 +254,7 @@ var Contact = Class.extend({
     _this._contactDetails.append(_buttonsDiv);
     $('#add-button').on('click', function(){
       _this.addContact();
+      _this._tagView.removeTags();
     });
     $('#edit-button').on('click', function(){
       _this.editDetails(contact_, id);
@@ -241,7 +262,7 @@ var Contact = Class.extend({
     _this.refreshDetailScroll();
   },
 
-  addContact: function(){
+  addContact: function(){    
     var _this = this;
     _this.removeDetails();
     var keys = ['name', 'phone', 'email', 'sex', 'age'];
@@ -318,14 +339,24 @@ var Contact = Class.extend({
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
+    var keys = ['name', 'phone', 'email', 'sex', 'age'];
+    var keys_chs = ['姓名','电话','邮件','性别','年龄'];
     for(var key in contact_){
+      var posinKeys = -1;
+      for(var i =0; i < keys.length;i++){
+        if(key == keys[i]){
+          posinKeys = i;
+          break;
+        }
+      }
+      //if(posinKeys == -1) continue;
       if(key === 'URI' || key === 'others') continue;
       var _li = $('<li>',{
         'class': 'li-details'
       });
       var _keyDiv = $('<div>', {
         'class': 'div-key',
-        'text': key
+        'text': keys_chs[posinKeys]
       });
       var _valueDiv = $('<div>', {
         'class': 'div-value',
