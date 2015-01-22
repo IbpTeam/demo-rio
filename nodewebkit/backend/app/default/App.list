@@ -5,7 +5,7 @@
   },
   "app-register": {
     "id": "app-register",
-    "path": "demo-webde/app/app-register"
+    "path": "./app/app-register"
   },
   "flash-app": {
     "id": "flash-app",
@@ -14,5 +14,9 @@
   "music-app": {
     "id": "music-app",
     "path": "demo-webde/app/music"
+  },
+  "app-server-setting":{
+    "id": "app-server-setting"
+    "path": "./app/server-setting"
   }
 }
