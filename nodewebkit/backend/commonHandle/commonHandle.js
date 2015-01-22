@@ -266,6 +266,26 @@ exports.removeFile = function(category, item, callback) {
   });
 };
 
+function recoverItemByUri(category, uri, callback) {
+
+  var oItem = {
+    URI:uri,
+    is_deleted:'0',
+    category:category
+  };
+  commonDAO.updateItem(oItem, callback);
+}
+exports.recoverItemByUri = recoverItemByUri;
+
+exports.recoverFile = function(category, item, callback){
+  recoverItemByUri(category, item.URI, function(isSuccess) {
+    if (isSuccess == "rollback") {
+      callback("error");
+      return;
+    }
+    callback(null,"success");
+  });
+}
 
 exports.getAllCate = function(getAllCateCb) {
   function getCategoriesCb(err, items) {
@@ -309,7 +329,7 @@ exports.getAllDeleted = function(getAllDeletedCb){
       getAllDeletedCb(deletedItem);
     }
   }
-  
+
     this.getAllCate(function(cates){
       console.log(cates[0].type);
       for (var i = 0; i < cates.length; i++) {

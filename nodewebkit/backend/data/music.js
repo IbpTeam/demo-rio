@@ -298,7 +298,7 @@ exports.createData = createData;
  *    The Music's URI.
  * @param callback
  *    Callback
- */
+
 function removeByUri(uri, callback) {
   getByUri(uri, function(items) {
     //Remove real file
@@ -315,6 +315,20 @@ function removeByUri(uri, callback) {
   });
 }
 exports.removeByUri = removeByUri;
+ */
+function removeByUri(uri, callback) {
+  getByUri(uri, function(items) {
+    commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.removeByUri = removeByUri;
+
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
 
 /**
  * @method getByUri
