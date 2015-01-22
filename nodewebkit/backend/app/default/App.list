@@ -1,7 +1,7 @@
 {
   "datamgr-app": {
     "id": "datamgr-app",
-    "path": "../app/newdatamgr"
+    "path": "../../app/newdatamgr"
   },
   "app-register": {
     "id": "app-register",
