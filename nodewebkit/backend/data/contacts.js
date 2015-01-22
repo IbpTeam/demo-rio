@@ -260,7 +260,6 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
-
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
     var oContacts = [];
