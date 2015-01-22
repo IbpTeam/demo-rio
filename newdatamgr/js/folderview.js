@@ -12,7 +12,7 @@ var ShowFiles = Class.extend({
     this._imgReady;
     this._showNormal = [0,0,0,0,0,0,0];
     this._pictureContentReady = false;
-    this._currentCategory = ['contact','picture','video','document','music','other','document'];
+    this._currentCategory = ['contact','picture','video','document','music','other','picture'];
     this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent','deleteContent'];
     this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList','deleteContentList'];
     this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime','deleteContenSortByTime'];
@@ -28,6 +28,8 @@ var ShowFiles = Class.extend({
     this.setChoice();
     this.setDataContextMenu();
     this.setDeletedFilesContextMenu();
+    this._choice.hide();
+    this._showContent.hide();
     _globalSelf = this 
   },
 
@@ -112,8 +114,8 @@ var ShowFiles = Class.extend({
             break;
           }
         }
-        $("#"+modifyURI+'div').remove();
-        $("#"+modifyURI+'tr').remove();
+        $("#"+modifyURI+'divdeleted').remove();
+        $("#"+modifyURI+'trdeleted').remove();
         _globalSelf.refreshByPath(file['path']);
 
         //此处只是把当前的展示的文件恢复到本地展示，还需要把后台数据库的文件删除状体进行修改.保存了你要修改的文件的json格式，file就是.   
@@ -122,8 +124,8 @@ var ShowFiles = Class.extend({
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
-        $("#"+modifyURI+'div').remove();
-        $("#"+modifyURI+'tr').remove();
+        $("#"+modifyURI+'divdeleted').remove();
+        $("#"+modifyURI+'trdeleted').remove();
         var file;
         for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
           if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == basic.modifyUriToUri(modifyURI)){
@@ -552,24 +554,27 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-
           //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
-          if(!$(this).attr('tabindex')){
-            $(this).blur(function() {
-              $(this).removeClass('selected');
-            });
-            $(this).attr('tabindex','1').keydown(function(e) {
-              if(e.which == 46){
-                //触发的是键盘的delete事件,表示删除
-                var modifyURI_ = _globalSelf.findURIByDiv($(this));
-                _globalSelf.deleteFileByUri(modifyURI_);
-              }
-              else if(e.which == 113){
-                //按下F2键，表示要重命名
-                _globalSelf.renameFileByDivId($(this).attr('id'));
-              }
-            });
-          }
+            if(!$(this).attr('tabindex')){
+              $(this).blur(function() {
+                $(this).removeClass('selected');
+              });
+                $(this).attr('tabindex','1').keydown(function(e) {
+                  if(e.which == 46){
+                    //触发的是键盘的delete事件,表示删除
+                    var modifyURI_ = _globalSelf.findURIByDiv($(this));
+                    if(_globalSelf._index != 6){
+                      _globalSelf.deleteFileByUri(modifyURI_);  
+                    }
+                  }
+                  else if(e.which == 113){
+                    //按下F2键，表示要重命名
+                    if(_globalSelf._index !=6){
+                      _globalSelf.renameFileByDivId($(this).attr('id')); 
+                    }
+                  }
+                });
+            }
           break;
         case 3:
           $(this).addClass('selected').siblings().removeClass('selected');
@@ -577,16 +582,18 @@ var ShowFiles = Class.extend({
       }
     });
     //绑定双击事件
-    this.files.delegate(whichClass,'dblclick',function(e){
-      var fileModifyURI = _globalSelf.findURIByDiv($(this));
-      var file = basic.findFileByURI(fileModifyURI,_globalSelf._getFiles[_globalSelf._index]);
-      if(file){
-        basic.openFile(file);
-      }
-      else{
-        window.alert('what are you gong!!!');
-      }
-    });
+    if(_globalSelf._index != 6){
+      this.files.delegate(whichClass,'dblclick',function(e){
+        var fileModifyURI = _globalSelf.findURIByDiv($(this));
+        var file = basic.findFileByURI(fileModifyURI,_globalSelf._getFiles[_globalSelf._index]);
+        if(file){
+          basic.openFile(file);
+        }
+        else{
+          window.alert('what are you gong!!!');
+        }
+      });
+    }
   },
 
   //此函数用来对文件重命名，传入的是文件的对应的div的ID，因为也要找到名字存在的位置然后产生inputer
@@ -709,10 +716,18 @@ var ShowFiles = Class.extend({
 
   //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
   generateBodyTr:function(file,theadMessage){
-    var bodytr = $('<tr>',{
-      'id':basic.uriToModifyUri(file['URI'])+'tr',
-      'class':'bodytr'
-    });
+    if(_globalSelf._index !=6){
+      var bodytr = $('<tr>',{
+        'id':basic.uriToModifyUri(file['URI'])+'tr',
+        'class':'bodytr'
+      });
+    }
+    else{
+      var bodytr = $('<tr>',{
+        'id':basic.uriToModifyUri(file['URI'])+'trdeleted',
+        'class':'bodytr'
+      });
+    }
     for(var i =0;i<theadMessage.length;i++){
       switch(i){
         case 0:
@@ -752,7 +767,12 @@ var ShowFiles = Class.extend({
           break;
       }
     }
-    _globalSelf.attachDataMenu(bodytr[0].id,'data menu');
+    if(_globalSelf._index ==6){
+      _globalSelf.attachDataMenu(bodytr[0].id,'deleted file');
+    }
+    else{
+      _globalSelf.attachDataMenu(bodytr[0].id,'data menu');
+    }
     return bodytr;
   },
 
@@ -1043,7 +1063,7 @@ var ShowFiles = Class.extend({
 
   generateDeletedFilesDiv:function(file){
     var Container = $('<div>',{
-      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'id':basic.uriToModifyUri(file['URI'])+'divdeleted',
       'class':'doc-icon deleted',
       'draggable': true
     });

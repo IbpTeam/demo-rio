@@ -44,9 +44,6 @@ var main = function(params_){
     var clickHandler = function(k) {
       return function() {
         $(this).addClass('active').siblings().removeClass('active');
-        if(k ==8){
-          $('#tags__ul').children('li').removeClass('active');
-        }
         $('#searchDiv').show();
         content.show();
         content.children('div').hide();
@@ -59,12 +56,20 @@ var main = function(params_){
           container.removeClass('move-right');
           homePage.show();
           search.bindSuggestion([]);
-        } else {
+        } else if(k == 8){
+          $('#tags__ul').children('li').removeClass('active');
+          infoList.removeTags();
+          infoList.removeRecent();
+          container.removeClass('move-right');
+          infoList.loadData();
+          homePage.hide();
+        }
+        else{
           container.addClass('move-right');
           infoList.setContent();
           infoList.setTitle();
           infoList.show();
-          homePage.hide();
+          homePage.hide(); 
         }
       }
     };
