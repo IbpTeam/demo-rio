@@ -51,13 +51,11 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
     var remotePT = c.remotePort;
 
     c.on('data', function(msgStri) {
-      //console.log("\n**Data From Remote Socket:" + remoteAD + ':' + remotePT + ' ' + msgStri);
       var msgStr, decrypteds, msgObj;
       try {
         msgStr = JSON.parse(msgStri);
         decrypteds = msgStr.content;
         msgObj = JSON.parse(decrypteds);
-        //console.log('MSG type:' + msgObj.type);
       } catch (err) {
         console.log(err);
         return;
@@ -90,7 +88,7 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
     });
 
     c.on('close', function() {
-      // console.log('Remote ' + remoteAD + ' : ' + remotePT + ' disconnected!');
+      //console.log('Remote ' + remoteAD + ' : ' + remotePT + ' disconnected!');
     });
 
     c.on('error', function() {
@@ -154,13 +152,12 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
     id = setInterval(function(C, tmpenmsg) {
       console.log("this is in function setInterval.");
       if (count < 5) {
-        // console.log("this is in resending " + tmpenmsg);
+        //console.log("this is in resending " + tmpenmsg);
         if (typeof tmpenmsg === 'object') {
           tmpenmsg = JSON.stringify(tmpenmsg);
         };
         client.write(tmpenmsg);
         count++;
-        console.log("Send message, ", tmpenmsg);
       } else {
         clearInterval(id);
         console.log("Send message error: no reply ");
@@ -171,7 +168,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   switch (MSG.type) {
     case 'SentEnFirst':
       {
-        //console.log("sending message ::: " + tmpenmsg);
         client.connect(PORT, IP, function() {
           client.write(tmpenmsg, function() {});
         });
@@ -188,7 +184,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.on('connect', innerrply);
 
   client.on('data', function(REPLY) {
-    //console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
 
     var RPLY = JSON.parse(REPLY);
     switch (RPLY.type) {
@@ -201,7 +196,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
               {
                 if (msg.message == MD5(dec)) {
                   var msgtp = pat;
-                  //console.log('msg rply MD5 received: ' + msg.message);
                   setTimeout(SentCallBack(msgtp.message), 0);
                   clearInterval(id);
                   client.end();
@@ -321,8 +315,7 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
       }
   }
 
-  // MESSAGE.push(restmp);
-  var send = JSON.stringify(restmp);//MESSAGE
+  var send = JSON.stringify(restmp);
   return send;
 }
 
