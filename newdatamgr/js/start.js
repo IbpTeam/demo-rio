@@ -42,6 +42,9 @@ var main = function(params_){
     var clickHandler = function(k) {
       return function() {
         $(this).addClass('active').siblings().removeClass('active');
+        if(k ==8){
+          $('#tags__ul').children('li').removeClass('active');
+        }
         $('#searchDiv').show();
         content.show();
         content.children('div').hide();
@@ -68,15 +71,7 @@ var main = function(params_){
       $('#js-label' + i)[0].ondragenter = clickHandler(i);
     }
 
-    //bind gitLog button
-    // $('#tags__bottom').on('click',function(){
-    //   // infoList.hide();
-    //   // container.removeClass('move-right');
-    //   // $('#tags__ul').children('li').removeClass('active');
-    //   // container.children('div').hide();
-    //   //gitLog.getLogShow();
-    // });
-  $('#tags__bottom').on('click',clickHandler(8));
+    $('#tags__bottom').on('click',clickHandler(8));
 
 
     //bind drag event

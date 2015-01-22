@@ -6,7 +6,6 @@ var ShowFiles = Class.extend({
     this._contextMenuDivID = '';
     this._propertyView = PropertyView.create();
     this._globalSelf;
-    this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
     this._showFilesBytag = false;
     this._showFilesBytagUris = [];
@@ -28,6 +27,7 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this._showContent);
     this.setChoice();
     this.setDataContextMenu();
+    this.setDeletedFilesContextMenu();
     _globalSelf = this 
   },
 
@@ -97,6 +97,47 @@ var ShowFiles = Class.extend({
     ]);
   },
 
+  setDeletedFilesContextMenu:function(){
+    contextMenu.addCtxMenu([
+      {header: 'deleted file'},
+      {text:'恢复',action:function(){
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        var file;
+        for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+          if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == basic.modifyUriToUri(modifyURI)){
+            file = _globalSelf._getFiles[_globalSelf._index][i];
+            _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+            break;
+          }
+        }
+        $("#"+modifyURI+'div').remove();
+        $("#"+modifyURI+'tr').remove();
+        _globalSelf.refreshByPath(file['path']);
+
+        //此处只是把当前的展示的文件恢复到本地展示，还需要把后台数据库的文件删除状体进行修改.保存了你要修改的文件的json格式，file就是.   
+      }},
+      {text:'确认删除',action:function(){
+        var divId = _globalSelf._contextMenuDivID;
+        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        $("#"+modifyURI+'div').remove();
+        $("#"+modifyURI+'tr').remove();
+        var file;
+        for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+          if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == basic.modifyUriToUri(modifyURI)){
+            file = _globalSelf._getFiles[_globalSelf._index][i]; 
+            _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+            break;
+          }
+        }  
+        //此处只是把当前的展示的文件删除，还需要把后台数据库的文件删除.保存了你要删除的文件的json格式，file就是.
+
+      }}
+    ]);
+  },
+
   getModifyUriById:function(id_){
     var _modifyUri = '';
     if(id_.substr(id_.length-3,3) === 'div'){
@@ -107,9 +148,9 @@ var ShowFiles = Class.extend({
     return _modifyUri;
   },
 
-  attachDataMenu:function(id_){
+  attachDataMenu:function(id_,header_){
     contextMenu.attachToMenu('#'+id_,
-      contextMenu.getMenuByHeader('data menu'),
+      contextMenu.getMenuByHeader(header_),
       function(ID_){
         _globalSelf._contextMenuDivID = ID_;
       }
@@ -711,7 +752,7 @@ var ShowFiles = Class.extend({
           break;
       }
     }
-    _globalSelf.attachDataMenu(bodytr[0].id);
+    _globalSelf.attachDataMenu(bodytr[0].id,'data menu');
     return bodytr;
   },
 
@@ -885,7 +926,7 @@ var ShowFiles = Class.extend({
     _tagView.setParent(Container,file['URI']);
     _tagView.addTags(file['others'].split(','));
     _tagView.bindDrop(Container[0]);
-    _globalSelf.attachDataMenu(Container[0].id);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
 
     return Container;
   },
@@ -923,7 +964,7 @@ var ShowFiles = Class.extend({
     _tagView.setParent(Container,file['URI']);
     _tagView.addTags(file['others'].split(','));
     _tagView.bindDrop(Container[0]);
-    _globalSelf.attachDataMenu(Container[0].id);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
 
     return Container;
   },
@@ -965,7 +1006,7 @@ var ShowFiles = Class.extend({
     _tagView.setParent(tagHolder,file['URI']);
     _tagView.addTags(file['others'].split(','));
     _tagView.bindDrop(tagHolder[0]);
-    _globalSelf.attachDataMenu(Container[0].id);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
 
     return Container;
   },
@@ -995,7 +1036,7 @@ var ShowFiles = Class.extend({
     _tagView.addTags(file['others'].split(','));
     _tagView.bindDrop(Container[0]);
     _globalSelf.bindDrag(Container[0]);
-    _globalSelf.attachDataMenu(Container[0].id);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
 
     return Container;
   },
@@ -1008,6 +1049,7 @@ var ShowFiles = Class.extend({
     });
     var img = $('<img>',{
       'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+      'class':'deletedFile',
       'draggable':false
     });
     Container.append(img);
@@ -1025,7 +1067,7 @@ var ShowFiles = Class.extend({
     _tagView.addTags(file['others'].split(','));
     _tagView.bindDrop(Container[0]);
     _globalSelf.bindDrag(Container[0]);
-    _globalSelf.attachDataMenu(Container[0].id);
+    _globalSelf.attachDataMenu(Container[0].id,'deleted file');
 
     return Container;
   },
