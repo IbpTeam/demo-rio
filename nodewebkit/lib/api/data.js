@@ -332,10 +332,23 @@ function getAllDataByCate(getAllDataByCateCb, cate) {
   if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(getAllDataByCateCb, cate);
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
+
+function getAllDeleted(getAllDeletedCb){
+  /*
+      commonHandle.getAllDeleted(function(items){
+      console.log(items);
+     items.forEach(function(t){
+      console.log(t.postfix);
+     });
+    });
+      */
+      commonHandle.getAllDeleted(getAllDeletedCb);
+}
+exports.getAllDeleted = getAllDeleted;
 
 /**
  * @method getAllContacts
