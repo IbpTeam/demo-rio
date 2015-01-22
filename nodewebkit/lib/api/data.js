@@ -920,43 +920,6 @@ function writeDesktopConfig(writeDesktopConfigCb, sFileName, oContent) {
 exports.writeDesktopConfig = writeDesktopConfig;
 
 /** 
- * @Method: CreateWatcher
- *    To create a wacther on a dir. This wacther would listen on 3 type of even-
- *    t:
- *      'add'   : a new file or dir is added;
- *      'delete': a file or dir is deleted;
- *      'rename': a file is renamed;
- *      'error' : something wrong with event.
- *
- * @param: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error   : "CreateWatcher : echo $HOME error!"
- *                read error   : "CreateWatcher : readdir error!"
- *
- *                A watcher on linstening would catch this type of err:
- *                _watcher.on('error',function(err){});
- *                watch error  :'CreateWatcher : watch error!'
- *
- *    @param2: result
- *        string, retrieve 'success' when success
- *
- * @param2: watchDir
- *    string, a dir under user path
- *    exmple: var watchDir = '/resources/.desktop/desktopadwd'
- *    (compare with a full path: '/home/xiquan/resources/.desktop/desktopadwd')
- *
- *
- **/
-function CreateWatcher(CreateWatcherCb, watchDir) {
-  console.log("Request handler 'CreateWatcher' was called.");
-  return desktopConf.CreateWatcher(CreateWatcherCb, watchDir);
-}
-exports.CreateWatcher = CreateWatcher;
-
-/** 
  * @Method: shellExec
  *    execute a shell command
  *
@@ -983,39 +946,6 @@ function shellExec(shellExecCb, command) {
   desktopConf.shellExec(shellExecCb, command);
 }
 exports.shellExec = shellExec;
-
-/** 
- * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath.
- *    !!!The dir CAN have content,just like command cp -r.
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                echo error : 'copyFile : echo $HOME error'
- *                copy error : 'copyFile : copy error'
- *
- *    @param2: result,
- *        string, retrieve 'success' when success
- *
- * @param2: oldPath
- *    string, a dir under user path
- *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
- *    (compare with a full path:'/home/xiquan/resources/.desktop/Theme.conf')
- *
- * @param3: newPath
- *    string, a dir under user path
- *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
- *    (compare with a full path:'/home/xiquan/resources/.desktop/BadTheme.conf')
- *
- **/
-function copyFile(copyFileCb, fromPath, toPath) {
-  console.log("Request handler 'copyFile' was called.");
-  desktopConf.copyFile(fromPath, toPath,copyFileCb);
-}
-exports.copyFile = copyFile;
 
 /** 
  * @Method: moveFile
