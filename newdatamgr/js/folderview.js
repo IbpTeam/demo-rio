@@ -100,11 +100,15 @@ var ShowFiles = Class.extend({
   },
 
   deleteDivByDivID:function(divId_){
-    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
+    var URILength = divId_.indexOf('trdeleted');
+    if(URILength == -1){
+      URILength = divId_.indexOf('divdeleted');
+    }
     var modifyURI = divId_.substr(divId_.indexOf('rio'),URILength);
     var file;
     for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-      if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == basic.modifyUriToUri(modifyURI)){
+      var URI = basic.modifyUriToUri(modifyURI);
+      if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == URI){
         file = _globalSelf._getFiles[_globalSelf._index][i];
         _globalSelf._getFiles[_globalSelf._index].splice(i,1);
         break;
