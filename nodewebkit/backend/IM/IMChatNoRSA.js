@@ -222,6 +222,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
     console.log("Error: " + err.code + " on " + err.syscall + " !  IP : " + IP);
     clearInterval(id);
     client.end();
+    setTimeout(SentCallBack(), 0);
   });
 }
 
