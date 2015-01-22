@@ -1,7 +1,7 @@
 //based on the code of module 'gracefule-fs'
 //only the part of fixing EMFILE error
 
-var mod = require("module")
+//var mod = require("module")
 var pre = '(function (exports, require, module, __filename, __dirname) { '
 var post = '});'
 var src = pre + process.binding('natives').fs + post
