@@ -150,7 +150,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   function innerrply() {
     // console.log("this is in function innerrply ");
     id = setInterval(function(C, tmpenmsg) {
-      console.log("this is in function setInterval.");
       if (count < 5) {
         //console.log("this is in resending " + tmpenmsg);
         if (typeof tmpenmsg === 'object') {
@@ -253,7 +252,6 @@ function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT,TOAPP, SENTCALLBACK) {
  *  封装好，并且已经序列化的消息字符串
  */
 function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
-  // var MESSAGE = [];
   var tmp = {};
   var restmp = {};
   var now = new Date();
