@@ -105,6 +105,16 @@ var ShowFiles = Class.extend({
       URILength = divId_.indexOf('divdeleted');
     }
     var modifyURI = divId_.substr(divId_.indexOf('rio'),URILength);
+    $("#"+modifyURI+'divdeleted').remove();
+    $("#"+modifyURI+'trdeleted').remove();
+  },
+
+  getFileByDivID :function(divId_){
+    var URILength = divId_.indexOf('trdeleted');
+    if(URILength == -1){
+      URILength = divId_.indexOf('divdeleted');
+    }
+    var modifyURI = divId_.substr(divId_.indexOf('rio'),URILength);
     var file;
     for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
       var URI = basic.modifyUriToUri(modifyURI);
@@ -114,21 +124,31 @@ var ShowFiles = Class.extend({
         break;
       }
     }
-    $("#"+modifyURI+'divdeleted').remove();
-    $("#"+modifyURI+'trdeleted').remove();
     return file;
   },
+
 
   setDeletedFilesContextMenu:function(){
     contextMenu.addCtxMenu([
       {header: 'deleted file'},
       {text:'恢复',action:function(){
-        var file = _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
+        var file = _globalSelf.getFileByDivID(_globalSelf._contextMenuDivID);
+        console.log(file['path']);
         _globalSelf.refreshByPath(file['path']);
         //此处只是把当前的展示的文件恢复到本地展示，还需要把后台数据库的文件删除状体进行修改.保存了你要修改的文件的json格式，file就是.   
+     _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
+      DataAPI.recoverDataByUri(function(err,result){
+        if (result == 'success') {
+          
+        }
+        else{
+          window.alert('Delete file failed');
+        }
+      },file['URI']);
+
       }},
       {text:'确认删除',action:function(){
-        var file = _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);  
+        var file = _globalSelf.getFileByDivID(_globalSelf._contextMenuDivID);  
         //此处只是把当前的展示的文件删除，还需要把后台数据库的文件删除.保存了你要删除的文件的json格式，file就是.
 
       }}
@@ -207,13 +227,16 @@ var ShowFiles = Class.extend({
     _globalSelf._choice.show();
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
-    if(!this._getFiles[this._index]){
+    if(!this._getFiles[this._index] ){
       if (this._index ==6) {
         DataAPI.getAllDeleted(this.getCallBackData);
       }
       else{
         DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
       }
+    }
+    else if(this._index == 6){
+      DataAPI.getAllDeleted(this.getCallBackData);
     }
     else{
       infoList.searchTag(_params);
