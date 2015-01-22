@@ -323,6 +323,14 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
+/**
+ * @method recoverByUri
+ *   recover Music by uri.
+ * @param uri
+ *    The Music's URI.
+ * @param callback
+ *    Callback
+*/
 function recoverByUri(uri, callback){
   getByUri(uri, function(items) {
     commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
