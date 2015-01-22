@@ -99,41 +99,36 @@ var ShowFiles = Class.extend({
     ]);
   },
 
+  deleteDivByDivID:function(divId_){
+    var URILength = divId_.indexOf('trdeleted');
+    if(URILength == -1){
+      URILength = divId_.indexOf('divdeleted');
+    }
+    var modifyURI = divId_.substr(divId_.indexOf('rio'),URILength);
+    var file;
+    for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+      var URI = basic.modifyUriToUri(modifyURI);
+      if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == URI){
+        file = _globalSelf._getFiles[_globalSelf._index][i];
+        _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+        break;
+      }
+    }
+    $("#"+modifyURI+'divdeleted').remove();
+    $("#"+modifyURI+'trdeleted').remove();
+    return file;
+  },
+
   setDeletedFilesContextMenu:function(){
     contextMenu.addCtxMenu([
       {header: 'deleted file'},
       {text:'恢复',action:function(){
-        var divId = _globalSelf._contextMenuDivID;
-        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
-        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
-        var file;
-        for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-          if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == basic.modifyUriToUri(modifyURI)){
-            file = _globalSelf._getFiles[_globalSelf._index][i];
-            _globalSelf._getFiles[_globalSelf._index].splice(i,1);
-            break;
-          }
-        }
-        $("#"+modifyURI+'divdeleted').remove();
-        $("#"+modifyURI+'trdeleted').remove();
+        var file = _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
         _globalSelf.refreshByPath(file['path']);
-
         //此处只是把当前的展示的文件恢复到本地展示，还需要把后台数据库的文件删除状体进行修改.保存了你要修改的文件的json格式，file就是.   
       }},
       {text:'确认删除',action:function(){
-        var divId = _globalSelf._contextMenuDivID;
-        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
-        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
-        $("#"+modifyURI+'divdeleted').remove();
-        $("#"+modifyURI+'trdeleted').remove();
-        var file;
-        for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-          if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == basic.modifyUriToUri(modifyURI)){
-            file = _globalSelf._getFiles[_globalSelf._index][i]; 
-            _globalSelf._getFiles[_globalSelf._index].splice(i,1);
-            break;
-          }
-        }  
+        var file = _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);  
         //此处只是把当前的展示的文件删除，还需要把后台数据库的文件删除.保存了你要删除的文件的json格式，file就是.
 
       }}
