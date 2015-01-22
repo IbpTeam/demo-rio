@@ -8,6 +8,9 @@ var path = require("path");
 var RESOURCEPATH;
 exports.RESOURCEPATH = path.join(process.env["HOME"],".resources");
 
+var DOWNLOADPATH ;
+exports.DOWNLOADPATH = path.join(process.env["HOME"],".download");
+
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
 
