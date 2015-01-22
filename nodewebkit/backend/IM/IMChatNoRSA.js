@@ -148,7 +148,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   });
 
   function innerrply() {
-    // console.log("this is in function innerrply ");
     id = setInterval(function(C, tmpenmsg) {
       if (count < 5) {
         //console.log("this is in resending " + tmpenmsg);
@@ -211,7 +210,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   //client.end();
 
   client.on('error', function(err) {
-    console.log("Error: " + err + " on " + err.syscall + " !  IP : " + IP);
     clearInterval(id);
     client.end();
   });
