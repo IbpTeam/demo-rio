@@ -74,10 +74,15 @@ function loadFile(loadFileCb, sFilePath) {
     var cate = utils.getCategoryObject('contact');
     cate.initContacts(loadFileCb, sFilePath);
   } else {
-    function findItemsCb(err, result) {
-      var category = utils.getCategoryByPath(sFilePath);
-      var cate = utils.get.getCategoryObject(category);
-      cate.createData(sFilePath, function(err, resultFilePath) {
+    var category = utils.getCategoryByPath(sFilePath).category;
+    var cate = utils.get.getCategoryObject(category);
+    cate.createData(sFilePath, function(err, resultFilePath) {
+      if (err) {
+        console.log(err);
+        return loadFileCb(err, null);
+      }
+
+      function findItemsCb(err, result) {
         if (err) {
           console.log(err);
           return loadFileCb(err, null);
@@ -90,10 +95,10 @@ function loadFile(loadFileCb, sFilePath) {
           'filepath': resultFilePath
         };
         loadFileCb(null, result_);
-      })
-    }
-    var sCondition = ["'path = '" + resultFilePath + "'"];
-    commonDAO.findItems(['uri', 'path'], category, sCondition, null, findItemsCb);
+      }
+      var sCondition = ["'path = '" + resultFilePath + "'"];
+      commonDAO.findItems(['uri', 'path'], category, sCondition, null, findItemsCb);
+    })
   }
 }
 exports.loadFile = loadFile;
