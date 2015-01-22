@@ -52,17 +52,18 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
 
     c.on('data', function(msgStri) {
       //console.log("\n**Data From Remote Socket:" + remoteAD + ':' + remotePT + ' ' + msgStri);
-      var msgStr = JSON.parse(msgStri);
+      var msgStr, decrypteds, msgObj;
       try {
-        var decrypteds = msgStr.content;
-        var msgObj = JSON.parse(decrypteds);
+        msgStr = JSON.parse(msgStri);
+        decrypteds = msgStr.content;
+        msgObj = JSON.parse(decrypteds);
         //console.log('MSG type:' + msgObj.type);
       } catch (err) {
         console.log(err);
         return;
       }
       function replyFunc(msg){
-        c.write(msg + "\n");
+        c.write(msg);
       }
       switch (msgStr.type) {
         case 'SentEnFirst':
@@ -157,7 +158,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
         if (typeof tmpenmsg === 'object') {
           tmpenmsg = JSON.stringify(tmpenmsg);
         };
-        client.write(tmpenmsg + "\n");
+        client.write(tmpenmsg);
         count++;
         console.log("Send message, ", tmpenmsg);
       } else {
@@ -172,14 +173,14 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
       {
         //console.log("sending message ::: " + tmpenmsg);
         client.connect(PORT, IP, function() {
-          client.write(tmpenmsg + "\n", function() {});
+          client.write(tmpenmsg, function() {});
         });
       }
       break;
     default:
       {
         client.connect(PORT, IP, function() {
-          client.write(tmpenmsg + "\n", function() {});
+          client.write(tmpenmsg, function() {});
         });
       }
   }
