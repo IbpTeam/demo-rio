@@ -1,4 +1,4 @@
-var rsaKey = require('../rsaKey');
+var fsPublic = require('../fsPublic');
 var tape = require('tape');
 var fs = require('fs');
 var fileTransfer = require('./fileTransfer');
@@ -26,7 +26,7 @@ function deleteTmpFile(tmpFilePath,callback){
 exports.deleteTmpFile = deleteTmpFile;
 
 function transferFileProcess(msgObj, callback) {
-  rsaKey.mkdirsSync(cryptoConf.DOWNLOADPATH, function(done) {
+  fsPublic.mkdirsSync(cryptoConf.DOWNLOADPATH, function(done) {
     if (done) {
       transferFile(msgObj, callback);
     } else {
@@ -64,13 +64,6 @@ function fileExistOrNot(filePath) {
   var exists = fs.existsSync(filePath);
   return exists;
 }
-
-function initTransferSaveDir(targetDir,initTransferSaveDirCb){
-  rsaKey.mkdirsSync(targetDir,function(done){
-    initTransferSaveDirCb(done);
-  });
-}
-exports.initTransferSaveDir = initTransferSaveDir;
 
 function cancelTransfer(path, callback) {
   var fileTransferStream = transferHashTable.get(path);
