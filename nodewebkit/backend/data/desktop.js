@@ -1639,49 +1639,6 @@ function moveFile(callback, oldPath, newPath) {
 exports.moveFile = moveFile;
 
 /** 
- * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath.
- *    !!!The dir CAN have content,just like command cp -r.!!!
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                echo error : 'copyFile : echo $HOME error'
- *                copy error : 'copyFile : copy error'
- *
- *    @param2: result,
- *        string, retrieve 'success' when success
- *
- * @param2: oldPath
- *    string, a dir under user path
- *    exmple: var oldPath = '/.resources/desktop/Theme.conf'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/Theme.conf')
- *
- * @param3: newPath
- *    string, a dir under user path
- *    exmple: var newPath = '/.resources/desktop/BadTheme.conf'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/BadTheme.conf')
- *
- **/
-function copyFile(oldPath, newPath,callback) {
-  var oldFullpath = CONFIG_PATH + oldPath;
-  var newFullpath = CONFIG_PATH + newPath;
-  console.log(oldFullpath, newFullpath);
-  utils.copyFile(oldFullpath, newFullpath, function(err) {
-    if (err) {
-      console.log(err);
-      var _err = 'copyFile : copy error';
-      callback(_err, null);
-    } else {
-      callback(null, 'success');
-    }
-  })
-}
-exports.copyFile = copyFile;
-
-/** 
  * @Method: renameDesktopFile
  *    To rename a desktop file
  *

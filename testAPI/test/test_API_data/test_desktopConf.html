@@ -250,26 +250,6 @@
     });
   }
 
-  function copyFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API copyFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_copyFile(copyFileCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var oldPath = '/data/Theme.conf';
-      var newPath = '/data/desktop/test.txt';
-      data.copyFile(copyFileCb, oldPath, newPath);
-    });
-  }
-
   function moveFileCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -850,38 +830,6 @@
     WDC.requireAPI(['data'], function(data) {
       var command = 'echo $XDG_DATA_DIRS';
       data.shellExec(shellExecCb, command);
-    });
-  }
-</pre>
-</div>
-</div>
-
-<h2 onclick="show('copyFile')">copyFile(copyFileCb)<span><a class="mark" href="#test_copyFile" id="test_copyFile" onclick="test_copyFile(copyFileCb)">test</a></span></h2>
-<div id="copyFile" style="display:none;">
-<div style="color:#930000">
-  <pre>
-
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function copyFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API copyFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_copyFile(copyFileCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var fromPath = '/testFile/book.pdf';
-      var toPath = '/testFile/test_book.pdf';
-      data.copyFile(copyFileCb, fromPath, toPath);
     });
   }
 </pre>
