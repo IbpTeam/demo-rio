@@ -246,12 +246,13 @@ exports.getItemByUri = function(category, uri, callback) {
 }
 
 function deleteItemByUri(category, uri, callback) {
-  var aConditions = ["URI = " + "'" + uri + "'"];
+
   var oItem = {
-    category: category,
-    conditions: aConditions
+    URI:uri,
+    is_deleted:'1',
+    category:category
   };
-  commonDAO.deleteItem(oItem, callback);
+  commonDAO.updateItem(oItem, callback);
 }
 exports.deleteItemByUri = deleteItemByUri;
 
@@ -264,6 +265,7 @@ exports.removeFile = function(category, item, callback) {
     callback(null,"success");
   });
 };
+
 
 exports.getAllCate = function(getAllCateCb) {
   function getCategoriesCb(err, items) {
@@ -314,7 +316,8 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     }
     getAllDataByCateCb(items);
   }
-  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
+  var condition = ["is_deleted != '1' "];
+  commonDAO.findItems(null, cate, condition, null, getAllDevicesCb);
 }
 
 exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
@@ -326,8 +329,9 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     var DataByNum = utils.getRecent(items, num);
     getRecentAccessDataCb(null, DataByNum);
   }
-  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc ";
-  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
+  var conditions = [" is_deleted != '1' "];
+  var sCondition = ["order by date(lastAccessTime) desc,  time(lastAccessTime) desc "];
+  commonDAO.findItems(null, category, conditions, sCondition, findItemsCb);
 }
 
 function renameDataByUri(category, sUri, sNewName, callback) {
