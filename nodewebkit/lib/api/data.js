@@ -52,7 +52,7 @@ exports.sendIMMsg = sendIMMsg;
  *   @err
  *      string, specific err info
  *   @result
- *      array，object array, include file info of name exist file.
+ *      object，{uri:11232, filepath: /aa/a/a.txt}
  *
  * @param1: sFilePath
  *    string, a file path as, '/home/xiquan/mydir/myfile.txt'.
@@ -70,24 +70,34 @@ function loadFile(loadFileCb, sFilePath) {
     sPos = 'other';
     console.log('some wrong with the postfix ...');
   }
-  var category = null;
   if (sPos == 'csv' || sPos == 'CSV') {
     var cate = utils.getCategoryObject('contact');
-    cate.initContacts(loadFileCb, sFilePath)
+    cate.initContacts(loadFileCb, sFilePath);
   } else {
-    var cate = utils.getCategoryObject(category);
-    cate.createData(sFilePath, function(err, result) {
-      if (err) {
-        console.log(err);
-        return loadFileCb(err, null);
-      }
-      loadFileCb(null, result);
-    })
+    function findItemsCb(err, result) {
+      var category = utils.getCategoryByPath(sFilePath);
+      var cate = utils.get.getCategoryObject(category);
+      cate.createData(sFilePath, function(err, resultFilePath) {
+        if (err) {
+          console.log(err);
+          return loadFileCb(err, null);
+        } else if (result == '') {
+          var _err = 'Not found in database ...';
+          return loadFileCb(_err, null);
+        }
+        var result_ = {
+          'uri': result[0]['URI'],
+          'filepath': resultFilePath
+        };
+        loadFileCb(null, result_);
+      })
+    }
+    var sCondition = ["'path = '" + resultFilePath + "'"];
+    commonDAO.findItems(['uri', 'path'], category, sCondition, null, findItemsCb);
   }
 }
 exports.loadFile = loadFile;
-//var utils = require('util');
-//var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
+
 /**
  * @method loadResources
  *   读取某个资源文件夹到数据库
