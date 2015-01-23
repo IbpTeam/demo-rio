@@ -8,10 +8,9 @@ var rsaKey = require('./rsaKey');
 var account = require('./pubkeyServer.js');
 var config = require('../config.js');
 var HOME_DIR ="/home";
-var SSH_DIR = ".demo-rio";
 var CURUSER = process.env['USER'];
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, SSH_DIR);
-var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
+var USERCONFIGPATH = config.USERCONFIGPATH;
+var uniqueID = require(config.USERCONFIGPATH + '/uniqueID.js')
 
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALACCOUNTKEY = uniqueID.AccountKey;

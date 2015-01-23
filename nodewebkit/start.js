@@ -11,12 +11,13 @@
  **/
 
 var config = require("./backend/config");
+var initRio = require("./backend/initRio");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
-var device = require("./backend/data/device");
 var msgTransfer = require("./backend/Transfer/msgTransfer");
+var device;
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
@@ -30,10 +31,6 @@ var handle = {}
 
 // @const
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
-var CONFIG_JS = "config.js";
-var UNIQUEID_JS = "uniqueID.js";
-var DATABASENAME = "rio.sqlite3";
 var NETLINKSTATUS = ".netlinkstatus"
 
 var startonce = false;
@@ -60,9 +57,7 @@ function startApp(){
  });
   startonce = true;
   config.SERVERNAME = os.hostname();
-  var sFullPath = path.join(HOME_DIR, process.env['USER'], DEMO_RIO);
-  config.USERCONFIGPATH = sFullPath;
-  config.DATABASEPATH = path.join(config.USERCONFIGPATH,DATABASENAME);
+  var sFullPath = config.USERCONFIGPATH;
   util.log('mkdir ' + sFullPath);
   fs.exists(sFullPath,function(rioExists){
     if(!rioExists){
@@ -86,9 +81,8 @@ function startApp(){
  *    initialize config/uniqueid.js.
  **/
 function initializeApp(sFullPath) {
-  config.USERCONFIGPATH = sFullPath;
-  var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
-  var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
+  var sUniqueIDPath = path.join(config.USERCONFIGPATH, config.UNIQUEID_JS);
+  var sDatabasePath = config.DATABASEPATH;
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
   console.log("UniqueID Path is : " + sUniqueIDPath);
     /*
@@ -135,6 +129,7 @@ function initializeApp(sFullPath) {
       });*/
     });
   });
+  device = require("./backend/data/device");
   // init HTML5 app manager
   appManager.loadAppList();
 }
