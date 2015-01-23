@@ -189,6 +189,21 @@ function removeByUri(uri, callback) {
 exports.removeByUri = removeByUri;
 
 /**
+ * @method recoverByUri
+ *    recoverByUri.
+ * @param uri
+ *    The document's URI.
+ * @param callback
+ *    Callback
+ */
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
+
+/**
  * @method getByUri
  *    Get document info in db.
  * @param uri

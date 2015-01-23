@@ -394,6 +394,17 @@ function rmDataByUri(rmDataByUriCb, uri) {
 }
 exports.rmDataByUri = rmDataByUri;
 
+//API recoverDataByUri:通过id恢复数据
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function recoverDataByUri(recoverDataByUriCb,uri){
+  var cate = utils.getCategoryObjectByUri(uri);
+  console.log("Request handler 'recoverDataByUri' was called. ===="+cate);
+  cate.recoverByUri(uri,recoverDataByUriCb);
+}
+exports.recoverDataByUri = recoverDataByUri;
+
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {

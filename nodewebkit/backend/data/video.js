@@ -331,6 +331,21 @@ function removeByUri(uri, callback) {
 exports.removeByUri = removeByUri;
 
 /**
+ * @method recoverByUri
+ *    recover Video by uri.
+ * @param uri
+ *    The Video's URI.
+ * @param callback
+ *    Callback
+ */
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
+
+/**
  * @method getByUri
  *    Get Video info in db.
  * @param uri
