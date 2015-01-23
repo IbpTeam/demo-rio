@@ -1186,7 +1186,7 @@ function findAllDesktopFiles(callback) {
         oFileList.push(pathModule.join('/usr/local/share/applications', oList_local_share[k]));
       }
     }
-    callback(null, oFileList)
+    callback(null, oFileList);
   } else {
     console.log("Not a linux system! Not supported now!")
   }
@@ -1201,7 +1201,7 @@ function buildLocalDesktopFile(callback) {
       console.log(err);
       return;
     }
-    var oFiles = result;//.split('\n');
+    var oFiles = result;
     var count = 0;
     var lens = oFiles.length;
     var oRealFiles = [];
