@@ -279,37 +279,51 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
-
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
     var oContacts = [];
     var oDesFiles = [];
     var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
     var dataDesPath = contactsPath + "/data";
-    for (var k in oJson) {
-      if (oJson[k].hasOwnProperty("\u59D3")) {
-        oContacts.push(oJson[k]);
+    fs.readdir(DES_DIR, function(err, result) {
+      if (err) {
+        return loadContactsCb(err, null);
       }
-    }
-
-    function isEndCallback(_oDesFiles) {
-      repo.repoCommit(contactsPath, _oDesFiles, null, "add", loadContactsCb);
-    }
-    for (var k = 0; k < oContacts.length; k++) {
-      var isContactEnd = (k == (oContacts.length - 1));
-      addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
-        var contactName = oContact.name;
-        var contactPath = dataDesPath + '/' + contactName + '.md';
-        oDesFiles.push(contactPath);
-        commonDAO.createItem(oContact, function() {
-          if (isContactEnd) {
-            isEndCallback(oDesFiles);
-            console.log("succcess");
-            console.log("initContacts is end!!!");
+      if (result == '') {
+        for (var k in oJson) {
+          if (oJson[k].hasOwnProperty("姓")) {
+            oContacts.push(oJson[k]);
           }
+        }
+      } else {
+        for (var k in oJson) {
+          if (oJson[k].hasOwnProperty("姓")) {
+            var sName = oJson[k]["姓"] + oJson[k]["名"] + '.md';
+            if (!utils.isExist(sName, result)) {
+              oContacts.push(oJson[k]);
+            }
+          }
+        }
+        if (oContacts == '') {
+          return loadContactsCb(null, 'success');
+        }
+      }
+      for (var k = 0; k < oContacts.length; k++) {
+        var isContactEnd = (k == (oContacts.length - 1));
+        addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
+          var contactName = oContact.name;
+          var contactPath = dataDesPath + '/' + contactName + '.md';
+          oDesFiles.push(contactPath);
+          commonDAO.createItem(oContact, function() {
+            if (isContactEnd) {
+              repo.repoCommit(contactsPath, oDesFiles, null, "add", loadContactsCb);
+              console.log("succcess");
+              console.log("initContacts is end!!!");
+            }
+          })
         })
-      })
-    }
+      }
+    })
   }
   csvtojson.csvTojson(sItemPath, csvTojsonCb);
 }

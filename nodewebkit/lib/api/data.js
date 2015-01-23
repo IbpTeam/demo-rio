@@ -65,61 +65,53 @@ function loadFile(loadFileCb, sFilePath) {
   var sPos = path.extname(itemFullname);
   if (sPos === '') {
     sPos = 'none';
-  } else if(sPos[0] === '.') {
+  } else if (sPos[0] === '.') {
     sPos = sPos.substring(1, sPos.length);
-  } else{
+  } else {
     sPos = 'other';
     console.log('some wrong with the postfix ...');
   }
-  var category = null;
-  if (sPos != 'csv' && sPos != 'CSV') {
-    if (sPos == 'none' ||
-      sPos == 'ppt' ||
-      sPos == 'pptx' ||
-      sPos == 'doc' ||
-      sPos == 'docx' ||
-      sPos == 'wps' ||
-      sPos == 'odt' ||
-      sPos == 'et' ||
-      sPos == 'txt' ||
-      sPos == 'xls' ||
-      sPos == 'xlsx' ||
-      sPos == 'ods' ||
-      sPos == 'zip' ||
-      sPos == 'sh' ||
-      sPos == 'gz' ||
-      sPos == 'html' ||
-      sPos == 'et' ||
-      sPos == 'odt' ||
-      sPos == 'pdf' ||
-      sPos == 'html5ppt') {
-      category = 'document';
-    } else if (sPos == 'jpg' || sPos == 'png') {
-      category = 'picture';
-    } else if (sPos == 'mp3') {
-      category = 'music';
-    } else if (sPos == 'ogg') {
-      category = 'video';
-    } else if (sPos == 'conf' || sPos == 'desktop') {
-      var _err = 'this is a desktop config file ...'
-      return loadFileCb(_err, null);
-    } else {
-      category = 'other';
-    }
+  if (sPos == 'csv' || sPos == 'CSV') {
+    var cate = utils.getCategoryObject('contact');
+    cate.initContacts(function(err) {
+      if (err) {
+        return loadFileCb(err, null);
+      }
+      loadFileCb(null, 'success');
+    }, sFilePath);
+  } else {
+    var category = utils.getCategoryByPath(sFilePath).category;
+    var cate = utils.getCategoryObject(category);
+    cate.createData(sFilePath, function(err, resultFilePath) {
+      function findItemsCb(err, result) {
+        if (err) {
+          return loadFileCb(err, null);
+        } else if (result == '') {
+          var _err = 'Not found in database ...';
+          return loadFileCb(_err, null);
+        }
+
+        if (err) {
+          console.log(err);
+          return loadFileCb(err, null);
+        } else if (result == '') {
+          var _err = 'Not found in database ...';
+          return loadFileCb(_err, null);
+        }
+        var result_ = {
+          'uri': result[0]['URI'],
+          'filepath': resultFilePath
+        }
+        loadFileCb(null, result_);
+      }
+      var sCondition = ["path ='" + resultFilePath + "'"];
+      commonDAO.findItems(['uri', 'path'], category, sCondition, null, findItemsCb);
+    })
   }
-  var cate = utils.getCategoryObject(category);
-  cate.createData(sFilePath, function(err, result) {
-    if (err !== 'sucess') {
-      console.log(err);
-      return loadFileCb(err, null);
-    }
-    loadFileCb(null, result);
-  })
 }
 exports.loadFile = loadFile;
 
-//var utils = require('util');
-//var io=require('../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js');
+
 /**
  * @method loadResources
  *   读取某个资源文件夹到数据库
