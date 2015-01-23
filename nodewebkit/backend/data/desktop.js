@@ -2217,7 +2217,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  **/
 function createFile(sContent, callback) {
   var date = new Date();
-  var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
+  var filename = '新建文本文档_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
   exec("touch " + desPath, function(err, stdout, stderr) {
     if (err) {
