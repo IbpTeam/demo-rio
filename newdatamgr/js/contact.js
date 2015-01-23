@@ -402,6 +402,16 @@ var Contact = Class.extend({
       }, [_newContact]);
     });
   },
+  openContract:function(contractString){
+    this.loadContactsList(0);
+    var _contacts = $('.li-name');
+    for (var i = 0; i < _contacts.length; i++) {
+      if(_contacts[i].textContent === contractString){
+        _contacts[i].click();
+        break;
+      }
+    };
+  },
 
   removeHead: function(){
     var _list = this._contactHead.children();
