@@ -92,12 +92,16 @@ function loadFile(loadFileCb, sFilePath) {
         }
         var result_ = {
           'uri': result[0]['URI'],
-          'filepath': resultFilePath
+          'filepath': resultFilePath,
+          'tags': []
         };
+        if(result[0]['others'] !== ''){
+          result_.tags = result[0]['others'].split(',');
+        }
         loadFileCb(null, result_);
       }
       var sCondition = ["'path = '" + resultFilePath + "'"];
-      commonDAO.findItems(['uri', 'path'], category, sCondition, null, findItemsCb);
+      commonDAO.findItems(['uri', 'path','others'], category, sCondition, null, findItemsCb);
     })
   }
 }
