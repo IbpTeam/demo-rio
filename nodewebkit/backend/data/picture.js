@@ -95,7 +95,7 @@ function createData(items, callback) {
           } else {
             var _err = 'createData: commonHandle createData error!';
             console.log('createData error!');
-            callback(_err, null, null);
+            callback(_err, null);
           }
         })
       })
@@ -205,6 +205,21 @@ function removeByUri(uri, callback) {
   });
 }
 exports.removeByUri = removeByUri;
+
+/**
+ * @method recoverByUri
+ *    recoverByUri.
+ * @param uri
+ *    The Picture's URI.
+ * @param callback
+ *    Callback
+*/
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
 
 /**
  * @method getByUri

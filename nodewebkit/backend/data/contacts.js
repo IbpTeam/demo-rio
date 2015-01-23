@@ -230,6 +230,12 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
 /**
  * @method getByUri
  *    Get document info in db.
@@ -254,10 +260,24 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
+<<<<<<< HEAD
   function findItemsCb(err, result) {
     var oNames = [];
     for(var item in result){
       oNames.push(result[item]['name']);
+=======
+  function csvTojsonCb(json) {
+    var oJson = JSON.parse(json);
+    var oContacts = [];
+    for (var k in oJson) {
+      if (oJson[k].hasOwnProperty("\u59D3")) {
+        oContacts.push(oJson[k]);
+      }
+    }
+
+    function isEndCallback() {
+      loadContactsCb(null,'success');
+>>>>>>> 852d73c3a2454e1315f4d34849a52dce6ddfc710
     }
     function csvTojsonCb(json) {
       var oJson = JSON.parse(json);

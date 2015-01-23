@@ -266,6 +266,26 @@ exports.removeFile = function(category, item, callback) {
   });
 };
 
+function recoverItemByUri(category, uri, callback) {
+
+  var oItem = {
+    URI:uri,
+    is_deleted:'0',
+    category:category
+  };
+  commonDAO.updateItem(oItem, callback);
+}
+exports.recoverItemByUri = recoverItemByUri;
+
+exports.recoverFile = function(category, item, callback){
+  recoverItemByUri(category, item.URI, function(isSuccess) {
+    if (isSuccess == "rollback") {
+      callback("error");
+      return;
+    }
+    callback(null,"success");
+  });
+}
 
 exports.getAllCate = function(getAllCateCb) {
   function getCategoriesCb(err, items) {
@@ -286,6 +306,41 @@ exports.getAllCate = function(getAllCateCb) {
     getAllCateCb(cates);
   }
   commonDAO.findItems(null, "category", null, null, getCategoriesCb);
+}
+
+exports.getAllDeleted = function(getAllDeletedCb){
+  console.log("Request handler 'get all deleted' was called.");
+  var deletedItem = new Array();
+  var catesarr = 0;
+  var cat = new Array();
+  var condition = ["is_deleted == '1' "];
+
+  function makeAllCb(err,items){
+    if (err) {
+      console.log(err);
+      return;
+    }
+    deletedItem = deletedItem.concat(items);
+    catesarr = catesarr -1;
+    if (catesarr >= 0 ) {
+      commonDAO.findItems(null, cat[catesarr].type, condition, null, makeAllCb);
+    }
+    else{
+      getAllDeletedCb(deletedItem);
+    }
+  }
+
+    this.getAllCate(function(cates){
+      console.log(cates[0].type);
+      for (var i = 0; i < cates.length; i++) {
+        if (cates[i].type == "Devices" || cates[i].type == "Contact") {
+          cates.splice(i,1);
+        }
+      }
+      catesarr = cates.length;
+      cat  = cates;
+      commonDAO.findItems(null, cates[catesarr-1].type, condition, null, makeAllCb);
+  });
 }
 
 exports.getAllDataByCate = function(getAllDataByCateCb, cate) {

@@ -619,6 +619,9 @@ function copyFile(source, target, cb) {
   rd.pipe(wr);
 
   function done(err) {
+    if (err && fixed_fsfixed_fs.existsSync(target)) {
+      fixed_fs.unlinkSync(target);
+    }
     if (!cbCalled) {
       cb(err);
       cbCalled = true;
@@ -641,12 +644,16 @@ function copyFileSync(source, target, cb) {
       fixed_fs.writeSync(fdw, buff, 0, bytesRead);
       pos += bytesRead;
     }
-    fixed_fs.closeSync(fdr);
-    fixed_fs.closeSync(fdw);
   } catch (err) {
     console.log(source, target);
     _err = err;
   } finally {
+    fixed_fs.closeSync(fdr);
+    fixed_fs.closeSync(fdw);
+    //if err, rm target if exist
+    if (_err && fixed_fsfixed_fs.existsSync(target)) {
+      fixed_fs.unlinkSync(target);
+    }
     cb(_err);
   }
 }
