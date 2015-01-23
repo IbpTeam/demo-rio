@@ -133,7 +133,6 @@ var ShowFiles = Class.extend({
       {header: 'deleted file'},
       {text:'恢复',action:function(){
         var file = _globalSelf.getFileByDivID(_globalSelf._contextMenuDivID);
-        console.log(file['path']);
         _globalSelf.refreshByPath(file['path']);
         //此处只是把当前的展示的文件恢复到本地展示，还需要把后台数据库的文件删除状体进行修改.保存了你要修改的文件的json格式，file就是.   
      _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
