@@ -324,6 +324,32 @@ function removeByUri(uri, callback) {
 exports.removeByUri = removeByUri;
 
 /**
+ * @method confirmRm
+ *    confirmRm.
+ * @param uri
+ *    The music's URI.
+ * @param callback
+ *    Callback
+ */
+function confirmRm(uri, callback) {
+  getByUri(uri, function(items) {
+    //Remove real file
+    fs.unlink(items[0].path, function(err) {
+      if (err) {
+        console.log(err);
+        callback("error");
+      } else {
+        //Remove Des file
+        //Delete in db
+        //Git commit
+        commonHandle.cfremoveFile(CATEGORY_NAME, items[0], callback);
+      }
+    });
+  });
+}
+exports.confirmRm = confirmRm;
+
+/**
  * @method recoverByUri
  *   recover Music by uri.
  * @param uri

@@ -406,6 +406,14 @@ function recoverDataByUri(recoverDataByUriCb,uri){
 }
 exports.recoverDataByUri = recoverDataByUri;
 
+function confirmRmDataByUri(cfrmDataByUriCb,uri){
+  console.log("Request handler 'confirmRmDataByUri was called.'");
+  var cate = utils.getCategoryObjectByUri(uri);
+  console.log("Request handler 'confirmRmDataByUri was called. ===='"+cate);
+  cate.confirmRm(uri,cfrmDataByUriCb);
+}
+exports.confirmRmDataByUri = confirmRmDataByUri;
+
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {

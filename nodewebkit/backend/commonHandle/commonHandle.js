@@ -256,8 +256,30 @@ function deleteItemByUri(category, uri, callback) {
 }
 exports.deleteItemByUri = deleteItemByUri;
 
+function cfdeleteItemByUri(category, uri, callback) {
+  var conditions = ["URI = " + "'"+uri+"'"];
+  var oItem = {
+ //   URI:uri,
+//  is_deleted:'1',
+    category:category,
+    conditions:conditions
+  };
+  commonDAO.deleteItem(oItem, callback);
+}
+exports.deleteItemByUri = deleteItemByUri;
+
 exports.removeFile = function(category, item, callback) {
   deleteItemByUri(category, item.URI, function(isSuccess) {
+    if (isSuccess == "rollback") {
+      callback("error");
+      return;
+    }
+    callback(null,"success");
+  });
+};
+
+exports.cfremoveFile = function(category, item, callback) {
+  cfdeleteItemByUri(category, item.URI, function(isSuccess) {
     if (isSuccess == "rollback") {
       callback("error");
       return;

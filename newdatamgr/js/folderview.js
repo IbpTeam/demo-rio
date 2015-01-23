@@ -149,6 +149,15 @@ var ShowFiles = Class.extend({
       }},
       {text:'确认删除',action:function(){
         var file = _globalSelf.getFileByDivID(_globalSelf._contextMenuDivID);  
+        _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
+        DataAPI.confirmRmDataByUri(function(err,result){
+          if (result == 'success') {
+
+          }
+          else{
+            window.alert('Delete file failed');
+          }
+        },file['URI']);
         //此处只是把当前的展示的文件删除，还需要把后台数据库的文件删除.保存了你要删除的文件的json格式，file就是.
 
       }}

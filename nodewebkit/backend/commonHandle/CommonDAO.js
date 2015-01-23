@@ -297,7 +297,7 @@ exports.deleteItem = function(item,callback){
     });
   }
   sSqlStr = sSqlStr + sCondStr;
-  //console.log("DELETE Prepare SQL is : "+sSqlStr);
+  console.log("DELETE Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
