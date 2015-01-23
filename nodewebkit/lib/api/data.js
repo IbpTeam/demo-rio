@@ -405,6 +405,17 @@ function recoverDataByUri(recoverDataByUriCb,uri){
 }
 exports.recoverDataByUri = recoverDataByUri;
 
+//API confirmRmDataByUri:通过id彻底删除数据（包括对应的文件）
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function confirmRmDataByUri(cfrmDataByUriCb,uri){
+  var cate = utils.getCategoryObjectByUri(uri);
+  console.log("Request handler 'confirmRmDataByUri was called. ===='"+cate);
+  cate.confirmRm(uri,cfrmDataByUriCb);
+}
+exports.confirmRmDataByUri = confirmRmDataByUri;
+
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
