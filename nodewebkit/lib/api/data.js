@@ -410,7 +410,6 @@ exports.recoverDataByUri = recoverDataByUri;
 //成功返回success;
 //失败返回失败原因
 function confirmRmDataByUri(cfrmDataByUriCb,uri){
-  console.log("Request handler 'confirmRmDataByUri was called.'");
   var cate = utils.getCategoryObjectByUri(uri);
   console.log("Request handler 'confirmRmDataByUri was called. ===='"+cate);
   cate.confirmRm(uri,cfrmDataByUriCb);
