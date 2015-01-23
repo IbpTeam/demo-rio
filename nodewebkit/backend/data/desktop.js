@@ -26,7 +26,6 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
-var configPath = config.RESOURCEPATH + "/desktop";
 
 var CATEGORY_NAME = "desktop";
 var DES_NAME = "desktopDes";
@@ -40,6 +39,8 @@ var THEME_PATH = pathModule.join(REAL_DIR, 'Theme.conf');
 var THEME_DES_PATH = pathModule.join(DES_DIR, 'Theme.conf.md');
 var WIGDET_PATH = pathModule.join(REAL_DIR, 'Widget.conf');
 var WIGDET_DES_PATH = pathModule.join(DES_DIR, 'Widget.conf.md');
+var RESOURCEPATH = config.RESOURCEPATH;
+var CONFIG_PATH = pathModule.join(config.RESOURCEPATH, "desktop");
 
 function getnit(initType) {
   if (initType === "theme") {
@@ -225,7 +226,7 @@ function initDesktop(callback) {
             var sWidgetDesDir = pathModule.join(DES_DIR, 'Widget.conf.md');
             var sRealDir = [];
             var sDesDir = [];
-            fs.open(pathTheme, 'r', function(err) {
+            fs.open(pathTheme, 'r', function(err, fd) {
               if (err) {
                 fs_extra.outputFileSync(pathTheme, sItemTheme);
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
@@ -240,6 +241,7 @@ function initDesktop(callback) {
                   })
                 })
               }
+              if(fd) fs.closeSync(fd);
               buildLocalDesktopFile(function() {
                 buildAppMethodInfo('defaults.list', function(err, result) {
                   if (err) {
@@ -302,10 +304,6 @@ function readJSONFile(filePath, desFilePath, callback) {
         console.log(err);
         var _err = "readThemeConf : read config file error!";
         return callback(_err, null);
-      }
-      if (!desFilePath) {
-        var json = JSON.parse(data);
-        return callback(null, json);
       }
       var json = JSON.parse(data);
       callback(null, json);
@@ -732,6 +730,10 @@ function parseDesktopFile(callback, sPath) {
           console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
+        if(oAllDesktop == undefined){
+          var _err = "empty desktop content ...";
+          return callback(_err,null);
+        }
         callback(null, oAllDesktop);
       }
     });
@@ -839,43 +841,21 @@ function findDesktopFile(callback, filename) {
   if (systemType === "Linux") {
     var sFileName = filename;
     var xdgDataDir = [];
-    var sAppPath = REAL_DIR + '/applications';
-    var sBoundary = sAppPath + ' -name ';
-    var sCommand = 'find ' + sBoundary + sFileName;
-
-    exec(sCommand, function(err, stdout, stderr) {
+    var sAppPath = pathModule.join(REAL_DIR, 'applications', sFileName);
+    fs.open(sAppPath, 'r', function(err, fd) {
       if (err) {
-        console.log('find ' + sFileName + ' error!');
-        console.log(err, stderr, stdout);
-        return callback(err, null);
+        var _err = sFileName + ' not found ...';
+        return callback(_err, null);
       }
-      if (stdout == '') {
-        console.log('Not Found in Local!');
-        utils.findFilesFromSystem(sFileName, function(err, result) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var desktopFilePath = result[0];
-          var sNewFilePath = pathModule.join(sAppPath, sFileName);
-          utils.copyFile(desktopFilePath, sNewFilePath, function(err) {
-            if (err) {
-              console.log('copy file error!\n', err);
-              return callback(err, null);
-            }
-            filename = filename.replace(/.desktop/, '');
-            buildDesFile(filename, 'desktop', sNewFilePath, function() {
-              return callback(null, sNewFilePath);
-            });
-          });
-        });
-      } else {
-        var result = stdout.split('\n');
-        return callback(null, result[0]);
+      if (fd) {
+        fs.closeSync(fd);
       }
-    });
+      return callback(null, sAppPath);
+    })
   } else {
-    console.log("Not a linux system! Not supported now!");
+    var _err = "Not a linux system! Not supported now!";
+    console.log(_err);
+    callback(_err);
   }
 }
 
@@ -1028,13 +1008,12 @@ function buildAppMethodInfo(targetFile, callback) {
     var result_ = {};
     var lens = result.length;
     var count = 0;
-    var reg_rsc = new RegExp('/.resources/');
+    var reg_rsc = new RegExp(RESOURCEPATH);
     var reg_trash = new RegExp('/.local/share/Trash/');
-    for (var i = 0; i < lens; i++) {
-      var item = result[i];
-      (function(listContent, filepath) {
-        if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
-          fs.open(filepath, 'r', function(err) {
+    var listContent_ = {};
+    function dobuild(listContent,filepath){
+              if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
+          fs.open(filepath, 'r', function(err,fd) {
             if (err) {
               console.log('pass .list or .cache file ...', filepath);
               var isEnd = (count === lens - 1);
@@ -1051,6 +1030,7 @@ function buildAppMethodInfo(targetFile, callback) {
               }
               count++;
             }
+            if(fd) fs.closeSync(fd);
             deParseListFile(listContent, filepath, function(err) {
               if (err) {
                 return callback(err, null);
@@ -1073,7 +1053,10 @@ function buildAppMethodInfo(targetFile, callback) {
         } else {
           count++;
         }
-      })(result_, item);
+    }
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      dobuild(listContent_,item);
     }
   })
 }
@@ -1223,46 +1206,52 @@ function buildLocalDesktopFile(callback) {
     var lens = oFiles.length;
     var oRealFiles = [];
     var oDesFiles = [];
+
+    function doBuild(_sFileOriginPath) {
+      var reg_rsc = new RegExp(RESOURCEPATH);
+      var reg_trash = new RegExp('/.local/share/Trash/');
+      //Check if file come from local or Trash box, redundant.
+      if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
+        var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
+        var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
+        fs.stat(_sFileOriginPath, function(err, stat) {
+          if (err || stat.size == 0) {
+            console.log('pass desktop file...', _sFileOriginPath)
+            var isEnd = (count === lens - 1);
+            if (isEnd) {
+              callback();
+            }
+            count++;
+          } else {
+            utils.copyFile(_sFileOriginPath, newPath, function(err) {
+              if (err) {
+                console.log('pass desktop file...', sFileName);
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                  callback();
+                }
+                count++;
+              } else {
+                oRealFiles.push(newPath);
+                oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md');
+                buildDesFile(sFileName, 'desktop', newPath, function() {
+                  var isEnd = (count === lens - 1);
+                  if (isEnd) {
+                    callback();
+                  }
+                  count++;
+                })
+              }
+            })
+          }
+        })
+      } else {
+        count++;
+      }
+    }
     for (var i = 0; i < lens; i++) {
       var sFileOriginPath = oFiles[i];
-      (function(_sFileOriginPath) {
-        var reg_rsc = new RegExp('/.resources/');
-        var reg_trash = new RegExp('/.local/share/Trash/');
-        //Check if file come from local or Trash box, redundant.
-        if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
-          var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
-          var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
-          fs.open(_sFileOriginPath, 'r', function(err) {
-            if (err) {
-              console.log('pass desktop file...', _sFileOriginPath)
-              var isEnd = (count === lens - 1);
-              if (isEnd) {
-                callback();
-              }
-              count++;
-            } else {
-              utils.copyFile(_sFileOriginPath, newPath, function(err) {
-                if (err) {
-                  console.log('pass desktop file...', sFileName);
-                  count++;
-                } else {
-                  oRealFiles.push(newPath);
-                  oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md')
-                  buildDesFile(sFileName, 'desktop', newPath, function() {
-                    var isEnd = (count === lens - 1);
-                    if (isEnd) {
-                      callback();
-                    }
-                    count++;
-                  })
-                }
-              })
-            }
-          })
-        } else {
-          count++;
-        }
-      })(sFileOriginPath)
+      doBuild(sFileOriginPath);
     }
   })
 }
@@ -1424,7 +1413,7 @@ function getAllDesktopFile(callback) {
   if (systemType === "Linux") {
     var xdgDataDir = [];
     var sAllDesktop = "";
-    var sTarget = process.env["HOME"] + "/.resources/desktop/data/applications";
+    var sTarget = pathModule.join(RESOURCEPATH, "desktop", "data", "applications");
     var sBoundary = '.desktop';
     var sLimits = ' | grep ' + sBoundary;
     var sCommand = 'ls ' + sTarget + sLimits;
@@ -1562,245 +1551,6 @@ function writeDesktopConfig(sFileName, oContent, callback) {
 }
 exports.writeDesktopConfig = writeDesktopConfig;
 
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//Base Class for every class in this project!!
-//
-function Class() {}
-
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//Use extend to realize inhrietion
-//
-Class.extend = function extend(props) {
-  var prototype = new this();
-  var _super = this.prototype;
-
-  for (var name in props) {
-    //if a function of subclass has the same name with super
-    //override it, not overwrite
-    //use this.callSuper to call the super's function
-    //
-    if (typeof props[name] == "function" && typeof _super[name] == "function") {
-      prototype[name] = (function(super_fn, fn) {
-        return function() {
-          var tmp = this.callSuper;
-          this.callSuper = super_fn;
-
-          var ret = fn.apply(this, arguments);
-
-          this.callSuper = tmp;
-
-          if (!this.callSuper) {
-            delete this.callSuper;
-          }
-
-          return ret;
-        }
-      })(_super[name], props[name])
-    } else {
-      prototype[name] = props[name];
-    }
-  }
-
-  var SubClass = function() {};
-
-  SubClass.prototype = prototype;
-  SubClass.prototype.constructor = SubClass;
-
-  SubClass.extend = extend;
-  //Use create to replace new
-  //we need give our own init function to do some initialization
-  //
-  SubClass.create = SubClass.prototype.create = function() {
-    var instance = new this();
-
-    if (instance.init) {
-      instance.init.apply(instance, arguments);
-    }
-
-    return instance;
-  }
-
-  return SubClass;
-}
-
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//Event base Class
-//Inherited from Node.js' EventEmitter
-//
-var Event = Class.extend(require('events').EventEmitter.prototype);
-
-//COPY from /WORK_DIRECTORY/app/demo-webde/nw/js/common.js by guanyu
-//modified by xiquan
-//watch  dir :Default is desktop
-//dir_: dir is watched 
-// ignoreInitial_:
-var DirWatcher = Event.extend({
-  init: function(dir_, ignore_, callback) {
-    if (typeof dir_ == 'undefined' || dir_ == "") {
-      dir_ = '/data/desktop';
-    };
-    this._prev = 0;
-    this._watchDir = dir_;
-    this._oldName = null;
-    this._watcher = null;
-    this._evQueue = [];
-    this._timer = null;
-    this._ignore = ignore_ || /\.goutputstream/;
-
-    this._fs = fs;
-    this._chokidar = chokidar;
-    this._exec = require('child_process').exec;
-
-    var _this = this;
-    this._exec('echo $HOME', function(err, stdout, stderr) {
-      if (err) {
-        var _err = 'CreatWatcher : echo $HOME error!';
-        console.log(_err);
-        callback(_err);
-      } else {
-        var _dir = config.RESOURCEPATH + '/desktop' + _this._watchDir;
-        _this._fs.readdir(_dir, function(err, files) {
-          if (err) {
-            console.log("readdir error!")
-            console.log(err);
-            var _err = 'CreatWatcher : readdir error!';
-            callback(_err);
-          } else {
-            for (var i = 0; i < files.length; ++i) {
-              _this._prev++;
-            }
-            var optional = {
-              ignored: _this._ignore,
-              ignoreInitial: true
-            }
-
-            _this._watcher = _this._chokidar.watch(_dir, optional);
-            var evHandler = function() {
-              _this._watcher.on('add', function(path) {
-                console.log('add', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('unlink', function(path) {
-                console.log('unlink', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('change', function(path, stats) {
-                console.log('change', path, stats);
-              });
-              _this._watcher.on('addDir', function(path) {
-                console.log('addDir', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('unlinkDir', function(path) {
-                console.log('unlinkDir', path);
-                _this._evQueue.push(path);
-              });
-              _this._watcher.on('error', function(err) {
-                console.log('watch error', err);
-                var _err = 'CreatWatcher : watch error!';
-                _this.emit('error', _err);
-              });
-            };
-            evHandler();
-            var evDistributor = function() {
-              var filepath = _this._evQueue.shift();
-              _this._fs.readdir(_dir, function(err, files) {
-                var cur = 0;
-                for (var i = 0; i < files.length; ++i) {
-                  cur++;
-                }
-                if (_this._prev < cur) {
-                  _this._fs.stat(filepath, function(err, stats) {
-                    _this.emit('add', filepath, stats);
-                  });
-                  _this._prev++;
-                } else if (_this._prev > cur) {
-                  _this.emit('delete', filepath);
-                  _this._prev--;
-                } else {
-                  if (_this._oldName == null) {
-                    _this._oldName = filepath;
-                    return;
-                  }
-                  if (_this._oldName == filepath) {
-                    return;
-                  }
-                  _this.emit('rename', _this._oldName, filepath);
-                  _this._oldName = null;
-                }
-                if (_this._evQueue.length != 0) evDistributor();
-              });
-            }
-            _this._timer = setInterval(function() {
-              if (_this._evQueue.length != 0) {
-                evDistributor();
-              }
-            }, 200);
-            callback();
-          }
-        });
-      }
-    });
-  },
-
-  //get dir 
-  getBaseDir: function() {
-    return REAL_REPO_DIR + this._watchDir;
-  },
-
-  //close watch()
-  close: function() {
-    this._watcher.close();
-    clearInterval(this._timer);
-  }
-});
-
-
-/** 
- * @Method: CreateWatcher
- *    To create a wacther with a dir. This wacther would listen on 3 type of ev-
- *    -ent:
- *      'add'   : a new file or dir is added;
- *      'delete': a file or dir is deleted;
- *      'rename': a file is renamed;
- *      'error' : something wrong with event.
- *
- * @param: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                read error   : "CreateWatcher : echo $HOME error!"
- *                read error   : "CreateWatcher : readdir error!"
- *
- *                A watcher on linstening would catch this type of err:
- *                _watcher.on('error',function(err){});
- *                watch error  :'CreateWatcher : watch error!'
- *
- * @param2: watchDir
- *    string, a dir under user path
- *    exmple: var watchDir = '=/desktop/desktopadwd'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/desktopadwd')
- *
- *
- **/
-function CreateWatcher(callback, watchDir) {
-  var _watcher = DirWatcher.create(watchDir, null, function(err) {
-    if (err) {
-      console.log('create Watcher failed!')
-      console.log(err);
-      callback(err, null);
-    } else {
-      callback(null, _watcher);
-    }
-  });
-}
-exports.CreateWatcher = CreateWatcher;
-
-
 /** 
  * @Method: shellExec
  *    execute a shell command
@@ -1887,49 +1637,6 @@ function moveFile(callback, oldPath, newPath) {
   })
 }
 exports.moveFile = moveFile;
-
-/** 
- * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath.
- *    !!!The dir CAN have content,just like command cp -r.!!!
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                echo error : 'copyFile : echo $HOME error'
- *                copy error : 'copyFile : copy error'
- *
- *    @param2: result,
- *        string, retrieve 'success' when success
- *
- * @param2: oldPath
- *    string, a dir under user path
- *    exmple: var oldPath = '/.resources/desktop/Theme.conf'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/Theme.conf')
- *
- * @param3: newPath
- *    string, a dir under user path
- *    exmple: var newPath = '/.resources/desktop/BadTheme.conf'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/BadTheme.conf')
- *
- **/
-function copyFile(oldPath, newPath,callback) {
-  var oldFullpath = configPath + oldPath;
-  var newFullpath = configPath + newPath;
-  console.log(oldFullpath, newFullpath);
-  utils.copyFile(oldFullpath, newFullpath, function(err) {
-    if (err) {
-      console.log(err);
-      var _err = 'copyFile : copy error';
-      callback(_err, null);
-    } else {
-      callback(null, 'success');
-    }
-  })
-}
-exports.copyFile = copyFile;
 
 /** 
  * @Method: renameDesktopFile
@@ -2708,7 +2415,7 @@ function createFile(sContent, callback) {
         return callback(err);
       }
       var cate = utils.getCategoryObject('document');
-      cate.createData(desPath, function(err, result, resultFile) {
+      cate.createData(desPath, function(err, resultFile) {
         if (err) {
           console.log(err, stdout, stderr);
           return callback(err);
@@ -2718,7 +2425,7 @@ function createFile(sContent, callback) {
             console.log(err, stdout, stderr);
             return callback(err);
           }
-          console.log(resultFile)
+          console.log(resultFile);
           var sCondition = ["path = '" + resultFile + "'"];
           commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
             if (err) {
