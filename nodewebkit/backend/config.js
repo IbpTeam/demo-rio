@@ -8,7 +8,7 @@ var path = require("path");
 var BASEPATH = path.join(process.env["HOME"],".custard");
 exports.BASEPATH = BASEPATH;
 
-var RESOURCEPATH = path.join(BASEPATH, "resources");
+var RESOURCEPATH = path.join(BASEPATH, "resource");
 exports.RESOURCEPATH = RESOURCEPATH;
 
 var USERCONFIGPATH = path.join(BASEPATH, "config");
