@@ -688,7 +688,7 @@ function getResourceDataDir(getResourceDataDirCb) {
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER', function(error, stdout, stderr) {
     var usrname = stdout.replace("\n", "");
-    var data = '/home/' + usrname + '/.demo-rio/config';
+    var data = config.USERCONFIGPATH;
     getResourceDataDirCb(data.dataDir);
   });
 }

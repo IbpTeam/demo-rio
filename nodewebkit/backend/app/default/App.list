@@ -10,5 +10,9 @@
   "flash-app": {
     "id": "flash-app",
     "path": "demo-webde/app/flash"
+  },
+  "music-app": {
+    "id": "music-app",
+    "path": "demo-webde/app/music"
   }
 }

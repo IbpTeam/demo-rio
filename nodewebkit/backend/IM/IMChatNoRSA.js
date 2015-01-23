@@ -6,10 +6,8 @@ var crypto = require('crypto');
 var config = require('../config.js');
 var buffer = require('buffer');
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
 var CURUSER = process.env['USER'];
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
-var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
+var uniqueID = require(config.USERCONFIGPATH + '/uniqueID.js')
 
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
