@@ -399,7 +399,6 @@ exports.rmDataByUri = rmDataByUri;
 //成功返回success;
 //失败返回失败原因
 function recoverDataByUri(recoverDataByUriCb,uri){
-  console.log("Request handler 'recoverDataByUri' was called.");
   var cate = utils.getCategoryObjectByUri(uri);
   console.log("Request handler 'recoverDataByUri' was called. ===="+cate);
   cate.recoverByUri(uri,recoverDataByUriCb);
