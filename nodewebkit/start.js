@@ -58,7 +58,6 @@ function startApp(){
   startonce = true;
   config.SERVERNAME = os.hostname();
   var sFullPath = config.USERCONFIGPATH;
-  console.log("config.USERCONFIGPATH: " + config.USERCONFIGPATH);
   util.log('mkdir ' + sFullPath);
   fs.exists(sFullPath,function(rioExists){
     if(!rioExists){
