@@ -86,13 +86,16 @@ function getCategoryByPath(path_) {
       filename: itemFilename,
       postfix: itemPostfix
     };
-  } else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
+  }
+  /*TODO: can not handle, will improve this later*/
+  /*else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
     return {
       category: "configuration",
       filename: itemFilename,
       postfix: itemPostfix
     };
-  } else {
+  }*/ 
+  else {
     return {
       category: "other",
       filename: itemFilename,
@@ -140,7 +143,7 @@ exports.getCategoryObject = function(category) {
       break;
     case "desktop":
       {
-        return desktopConf;
+        return other;
       }
       break;
     case "other":
@@ -182,11 +185,6 @@ exports.getCategoryObjectByUri = function(sUri) {
         return video;
       }
       break;
-    case "desktop":
-      {
-        return desktopConf;
-      }
-      break;
     default:
       return other;
   }
@@ -218,11 +216,6 @@ exports.getCategoryObjectByDes = function(sDesName) {
     case "videoDes":
       {
         return video;
-      }
-      break;
-    case "desktopDes":
-      {
-        return desktopConf;
       }
       break;
     default:
