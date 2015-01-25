@@ -11,10 +11,8 @@ var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;
 exports.LOCALUUID=LOCALUUID;
-<<<<<<< HEAD
-=======
+
 var server;
->>>>>>> server服务设置
 
 /*
  * @method MD5
