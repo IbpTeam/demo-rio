@@ -612,7 +612,7 @@ function copyFile(source, target, cb) {
   rd.pipe(wr);
 
   function done(err) {
-    if (err && fixed_fsfixed_fs.existsSync(target)) {
+    if (err && fixed_fs.existsSync(target)) {
       fixed_fs.unlinkSync(target);
     }
     if (!cbCalled) {
