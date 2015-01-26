@@ -141,7 +141,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.setTimeout(6000, function() {
     console.log("connect time out");
     client.end();
-    setTimeout(SentCallBack(CalBakMsg), 0);
+    setTimeout(SentCallBack(), 0);
   });
 
   function innerrply() {
