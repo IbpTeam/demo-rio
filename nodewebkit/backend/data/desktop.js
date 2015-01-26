@@ -23,13 +23,15 @@ var events = require('events');
 var uniqueID = require("../uniqueID");
 var chokidar = require('chokidar');
 var exec = require('child_process').exec;
-var configPath = config.RESOURCEPATH + "/desktop";
 
 var CATEGORY_NAME = "desktop";
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var REAL_APP_DIR = pathModule.join(REAL_DIR, 'applications');
 var THEME_PATH = pathModule.join(REAL_DIR, 'Theme.conf');
 var WIGDET_PATH = pathModule.join(REAL_DIR, 'Widget.conf');
+var RESOURCEPATH = config.RESOURCEPATH;
+var CONFIG_PATH = pathModule.join(config.RESOURCEPATH, "desktop");
+
 
 function getnit(initType) {
   if (initType === "theme") {
@@ -182,7 +184,7 @@ function initDesktop(callback) {
             var sItemTheme = JSON.stringify(tmpThemw, null, 4);
             var sItemWidget = JSON.stringify(tmpWidget, null, 4);
             var sRealDir = [];
-            fs.open(pathTheme, 'r', function(err,fd) {
+            fs.open(pathTheme, 'r', function(err, fd) {
               if (err) {
                 fs_extra.outputFileSync(pathTheme, sItemTheme);
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
@@ -660,6 +662,10 @@ function parseDesktopFile(callback, sPath) {
           console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
+        if(oAllDesktop == undefined){
+          var _err = "empty desktop content ...";
+          return callback(_err,null);
+        }
         callback(null, oAllDesktop);
       }
     });
@@ -934,12 +940,11 @@ function buildAppMethodInfo(targetFile, callback) {
     var result_ = {};
     var lens = result.length;
     var count = 0;
-    var reg_rsc = new RegExp('/.resources/');
+    var reg_rsc = new RegExp(RESOURCEPATH);
     var reg_trash = new RegExp('/.local/share/Trash/');
-    for (var i = 0; i < lens; i++) {
-      var item = result[i];
-      (function(listContent, filepath) {
-        if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
+    var listContent_ = {};
+    function dobuild(listContent,filepath){
+              if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
           fs.open(filepath, 'r', function(err,fd) {
             if (err) {
               console.log('pass .list or .cache file ...', filepath);
@@ -957,9 +962,7 @@ function buildAppMethodInfo(targetFile, callback) {
               }
               count++;
             }
-            if (fd) {
-              fs.closeSync(fd);
-            }
+            if(fd) fs.closeSync(fd);
             deParseListFile(listContent, filepath, function(err) {
               if (err) {
                 return callback(err, null);
@@ -982,7 +985,10 @@ function buildAppMethodInfo(targetFile, callback) {
         } else {
           count++;
         }
-      })(result_, item);
+    }
+    for (var i = 0; i < lens; i++) {
+      var item = result[i];
+      dobuild(listContent_,item);
     }
   })
 }
@@ -1051,14 +1057,14 @@ function buildLocalDesktopFile(callback) {
     var oRealFiles = [];
 
     function doBuild(_sFileOriginPath) {
-      var reg_rsc = new RegExp('/.resources/');
+      var reg_rsc = new RegExp(RESOURCEPATH);
       var reg_trash = new RegExp('/.local/share/Trash/');
       //Check if file come from local or Trash box, redundant.
       if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
         var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
         var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
-        fs.open(_sFileOriginPath, 'r', function(err,fd) {
-          if (err) {
+        fs.stat(_sFileOriginPath, function(err, stat) {
+          if (err || stat.size == 0) {
             console.log('pass desktop file...', _sFileOriginPath)
             var isEnd = (count === lens - 1);
             if (isEnd) {
@@ -1066,22 +1072,25 @@ function buildLocalDesktopFile(callback) {
             }
             count++;
           } else {
-            fs.closeSync(fd);
             utils.copyFile(_sFileOriginPath, newPath, function(err) {
               if (err) {
                 console.log('pass desktop file...', sFileName);
-                count++;
-              } else {
-                oRealFiles.push(newPath);
                 var isEnd = (count === lens - 1);
                 if (isEnd) {
                   callback();
                 }
                 count++;
+              } else {
+                oRealFiles.push(newPath);
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                   callback();
+                }
+                count++;
               }
-            });
+            })
           }
-        });
+        })
       } else {
         count++;
       }
@@ -1236,7 +1245,7 @@ function getAllDesktopFile(callback) {
   if (systemType === "Linux") {
     var xdgDataDir = [];
     var sAllDesktop = "";
-    var sTarget = process.env["HOME"] + "/.resources/desktop/data/applications";
+    var sTarget = pathModule.join(RESOURCEPATH, "desktop", "data", "applications");
     var sBoundary = '.desktop';
     var sLimits = ' | grep ' + sBoundary;
     var sCommand = 'ls ' + sTarget + sLimits;
@@ -1462,49 +1471,6 @@ function moveFile(callback, oldPath, newPath) {
 exports.moveFile = moveFile;
 
 /** 
- * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath.
- *    !!!The dir CAN have content,just like command cp -r.!!!
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                echo error : 'copyFile : echo $HOME error'
- *                copy error : 'copyFile : copy error'
- *
- *    @param2: result,
- *        string, retrieve 'success' when success
- *
- * @param2: oldPath
- *    string, a dir under user path
- *    exmple: var oldPath = '/.resources/desktop/Theme.conf'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/Theme.conf')
- *
- * @param3: newPath
- *    string, a dir under user path
- *    exmple: var newPath = '/.resources/desktop/BadTheme.conf'
- *    (compare with a full path: '/home/xiquan/.resources/desktop/BadTheme.conf')
- *
- **/
-function copyFile(oldPath, newPath,callback) {
-  var oldFullpath = configPath + oldPath;
-  var newFullpath = configPath + newPath;
-  console.log(oldFullpath, newFullpath);
-  utils.copyFile(oldFullpath, newFullpath, function(err) {
-    if (err) {
-      console.log(err);
-      var _err = 'copyFile : copy error';
-      callback(_err, null);
-    } else {
-      callback(null, 'success');
-    }
-  })
-}
-exports.copyFile = copyFile;
-
-/** 
  * @Method: renameDesktopFile
  *    To rename a desktop file
  *
@@ -1658,7 +1624,7 @@ function moveToDesktopSingle(sFilePath, callback) {
     console.log(_err);
     return callback(_err, null);
   }
-  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resource\/[a-z]+\/data\//gi;
   var category = utils.getCategoryByPath(sFilePath).category;
   if (reg_isLocal.test(sFilePath)) { //target file is from local
     var sCondition = ["path = '" + sFilePath + "'"];
@@ -2251,7 +2217,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  **/
 function createFile(sContent, callback) {
   var date = new Date();
-  var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
+  var filename = '新建文本文档_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
   exec("touch " + desPath, function(err, stdout, stderr) {
     if (err) {
@@ -2266,7 +2232,7 @@ function createFile(sContent, callback) {
         return callback(err);
       }
       var cate = utils.getCategoryObject('document');
-      cate.createData(desPath, function(err, result, resultFile) {
+      cate.createData(desPath, function(err, resultFile) {
         if (err) {
           console.log(err, stdout, stderr);
           return callback(err);
@@ -2276,7 +2242,7 @@ function createFile(sContent, callback) {
             console.log(err, stdout, stderr);
             return callback(err);
           }
-          console.log(resultFile)
+          console.log(resultFile);
           var sCondition = ["path = '" + resultFile + "'"];
           commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
             if (err) {

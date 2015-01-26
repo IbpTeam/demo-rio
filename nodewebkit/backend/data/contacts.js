@@ -230,6 +230,14 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
+
+
 /**
  * @method getByUri
  *    Get document info in db.
@@ -254,7 +262,6 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
-
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
     var oContacts = [];

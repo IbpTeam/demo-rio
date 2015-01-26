@@ -64,56 +64,66 @@ function loadFile(loadFileCb, sFilePath) {
   var sPos = path.extname(itemFullname);
   if (sPos === '') {
     sPos = 'none';
-  } else if(sPos[0] === '.') {
+  } else if (sPos[0] === '.') {
     sPos = sPos.substring(1, sPos.length);
-  } else{
+  } else {
     sPos = 'other';
     console.log('some wrong with the postfix ...');
   }
   var category = null;
-  if (sPos != 'csv' && sPos != 'CSV') {
-    if (sPos == 'none' ||
-      sPos == 'ppt' ||
-      sPos == 'pptx' ||
-      sPos == 'doc' ||
-      sPos == 'docx' ||
-      sPos == 'wps' ||
-      sPos == 'odt' ||
-      sPos == 'et' ||
-      sPos == 'txt' ||
-      sPos == 'xls' ||
-      sPos == 'xlsx' ||
-      sPos == 'ods' ||
-      sPos == 'zip' ||
-      sPos == 'sh' ||
-      sPos == 'gz' ||
-      sPos == 'html' ||
-      sPos == 'et' ||
-      sPos == 'odt' ||
-      sPos == 'pdf' ||
-      sPos == 'html5ppt') {
-      category = 'document';
-    } else if (sPos == 'jpg' || sPos == 'png') {
-      category = 'picture';
-    } else if (sPos == 'mp3') {
-      category = 'music';
-    } else if (sPos == 'ogg') {
-      category = 'video';
-    } else if (sPos == 'conf' || sPos == 'desktop') {
-      var _err = 'this is a desktop config file ...'
-      return loadFileCb(_err, null);
-    } else {
-      category = 'other';
+  if (sPos == 'csv' || sPos == 'CSV') {
+    var cate = utils.getCategoryObject('contact');
+    cate.initContacts(function(err) {
+      if (err) {
+        return loadFileCb(err, null);
+      }
+      loadFileCb(null, 'success');
+    }, sFilePath);
+  } else {
+    if (sPos != 'csv' && sPos != 'CSV') {
+      if (sPos == 'none' ||
+        sPos == 'ppt' ||
+        sPos == 'pptx' ||
+        sPos == 'doc' ||
+        sPos == 'docx' ||
+        sPos == 'wps' ||
+        sPos == 'odt' ||
+        sPos == 'et' ||
+        sPos == 'txt' ||
+        sPos == 'xls' ||
+        sPos == 'xlsx' ||
+        sPos == 'ods' ||
+        sPos == 'zip' ||
+        sPos == 'sh' ||
+        sPos == 'gz' ||
+        sPos == 'html' ||
+        sPos == 'et' ||
+        sPos == 'odt' ||
+        sPos == 'pdf' ||
+        sPos == 'html5ppt') {
+        category = 'document';
+      } else if (sPos == 'jpg' || sPos == 'png') {
+        category = 'picture';
+      } else if (sPos == 'mp3') {
+        category = 'music';
+      } else if (sPos == 'ogg') {
+        category = 'video';
+      } else if (sPos == 'conf' || sPos == 'desktop') {
+        var _err = 'this is a desktop config file ...'
+        return loadFileCb(_err, null);
+      } else {
+        category = 'other';
+      }
     }
+    var cate = utils.getCategoryObject(category);
+    cate.createData(sFilePath, function(err, result) {
+      if (err) {
+        console.log(err);
+        return loadFileCb(err, null);
+      }
+      loadFileCb(null, resultFilePath);
+    })
   }
-  var cate = utils.getCategoryObject(category);
-  cate.createData(sFilePath, function(err, result) {
-    if (err !== 'sucess') {
-      console.log(err);
-      return loadFileCb(err, null);
-    }
-    loadFileCb(null, result);
-  })
 }
 exports.loadFile = loadFile;
 
@@ -332,10 +342,23 @@ function getAllDataByCate(getAllDataByCateCb, cate) {
   if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(getAllDataByCateCb, cate);
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
+
+function getAllDeleted(getAllDeletedCb){
+  /*
+      commonHandle.getAllDeleted(function(items){
+      console.log(items);
+     items.forEach(function(t){
+      console.log(t.postfix);
+     });
+    });
+      */
+      commonHandle.getAllDeleted(getAllDeletedCb);
+}
+exports.getAllDeleted = getAllDeleted;
 
 /**
  * @method getAllContacts
@@ -370,6 +393,28 @@ function rmDataByUri(rmDataByUriCb, uri) {
   cate.removeByUri(uri, rmDataByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
+
+//API recoverDataByUri:通过id恢复数据
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function recoverDataByUri(recoverDataByUriCb,uri){
+  var cate = utils.getCategoryObjectByUri(uri);
+  console.log("Request handler 'recoverDataByUri' was called. ===="+cate);
+  cate.recoverByUri(uri,recoverDataByUriCb);
+}
+exports.recoverDataByUri = recoverDataByUri;
+
+//API confirmRmDataByUri:通过id彻底删除数据（包括对应的文件）
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+function confirmRmDataByUri(cfrmDataByUriCb,uri){
+  var cate = utils.getCategoryObjectByUri(uri);
+  console.log("Request handler 'confirmRmDataByUri was called. ===='"+cate);
+  cate.confirmRm(uri,cfrmDataByUriCb);
+}
+exports.confirmRmDataByUri = confirmRmDataByUri;
 
 //API getDataByUri:通过Uri查看数据所有信息
 //返回具体数据类型对象
@@ -643,7 +688,7 @@ function getResourceDataDir(getResourceDataDirCb) {
   console.log("Request handler 'getResourceDataDir' was called.");
   cp.exec('echo $USER', function(error, stdout, stderr) {
     var usrname = stdout.replace("\n", "");
-    var data = '/home/' + usrname + '/.demo-rio/config';
+    var data = config.USERCONFIGPATH;
     getResourceDataDirCb(data.dataDir);
   });
 }
@@ -923,39 +968,6 @@ function shellExec(shellExecCb, command) {
   desktopConf.shellExec(shellExecCb, command);
 }
 exports.shellExec = shellExec;
-
-/** 
- * @Method: copyFile
- *    To copy a file or dir from oldPath to newPath.
- *    !!!The dir CAN have content,just like command cp -r.
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain error info as below
- *                echo error : 'copyFile : echo $HOME error'
- *                copy error : 'copyFile : copy error'
- *
- *    @param2: result,
- *        string, retrieve 'success' when success
- *
- * @param2: oldPath
- *    string, a dir under user path
- *    exmple: var oldPath = '/resources/.desktop/Theme.conf'
- *    (compare with a full path:'/home/xiquan/resources/.desktop/Theme.conf')
- *
- * @param3: newPath
- *    string, a dir under user path
- *    exmple: var newPath = '/resources/.desktop/BadTheme.conf'
- *    (compare with a full path:'/home/xiquan/resources/.desktop/BadTheme.conf')
- *
- **/
-function copyFile(copyFileCb, fromPath, toPath) {
-  console.log("Request handler 'copyFile' was called.");
-  desktopConf.copyFile(fromPath, toPath,copyFileCb);
-}
-exports.copyFile = copyFile;
 
 /** 
  * @Method: moveFile

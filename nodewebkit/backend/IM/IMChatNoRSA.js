@@ -4,16 +4,16 @@ var fs = require('fs');
 var hashtable = require('hashtable');
 var crypto = require('crypto');
 var config = require('../config.js');
+var buffer = require('buffer');
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
 var CURUSER = process.env['USER'];
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
-var uniqueID = require(USERCONFIGPATH+'/uniqueID.js')
+var uniqueID = require(config.USERCONFIGPATH + '/uniqueID.js')
 
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;
 exports.LOCALUUID=LOCALUUID;
+
 /*
  * @method MD5
  *  计算某个字符串的MD5值
@@ -24,10 +24,9 @@ exports.LOCALUUID=LOCALUUID;
  * @return md5
  *  返回md5校验值
  */
-
-
 function MD5(str, encoding) {
-  return crypto.createHash('md5').update(str).digest(encoding || 'hex');
+  var binaryStr = new buffer.Buffer(str).toString('binary', 0);
+  return crypto.createHash('md5').update(binaryStr).digest(encoding || 'hex');
 }
 
 /*
@@ -50,25 +49,27 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
     var remotePT = c.remotePort;
 
     c.on('data', function(msgStri) {
-      //console.log('data from :' + remoteAD + ': ' + remotePT + ' ' + msgStri);
+      var msgStr, decrypteds, msgObj;
       try {
-        var msgStr = JSON.parse(msgStri);
-        var decrypteds = msgStr[0].content;
-        var msgObj = JSON.parse(decrypteds);
-        //console.log('MSG type:' + msgObj.type);
+        msgStr = JSON.parse(msgStri);
+        decrypteds = msgStr.content;
+        msgObj = JSON.parse(decrypteds);
       } catch (err) {
         console.log(err);
         return;
       }
-      switch (msgStr[0].type) {
+      function replyFunc(msg){
+        c.write(msg);
+      }
+      switch (msgStr.type) {
         case 'SentEnFirst':
           {
             var CalBakMsg = {};
             CalBakMsg['MsgObj'] = msgObj;
             CalBakMsg['IP'] = remoteAD; 
             setTimeout(ReceivedMsgCallback(msgObj.type,CalBakMsg), 0);
-            var tp = encapsuMSG(MD5(msgObj.message), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from,'');
-            c.write(tp);
+            var tp = encapsuMSG(MD5(decrypteds), "Reply", LOCALACCOUNT, LOCALUUID, msgObj.from,'');
+            setTimeout(replyFunc(tp), 50);
           }
           break;
         case 'Reply':
@@ -128,7 +129,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   var tmpenmsg =  SENDMSG;
   try{
     var MSG = JSON.parse(SENDMSG);
-    var dec = MSG[0].content;
+    var dec = MSG.content;
     var pat = JSON.parse(dec);
   }catch(e){
     console.log('JSON.parse error:'+e);
@@ -160,10 +161,9 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
 
     }, 1000, client, MSG);
   }
-  switch (MSG[0].type) {
+  switch (MSG.type) {
     case 'SentEnFirst':
       {
-        //console.log("sending message ::: " + tmpenmsg);
         client.connect(PORT, IP, function() {
           client.write(tmpenmsg, function() {});
         });
@@ -180,30 +180,19 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.on('connect', innerrply);
 
   client.on('data', function(REPLY) {
-      //console.log("remote data arrived! " + client.remoteAddress + " : " + client.remotePort);
 
-    try {
-      var RPLY = JSON.parse(REPLY);
-    } catch (e) {
-      console.log('JSON.parse error:' + e);
-    }
-    
-    switch (RPLY[0].type) {
+    var RPLY = JSON.parse(REPLY);
+    switch (RPLY.type) {
       case 'Reply':
         {
-          var decrply = RPLY[0].content;
-          //console.log("message:" + decrply);
+          var decrply = RPLY.content;
           var msg = JSON.parse(decrply);
           switch (msg.type) {
             case 'Reply':
               {
-                if (msg.message == MD5(pat.message)) {
+                if (msg.message == MD5(dec)) {
                   var msgtp = pat;
-                  //console.log('msg rply MD5 received: ' + msg.message);
-                  var CalBakMsg = {};
-                  CalBakMsg['MsgObj'] = msgtp;
-                  CalBakMsg['IP'] = IP; 
-                  setTimeout(SentCallBack(CalBakMsg), 0);
+                  setTimeout(SentCallBack(msgtp.message), 0);
                   clearInterval(id);
                   client.end();
                 };
@@ -219,7 +208,6 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   //client.end();
 
   client.on('error', function(err) {
-    console.log("Error: " + err.code + " on " + err.syscall + " !  IP : " + IP);
     clearInterval(id);
     client.end();
   });
@@ -260,7 +248,6 @@ function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG,TOAPP, SENTCALLBACK) {
  *  封装好，并且已经序列化的消息字符串
  */
 function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
-  var MESSAGE = [];
   var tmp = {};
   var restmp = {};
   var now = new Date();
@@ -322,8 +309,7 @@ function encapsuMSG(MSG, TYPE, FROM, FROMUUID, TO,TOAPP) {
       }
   }
 
-  MESSAGE.push(restmp);
-  var send = JSON.stringify(MESSAGE);
+  var send = JSON.stringify(restmp);
   return send;
 }
 

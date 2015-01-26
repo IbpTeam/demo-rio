@@ -218,11 +218,11 @@ function createData(items, callback) {
           };
           commonHandle.createData(itemInfo, function(result, resultFile) {
             if (result === 'success') {
-              callback(null, result, resultFile);
+              callback(null, resultFile);
             } else {
               var _err = 'createData: commonHandle createData error!';
               console.log('createData error!');
-              callback(_err, null, null);
+              callback(_err, null);
             }
           })
         })
@@ -329,6 +329,47 @@ function removeByUri(uri, callback) {
   });
 }
 exports.removeByUri = removeByUri;
+
+/**
+ * @method confirmRm
+ *    confirmRm.
+ * @param uri
+ *    The video's URI.
+ * @param callback
+ *    Callback
+ */
+function confirmRm(uri, callback) {
+  getByUri(uri, function(items) {
+    //Remove real file
+    fs.unlink(items[0].path, function(err) {
+      if (err) {
+        console.log(err);
+        callback("error");
+      } else {
+        //Remove Des file
+        //Delete in db
+        //Git commit
+        commonHandle.cfremoveFile(CATEGORY_NAME, items[0], callback);
+      }
+    });
+  });
+}
+exports.confirmRm = confirmRm;
+
+/**
+ * @method recoverByUri
+ *    recover Video by uri.
+ * @param uri
+ *    The Video's URI.
+ * @param callback
+ *    Callback
+ */
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
 
 /**
  * @method getByUri

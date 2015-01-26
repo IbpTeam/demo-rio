@@ -5,8 +5,21 @@ var path = require("path");
 /*
  * Config Path
  * */
-var RESOURCEPATH;
-exports.RESOURCEPATH = path.join(process.env["HOME"],".resources");
+var BASEPATH = path.join(process.env["HOME"],".custard");
+exports.BASEPATH = BASEPATH;
+
+var RESOURCEPATH = path.join(BASEPATH, "resource");
+exports.RESOURCEPATH = RESOURCEPATH;
+
+var USERCONFIGPATH = path.join(BASEPATH, "config");
+exports.USERCONFIGPATH = USERCONFIGPATH;
+
+var DATABASENAME = "rio.sqlite3";
+var DATABASEPATH = path.join(USERCONFIGPATH, DATABASENAME);
+exports.DATABASEPATH = DATABASEPATH;
+
+var UNIQUEID_JS = "uniqueID.js";
+exports.UNIQUEID_JS = UNIQUEID_JS;
 
 var DOWNLOADPATH ;
 exports.DOWNLOADPATH = path.join(process.env["HOME"],".download");
@@ -88,9 +101,9 @@ exports.WEBSOCKETPATH = WEBSOCKETPATH;
  * */
 var ISSECURE=false;
 exports.ISSECURE = ISSECURE;
-var KEYPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/key.pem");
+var KEYPATH=path.join(USERCONFIGPATH, "httpserver/key.pem");
 exports.KEYPATH = KEYPATH;
-var CERTPATH=path.join(process.env["HOME"], ".demo-rio/httpserver/cert.pem");
+var CERTPATH=path.join(USERCONFIGPATH, "httpserver/cert.pem");
 exports.CERTPATH = CERTPATH;
 
 /*
