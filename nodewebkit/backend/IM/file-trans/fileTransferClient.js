@@ -1,11 +1,11 @@
-var rsaKey = require('../rsaKey');
+var fsPublic = require('../fsPublic');
 var tape = require('tape');
 var fs = require('fs');
 var fileTransfer = require('./fileTransfer');
 var request = require('request');
 var util = require('util');
 var HashTable = require('hashtable');
-var cryptoConf = require('../../cryptoConf');
+var config = require('../../config');
 var path = require('path');
 
 var RATIO_SIZE = 0.1;
@@ -26,7 +26,7 @@ function deleteTmpFile(tmpFilePath,callback){
 exports.deleteTmpFile = deleteTmpFile;
 
 function transferFileProcess(msgObj, callback) {
-  rsaKey.mkdirsSync(cryptoConf.DOWNLOADPATH, function(done) {
+  fsPublic.mkdirsSync(config.DOWNLOADPATH, function(done) {
     if (done) {
       transferFile(msgObj, callback);
     } else {
@@ -37,7 +37,7 @@ function transferFileProcess(msgObj, callback) {
 exports.transferFileProcess = transferFileProcess;
 
 function initTransferFileName(fileName, callback) {
-  var filePath = path.join(cryptoConf.DOWNLOADPATH, fileName);
+  var filePath = path.join(config.DOWNLOADPATH, fileName);
   var name;
   var suffix;
   var i = 1;
@@ -53,7 +53,7 @@ function initTransferFileName(fileName, callback) {
       }
     }
     fileName =  name + ' (' + i + ')' + suffix;
-    filePath = path.join(cryptoConf.DOWNLOADPATH,fileName);
+    filePath = path.join(config.DOWNLOADPATH,fileName);
     i++;
   }
   callback(fileName,filePath);
@@ -66,7 +66,7 @@ function fileExistOrNot(filePath) {
 }
 
 function initTransferSaveDir(targetDir,initTransferSaveDirCb){
-  rsaKey.mkdirsSync(targetDir,function(done){
+  fsPublic.mkdirsSync(targetDir,function(done){
     initTransferSaveDirCb(done);
   });
 }

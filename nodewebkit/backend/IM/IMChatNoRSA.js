@@ -5,8 +5,6 @@ var hashtable = require('hashtable');
 var crypto = require('crypto');
 var config = require('../config.js');
 var buffer = require('buffer');
-var HOME_DIR = "/home";
-var CURUSER = process.env['USER'];
 var uniqueID = require(config.USERCONFIGPATH + '/uniqueID.js')
 
 var LOCALACCOUNT = uniqueID.Account;

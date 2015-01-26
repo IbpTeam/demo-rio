@@ -2,6 +2,7 @@ var rsaKey = require('./IM/rsaKey');
 var cryptoConf = require('./cryptoConf');
 var fs = require('fs');
 var path = require('path');
+var fsPublic = require('./IM/fsPublic');
 
 /**
  * @method initServerPubKey
@@ -49,7 +50,7 @@ exports.generateRsaKeypair = generateRsaKeypair;
  *      boolean, 返回操作成功与否，成功则返回true,失败则返回false
  */
 function generateKeypairCtn(generateKeypairCtnCb) {
-  rsaKey.mkdirsSync(cryptoConf.SSHUSERPATH, function(done) {
+  fsPublic.mkdirsSync(cryptoConf.SSHUSERPATH, function(done) {
     if (done) {
       var sParams = [cryptoConf.prikeypath, cryptoConf.pubkeypath_msg, cryptoConf.pubkeypath_im, cryptoConf.sshPriKeyPath, cryptoConf.sshPubKeyPath, cryptoConf.SSHPATH_msg];
       generateRsaKeypair(function(done) {
