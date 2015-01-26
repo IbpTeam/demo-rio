@@ -121,7 +121,7 @@ function loadFile(loadFileCb, sFilePath) {
         console.log(err);
         return loadFileCb(err, null);
       }
-      loadFileCb(null, resultFilePath);
+      loadFileCb(null, result);
     })
   }
 }
