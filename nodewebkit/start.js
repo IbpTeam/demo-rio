@@ -17,12 +17,7 @@ var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
-<<<<<<< HEAD
-var device = require("./backend/data/device");
-=======
-var msgTransfer = require("./backend/Transfer/msgTransfer");
 var device;
->>>>>>> upstream/dev
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
