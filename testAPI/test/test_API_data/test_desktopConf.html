@@ -231,43 +231,6 @@
     });
   }
 
-  function CreateWatcherCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      var watcher = result;
-      win.document.write("test API CreateWatcher()");
-      win.document.write("<br/>");
-      watcher.on('add',function(path){
-        win.document.write("add : ");
-        win.document.write(path);
-        win.document.write("<br/>");
-      })
-      watcher.on('delete',function(path){
-        win.document.write("delete : ");
-        win.document.write(path);
-        win.document.write("<br/>");
-      })          
-      watcher.on('rename',function(path){
-        win.document.write("rename : ");
-        win.document.write(path);
-        win.document.write("<br/>");
-      })
-      watcher.on('error',function(err){
-        win.document.write("error : ");
-        win.document.write(err);
-        win.document.write("<br/>");
-      })
-    };
-  }
-  function test_CreateWatcher(CreateWatcherCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var watchDir = '/data/desktop';
-      data.CreateWatcher(CreateWatcherCb, watchDir);
-    });
-  }
-
   function shellExecCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -284,26 +247,6 @@
     WDC.requireAPI(['data'], function(data) {
       var command = 'echo $XDG_DATA_DIRS';
       data.shellExec(shellExecCb, command);
-    });
-  }
-
-  function copyFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API copyFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_copyFile(copyFileCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var oldPath = '/data/Theme.conf';
-      var newPath = '/data/desktop/test.txt';
-      data.copyFile(copyFileCb, oldPath, newPath);
     });
   }
 
@@ -862,55 +805,6 @@
 </div>
 </div>
 
-<h2 onclick="show('CreateWatcher')">CreateWatcher(CreateWatcherCb)<span><a class="mark" href="#test_CreateWatcher" id="test_CreateWatcher" onclick="test_CreateWatcher(CreateWatcherCb)">test</a></span></h2>
-<div id="CreateWatcher" style="display:none;">
-<div style="color:#930000">
-  <pre>
-
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function CreateWatcherCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      var watcher = result;
-      win.document.write("test API CreateWatcher()");
-      win.document.write("<br/>");
-      watcher.on('add',function(path){
-        win.document.write("add : ");
-        win.document.write(path);
-        win.document.write("<br/>");
-      })
-      watcher.on('delete',function(path){
-        win.document.write("delete : ");
-        win.document.write(path);
-        win.document.write("<br/>");
-      })          
-      watcher.on('rename',function(path){
-        win.document.write("rename : ");
-        win.document.write(path);
-        win.document.write("<br/>");
-      })
-      watcher.on('error',function(err){
-        win.document.write("error : ");
-        win.document.write(err);
-        win.document.write("<br/>");
-      })
-    };
-  }
-  function test_CreateWatcher(CreateWatcherCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var watchDir = '/resources/.desktop/desktopadwd';
-      data.CreateWatcher(CreateWatcherCb, watchDir);
-    });
-  }  
-</pre>
-</div>
-</div>
-
 <h2 onclick="show('shellExec')">shellExec(shellExecCb)<span><a class="mark" href="#test_shellExec" id="test_shellExec" onclick="test_shellExec(shellExecCb)">test</a></span></h2>
 <div id="shellExec" style="display:none;">
 <div style="color:#930000">
@@ -936,38 +830,6 @@
     WDC.requireAPI(['data'], function(data) {
       var command = 'echo $XDG_DATA_DIRS';
       data.shellExec(shellExecCb, command);
-    });
-  }
-</pre>
-</div>
-</div>
-
-<h2 onclick="show('copyFile')">copyFile(copyFileCb)<span><a class="mark" href="#test_copyFile" id="test_copyFile" onclick="test_copyFile(copyFileCb)">test</a></span></h2>
-<div id="copyFile" style="display:none;">
-<div style="color:#930000">
-  <pre>
-
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function copyFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API copyFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_copyFile(copyFileCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var fromPath = '/testFile/book.pdf';
-      var toPath = '/testFile/test_book.pdf';
-      data.copyFile(copyFileCb, fromPath, toPath);
     });
   }
 </pre>

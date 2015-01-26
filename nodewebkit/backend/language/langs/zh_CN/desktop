@@ -9,6 +9,7 @@
   "script": "脚本执行",
   "terminal": "终端",
   "gedit": "Gedit编辑器",
+  "resize": "重置桌面大小",
   "refresh": "刷新",
   "window": "新建窗口",
   "add-plugin": "添加插件",

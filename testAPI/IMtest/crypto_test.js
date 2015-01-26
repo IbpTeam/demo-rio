@@ -1,11 +1,11 @@
 var cryptoApp= require('../../nodewebkit/backend/crypto_app');
 var path= require('path');
+var config = require('../../nodewebkit/backend/config');
 
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
 var SSH_DIR = ".ssh";
 var CURUSER = process.env['USER'];
-var USERCONFIGPATH = path.join(HOME_DIR, CURUSER, DEMO_RIO);
+var USERCONFIGPATH = config.USERCONFIGPATH;
 var SSHPATH = path.join(USERCONFIGPATH, "key");
 var SSHUSERPATH = path.join(SSHPATH, "users");
 var SSHPATH_msg = path.join(HOME_DIR, CURUSER, SSH_DIR);
@@ -17,8 +17,8 @@ var serverkeypath = path.join(SSHPATH, "serverKey.pem"); //公钥服务器公钥
 var sshPriKeyPath = path.join(SSHPATH_msg, "rio_rsa");//.ssh私钥路径
 var sshPubKeyPath = path.join(SSHPATH_msg, "rio_rsa.pub");//.ssh公钥路径
 
-/*  默认在路径/home/fyf/.demo-rio/key下生成公私钥，
-*并生成存放其他用户公钥的目录/home/fyf/.demo-rio/key/users
+/*  默认在路径/home/fyf/.custard/config/key下生成公私钥，
+*并生成存放其他用户公钥的目录/home/fyf/.custard/config/key/users
 *具体路径由cryptoConf.js读入
 */
 cryptoApp.generateKeypairCtn(function(done) {

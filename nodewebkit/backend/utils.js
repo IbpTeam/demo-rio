@@ -11,9 +11,9 @@ var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
 var music = require("./data/music");
-var devices = require("./data/device");
 var other = require('./data/other')
 var commonDAO = require("./commonHandle/CommonDAO");
+var config =  require('./config');
 //@const
 var DATA_DIR = "data";
 
@@ -227,39 +227,39 @@ exports.getCategoryObjectByDes = function(sDesName) {
 exports.getDesPath = function(category, fullName) {
   var sDirName = category + "Des";
   var sDesName = fullName + ".md";
-  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR, sDesName);
+  return path.join(config.RESOURCEPATH, sDirName, DATA_DIR, sDesName);
 }
 
-//example: ~/.resources/document/data/$FILENAME
+//example: ~/.resource/document/data/$FILENAME
 exports.getRealPath = function(category, fullName) {
-  return path.join(process.env["HOME"], ".resources", category, DATA_DIR, fullName);
+  return path.join(config.RESOURCEPATH, category, DATA_DIR, fullName);
 }
 
-//example: ~/.resources/document/data
+//example: ~/.resource/document/data
 exports.getRealDir = function(category) {
-  return path.join(process.env["HOME"], ".resources", category, DATA_DIR);
+  return path.join(config.RESOURCEPATH, category, DATA_DIR);
 }
 
-//example: ~/.resources/documentDes/data
+//example: ~/.resource/documentDes/data
 exports.getDesDir = function(category) {
   var sDirName = category + "Des";
-  return path.join(process.env["HOME"], ".resources", sDirName, DATA_DIR);
+  return path.join(config.RESOURCEPATH, sDirName, DATA_DIR);
 }
 
-//example: ~/.resources/document
+//example: ~/.resource/document
 exports.getRepoDir = function(category) {
   var sDirName = category;
-  return path.join(process.env["HOME"], ".resources", sDirName);
+  return path.join(config.RESOURCEPATH, sDirName);
 }
 
-//example: ~/.resources/documentDes
+//example: ~/.resource/documentDes
 exports.getDesRepoDir = function(category) {
   var sDirName = category + "Des";
-  return path.join(process.env["HOME"], ".resources", sDirName);
+  return path.join(config.RESOURCEPATH, sDirName);
 }
 
 exports.getRealRepoDir = function(category) {
-  return path.join(process.env["HOME"], ".resources", category);
+  return path.join(config.RESOURCEPATH, category);
 }
 
 exports.getHomeDir = function() {
@@ -362,7 +362,7 @@ exports.findFilesFromSystem = function(targe, callback) {
       return callback(_err, null);
     }
     var result = [];
-    var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+    var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resource\/[a-z]+\/data\//gi;
     list = stdout.split('\n');
     for (var i = 0; i < list.length; i++) {
       if (!reg_isLocal.test(list[i])) {

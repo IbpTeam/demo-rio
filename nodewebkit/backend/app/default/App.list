@@ -19,8 +19,8 @@
     "id": "flash-app",
     "path": "demo-webde/nw/app/flash"
   },
-  "viewerPDF-app": {
-    "id": "viewerPDF-app",
-    "path": "demo-rio/viewerPDF"
+  "music-app": {
+    "id": "music-app",
+    "path": "demo-webde/nw/app/music"
   }
 }
