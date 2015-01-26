@@ -21,8 +21,8 @@ exports.DATABASEPATH = DATABASEPATH;
 var UNIQUEID_JS = "uniqueID.js";
 exports.UNIQUEID_JS = UNIQUEID_JS;
 
-var DOWNLOADPATH ;
-exports.DOWNLOADPATH = path.join(process.env["HOME"],".download");
+var DOWNLOADPATH = path.join(BASEPATH, '.download');
+exports.DOWNLOADPATH = DOWNLOADPATH;
 
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
