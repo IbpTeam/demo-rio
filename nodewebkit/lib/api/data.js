@@ -15,6 +15,39 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
+var start = require("../../start");
+var server = require("../../backend/server");
+var router = require("../../backend/router");
+
+/**
+ * @method startServer
+ *    To start server and webSocketSever.
+ *
+ * @param1 cb_
+ *   回调函数(done)
+ *   @done
+ *      boolean, sucess:true,fail:false
+ *
+ */
+function startServer(cb_){
+  server.start(cb_,router.route, start.handle);
+}
+exports.startServer=startServer;
+
+/**
+ * @method closeServer
+ *    To close server and webSocketSever.
+ *
+ * @param1 cb_
+ *   回调函数(done)
+ *   @done
+ *      boolean, sucess:true,fail:false
+ *
+ */
+function closeServer(cb_){
+  server.close(cb_);
+}
+exports.closeServer=closeServer;
 
 /*
  *getLocalData

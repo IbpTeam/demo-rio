@@ -12,6 +12,8 @@ var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;
 exports.LOCALUUID=LOCALUUID;
 
+var server;
+
 /*
  * @method MD5
  *  计算某个字符串的MD5值
@@ -40,8 +42,10 @@ function MD5(str, encoding) {
 *  没有返回值
 */
 function initIMServerNoRSA(port,ReceivedMsgCallback) {
+  if(server!==undefined)
+    return;
 
-  var server = net.createServer(function(c) {
+  server = net.createServer(function(c) {
     //console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
@@ -101,6 +105,18 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
   });
 }
 
+function closeIMServerNoRSA(callback){
+  try{
+    if(server!==undefined){
+      server.close();
+      server=undefined;
+      callback(true);
+    }
+  }catch(e){
+    callback(false);
+  }
+}
+exports.closeIMServerNoRSA=closeIMServerNoRSA;
 /*
  * @method sendMSG
  *  根据IP和端口号来发送封装好的数据，若发送成功，则把成功发送的消息存至本地数据库中。若发送失败，则重新发送（循环5次）
