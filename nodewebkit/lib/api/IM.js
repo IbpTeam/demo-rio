@@ -214,7 +214,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   if (MsgObj.rsaflag === "true") {
     IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(flag){
+      if(flag&&rstMsg!==undefined){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -227,7 +227,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(flag){
+      if(flag&&rstMsg!==undefined){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -306,7 +306,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
       len -= 1;
       if (countFlag === len) {
         SentCallBack(msgRst);
-        if(flag){
+        if(flag&&msgRst!==undefined){
           msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
           if(msgRst.MsgObj===undefined){
             msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
@@ -333,8 +333,8 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if (msgRst === undefined)
               msgRst = msg;
             if ((++countFlag) === len) {
-              SentCallBack(msg);
-              if(flag){
+              SentCallBack(msgRst);
+              if(flag&&msgRst!==undefined){
                 msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
                 router.wsNotify({
                   'Action': 'notify',
