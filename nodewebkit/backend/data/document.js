@@ -404,7 +404,7 @@ function openDataByUri(openDataByUriCb, uri) {
             }
             var child = exec(s_command, function(error, stdout, stderr) {
               if (error) {
-                if (window != undefined) {
+                if (!window) {
                   window.alert(error);
                   if (error.code === 127) {
                     window.alert("您的系统中未安装wps，请在终端中输入： sudo apt-get install wps-office 进行安装");
