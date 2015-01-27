@@ -32,8 +32,8 @@ var CATEGORY_NAME = "document";
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 var watcher;
-exports.watcher=watcher;
-var watchFilesNum=0;
+exports.watcher = watcher;
+var watchFilesNum = 0;
 
 /**
  * @method createData
@@ -207,7 +207,7 @@ exports.removeByUri = removeByUri;
  * @param callback
  *    Callback
  */
-function recoverByUri(uri, callback){
+function recoverByUri(uri, callback) {
   getByUri(uri, function(items) {
     commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
   });
@@ -261,21 +261,21 @@ exports.getByUri = getByUri;
  * @param callback
  *    Callback
  */
-function changeData(filePath,uri, callback) {
-  console.log("change data : "+filePath);
+function changeData(filePath, uri, callback) {
+  console.log("change data : " + filePath);
   var currentTime = (new Date());
   fs.stat(filePath, function(err, stat) {
     var updateItem = {
-      URI:uri,
-      lastModifyTime : currentTime,
-      lastModifyDev : config.uniqueID,
-      size:stat.size
+      URI: uri,
+      lastModifyTime: currentTime,
+      lastModifyDev: config.uniqueID,
+      size: stat.size
     }
     updateItem.category = CATEGORY_NAME;
     var updateItems = new Array();
     updateItems.push(updateItem);
     commonDAO.updateItems(updateItems, function(result) {
-      if(result!='commit'){
+      if (result != 'commit') {
         console.log("DB update error:");
         console.log(result);
         return;
@@ -404,22 +404,27 @@ function openDataByUri(openDataByUriCb, uri) {
             }
             var child = exec(s_command, function(error, stdout, stderr) {
               if (error) {
-                window.alert(error);
-                if (error.code === 127) {
-                   window.alert("您的系统中未安装wps，请在终端中输入： sudo apt-get install wps-office 进行安装");
-                };
+                if (window != undefined) {
+                  window.alert(error);
+                  if (error.code === 127) {
+                    window.alert("您的系统中未安装wps，请在终端中输入： sudo apt-get install wps-office 进行安装");
+                  }else{
+                    console.log(error);
+                    console.log("您的系统中未安装wps，请在终端中输入： sudo apt-get install wps-office 进行安装");
+                  }
+                }
                 return;
               }
-              if(watchFilesNum>0){
-                watchFilesNum--;              
+              if (watchFilesNum > 0) {
+                watchFilesNum--;
               }
-              console.log("watchFilesNum = "+watchFilesNum);
-              if(watchFilesNum==0){
-                commonHandle.watcherStop(CATEGORY_NAME,function(){
-                  console.log(CATEGORY_NAME+" watcher stoped!!");
+              console.log("watchFilesNum = " + watchFilesNum);
+              if (watchFilesNum == 0) {
+                commonHandle.watcherStop(CATEGORY_NAME, function() {
+                  console.log(CATEGORY_NAME + " watcher stoped!!");
                 });
               }
-              
+
             });
             if (supportedKeySent === true) {
               source.windowname = s_windowname;
@@ -436,47 +441,44 @@ function openDataByUri(openDataByUriCb, uri) {
       var updateItems = new Array();
       updateItems.push(updateItem);
       commonDAO.updateItems(updateItems, function(result) {
-        if(result!='commit'){
+        if (result != 'commit') {
           console.log("DB update error:");
           console.log(result);
           return;
-        }           
+        }
         //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
-        if(item.postfix=='ppt' ||
-         item.postfix=='pptx'||
-         item.postfix=='doc' ||
-         item.postfix=='docx'||
-         item.postfix=='xls' ||
-         item.postfix=='xlsx'){
-          if(watchFilesNum==0)
-          {
-            console.log(CATEGORY_NAME+" watcher started!!");
+        if (item.postfix == 'ppt' ||
+          item.postfix == 'pptx' ||
+          item.postfix == 'doc' ||
+          item.postfix == 'docx' ||
+          item.postfix == 'xls' ||
+          item.postfix == 'xlsx') {
+          if (watchFilesNum == 0) {
+            console.log(CATEGORY_NAME + " watcher started!!");
             watchFilesNum++;
-            console.log("watchFilesNum = "+watchFilesNum);
+            console.log("watchFilesNum = " + watchFilesNum);
             openDataByUriCb(source);
-            commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
-              console.log(path+" : "+event);
-              if(event=='change'){
+            commonHandle.watcherStart(CATEGORY_NAME, function(path, event) {
+              console.log(path + " : " + event);
+              if (event == 'change') {
                 var conditions = ["path = " + "'" + path + "'"];
                 commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
-                  changeData(path,items[0].URI,function(result){
-                    if(result!='commit'){
+                  changeData(path, items[0].URI, function(result) {
+                    if (result != 'commit') {
                       console.log("DB update error:");
                       console.log(result);
                       return;
-                    } 
+                    }
                   });
                 });
               }
             });
-          }
-          else{
+          } else {
             watchFilesNum++;
-            console.log("watchFilesNum = "+watchFilesNum);
+            console.log("watchFilesNum = " + watchFilesNum);
             openDataByUriCb(source);
           }
-        }
-        else{
+        } else {
           openDataByUriCb(source);
         }
       });
