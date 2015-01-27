@@ -1,10 +1,11 @@
 var account = require('../backend/IM/pubkeyServer');
 var userAccount = require('../backend/IM/userAccount.js');
 var rsaKey = require('../backend/IM/rsaKey');
+var config = require('../backend/config');
 
-var keyPair = rsaKey.initSelfRSAKeys('/home/rtty/.demo-rio/key/priKey.pem','/home/rtty/.demo-rio/key/pubKey.pem');
+var keyPair = rsaKey.initSelfRSAKeys(config.USERCONFIGPATH + '/key/priKey.pem', config.USERCONFIGPATH + 'key/pubKey.pem');
 var pubKey= keyPair.getPublicPEM();
-var serverKeyPair= rsaKey.loadServerKey('/home/rtty/.demo-rio/key/serverKey.pem');
+var serverKeyPair= rsaKey.loadServerKey(config.USERCONFIGPATH + '/key/serverKey.pem');
 
 account.register('rtty123','rtty123','34234324r34rerfe45r4a',pubKey,keyPair,serverKeyPair,function(msg){
   console.log(JSON.stringify(msg));

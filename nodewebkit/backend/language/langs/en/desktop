@@ -9,6 +9,7 @@
   "script": "Script",
   "terminal": "Terminal",
   "gedit": "Gedit",
+  "resize": "Desktop Resize",
   "refresh": "Refresh",
   "window": "Window",
   "add-plugin": "Add Plugin",
