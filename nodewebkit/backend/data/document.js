@@ -370,6 +370,7 @@ function openDataByUri(openDataByUriCb, uri) {
             var s_command;
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
+            var open_flag = true;
             switch (item.postfix) {
               case 'pdf':
                 break;
@@ -402,6 +403,13 @@ function openDataByUri(openDataByUriCb, uri) {
                 break;
             }
             var child = exec(s_command, function(error, stdout, stderr) {
+              if (error) {
+                window.alert(error);
+                if (error.code === 127) {
+                   window.alert("您的系统中未安装wps，请在终端中输入： sudo apt-get install wps-office 进行安装");
+                };
+                return;
+              }
               if(watchFilesNum>0){
                 watchFilesNum--;              
               }
@@ -411,6 +419,7 @@ function openDataByUri(openDataByUriCb, uri) {
                   console.log(CATEGORY_NAME+" watcher stoped!!");
                 });
               }
+              
             });
             if (supportedKeySent === true) {
               source.windowname = s_windowname;
