@@ -3,19 +3,35 @@ var FuncObj = require("./FuncObj.js");
 var IMNoRsa = require("./IMChatNoRSA.js");
 var net = require("net");
 
-function startIMService(StartCb, Flag) {
+function startIMService(startCb, flag) {
     try {
-        if (Flag === "true") {
+        if (flag) {
 
         } else {
             IMNoRsa.initIMServerNoRSA(config.IMPORT, function(AppType, msgobj) {
                 FuncObj.takeMsg(AppType, msgobj);
             });
         }
-        StartCb(true);
+        startCb(true);
     } catch (err) {
         console.log(err);
-        StartCb(false);
+        startCb(false);
     }
 }
 exports.startIMService = startIMService;
+
+function closeIMService(closeCb, flag) {
+    try {
+        if (flag) {
+
+        } else {
+            IMNoRsa.closeIMServerNoRSA(function(done) {
+                closeCb(done);
+            });
+        }
+    } catch (err) {
+        console.log(err);
+        closeCb(false);
+    }
+}
+exports.closeIMService = closeIMService;
