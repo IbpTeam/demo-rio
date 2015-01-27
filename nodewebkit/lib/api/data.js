@@ -1488,3 +1488,24 @@ function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;
+
+/** 
+ * @Method: setSysLog
+ *    To get thumbnail of a video.
+ *
+ * @param: callback
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *    @param2: result,
+ *        success of fail
+ *
+ * @param2: err
+ *    err info.
+ **/
+function setSysLog(callback, err){
+  utils.setSysLog(callback,err);
+}
+exports.setSysLog = setSysLog;
