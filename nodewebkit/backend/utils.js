@@ -644,7 +644,7 @@ function copyFileSync(source, target, cb) {
     fixed_fs.closeSync(fdr);
     fixed_fs.closeSync(fdw);
     //if err, rm target if exist
-    if (_err && fixed_fsfixed_fs.existsSync(target)) {
+    if (_err && fixed_fs.existsSync(target)) {
       fixed_fs.unlinkSync(target);
     }
     cb(_err);
