@@ -1169,22 +1169,38 @@ function findAllDesktopFiles(callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
     var oFileList = [];
-    try {
-      var oList_share = fs.readdirSync('/usr/share/applications');
-      var oList_local_share = fs.readdirSync('/usr/local/share/applications');
-    } catch (err) {
-      return callback(err, null);
-    }
     var reg_desktop = /\.desktop$/;
-    for (var k = 0; k < oList_share.length; k++) {
-      if (reg_desktop.test(oList_share[k])) {
-        oFileList.push(pathModule.join('/usr/share/applications', oList_share[k]));
+    var path_local_share = '/usr/local/share/applications';
+    var path_share = '/usr/share/applications';
+    try {
+      var oList_local_share = fs.readdirSync(path_local_share);
+    } catch (err) {
+      oList_local_share = null;
+      console.log(err, 'readdir ' + oList_local_share + ' ...');
+    }
+    try {
+      var oList_share = fs.readdirSync(path_share);
+    } catch (err) {
+      oList_share = null;
+      console.log(err, 'readdir ' + path_share + ' ...');
+    }
+    if (oList_local_share) {
+      for (var k = 0; k < oList_local_share.length; k++) {
+        if (reg_desktop.test(oList_local_share[k])) {
+          oFileList.push(pathModule.join(path_local_share, oList_local_share[k]));
+        }
       }
     }
-    for (var k = 0; k < oList_local_share.length; k++) {
-      if (reg_desktop.test(oList_local_share[k])) {
-        oFileList.push(pathModule.join('/usr/local/share/applications', oList_local_share[k]));
+    if (oList_share) {
+      for (var k = 0; k < oList_share.length; k++) {
+        if (reg_desktop.test(oList_share[k])) {
+          oFileList.push(pathModule.join(path_share, oList_share[k]));
+        }
       }
+    }
+    if (oFileList == '') {
+      var _err = 'no desktop file found ...';
+      return callback(_err, null);
     }
     callback(null, oFileList);
   } else {
