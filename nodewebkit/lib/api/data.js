@@ -133,7 +133,7 @@ function loadFile(loadFileCb, sFilePath) {
         }
         loadFileCb(null, result_);
       }
-      var sCondition = ["'path = '" + resultFilePath + "'"];
+      var sCondition = ["path = '" + resultFilePath + "'"];
       commonDAO.findItems(['uri', 'path','others'], category, sCondition, null, findItemsCb);
     })
   }
