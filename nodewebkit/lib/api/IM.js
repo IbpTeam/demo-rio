@@ -111,17 +111,18 @@ exports.registerIMApp = registerIMApp;
  *   若加密则为true，否则为false
  *
  */
-function startIMService(StartCb,Flag) {
+function startIMService(StartCb, Flag) {
   try {
     if (Flag === "true") {
-      IMRsa.initIMServer(Port, function(AppType,msgobj){
-        FuncObj.takeMsg(AppType,msgobj);
+      IMRsa.initIMServer(Port, function(AppType, msgobj) {
+        FuncObj.takeMsg(AppType, msgobj);
       });
-    }else{
+    } else {
       IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
-      FuncObj.takeMsg(AppType, msgobj);
-    });
-    } 
+        FuncObj.takeMsg(AppType, msgobj);
+      });
+    }
+    fileTransferClient.clearTmpDir();
     StartCb(true);
   } catch (err) {
     console.log(err);
