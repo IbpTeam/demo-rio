@@ -235,7 +235,8 @@ function getRegisteredAppInfo(appID_, callback_) {
             name: data_.name,
             main: data_.main,
             url: data_.url,
-            window: data_.window
+            window: data_.window,
+            notShow: data_.notShow
           };
           cb_(null, info);
         });
