@@ -211,7 +211,7 @@ var Basic = Class.extend({
               return console.log(err);
             }
             AppAPI.startApp(cbViewPdf, appInfo, file.path);
-          }, "viewerPDF-app");
+          }, "app-viewerPDF");
         }
         else {
           DataAPI.openDataByUri(basic.cbGetDataSourceFile, file.URI);
