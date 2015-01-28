@@ -18,5 +18,9 @@
   "app-server-setting":{
     "id": "app-server-setting",
     "path": "demo-webde/nw/app/server-setting"
+  },
+  "app-viewerPDF": {
+    "id": "app-viewerPDF",
+    "path": "demo-rio/viewerPDF"
   }
 }
