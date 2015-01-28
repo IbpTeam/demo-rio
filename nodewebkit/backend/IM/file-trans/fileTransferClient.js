@@ -159,7 +159,6 @@ function clearTmpDir() {
     } else {
       console.log('no DOWNLOAD dir');
     }
-
   } catch (e) {
     console.log('clearTmpDir error ' + e);
   }
