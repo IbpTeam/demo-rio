@@ -658,3 +658,21 @@ function copyFileSync(source, target, cb) {
   }
 }
 exports.copyFileSync = copyFileSync;
+
+function setSysLog(callback, err){
+  var _sysLog, _command;
+  var _currentTime = (new Date());
+  var _sysLogPath = path.join(config.USERCONFIGPATH, "sysLog");
+  err = err.replace(/\"/g,"'");
+  _sysLog = _currentTime + ": " + err;
+  _command = "echo \"" + _sysLog + "\" >> " + _sysLogPath;
+  exec(_command,function(err, stdout, stderr){
+    if (err){
+      callback(err,"fail");
+    }
+    else{
+      callback(null,"success");
+    }
+  });
+}
+exports.setSysLog = setSysLog;
