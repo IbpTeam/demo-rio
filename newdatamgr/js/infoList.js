@@ -243,8 +243,13 @@ var InfoList = Class.extend({
               if(_this._index == 6){
                 //改成搜索的操作
               }
+              else if (_this._index == 0){
+                var contactString = file['name'];
+                contact.openContract(contactString);
+              }
               else{
                 basic.openFile(file);
+                
               }
             });
             _this._infoBottomNano.append(_a);

@@ -236,6 +236,8 @@ function recoverByUri(uri, callback){
   });
 }
 exports.recoverByUri = recoverByUri;
+
+
 /**
  * @method getByUri
  *    Get document info in db.

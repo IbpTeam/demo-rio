@@ -1,14 +1,22 @@
 {
   "datamgr-app": {
     "id": "datamgr-app",
-    "path": "../app/newdatamgr"
+    "path": "demo-rio/newdatamgr"
   },
   "app-register": {
     "id": "app-register",
-    "path": "demo-webde/app/app-register"
+    "path": "demo-webde/nw/app/app-register"
   },
   "flash-app": {
     "id": "flash-app",
-    "path": "demo-webde/app/flash"
+    "path": "demo-webde/nw/app/flash"
+  },
+  "music-app": {
+    "id": "music-app",
+    "path": "demo-webde/nw/app/music"
+  },
+  "app-server-setting":{
+    "id": "app-server-setting",
+    "path": "demo-webde/nw/app/server-setting"
   }
 }

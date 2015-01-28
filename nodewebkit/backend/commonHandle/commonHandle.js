@@ -15,13 +15,11 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('../fixed_fs');
-//var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
 var desktopConf = require("../data/desktop");
 var commonDAO = require("./CommonDAO");
-var device = require("../data/device");
 var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
@@ -256,8 +254,30 @@ function deleteItemByUri(category, uri, callback) {
 }
 exports.deleteItemByUri = deleteItemByUri;
 
+function cfdeleteItemByUri(category, uri, callback) {
+  var conditions = ["URI = " + "'"+uri+"'"];
+  var oItem = {
+ //   URI:uri,
+//  is_deleted:'1',
+    category:category,
+    conditions:conditions
+  };
+  commonDAO.deleteItem(oItem, callback);
+}
+exports.deleteItemByUri = deleteItemByUri;
+
 exports.removeFile = function(category, item, callback) {
   deleteItemByUri(category, item.URI, function(isSuccess) {
+    if (isSuccess == "rollback") {
+      callback("error");
+      return;
+    }
+    callback(null,"success");
+  });
+};
+
+exports.cfremoveFile = function(category, item, callback) {
+  cfdeleteItemByUri(category, item.URI, function(isSuccess) {
     if (isSuccess == "rollback") {
       callback("error");
       return;

@@ -5,7 +5,7 @@
   "nodejs": true,
   "window": {
     "icon": "icons/datamgr.png",
-    "title": "test",
+    "title": "Custard",
     "toolbar": true,
     "show_in_taskbar": true,
     "as_desktop": false,

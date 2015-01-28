@@ -10,7 +10,10 @@ var util = require('util');
 var cp = require('child_process');
 var now= new Date();  
 
-function start(route, handle) {
+var server;
+var wsServer;
+
+function start(callback,route, handle) {
   function onRequest(request, response) {
     var postData = "";
     var pathname = decodeURIComponent(url.parse(request.url).pathname);
@@ -26,7 +29,9 @@ function start(route, handle) {
       route(handle, pathname, response, postData);
     });
   }
-  var server;
+  if(server!==undefined){
+    return;
+  }
   if (config.ISSECURE === true){
     try{
       var options = {
@@ -44,8 +49,11 @@ function start(route, handle) {
   server.listen(config.SERVERPORT);
 
   //Start the webSocketServer for path /ws
+  if(wsServer!==undefined){
+    return;
+  }
   var WebSocketServer = require('ws').Server;
-  var wsServer = new WebSocketServer({server: server, path: config.WEBSOCKETPATH});
+  wsServer = new WebSocketServer({server: server, path: config.WEBSOCKETPATH});
   wsServer.on('connection', function(client) {
     client.send(JSON.stringify({
       msg: 'This is a message from the server! ' + new Date().getTime(),
@@ -63,9 +71,28 @@ function start(route, handle) {
   });
   wsServerInstance = wsServer;
   config.riolog("Server has started.");
+  callback(true);
 }
 
 exports.start = start;
+
+function close(callback){
+  try{
+    if(wsServer!==undefined){
+      wsServer.close();
+      wsServer=undefined;
+    }
+    if(server!==undefined){
+      server.close();
+      server=undefined;
+    }
+    callback(true);
+  }catch(e){
+    callback(false);
+  }
+}
+
+exports.close=close;
 
 var wsServerInstance = null;
 function getWSServer() {

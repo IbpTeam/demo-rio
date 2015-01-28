@@ -100,20 +100,39 @@ exports.registerIMApp = registerIMApp;
  *  一个消息接收端口，用于通信，收到的消息交付registerApp函数
  *  注册的回调函数处理
  *
- * @param StartCb
+ * @param startCb
  *   回调函数，用来表示开启监听服务的状态
  *  @cbparam1
  *   bool, 表示服务开启是否成功，若成功则为true，否则为false
  * 
- * @param Flag
+ * @param flag
  *   string 表示是否开启加密状态服务
  *   若加密则为true，否则为false
  *
  */
-function startIMService(StartCb,Flag) {
-  IM.startIMService(StartCb,flag);
+function startIMService(startCb,flag) {
+  IM.startIMService(startCb,flag);
 }
 exports.startIMService = startIMService;
+/**
+ * @method closeIMService
+ *  该函数用来关闭本机接收即时通信消息监听服务
+ *
+ * @param closeCb
+ *   回调函数，用来表示关闭监听服务的状态
+ *  @cbparam1
+ *   bool, 表示服务关闭是否成功，若成功则为true，否则为false
+ * 
+ * @param flag
+ *   string 表示是否关闭加密状态服务
+ *   若加密则为true，否则为false
+ *
+ */
+function closeIMService(closeCb,flag) {
+  IM.closeIMService(closeCb,flag);
+}
+exports.closeIMService = closeIMService;
+
 
 /**
  * @method sendAppMsg
@@ -214,7 +233,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   if (MsgObj.rsaflag === "true") {
     IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(flag){
+      if(flag&&rstMsg!==undefined){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -227,7 +246,7 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   } else {
     IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(flag){
+      if(flag&&rstMsg!==undefined){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -306,7 +325,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
       len -= 1;
       if (countFlag === len) {
         SentCallBack(msgRst);
-        if(flag){
+        if(flag&&msgRst!==undefined){
           msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
           if(msgRst.MsgObj===undefined){
             msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
@@ -333,8 +352,8 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             if (msgRst === undefined)
               msgRst = msg;
             if ((++countFlag) === len) {
-              SentCallBack(msg);
-              if(flag){
+              SentCallBack(msgRst);
+              if(flag&&msgRst!==undefined){
                 msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
                 router.wsNotify({
                   'Action': 'notify',

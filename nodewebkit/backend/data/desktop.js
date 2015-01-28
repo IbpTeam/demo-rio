@@ -1624,7 +1624,7 @@ function moveToDesktopSingle(sFilePath, callback) {
     console.log(_err);
     return callback(_err, null);
   }
-  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resources\/[a-z]+\/data\//gi;
+  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resource\/[a-z]+\/data\//gi;
   var category = utils.getCategoryByPath(sFilePath).category;
   if (reg_isLocal.test(sFilePath)) { //target file is from local
     var sCondition = ["path = '" + sFilePath + "'"];
@@ -2217,7 +2217,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  **/
 function createFile(sContent, callback) {
   var date = new Date();
-  var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
+  var filename = '新建文本文档_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
   exec("touch " + desPath, function(err, stdout, stderr) {
     if (err) {

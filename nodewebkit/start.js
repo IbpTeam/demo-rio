@@ -12,29 +12,26 @@
 
 var initRio = require("./backend/initRio");
 var config = require("./backend/config");
+var initRio = require("./backend/initRio");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
 var uniqueID=require('./backend/uniqueID');
-var device = require("./backend/data/device");
+var device;
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
-var cryptoApp= require('./backend/crypto_app');
 var appManager = require('./backend/app/appManager');
 var IM = require("./backend/IM/IM");
 //var process = require('process');
 
-var handle = {}
+var handle = {};
+exports.handle=handle;
 
 // @const
 var HOME_DIR = "/home";
-var DEMO_RIO = ".demo-rio";
-var CONFIG_JS = "config.js";
-var UNIQUEID_JS = "uniqueID.js";
-var DATABASENAME = "rio.sqlite3";
 var NETLINKSTATUS = ".netlinkstatus"
 
 var startonce = false;
@@ -47,23 +44,10 @@ function startApp(){
   if (startonce === true){
     return;
   }
-  cryptoApp.generateKeypairCtn(function(done) {
-    if (done)
-      console.log('create rsa keypair success!');
-    else
-      console.log('create rsa keypair failed!!!');
-  });
-  cryptoApp.initServerPubKey(function(done) {
-  if (done)
-    console.log('init server pubkey success!');
-  else
-    console.log('init server pubkey failed!!!');
- });
+
   startonce = true;
   config.SERVERNAME = os.hostname();
-  var sFullPath = path.join(HOME_DIR, process.env['USER'], DEMO_RIO);
-  config.USERCONFIGPATH = sFullPath;
-  config.DATABASEPATH = path.join(config.USERCONFIGPATH,DATABASENAME);
+  var sFullPath = config.USERCONFIGPATH;
   util.log('mkdir ' + sFullPath);
   fs.exists(sFullPath,function(rioExists){
     if(!rioExists){
@@ -75,8 +59,12 @@ function startApp(){
     }
     initializeApp(sFullPath);
   });
-  server.start(router.route, handle);
-  IM.startIMService(function(){},false);
+  server.start(function(done){
+    console.log('http server 8888 and WebSocketServer Start  SERVER'+done);
+  },router.route, handle);
+  IM.startIMService(function(done){
+    console.log('IM 7777 Start  SERVER'+done);
+  },false);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
@@ -86,19 +74,11 @@ function startApp(){
  *    initialize config/uniqueid.js.
  **/
 function initializeApp(sFullPath) {
-  config.USERCONFIGPATH = sFullPath;
-  var sUniqueIDPath = path.join(config.USERCONFIGPATH, UNIQUEID_JS);
-  var sDatabasePath = path.join(config.USERCONFIGPATH, DATABASENAME);
+  var sUniqueIDPath = path.join(config.USERCONFIGPATH, config.UNIQUEID_JS);
+  var sDatabasePath = config.DATABASEPATH;
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
+  device = require("./backend/data/device");
   console.log("UniqueID Path is : " + sUniqueIDPath);
-    /*
-     * TODO: desktop config part is not working now, will fix it later
-     */
-    // desktopConf.initConf(function(result) {
-    //   if (result !== "success") {
-    //     console.log("init config error");
-    //     return;
-    //   }
   fs.exists(sUniqueIDPath, function(uniqueExists) {
     if (!uniqueExists) {
       console.log("UniqueID.js is not exists, start to set sys uid.");
@@ -112,27 +92,6 @@ function initializeApp(sFullPath) {
     config.ACCOUNT  = require(sUniqueIDPath).Account;
     setSysUid(deviceID, sUniqueIDPath, function() {
       device.startDeviceDiscoveryService();
-      /***************
-      /*Temporary delete 
-      ****************/
-      /*fs.exists(sNetLinkStatusPath, function(netlinkExists) {
-        if (!netlinkExists) {
-          cp.exec('touch ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-            util.log("touch .netlinkstatus");
-            config.NETLINKSTATUSPATH = sNetLinkStatusPath;
-            cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-              util.log(sNetLinkStatusPath);
-              filesHandle.monitorNetlink(sNetLinkStatusPath);
-              });
-          });
-        } else {
-          config.NETLINKSTATUSPATH = sNetLinkStatusPath;
-          cp.exec('./node_modules/netlink/netlink ' + sNetLinkStatusPath, function(error, stdout, stderr) {
-            util.log(sNetLinkStatusPath);
-            filesHandle.monitorNetlink(sNetLinkStatusPath);
-          });
-        }
-      });*/
     });
   });
   // init HTML5 app manager

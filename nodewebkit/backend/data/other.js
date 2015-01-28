@@ -204,6 +204,32 @@ function recoverByUri(uri, callback){
 exports.recoverByUri = recoverByUri;
 
 /**
+ * @method confirmRm
+ *    confirmRm.
+ * @param uri
+ *    The document's URI.
+ * @param callback
+ *    Callback
+ */
+function confirmRm(uri, callback) {
+  getByUri(uri, function(items) {
+    //Remove real file
+    fs.unlink(items[0].path, function(err) {
+      if (err) {
+        console.log(err);
+        callback("error");
+      } else {
+        //Remove Des file
+        //Delete in db
+        //Git commit
+        commonHandle.cfremoveFile(CATEGORY_NAME, items[0], callback);
+      }
+    });
+  });
+}
+exports.confirmRm = confirmRm;
+
+/**
  * @method getByUri
  *    Get document info in db.
  * @param uri
