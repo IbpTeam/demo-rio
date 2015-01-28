@@ -1011,52 +1011,45 @@ function buildAppMethodInfo(targetFile, callback) {
     var reg_rsc = new RegExp(RESOURCEPATH);
     var reg_trash = new RegExp('/.local/share/Trash/');
     var listContent_ = {};
-    function dobuild(listContent,filepath){
-              if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
-          fs.open(filepath, 'r', function(err,fd) {
-            if (err) {
-              console.log('pass .list or .cache file ...', filepath);
-              var isEnd = (count === lens - 1);
-              if (isEnd) {
-                var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
-                var sListContent = JSON.stringify(listContent, null, 4);
-                fs.writeFile(outPutPath, sListContent, function(err) {
-                  if (err) {
-                    console.log(err);
-                    return callback(err, null);
-                  }
-                  return callback(null, 'success');
-                })
-              }
-              count++;
-            }
-            if(fd) fs.closeSync(fd);
-            deParseListFile(listContent, filepath, function(err) {
-              if (err) {
-                return callback(err, null);
-              }
-              var isEnd = (count === lens - 1);
-              if (isEnd) {
-                var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
-                var sListContent = JSON.stringify(listContent, null, 4);
-                fs.writeFile(outPutPath, sListContent, function(err) {
-                  if (err) {
-                    console.log(err);
-                    return callback(err, null);
-                  }
-                  callback(null, 'success');
-                })
-              }
-              count++;
-            })
-          })
-        } else {
-          count++;
+
+    function done(listContent_, callback_) {
+      var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
+      var sListContent = JSON.stringify(listContent_, null, 4);
+      fs.writeFile(outPutPath, sListContent, function(err) {
+        if (err) {
+          console.log(err);
+          return callback_(err, null);
         }
+        return callback_(null, 'success');
+      })
+    }
+
+    function dobuild(listContent, filepath, isEnd) {
+      if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
+        fs.open(filepath, 'r', function(err, fd) {
+          if (err) {
+            console.log('pass .list or .cache file ...', filepath);
+          }
+          if (fd) fs.closeSync(fd);
+          deParseListFile(listContent, filepath, function(err) {
+            if (err) {
+              return callback(err, null);
+            }
+            if (isEnd) {
+              return done(listContent, callback);
+            }
+          })
+        })
+      } else {
+        if (isEnd) {
+          return done(listContent, callback);
+        }
+      }
     }
     for (var i = 0; i < lens; i++) {
       var item = result[i];
-      dobuild(listContent_,item);
+      var isEnd = (i == lens - 1);
+      dobuild(listContent_, item, isEnd);
     }
   })
 }
