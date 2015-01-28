@@ -16,9 +16,10 @@ $(document).ready(function(){
       var search = window.location.search.substr(1),
           tmps = search.split('&');
       WDC.AppID = tmps[0].split('=')[1];
-      var sParam = (typeof tmps[1] === 'undefined') ? null : tmps[1];
+      var sParam = (typeof tmps[1] === 'undefined') ? 
+            null : tmps[1].replace(/%20/g, ' ').replace(/%22/g, '"').replace(/%27/g, "'");
       onStart(sParam);
-    }catch(e){
+    } catch(e) {
       console.log("Warning: onStart should be supported :" + e.stack);
     }
   }

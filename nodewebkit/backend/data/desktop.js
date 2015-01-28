@@ -1018,25 +1018,25 @@ function findAllDesktopFiles(callback) {
     throw 'Bad type for callback';
   var systemType = os.type();
   if (systemType === "Linux") {
-    var xdgDataDir = [];
-    var sAllDesktop = "";
-    var sTarget = '*.desktop';
-    var sBoundary = "'/usr/share/applications|/usr/local/share/applications'";
-    var sLimits = ' | egrep ' + sBoundary
-    var sCommand = 'locate ' + sTarget + sLimits;
-    var optional = {
-      maxBuffer: 1000 * 1024
-    };
-    exec(sCommand, function(err, stdout, stderr) {
-      if (err) {
-        console.log(stderr);
-        console.log(err, stdout, stderr);
-        return callback(err, null);
+    var oFileList = [];
+    try {
+      var oList_share = fs.readdirSync('/usr/share/applications');
+      var oList_local_share = fs.readdirSync('/usr/local/share/applications');
+    } catch (err) {
+      return callback(err, null);
+    }
+    var reg_desktop = /\.desktop$/;
+    for (var k = 0; k < oList_share.length; k++) {
+      if (reg_desktop.test(oList_share[k])) {
+        oFileList.push(pathModule.join('/usr/share/applications', oList_share[k]));
       }
-      //stdout = stdout.split('\n')
-      console.log(stdout)
-      callback(null, stdout);
-    })
+    }
+    for (var k = 0; k < oList_local_share.length; k++) {
+      if (reg_desktop.test(oList_local_share[k])) {
+        oFileList.push(pathModule.join('/usr/local/share/applications', oList_local_share[k]));
+      }
+    }
+    callback(null, oFileList);
   } else {
     console.log("Not a linux system! Not supported now!")
   }
@@ -1051,7 +1051,7 @@ function buildLocalDesktopFile(callback) {
       console.log(err);
       return;
     }
-    var oFiles = result.split('\n');
+    var oFiles = result;
     var count = 0;
     var lens = oFiles.length;
     var oRealFiles = [];
@@ -1767,9 +1767,9 @@ exports.moveToDesktop = moveToDesktop;
 
 function doCreateData(sFilePath, category, callback) {
   var cate = utils.getCategoryObject(category);
-  cate.createData(sFilePath, function(err, result, resultFile) {
+  cate.createData(sFilePath, function(err, resultFile) {
     if (err) {
-      console.log(err, resultFile, result);
+      console.log(err, resultFile);
       return callback(err, null);
     }
     var sCondition = ["path = '" + resultFile + "'"];

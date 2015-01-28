@@ -108,7 +108,7 @@ function loadFile(loadFileCb, sFilePath) {
     cate.initContacts(loadFileCb, sFilePath);
   } else {
     var category = utils.getCategoryByPath(sFilePath).category;
-    var cate = utils.get.getCategoryObject(category);
+    var cate = utils.getCategoryObject(category);
     cate.createData(sFilePath, function(err, resultFilePath) {
       if (err) {
         console.log(err);
