@@ -1024,7 +1024,7 @@ function buildAppMethodInfo(targetFile, callback) {
       })
     }
 
-    function dobuild(listContent, filepath, isEnd) {
+    function dobuild(listContent, filepath, _isEnd) {
       if (!reg_rsc.test(filepath) && !reg_trash.test(filepath)) {
         fs.open(filepath, 'r', function(err, fd) {
           if (err) {
@@ -1035,13 +1035,13 @@ function buildAppMethodInfo(targetFile, callback) {
             if (err) {
               return callback(err, null);
             }
-            if (isEnd) {
+            if (_isEnd) {
               return done(listContent, callback);
             }
           })
         })
       } else {
-        if (isEnd) {
+        if (_isEnd) {
           return done(listContent, callback);
         }
       }
@@ -1216,7 +1216,7 @@ function buildLocalDesktopFile(callback) {
     var oRealFiles = [];
     var oDesFiles = [];
 
-    function doBuild(_sFileOriginPath) {
+    function doBuild(_sFileOriginPath, _isEnd) {
       var reg_rsc = new RegExp(RESOURCEPATH);
       var reg_trash = new RegExp('/.local/share/Trash/');
       //Check if file come from local or Trash box, redundant.
@@ -1226,41 +1226,38 @@ function buildLocalDesktopFile(callback) {
         fs.stat(_sFileOriginPath, function(err, stat) {
           if (err || stat.size == 0) {
             console.log('pass desktop file...', _sFileOriginPath)
-            var isEnd = (count === lens - 1);
-            if (isEnd) {
+            if (_isEnd) {
               callback();
             }
-            count++;
           } else {
             utils.copyFile(_sFileOriginPath, newPath, function(err) {
               if (err) {
                 console.log('pass desktop file...', sFileName);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
+                if (_isEnd) {
                   callback();
                 }
-                count++;
               } else {
                 oRealFiles.push(newPath);
                 oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md');
                 buildDesFile(sFileName, 'desktop', newPath, function() {
-                  var isEnd = (count === lens - 1);
-                  if (isEnd) {
+                  if (_isEnd) {
                     callback();
                   }
-                  count++;
                 })
               }
             })
           }
         })
       } else {
-        count++;
+        if (_isEnd) {
+          callback();
+        }
       }
     }
     for (var i = 0; i < lens; i++) {
       var sFileOriginPath = oFiles[i];
-      doBuild(sFileOriginPath);
+      var isEnd = (i == lens - 1);
+      doBuild(sFileOriginPath, isEnd);
     }
   })
 }
