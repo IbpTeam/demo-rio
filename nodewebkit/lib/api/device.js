@@ -76,29 +76,29 @@ function removeDeviceListenerFromObj(id){
 }
 exports.removeDeviceListenerFromObj = removeDeviceListenerFromObj;
 
-function callDeviceListener(type, args){
-  for(index in deviceListeners){
-    deviceListeners[index](type, args);
+function callDeviceListener(type, obj){
+  //This is the second filter, the first filter in function startServiceBrowser
+  if(obj.aprotocol === 0){
+    for(index in deviceListeners){
+      deviceListeners[index](type, obj);
+    }
   }
 }
-function callDeviceListenerObj(type, args){
-  for(index in deviceListenersObj){
-    deviceListenersObj[index](type, args);
+function callDeviceListenerObj(type, obj){
+  //This is the second filter, the first filter in function startServiceBrowser
+  if(obj.aprotocol === 0){
+    switch(type){
+      case "ItemNew":      
+        deviceList[obj.name] = obj;
+        break;
+      case "ItemRemove":
+        break;
+    }
+    for(index in deviceListenersObj){
+      deviceListenersObj[index](type, obj);
+    }
   }
 }
-/**
- * @method showDeviceList
- *  显示当前设备列表 
- *
- * @param1 showDeviceListCb
- *   回调函数
- *  @object{address: object{interface,protocol,name,stype,domain,host,aprotocol,address,port,txt,flags}}
- *
- */
-function showDeviceList(showDeviceListCb){
-  showDeviceListCb(deviceList);
-}
-exports.showDeviceList = showDeviceList;
 
 function deleteADevice(name){
   var obj;
@@ -115,6 +115,21 @@ function deleteADevice(name){
   }
   return null;
 }
+
+/**
+ * @method showDeviceList
+ *  显示当前设备列表 
+ *
+ * @param1 showDeviceListCb
+ *   回调函数
+ *  @object{address: object{interface,protocol,name,stype,domain,host,aprotocol,address,port,txt,flags}}
+ *
+ */
+function showDeviceList(showDeviceListCb){
+  showDeviceListCb(deviceList);
+}
+exports.showDeviceList = showDeviceList;
+
 
 /**
  * @method entryGroupCommit
@@ -196,6 +211,7 @@ function createServer(devicePublishCb){
     }
     iface.ResolveService['timeout'] = 2000;
     iface.ResolveService['finish'] = function(result) {
+      //all elements of resolved service.
       obj = new Object();
       obj.interface = result[0];
       obj.protocol = result[1];
@@ -210,10 +226,9 @@ function createServer(devicePublishCb){
       txt = new Array();
       for(var i=0; i<txtorig.length; i++){
         txt.push(arrayToString(txtorig[txtorig.length-i-1]));
-       }
+      }
       obj.txt = txt;
       obj.flags  = result[10];
-      deviceList[obj.address] = obj;
       callDeviceListenerObj('ItemNew', obj);
     };
   });
@@ -231,10 +246,10 @@ function startEntryGroup(path, devicePublishCb){
     iface.AddService['timeout'] = 2000;
     iface.AddService['error'] = function(err) {
       console.log(err);
-     }
+    }
     iface.AddService['finish'] = function(arg) {
  //     console.log('finish add service.');
-     }
+    }
 
     devicePublishCb();
   });  
@@ -249,7 +264,7 @@ function startServiceBrowser(path){
     }
     serviceBrowser = iface;
     iface.on('ItemNew', function(arg) {
-    if(arguments[1] != 1){// && arguments[2] == 'demo-rio'
+    if(arguments[1] == 0){
       server.ResolveService(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], -1, 0);
       //server.ResolveService(2, 1, 'TestService', '_http._tcp', 'local', -1, 0);
     }
@@ -261,7 +276,7 @@ function startServiceBrowser(path){
       var type = arguments[3];
       var domain = arguments[4];
       var flags = arguments[5];
-      if(arguments[1] != 1){//&& arguments[2] == 'demo-rio'
+      if(arguments[1] == 0){
         callDeviceListenerObj('ItemRemove', deleteADevice(name));
       }
     });
