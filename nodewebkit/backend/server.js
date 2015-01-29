@@ -29,7 +29,8 @@ function start(callback,route, handle) {
       route(handle, pathname, response, postData);
     });
   }
-  if(server!==undefined){
+  if(server!==undefined&&wsServer!==undefined){
+    callback(true);
     return;
   }
   if (config.ISSECURE === true){
@@ -49,9 +50,6 @@ function start(callback,route, handle) {
   server.listen(config.SERVERPORT);
 
   //Start the webSocketServer for path /ws
-  if(wsServer!==undefined){
-    return;
-  }
   var WebSocketServer = require('ws').Server;
   wsServer = new WebSocketServer({server: server, path: config.WEBSOCKETPATH});
   wsServer.on('connection', function(client) {

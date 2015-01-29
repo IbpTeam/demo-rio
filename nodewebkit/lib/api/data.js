@@ -45,7 +45,11 @@ exports.startServer=startServer;
  *
  */
 function closeServer(cb_){
-  server.close(cb_);
+  server.close(function(done){
+    if(done)
+      router.eventListClear();
+    cb_(done);
+  });
 }
 exports.closeServer=closeServer;
 
