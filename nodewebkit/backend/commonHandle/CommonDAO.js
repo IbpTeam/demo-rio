@@ -9,7 +9,6 @@
  *
  * @version:0.2.1
  **/
-//var imchat = require("../IM/IMChat.js");
 var config = require("../config");
 var uniqueID = require("../uniqueID");
 var sqlite3 = require('sqlite3');
@@ -298,7 +297,7 @@ exports.deleteItem = function(item,callback){
     });
   }
   sSqlStr = sSqlStr + sCondStr;
-  //console.log("DELETE Prepare SQL is : "+sSqlStr);
+  console.log("DELETE Prepare SQL is : "+sSqlStr);
 
   //If db is busy, push sql string into array,
   //else run it.
@@ -557,7 +556,7 @@ exports.findItems = function(columns,tables,conditions,extras,callback){
 
   // Make query string
   sQueryStr = sColStr + sTablesStr + sCondStr + sExtraStr;
-  //console.log("SELECT Prepare SQL is :" + sQueryStr);
+  console.log("SELECT Prepare SQL is :" + sQueryStr);
 
   // Runs the SQL query
   allSQL(sQueryStr,callback);

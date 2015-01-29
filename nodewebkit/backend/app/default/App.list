@@ -1,12 +1,4 @@
 {
-  "sina-app": {
-    "id": "sina-app",
-    "path": "demo-webde/nw/app/test-app"
-  },
-  "wiki-app": {
-    "id": "wiki-app",
-    "path": "demo-webde/nw/app/wiki-app"
-  },
   "datamgr-app": {
     "id": "datamgr-app",
     "path": "demo-rio/newdatamgr"
@@ -22,5 +14,13 @@
   "music-app": {
     "id": "music-app",
     "path": "demo-webde/nw/app/music"
+  },
+  "app-server-setting":{
+    "id": "app-server-setting",
+    "path": "demo-webde/nw/app/server-setting"
+  },
+  "app-viewerPDF": {
+    "id": "app-viewerPDF",
+    "path": "demo-rio/viewerPDF"
   }
 }

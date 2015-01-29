@@ -23,7 +23,7 @@ var MainDocView = Class.extend({
     this._docTitleContent.append(this._docTitleTag);
     this._docTitleText = $('<span>',{
       'id': 'doc-title-text',
-      'text': 'Documents'
+      'text': '文档'
     })
     this._docTitleContent.append(this._docTitleText);
     this._docSelectDiv = $('<div>',{

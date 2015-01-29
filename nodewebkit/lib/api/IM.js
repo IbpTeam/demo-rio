@@ -1,6 +1,6 @@
 var FuncObj = require("../../backend/IM/FuncObj.js");
+var IM = require("../../backend/IM/IM.js");
 var IMNoRsa = require("../../backend/IM/IMChatNoRSA.js");
-var IMRsa = require("../../backend/IM/IMChat.js");
 var config = require("../../backend/config.js");
 var router = require('../../backend/router.js');
 var net = require('net');
@@ -9,7 +9,6 @@ var fileTransferServer = require("../../backend/IM/file-trans/fileTransferServer
 var fileTransferClient= require("../../backend/IM/file-trans/fileTransferClient");
 var crypto = require('crypto');
 
-var Port = 7777;
 var fileServer;
 var pathMap;
 
@@ -101,34 +100,39 @@ exports.registerIMApp = registerIMApp;
  *  一个消息接收端口，用于通信，收到的消息交付registerApp函数
  *  注册的回调函数处理
  *
- * @param StartCb
+ * @param startCb
  *   回调函数，用来表示开启监听服务的状态
  *  @cbparam1
  *   bool, 表示服务开启是否成功，若成功则为true，否则为false
  * 
- * @param Flag
+ * @param flag
  *   string 表示是否开启加密状态服务
  *   若加密则为true，否则为false
  *
  */
-function startIMService(StartCb,Flag) {
-  try {
-    if (Flag === "true") {
-      IMRsa.initIMServer(Port, function(AppType,msgobj){
-        FuncObj.takeMsg(AppType,msgobj);
-      });
-    }else{
-      IMNoRsa.initIMServerNoRSA(Port, function(AppType, msgobj) {
-      FuncObj.takeMsg(AppType, msgobj);
-    });
-    } 
-    StartCb(true);
-  } catch (err) {
-    console.log(err);
-    StartCb(false);
-  }
+function startIMService(startCb,flag) {
+  IM.startIMService(startCb,flag);
 }
 exports.startIMService = startIMService;
+/**
+ * @method closeIMService
+ *  该函数用来关闭本机接收即时通信消息监听服务
+ *
+ * @param closeCb
+ *   回调函数，用来表示关闭监听服务的状态
+ *  @cbparam1
+ *   bool, 表示服务关闭是否成功，若成功则为true，否则为false
+ * 
+ * @param flag
+ *   string 表示是否关闭加密状态服务
+ *   若加密则为true，否则为false
+ *
+ */
+function closeIMService(closeCb,flag) {
+  IM.closeIMService(closeCb,flag);
+}
+exports.closeIMService = closeIMService;
+
 
 /**
  * @method sendAppMsg
@@ -167,9 +171,9 @@ function sendAppMsg(SentCallBack, MsgObj) {
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
-    IMRsa.sendMSGbyUID(ipset,MsgObj.Account,MsgObj.Msg,Port,MsgObj.App,SentCallBack);
+
   }else{
-    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, SentCallBack);
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, SentCallBack);
   }
 }
 exports.sendAppMsg = sendAppMsg;
@@ -227,9 +231,9 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
   ipset["IP"] = MsgObj.IP;
   ipset["UID"] = MsgObj.UID;
   if (MsgObj.rsaflag === "true") {
-    IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+    IMRsa.sendMSGbyUID(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(flag){
+      if(flag&&rstMsg!==undefined){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -240,9 +244,9 @@ function sendAppMsgByDevice(SentCallBack, MsgObj,wsID,flag) {
       }
     });
   } else {
-    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, Port, MsgObj.App, function(rstMsg){
+    IMNoRsa.sendMSGbyUIDNoRSA(ipset, MsgObj.Account, MsgObj.Msg, MsgObj.App, function(rstMsg){
       SentCallBack(rstMsg);
-      if(flag){
+      if(flag&&rstMsg!==undefined){
         rstMsg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
         router.wsNotify({
           'Action': 'notify',
@@ -321,7 +325,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
       len -= 1;
       if (countFlag === len) {
         SentCallBack(msgRst);
-        if(flag){
+        if(flag&&msgRst!==undefined){
           msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
           if(msgRst.MsgObj===undefined){
             msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
@@ -342,29 +346,14 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
         ipset["IP"] = accSetItem.toIP;
         ipset["UID"] = accSetItem.toUID;
         if (MsgObj.rsaflag === "true") {
-          IMRsa.sendMSGbyUID(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
-            if (msgRst === undefined)
-              msgRst = msg;
-            if ((++countFlag) === len) {
-              SentCallBack(msg);
-              if(flag){
-                msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
-                router.wsNotify({
-                  'Action': 'notify',
-                  'Event': 'imChat',
-                  'Data': msg,
-                  'SessionID':wsID
-                });
-              }    
-            }
-          });
+
         } else {
-          IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, Port, MsgObj.App, function(msg) {
+          IMNoRsa.sendMSGbyUIDNoRSA(ipset, accSetItem.toAccount, MsgObj.Msg, MsgObj.App, function(msg) {
             if (msgRst === undefined)
               msgRst = msg;
             if ((++countFlag) === len) {
-              SentCallBack(msg);
-              if(flag){
+              SentCallBack(msgRst);
+              if(flag&&msgRst!==undefined){
                 msg['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
                 router.wsNotify({
                   'Action': 'notify',

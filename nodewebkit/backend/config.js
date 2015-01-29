@@ -21,6 +21,9 @@ exports.DATABASEPATH = DATABASEPATH;
 var UNIQUEID_JS = "uniqueID.js";
 exports.UNIQUEID_JS = UNIQUEID_JS;
 
+var DOWNLOADPATH = path.join(BASEPATH, '.download');
+exports.DOWNLOADPATH = DOWNLOADPATH;
+
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
 
@@ -83,6 +86,8 @@ var FILEPORT=8080;
 exports.FILEPORT=FILEPORT;
 var MDNSPORT=8889;
 exports.MDNSPORT = MDNSPORT;
+var IMPORT=7777;
+exports.IMPORT=IMPORT;
 //SERVERIP has been decpreted, you should use config.getIPAddress();
 var SERVERIP=getIPAddress();
 exports.SERVERIP = SERVERIP;

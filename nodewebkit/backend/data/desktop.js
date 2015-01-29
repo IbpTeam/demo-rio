@@ -14,11 +14,8 @@ var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
-var desFilesHandle = require("../commonHandle/desFilesHandle");
 var tagsHandle = require("../commonHandle/tagsHandle");
 var utils = require('../utils');
 var util = require('util');
@@ -28,19 +25,13 @@ var chokidar = require('chokidar');
 var exec = require('child_process').exec;
 
 var CATEGORY_NAME = "desktop";
-var DES_NAME = "desktopDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var REAL_APP_DIR = pathModule.join(REAL_DIR, 'applications');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
-var DES_APP_DIR = pathModule.join(DES_DIR, 'applications');
 var THEME_PATH = pathModule.join(REAL_DIR, 'Theme.conf');
-var THEME_DES_PATH = pathModule.join(DES_DIR, 'Theme.conf.md');
 var WIGDET_PATH = pathModule.join(REAL_DIR, 'Widget.conf');
-var WIGDET_DES_PATH = pathModule.join(DES_DIR, 'Widget.conf.md');
 var RESOURCEPATH = config.RESOURCEPATH;
 var CONFIG_PATH = pathModule.join(config.RESOURCEPATH, "desktop");
+
 
 function getnit(initType) {
   if (initType === "theme") {
@@ -91,56 +82,31 @@ function getnit(initType) {
     }
     var _datamgr_app = {}
     _datamgr_app.id = "datamgr-app";
-    _datamgr_app.path = 'demo-rio/datamgr'; //change 'WORK_DIRECTORY' into local.
+    _datamgr_app.path = '../app/newdatamgr'; //change 'WORK_DIRECTORY' into local.
     _datamgr_app.iconPath = 'icons/datamgr.png';
     _datamgr_app.name = "数据管理器";
     _datamgr_app.type = "inside-app";
 
     var _launcher_app = {}
     _launcher_app.id = "launcher-app";
-    _launcher_app.path = "demo-webde/nw";
+    _launcher_app.path = "./";
     _launcher_app.iconPath = "img/launcher.png";
     _launcher_app.name = "应用启动器";
     _launcher_app.type = "inside-app";
     _launcher_app.idx = 0;
 
-    var _login_app = {}
-    _login_app.id = "login-app";
-    _login_app.path = "demo-webde/nw";
-    _login_app.iconPath = "img/Login-icon.png";
-    _login_app.name = "登录";
-    _login_app.type = "inside-app";
-    _login_app.idx = 1;
-
     var _flash_app = {}
     _flash_app.id = "flash-app";
-    _flash_app.path = "demo-webde/nw/app/flash";
+    _flash_app.path = "app/flash";
     _flash_app.iconPath = "img/video.png";
     _flash_app.name = "视频播放器";
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
-
-    var _test_app = {}
-    _test_app.id = "test-app";
-    _test_app.path = "demo-webde/nw/app/test-app";
-    _test_app.iconPath = "img/test-app2.png";
-    _test_app.name = "新浪NBA";
-    _test_app.type = "inside-app";
-    _test_app.idx = -1;
-
-    var _wiki_app = {}
-    _wiki_app.id = "wiki-app";
-    _wiki_app.path = "demo-webde/nw/app/wiki-app";
-    _wiki_app.iconPath = "img/icon.jpg";
-    _wiki_app.name = "维基百科";
-    _wiki_app.type = "inside-app";
-    _wiki_app.idx = -1;
-
     var result = {}
     result.layout = {
       "type": "grid",
-      "num": 3,
+      "num": 1,
       "main": 0,
       "widget": [{
         "plugin": {
@@ -150,26 +116,21 @@ function getnit(initType) {
         "insideApp": {
           "datamgr-app": _datamgr_app,
           "launcher-app": _launcher_app,
-          "login-app": _login_app,
           "flash-app": _flash_app,
         }
-      }, {
-        "insideApp": {
-          "test-app": _test_app
-        },
+      }, 
+      {
         "plugin": {},
         "dentry": {}
-      }, {
-        "insideApp": {
-          "wiki-app": _wiki_app
-        },
+      }, 
+      {
         "plugin": {},
         "dentry": {}
-      }]
+      }
+      ]
     }
     result.dock = {
       "launcher-app": _launcher_app,
-      "login-app": _login_app
     }
   }
   return result;
@@ -222,26 +183,15 @@ function initDesktop(callback) {
             var pathWidget = path + "/Widget.conf";
             var sItemTheme = JSON.stringify(tmpThemw, null, 4);
             var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-            var sThemeDesDir = pathModule.join(DES_DIR, 'Theme.conf.md');
-            var sWidgetDesDir = pathModule.join(DES_DIR, 'Widget.conf.md');
             var sRealDir = [];
-            var sDesDir = [];
             fs.open(pathTheme, 'r', function(err, fd) {
               if (err) {
                 fs_extra.outputFileSync(pathTheme, sItemTheme);
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
-                buildDesFile('Theme', 'conf', pathTheme, function() {
-                  buildDesFile('Widget', 'conf', pathWidget, function() {
-                    resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, [pathTheme, pathWidget], [sThemeDesDir, sWidgetDesDir], function(err, result) {
-                      if (err) {
-                        console.log(err)
-                        return callback(err, null);
-                      }
-                    })
-                  })
-                })
               }
-              if(fd) fs.closeSync(fd);
+              if(fd){
+                fs.closeSync(fd);
+              }
               buildLocalDesktopFile(function() {
                 buildAppMethodInfo('defaults.list', function(err, result) {
                   if (err) {
@@ -295,7 +245,7 @@ exports.initDesktop = initDesktop;
  *
  *
  **/
-function readJSONFile(filePath, desFilePath, callback) {
+function readJSONFile(filePath, callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
     fs.readFile(filePath, 'utf8', function(err, data) {
@@ -329,7 +279,7 @@ function readJSONFile(filePath, desFilePath, callback) {
  *
  *
  **/
-function writeJSONFile(filePath, desFilePath, oTheme, callback) {
+function writeJSONFile(filePath, oTheme, callback) {
   var systemType = os.type();
   if (systemType === "Linux") {
     fs.readFile(filePath, 'utf-8', function(err, data) {
@@ -357,20 +307,7 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
           console.log(err);
           callback(err, null);
         } else {
-          var op = 'modify';
-          updateDesFile(op, desFilePath, function(err, result) {
-            if (err) {
-              console.log('update theme des file error!\n', err);
-              callback(err, null);
-            } else {
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
-            }
-          });
+          callback(null, 'success');
         }
       });
     });
@@ -422,19 +359,16 @@ function readConf(callback, sFileName) {
   if (systemType === "Linux") {
     if (sFileName === 'Theme.conf') {
       var sFileDir = THEME_PATH;
-      var sDesFileDir = THEME_DES_PATH;
     } else if (sFileName === 'Widget.conf') {
       var sFileDir = WIGDET_PATH;
-      var sDesFileDir = WIGDET_DES_PATH;
     } else if (sFileName === 'Default.conf') {
       var sFileDir = config.BEFORELOGIN;
-      var sDesFileDir = null;
     } else {
       var _err = 'Error: Not a .conf file!';
       console.log(_err)
       return callback(_err, null);
     }
-    readJSONFile(sFileDir, sDesFileDir, function(err, result) {
+    readJSONFile(sFileDir, function(err, result) {
       callback(err, result);
     })
   } else {
@@ -480,16 +414,14 @@ function writeConf(callback, sFileName, oContent) {
   if (systemType === "Linux") {
     if (sFileName === 'Theme.conf') {
       var sFileDir = THEME_PATH;
-      var sDesFileDir = THEME_DES_PATH;
     } else if (sFileName === 'Widget.conf') {
       var sFileDir = WIGDET_PATH;
-      var sDesFileDir = WIGDET_DES_PATH;
     } else {
       var _err = 'Error: Bad .conf file!';
       console.log(_err)
       return callback(_err, null);
     }
-    writeJSONFile(sFileDir, sDesFileDir, oContent, function(err, result) {
+    writeJSONFile(sFileDir, oContent, function(err, result) {
       callback(err, result);
     })
   } else {
@@ -519,7 +451,7 @@ function writeConf(callback, sFileName, oContent) {
  **/
 function readAppMethod(callback, sFileName) {
   var sFilePath = pathModule.join(REAL_APP_DIR, sFileName);
-  readJSONFile(sFilePath, null, function(err, result) {
+  readJSONFile(sFilePath, function(err, result) {
     callback(err, result);
   })
 }
@@ -1055,88 +987,6 @@ function buildAppMethodInfo(targetFile, callback) {
 }
 
 /** 
- * @Method: buildDesFile
- *    This function is only for building des file for desktop file
- *
- **/
-function buildDesFile(fileName, postfix, newFilePath, callback) {
-  fs.stat(newFilePath, function(err, stat) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var mtime = stat.mtime;
-    var ctime = stat.ctime;
-    var size = stat.size;
-    uniqueID.getFileUid(function(uri) {
-      var itemInfo = {
-        URI: uri + "#" + CATEGORY_NAME,
-        category: CATEGORY_NAME,
-        postfix: postfix,
-        filename: fileName,
-        size: size,
-        path: newFilePath,
-        createTime: ctime,
-        lastModifyTime: mtime,
-        lastAccessTime: ctime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      }
-      var sDesDir = DES_DIR;
-      if (postfix == 'desktop') {
-        sDesDir = pathModule.join(DES_DIR, 'applications');
-      }
-      fs_extra.ensureDir(sDesDir, function() {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        desFilesHandle.createItem(itemInfo, sDesDir, function() {
-          callback();
-        });
-      })
-    });
-  });
-}
-
-function updateDesFile(sOp, sFilePath, callback) {
-  fs.stat(sFilePath, function(err, stat) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var currentTime = (new Date());
-    var size = stat.size;
-    if (sOp == 'modify') {
-      var itemInfo = {
-        size: size,
-        lastModifyTime: currentTime,
-        lastAccessTime: currentTime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      };
-    } else if (sOp == 'access') {
-      var itemInfo = {
-        size: size,
-        lastAccessTime: currentTime,
-        createDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      };
-    }
-    desFilesHandle.updateItem(sFilePath, itemInfo, function(result) {
-      if (result == 'success') {
-        return callback(null, 'success');
-      }
-      var _err = 'update des file error!';
-      return callback(_err, null);
-    })
-  })
-}
-
-
-/** 
  * @Method: findAllDesktopFiles
  *    To find all .desktop files from system. It would echo $XDG_DATA_DIRS
  *    to get all related dirs first, then sreach in those dirs.
@@ -1214,7 +1064,6 @@ function buildLocalDesktopFile(callback) {
     var count = 0;
     var lens = oFiles.length;
     var oRealFiles = [];
-    var oDesFiles = [];
 
     function doBuild(_sFileOriginPath, _isEnd) {
       var reg_rsc = new RegExp(RESOURCEPATH);
@@ -1238,12 +1087,11 @@ function buildLocalDesktopFile(callback) {
                 }
               } else {
                 oRealFiles.push(newPath);
-                oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md');
-                buildDesFile(sFileName, 'desktop', newPath, function() {
-                  if (_isEnd) {
-                    callback();
-                  }
-                })
+                var isEnd = (count === lens - 1);
+                if (isEnd) {
+                   callback();
+                }
+                count++;
               }
             })
           }
@@ -1365,21 +1213,7 @@ function writeDesktopFile(callback, sFileName, oEntries) {
               var _err = "writeDesktopFile : write desktop file error!";
               return callback(err, null);
             }
-            var op = 'modify';
-            var re = new RegExp('/desktop/');
-            var desFilePath = sWritePath.replace(re, '/desktopDes/') + '.md';
-            updateDesFile(op, desFilePath, function() {
-              if (err) {
-                console.log('update ' + sFileName + ' des file error!\n', err);
-                return callback(err, null);
-              }
-              resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, "success");
-              })
-            });
+            callback(null, "success");
           });
         }
         deParseDesktopFile(deParseDesktopFileCb, attr);
@@ -1669,16 +1503,11 @@ exports.moveFile = moveFile;
  **/
 function renameDesktopFile(callback, oldName, newName) {
   var sFilename = oldName + '.desktop';
-  var sDesFilePath = pathModule.join(DES_APP_DIR, oldName + '.desktop.md');
-  var sNewDesFilePath = pathModule.join(DES_APP_DIR, newName + '.desktop.md');
   var oEntries = {
     '[Desktop Entry]': {
       'Name': newName,
       'Name[zh_CN]': newName
     }
-  }
-  var oDesEntries = {
-    filename: newName
   }
 
   function writeDesktopFileCb(err, result) {
@@ -1686,18 +1515,8 @@ function renameDesktopFile(callback, oldName, newName) {
       console.log(err);
       var _err = 'renameDesktopFile: ' + err;
       callback(_err);
-    } else {
-      desFilesHandle.updateItem(sDesFilePath, oDesEntries, function(result) {
-        if (result === "success") {
-          fs_extra.move(sDesFilePath, sNewDesFilePath, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            callback(null, result);
-          })
-        }
-      })
+    } else if (result === "success") {
+      callback(null, result);
     }
   }
   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
@@ -2406,7 +2225,7 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  **/
 function createFile(sContent, callback) {
   var date = new Date();
-  var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
+  var filename = '新建文本文档_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
   exec("touch " + desPath, function(err, stdout, stderr) {
     if (err) {

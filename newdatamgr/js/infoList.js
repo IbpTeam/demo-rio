@@ -2,10 +2,10 @@
 //调用类
 var InfoList = Class.extend({
   init:function(){
-    this._title = ['Contacts','Images','Videos','Documents','Music','Others'];
+    this._title = ['联系人','图片','视频','文档','音乐','其他类型','已删除文件'];
     this._bkgColor = ['rgba(202, 231, 239, 1)','rgba(195, 229, 224, 1)','rgba(208, 226, 208, 1)','rgba(237, 229, 195, 1)','rgba(255, 225, 225, 1)','rgba(224,214,229,1)'];
 
-    this._btmTitle = ['Recent Contacts', 'Recent Visit', 'Recent Watch','Recent Visit','Recent Plays','Recent Visit'];
+    this._btmTitle = ['最近联系', '最近访问', '最近观看','最近访问','最近播放','最近访问','最近删除'];
 
     this._index = -1;
     this._info = {};
@@ -45,10 +45,8 @@ var InfoList = Class.extend({
     this._infoBottomNano = $('<nav>',{
       'class':'nano-content'
     });
-    this._globalSelf;
     this._infoList.append(this._infoBottom);
     this._infoBottom.append(this._infoBottomNano);
-    this._isFirstRequset = true;
     this._inputer = Inputer.create('infoList-inputer');
     this.bindEvent();
     this._firstShowFilterData = true;
@@ -62,7 +60,6 @@ var InfoList = Class.extend({
         }
       }
     });
-    _globalSelf = this ;
   },
   /**
    * [bindEvent bind event include click add button]
@@ -99,13 +96,13 @@ var InfoList = Class.extend({
   },
 
   setIndex:function(index_){
-    if(typeof index_ === 'number' && index_ > 0 && index_ < 8){
+    if(typeof index_ === 'number' && index_ > 0 && index_ < 9){
       this._index = index_-2;
     }
   },
 
   setTitle:function(){
-    if (this._index < 0  || this._index > 5) return 0;
+    if (this._index < 0  || this._index > 6) return 0;
     this._infoList.css('background-color', this._bkgColor[this._index]);
     var _p = this._titleForm.children('p');
     if (_p.length > 0) {
@@ -157,6 +154,8 @@ var InfoList = Class.extend({
         return 'music';
       case 5:
         return 'other';
+      case 6:
+        return 'document';
     }
   },
 
@@ -241,7 +240,17 @@ var InfoList = Class.extend({
             });
             _a.click(function(ev){
               var file=JSON.parse(this.id);
-              basic.openFile(file);
+              if(_this._index == 6){
+                //改成搜索的操作
+              }
+              else if (_this._index == 0){
+                var contactString = file['name'];
+                contact.openContract(contactString);
+              }
+              else{
+                basic.openFile(file);
+                
+              }
             });
             _this._infoBottomNano.append(_a);
           }
@@ -260,7 +269,7 @@ var InfoList = Class.extend({
         contact.removeDetails();
         this.removeTags();
         contact._first = true;
-      } else if(this._index > 0 && this._index < 6){
+      } else if(this._index > 0 && this._index < 7){
         showfiles.showFileByTag([]);
         this.removeTags();
       }
@@ -371,15 +380,8 @@ var InfoList = Class.extend({
   },
 
   loadData:function(){
-    if(this._index >0 && this._index <6){
-      if(this._isFirstRequset){
-        showfiles = ShowFiles.create();
-        showfiles.setIndex(this._index);
-        this._isFirstRequset = false;
-      }
-      else {
-        showfiles.setIndex(this._index);
-      }
+    if(this._index >0 && this._index <7){
+      showfiles.setIndex(this._index);
     }
     if(this._index == 0){
       if(contact._first == true){

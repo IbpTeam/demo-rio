@@ -6,17 +6,16 @@ var ShowFiles = Class.extend({
     this._contextMenuDivID = '';
     this._propertyView = PropertyView.create();
     this._globalSelf;
-    this._globalDir = ['root/Contact','root/Picture','root/Video','root/Document','root/Music','root/Other'];
     this._getFiles = {};
     this._showFilesBytag = false;
     this._showFilesBytagUris = [];
     this._imgReady;
-    this._showNormal = [0,0,0,0,0,0];
+    this._showNormal = [0,0,0,0,0,0,0];
     this._pictureContentReady = false;
-    this._currentCategory = ['contact','picture','video','document','music','other'];
-    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent'];
-    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList'];
-    this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime'];
+    this._currentCategory = ['contact','picture','video','document','music','other','picture'];
+    this._contentIds = ['contact','pictureContent','videoContent','documentContent','musicContent','otherContent','deleteContent'];
+    this._contentIdsList = ['contactList','pictureContentList','videoContentList','documentContentList','musicContentList','otherContentList','deleteContentList'];
+    this._contentIdsSortByTime = ['contactSortByTime','pictureContentSortByTime','videoContentSortByTime','documentContentSortByTime','musicContentSortByTime','otherContentSortByTime','deleteContenSortByTime'];
     this._choice = $('<div>',{
       'id':'choice'
     });
@@ -28,22 +27,25 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this._showContent);
     this.setChoice();
     this.setDataContextMenu();
+    this.setDeletedFilesContextMenu();
+    this._choice.hide();
+    this._showContent.hide();
     _globalSelf = this 
   },
 
   setDocumentContextMenu:function(id_){
     contextMenu.addCtxMenu([
       {header: 'document menu'},
-      {text:'New Text',action:function(){
+      {text:'新建文本文档',action:function(){
 
       }},
-      {text:'New Document',action:function(){
+      {text:'新建文档',action:function(){
 
       }},
-      {text:'New PPT',action:function(){
+      {text:'新建PPT',action:function(){
 
       }},
-      {text:'New Excel',action:function(){
+      {text:'新建Excel',action:function(){
 
       }},
     ]);
@@ -55,44 +57,108 @@ var ShowFiles = Class.extend({
   setDataContextMenu:function(){
     contextMenu.addCtxMenu([
       {header: 'data menu'},
-      {text:'Open',action:function(){
+      {text:'打开',action:function(){
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         var file = basic.findFileByURI(modifyURI,_globalSelf._getFiles[_globalSelf._index]);
         basic.openFile(file);
       }},
-      {text:'Rename',action:function(){
+      {text:'重命名',action:function(){
         _globalSelf.renameFileByDivId(_globalSelf._contextMenuDivID);
       }},
-      {text:'Delete',action:function(){
+      {text:'删除',action:function(){
         var divId = _globalSelf._contextMenuDivID;
         var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
         var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
         _globalSelf.deleteFileByUri(modifyURI);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
       }},
-      {text:'Tag', subMenu:[
+      {text:'标签', subMenu:[
         {header: 'tag'},
-        {text: 'Add',action:function(){
+        {text: '增加',action:function(){
           var _id = _globalSelf._contextMenuDivID;
           var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
           var _target = _globalSelf._showContent.find('#'+_id);
           basic.addTagView(_target,_uri,'no-contact');
         }},
-        {text: 'Remove', action:function(){
+        {text: '删除', action:function(){
           var _id = _globalSelf._contextMenuDivID;
           var _uri= basic.modifyUriToUri(_globalSelf.getModifyUriById(_id));
           var _target = _globalSelf._showContent.find('#'+_id);
           basic.removeTagView(_target,_uri,'no-contact');
         }}
       ]},
-      {text: 'Detail',action:function(){
+      {text: '详细信息',action:function(){
         var _id = _globalSelf._contextMenuDivID;
         var _modifyUri = _globalSelf.getModifyUriById(_id);
         var _file = basic.findFileByURI(_modifyUri,_globalSelf._getFiles[_globalSelf._index]);
         _globalSelf._propertyView.loadData(_file);
         var _img = $('#'+_modifyUri+'div').find('img');
         _globalSelf._propertyView.setImg(_img[0].src);
+      }}
+    ]);
+  },
+
+  deleteDivByDivID:function(divId_){
+    var URILength = divId_.indexOf('trdeleted');
+    if(URILength == -1){
+      URILength = divId_.indexOf('divdeleted');
+    }
+    var modifyURI = divId_.substr(divId_.indexOf('rio'),URILength);
+    $("#"+modifyURI+'divdeleted').remove();
+    $("#"+modifyURI+'trdeleted').remove();
+  },
+
+  getFileByDivID :function(divId_){
+    var URILength = divId_.indexOf('trdeleted');
+    if(URILength == -1){
+      URILength = divId_.indexOf('divdeleted');
+    }
+    var modifyURI = divId_.substr(divId_.indexOf('rio'),URILength);
+    var file;
+    for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
+      var URI = basic.modifyUriToUri(modifyURI);
+      if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == URI){
+        file = _globalSelf._getFiles[_globalSelf._index][i];
+        _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+        break;
+      }
+    }
+    return file;
+  },
+
+
+  setDeletedFilesContextMenu:function(){
+    contextMenu.addCtxMenu([
+      {header: 'deleted file'},
+      {text:'恢复',action:function(){
+        var file = _globalSelf.getFileByDivID(_globalSelf._contextMenuDivID);
+        _globalSelf.refreshByPath(file['path']);
+        //此处只是把当前的展示的文件恢复到本地展示，还需要把后台数据库的文件删除状体进行修改.保存了你要修改的文件的json格式，file就是.   
+     _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
+      DataAPI.recoverDataByUri(function(err,result){
+        if (result == 'success') {
+          
+        }
+        else{
+          window.alert('Delete file failed');
+        }
+      },file['URI']);
+
+      }},
+      {text:'确认删除',action:function(){
+        var file = _globalSelf.getFileByDivID(_globalSelf._contextMenuDivID);  
+        _globalSelf.deleteDivByDivID(_globalSelf._contextMenuDivID);
+        DataAPI.confirmRmDataByUri(function(err,result){
+          if (result == 'success') {
+
+          }
+          else{
+            window.alert('Delete file failed');
+          }
+        },file['URI']);
+        //此处只是把当前的展示的文件删除，还需要把后台数据库的文件删除.保存了你要删除的文件的json格式，file就是.
+
       }}
     ]);
   },
@@ -107,9 +173,9 @@ var ShowFiles = Class.extend({
     return _modifyUri;
   },
 
-  attachDataMenu:function(id_){
+  attachDataMenu:function(id_,header_){
     contextMenu.attachToMenu('#'+id_,
-      contextMenu.getMenuByHeader('data menu'),
+      contextMenu.getMenuByHeader(header_),
       function(ID_){
         _globalSelf._contextMenuDivID = ID_;
       }
@@ -131,7 +197,7 @@ var ShowFiles = Class.extend({
     });
     var sortbyButton = $('<div>',{
       'id':'sortbyButton',
-      'text':'Sort by Time'
+      'text':'按时间排序'
     });
     this._choice.append(showlistButton);
     this._choice.append(line);
@@ -157,7 +223,7 @@ var ShowFiles = Class.extend({
   
   //此函数用来初始化index的值，看传入的index是多少，从而判断到底是需要展示什么文件
   setIndex:function(index_){
-    if (typeof index_ === 'number' && index_ >0 && index_ <6) {
+    if (typeof index_ === 'number' && index_ >0 && index_ <7) {
       this._index = index_;
       this._showFilesBytag = false;
     }
@@ -169,8 +235,16 @@ var ShowFiles = Class.extend({
     _globalSelf._choice.show();
     _globalSelf._showContent.show();
     _globalSelf._showContent.children().hide();
-    if(!this._getFiles[this._index]){
-      DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
+    if(!this._getFiles[this._index] ){
+      if (this._index ==6) {
+        DataAPI.getAllDeleted(this.getCallBackData);
+      }
+      else{
+        DataAPI.getAllDataByCate(this.getCallBackData,this._currentCategory[this._index]);
+      }
+    }
+    else if(this._index == 6){
+      DataAPI.getAllDeleted(this.getCallBackData);
     }
     else{
       infoList.searchTag(_params);
@@ -400,160 +474,19 @@ var ShowFiles = Class.extend({
         _globalSelf._getFiles[index].push(file);
         switch(index){
           case 1:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'pictureContainerWaterFall refreshDiv',
-              'draggable': true
-            });
-            var Holder = $('<div>',{
-              'class':'pictureHolderWaterFall'
-            });
-            //用来定义最后描述的名字.
-            var description = $('<p>',{
-              'class':'picturedescriptionWaterFall',
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
-            Container.append(Holder);
-            Container.append(description);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(110,204,188)',
-              max:3
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateWaterFallDiv(file);
             break;
           case 2:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'videoContainer refreshDiv',
-              'draggable': true
-            });
-            var Holder = $('<div>',{
-              'class':'videoHolder'
-            });
-            //用来定义最后描述的名字.
-            var description = $('<p>',{
-              'class':'videodescription',
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            var img = $('<img>',{
-              'id':file['URI'],
-              'draggable':false
-            });
-            _globalSelf.getVideoPicData(file);
-            Holder.append(img);
-            Container.append(Holder);
-            Container.append(description);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(132,204,117)',
-              max:3
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateVideoDiv(file);
             break;
           case 3:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'doc-icon refreshDiv',
-              'draggable': true
-            });
-            var img = $('<img>',{
-              'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
-              'draggable':false
-            });
-            Container.append(img);
-            var p = $('<p>',{
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            Container.append(p);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(155,146,69)',
-              max:2
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.bindDrag(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateDocumentOtherDiv(file);
             break;
           case 4:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'musicContainer refreshDiv',
-              'draggable': true
-            });
-            var Holder = $('<div>',{
-              'class':'musicHolder',
-              'draggable':false
-            });
-            var tagHolder = $('<div>',{
-              'class':'tagHolder',
-            });
-            //用来定义最后描述的名字.
-            var description = $('<p>',{
-              'class':'musicdescription',
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            var musicImg = $('<img>',{
-               'id':file['URI'],
-               'draggable':false
-            });
-            Holder.append(musicImg);
-            Holder.append(tagHolder);
-            Container.append(Holder);
-            Container.append(description);
-            _globalSelf.getMusicPicData(file);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(237,148,148)',
-              max:3
-            });
-            _tagView.setParent(tagHolder,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(tagHolder[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateMusicDiv(file);
             break;
           case 5:
-            var Container = $('<div>',{
-              'id':basic.uriToModifyUri(file['URI'])+'div',
-              'class':'doc-icon refreshDiv',
-              'draggable': true
-            });
-            var img = $('<img>',{
-              'src':'icons/Other.png',
-              'draggable':false
-            });
-            Container.append(img);
-            var p = $('<p>',{
-              'text':file['filename'],
-              'title':file['filename']
-            });
-            Container.append(p);
-            _globalSelf.bindDrag(Container[0]);
-            var _tagView = TagView.create({
-              position: 'listview',
-              background_color: 'rgb(200,200,200)',
-              max:1
-            });
-            _tagView.setParent(Container,file['URI']);
-            _tagView.addTags(file['others'].split(','));
-            _tagView.bindDrop(Container[0]);
-            _globalSelf.attachDataMenu(Container[0].id);
+            var Container = _globalSelf.generateDocumentOtherDiv(file);
             break;
           default:
         }
@@ -599,6 +532,7 @@ var ShowFiles = Class.extend({
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
   getCallBackData:function(files){
+    console.log(files);
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     var returnContent = _globalSelf.showFilesNormal(files);
@@ -652,24 +586,27 @@ var ShowFiles = Class.extend({
       switch(e.which){
         case 1:
           $(this).addClass('selected').siblings().removeClass('selected');
-
           //绑定一些快捷键，删除、重命名因为只有选择的时候才会有快捷键
-          if(!$(this).attr('tabindex')){
-            $(this).blur(function() {
-              $(this).removeClass('selected');
-            });
-            $(this).attr('tabindex','1').keydown(function(e) {
-              if(e.which == 46){
-                //触发的是键盘的delete事件,表示删除
-                var modifyURI_ = _globalSelf.findURIByDiv($(this));
-                _globalSelf.deleteFileByUri(modifyURI_);
-              }
-              else if(e.which == 113){
-                //按下F2键，表示要重命名
-                _globalSelf.renameFileByDivId($(this).attr('id'));
-              }
-            });
-          }
+            if(!$(this).attr('tabindex')){
+              $(this).blur(function() {
+                $(this).removeClass('selected');
+              });
+                $(this).attr('tabindex','1').keydown(function(e) {
+                  if(e.which == 46){
+                    //触发的是键盘的delete事件,表示删除
+                    var modifyURI_ = _globalSelf.findURIByDiv($(this));
+                    if(_globalSelf._index != 6){
+                      _globalSelf.deleteFileByUri(modifyURI_);  
+                    }
+                  }
+                  else if(e.which == 113){
+                    //按下F2键，表示要重命名
+                    if(_globalSelf._index !=6){
+                      _globalSelf.renameFileByDivId($(this).attr('id')); 
+                    }
+                  }
+                });
+            }
           break;
         case 3:
           $(this).addClass('selected').siblings().removeClass('selected');
@@ -677,16 +614,18 @@ var ShowFiles = Class.extend({
       }
     });
     //绑定双击事件
-    this.files.delegate(whichClass,'dblclick',function(e){
-      var fileModifyURI = _globalSelf.findURIByDiv($(this));
-      var file = basic.findFileByURI(fileModifyURI,_globalSelf._getFiles[_globalSelf._index]);
-      if(file){
-        basic.openFile(file);
-      }
-      else{
-        window.alert('what are you gong!!!');
-      }
-    });
+    if(_globalSelf._index != 6){
+      this.files.delegate(whichClass,'dblclick',function(e){
+        var fileModifyURI = _globalSelf.findURIByDiv($(this));
+        var file = basic.findFileByURI(fileModifyURI,_globalSelf._getFiles[_globalSelf._index]);
+        if(file){
+          basic.openFile(file);
+        }
+        else{
+          window.alert('what are you gong!!!');
+        }
+      });
+    }
   },
 
   //此函数用来对文件重命名，传入的是文件的对应的div的ID，因为也要找到名字存在的位置然后产生inputer
@@ -809,10 +748,18 @@ var ShowFiles = Class.extend({
 
   //此函数用来获得表格内容的信息，输入是一个文件和要展示的表头信息.返回的是一个文档的tr。
   generateBodyTr:function(file,theadMessage){
-    var bodytr = $('<tr>',{
-      'id':basic.uriToModifyUri(file['URI'])+'tr',
-      'class':'bodytr'
-    });
+    if(_globalSelf._index !=6){
+      var bodytr = $('<tr>',{
+        'id':basic.uriToModifyUri(file['URI'])+'tr',
+        'class':'bodytr'
+      });
+    }
+    else{
+      var bodytr = $('<tr>',{
+        'id':basic.uriToModifyUri(file['URI'])+'trdeleted',
+        'class':'bodytr'
+      });
+    }
     for(var i =0;i<theadMessage.length;i++){
       switch(i){
         case 0:
@@ -852,7 +799,12 @@ var ShowFiles = Class.extend({
           break;
       }
     }
-    _globalSelf.attachDataMenu(bodytr[0].id);
+    if(_globalSelf._index ==6){
+      _globalSelf.attachDataMenu(bodytr[0].id,'deleted file');
+    }
+    else{
+      _globalSelf.attachDataMenu(bodytr[0].id,'data menu');
+    }
     return bodytr;
   },
 
@@ -880,10 +832,10 @@ var ShowFiles = Class.extend({
     //设置表头的信息
     var theadtr = $('<tr></tr>');
     var theadMessage = this.getShowMessage();
-    theadtr.append($('<th>Name</th>'));
-    theadtr.append($('<th>Date Modified</th>'));
-    theadtr.append($('<th>Size</th>'));
-    theadtr.append($('<th>Date Added</th>'));
+    theadtr.append($('<th>名称</th>'));
+    theadtr.append($('<th>修改日期</th>'));
+    theadtr.append($('<th>大小</th>'));
+    theadtr.append($('<th>添加时间</th>'));
     theadtr.addClass('theadtr');
     thead.append(theadtr);
     //设置表格内具体内容
@@ -928,16 +880,16 @@ var ShowFiles = Class.extend({
       'class':'sortByTime'
     });
     var todaySpan = $('<span>',{
-      'text':'Today'
+      'text':'今天'
     });
     var previous7DaysSpan = $('<span>',{
-      'text':'Previous 7 Days'
+      'text':'7天以内'
     });
     var previous30DaysSpan = $('<span>',{
-      'text':'Previous 30 Days'
+      'text':'一个月以内'
     });
     var previousOneYearSpan = $('<span>',{
-      'text':'Previous One Year'
+      'text':'一年以内'
     });
     today.append(todaySpan);
     previous7Days.append(previous7DaysSpan);
@@ -996,6 +948,181 @@ var ShowFiles = Class.extend({
     _globalSelf.addClickEvent(returnContent,'.doc-icon');
     return returnContent;
   },
+  
+  //根据传来的file，产生要展现的div。
+  generateWaterFallDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'pictureContainerWaterFall',
+      'draggable': true
+    });
+    var Holder = $('<div>',{
+      'class':'pictureHolderWaterFall'
+    });
+    //用来定义最后描述的名字.
+    var description = $('<p>',{
+      'class':'picturedescriptionWaterFall',
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
+    Container.append(Holder);
+    Container.append(description);
+    _globalSelf.bindDrag(Container[0]);
+    var _tagView = TagView.create({
+      position: 'listview',
+      category: 'picture',
+      background_color: 'rgb(110,204,188)',
+      max:3
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
+
+    return Container;
+  },
+
+  generateVideoDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'videoContainer',
+      'draggable': true
+    });
+    var Holder = $('<div>',{
+      'class':'videoHolder'
+    });
+    //用来定义最后描述的名字.
+    var description = $('<p>',{
+      'class':'videodescription',
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    var img = $('<img>',{
+      'id':file['URI']+'showvideo',
+      'draggable':false
+    });
+    basic.getVideoPicData(file,img.attr('id'));
+    Holder.append(img);
+    Container.append(Holder);
+    Container.append(description);
+    _globalSelf.bindDrag(Container[0]);
+    var _tagView = TagView.create({
+      position: 'listview',
+      category: 'video',
+      background_color: 'rgb(132,204,117)',
+      max:3
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
+
+    return Container;
+  },
+
+  generateMusicDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'musicContainer',
+      'draggable': true
+    });
+    var Holder = $('<div>',{
+      'class':'musicHolder',
+      'draggable':false
+    });
+    var tagHolder = $('<div>',{
+      'class':'tagHolder'
+    });
+    //用来定义最后描述的名字.
+    var description = $('<p>',{
+      'class':'musicdescription',
+      'text':file['filename']
+    });
+    var musicImg = $('<img>',{
+       'id':file['URI']+'showMusicPic',
+       'draggable':false
+    });
+    basic.getMusicPicData(file,musicImg.attr('id'));
+    Holder.append(musicImg);
+    Holder.append(tagHolder);
+    Container.append(Holder);
+    Container.append(description);
+    _globalSelf.bindDrag(Container[0]);
+    var _tagView = TagView.create({
+      position: 'listview',
+      category: 'music',
+      background_color: 'rgb(237,148,148)',
+      max:3
+    });
+    _tagView.setParent(tagHolder,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(tagHolder[0]);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
+
+    return Container;
+  },
+
+  generateDocumentOtherDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'div',
+      'class':'doc-icon',
+      'draggable': true
+    });
+    var img = $('<img>',{
+      'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+      'draggable':false
+    });
+    Container.append(img);
+    var p = $('<p>',{
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    Container.append(p);
+    var _tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(120,78,100)',
+      max:0
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.bindDrag(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id,'data menu');
+
+    return Container;
+  },
+
+  generateDeletedFilesDiv:function(file){
+    var Container = $('<div>',{
+      'id':basic.uriToModifyUri(file['URI'])+'divdeleted',
+      'class':'doc-icon deleted',
+      'draggable': true
+    });
+    var img = $('<img>',{
+      'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
+      'class':'deletedFile',
+      'draggable':false
+    });
+    Container.append(img);
+    var p = $('<p>',{
+      'text':file['filename'],
+      'title':file['filename']
+    });
+    Container.append(p);
+    var _tagView = TagView.create({
+      position: 'listview',
+      background_color: 'rgb(120,78,100)',
+      max:0
+    });
+    _tagView.setParent(Container,file['URI']);
+    _tagView.addTags(file['others'].split(','));
+    _tagView.bindDrop(Container[0]);
+    _globalSelf.bindDrag(Container[0]);
+    _globalSelf.attachDataMenu(Container[0].id,'deleted file');
+
+    return Container;
+  },
 
   //此函数是刚开始的默认展示方式，就是瀑布流的展示方式，其中主要是图片和视频，因为文档和音乐的图标都一样，所以展示不出效果
   showFilesNormal:function(files){
@@ -1006,175 +1133,36 @@ var ShowFiles = Class.extend({
       var file = files[i];
       switch(_globalSelf._index){
         case 1:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'pictureContainerWaterFall',
-            'draggable': true
-          });
-          var Holder = $('<div>',{
-            'class':'pictureHolderWaterFall'
-          });
-          //用来定义最后描述的名字.
-          var description = $('<p>',{
-            'class':'picturedescriptionWaterFall',
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Holder.append($('<img src="' + file['path'] + '" draggable=false></img>'));
-          Container.append(Holder);
-          Container.append(description);
+          var Container = _globalSelf.generateWaterFallDiv(file);
           returnContent.append(Container);
           returnContent.hide();
-          Holder.children('img')[0].onload = function(){
+          Container.find('img')[0].onload = function(){
             _globalSelf._imgReady = _globalSelf._imgReady - 1;
             if(_globalSelf._imgReady ==0){
               returnContent.show();
               _globalSelf.refreshWaterFall();
             }
           };
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            category: 'picture',
-            background_color: 'rgb(110,204,188)',
-            max:3
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 2:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'videoContainer',
-            'draggable': true
-          });
-          var Holder = $('<div>',{
-            'class':'videoHolder'
-          });
-          //用来定义最后描述的名字.
-          var description = $('<p>',{
-            'class':'videodescription',
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          var img = $('<img>',{
-            'id':file['URI']+'showvideo',
-            'draggable':false
-          });
-          basic.getVideoPicData(file,img.attr('id'));
-          Holder.append(img);
-          Container.append(Holder);
-          Container.append(description);
+          var Container = _globalSelf.generateVideoDiv(file);
           returnContent.append(Container);
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            category: 'video',
-            background_color: 'rgb(132,204,117)',
-            max:3
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 3:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'doc-icon',
-            'draggable': true
-          });
-          var img = $('<img>',{
-            'src':'icons/'+_globalSelf.setIcon(file['postfix'])+'.png',
-            'draggable':false
-          });
-          Container.append(img);
-          var p = $('<p>',{
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Container.append(p);
+          var Container = _globalSelf.generateDocumentOtherDiv(file);
           returnContent.append(Container);
-          var _tagView = TagView.create({
-            position: 'listview',
-            background_color: 'rgb(120,78,100)',
-            max:0
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.bindDrag(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 4:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'musicContainer',
-            'draggable': true
-          });
-          var Holder = $('<div>',{
-            'class':'musicHolder',
-            'draggable':false
-          });
-          var tagHolder = $('<div>',{
-            'class':'tagHolder'
-          });
-          //用来定义最后描述的名字.
-          var description = $('<p>',{
-            'class':'musicdescription',
-            'text':file['filename']
-          });
-          var musicImg = $('<img>',{
-             'id':file['URI']+'showMusicPic',
-             'draggable':false
-          });
-          basic.getMusicPicData(file,musicImg.attr('id'));
-          Holder.append(musicImg);
-          Holder.append(tagHolder);
-          Container.append(Holder);
-          Container.append(description);
+          var Container = _globalSelf.generateMusicDiv(file);
           returnContent.append(Container);
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            category: 'music',
-            background_color: 'rgb(237,148,148)',
-            max:3
-          });
-          _tagView.setParent(tagHolder,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(tagHolder[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
           break;
         case 5:
-          var Container = $('<div>',{
-            'id':basic.uriToModifyUri(file['URI'])+'div',
-            'class':'doc-icon',
-            'draggable': true
-          });
-          var img = $('<img>',{
-            'src':'icons/Other.png',
-            'draggable':false
-          });
-          Container.append(img);
-          var p = $('<p>',{
-            'text':file['filename'],
-            'title':file['filename']
-          });
-          Container.append(p);
+          var Container = _globalSelf.generateDocumentOtherDiv(file);
           returnContent.append(Container);
-          _globalSelf.bindDrag(Container[0]);
-          var _tagView = TagView.create({
-            position: 'listview',
-            background_color: 'rgb(200,200,200)',
-            max:0
-          });
-          _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
-          _tagView.bindDrop(Container[0]);
-          _globalSelf.attachDataMenu(Container[0].id);
+          break;
+        case 6:
+          var Container = _globalSelf.generateDeletedFilesDiv(file);
+          returnContent.append(Container);
           break;
         default:
       }

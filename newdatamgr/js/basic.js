@@ -39,7 +39,7 @@ var Basic = Class.extend({
       'type':'button',
       'class':'btn btn-default',
       'data-dismiss':'modal',
-      'text':'Close'
+      'text':'关闭'
     });
     footer.append(footerButton);
   
@@ -211,7 +211,7 @@ var Basic = Class.extend({
               return console.log(err);
             }
             AppAPI.startApp(cbViewPdf, appInfo, file.path);
-          }, "viewerPDF-app");
+          }, "app-viewerPDF");
         }
         else {
           DataAPI.openDataByUri(basic.cbGetDataSourceFile, file.URI);
@@ -268,8 +268,16 @@ var Basic = Class.extend({
       'id': 'add-tag-button',
       'value': 'Add'
     });
+    
     _addTagForm.append(_addTagButton);
     _this.genPopupDialog('Add Tag', _addTagForm);
+    _addTagInput.on('keydown', function(ev){
+      if(ev.keyCode == 13){
+        $('#add-tag-button')[0].click();
+        ev.preventDefault();
+
+      }
+    });
     $('#add-tag-button').on('click', function(){
       var _newTag = document.getElementById('new-tag').value;
       DataAPI.setTagByUri(function(err){

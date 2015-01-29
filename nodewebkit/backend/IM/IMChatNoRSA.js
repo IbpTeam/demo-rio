@@ -5,14 +5,14 @@ var hashtable = require('hashtable');
 var crypto = require('crypto');
 var config = require('../config.js');
 var buffer = require('buffer');
-var HOME_DIR = "/home";
-var CURUSER = process.env['USER'];
 var uniqueID = require(config.USERCONFIGPATH + '/uniqueID.js')
 
 var LOCALACCOUNT = uniqueID.Account;
 var LOCALUUID = uniqueID.uniqueID;
 exports.LOCALACCOUNT=LOCALACCOUNT;
 exports.LOCALUUID=LOCALUUID;
+
+var server;
 
 /*
  * @method MD5
@@ -42,8 +42,10 @@ function MD5(str, encoding) {
 *  没有返回值
 */
 function initIMServerNoRSA(port,ReceivedMsgCallback) {
+  if(server!==undefined)
+    return;
 
-  var server = net.createServer(function(c) {
+  server = net.createServer(function(c) {
     //console.log('Remote ' + c.remoteAddress + ' : ' + c.remotePort + ' connected!');
     var remoteAD = c.remoteAddress;
     var remotePT = c.remotePort;
@@ -103,6 +105,18 @@ function initIMServerNoRSA(port,ReceivedMsgCallback) {
   });
 }
 
+function closeIMServerNoRSA(callback){
+  try{
+    if(server!==undefined){
+      server.close();
+      server=undefined;
+      callback(true);
+    }
+  }catch(e){
+    callback(false);
+  }
+}
+exports.closeIMServerNoRSA=closeIMServerNoRSA;
 /*
  * @method sendMSG
  *  根据IP和端口号来发送封装好的数据，若发送成功，则把成功发送的消息存至本地数据库中。若发送失败，则重新发送（循环5次）
@@ -143,6 +157,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.setTimeout(6000, function() {
     console.log("connect time out");
     client.end();
+    setTimeout(SentCallBack(), 0);
   });
 
   function innerrply() {
@@ -192,7 +207,10 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
               {
                 if (msg.message == MD5(dec)) {
                   var msgtp = pat;
-                  setTimeout(SentCallBack(msgtp.message), 0);
+                  var CalBakMsg = {};
+                  CalBakMsg['MsgObj'] = msgtp;
+                  CalBakMsg['IP'] = IP;
+                  setTimeout(SentCallBack(CalBakMsg), 0);
                   clearInterval(id);
                   client.end();
                 };
@@ -210,6 +228,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.on('error', function(err) {
     clearInterval(id);
     client.end();
+    setTimeout(SentCallBack(), 0);
   });
 }
 
@@ -219,14 +238,14 @@ function senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK) {
   sendIMMsg(IPSET.IP, PORT, tmpmsg, SENTCALLBACK);
 }
 
-function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG, PORT,TOAPP, SENTCALLBACK) {
+function sendMSGbyUIDNoRSA(IPSET, ACCOUNT, MSG,TOAPP, SENTCALLBACK) {
   if (typeof IPSET.UID == "undefined") {
     //console.log("receiver uuid null");
     /*
     here are some server msg send functions!
     */
   };
-  senderFunc(ACCOUNT, IPSET, PORT, MSG, TOAPP,SENTCALLBACK);
+  senderFunc(ACCOUNT, IPSET, config.IMPORT, MSG, TOAPP,SENTCALLBACK);
 }
 
 

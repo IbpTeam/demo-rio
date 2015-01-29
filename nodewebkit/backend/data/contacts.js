@@ -11,7 +11,6 @@
  **/
 
 var commonDAO = require("../commonHandle/CommonDAO");
-var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var pathModule = require('path');
 var fs = require('fs');
@@ -20,16 +19,10 @@ var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
-var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
 
 var CATEGORY_NAME = "contact";
-var DES_NAME = "contactDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
-var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
 
 
 
@@ -71,32 +64,24 @@ function createData(item, callback) {
         lastAccessDev: config.uniqueID,
         others: item.others || ''
       }
-      dataDes.createItem(oNewItem, DES_DIR, function() {
-        commonDAO.createItem(oNewItem, function(err) {
-          if (err) {
-            return callback(err, null);
-          }
-          var sDesFilePath = pathModule.join(DES_DIR, oNewItem.name + '.md');
-          repo.repoCommit(DES_REPO_DIR, [sDesFilePath], null, 'add', function(err) {
+      commonDAO.createItem(oNewItem, function(err) {
+        if (err) {
+          return callback(err, null);
+        }
+        if (item.others != '' && item.others != null) {
+          var oTags = item.others.split(',');
+          tagsHandle.addInTAGS(oTags, uri, function(err) {
             if (err) {
               return callback(err, null);
             }
-            if (item.others != '' && item.others != null) {
-              var oTags = item.others.split(',');
-              tagsHandle.addInTAGS(oTags, uri, function(err) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
-            } else {
-              callback(null, 'success');
-            }
-          })
-        })
+            callback(null, 'success');
+          });
+        } else {
+          callback(null, 'success');
+        }
       });
-    })
-  })
+    });
+  });
 }
 exports.createData = createData;
 
@@ -150,7 +135,8 @@ function getAllContacts(getAllCb) {
     });
     getAllCb(contacts);
   }
-  commonDAO.findItems(null, [CATEGORY_NAME], null, null, getAllByCaterotyCb);
+  var condition = ["is_deleted != '1' "];
+  commonDAO.findItems(null, [CATEGORY_NAME], condition, null, getAllByCaterotyCb);
 }
 exports.getAllContacts = getAllContacts;
 
@@ -178,7 +164,7 @@ name, phone, sex, age, email, photoPath
  *
  *
  */
-function addContact(Item, sItemDesPath, isContactEnd, callback) {
+function addContact(Item, isContactEnd, callback) {
   function getFileUidCb(uri) {
     var category = CATEGORY_NAME;
     console.log(JSON.stringify(Item));
@@ -213,10 +199,7 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
       others: ""
     }
 
-    function createItemCb() {
-      callback(isContactEnd, oNewItem);
-    }
-    dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
+    callback(isContactEnd, oNewItem);
   }
   uniqueID.getFileUid(getFileUidCb);
 }
@@ -228,32 +211,32 @@ function addContact(Item, sItemDesPath, isContactEnd, callback) {
  *    The document's URI.
  * @param callback
  *    Callback
- */
+ 
 function removeByUri(uri, callback) {
-  getByUri(uri, function(items) {
-    //Remove des file
-    var sDesFullPath = utils.getDesPath(CATEGORY_NAME, items[0].name);
-    fs.unlink(sDesFullPath, function(err) {
-      if (err) {
-        console.log(err);
-        callback("err");
-      } else {
-        //Delete from db
-        commonHandle.deleteItemByUri(CATEGORY_NAME, uri, function(isSuccess) {
-          if (isSuccess == "rollback") {
-            callback("error");
-            return;
-          }
-          //Git commit
-          var aDesFiles = [sDesFullPath];
-          var sDesDir = utils.getDesDir(CATEGORY_NAME);
-          repo.repoCommit(sDesDir, aDesFiles, null, "rm", callback);
-        });
-      }
-    });
+  commonHandle.deleteItemByUri(CATEGORY_NAME, uri, function(isSuccess) {
+    if (isSuccess == "rollback") {
+      callback("error");
+      return;
+    }
+    callback(null,'success');
   });
 }
 exports.removeByUri = removeByUri;
+*/
+function removeByUri(uri, callback) {
+  getByUri(uri, function(items) {
+    commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.removeByUri = removeByUri;
+
+function recoverByUri(uri, callback){
+  getByUri(uri, function(items) {
+    commonHandle.recoverFile(CATEGORY_NAME, items[0], callback);
+  });
+}
+exports.recoverByUri = recoverByUri;
+
 
 /**
  * @method getByUri
@@ -279,16 +262,14 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
-  function csvTojsonCb(json) {
-    var oJson = JSON.parse(json);
-    var oContacts = [];
-    var oDesFiles = [];
-    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
-    var dataDesPath = contactsPath + "/data";
-    fs.readdir(DES_DIR, function(err, result) {
-      if (err) {
-        return loadContactsCb(err, null);
-      }
+  function findItemsCb(err, result) {
+    var oNames = [];
+    for(var item in result){
+      oNames.push(result[item]['name']);
+    }
+    function csvTojsonCb(json) {
+      var oJson = JSON.parse(json);
+      var oContacts = [];
       if (result == '') {
         for (var k in oJson) {
           if (oJson[k].hasOwnProperty("姓")) {
@@ -298,157 +279,55 @@ function initContacts(loadContactsCb, sItemPath) {
       } else {
         for (var k in oJson) {
           if (oJson[k].hasOwnProperty("姓")) {
-            var sName = oJson[k]["姓"] + oJson[k]["名"] + '.md';
-            if (!utils.isExist(sName, result)) {
+            var sName = oJson[k]["姓"]+oJson[k]["名"];
+            if(!utils.isExist(sName, oNames)){
               oContacts.push(oJson[k]);
             }
           }
         }
-        if (oContacts == '') {
+        if(oContacts == ''){
           return loadContactsCb(null, 'success');
         }
       }
+
+      function isEndCallback() {
+        loadContactsCb(null, 'success');
+      }
       for (var k = 0; k < oContacts.length; k++) {
         var isContactEnd = (k == (oContacts.length - 1));
-        addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
-          var contactName = oContact.name;
-          var contactPath = dataDesPath + '/' + contactName + '.md';
-          oDesFiles.push(contactPath);
+        addContact(oContacts[k], isContactEnd, function(isContactEnd, oContact) {
           commonDAO.createItem(oContact, function() {
             if (isContactEnd) {
-              repo.repoCommit(contactsPath, oDesFiles, null, "add", loadContactsCb);
+              isEndCallback();
               console.log("succcess");
               console.log("initContacts is end!!!");
             }
-          })
-        })
+          });
+        });
       }
-    })
+    }
+    csvtojson.csvTojson(sItemPath, csvTojsonCb);
   }
-  csvtojson.csvTojson(sItemPath, csvTojsonCb);
+  commonDAO.findItems(['name'], 'contact', null, null, findItemsCb);
 }
 exports.initContacts = initContacts;
 
 function updateDataValue(item, callback) {
   console.log('update value : ', item)
-  var desFilePath = pathModule.join(DES_DIR, item.name + '.md');
-  dataDes.updateItem(desFilePath, item, function(result) {
-    if (result === "success") {
-      commonDAO.updateItem(item, function(err) {
-        if (err) {
-          console.log(err);
-          var _err = {
-            "contact": err
-          };
-          callback(_err);
-        } else {
-          console.log('update contact success!');
-          repo.repoCommit(DES_REPO_DIR, [desFilePath], null, "ch", function() {
-            callback('success')
-          })
-        }
-      })
-
+  commonDAO.updateItem(item, function(err) {
+    if (err) {
+      console.log(err);
+      var _err = {
+        "contact": err
+      };
+      callback(_err);
+    } else {
+      console.log('update contact success!');
+      callback('success');
     }
-  })
+  });
 }
 exports.updateDataValue = updateDataValue;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        array, result of git log
- *
- **/
-function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
-  repo.getGitLog(DES_REPO_DIR, callback);
-}
-exports.getGitLog = getGitLog;
-
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(commitID, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      repo.repoReset(DES_REPO_DIR, commitID, null, function(err, result) {
-        if (err) {
-          console.log(err);
-          callback({
-            'document': err
-          }, null);
-        } else {
-          console.log('reset success!')
-          callback(null, result)
-        }
-      });
-    }
-  });
-}
-exports.repoReset = repoReset;
-
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param resourcesPath
- *    Repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(deviceId, address, account, resourcesPath, callback) {
-  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
-  repo.pullFromOtherRepo(deviceId, address, account, sDesRepoPath, function(desFileNames) {
-    var aFilePaths = new Array();
-    var sDesPath = utils.getDesRepoDir(CATEGORY_NAME);
-    desFileNames.forEach(function(desFileName) {
-      aFilePaths.push(path.join(sDesPath, desFileName));
-    });
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-    //TODO base on files, modify data in db
-    dataDes.readDesFiles(CATEGORY_NAME, aFilePaths, function(desObjs) {
-      dataDes.writeDesObjs2Db(desObjs, function(status) {
-        callback(deviceId, address, account);
-      });
-    });
-  });
-}
-exports.pullRequest = pullRequest;
 
 /** 
  * @Method: getFilesByTag
@@ -483,9 +362,3 @@ function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
-
-
-function repoSearch(repoSearchCb, sKey) {
-  repo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
-}
-exports.repoSearch = repoSearch;
