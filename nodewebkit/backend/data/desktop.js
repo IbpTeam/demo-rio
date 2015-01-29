@@ -1632,7 +1632,7 @@ function moveToDesktopSingle(sFilePath, callback) {
     console.log(_err);
     return callback(_err, null);
   }
-  var reg_isLocal = /\/[a-z]+\/[a-z]+\/.resource\/[a-z]+\/data\//gi;
+  var reg_isLocal = /\/[a-z]+\/[a-z]+\/resource\/[a-z]+\/data\//gi;
   var category = utils.getCategoryByPath(sFilePath).category;
   if (reg_isLocal.test(sFilePath)) { //target file is from local
     var sCondition = ["path = '" + sFilePath + "'"];
@@ -1720,7 +1720,7 @@ function moveToDesktopSingle(sFilePath, callback) {
               console.log(sFilePath, err);
               return callback(err, null);
             }
-            var fileInfo = [sFilePath, stats.ino];
+            var fileInfo = [result, stats.ino];
             callback(null, fileInfo);
           })
         })
