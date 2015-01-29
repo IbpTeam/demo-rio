@@ -14,5 +14,13 @@
   "app-server-setting":{
     "id": "app-server-setting",
     "path": "app/server-setting"
+  },
+  "app-viewerPDF": {
+    "id": "app-viewerPDF",
+    "path": "../app/viewerPDF"
+  },
+  "app-controlPPT": {
+    "id": "app-controlPPT",
+    "path": "../app/controlPPT"
   }
 }

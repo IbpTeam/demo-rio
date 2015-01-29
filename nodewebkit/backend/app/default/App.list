@@ -22,5 +22,9 @@
   "app-viewerPDF": {
     "id": "app-viewerPDF",
     "path": "demo-rio/viewerPDF"
+  },
+  "app-controlPPT": {
+    "id": "app-controlPPT",
+    "path": "demo-rio/controlPPT"
   }
 }
