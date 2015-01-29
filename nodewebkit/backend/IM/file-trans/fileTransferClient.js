@@ -7,6 +7,7 @@ var util = require('util');
 var HashTable = require('hashtable');
 var config = require('../../config');
 var path = require('path');
+var cp = require("child_process");
 
 var RATIO_SIZE = 0.1;
 var transferHashTable = new HashTable();
@@ -131,3 +132,29 @@ function transferFile(msgObj, callback) {
   }
 }
 exports.transferFile = transferFile;
+
+function clearTmpDir() {
+  try {
+    var exists = fs.existsSync(config.DOWNLOADPATH);
+    if (exists) {
+      var files = fs.readdirSync(config.DOWNLOADPATH);
+      files.forEach(function(item) {
+        var tmpPath = config.DOWNLOADPATH + '/' + item;
+        var sCommandStr = "rm -rf " + tmpPath;
+        cp.exec(sCommandStr, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('delete file ' + tmpPath);
+          }
+        });
+      });
+    } else {
+      console.log('no DOWNLOAD dir');
+    }
+
+  } catch (e) {
+    console.log('clearTmpDir error ' + e);
+  }
+}
+exports.clearTmpDir = clearTmpDir;
