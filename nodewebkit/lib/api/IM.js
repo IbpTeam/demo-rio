@@ -94,6 +94,15 @@ function registerIMApp(AppCallBack,ws) {
 }
 exports.registerIMApp = registerIMApp;
 
+function removeListener(CbId, ws) {
+  var msg = {
+    'Action': 'off',
+    'Event': 'imChat'
+  };
+  ws.send(JSON.stringify(msg));
+}
+exports.removeListener = removeListener;
+
 /**
  * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启

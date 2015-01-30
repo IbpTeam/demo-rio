@@ -29,3 +29,12 @@ function registerIMApp(AppCallBack,ws) {
   ws.send(JSON.stringify(msg));
 }
 exports.registerIMApp = registerIMApp;
+
+function removeListener(CbId, ws) {
+  var msg = {
+    'Action': 'off',
+    'Event': 'imChat'
+  };
+  ws.send(JSON.stringify(msg));
+}
+exports.removeListener = removeListener;

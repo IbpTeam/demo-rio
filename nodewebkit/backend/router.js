@@ -141,6 +141,11 @@ function getRealFile(pathname, response){
 
 // used for web socket server to store ws client
 var eventList = [];
+
+function eventListClear(){
+  eventList=[];
+}
+exports.eventListClear=eventListClear;
 /**
  * This is the function to handle web socket message
  * param:
