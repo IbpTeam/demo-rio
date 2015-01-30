@@ -12,7 +12,7 @@ function cb_get_ppt_data(data_json){
 
     		var _div1 = $('<div class = "file" data-uri = "' + data_json[i].URI + '"></div>');
     		var _div2 = $('<div class = "icon"></div>');
-    		var _img = $('<img src = "icons/powerpoint.png">');
+    		var _img = $('<img src = "icons/Powerpoint.png">');
     		var _div3 = $('<div class = "name" id = "'+ data_json[i].filename +'">' + data_json[i].filename +
     			'</div>');
     		pl.append(_div1);
@@ -51,22 +51,22 @@ function cb_get_ppt_source_file(data_json){
     var _play_button = $('<button>',{
         id:'palybutton',
         class:'btn btn-success',
-        text:'PLAY'
+        text:'播放'
     })
     var _up_button = $('<button>',{
         id:'upbutton',
         class:'btn btn-success',
-        text:'UP'
+        text:'上一页'
     })
     var _down_button = $('<button>',{
         id:'downbutton',
         class:'btn btn-success',
-        text:'DOWN'
+        text:'下一页'
     })
     var _esc_button = $('<button>',{
         id:'escbutton',
         class:'btn btn-success',
-        text:'STOP'
+        text:'停止'
     })
     var _text = $('<p>',{
         id:'pptname',
@@ -128,7 +128,11 @@ function bindEvent(){
         WDC.requireAPI(['data'],function(data){
             console.log("data"+data);
             data.getServerAddress(function(serverAddr_){
-                var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/callapp/app-controlPPT/index.html#';
+                if(window !== top){
+                    var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port +'/callapp/'+WDC.AppID+ '/index.html';
+                }else{
+                    var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/index.html';
+                }
                 console.log("_hostLink of the qrcode is " + _hostLink);
                 _qrcodeContainer.children('.qrcode-content') .qrcode({
                     text: _hostLink,
