@@ -652,34 +652,33 @@ function getMusicPicData(filePath, callback) {
   var ID3 = require('id3v2-parser');
   var stream = require('fs').createReadStream(filePath);
   var parser = stream.pipe(new ID3());
-  var noPic = true;
+  var picData = false;
 
-  function backupIcon(callback) {
+  function backupIcon(callback_) {
     var option = {
       encoding: 'base64'
     }
     var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
     fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
-        return callback(err, null);
+        return callback_(err, null);
       }
-      return callback(null, buffer_base64);
+      return callback_(null, buffer_base64);
     })
   }
-
   parser.on('error', function() {
     //if error, then read a backup icon in local.
     return backupIcon(callback);
   });
   parser.on('data', function(tag) {
     if (tag.type == 'APIC') {
-      noPic = false;
-      var picData = tag.value.data;
-      return callback(null, (picData).toString('base64'));
+      picData = (tag.value.data).toString('base64');
     }
   });
   stream.on('close', function() {
-    if (noPic) {
+    if (picData) {
+      return callback(null, picData);
+    }else{
       //if no music thumbnail found, then read a backup icon in local.
       return backupIcon(callback);
     }
