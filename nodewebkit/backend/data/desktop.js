@@ -1029,16 +1029,20 @@ function buildAppMethodInfo(targetFile, callback) {
         fs.open(filepath, 'r', function(err, fd) {
           if (err) {
             console.log('pass .list or .cache file ...', filepath);
-          }
-          if (fd) fs.closeSync(fd);
-          deParseListFile(listContent, filepath, function(err) {
-            if (err) {
-              return callback(err, null);
-            }
             if (_isEnd) {
               return done(listContent, callback);
             }
-          })
+          } else {
+            if (fd) fs.closeSync(fd);
+            deParseListFile(listContent, filepath, function(err) {
+              if (err) {
+                return callback(err, null);
+              }
+              if (_isEnd) {
+                return done(listContent, callback);
+              }
+            })
+          }
         })
       } else {
         if (_isEnd) {
@@ -1176,6 +1180,7 @@ function findAllDesktopFiles(callback) {
     } catch (err) {
       oList_share = null;
       console.log(err, 'readdir ' + path_share + ' ...');
+      return callback(err, null);
     }
     if (oList_local_share) {
       for (var k = 0; k < oList_local_share.length; k++) {
