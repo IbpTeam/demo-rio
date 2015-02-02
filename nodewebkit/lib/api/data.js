@@ -171,36 +171,16 @@ function loadResources(loadResourcesCb, path) {
       } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
-        if (sPos != 'csv' && sPos != 'CSV') {
-          if (sPos == 'none' ||
-            sPos == 'ppt' ||
-            sPos == 'pptx' ||
-            sPos == 'doc' ||
-            sPos == 'docx' ||
-            sPos == 'wps' ||
-            sPos == 'odt' ||
-            sPos == 'et' ||
-            sPos == 'txt' ||
-            sPos == 'xls' ||
-            sPos == 'xlsx' ||
-            sPos == 'ods' ||
-            sPos == 'zip' ||
-            sPos == 'sh' ||
-            sPos == 'gz' ||
-            sPos == 'html' ||
-            sPos == 'et' ||
-            sPos == 'odt' ||
-            sPos == 'pdf' ||
-            sPos == 'html5ppt') {
+        var category = utils.getCategoryByPath(item).category;
+        if (category !== 'contact') {
+          if (category === 'document') {
             DocList.push(path + '/' + item);
-          } else if (sPos == 'jpg' || sPos == 'png') {
+          } else if (category === 'picture') {
             PicList.push(path + '/' + item);
-          } else if (sPos == 'mp3') {
+          } else if (category === 'music') {
             MusList.push(path + '/' + item);
-          } else if (sPos == 'ogg') {
+          } else if (category === 'video') {
             VidList.push(path + '/' + item);
-          } else if (sPos == 'conf' || sPos == 'desktop') {
-            DskList.push(path + '/' + item);
           } else {
             OtherList.push(path + '/' + item);
           }
