@@ -78,7 +78,17 @@ exports.removeDeviceListenerFromObj = removeDeviceListenerFromObj;
 
 function callDeviceListener(type, obj){
   //This is the second filter, the first filter in function startServiceBrowser
-  if(obj.aprotocol === 0){
+  if(null === obj){
+    return;
+  }
+  if((obj.aprotocol) && obj.aprotocol === 0){//aprotocol filter.
+    switch(type){
+      case "ItemNew":      
+        deviceList[obj.name] = obj;
+        break;
+      case "ItemRemove":
+        break;
+    }
     for(index in deviceListeners){
       deviceListeners[index](type, obj);
     }
@@ -86,7 +96,10 @@ function callDeviceListener(type, obj){
 }
 function callDeviceListenerObj(type, obj){
   //This is the second filter, the first filter in function startServiceBrowser
-  if(obj.aprotocol === 0){
+  if(null === obj){
+    return;
+  }
+  if((obj.aprotocol) && (obj.aprotocol === 0)){//aprotocol filter.
     switch(type){
       case "ItemNew":      
         deviceList[obj.name] = obj;
@@ -100,7 +113,7 @@ function callDeviceListenerObj(type, obj){
   }
 }
 
-function deleteADevice(name){
+function deleteDeviceByName(name){
   var obj;
   for(address in deviceList){
     obj = deviceList[address]
@@ -264,7 +277,7 @@ function startServiceBrowser(path){
     }
     serviceBrowser = iface;
     iface.on('ItemNew', function(arg) {
-    if(arguments[1] == 0){
+    if(arguments[1] == 0){//protocol filter
       server.ResolveService(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], -1, 0);
       //server.ResolveService(2, 1, 'TestService', '_http._tcp', 'local', -1, 0);
     }
@@ -276,8 +289,8 @@ function startServiceBrowser(path){
       var type = arguments[3];
       var domain = arguments[4];
       var flags = arguments[5];
-      if(arguments[1] == 0){
-        callDeviceListenerObj('ItemRemove', deleteADevice(name));
+      if(arguments[1] == 0){//protocol filter
+        callDeviceListenerObj('ItemRemove', deleteDeviceByName(name));
       }
     });
   });
