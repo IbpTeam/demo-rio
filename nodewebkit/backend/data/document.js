@@ -293,7 +293,8 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
-          case 'pdf' || 'PDF':
+          case 'pdf':          
+          case 'PDF':
             source = {
               openmethod: 'pdf',
               format: 'pdffile',
@@ -301,7 +302,8 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
-          case 'txt' || 'TXT':
+          case 'txt':            
+          case 'TXT':
             source = {
               openmethod: 'html',
               format: 'txtfile',
@@ -309,7 +311,8 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
-          case 'html5ppt' || 'HTML5PPT':
+          case 'html5ppt':            
+          case 'HTML5PPT':
             source = {
               openmethod: 'html',
               format: 'html5ppt',
@@ -348,30 +351,37 @@ function openDataByUri(openDataByUriCb, uri) {
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
             switch (item.postfix) {
-              case 'pdf' ||  'PDF':
+              case 'pdf':              
+              case 'PDF':
                 break;
-              case 'ppt' || 'PPT':
+              case 'ppt':                
+              case 'PPT':
                 s_command = "wpp \"" + item.path + "\"";
                 supportedKeySent = true;
                 var h = item.path.lastIndexOf('/');
                 s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
                 break;
-              case 'pptx' || 'PPTX':
+              case 'pptx':                
+              case 'PPTX':
                 s_command = "wpp \"" + item.path + "\"";
                 supportedKeySent = true;
                 var h = item.path.lastIndexOf('/');
                 s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
                 break;
-              case 'doc' || 'DOC':
+              case 'doc':                
+              case 'DOC':
                 s_command = "wps \"" + item.path + "\"";
                 break;
-              case 'docx' || 'DOCX':
+              case 'docx':                
+              case 'DOCX':
                 s_command = "wps \"" + item.path + "\"";
                 break;
-              case 'xls' || 'XLS':
+              case 'xls':                
+              case 'XLS':
                 s_command = "et \"" + item.path + "\"";
                 break;
-              case 'xlsx' || 'XLSX':
+              case 'xlsx':                
+              case 'XLSX':
                 s_command = "et \"" + item.path + "\"";
                 break;
               default:

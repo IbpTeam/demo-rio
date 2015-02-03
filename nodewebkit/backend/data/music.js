@@ -358,7 +358,8 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
-          case 'ogg' || 'OGG':
+          case 'ogg':
+          case 'OGG':
             source = {
               openmethod: 'html',
               format: 'audio',
@@ -366,7 +367,8 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
-          case 'mp3' || 'MP3':
+          case 'mp3':
+          case 'MP3':
             source = {
               openmethod: 'html',
               format: 'audio',
