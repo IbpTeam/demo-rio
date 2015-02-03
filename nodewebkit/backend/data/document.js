@@ -317,14 +317,6 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
             }
             break;
-          case 'ogg' || 'OGG':
-            source = {
-              openmethod: 'html',
-              format: 'audio',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
           case 'none':
             source = {
               openmethod: 'alert',
