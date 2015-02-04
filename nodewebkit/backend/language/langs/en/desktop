@@ -82,5 +82,9 @@
   "logging": "Logging now, please wait...",
   "commit": "Commit",
   "logout_warnning": "Are you sure to logout?",
-  "search": "Search"
+  "search": "Search",
+
+  #Shutdown dialog
+  "shutdown_warnning": "Are you sure to shutdown?",
+  "shutdown": "Shutdown"
 }
