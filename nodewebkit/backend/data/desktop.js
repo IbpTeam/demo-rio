@@ -103,6 +103,14 @@ function getnit(initType) {
     _flash_app.type = "inside-app";
     _flash_app.idx = 2;
 
+    var _shutdown_app = {}
+    _shutdown_app.id = "shutdown-app";
+    _shutdown_app.path = "./";
+    _shutdown_app.iconPath = "img/shutdown.png";
+    _shutdown_app.name = "退出桌面";
+    _shutdown_app.type = "inside-app";
+    _shutdown_app.idx = 3;
+
     var result = {}
     result.layout = {
       "type": "grid",
@@ -131,6 +139,7 @@ function getnit(initType) {
     }
     result.dock = {
       "launcher-app": _launcher_app,
+      'shutdown-app': _shutdown_app
     }
   }
   return result;

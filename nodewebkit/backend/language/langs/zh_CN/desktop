@@ -82,5 +82,9 @@
   "logging": "正在登录，请稍后...",
   "commit": "提交",
   "logout_warnning": "确定登出此账户？",
-  "search": "搜索"
+  "search": "搜索",
+
+  #Shutdown dialog
+  "shutdown_warnning": "确定关闭桌面？",
+  "shutdown": "关闭桌面"
 }
