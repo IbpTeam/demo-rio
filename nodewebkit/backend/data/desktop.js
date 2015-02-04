@@ -1066,41 +1066,30 @@ function buildLocalDesktopFile(callback) {
     var oRealFiles = [];
 
     function doBuild(_sFileOriginPath, _isEnd) {
-      var reg_rsc = new RegExp(RESOURCEPATH);
-      var reg_trash = new RegExp('/.local/share/Trash/');
-      //Check if file come from local or Trash box, redundant.
-      if (_sFileOriginPath != '' && !reg_rsc.test(_sFileOriginPath) && !reg_trash.test(_sFileOriginPath)) {
-        var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
-        var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
-        fs.stat(_sFileOriginPath, function(err, stat) {
-          if (err || stat.size == 0) {
-            console.log('pass desktop file...', _sFileOriginPath)
-            if (_isEnd) {
-              callback();
-            }
-          } else {
-            utils.copyFile(_sFileOriginPath, newPath, function(err) {
-              if (err) {
-                console.log('pass desktop file...', sFileName);
-                if (_isEnd) {
-                  callback();
-                }
-              } else {
-                oRealFiles.push(newPath);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
-                   callback();
-                }
-                count++;
-              }
-            })
+      var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
+      var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
+      fs.stat(_sFileOriginPath, function(err, stat) {
+        if (err || stat.size == 0) {
+          console.log('pass desktop file...', _sFileOriginPath)
+          if (_isEnd) {
+            callback();
           }
-        })
-      } else {
-        if (_isEnd) {
-          callback();
+        } else {
+          utils.copyFile(_sFileOriginPath, newPath, function(err) {
+            if (err) {
+              console.log('pass desktop file...', sFileName);
+              if (_isEnd) {
+                callback();
+              }
+            } else {
+              oRealFiles.push(newPath);
+              if (_isEnd) {
+                callback();
+              }
+            }
+          });
         }
-      }
+      });
     }
     for (var i = 0; i < lens; i++) {
       var sFileOriginPath = oFiles[i];
@@ -1846,18 +1835,11 @@ function removeFileFromDB(sFilePath, callback) {
           return callback(err, null);
         }
         var dataDir = utils.getRealDir(category);
-        var desDataDir = pathModule.join(utils.getDesDir(category), sFullName + '.md');
         fs_extra.ensureDir(dataDir, function(err) {
           if (err) {
             console.log(err, 'ensureDir error!');
             return callback(err, null);
           }
-          fs_extra.ensureDir(desDataDir, function(err) {
-            if (err) {
-              console.log(err, 'ensureDir error!');
-              return callback(err, null);
-            }
-          })
           callback(null, 'success');
         })
       })
