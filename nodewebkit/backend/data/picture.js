@@ -289,30 +289,6 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
-          case 'txt':
-            source = {
-              openmethod: 'html',
-              format: 'txtfile',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
-          case 'html5ppt':
-            source = {
-              openmethod: 'html',
-              format: 'html5ppt',
-              title: '文件浏览',
-              content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
-            }
-            break;
-          case 'ogg':
-            source = {
-              openmethod: 'html',
-              format: 'audio',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
           case 'none':
             source = {
               openmethod: 'alert',
@@ -344,30 +320,6 @@ function openDataByUri(openDataByUriCb, uri) {
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
             switch (item.postfix) {
-              case 'ppt':
-                s_command = "wpp \"" + item.path + "\"";
-                supportedKeySent = true;
-                var h = item.path.lastIndexOf('/');
-                s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
-                break;
-              case 'pptx':
-                s_command = "wpp \"" + item.path + "\"";
-                supportedKeySent = true;
-                var h = item.path.lastIndexOf('/');
-                s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
-                break;
-              case 'doc':
-                s_command = "wps \"" + item.path + "\"";
-                break;
-              case 'docx':
-                s_command = "wps \"" + item.path + "\"";
-                break;
-              case 'xls':
-                s_command = "et \"" + item.path + "\"";
-                break;
-              case 'xlsx':
-                s_command = "et \"" + item.path + "\"";
-                break;
               default:
                 s_command = "xdg-open \"" + item.path + "\"";
                 break;

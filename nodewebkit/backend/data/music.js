@@ -399,23 +399,8 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
-          case 'txt':
-            source = {
-              openmethod: 'html',
-              format: 'txtfile',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
-          case 'html5ppt':
-            source = {
-              openmethod: 'html',
-              format: 'html5ppt',
-              title: '文件浏览',
-              content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
-            }
-            break;
           case 'ogg':
+          case 'OGG':
             source = {
               openmethod: 'html',
               format: 'audio',
@@ -424,6 +409,7 @@ function openDataByUri(openDataByUriCb, uri) {
             }
             break;
           case 'mp3':
+          case 'MP3':
             source = {
               openmethod: 'html',
               format: 'audio',
@@ -462,30 +448,6 @@ function openDataByUri(openDataByUriCb, uri) {
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
             switch (item.postfix) {
-              case 'ppt':
-                s_command = "wpp \"" + item.path + "\"";
-                supportedKeySent = true;
-                var h = item.path.lastIndexOf('/');
-                s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
-                break;
-              case 'pptx':
-                s_command = "wpp \"" + item.path + "\"";
-                supportedKeySent = true;
-                var h = item.path.lastIndexOf('/');
-                s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
-                break;
-              case 'doc':
-                s_command = "wps \"" + item.path + "\"";
-                break;
-              case 'docx':
-                s_command = "wps \"" + item.path + "\"";
-                break;
-              case 'xls':
-                s_command = "et \"" + item.path + "\"";
-                break;
-              case 'xlsx':
-                s_command = "et \"" + item.path + "\"";
-                break;
               default:
                 s_command = "xdg-open \"" + item.path + "\"";
                 break;
@@ -572,34 +534,33 @@ function getMusicPicData(filePath, callback) {
   var ID3 = require('id3v2-parser');
   var stream = require('fs').createReadStream(filePath);
   var parser = stream.pipe(new ID3());
-  var noPic = true;
+  var picData = false;
 
-  function backupIcon(callback) {
+  function backupIcon(callback_) {
     var option = {
       encoding: 'base64'
     }
     var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
     fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
-        return callback(err, null);
+        return callback_(err, null);
       }
-      return callback(null, buffer_base64);
+      return callback_(null, buffer_base64);
     })
   }
-
   parser.on('error', function() {
     //if error, then read a backup icon in local.
     return backupIcon(callback);
   });
   parser.on('data', function(tag) {
     if (tag.type == 'APIC') {
-      noPic = false;
-      var picData = tag.value.data;
-      return callback(null, (picData).toString('base64'));
+      picData = (tag.value.data).toString('base64');
     }
   });
   stream.on('close', function() {
-    if (noPic) {
+    if (picData) {
+      return callback(null, picData);
+    }else{
       //if no music thumbnail found, then read a backup icon in local.
       return backupIcon(callback);
     }

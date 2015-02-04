@@ -17,6 +17,67 @@ var config =  require('./config');
 //@const
 var DATA_DIR = "data";
 
+var FILE_TYPE = {
+  //contact file type
+  csv: 'contact',
+  CSV: 'contact',
+
+  //document file type
+  none: 'document',
+  ppt: 'document',
+  PPT: 'document',
+  pptx: 'document',
+  PPTX: 'document',
+  doc: 'document',
+  DOC: 'document',
+  docx: 'document',
+  DOCX: 'document',
+  wps: 'document',
+  WPS: 'document',
+  odt: 'document',
+  ODT: 'document',
+  et: 'document',
+  ET: 'document',
+  txt: 'document',
+  TXT: 'document',
+  xls: 'document',
+  XLS: 'document',
+  xlsx: 'document',
+  XLSX: 'document',
+  ods: 'document',
+  ODS: 'document',
+  zip: 'document',
+  ZIP: 'document',
+  sh: 'document',
+  SH: 'document',
+  gz: 'document',
+  GZ: 'document',
+  html: 'document',
+  HTML: 'document',
+  odt: 'document',
+  ODT: 'document',
+  pdf: 'document',
+  PDF: 'document',
+  html5ppt: 'document',
+  HTML5PPT: 'document',
+
+  //picture file type
+  jpg: 'picture',
+  JPG: 'picture',
+  png: 'picture',
+  PNG: 'picture',
+
+  //music file type
+  mp3: 'music',
+  MP3: 'music',
+
+  //video file type
+  ogg: 'video',
+  OGG: 'video',
+  mp4: 'video',
+  MP4: 'video'
+}
+
 function parsePath(path) {
   var pathNodes = path.split('/');
   var pathNew = '';
@@ -32,76 +93,27 @@ function parsePath(path) {
 }
 exports.parsePath = parsePath;
 
+//get the category from path string a full name (as: good.txt)
 function getCategoryByPath(path_) {
   var itemFullname = path.basename(path_);
   var itemPostfix = path.extname(itemFullname);
-  var itemFilename = path.basename(path_,itemPostfix);
+  var itemFilename = path.basename(path_, itemPostfix);
   if (itemPostfix === '') {
     itemPostfix = 'none';
-  } else if(itemPostfix[0] === '.') {
+  } else if (itemPostfix[0] === '.') {
     itemPostfix = itemPostfix.substring(1, itemPostfix.length);
-  } else{
+  } else {
     console.log('some wrong with the postfix ...');
   }
-  if (itemPostfix == 'none' ||
-    itemPostfix == 'ppt' ||
-    itemPostfix == 'pptx' ||
-    itemPostfix == 'doc' ||
-    itemPostfix == 'docx' ||
-    itemPostfix == 'wps' ||
-    itemPostfix == 'odt' ||
-    itemPostfix == 'et' ||
-    itemPostfix == 'txt' ||
-    itemPostfix == 'xls' ||
-    itemPostfix == 'xlsx' ||
-    itemPostfix == 'ods' ||
-    itemPostfix == 'zip' ||
-    itemPostfix == 'sh' ||
-    itemPostfix == 'gz' ||
-    itemPostfix == 'html' ||
-    itemPostfix == 'et' ||
-    itemPostfix == 'odt' ||
-    itemPostfix == 'pdf' ||
-    itemPostfix == 'html5ppt') {
-    return {
-      category: "document",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'jpg' || itemPostfix == 'png') {
-    return {
-      category: "picture",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'mp3') {
-    return {
-      category: "music",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  } else if (itemPostfix == 'ogg') {
-    return {
-      category: "video",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
+  var category = FILE_TYPE[itemPostfix];
+  if (!category) {
+    category = 'other';
   }
-  /*TODO: can not handle, will improve this later*/
-  /*else if (itemPostfix == 'conf' || itemPostfix == 'desktop') {
-    return {
-      category: "configuration",
-      filename: itemFilename,
-      postfix: itemPostfix
-    };
-  }*/ 
-  else {
-    return {
-      category: "other",
-      filename: itemFilename,
-      postfix: itemPostfix
-    }
-  }
+  return {
+    category: category,
+    filename: itemFilename,
+    postfix: itemPostfix
+  };
 }
 exports.getCategoryByPath = getCategoryByPath;
 
