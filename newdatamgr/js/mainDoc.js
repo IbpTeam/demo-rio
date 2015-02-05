@@ -178,7 +178,7 @@ var MainDocView = Class.extend({
       'class': 'doc-icon',
       'draggable': true
     });
-    _fileView.data('uri',file_.uri);
+    _fileView.data('uri',file_.URI);
     _fileView.data('type',file_.type);
     _fileView.html('<img draggable="false" src='
       + this.iconpath[file_.type]+' /><P title='+file_.name.replace(/ /g,'')+'>' + file_.name + '</P>');
