@@ -293,7 +293,8 @@ function openDataByUri(openDataByUriCb, uri) {
         };
       } else {
         switch (item.postfix) {
-          case 'pdf':
+          case 'pdf':          
+          case 'PDF':
             source = {
               openmethod: 'pdf',
               format: 'pdffile',
@@ -301,7 +302,8 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
-          case 'txt':
+          case 'txt':            
+          case 'TXT':
             source = {
               openmethod: 'html',
               format: 'txtfile',
@@ -309,20 +311,13 @@ function openDataByUri(openDataByUriCb, uri) {
               content: item.path
             }
             break;
-          case 'html5ppt':
+          case 'html5ppt':            
+          case 'HTML5PPT':
             source = {
               openmethod: 'html',
               format: 'html5ppt',
               title: '文件浏览',
               content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
-            }
-            break;
-          case 'ogg':
-            source = {
-              openmethod: 'html',
-              format: 'audio',
-              title: '文件浏览',
-              content: item.path
             }
             break;
           case 'none':
@@ -356,30 +351,37 @@ function openDataByUri(openDataByUriCb, uri) {
             var supportedKeySent = false;
             var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
             switch (item.postfix) {
-              case 'pdf':
+              case 'pdf':              
+              case 'PDF':
                 break;
-              case 'ppt':
+              case 'ppt':                
+              case 'PPT':
                 s_command = "wpp \"" + item.path + "\"";
                 supportedKeySent = true;
                 var h = item.path.lastIndexOf('/');
                 s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
                 break;
-              case 'pptx':
+              case 'pptx':                
+              case 'PPTX':
                 s_command = "wpp \"" + item.path + "\"";
                 supportedKeySent = true;
                 var h = item.path.lastIndexOf('/');
                 s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
                 break;
-              case 'doc':
+              case 'doc':                
+              case 'DOC':
                 s_command = "wps \"" + item.path + "\"";
                 break;
-              case 'docx':
+              case 'docx':                
+              case 'DOCX':
                 s_command = "wps \"" + item.path + "\"";
                 break;
-              case 'xls':
+              case 'xls':                
+              case 'XLS':
                 s_command = "et \"" + item.path + "\"";
                 break;
-              case 'xlsx':
+              case 'xlsx':                
+              case 'XLSX':
                 s_command = "et \"" + item.path + "\"";
                 break;
               default:
@@ -423,12 +425,12 @@ function openDataByUri(openDataByUriCb, uri) {
               return;
             }           
             //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
-            if(item.postfix=='ppt' ||
-               item.postfix=='pptx'||
-               item.postfix=='doc' ||
-               item.postfix=='docx'||
-               item.postfix=='xls' ||
-               item.postfix=='xlsx'){
+            if(item.postfix=='ppt' || item.postfix=='PPT' || 
+               item.postfix=='pptx'|| item.postfix=='PPTX' ||
+               item.postfix=='doc' || item.postfix=='DOC' ||
+               item.postfix=='docx'|| item.postfix=='DOCX' ||
+               item.postfix=='xls' || item.postfix=='XLS' ||
+               item.postfix=='xlsx' || item.postfix=='XLSX'){
               if(watchFilesNum==0)
               {
                 console.log(CATEGORY_NAME+" watcher started!!");
