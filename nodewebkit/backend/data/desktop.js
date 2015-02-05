@@ -106,7 +106,7 @@ function getnit(initType) {
     var _shutdown_app = {}
     _shutdown_app.id = "shutdown-app";
     _shutdown_app.path = "./";
-    _shutdown_app.iconPath = "img/shutdown.png";
+    _shutdown_app.iconPath = "img/shutdown.jpg";
     _shutdown_app.name = "退出桌面";
     _shutdown_app.type = "inside-app";
     _shutdown_app.idx = 3;
