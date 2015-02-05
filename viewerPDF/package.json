@@ -17,5 +17,6 @@
 		"resizable": true,
 		"fullscreen": true
 	},
-	"API": ["data"]
+	"API": ["data"],
+	"notShow": true
 }
