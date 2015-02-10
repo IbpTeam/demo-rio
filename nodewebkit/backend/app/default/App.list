@@ -3,6 +3,10 @@
     "id": "datamgr-app",
     "path": "demo-rio/newdatamgr"
   },
+  "feedback": {
+    "id": "feedback-app",
+    "path": "demo-rio/feedback"
+  },
   "app-register": {
     "id": "app-register",
     "path": "demo-webde/nw/app/app-register"
