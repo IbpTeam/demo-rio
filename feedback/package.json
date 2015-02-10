@@ -1,6 +1,6 @@
 {
   "name": "feedback",
-  "main": "http://192.168.160.16:8088/index.html",
+  "main": "http://124.16.141.172:8088/index.html",
   "window": {
     "frame": true,
     "toolbar": false,
