@@ -3,6 +3,10 @@
     "id": "datamgr-app",
     "path": "demo-rio/newdatamgr"
   },
+  "feedback": {
+    "id": "feedback-app",
+    "path": "demo-rio/feedback"
+  },
   "app-register": {
     "id": "app-register",
     "path": "demo-webde/nw/app/app-register"
@@ -10,6 +14,10 @@
   "flash-app": {
     "id": "flash-app",
     "path": "demo-webde/nw/app/flash"
+  },
+  "help-app": {
+    "id": "help-app",
+    "path": "demo-webde/nw/app/help"
   },
   "music-app": {
     "id": "music-app",

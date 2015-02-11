@@ -1,0 +1,13 @@
+{
+  "name": "feedback",
+  "main": "http://124.16.141.172:8088/index.html",
+  "window": {
+    "frame": true,
+    "toolbar": false,
+    "icon": "images/feedback.jpg",
+    "width": 750,
+    "height": 500
+
+  },
+  "url": true
+}
