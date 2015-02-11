@@ -6,13 +6,14 @@ var ipc = {
 };
 
 // initObj: {
-//  service: boolean -> this is for service or client
-//  serviceObj: object -> if service is true, we'll need this
-//  address: string -> service's name | address
-//  path: string -> object's path
-//  name: string -> interface's name
-//  interface: string -> user defined interface for initializing service
+//  service: Boolean -> this is for service or client
+//  serviceObj: Object -> if service is true, we'll need this
+//  address: String -> service's name | address
+//  path: String -> object's path
+//  name: String -> interface's name
+//  interface: Object -> user defined interface for initializing service
 // }
+//
 function IPC(type, initObj) {
   var self = this;
 
@@ -52,18 +53,19 @@ IPC.prototype.onError = function(err) {
 //  in: Array -> peramters
 //  callback: Function -> the result will be this fn's perameter
 // }
+//
 IPC.prototype.invoke = function(peramObj) {
-  // TODO: call the implement method of ipc
+  // call the implement method of ipc
   this._ipc.invoke.apply(this._ipc, arguments);
 }
 
 IPC.prototype.notify = function(msg) {
-  // TODO: transmit to _ipc to notify
+  // transmit to _ipc to notify
   this._ipc.notify.apply(this._ipc, arguments);
 }
 
 IPC.prototype._dispatch = function() {
-  // TODO: dispatch messages
+  // TODO: move to Proxy/stub dispatch messages
 }
 
 exports.getIPC = function(type, initObj) {
