@@ -3,6 +3,10 @@
     "id": "datamgr-app",
     "path": "../app/newdatamgr"
   },
+  "feedback": {
+    "id": "feedback-app",
+    "path": "../app/feedback"
+  },
   "app-register": {
     "id": "app-register",
     "path": "app/app-register"
@@ -10,6 +14,10 @@
   "flash-app": {
     "id": "flash-app",
     "path": "app/flash"
+  },
+  "help-app": {
+    "id": "help-app",
+    "path": "app/help"
   },
   "app-server-setting":{
     "id": "app-server-setting",
