@@ -349,7 +349,7 @@ var Contact = Class.extend({
           break;
         }
       }
-      //if(posinKeys == -1) continue;
+      if(posinKeys == -1) continue;
       if(key === 'URI' || key === 'others') continue;
       var _li = $('<li>',{
         'class': 'li-details'
