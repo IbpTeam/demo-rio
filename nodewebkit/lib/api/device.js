@@ -81,7 +81,7 @@ function callDeviceListener(type, obj){
   if(null === obj){
     return;
   }
-  if((obj.aprotocol) && obj.aprotocol === 0){//aprotocol filter.
+  if(obj.aprotocol === 0){//aprotocol filter.
     switch(type){
       case "ItemNew":      
         deviceList[obj.name] = obj;
@@ -99,7 +99,7 @@ function callDeviceListenerObj(type, obj){
   if(null === obj){
     return;
   }
-  if((obj.aprotocol) && (obj.aprotocol === 0)){//aprotocol filter.
+  if(obj.aprotocol === 0){//aprotocol filter.
     switch(type){
       case "ItemNew":      
         deviceList[obj.name] = obj;
