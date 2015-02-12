@@ -540,7 +540,7 @@ function getMusicPicData(filePath, callback) {
     var option = {
       encoding: 'base64'
     }
-    var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
+    var backup_icon = '/usr/share/webde/app/newdatamgr/icons/music_180_180.png';
     fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
         return callback_(err, null);
