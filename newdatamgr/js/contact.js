@@ -385,7 +385,7 @@ var Contact = Class.extend({
     $('#save-button').on('click', function(){
       var _newContact = {};
       for(var key in contact_){
-        if(key == 'URI' || key == 'others') continue;
+        if(key == 'URI' || key == 'others' || document.getElementById(key) == null) continue;
         var _newValue = document.getElementById(key).value;
         _newContact[key] = _newValue;
       }
