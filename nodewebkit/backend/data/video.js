@@ -101,7 +101,7 @@ function readVideoThumbnail(sPath, callback) {
     var option = {
       encoding: 'base64'
     }
-    var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/video_320_180.png');
+    var backup_icon = '/usr/share/webde/app/newdatamgr/icons/video_320_180.png';
     fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
         return callback(err, null);
