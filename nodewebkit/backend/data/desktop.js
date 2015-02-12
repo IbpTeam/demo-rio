@@ -111,6 +111,21 @@ function getnit(initType) {
     _shutdown_app.type = "inside-app";
     _shutdown_app.idx = 3;
 
+    var _help_app = {}
+    _help_app.id = "help-app";
+    _help_app.path = "app/help";
+    _help_app.iconPath = "img/help.png";
+    _help_app.name = "使用手册";
+    _help_app.type = "inside-app";
+    _help_app.idx = 4;
+
+    var _feedback_app = {}
+    _feedback_app.id = "feedback-app";
+    _feedback_app.path = "../app/feedback";
+    _feedback_app.iconPath = "images/feedback.jpg";
+    _feedback_app.name = "反馈信息";
+    _feedback_app.type = "inside-app";
+
     var result = {}
     result.layout = {
       "type": "grid",
@@ -125,6 +140,8 @@ function getnit(initType) {
           "datamgr-app": _datamgr_app,
           "launcher-app": _launcher_app,
           "flash-app": _flash_app,
+          "help-app": _help_app,
+          "feedback-app": _feedback_app
         }
       }, 
       {

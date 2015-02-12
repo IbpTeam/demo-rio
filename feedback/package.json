@@ -1,5 +1,5 @@
 {
-  "name": "feedback",
+  "name": "反馈信息",
   "main": "http://124.16.141.172:8088/index.html",
   "window": {
     "frame": true,

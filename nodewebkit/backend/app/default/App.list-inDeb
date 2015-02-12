@@ -3,7 +3,7 @@
     "id": "datamgr-app",
     "path": "../app/newdatamgr"
   },
-  "feedback": {
+  "feedback-app": {
     "id": "feedback-app",
     "path": "../app/feedback"
   },
