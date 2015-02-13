@@ -69,7 +69,7 @@ function builder(ifaces) {
       initObj = {
         address: addr,
         path: '/' + addr.replace(/\./g, '/'),
-        name: pkgName + '.' + ifaces.service,
+        name: addr + '.' + ifaces.service,
       };
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces);
   buildStub(ifaces.service + 'Stub.js', initObj, ifaces.interfaces);
@@ -134,7 +134,7 @@ function buildProxy(filename, initObj, ifaces) {
           + "  var l = arguments.length,\n"
           + "      args = Array.prototype.slice.call(arguments, 0, l - 1);\n"
           + "  ipc.invoke({\n"
-          + "    name: " + ifaces[i].name + ",\n"
+          + "    name: '" + ifaces[i].name + "',\n"
           + "    in: args,\n"
           + "    callback: callback\n"
           + "  });\n"

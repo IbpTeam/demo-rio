@@ -1,6 +1,6 @@
 var util = require('util'),
     events = require('events'),
-    DBus = require('dbus'),
+    DBus = require('node-dbus'),
     dbus = new DBus();
 
 // events provided:
@@ -27,7 +27,7 @@ function DBusIPC(initObj) {
     self._initSingal();
   }
 }
-util.inherits(IPC, events.EventEmitter);
+util.inherits(DBusIPC, events.EventEmitter);
 
 DBusIPC.prototype._getServiceInterface = function() {
   var service = dbus.registerService('session', this._property.address),
@@ -36,10 +36,12 @@ DBusIPC.prototype._getServiceInterface = function() {
 }
 
 DBusIPC.prototype._addService = function() {
-  // TODO: register service to D-Bus based on init perameters
+  // register service to D-Bus based on init perameters
   var iface = this._getServiceInterface(),
       interfaces = this._property.interface,
       self = this;
+  // console.log('iface:', iface);
+  // console.log('interfaces:', interfaces);
   for(var i = 0; i < interfaces.length; ++i) {
     var inArray = undefined,
         outType = undefined,
@@ -61,10 +63,12 @@ DBusIPC.prototype._addService = function() {
     });
   }
   iface.addSignal('notify', {
-    types: {
-      self._typeConvert['String'];
-    }
+    types: [
+      self._typeConvert['String']
+    ]
   });
+  // console.log('iface:', iface);
+  iface.update();
 }
 
 DBusIPC.prototype.notify = function(msg) {
@@ -104,7 +108,7 @@ DBusIPC.prototype.invoke = function(peramObj) {
     iface[peramObj.name]['error'] = function(err) {
       self.emit('error', err);
     }
-    iface[peramObj.name].apply(iface[peramObj.name], peramObj.in);
+    iface[peramObj.name].apply(iface, peramObj.in);
   });
 }
 

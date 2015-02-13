@@ -18,10 +18,11 @@ function IPC(type, initObj) {
   var self = this;
 
   events.EventEmitter.call(self);
-
+  
   switch(type) {
     case 'dbus':
       self._ipc = require('./ipc-dbus.js').getObj(initObj);
+      break;
     default:
       throw 'Unknown type of IPC';
   }
