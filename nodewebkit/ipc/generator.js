@@ -68,7 +68,7 @@ function builder(ifaces) {
       addr = ifaces.address || 'nodejs.webde.service',
       initObj = {
         address: addr,
-        path: addr.replace(/\./g, '/'),
+        path: '/' + addr.replace(/\./g, '/'),
         name: pkgName + '.' + ifaces.service,
       };
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces);
@@ -132,7 +132,7 @@ function buildProxy(filename, initObj, ifaces) {
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
           + "  var l = arguments.length,\n"
-          + "      args = Array.prototype.slice.call(arguments, 0, l - 2);\n"
+          + "      args = Array.prototype.slice.call(arguments, 0, l - 1);\n"
           + "  ipc.invoke({\n"
           + "    name: " + ifaces[i].name + ",\n"
           + "    in: args,\n"
