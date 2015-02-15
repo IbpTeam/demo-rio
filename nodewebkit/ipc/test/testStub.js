@@ -21,18 +21,20 @@ var initObj = {
     }
   ],
   "serviceObj": {
-    setVal: function(val) {
-      /* TODO: implement your service */
-      Val = val;
+    setVal: function(val, callback) {
+      /* TODO: Implement your service. Make sure that call the callback at the end of this function,\n and the parameter is the return of this service.*/
+      v = val;
       console.log(val);
+      callback();
     },
-    getVal: function() {
-      /* TODO: implement your service */
-      return Val;
+    getVal: function(callback) {
+      /* TODO: Implement your service. Make sure that call the callback at the end of this function,\n and the parameter is the return of this service.*/
+      callback(v);
     }
   }
 }
-var Val = "hhh";
+
+var v = 'WWW';
 
 // TODO: please replace $ipcType with one of dbus, binder and websocket
 // TODO: please replace $IPC with the real path of ipc module in your project

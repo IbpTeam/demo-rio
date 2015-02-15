@@ -24,15 +24,20 @@ function DBusIPC(initObj) {
   if(initObj.service) {
     self._addService();
   } else {
-    self._initSingal();
+    self._getInterface(self._initSingal);
   }
 }
 util.inherits(DBusIPC, events.EventEmitter);
 
 DBusIPC.prototype._getServiceInterface = function() {
-  var service = dbus.registerService('session', this._property.address),
-      obj = service.createObject(this._property.path);
-  return obj.createInterface(this._property.name);
+  var self = this;
+  try {
+    var service = dbus.registerService('session', this._property.address),
+        obj = service.createObject(this._property.path);
+    self._iface = obj.createInterface(this._property.name);
+  } catch(e) {
+  }
+  return self._iface;
 }
 
 DBusIPC.prototype._addService = function() {
@@ -58,9 +63,7 @@ DBusIPC.prototype._addService = function() {
     iface.addMethod(serviceName, {
       in: inArray,
       out: outType
-    }, function() {
-      self._property.serviceObj[serviceName].apply(self._property.serviceObj, arguments);
-    });
+    }, self._property.serviceObj[serviceName]);
   }
   iface.addSignal('notify', {
     types: [
@@ -72,7 +75,7 @@ DBusIPC.prototype._addService = function() {
 }
 
 DBusIPC.prototype.notify = function(msg) {
-  if(typeof msg !== 'String')
+  if(typeof msg !== 'string')
     return this.emit('error', 'Bad type of content to notify');
   this._getServiceInterface().emit('notify', msg);
 }
@@ -85,15 +88,16 @@ DBusIPC.prototype._getInterface = function(callback) {
       cb = callback || function() {};
   bus.getInterface(prop.address, prop.path, prop.name, function(err, iface) {
     if(err) return self.emit('error', err);
+    self._initSingal(iface);
     cb(iface);
   });
 }
 
-DBusIPC.prototype._initSingal = function() {
-  this._getInterface(function(iface) {
-    iface.on('notify', function(msg) {
-      self.emit('msg', msg);
-    });
+DBusIPC.prototype._initSingal = function(iface) {
+  var self = this; 
+  iface.on('notify', function(msg) {
+    // console.log(msg);
+    self.emit('msg', msg);
   });
 }
 
@@ -112,7 +116,10 @@ DBusIPC.prototype.invoke = function(peramObj) {
   });
 }
 
+var server = null;
 exports.getObj = function(initObj) {
-  return new DBusIPC(initObj);
+  if(!initObj.service || server == null)
+    return new DBusIPC(initObj);
+  return server;
 }
 

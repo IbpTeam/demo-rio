@@ -17,7 +17,7 @@ exports.setVal = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
   ipc.invoke({
-    name: "setVal",
+    name: 'setVal',
     in: args,
     callback: callback
   });
@@ -27,7 +27,7 @@ exports.getVal = function(callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
   ipc.invoke({
-    name: "getVal",
+    name: 'getVal',
     in: args,
     callback: callback
   });

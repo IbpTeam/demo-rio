@@ -66,9 +66,10 @@ function builder(ifaces) {
     return console.log('Service\'s name not found');
   var pkgName = ifaces.package || 'nodejs.webde',
       addr = ifaces.address || 'nodejs.webde.service',
+      path = ifaces.path || '/' + addr.replace(/\./g, '/'),
       initObj = {
         address: addr,
-        path: '/' + addr.replace(/\./g, '/'),
+        path: path,
         name: addr + '.' + ifaces.service,
       };
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces);
@@ -85,13 +86,14 @@ var GETIPC = "// TODO: please replace $ipcType with one of dbus, binder and webs
 function buildStub(filename, initObj, ifaces) {
   var outputFile = [],
       serviceObj = {},
-      TODO = '/* TODO: implement your service */';
+      TODO = '/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/';
   initObj.interface = ifaces;
   initObj.service = true;
   initObj.serviceObj = {};
   // construct service object
   for(var i = 0; i < ifaces.length; ++i) {
-    serviceObj[ifaces[i].name] = 'function(' + ifaces[i].in.join(', ') + ') {' + TODO + '}';
+    serviceObj[ifaces[i].name] = 'function(' + ifaces[i].in.join(', ')
+        + (ifaces[i].in.length == 0 ? '' : ', ') + 'callback) {' + TODO + '}';
   }
 
   try {
