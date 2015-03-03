@@ -142,6 +142,7 @@ function buildProxy(filename, initObj, ifaces) {
           + "  });\n"
           + "};\n");
     }
+    // TODO: add on/off interface
     outputFile.push("// TODO: choose to implement interfaces of ipc\n"
         + "/* handle message send from service\n"
         + "ipc.onMsg = function(msg) {\n"

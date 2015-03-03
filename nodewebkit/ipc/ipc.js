@@ -26,15 +26,21 @@ function IPC(type, initObj) {
     default:
       throw 'Unknown type of IPC';
   }
-  self._ipc.on('msg', self.onMsg)
-    .on('connect', self.onConnect)
-    .on('close', self.onClose)
-    .on('error', self.onError);
+  self._ipc.on('msg', function(msg) {
+    self.onMsg(msg);
+  }).on('connect', function() {
+    self.onConnect();
+  }).on('close', function() {
+    self.onClose();
+  }).on('error', function(err) {
+    self.onError(err);
+  });
 }
 util.inherits(IPC, events.EventEmitter);
 
 IPC.prototype.onMsg = function(msg) {
   console.log('Recive message:', msg);
+  // TODO: make sure the communication protocol
 }
 
 IPC.prototype.onConnect = function() {
@@ -60,13 +66,15 @@ IPC.prototype.invoke = function(peramObj) {
   this._ipc.invoke.apply(this._ipc, arguments);
 }
 
+// TODO: change the paramter msg to (event, arguments)
 IPC.prototype.notify = function(msg) {
-  // transmit to _ipc to notify
+  // TODO: transmit (event, arguments) into a msg
+  //  and then transmit to _ipc to notify
   this._ipc.notify.apply(this._ipc, arguments);
 }
 
-IPC.prototype._dispatch = function() {
-  // TODO: move to Proxy/stub dispatch messages
+IPC.prototype._dispatch = function(msg) {
+  // TODO: parse messages recived and dispatch to corresponding handler
 }
 
 exports.getIPC = function(type, initObj) {
