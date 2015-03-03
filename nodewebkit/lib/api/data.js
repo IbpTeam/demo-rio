@@ -20,6 +20,21 @@ var server = require("../../backend/server");
 var router = require("../../backend/router");
 
 /**
+ * @method getServerState
+ *    To get server state.
+ *
+ * @param1 cb_
+ *   回调函数(started)
+ *   @started
+ *      boolean, has started:true,not started:false
+ *
+ */
+function getServerState(cb_){
+  cb_(server.getWSServer()===undefined?false:true);
+}
+exports.getServerState=getServerState;
+
+/**
  * @method startServer
  *    To start server and webSocketSever.
  *
