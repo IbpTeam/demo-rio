@@ -326,7 +326,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
-  var msgRst={};
+  var msgRst;
   var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
