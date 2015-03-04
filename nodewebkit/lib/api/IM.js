@@ -326,7 +326,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
-  var msgRst;
+  var msgRst = undefined; //msgRst初始值为undefined;发送消息收到应到之后，msgRst=msg（收到应答后返回此次发送的消息内容）;发送消息未收到应到时，msgRst=msg（undefined）。该发送消息方法的回调函数会返回发送消息返回结果msgRst
   var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
