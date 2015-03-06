@@ -104,6 +104,25 @@ function removeListener(CbId, ws) {
 exports.removeListener = removeListener;
 
 /**
+ * @method getIMServiceState
+ *  获取IMService State
+ *
+ * @param getIMServiceStateCb
+ *   回调函数，用来表示服务开启与否的状态
+ *  @cbparam1
+ *   bool, 表示服务已经开启则为true，否则为false
+ * 
+ * @param flag
+ *   string 表示是否开启加密状态服务对于的server
+ *   若加密则为true，否则为false
+ *
+ */
+function getIMServiceState(getIMServiceStateCb,flag) {
+  IM.getIMServiceState(getIMServiceStateCb,flag);
+}
+exports.getIMServiceState = getIMServiceState;
+
+/**
  * @method startIMService
  *  该函数用来启动本机接收消息监听服务，该函数会在本机开启
  *  一个消息接收端口，用于通信，收到的消息交付registerApp函数

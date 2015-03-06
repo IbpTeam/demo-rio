@@ -29,6 +29,10 @@ function MD5(str, encoding) {
   return crypto.createHash('md5').update(binaryStr).digest(encoding || 'hex');
 }
 
+function getIMServiceState(cb){
+  cb(server===undefined?false:true);
+}
+exports.getIMServiceState=getIMServiceState;
 /*
 * @method initIMServer
 * @param port

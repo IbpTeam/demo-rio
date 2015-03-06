@@ -37,3 +37,19 @@ function closeIMService(closeCb, flag) {
     }
 }
 exports.closeIMService = closeIMService;
+
+function getIMServiceState(getIMServiceStateCb, flag) {
+    try {
+        if (flag) {
+
+        } else {
+            IMNoRsa.getIMServiceState(function(started) {
+                getIMServiceStateCb(started);
+            });
+        }
+    } catch (err) {
+        console.log(err);
+        getIMServiceStateCb(false);
+    }
+}
+exports.getIMServiceState = getIMServiceState;
