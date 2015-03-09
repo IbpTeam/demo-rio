@@ -41,6 +41,7 @@ util.inherits(IPC, events.EventEmitter);
 IPC.prototype.onMsg = function(msg) {
   console.log('Recive message:', msg);
   // TODO: make sure the communication protocol
+  this._dispatch(msg);
 }
 
 IPC.prototype.onConnect = function() {
@@ -66,15 +67,27 @@ IPC.prototype.invoke = function(peramObj) {
   this._ipc.invoke.apply(this._ipc, arguments);
 }
 
-// TODO: change the paramter msg to (event, arguments)
-IPC.prototype.notify = function(msg) {
-  // TODO: transmit (event, arguments) into a msg
+IPC.prototype.notify = function(event) {
+  // transmit (event, arguments) into a msg
   //  and then transmit to _ipc to notify
-  this._ipc.notify.apply(this._ipc, arguments);
+  try {
+    var l = arguments.length,
+        args = Array.prototype.slice.call(arguments, 0, l - 1),
+        msg = JSON.stringify(args);
+    this._ipc.notify.apply(this._ipc, msg);
+  } catch(e) {
+    this.onError(e);
+  }
 }
 
 IPC.prototype._dispatch = function(msg) {
-  // TODO: parse messages recived and dispatch to corresponding handler
+  // parse messages recived and dispatch to corresponding handler
+  try {
+    var args = JSON.parse(msg);
+    this.emit.apply(this, args);
+  } catch(e) {
+    this.onError(e);
+  }
 }
 
 exports.getIPC = function(type, initObj) {

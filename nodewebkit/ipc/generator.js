@@ -64,6 +64,8 @@ readJSONFile(process.argv[2], function(err, interfaces) {
 function builder(ifaces) {
   if(typeof ifaces.service === 'undefined')
     return console.log('Service\'s name not found');
+  // TODO: add 'type' and 'remote' field to interface file to determine features of proxy and stub
+  //  will be generated.
   var pkgName = ifaces.package || 'nodejs.webde',
       addr = ifaces.address || 'nodejs.webde.service',
       path = ifaces.path || '/' + addr.replace(/\./g, '/'),
@@ -107,8 +109,8 @@ function buildStub(filename, initObj, ifaces) {
     outputFile.push("var initObj = " + initObjStr + "\n");
     // the string to get ipc object
     outputFile.push(GETIPC);
-    outputFile.push("exports.notify = function(msg) {\n"
-        + "  ipc.notify(msg);\n"
+    outputFile.push("exports.notify = function(event) {\n"
+        + "  ipc.notify.apply(ipc, arguments);\n"
         + "};\n");
 
     fs.writeFile(filename, outputFile.join('\n'), function(err) {
