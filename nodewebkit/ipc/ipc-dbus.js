@@ -1,6 +1,6 @@
 var util = require('util'),
     events = require('events'),
-    DBus = require('node-dbus'),
+    DBus = require('dbus'),
     dbus = new DBus();
 
 // events provided:

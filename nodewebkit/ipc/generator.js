@@ -196,7 +196,7 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "  this.ipc.on(event, handler);\n"
         + "}\n\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
-        + "  this.ipc.off(event, handler);\n"
+        + "  this.ipc.removeListener(event, handler);\n"
         + "}\n");
     // interface to get proxy object
     outputFile.push("var proxy = null;\n"

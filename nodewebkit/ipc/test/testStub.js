@@ -7,7 +7,7 @@ var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
   "name": "nodejs.webde.service.test",
-  "type": "$ipcType",
+  "type": "dbus",
   "service": true,
   "interface": [
     {
@@ -23,14 +23,24 @@ var initObj = {
     }
   ],
   "serviceObj": {
-    setVal: function(String, callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
-    getVal: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/}
+    setVal: function(val, callback) {
+      /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      v = val;
+      console.log(val);
+      callback();
+    },
+    getVal: function(callback) {
+      /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      callback(v);
+    }
   }
 }
 
+var v = 'WWW';
+
 function Stub() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('$IPC').getIPC(initObj);
+  this.ipc = require('./ipc').getIPC(initObj);
 }
 
 Stub.prototype.notify = function(event) {

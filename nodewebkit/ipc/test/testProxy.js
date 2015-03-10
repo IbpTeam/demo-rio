@@ -7,13 +7,13 @@ var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
   "name": "nodejs.webde.service.test",
-  "type": "$ipcType",
+  "type": "dbus",
   "service": false
 }
 
 function Proxy() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('$IPC').getIPC(initObj);
+  this.ipc = require('./ipc').getIPC(initObj);
 
   // TODO: choose to implement interfaces of ipc
   /* handle message send from service
@@ -62,7 +62,7 @@ Proxy.prototype.on = function(event, handler) {
 }
 
 Proxy.prototype.off = function(event, handler) {
-  this.ipc.off(event, handler);
+  this.ipc.removeListener(event, handler);
 }
 
 var proxy = null;

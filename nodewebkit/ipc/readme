@@ -1,0 +1,1 @@
+To implement ipc your own, you should realize interfaces called invoke and notify of IPC at least just like ipc-dbus.js done.

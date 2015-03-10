@@ -71,10 +71,9 @@ IPC.prototype.notify = function(event) {
   // transmit (event, arguments) into a msg
   //  and then transmit to _ipc to notify
   try {
-    var l = arguments.length,
-        args = Array.prototype.slice.call(arguments, 0, l - 1),
+    var args = Array.prototype.slice.call(arguments, 0, arguments.length),
         msg = JSON.stringify(args);
-    this._ipc.notify.apply(this._ipc, msg);
+    this._ipc.notify.call(this._ipc, msg);
   } catch(e) {
     this.onError(e);
   }
@@ -91,7 +90,7 @@ IPC.prototype._dispatch = function(msg) {
 }
 
 exports.getIPC = function(initObj) {
-  if(ipc[type] == null) ipc[type] = new IPC(initObj);
-  return ipc[type];
+  if(ipc[initObj.type] == null) ipc[initObj.type] = new IPC(initObj);
+  return ipc[initObj.type];
 }
 
