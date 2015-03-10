@@ -14,12 +14,12 @@ var ipc = {
 //  interface: Object -> user defined interface for initializing service
 // }
 //
-function IPC(type, initObj) {
+function IPC(initObj) {
   var self = this;
 
   events.EventEmitter.call(self);
   
-  switch(type) {
+  switch(initObj.type) {
     case 'dbus':
       self._ipc = require('./ipc-dbus.js').getObj(initObj);
       break;
@@ -90,8 +90,8 @@ IPC.prototype._dispatch = function(msg) {
   }
 }
 
-exports.getIPC = function(type, initObj) {
-  if(ipc[type] == null) ipc[type] = new IPC(type, initObj);
+exports.getIPC = function(initObj) {
+  if(ipc[type] == null) ipc[type] = new IPC(initObj);
   return ipc[type];
 }
 

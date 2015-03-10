@@ -7,11 +7,18 @@ var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
   "name": "nodejs.webde.service.test",
-  "type": "$ipcType",
+  "type": "socket",
   "service": false
 }
 
-function Proxy() {
+function Proxy(ip, port) {
+  if(arguments.length == 2) {
+    initObj.ip = ip;
+    initObj.port = port;
+  } else {
+    return console.log('IP and Port are required');
+  }
+
   // TODO: please replace $IPC with the real path of ipc module in your project
   this.ipc = require('$IPC').getIPC(initObj);
 
@@ -66,7 +73,7 @@ Proxy.prototype.off = function(event, handler) {
 }
 
 var proxy = null;
-exports.getProxy = function() {
-  if(proxy == null) proxy = new Proxy();
+exports.getProxy = function(ip, port) {
+  if(proxy == null) proxy = new Proxy(ip, port);
   return proxy;
 }

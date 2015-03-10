@@ -66,24 +66,32 @@ function builder(ifaces) {
     return console.log('Service\'s name not found');
   // TODO: add 'type' and 'remote' field to interface file to determine features of proxy and stub
   //  will be generated.
-  var pkgName = ifaces.package || 'nodejs.webde',
+  var remote = ifaces.remote || 'false',
+      pkgName = ifaces.package || 'nodejs.webde',
       addr = ifaces.address || 'nodejs.webde.service',
       path = ifaces.path || '/' + addr.replace(/\./g, '/'),
       initObj = {
         address: addr,
         path: path,
         name: addr + '.' + ifaces.service,
+        type: ifaces.type || '$ipcType'
       };
-  buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces);
+  buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces, false);
   buildStub(ifaces.service + 'Stub.js', initObj, ifaces.interfaces);
+  if(remote == 'true') {
+    initObj.type = 'socket';
+    delete initObj.interface;
+    delete initObj.serviceObj;
+    buildProxy(ifaces.service + 'ProxyRemote.js', initObj, ifaces.interfaces, true)
+  }
 }
 
 var NOTICE = "// This file is auto generated based on user-defined interface.\n"
             + "// Please make sure that you have checked all TODOs in this file.\n"
-            + "// TODO: please replace types with peramters' name you wanted of any functions\n";
-var GETIPC = "// TODO: please replace $ipcType with one of dbus, binder and websocket\n"
-            + "// TODO: please replace $IPC with the real path of ipc module in your project\n"
-            + "var ipc = require('$IPC').getIPC($ipcType, initObj)\n";
+            + "// TODO: please replace types with peramters' name you wanted of any functions\n"
+            + "// TODO: please replace $ipcType with one of dbus, binder, websocket and socket\n";
+var GETIPC = "  // TODO: please replace $IPC with the real path of ipc module in your project\n"
+            + "  this.ipc = require('$IPC').getIPC(initObj);\n";
 
 function buildStub(filename, initObj, ifaces) {
   var outputFile = [],
@@ -108,10 +116,19 @@ function buildStub(filename, initObj, ifaces) {
     var initObjStr = JSON.stringify(initObj, null, 2).replace(/\{\}/, lines.join('\n'));
     outputFile.push("var initObj = " + initObjStr + "\n");
     // the string to get ipc object
-    outputFile.push(GETIPC);
-    outputFile.push("exports.notify = function(event) {\n"
-        + "  ipc.notify.apply(ipc, arguments);\n"
+    outputFile.push('function Stub() {\n'
+      // the string to get ipc object
+      + GETIPC
+      + '}\n');
+    outputFile.push("Stub.prototype.notify = function(event) {\n"
+        + "  this.ipc.notify.apply(this.ipc, arguments);\n"
         + "};\n");
+    // interface to get proxy object
+    outputFile.push("var stub = null;\n"
+        + "exports.getStub = function() {\n"
+        + "  if(stub == null) stub = new Stub();\n"
+        + "  return stub;\n"
+        + "}\n")
 
     fs.writeFile(filename, outputFile.join('\n'), function(err) {
       if(err) return err;
@@ -121,47 +138,72 @@ function buildStub(filename, initObj, ifaces) {
   }
 }
 
-function buildProxy(filename, initObj, ifaces) {
+var EVENTHANDLER = "  // TODO: choose to implement interfaces of ipc\n"
+        + "  /* handle message send from service\n"
+        + "  this.ipc.onMsg = function(msg) {\n"
+        + "    // TODO: your handler\n"
+        + "  }*/\n\n"
+        + "  /* handle the event emitted when connected succeffuly\n"
+        + "  this.ipc.onConnect = function() {\n"
+        + "    // TODO: your handler\n"
+        + "  }*/\n\n"
+        + "  /* handle the event emitted when connection has been closed\n"
+        + "  this.ipc.onClose = function() {\n"
+        + "    // TODO: your handler\n"
+        + "  }*/\n\n"
+        + "  /* handle the event emitted when error occured\n"
+        + "  this.ipc.onError = function(err) {\n"
+        + "    // TODO: your handler\n"
+        + "  }*/\n";
+
+function buildProxy(filename, initObj, ifaces, remote) {
   var outputFile = [];
   initObj.service = false;
   try {
-    // the string to get ipc object
     outputFile.push(NOTICE);
     var initObjStr = JSON.stringify(initObj, null, 2);
     outputFile.push("var initObj = " + initObjStr + "\n");
-    outputFile.push(GETIPC);
+    var argus = (remote ? 'ip, port' : ''),
+        initS = (remote ? '  if(arguments.length == 2) {\n'
+                  + '    initObj.ip = ip;\n'
+                  + '    initObj.port = port;\n'
+                  + '  } else {\n'
+                  + '    return console.log(\'IP and Port are required\');\n'
+                  + '  }\n\n' : '');
+    outputFile.push('function Proxy(' + argus + ') {\n'
+      + initS
+      // the string to get ipc object
+      + GETIPC + '\n'
+      // the string to implement event handler user-own
+      + EVENTHANDLER
+      + '}\n');
     // construct proxy interface
     for(var i = 0; i < ifaces.length; ++i) {
-      outputFile.push("exports." + ifaces[i].name + " = function(" 
+      outputFile.push("Proxy.prototype." + ifaces[i].name + " = function(" 
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
           + "  var l = arguments.length,\n"
           + "      args = Array.prototype.slice.call(arguments, 0, l - 1);\n"
-          + "  ipc.invoke({\n"
+          + "  this.ipc.invoke({\n"
           + "    name: '" + ifaces[i].name + "',\n"
           + "    in: args,\n"
           + "    callback: callback\n"
           + "  });\n"
           + "};\n");
     }
-    // TODO: add on/off interface
-    outputFile.push("// TODO: choose to implement interfaces of ipc\n"
-        + "/* handle message send from service\n"
-        + "ipc.onMsg = function(msg) {\n"
-        + "  // TODO: your handler\n"
-        + "}*/\n\n"
-        + "/* handle the event emitted when connected succeffuly\n"
-        + "ipc.onConnect = function() {\n"
-        + "  // TODO: your handler\n"
-        + "}*/\n\n"
-        + "/* handle the event emitted when connection has been closed\n"
-        + "ipc.onClose = function() {\n"
-        + "  // TODO: your handler\n"
-        + "}*/\n\n"
-        + "/* handle the event emitted when error occured\n"
-        + "ipc.onError = function(err) {\n"
-        + "  // TODO: your handler\n"
-        + "}*/\n");
+    // add on/off interface
+    outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
+        + "  this.ipc.on(event, handler);\n"
+        + "}\n\n"
+        + "Proxy.prototype.off = function(event, handler) {\n"
+        + "  this.ipc.off(event, handler);\n"
+        + "}\n");
+    // interface to get proxy object
+    outputFile.push("var proxy = null;\n"
+        + "exports.getProxy = function(" + argus + ") {\n"
+        + "  if(proxy == null) proxy = new Proxy(" + argus + ");\n"
+        + "  return proxy;\n"
+        + "}\n")
 
     fs.writeFile(filename, outputFile.join('\n'), function(err) {
       if(err) return err;
