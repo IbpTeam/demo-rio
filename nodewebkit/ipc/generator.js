@@ -119,6 +119,7 @@ function buildStub(filename, initObj, ifaces) {
     outputFile.push('function Stub() {\n'
       // the string to get ipc object
       + GETIPC
+      // TODO: register proxy to server-deamon, if this service will serve for other devices
       + '}\n');
     outputFile.push("Stub.prototype.notify = function(event) {\n"
         + "  this.ipc.notify.apply(this.ipc, arguments);\n"

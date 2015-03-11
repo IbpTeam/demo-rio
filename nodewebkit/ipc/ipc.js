@@ -2,7 +2,8 @@ var util = require('util'),
     events = require('events');
 // need singleton?
 var ipc = {
-  dbus: null
+  dbus: null,
+  socket: null
 };
 
 // initObj: {
@@ -23,8 +24,11 @@ function IPC(initObj) {
     case 'dbus':
       self._ipc = require('./ipc-dbus.js').getObj(initObj);
       break;
+    case 'socket':
+      self._ipc = require('ipc-sock/ipc-sock.js').getObj(initObj);
+      break;
     default:
-      throw 'Unknown type of IPC';
+      throw 'Unknown type of IPC, [type = ' + initObj.type + ']';
   }
   self._ipc.on('msg', function(msg) {
     self.onMsg(msg);
