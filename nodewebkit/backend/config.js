@@ -18,6 +18,9 @@ var DATABASENAME = "rio.sqlite3";
 var DATABASEPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.DATABASEPATH = DATABASEPATH;
 
+var DOWNLOADPATH = path.join(BASEPATH, '.download');
+exports.DOWNLOADPATH = DOWNLOADPATH;
+
 var UNIQUEID_JS = "uniqueID.js";
 exports.UNIQUEID_JS = UNIQUEID_JS;
 

@@ -15,7 +15,6 @@ var USERCONFIGPATH = config.USERCONFIGPATH;
 var SSHPATH = path.join(USERCONFIGPATH, "key");
 var SSHUSERPATH = path.join(SSHPATH, "users");
 var SSHPATH_msg = path.join(HOME_DIR, CURUSER, SSH_DIR);
-var DOWNLOADPATH = path.join(HOME_DIR, CURUSER, DOWNLOAD_DIR);
 
 var prikeypath = path.join(SSHPATH, "rio_rsa");
 var pubkeypath_msg = path.join(SSHPATH, "rio_rsa.pub"); //use in msgTransfer
@@ -32,4 +31,3 @@ exports.SSHUSERPATH = SSHUSERPATH;
 exports.sshPriKeyPath = sshPriKeyPath;
 exports.sshPubKeyPath = sshPubKeyPath;
 exports.SSHPATH_msg = SSHPATH_msg;
-exports.DOWNLOADPATH = DOWNLOADPATH;

@@ -5,8 +5,6 @@ var hashtable = require('hashtable');
 var crypto = require('crypto');
 var config = require('../config.js');
 var buffer = require('buffer');
-var HOME_DIR = "/home";
-var CURUSER = process.env['USER'];
 var uniqueID = require(config.USERCONFIGPATH + '/uniqueID.js')
 
 var LOCALACCOUNT = uniqueID.Account;
@@ -143,6 +141,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.setTimeout(6000, function() {
     console.log("connect time out");
     client.end();
+    setTimeout(SentCallBack(), 0);
   });
 
   function innerrply() {
@@ -192,7 +191,10 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
               {
                 if (msg.message == MD5(dec)) {
                   var msgtp = pat;
-                  setTimeout(SentCallBack(msgtp.message), 0);
+                  var CalBakMsg = {};
+                  CalBakMsg['MsgObj'] = msgtp;
+                  CalBakMsg['IP'] = IP; 
+                  setTimeout(SentCallBack(CalBakMsg), 0);
                   clearInterval(id);
                   client.end();
                 };
@@ -210,6 +212,7 @@ function sendIMMsg(IP, PORT, SENDMSG, SentCallBack) {
   client.on('error', function(err) {
     clearInterval(id);
     client.end();
+    setTimeout(SentCallBack(), 0);
   });
 }
 

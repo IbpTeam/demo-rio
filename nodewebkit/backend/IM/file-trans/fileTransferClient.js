@@ -1,12 +1,13 @@
-var rsaKey = require('../rsaKey');
+var fsPublic = require('../fsPublic');
 var tape = require('tape');
 var fs = require('fs');
 var fileTransfer = require('./fileTransfer');
 var request = require('request');
 var util = require('util');
 var HashTable = require('hashtable');
-var cryptoConf = require('../../cryptoConf');
+var config = require('../../config');
 var path = require('path');
+var cp = require("child_process");
 
 var RATIO_SIZE = 0.1;
 var transferHashTable = new HashTable();
@@ -26,7 +27,7 @@ function deleteTmpFile(tmpFilePath,callback){
 exports.deleteTmpFile = deleteTmpFile;
 
 function transferFileProcess(msgObj, callback) {
-  rsaKey.mkdirsSync(cryptoConf.DOWNLOADPATH, function(done) {
+  fsPublic.mkdirsSync(config.DOWNLOADPATH, function(done) {
     if (done) {
       transferFile(msgObj, callback);
     } else {
@@ -37,7 +38,7 @@ function transferFileProcess(msgObj, callback) {
 exports.transferFileProcess = transferFileProcess;
 
 function initTransferFileName(fileName, callback) {
-  var filePath = path.join(cryptoConf.DOWNLOADPATH, fileName);
+  var filePath = path.join(config.DOWNLOADPATH, fileName);
   var name;
   var suffix;
   var i = 1;
@@ -53,7 +54,7 @@ function initTransferFileName(fileName, callback) {
       }
     }
     fileName =  name + ' (' + i + ')' + suffix;
-    filePath = path.join(cryptoConf.DOWNLOADPATH,fileName);
+    filePath = path.join(config.DOWNLOADPATH,fileName);
     i++;
   }
   callback(fileName,filePath);
@@ -66,7 +67,7 @@ function fileExistOrNot(filePath) {
 }
 
 function initTransferSaveDir(targetDir,initTransferSaveDirCb){
-  rsaKey.mkdirsSync(targetDir,function(done){
+  fsPublic.mkdirsSync(targetDir,function(done){
     initTransferSaveDirCb(done);
   });
 }
@@ -138,3 +139,28 @@ function transferFile(msgObj, callback) {
   }
 }
 exports.transferFile = transferFile;
+
+function clearTmpDir() {
+  try {
+    var exists = fs.existsSync(config.DOWNLOADPATH);
+    if (exists) {
+      var files = fs.readdirSync(config.DOWNLOADPATH);
+      files.forEach(function(item) {
+        var tmpPath = config.DOWNLOADPATH + '/' + item;
+        var sCommandStr = "rm -rf " + tmpPath;
+        cp.exec(sCommandStr, function(err, stdout, stderr) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('delete file ' + tmpPath);
+          }
+        });
+      });
+    } else {
+      console.log('no DOWNLOAD dir');
+    }
+  } catch (e) {
+    console.log('clearTmpDir error ' + e);
+  }
+}
+exports.clearTmpDir = clearTmpDir;
