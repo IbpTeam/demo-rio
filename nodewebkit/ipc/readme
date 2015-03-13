@@ -1,0 +1,19 @@
+To implement ipc your own, you should realize interfaces called invoke and notify of IPC at least just like ipc-dbus.js done.
+
+Interface definition:
+{
+  package: package's name [optional] -> String
+  service: service's name -> String
+  path: object's path [optional] -> String
+  remote: service for remote device or not, defalut is "false" -> String: "true"/"false"
+  interfaces: [
+    {
+      name: interface name -> String
+      in: [type of perameters -> String] -> Array
+      out: type of return value -> String
+    } -> Object
+  ] -> Array
+}
+
+When finish define your interface, use generator to get correponding Proxy and Stub.
+e.g. nodejs generator.js $your_interface_file
