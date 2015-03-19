@@ -87,6 +87,7 @@ function PeerEnd() {
           list[key].val.release();
           list[key] = null;
           delete list[key];
+          console.log('Connection to', key, 'has been closed');
         } catch(e) {
           console.log(e);
         }
@@ -99,6 +100,7 @@ function PeerEnd() {
           list[key].val.release();
           list[key] = null;
           delete list[key];
+          console.log('Connection to', key, 'has been closed');
         } catch(e) {
           console.log(e);
         }
@@ -195,6 +197,7 @@ PeerEnd.prototype.register = function(svrName, svrAddr) {}
 PeerEnd.prototype.unregister = function(svrName) {}
 
 function main() {
+  var peer = new PeerEnd();
   // TODO: register PeerEnd on local IPC framework to be a service
 }
 
