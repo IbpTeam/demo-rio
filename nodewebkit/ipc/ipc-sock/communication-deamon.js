@@ -117,7 +117,9 @@ function PeerEnd() {
 PeerEnd.prototype._init = function() {
   // TODO: start up a server
   var self = this,
-      server = self._server = net.createServer(self._accept);
+      server = self._server = net.createServer(function(cliSock) {
+        self._accept(cliSock);
+      });
   server.listen(self._port, function() {
     console.log('This peer is listening on', server.address());
   });
@@ -133,9 +135,11 @@ PeerEnd.prototype._destroy = function() {
 
 PeerEnd.prototype._accept = function(cliSock) {
   // TODO: varify this connection
+  var self = this;
   cliSock.on('data', function(data) {
+    console.log(this.remoteAddress + ':' + this.remotePort + ' sends: ' + data.toString());
     // TODO: make sure this is a completed data packet
-    this._dispatcher(data);
+    self._dispatcher(data);
   }).on('end', function() {
     // TODO: handle client disconnect
   });
@@ -158,21 +162,21 @@ PeerEnd.prototype._dispatcher = function(msg) {
 // TODO: maintain a connection for seconds, close idle connections
 //  which have none communication with the peer out of time.
 PeerEnd.prototype._getConnection = function(ip) {
-  var client;
+  var client, self = this;
   try {
-    client = this._connList.get(ip);
+    client = self._connList.get(ip);
   } catch(e) {
-    client = net.connect({
-      host: ip,
-      port: this._port
-    }, function() {
-      // TODO: connected successfully
+    client = net.connect(self._port, ip, function() {
+      // connected successfully
+      self._connList.set(ip, client);
     });
     client.setKeepAlive(true);
     client.release = client.destroy;
-    this._connList.set(ip, client);
     client.on('data', function(data) {
       // TODO: handle data from server
+    }).on('error', function(err) {
+      // TODO: handle errors
+      console.log(err);
     }).on('end', function() {
       // TODO: disconnected from server
     });
@@ -181,23 +185,36 @@ PeerEnd.prototype._getConnection = function(ip) {
 }
 
 // TODO: API for clients to send sth to peers
-PeerEnd.prototype.send = function(dstAddr, content) {
+PeerEnd.prototype.send = function(dstAddr, content, callback) {
+  var cb = callback || function() {};
   if(net.isIP(dstAddr) == 0)
-    return 'Invalid IP address';
+    return cb('Invalid IP address');
   var conn = this._getConnection(dstAddr);
   conn.write(this._packet(content), function() {
     // TODO: do sth after sending packet
+    cb(null);
   });
 }
 
 // TODO: API for clients to register services
-PeerEnd.prototype.register = function(svrName, svrAddr) {}
+PeerEnd.prototype.register = function(svrName, svrAddr, callback) {
+  var cb = callback || function() {};
+  cb(null);
+}
 
 // TODO: API for clients to unregister services
-PeerEnd.prototype.unregister = function(svrName) {}
+PeerEnd.prototype.unregister = function(svrName, callback) {
+  var cb = callback || function() {};
+  cb(null);
+}
 
 function main() {
   var peer = new PeerEnd();
+  // For test
+  /* peer.send('192.168.1.100', 'Hello world!!'); */
+  // setTimeout(function() {
+    // peer.send('192.168.1.100', 'Hello again');
+  /* }, 60000); */
   // TODO: register PeerEnd on local IPC framework to be a service
 }
 
