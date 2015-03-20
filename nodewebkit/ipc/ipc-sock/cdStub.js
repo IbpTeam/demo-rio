@@ -13,7 +13,7 @@ if(pf == 'linux') {
 var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.test",
+  "name": "nodejs.webde.service.commdeamon",
   "type": type,
   "service": true,
   "interface": [
@@ -23,7 +23,7 @@ var initObj = {
         "String",
         "String"
       ],
-      "out": "Number"
+      "out": "Auto"
     },
     {
       "name": "register",

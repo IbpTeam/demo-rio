@@ -6,17 +6,16 @@
 var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.test",
-  "type": "socket",
+  "name": "nodejs.webde.service.commdeamon",
+  "type": "$ipcType",
   "service": false
 }
 
-function Proxy(ip, port) {
-  if(arguments.length == 2) {
-    initObj.ip = ip;
-    initObj.port = port;
+function Proxy(ip) {
+  if(typeof ip !== 'undefined') {
+    this.ip = ip;
   } else {
-    return console.log('IP and Port are required');
+    return console.log('The remote IP is required');
   }
 
   // TODO: please replace $IPC with the real path of ipc module in your project
@@ -47,9 +46,18 @@ function Proxy(ip, port) {
 Proxy.prototype.setVal = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
+  try {
+    var argv = {
+      func: 'setVal',
+      args: args
+    };
+    var argvs = JSON.stringify(argv);
+  } catch(e) {
+    return console.log(e);
+  }
   this.ipc.invoke({
-    name: 'setVal',
-    in: args,
+    name: 'send',
+    in: [this.ip, argvs],
     callback: callback
   });
 };
@@ -57,23 +65,34 @@ Proxy.prototype.setVal = function(String, callback) {
 Proxy.prototype.getVal = function(callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
+  try {
+    var argv = {
+      func: 'getVal',
+      args: args
+    };
+    var argvs = JSON.stringify(argv);
+  } catch(e) {
+    return console.log(e);
+  }
   this.ipc.invoke({
-    name: 'getVal',
-    in: args,
+    name: 'send',
+    in: [this.ip, argvs],
     callback: callback
   });
 };
 
-Proxy.prototype.on = function(event, handler) {
-  this.ipc.on(event, handler);
-}
-
-Proxy.prototype.off = function(event, handler) {
-  this.ipc.off(event, handler);
-}
+  var argvs = '{
+    'func': 'on',
+    'args': ''
+  }';
+  this.ipc.invoke({
+    name: 'send',
+    in: [this.ip, argvs],
+    callback: callback
+  });
 
 var proxy = null;
-exports.getProxy = function(ip, port) {
-  if(proxy == null) proxy = new Proxy(ip, port);
+exports.getProxy = function(ip) {
+  if(proxy == null) proxy = new Proxy(ip);
   return proxy;
 }

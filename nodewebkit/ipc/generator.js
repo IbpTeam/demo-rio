@@ -79,7 +79,7 @@ function builder(ifaces) {
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces, false);
   buildStub(ifaces.service + 'Stub.js', initObj, ifaces.interfaces);
   if(remote == 'true') {
-    initObj.type = 'socket';
+    initObj.name = 'nodejs.webde.service.commdeamon';
     delete initObj.interface;
     delete initObj.serviceObj;
     buildProxy(ifaces.service + 'ProxyRemote.js', initObj, ifaces.interfaces, true)
@@ -164,12 +164,11 @@ function buildProxy(filename, initObj, ifaces, remote) {
     outputFile.push(NOTICE);
     var initObjStr = JSON.stringify(initObj, null, 2);
     outputFile.push("var initObj = " + initObjStr + "\n");
-    var argus = (remote ? 'ip, port' : ''),
-        initS = (remote ? '  if(arguments.length == 2) {\n'
-                  + '    initObj.ip = ip;\n'
-                  + '    initObj.port = port;\n'
+    var argus = (remote ? 'ip' : ''),
+        initS = (remote ? '  if(typeof ip !== \'undefined\') {\n'
+                  + '    this.ip = ip;\n'
                   + '  } else {\n'
-                  + '    return console.log(\'IP and Port are required\');\n'
+                  + '    return console.log(\'The remote IP is required\');\n'
                   + '  }\n\n' : '');
     outputFile.push('function Proxy(' + argus + ') {\n'
       + initS
@@ -178,26 +177,58 @@ function buildProxy(filename, initObj, ifaces, remote) {
       // the string to implement event handler user-own
       + EVENTHANDLER
       + '}\n');
-    // construct proxy interface
     for(var i = 0; i < ifaces.length; ++i) {
       outputFile.push("Proxy.prototype." + ifaces[i].name + " = function(" 
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
           + "  var l = arguments.length,\n"
           + "      args = Array.prototype.slice.call(arguments, 0, l - 1);\n"
+          + (remote ? ("  try {\n"
+          + "    var argv = {\n"
+          + "      func: '" + ifaces[i].name + "',\n"
+          + "      args: args\n"
+          + "    };\n"
+          + "    var argvs = JSON.stringify(argv);\n"
+          + "  } catch(e) {\n"
+          + "    return console.log(e);\n"
+          + "  }\n"
           + "  this.ipc.invoke({\n"
+          + "    name: 'send',\n"
+          + "    in: [this.ip, argvs],\n"
+          + "    callback: callback\n"
+          + "  });\n") : ("  this.ipc.invoke({\n"
           + "    name: '" + ifaces[i].name + "',\n"
           + "    in: args,\n"
           + "    callback: callback\n"
-          + "  });\n"
+          + "  });\n"))
           + "};\n");
     }
     // add on/off interface
     outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
         + "  this.ipc.on(event, handler);\n"
+        // TODO: send on request to remote peer
+        + remote ? ("  var argvs = '{\n"
+        + "    'func': 'on',\n"
+        + "    'args': ''\n"
+        + "  }';\n"
+        + "  this.ipc.invoke({\n"
+        + "    name: 'send',\n"
+        + "    in: [this.ip, argvs],\n"
+        + "    callback: callback\n"
+        + "  });\n") : ""
         + "}\n\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
         + "  this.ipc.removeListener(event, handler);\n"
+        // TODO: send off request to remote peer
+        + remote ? ("  var argvs = '{\n"
+        + "    'func': 'off',\n"
+        + "    'args': ''\n"
+        + "  }';\n"
+        + "  this.ipc.invoke({\n"
+        + "    name: 'send',\n"
+        + "    in: [this.ip, argvs],\n"
+        + "    callback: callback\n"
+        + "  });\n") : ""
         + "}\n");
     // interface to get proxy object
     outputFile.push("var proxy = null;\n"

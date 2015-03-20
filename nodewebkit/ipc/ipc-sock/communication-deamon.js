@@ -193,6 +193,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
   var conn = this._getConnection(dstAddr);
   conn.write(this._packet(content), function() {
     // TODO: do sth after sending packet
+    // TODO: if this is a RPC msg, call this callback after reciving responses from remote
     cb(null);
   });
 }
