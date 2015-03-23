@@ -1,6 +1,7 @@
 // TODO: implements the server for reciving RPC requests from clients
 //   and register/unregister requests from services
-var net = require('net');
+var net = require('net'),
+    Stub = require('./cbStub');
 
 // Elements of this cache are objects like: {
 //  val: the real value
@@ -192,6 +193,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
   var conn = this._getConnection(dstAddr);
   conn.write(this._packet(content), function() {
     // TODO: do sth after sending packet
+    // TODO: if this is a RPC msg, call this callback after reciving responses from remote
     cb(null);
   });
 }
@@ -208,6 +210,7 @@ PeerEnd.prototype.unregister = function(svrName, callback) {
   cb(null);
 }
 
+var stub = null;
 function main() {
   var peer = new PeerEnd();
   // For test
@@ -216,6 +219,7 @@ function main() {
     // peer.send('192.168.1.100', 'Hello again');
   /* }, 60000); */
   // TODO: register PeerEnd on local IPC framework to be a service
+  stub = Stub.getStub(peer);
 }
 
 main();
