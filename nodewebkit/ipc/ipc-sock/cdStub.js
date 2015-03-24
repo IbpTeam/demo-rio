@@ -43,9 +43,9 @@ var initObj = {
   ],
   "serviceObj": {
     send: function(dstAddr, content, callback) {
-      peer.send(dstAddr, content, function(err) {
+      peer.send(dstAddr, content, function(err, result) {
         if(err) callback(-1);
-        else callback(0);
+        else callback(result);
       });
     },
     register: function(svrName, svrAddr, callback) {

@@ -1,7 +1,7 @@
 // TODO: implements the server for reciving RPC requests from clients
 //   and register/unregister requests from services
 var net = require('net'),
-    Stub = require('./cbStub');
+    Stub = require('./cdStub') ;
 
 // Elements of this cache are objects like: {
 //  val: the real value
@@ -79,6 +79,7 @@ Cache.prototype._findOldest = function(list) {
 
 function PeerEnd() {
   this._port = 56765;
+  this._callStack = [];
   this._svrObj = new Cache(20);
   this._svrList = [];
   this._connList = new Cache(20, {
@@ -137,10 +138,14 @@ PeerEnd.prototype._destroy = function() {
 PeerEnd.prototype._accept = function(cliSock) {
   // TODO: varify this connection
   var self = this;
+  // self._connList.set(self.remoteAddress, cliSock);
   cliSock.on('data', function(data) {
     console.log(this.remoteAddress + ':' + this.remotePort + ' sends: ' + data.toString());
     // TODO: make sure this is a completed data packet
     self._dispatcher(data);
+  }).on('error', function(err) {
+    // TODO: handle errors
+    console.log(err);
   }).on('end', function() {
     // TODO: handle client disconnect
   });
@@ -148,16 +153,34 @@ PeerEnd.prototype._accept = function(cliSock) {
 
 PeerEnd.prototype._packet = function(content) {
   // TODO: put content into a data packet
-  return content;
+  return JSON.stringify(content);
 }
 
 PeerEnd.prototype._unpack = function(packet) {
   // TODO: get content from data packet
-  return packet;
+  return JSON.parse(packet);
 }
 
 PeerEnd.prototype._dispatcher = function(msg) {
   // TODO: handle msgs from clients
+  try {
+    var content = this._unpack(msg);
+    switch(content.action) {
+      case 0: // call
+        // TODO: find Service proxy object based on svr of content
+        break;
+      case 1: // return
+        // TODO: find cb from call stack based on token of content
+        break;
+      case 2: // notify
+        // TODO: use stub to notify targets
+        break;
+      default:
+        break;
+    }
+  } catch(e) {
+    console.log(e);
+  }
 }
 
 // TODO: maintain a connection for seconds, close idle connections
@@ -173,28 +196,59 @@ PeerEnd.prototype._getConnection = function(ip) {
     });
     client.setKeepAlive(true);
     client.release = client.destroy;
-    client.on('data', function(data) {
-      // TODO: handle data from server
-    }).on('error', function(err) {
-      // TODO: handle errors
-      console.log(err);
-    }).on('end', function() {
-      // TODO: disconnected from server
-    });
+    self._accept(client);
+    /* client.on('data', function(data) { */
+      // // TODO: handle data from server
+    // }).on('error', function(err) {
+      // // TODO: handle errors
+      // console.log(err);
+    // }).on('end', function() {
+      // // TODO: disconnected from server
+    /* }); */
   }
   return client;
 }
 
+PeerEnd.prototype._contentVarify = function(content) {
+  if(typeof content !== 'object')
+    return 'Invalid type of content, should be an object';
+  if(content.action < 0 && content.action > 2)
+    return 'Unknown action';
+  return null;
+}
+
 // TODO: API for clients to send sth to peers
+// content -> JSON object: {
+//  action: {call(0)|return(1)|notify(2)} -> Number,
+//  svr: {the name of service} -> String,
+//  func: {the name of function to be called} -> String,
+//  args: {args needed} -> Array
+// }
+// e.g. {
+//  action: 0(or 1),
+//  svr: 'service1'
+//  func: 'fn1',
+//  args: [arg1, arg2](or [ret])
+// },
+// {
+//  action: 2,
+//  args: [event, arg1, arg2]
+// }
 PeerEnd.prototype.send = function(dstAddr, content, callback) {
   var cb = callback || function() {};
   if(net.isIP(dstAddr) == 0)
     return cb('Invalid IP address');
+  if((var ret = this._contentVarify(content)) != null)
+    return cb(ret);
+  if(content.action == 0) {
+    content.token = '';
+    this._callStack[content.token] = cb;
+  }
   var conn = this._getConnection(dstAddr);
   conn.write(this._packet(content), function() {
     // TODO: do sth after sending packet
-    // TODO: if this is a RPC msg, call this callback after reciving responses from remote
-    cb(null);
+    // If this is a RPC msg, call this callback after reciving responses from remote
+    if(content.action != 0) cb(null, 0);
   });
 }
 
@@ -211,7 +265,7 @@ PeerEnd.prototype.unregister = function(svrName, callback) {
 }
 
 var stub = null;
-function main() {
+(function main() {
   var peer = new PeerEnd();
   // For test
   /* peer.send('192.168.1.100', 'Hello world!!'); */
@@ -220,7 +274,5 @@ function main() {
   /* }, 60000); */
   // TODO: register PeerEnd on local IPC framework to be a service
   stub = Stub.getStub(peer);
-}
-
-main();
+})();
 
