@@ -28,7 +28,7 @@ function Cache(capacity, stratagy) {
 
 Cache.prototype.get = function(key) {
   if(typeof this._c[key] !== 'undefined') {
-    // TODO: change the corresponding LRU perameter
+    // update the information of cached element
     this._update(key, this._c);
     return this._c[key].val;
   }
@@ -80,8 +80,8 @@ Cache.prototype._findOldest = function(list) {
 function PeerEnd() {
   this._port = 56765;
   this._callStack = [];
-  this._svrObj = new Cache(20);
-  this._svrList = [];
+  this._svrObj = new Cache(20); // svrName -> proxy obj
+  this._svrList = []; // svrName -> module path
   this._connList = new Cache(20, {
     init: function(key, list) {
       list[key].timer = setTimeout(function() {
@@ -117,7 +117,7 @@ function PeerEnd() {
 }
 
 PeerEnd.prototype._init = function() {
-  // TODO: start up a server
+  // start up a server
   var self = this,
       server = self._server = net.createServer(function(cliSock) {
         self._accept(cliSock);
@@ -138,11 +138,12 @@ PeerEnd.prototype._destroy = function() {
 PeerEnd.prototype._accept = function(cliSock) {
   // TODO: varify this connection
   var self = this;
-  // self._connList.set(self.remoteAddress, cliSock);
+  // TODO: cache accepted connection
+  // self._connList.set(cliSock.remoteAddress, cliSock);
   cliSock.on('data', function(data) {
     console.log(this.remoteAddress + ':' + this.remotePort + ' sends: ' + data.toString());
     // TODO: make sure this is a completed data packet
-    self._dispatcher(data);
+    self._dispatcher(data, this.remoteAddress);
   }).on('error', function(err) {
     // TODO: handle errors
     console.log(err);
@@ -161,19 +162,21 @@ PeerEnd.prototype._unpack = function(packet) {
   return JSON.parse(packet);
 }
 
-PeerEnd.prototype._dispatcher = function(msg) {
-  // TODO: handle msgs from clients
+PeerEnd.prototype._dispatcher = function(msg, srcAddr) {
+  // handle msgs from clients
   try {
     var content = this._unpack(msg);
     switch(content.action) {
+      // TODO: run these handlers concurrently
       case 0: // call
-        // TODO: find Service proxy object based on svr of content
+        conetent.srcAddr = srcAddr;
+        this._callHandler(content);
         break;
       case 1: // return
-        // TODO: find cb from call stack based on token of content
+        this._returnHandler(content);
         break;
       case 2: // notify
-        // TODO: use stub to notify targets
+        this._notifyHandler(content);
         break;
       default:
         break;
@@ -181,6 +184,54 @@ PeerEnd.prototype._dispatcher = function(msg) {
   } catch(e) {
     console.log(e);
   }
+}
+
+PeerEnd.prototype._callHandler = function(content) {
+  // find Service proxy object based on svr of content
+  var self = this,
+      svrProxy;
+  try {
+    svrProxy = self._svrObj.get(content.svrName);
+  } catch(e) {
+    try {
+      svrProxy = require(self._svrList[content.svrName]).getProxy();
+      self._svrObj.set(content.svrName, svrProxy);
+    } catch(e) {
+      // service not found
+      self.send(content.srcAddr, {
+        action: 1,
+        svr: content.svr,
+        token: content.token,
+        func: content.func,
+        ret: ['Service not found']
+      });
+    }
+  }
+  content.args.push(function(result) {
+    // send result to client
+    self.send(content.srcAddr, {
+      action: 1,
+      svr: content.svr,
+      token: content.token,
+      func: content.func,
+      ret: [null, result]
+    });
+  });
+  svrProxy[content.func].apply(svrProxy, content.args);
+}
+
+PeerEnd.prototype._returnHandler = function(content) {
+  // find cb from call stack based on token of content
+  if(typeof this._callStack[content.token] === 'undefined')
+    return console.log('Callback not found');
+  this._callStack[content.token].apply(this, content.ret);
+  this._callStack[content.token] = null;
+  delete this._callStack[content.token];
+}
+
+PeerEnd.prototype._notifyHandler = function(content) {
+  // TODO: use stub to notify targets
+  stub.notify.apply(stub, content.args);
 }
 
 // TODO: maintain a connection for seconds, close idle connections
@@ -252,15 +303,23 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
   });
 }
 
-// TODO: API for clients to register services
+// API for clients to register services
 PeerEnd.prototype.register = function(svrName, svrAddr, callback) {
   var cb = callback || function() {};
+  if(typeof this._svrList[svrName] !== 'undefined')
+    cb('Service has been registered.');
+  // TODO: varify this svrAddr
+  this._svrList[svrName] = svrAddr;
   cb(null);
 }
 
-// TODO: API for clients to unregister services
+// API for clients to unregister services
 PeerEnd.prototype.unregister = function(svrName, callback) {
   var cb = callback || function() {};
+  if(typeof this._svrList[svrName] === 'undefined')
+    cb('Service is not registered.');
+  this._svrList[svrName] = null;
+  delete this._svrList[svrName];
   cb(null);
 }
 
