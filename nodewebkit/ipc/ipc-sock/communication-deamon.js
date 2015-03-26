@@ -293,6 +293,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
   if((var ret = this._contentVarify(content)) != null)
     return cb(ret);
   if(content.action == 0) {
+    // TODO: generate a token
     content.token = '';
     this._callStack[content.token] = cb;
   }

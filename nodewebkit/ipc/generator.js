@@ -181,10 +181,11 @@ function buildProxy(filename, initObj, ifaces, remote) {
                   + '  }\n\n' : ''); 
     outputFile.push('function Proxy(' +/*  argus +  */') {\n'
       + initS
-      // the string to get ipc object
-      + GETIPC + '\n'
+      // the string to get ipc or cdProxy object
+      + (remote ? "  // TODO: replace $cdProxy to the real path"
+      + "  this.cd = require('$cdProxy').getProxy();" : GETIPC) + "\n"
       // the string to implement event handler user-own
-      + EVENTHANDLER
+      + (remote ? "" : EVENTHANDLER)
       + '}\n');
     for(var i = 0; i < ifaces.length; ++i) {
       outputFile.push("Proxy.prototype." + ifaces[i].name + " = function(" 
@@ -203,7 +204,7 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + "  } catch(e) {\n"
           + "    return console.log(e);\n"
           + "  }\n"
-          + "  cd.send(this.ip, argvs);\n") : ("  this.ipc.invoke({\n"
+          + "  this.cd.send(this.ip, argvs, callback);\n") : ("  this.ipc.invoke({\n"
           // + "  this.ipc.invoke({\n"
           // + "    name: 'send',\n"
           // + "    in: [this.ip, argvs],\n"
@@ -217,15 +218,16 @@ function buildProxy(filename, initObj, ifaces, remote) {
     }
     // add on/off interface
     outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
-        + "  this.ipc.on(event, handler);\n"
         // send on request to remote peer
-        + (remote ? ("  var argvs = \"{\n"
+        + (remote ? ("  this.cd.on(event, handler);\n"
+        + "  var argvs = \"{\n"
         + "    'action': 0,\n"
         + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'on',\n"
         + "    'args': ''\n"
         + "  }\";\n"
-        + "  cd.send(this.ip, argvs);\n") : "")
+        + "  this.cd.send(this.ip, argvs);\n")
+        : "  this.ipc.on(event, handler);\n")
         /* + "  this.ipc.invoke({\n" */
         // + "    name: 'send',\n"
         // + "    in: [this.ip, argvs],\n"
@@ -233,15 +235,16 @@ function buildProxy(filename, initObj, ifaces, remote) {
         /* + "  });\n") : "") */
         + "};\n\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
-        + "  this.ipc.removeListener(event, handler);\n"
         // send off request to remote peer
-        + (remote ? ("  var argvs = \"{\n"
+        + (remote ? ("  this.cd.off(event, handler);\n"
+        + "  var argvs = \"{\n"
         + "    'action': 0,\n"
         + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'off',\n"
         + "    'args': ''\n"
         + "  }\";\n"
-        + "  cd.send(this.ip, argvs);\n") : "")
+        + "  this.cd.send(this.ip, argvs);\n")
+        : "  this.ipc.removeListener(event, handler);\n")
         /* + "  this.ipc.invoke({\n" */
         // + "    name: 'send',\n"
         // + "    in: [this.ip, argvs],\n"
@@ -249,12 +252,10 @@ function buildProxy(filename, initObj, ifaces, remote) {
         /* + "  });\n") : "") */
         + "};\n");
     // interface to get proxy object
-    outputFile.push("var proxy = null"
-        + (remote ? ",\n    cd = null;" : ";\n")
-        + "exports.getProxy = function(" + (remote ? 'ip' : '') + ") {\n"
+    outputFile.push("var proxy = null;\n"
+        + "exports.getProxy = function(" + argus + ") {\n"
         + "  if(proxy == null) {\n"
-        + "    proxy = new Proxy(" +/*  argus +  */");\n"
-        + (remote ? "    cd = require('$cdProxy').getProxy();\n" : "")
+        + "    proxy = new Proxy(" + argus +  ");\n"
         + "  }\n"
         + "  return proxy;\n"
         + "};\n");

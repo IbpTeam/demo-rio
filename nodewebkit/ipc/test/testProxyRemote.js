@@ -6,42 +6,19 @@
 var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.commdeamon",
+  "name": "nodejs.webde.service.test",
   "type": "$ipcType",
-  "service": false,
-  "svr": "test"
+  "service": false
 }
 
-function Proxy(ip) {
+function Proxy() {
   if(typeof ip !== 'undefined') {
     this.ip = ip;
   } else {
     return console.log('The remote IP is required');
   }
 
-  // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('$IPC').getIPC(initObj);
-
-  // TODO: choose to implement interfaces of ipc
-  /* handle message send from service
-  this.ipc.onMsg = function(msg) {
-    // TODO: your handler
-  }*/
-
-  /* handle the event emitted when connected succeffuly
-  this.ipc.onConnect = function() {
-    // TODO: your handler
-  }*/
-
-  /* handle the event emitted when connection has been closed
-  this.ipc.onClose = function() {
-    // TODO: your handler
-  }*/
-
-  /* handle the event emitted when error occured
-  this.ipc.onError = function(err) {
-    // TODO: your handler
-  }*/
+  // TODO: replace $cdProxy to the real path  this.cd = require('$cdProxy').getProxy();
 }
 
 Proxy.prototype.setVal = function(String, callback) {
@@ -50,7 +27,7 @@ Proxy.prototype.setVal = function(String, callback) {
   try {
     var argv = {
       action: 'call',
-      svr: 'test',
+      svr: 'nodejs.webde.service.test',
       func: 'setVal',
       args: args
     };
@@ -58,11 +35,7 @@ Proxy.prototype.setVal = function(String, callback) {
   } catch(e) {
     return console.log(e);
   }
-  this.ipc.invoke({
-    name: 'send',
-    in: [this.ip, argvs],
-    callback: callback
-  });
+  this.cd.send(this.ip, argvs, callback);
 };
 
 Proxy.prototype.getVal = function(callback) {
@@ -71,7 +44,7 @@ Proxy.prototype.getVal = function(callback) {
   try {
     var argv = {
       action: 'call',
-      svr: 'test',
+      svr: 'nodejs.webde.service.test',
       func: 'getVal',
       args: args
     };
@@ -79,45 +52,35 @@ Proxy.prototype.getVal = function(callback) {
   } catch(e) {
     return console.log(e);
   }
-  this.ipc.invoke({
-    name: 'send',
-    in: [this.ip, argvs],
-    callback: callback
-  });
+  this.cd.send(this.ip, argvs, callback);
 };
 
 Proxy.prototype.on = function(event, handler) {
-  this.ipc.on(event, handler);
+  this.cd.on(event, handler);
   var argvs = "{
-    'action': 'call',
-    'svr': 'test',
+    'action': 0,
+    'svr': 'nodejs.webde.service.test',
     'func': 'on',
     'args': ''
   }";
-  this.ipc.invoke({
-    name: 'send',
-    in: [this.ip, argvs],
-    callback: callback
-  });
+  this.cd.send(this.ip, argvs);
 };
 
 Proxy.prototype.off = function(event, handler) {
-  this.ipc.removeListener(event, handler);
+  this.cd.off(event, handler);
   var argvs = "{
-    'action': 'call',
-    'svr': 'test',
+    'action': 0,
+    'svr': 'nodejs.webde.service.test',
     'func': 'off',
     'args': ''
   }";
-  this.ipc.invoke({
-    name: 'send',
-    in: [this.ip, argvs],
-    callback: callback
-  });
+  this.cd.send(this.ip, argvs);
 };
 
 var proxy = null;
 exports.getProxy = function(ip) {
-  if(proxy == null) proxy = new Proxy(ip);
+  if(proxy == null) {
+    proxy = new Proxy(ip);
+  }
   return proxy;
 };
