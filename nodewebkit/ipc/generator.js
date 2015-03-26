@@ -77,10 +77,10 @@ function builder(ifaces) {
         type: ifaces.type || '$ipcType'
       };
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces, false);
-  buildStub(ifaces.service + 'Stub.js', initObj, ifaces.interfaces);
+  buildStub(ifaces.service + 'Stub.js', initObj, ifaces.interfaces,
+      (remote == 'true' ? true : false));
   if(remote == 'true') {
-    initObj.name = 'nodejs.webde.service.commdeamon';
-    initObj.svr = ifaces.service;
+    // initObj.name = 'nodejs.webde.service.commdeamon';
     delete initObj.interface;
     delete initObj.serviceObj;
     buildProxy(ifaces.service + 'ProxyRemote.js', initObj, ifaces.interfaces, true)
@@ -94,7 +94,7 @@ var NOTICE = "// This file is auto generated based on user-defined interface.\n"
 var GETIPC = "  // TODO: please replace $IPC with the real path of ipc module in your project\n"
             + "  this.ipc = require('$IPC').getIPC(initObj);\n";
 
-function buildStub(filename, initObj, ifaces) {
+function buildStub(filename, initObj, ifaces, remote) {
   var outputFile = [],
       serviceObj = {},
       TODO = '/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/';
@@ -126,9 +126,17 @@ function buildStub(filename, initObj, ifaces) {
         + "  this.ipc.notify.apply(this.ipc, arguments);\n"
         + "};\n");
     // interface to get proxy object
-    outputFile.push("var stub = null;\n"
-        + "exports.getStub = function() {\n"
-        + "  if(stub == null) stub = new Stub();\n"
+    var arg = (remote ? 'proxyAddr' : '');
+    outputFile.push("var stub = null,\n"
+        + "    cd = null;\n"
+        + "exports.getStub = function(" + arg + ") {\n"
+        + "  if(stub == null) {\n"
+        + (remote ? "    if(typeof arg === 'undefined')\n"
+        + "      throw 'The path of proxy\\'s module file we need!';\n"
+        + "    cd = require('$proxyR').getProxy();\n"
+        + "    cd.register(initObj.name, arg);\n" : "")
+        + "    stub = new Stub();\n"
+        + "  }\n"
         + "  return stub;\n"
         + "}\n")
 
@@ -165,13 +173,13 @@ function buildProxy(filename, initObj, ifaces, remote) {
     outputFile.push(NOTICE);
     var initObjStr = JSON.stringify(initObj, null, 2);
     outputFile.push("var initObj = " + initObjStr + "\n");
-    var argus = (remote ? 'ip' : ''),
+    var argus = (remote ? 'ip' : ''), 
         initS = (remote ? '  if(typeof ip !== \'undefined\') {\n'
                   + '    this.ip = ip;\n'
                   + '  } else {\n'
                   + '    return console.log(\'The remote IP is required\');\n'
-                  + '  }\n\n' : '');
-    outputFile.push('function Proxy(' + argus + ') {\n'
+                  + '  }\n\n' : ''); 
+    outputFile.push('function Proxy(' +/*  argus +  */') {\n'
       + initS
       // the string to get ipc object
       + GETIPC + '\n'
@@ -187,7 +195,7 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + (remote ? ("  try {\n"
           + "    var argv = {\n"
           + "      action: 'call',\n"
-          + "      svr: '" + initObj.svr + "',\n"
+          + "      svr: '" + initObj.name + "',\n"
           + "      func: '" + ifaces[i].name + "',\n"
           + "      args: args\n"
           + "    };\n"
@@ -195,11 +203,12 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + "  } catch(e) {\n"
           + "    return console.log(e);\n"
           + "  }\n"
-          + "  this.ipc.invoke({\n"
-          + "    name: 'send',\n"
-          + "    in: [this.ip, argvs],\n"
-          + "    callback: callback\n"
-          + "  });\n") : ("  this.ipc.invoke({\n"
+          + "  cd.send(this.ip, argvs);\n") : ("  this.ipc.invoke({\n"
+          // + "  this.ipc.invoke({\n"
+          // + "    name: 'send',\n"
+          // + "    in: [this.ip, argvs],\n"
+          // + "    callback: callback\n"
+          // + "  });\n") : ("  this.ipc.invoke({\n"
           + "    name: '" + ifaces[i].name + "',\n"
           + "    in: args,\n"
           + "    callback: callback\n"
@@ -209,40 +218,46 @@ function buildProxy(filename, initObj, ifaces, remote) {
     // add on/off interface
     outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
         + "  this.ipc.on(event, handler);\n"
-        // TODO: send on request to remote peer
+        // send on request to remote peer
         + (remote ? ("  var argvs = \"{\n"
-        + "    'action': 'call',\n"
-        + "    'svr': '" + initObj.svr + "',\n"
+        + "    'action': 0,\n"
+        + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'on',\n"
         + "    'args': ''\n"
         + "  }\";\n"
-        + "  this.ipc.invoke({\n"
-        + "    name: 'send',\n"
-        + "    in: [this.ip, argvs],\n"
-        + "    callback: callback\n"
-        + "  });\n") : "")
+        + "  cd.send(this.ip, argvs);\n") : "")
+        /* + "  this.ipc.invoke({\n" */
+        // + "    name: 'send',\n"
+        // + "    in: [this.ip, argvs],\n"
+        // + "    callback: callback\n"
+        /* + "  });\n") : "") */
         + "};\n\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
         + "  this.ipc.removeListener(event, handler);\n"
-        // TODO: send off request to remote peer
+        // send off request to remote peer
         + (remote ? ("  var argvs = \"{\n"
-        + "    'action': 'call',\n"
-        + "    'svr': '" + initObj.svr + "',\n"
+        + "    'action': 0,\n"
+        + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'off',\n"
         + "    'args': ''\n"
         + "  }\";\n"
-        + "  this.ipc.invoke({\n"
-        + "    name: 'send',\n"
-        + "    in: [this.ip, argvs],\n"
-        + "    callback: callback\n"
-        + "  });\n") : "")
+        + "  cd.send(this.ip, argvs);\n") : "")
+        /* + "  this.ipc.invoke({\n" */
+        // + "    name: 'send',\n"
+        // + "    in: [this.ip, argvs],\n"
+        // + "    callback: callback\n"
+        /* + "  });\n") : "") */
         + "};\n");
     // interface to get proxy object
-    outputFile.push("var proxy = null;\n"
-        + "exports.getProxy = function(" + argus + ") {\n"
-        + "  if(proxy == null) proxy = new Proxy(" + argus + ");\n"
+    outputFile.push("var proxy = null"
+        + (remote ? ",\n    cd = null;" : ";\n")
+        + "exports.getProxy = function(" + (remote ? 'ip' : '') + ") {\n"
+        + "  if(proxy == null) {\n"
+        + "    proxy = new Proxy(" +/*  argus +  */");\n"
+        + (remote ? "    cd = require('$cdProxy').getProxy();\n" : "")
+        + "  }\n"
         + "  return proxy;\n"
-        + "};\n")
+        + "};\n");
 
     fs.writeFile(filename, outputFile.join('\n'), function(err) {
       if(err) return err;

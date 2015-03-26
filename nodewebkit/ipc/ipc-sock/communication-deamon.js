@@ -207,6 +207,7 @@ PeerEnd.prototype._callHandler = function(content) {
       });
     }
   }
+  // TODO: specify on/off call's callback
   content.args.push(function(result) {
     // send result to client
     self.send(content.srcAddr, {
