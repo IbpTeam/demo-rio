@@ -1,0 +1,20 @@
+package IBP.User;
+ 
+message UserModel {
+  required string cyUserno = 1;
+  required string cyPassWord = 2;
+  required int32 cyStatus = 3;
+  optional Sex sex = 4[default = MALE];
+  required Info inf = 5;
+  enum Sex{
+  MALE = 1;
+  FEMALE = 2;
+  }
+
+  message Info{
+  required string phone = 1;
+  required string Email = 2;
+  required string Address = 3;
+  }
+
+}
