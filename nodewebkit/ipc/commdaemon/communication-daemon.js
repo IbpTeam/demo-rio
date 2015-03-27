@@ -290,7 +290,8 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
   var cb = callback || function() {};
   if(net.isIP(dstAddr) == 0)
     return cb('Invalid IP address');
-  if((var ret = this._contentVarify(content)) != null)
+  var ret;
+  if((ret = this._contentVarify(content)) != null)
     return cb(ret);
   if(content.action == 0) {
     // TODO: generate a token

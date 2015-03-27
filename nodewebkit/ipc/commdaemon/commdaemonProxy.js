@@ -11,16 +11,16 @@ if(pf == 'linux') {
 }
 
 var initObj = {
-  "address": "nodejs.webde.service",
-  "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.commdaemon",
+  "address": "nodejs.webde.commdaemon",
+  "path": "/nodejs/webde/commdaemon",
+  "name": "nodejs.webde.commdaemon",
   "type": type,
   "service": false
 }
 
 function Proxy() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('$IPC').getIPC(initObj);
+  this.ipc = require('../ipc').getIPC(initObj);
 
   // TODO: choose to implement interfaces of ipc
   /* handle message send from service

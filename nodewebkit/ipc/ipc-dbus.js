@@ -36,6 +36,7 @@ DBusIPC.prototype._getServiceInterface = function() {
         obj = service.createObject(this._property.path);
     self._iface = obj.createInterface(this._property.name);
   } catch(e) {
+    console.log(e);
   }
   return self._iface;
 }
@@ -118,8 +119,8 @@ DBusIPC.prototype.invoke = function(peramObj) {
 
 var server = null;
 exports.getObj = function(initObj) {
-  if(!initObj.service || server == null)
+  // if(!initObj.service || server == null)
     return new DBusIPC(initObj);
-  return server;
+  // return server;
 }
 

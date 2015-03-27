@@ -68,12 +68,12 @@ function builder(ifaces) {
   //  will be generated.
   var remote = ifaces.remote || 'false',
       pkgName = ifaces.package || 'nodejs.webde',
-      addr = ifaces.address || 'nodejs.webde.service',
+      addr = ifaces.address || pkgName + '.' + ifaces.service,
       path = ifaces.path || '/' + addr.replace(/\./g, '/'),
       initObj = {
         address: addr,
         path: path,
-        name: addr + '.' + ifaces.service,
+        name: addr/*  + '.' + ifaces.service */,
         type: ifaces.type || '$ipcType'
       };
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces, false);
@@ -131,10 +131,13 @@ function buildStub(filename, initObj, ifaces, remote) {
         + (remote ? ",\n    cd = null;\n" : ";")
         + "exports.getStub = function(" + arg + ") {\n"
         + "  if(stub == null) {\n"
-        + (remote ? "    if(typeof arg === 'undefined')\n"
+        + (remote ? "    if(typeof proxyAddr === 'undefined')\n"
         + "      throw 'The path of proxy\\'s module file we need!';\n"
         + "    cd = require('$proxyR').getProxy();\n"
-        + "    cd.register(initObj.name, arg);\n" : "")
+        + "    cd.register(initObj.name, proxyAddr, function(ret) {\n"
+        + "      if(ret < 0)\n"
+        + "        throw 'Fail to register online';\n"
+        + "    });\n" : "")
         + "    stub = new Stub();\n"
         + "  }\n"
         + "  return stub;\n"
