@@ -45,10 +45,3 @@ fs.writeFile('encodeFile',buffer,function(err){
 	};
 	console.log("File Saved!");
 });
-/*
-var decrypt = User.decode(buffer);
-console.log(decrypt.get('cyUserno'));
-console.log(decrypt.get('cyPassWord'));
-console.log(decrypt.get('inf').get('phone'));
-console.log(decrypt.get('sex'));
-*/
