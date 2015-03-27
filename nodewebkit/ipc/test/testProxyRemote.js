@@ -3,22 +3,15 @@
 // TODO: please replace types with peramters' name you wanted of any functions
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
-var initObj = {
-  "address": "nodejs.webde.service",
-  "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.test",
-  "type": "$ipcType",
-  "service": false
-}
-
-function Proxy() {
+function Proxy(ip) {
   if(typeof ip !== 'undefined') {
     this.ip = ip;
   } else {
     return console.log('The remote IP is required');
   }
 
-  // TODO: replace $cdProxy to the real path  this.cd = require('$cdProxy').getProxy();
+  // TODO: replace $cdProxy to the real path
+  this.cd = require('$cdProxy').getProxy();
 }
 
 Proxy.prototype.setVal = function(String, callback) {

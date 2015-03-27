@@ -13,7 +13,7 @@ if(pf == 'linux') {
 var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.commdeamon",
+  "name": "nodejs.webde.service.commdaemon",
   "type": type,
   "service": false
 }
@@ -44,7 +44,7 @@ function Proxy() {
   }*/
 }
 
-Proxy.prototype.send = function(dstAddr, content, callback) {
+Proxy.prototype.send = function(String, String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
   this.ipc.invoke({
@@ -54,7 +54,7 @@ Proxy.prototype.send = function(dstAddr, content, callback) {
   });
 };
 
-Proxy.prototype.register = function(svrName, svrAddr, callback) {
+Proxy.prototype.register = function(String, String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
   this.ipc.invoke({
@@ -64,7 +64,7 @@ Proxy.prototype.register = function(svrName, svrAddr, callback) {
   });
 };
 
-Proxy.prototype.unregister = function(svrName, callback) {
+Proxy.prototype.unregister = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
   this.ipc.invoke({
@@ -84,6 +84,8 @@ Proxy.prototype.off = function(event, handler) {
 
 var proxy = null;
 exports.getProxy = function() {
-  if(proxy == null) proxy = new Proxy();
+  if(proxy == null) {
+    proxy = new Proxy();
+  }
   return proxy;
 };

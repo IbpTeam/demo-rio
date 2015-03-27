@@ -1,7 +1,7 @@
 // TODO: implements the server for reciving RPC requests from clients
 //   and register/unregister requests from services
 var net = require('net'),
-    Stub = require('./cdStub') ;
+    Stub = require('./commdaemonStub') ;
 
 // Elements of this cache are objects like: {
 //  val: the real value

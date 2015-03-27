@@ -1,0 +1,20 @@
+{
+  "service": "commdaemon",
+  "interfaces": [
+    {
+      "name": "send",
+      "in": ["String", "String"],
+      "out": "Auto"
+    },
+    {
+      "name": "register",
+      "in": ["String", "String"],
+      "out": "Number"
+    },
+    {
+      "name": "unregister",
+      "in": ["String"],
+      "out": "Number"
+    }
+  ]
+}

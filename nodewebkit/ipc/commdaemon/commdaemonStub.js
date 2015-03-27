@@ -13,7 +13,7 @@ if(pf == 'linux') {
 var initObj = {
   "address": "nodejs.webde.service",
   "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.commdeamon",
+  "name": "nodejs.webde.service.commdaemon",
   "type": type,
   "service": true,
   "interface": [
@@ -65,7 +65,7 @@ var initObj = {
 
 function Stub() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('../ipc').getIPC(initObj);
+  this.ipc = require('$IPC').getIPC(initObj);
 }
 
 Stub.prototype.notify = function(event) {

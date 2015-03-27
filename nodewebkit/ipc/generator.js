@@ -127,8 +127,8 @@ function buildStub(filename, initObj, ifaces, remote) {
         + "};\n");
     // interface to get proxy object
     var arg = (remote ? 'proxyAddr' : '');
-    outputFile.push("var stub = null,\n"
-        + "    cd = null;\n"
+    outputFile.push("var stub = null"
+        + (remote ? ",\n    cd = null;\n" : ";")
         + "exports.getStub = function(" + arg + ") {\n"
         + "  if(stub == null) {\n"
         + (remote ? "    if(typeof arg === 'undefined')\n"
@@ -171,18 +171,20 @@ function buildProxy(filename, initObj, ifaces, remote) {
   initObj.service = false;
   try {
     outputFile.push(NOTICE);
-    var initObjStr = JSON.stringify(initObj, null, 2);
-    outputFile.push("var initObj = " + initObjStr + "\n");
+    if(!remote) {
+      var initObjStr = JSON.stringify(initObj, null, 2);
+      outputFile.push("var initObj = " + initObjStr + "\n");
+    }
     var argus = (remote ? 'ip' : ''), 
         initS = (remote ? '  if(typeof ip !== \'undefined\') {\n'
                   + '    this.ip = ip;\n'
                   + '  } else {\n'
                   + '    return console.log(\'The remote IP is required\');\n'
                   + '  }\n\n' : ''); 
-    outputFile.push('function Proxy(' +/*  argus +  */') {\n'
+    outputFile.push('function Proxy(' + argus +  ') {\n'
       + initS
       // the string to get ipc or cdProxy object
-      + (remote ? "  // TODO: replace $cdProxy to the real path"
+      + (remote ? "  // TODO: replace $cdProxy to the real path\n"
       + "  this.cd = require('$cdProxy').getProxy();" : GETIPC) + "\n"
       // the string to implement event handler user-own
       + (remote ? "" : EVENTHANDLER)
