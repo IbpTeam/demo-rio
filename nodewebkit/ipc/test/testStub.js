@@ -4,9 +4,9 @@
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
 var initObj = {
-  "address": "nodejs.webde.service",
-  "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.test",
+  "address": "nodejs.webde.test",
+  "path": "/nodejs/webde/test",
+  "name": "nodejs.webde.test",
   "type": "dbus",
   "service": true,
   "interface": [
@@ -47,8 +47,22 @@ Stub.prototype.notify = function(event) {
   this.ipc.notify.apply(this.ipc, arguments);
 };
 
-var stub = null;
-exports.getStub = function() {
-  if(stub == null) stub = new Stub();
+var stub = null,
+    cd = null;
+exports.getStub = function(proxyAddr) {
+  if(stub == null) {
+    // register self on communication-daemon
+    if(typeof proxyAddr === 'undefined') 
+      throw 'The path of proxy\'s module file we need!';
+    console.log(proxyAddr);
+    cd = require('./commdaemon/commdaemonProxy').getProxy();
+    cd.register(initObj.name, proxyAddr, function(ret) {
+      console.log(ret);
+      if(ret < 0)
+        throw 'Fail to register online.';
+    });
+    // register services on ipc-framework
+    stub = new Stub();
+  }
   return stub;
 }

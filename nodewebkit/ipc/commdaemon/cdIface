@@ -3,7 +3,7 @@
   "interfaces": [
     {
       "name": "send",
-      "in": ["String", "String"],
+      "in": ["String", "Object"],
       "out": "Auto"
     },
     {

@@ -44,7 +44,7 @@ function Proxy() {
   }*/
 }
 
-Proxy.prototype.send = function(String, String, callback) {
+Proxy.prototype.send = function(String, Object, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
   this.ipc.invoke({

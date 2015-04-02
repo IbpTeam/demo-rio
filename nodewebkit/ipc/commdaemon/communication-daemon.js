@@ -11,14 +11,13 @@ function Cache(capacity, stratagy) {
   this._capacity = capacity || 10;
   this._size = 0;
   this._c = new Array(capacity);
+  this._init = this._born;
+  this._update = this._older;
+  this._repTarget = this._findOldest;
   if(typeof stratagy !== 'undefined') {
-    if(typeof stratagy.init === 'undefined' 
-        || typeof stratagy.update === 'undefined'
-        || typeof stratagy.repTarget === 'undefined') {
-      this._init = this._born;
-      this._update = this._older;
-      this._repTarget = this._findOldest;
-    } else {
+    if(typeof stratagy.init !== 'undefined' 
+        && typeof stratagy.update !== 'undefined'
+        && typeof stratagy.repTarget !== 'undefined') {
       this._init = stratagy.init;
       this._update = stratagy.update;
       this._repTarget = stratagy.repTarget;
@@ -79,6 +78,8 @@ Cache.prototype._findOldest = function(list) {
 
 function PeerEnd() {
   this._port = 56765;
+  this._END = '0x1f17';
+  this._token = 0;
   this._callStack = [];
   this._svrObj = new Cache(20); // svrName -> proxy obj
   this._svrList = []; // svrName -> module path
@@ -143,7 +144,11 @@ PeerEnd.prototype._accept = function(cliSock) {
   cliSock.on('data', function(data) {
     console.log(this.remoteAddress + ':' + this.remotePort + ' sends: ' + data.toString());
     // TODO: make sure this is a completed data packet
-    self._dispatcher(data, this.remoteAddress);
+    var dataArr = data.toString().split(self._END);
+    for(var i = 0; i < dataArr.length; ++i) {
+      if(dataArr[i] != '')
+        self._dispatcher(dataArr[i], this.remoteAddress);
+    }
   }).on('error', function(err) {
     // TODO: handle errors
     console.log(err);
@@ -165,11 +170,12 @@ PeerEnd.prototype._unpack = function(packet) {
 PeerEnd.prototype._dispatcher = function(msg, srcAddr) {
   // handle msgs from clients
   try {
+    console.log('dispatcher:', msg);
     var content = this._unpack(msg);
     switch(content.action) {
       // TODO: run these handlers concurrently
       case 0: // call
-        conetent.srcAddr = srcAddr;
+        content.srcAddr = srcAddr;
         this._callHandler(content);
         break;
       case 1: // return
@@ -188,16 +194,19 @@ PeerEnd.prototype._dispatcher = function(msg, srcAddr) {
 
 PeerEnd.prototype._callHandler = function(content) {
   // find Service proxy object based on svr of content
+  console.log('Call request is recived');
   var self = this,
       svrProxy;
   try {
-    svrProxy = self._svrObj.get(content.svrName);
+    svrProxy = self._svrObj.get(content.svr);
   } catch(e) {
     try {
-      svrProxy = require(self._svrList[content.svrName]).getProxy();
-      self._svrObj.set(content.svrName, svrProxy);
+      // console.log(self._svrList, content.svr, self._svrList[content.svr]);
+      svrProxy = require(self._svrList[content.svr]).getProxy();
+      self._svrObj.set(content.svr, svrProxy);
     } catch(e) {
       // service not found
+      console.log('callhandler:', e);
       self.send(content.srcAddr, {
         action: 1,
         svr: content.svr,
@@ -223,6 +232,7 @@ PeerEnd.prototype._callHandler = function(content) {
 
 PeerEnd.prototype._returnHandler = function(content) {
   // find cb from call stack based on token of content
+  console.log('Call return is recived');
   if(typeof this._callStack[content.token] === 'undefined')
     return console.log('Callback not found');
   this._callStack[content.token].apply(this, content.ret);
@@ -231,7 +241,8 @@ PeerEnd.prototype._returnHandler = function(content) {
 }
 
 PeerEnd.prototype._notifyHandler = function(content) {
-  // TODO: use stub to notify targets
+  // use stub to notify targets
+  console.log('Notify is recived:', content);
   stub.notify.apply(stub, content.args);
 }
 
@@ -287,22 +298,27 @@ PeerEnd.prototype._contentVarify = function(content) {
 //  args: [event, arg1, arg2]
 // }
 PeerEnd.prototype.send = function(dstAddr, content, callback) {
+  console.log('Send has been called.');
   var cb = callback || function() {};
   if(net.isIP(dstAddr) == 0)
     return cb('Invalid IP address');
   var ret;
-  if((ret = this._contentVarify(content)) != null)
+  if((ret = this._contentVarify(content)) != null) {
     return cb(ret);
+  }
   if(content.action == 0) {
     // TODO: generate a token
-    content.token = '';
+    content.token = this._token++;
     this._callStack[content.token] = cb;
   }
   var conn = this._getConnection(dstAddr);
-  conn.write(this._packet(content), function() {
+  conn.write(this._packet(content) + this._END, function() {
     // TODO: do sth after sending packet
     // If this is a RPC msg, call this callback after reciving responses from remote
-    if(content.action != 0) cb(null, 0);
+    if(content.action != 0) {
+      // console.log(content.action, 'call return');
+      cb(null, 0);
+    }
   });
 }
 
@@ -313,6 +329,7 @@ PeerEnd.prototype.register = function(svrName, svrAddr, callback) {
     cb('Service has been registered.');
   // TODO: varify this svrAddr
   this._svrList[svrName] = svrAddr;
+  console.log(svrName, 'registered OK!');
   cb(null);
 }
 
@@ -323,6 +340,7 @@ PeerEnd.prototype.unregister = function(svrName, callback) {
     cb('Service is not registered.');
   this._svrList[svrName] = null;
   delete this._svrList[svrName];
+  console.log(svrName, 'unregistered OK!');
   cb(null);
 }
 

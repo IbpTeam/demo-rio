@@ -11,62 +11,62 @@ function Proxy(ip) {
   }
 
   // TODO: replace $cdProxy to the real path
-  this.cd = require('$cdProxy').getProxy();
+  this.cd = require('./commdaemon/commdaemonProxy').getProxy();
 }
 
 Proxy.prototype.setVal = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
-  try {
+  // try {
     var argv = {
-      action: 'call',
-      svr: 'nodejs.webde.service.test',
+      action: 0,
+      svr: 'nodejs.webde.test',
       func: 'setVal',
       args: args
     };
-    var argvs = JSON.stringify(argv);
-  } catch(e) {
-    return console.log(e);
-  }
-  this.cd.send(this.ip, argvs, callback);
+    // var argvs = JSON.stringify(argv);
+  // } catch(e) {
+    // return console.log(e);
+  // }
+  this.cd.send(this.ip, argv, callback);
 };
 
 Proxy.prototype.getVal = function(callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, l - 1);
-  try {
+  // try {
     var argv = {
-      action: 'call',
-      svr: 'nodejs.webde.service.test',
+      action: 0,
+      svr: 'nodejs.webde.test',
       func: 'getVal',
       args: args
     };
-    var argvs = JSON.stringify(argv);
-  } catch(e) {
-    return console.log(e);
-  }
-  this.cd.send(this.ip, argvs, callback);
+    // var argvs = JSON.stringify(argv);
+  // } catch(e) {
+    // return console.log(e);
+  // }
+  this.cd.send(this.ip, argv, callback);
 };
 
 Proxy.prototype.on = function(event, handler) {
   this.cd.on(event, handler);
-  var argvs = "{
+  var argvs = {
     'action': 0,
-    'svr': 'nodejs.webde.service.test',
+    'svr': 'nodejs.webde.test',
     'func': 'on',
     'args': ''
-  }";
+  };
   this.cd.send(this.ip, argvs);
 };
 
 Proxy.prototype.off = function(event, handler) {
   this.cd.off(event, handler);
-  var argvs = "{
+  var argvs = {
     'action': 0,
-    'svr': 'nodejs.webde.service.test',
+    'svr': 'nodejs.webde.test',
     'func': 'off',
     'args': ''
-  }";
+  };
   this.cd.send(this.ip, argvs);
 };
 
