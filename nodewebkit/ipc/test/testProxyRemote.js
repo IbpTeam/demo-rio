@@ -54,7 +54,7 @@ Proxy.prototype.on = function(event, handler) {
     'action': 0,
     'svr': 'nodejs.webde.test',
     'func': 'on',
-    'args': ''
+    'args': [event]
   };
   this.cd.send(this.ip, argvs);
 };
@@ -65,7 +65,7 @@ Proxy.prototype.off = function(event, handler) {
     'action': 0,
     'svr': 'nodejs.webde.test',
     'func': 'off',
-    'args': ''
+    'args': [event]
   };
   this.cd.send(this.ip, argvs);
 };

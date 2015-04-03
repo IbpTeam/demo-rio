@@ -12,3 +12,12 @@ proxy.getVal(function(result) {
   console.log(result);
 });
 
+var cb = function(str) {
+  console.log('Event: sth,', 'Arg:', str);
+};
+
+proxy.on('sth', cb);
+
+setTimeout(function() {
+  proxy.off('sth', cb);
+}, 30000);

@@ -81,6 +81,7 @@ function PeerEnd() {
   this._END = '0x1f17';
   this._token = 0;
   this._callStack = [];
+  this._notifyCB = [];
   this._svrObj = new Cache(20); // svrName -> proxy obj
   this._svrList = []; // svrName -> module path
   this._connList = new Cache(20, {
@@ -172,6 +173,7 @@ PeerEnd.prototype._dispatcher = function(msg, srcAddr) {
   try {
     console.log('dispatcher:', msg);
     var content = this._unpack(msg);
+    content.srcAddr = srcAddr;
     switch(content.action) {
       // TODO: run these handlers concurrently
       case 0: // call
@@ -216,17 +218,35 @@ PeerEnd.prototype._callHandler = function(content) {
       });
     }
   }
-  // TODO: specify on/off call's callback
-  content.args.push(function(result) {
-    // send result to client
-    self.send(content.srcAddr, {
-      action: 1,
-      svr: content.svr,
-      token: content.token,
-      func: content.func,
-      ret: [null, result]
+  // specify on/off call's callback
+  if(content.func == 'on') {
+    if(typeof self._notifyCB[content.srcAddr] === 'undefined')
+      self._notifyCB[content.srcAddr] = {};
+    self._notifyCB[content.srcAddr][content.svr] = function() {
+      self.send(content.srcAddr, {
+        action: 2,
+        svr: content.svr,
+        func: content.func,
+        args: [content.args[0]].concat(Array.prototype.slice.call(arguments, 0))
+      });
+    };
+    content.args.push(self._notifyCB[content.srcAddr][content.svr]);
+  } else if(content.func == 'off') {
+    content.args.push(self._notifyCB[content.srcAddr][content.svr]);
+    self._notifyCB[content.srcAddr][content.svr] = null;
+    delete self._notifyCB[content.srcAddr][content.svr];
+  } else {
+    content.args.push(function(result) {
+      // send result to client
+      self.send(content.srcAddr, {
+        action: 1,
+        svr: content.svr,
+        token: content.token,
+        func: content.func,
+        ret: [null, result]
+      });
     });
-  });
+  }
   svrProxy[content.func].apply(svrProxy, content.args);
 }
 
@@ -242,7 +262,7 @@ PeerEnd.prototype._returnHandler = function(content) {
 
 PeerEnd.prototype._notifyHandler = function(content) {
   // use stub to notify targets
-  console.log('Notify is recived:', content);
+  console.log('Notify is recived');
   stub.notify.apply(stub, content.args);
 }
 
@@ -315,7 +335,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
   conn.write(this._packet(content) + this._END, function() {
     // TODO: do sth after sending packet
     // If this is a RPC msg, call this callback after reciving responses from remote
-    if(content.action != 0) {
+    if(content.action != 0 || content.func == 'on' || content.func == 'off') {
       // console.log(content.action, 'call return');
       cb(null, 0);
     }

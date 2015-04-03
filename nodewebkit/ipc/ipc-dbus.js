@@ -24,7 +24,7 @@ function DBusIPC(initObj) {
   if(initObj.service) {
     self._addService();
   } else {
-    self._getInterface(self._initSingal);
+    self._getInterface();
   }
 }
 util.inherits(DBusIPC, events.EventEmitter);
@@ -36,7 +36,7 @@ DBusIPC.prototype._getServiceInterface = function() {
         obj = service.createObject(this._property.path);
     self._iface = obj.createInterface(this._property.name);
   } catch(e) {
-    console.log(e);
+    console.log('getServiceInterface:', e);
   }
   return self._iface;
 }
@@ -95,10 +95,15 @@ DBusIPC.prototype._getInterface = function(callback) {
 }
 
 DBusIPC.prototype._initSingal = function(iface) {
-  var self = this; 
-  iface.on('notify', function(msg) {
-    // console.log(msg);
-    self.emit('msg', msg);
+  var self = this;
+  // console.log('initSingal:', self._property); 
+  iface.removeAllListeners('notify').on('notify', function(msg) {
+    // console.log('notify:', msg, '\n', self);
+    try {
+      self.emit('msg', msg);
+    } catch(e) {
+      console.log('notify:', e);
+    }
   });
 }
 

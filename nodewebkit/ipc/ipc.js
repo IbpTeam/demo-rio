@@ -21,9 +21,6 @@ function IPC(initObj) {
     case 'dbus':
       self._ipc = require('./ipc-dbus.js').getObj(initObj);
       break;
-    case 'socket':
-      self._ipc = require('ipc-sock/ipc-sock.js').getObj(initObj);
-      break;
     default:
       throw 'Unknown type of IPC, [type = ' + initObj.type + ']';
   }

@@ -46,7 +46,7 @@ function Proxy() {
 
 Proxy.prototype.send = function(String, Object, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, l - 1);
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
     name: 'send',
     in: args,
@@ -56,7 +56,7 @@ Proxy.prototype.send = function(String, Object, callback) {
 
 Proxy.prototype.register = function(String, String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, l - 1);
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
     name: 'register',
     in: args,
@@ -66,7 +66,7 @@ Proxy.prototype.register = function(String, String, callback) {
 
 Proxy.prototype.unregister = function(String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, l - 1);
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
     name: 'unregister',
     in: args,

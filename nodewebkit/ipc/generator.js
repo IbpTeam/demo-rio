@@ -198,7 +198,8 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
           + "  var l = arguments.length,\n"
-          + "      args = Array.prototype.slice.call(arguments, 0, l - 1);\n"
+          + "      args = Array.prototype.slice.call(arguments, 0"
+          + ", (typeof callback === 'undefined' ? l : l - 1));\n"
           + (remote ? (/* "  try {\n" */
           /* + */ "    var argv = {\n"
           + "      action: 0,\n"
@@ -230,7 +231,7 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "    'action': 0,\n"
         + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'on',\n"
-        + "    'args': ''\n"
+        + "    'args': [event]\n"
         + "  };\n"
         + "  this.cd.send(this.ip, argvs);\n")
         : "  this.ipc.on(event, handler);\n")
@@ -247,7 +248,7 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "    'action': 0,\n"
         + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'off',\n"
-        + "    'args': ''\n"
+        + "    'args': [event]\n"
         + "  };\n"
         + "  this.cd.send(this.ip, argvs);\n")
         : "  this.ipc.removeListener(event, handler);\n")
