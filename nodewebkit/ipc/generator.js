@@ -200,23 +200,13 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + "  var l = arguments.length,\n"
           + "      args = Array.prototype.slice.call(arguments, 0"
           + ", (typeof callback === 'undefined' ? l : l - 1));\n"
-          + (remote ? (/* "  try {\n" */
-          /* + */ "    var argv = {\n"
+          + (remote ? ("  var argv = {\n"
           + "      action: 0,\n"
           + "      svr: '" + initObj.name + "',\n"
           + "      func: '" + ifaces[i].name + "',\n"
           + "      args: args\n"
           + "    };\n"
-          // + "    var argvs = JSON.stringify(argv);\n"
-          // + "  } catch(e) {\n"
-          // + "    return console.log(e);\n"
-          // + "  }\n"
           + "  this.cd.send(this.ip, argv, callback);\n") : ("  this.ipc.invoke({\n"
-          // + "  this.ipc.invoke({\n"
-          // + "    name: 'send',\n"
-          // + "    in: [this.ip, argvs],\n"
-          // + "    callback: callback\n"
-          // + "  });\n") : ("  this.ipc.invoke({\n"
           + "    name: '" + ifaces[i].name + "',\n"
           + "    in: args,\n"
           + "    callback: callback\n"
@@ -235,11 +225,6 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "  };\n"
         + "  this.cd.send(this.ip, argvs);\n")
         : "  this.ipc.on(event, handler);\n")
-        /* + "  this.ipc.invoke({\n" */
-        // + "    name: 'send',\n"
-        // + "    in: [this.ip, argvs],\n"
-        // + "    callback: callback\n"
-        /* + "  });\n") : "") */
         + "};\n\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
         // send off request to remote peer
@@ -252,11 +237,6 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "  };\n"
         + "  this.cd.send(this.ip, argvs);\n")
         : "  this.ipc.removeListener(event, handler);\n")
-        /* + "  this.ipc.invoke({\n" */
-        // + "    name: 'send',\n"
-        // + "    in: [this.ip, argvs],\n"
-        // + "    callback: callback\n"
-        /* + "  });\n") : "") */
         + "};\n");
     // interface to get proxy object
     outputFile.push("var proxy = null;\n"

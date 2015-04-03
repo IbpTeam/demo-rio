@@ -367,12 +367,7 @@ PeerEnd.prototype.unregister = function(svrName, callback) {
 var stub = null;
 (function main() {
   var peer = new PeerEnd();
-  // For test
-  /* peer.send('192.168.1.100', 'Hello world!!'); */
-  // setTimeout(function() {
-    // peer.send('192.168.1.100', 'Hello again');
-  /* }, 60000); */
-  // TODO: register PeerEnd on local IPC framework to be a service
+  // register PeerEnd on local IPC framework to be a service
   stub = Stub.getStub(peer);
 })();
 
