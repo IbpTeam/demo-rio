@@ -3,17 +3,24 @@
 // TODO: please replace types with peramters' name you wanted of any functions
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
+var type = 'dbus', pf = process.platform;
+if(pf == 'linux') {
+  type = 'dbus';
+} else if(pf == 'win32') {
+} else if(pf == 'darwin') {
+}
+
 var initObj = {
-  "address": "nodejs.webde.test",
-  "path": "/nodejs/webde/test",
-  "name": "nodejs.webde.test",
-  "type": "dbus",
+  "address": "nodejs.webde.commdaemon",
+  "path": "/nodejs/webde/commdaemon",
+  "name": "nodejs.webde.commdaemon",
+  "type": type,
   "service": false
 }
 
 function Proxy() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('./ipc').getIPC(initObj);
+  this.ipc = require('../ipc').getIPC(initObj);
 
   // TODO: choose to implement interfaces of ipc
   /* handle message send from service
@@ -37,21 +44,31 @@ function Proxy() {
   }*/
 }
 
-Proxy.prototype.setVal = function(String, callback) {
+Proxy.prototype.send = function(String, Object, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, l - 1);
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
-    name: 'setVal',
+    name: 'send',
     in: args,
     callback: callback
   });
 };
 
-Proxy.prototype.getVal = function(callback) {
+Proxy.prototype.register = function(String, String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, l - 1);
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
-    name: 'getVal',
+    name: 'register',
+    in: args,
+    callback: callback
+  });
+};
+
+Proxy.prototype.unregister = function(String, callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  this.ipc.invoke({
+    name: 'unregister',
     in: args,
     callback: callback
   });
@@ -59,14 +76,16 @@ Proxy.prototype.getVal = function(callback) {
 
 Proxy.prototype.on = function(event, handler) {
   this.ipc.on(event, handler);
-}
+};
 
 Proxy.prototype.off = function(event, handler) {
   this.ipc.removeListener(event, handler);
-}
+};
 
 var proxy = null;
 exports.getProxy = function() {
-  if(proxy == null) proxy = new Proxy();
+  if(proxy == null) {
+    proxy = new Proxy();
+  }
   return proxy;
-}
+};

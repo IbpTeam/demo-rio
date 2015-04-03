@@ -11,9 +11,9 @@ if(pf == 'linux') {
 }
 
 var initObj = {
-  "address": "nodejs.webde.service",
-  "path": "/nodejs/webde/service",
-  "name": "nodejs.webde.service.commdeamon",
+  "address": "nodejs.webde.commdaemon",
+  "path": "/nodejs/webde/commdaemon",
+  "name": "nodejs.webde.commdaemon",
   "type": type,
   "service": true,
   "interface": [
@@ -21,7 +21,7 @@ var initObj = {
       "name": "send",
       "in": [
         "String",
-        "String"
+        "Object"
       ],
       "out": "Auto"
     },
@@ -43,20 +43,20 @@ var initObj = {
   ],
   "serviceObj": {
     send: function(dstAddr, content, callback) {
-      peer.send(dstAddr, content, function(err) {
-        if(err) callback(-1);
-        else callback(0);
+      peer.send(dstAddr, content, function(err, result) {
+        if(err) callback(err);
+        else callback(result);
       });
     },
     register: function(svrName, svrAddr, callback) {
       peer.register(svrName, svrAddr, function(err) {
-        if(err) callback(-1);
+        if(err) callback(1);
         else callback(0);
       });
     },
     unregister: function(svrName, callback) {
       peer.unregister(svrName, function(err) {
-        if(err) callback(-1);
+        if(err) callback(1);
         else callback(0);
       });
     }
