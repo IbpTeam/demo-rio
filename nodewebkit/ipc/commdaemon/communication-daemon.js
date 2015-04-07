@@ -1,7 +1,8 @@
 // TODO: implements the server for reciving RPC requests from clients
 //   and register/unregister requests from services
 var net = require('net'),
-    Stub = require('./commdaemonStub') ;
+    Stub = require('./commdaemonStub'),
+    ProtoBuf = require('protobufjs');
 
 // Elements of this cache are objects like: {
 //  val: the real value
@@ -75,6 +76,9 @@ Cache.prototype._findOldest = function(list) {
     console.log(e);
   }
 }
+
+var builder = ProtoBuf.loadProtoFile('./packet.proto'),
+    Packet = builder.builder('WebDE').WebDE.Packet.PacketModel;
 
 function PeerEnd() {
   this._port = 56765;
@@ -159,13 +163,30 @@ PeerEnd.prototype._accept = function(cliSock) {
 }
 
 PeerEnd.prototype._packet = function(content) {
+  // transform args to String
+  if(typeof content.args !== 'undefined') {
+    content.args = JSON.stringify(content.args);
+  } else if(typeof content.ret !== 'undefined') {
+    // transform ret to String
+    content.ret = JSON.stringify(content.ret);
+  }
   // TODO: put content into a data packet
-  return JSON.stringify(content);
+  // return JSON.stringify(content);
+  return new Packet(content);
 }
 
 PeerEnd.prototype._unpack = function(packet) {
   // TODO: get content from data packet
-  return JSON.parse(packet);
+  var content = Packet.decode(packet);
+  // transform args to Array
+  if(typeof content.args !== 'undefined') {
+    content.args = JSON.parse(content.args);
+  } else if(typeof content.ret !== 'undefined') {
+    // transform ret to Array
+    content.ret = JSON.parse(content.ret)
+  }
+  // return JSON.parse(packet);
+  return content;
 }
 
 PeerEnd.prototype._dispatcher = function(msg, srcAddr) {
