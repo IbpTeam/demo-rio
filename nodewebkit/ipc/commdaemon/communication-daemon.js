@@ -78,7 +78,7 @@ Cache.prototype._findOldest = function(list) {
 }
 
 var builder = ProtoBuf.loadProtoFile('./packet.proto'),
-    Packet = builder.builder('WebDE').WebDE.Packet.PacketModel;
+    Packet = builder.build('WebDE').Packet.PacketModel;
 
 function PeerEnd() {
   this._port = 56765;
@@ -154,6 +154,7 @@ PeerEnd.prototype._accept = function(cliSock) {
       if(dataArr[i] != '')
         self._dispatcher(dataArr[i], this.remoteAddress);
     }
+    // self._dispatcher(data);
   }).on('error', function(err) {
     // TODO: handle errors
     console.log(err);
@@ -163,29 +164,32 @@ PeerEnd.prototype._accept = function(cliSock) {
 }
 
 PeerEnd.prototype._packet = function(content) {
-  // transform args to String
-  if(typeof content.args !== 'undefined') {
-    content.args = JSON.stringify(content.args);
-  } else if(typeof content.ret !== 'undefined') {
-    // transform ret to String
-    content.ret = JSON.stringify(content.ret);
-  }
-  // TODO: put content into a data packet
-  // return JSON.stringify(content);
-  return new Packet(content);
+  // if(typeof content.args !== 'undefined') {
+    // // transform args to String
+    // content.args = JSON.stringify(content.args);
+  // } else if(typeof content.ret !== 'undefined') {
+    // // transform ret to String
+    // content.ret = JSON.stringify(content.ret);
+  // }
+  // console.log('packet:', content);
+  // put content into a data packet
+  return JSON.stringify(content);
+  var packet = new Packet(content);
+  return packet.encode().toBuffer();
 }
 
 PeerEnd.prototype._unpack = function(packet) {
-  // TODO: get content from data packet
-  var content = Packet.decode(packet);
-  // transform args to Array
-  if(typeof content.args !== 'undefined') {
-    content.args = JSON.parse(content.args);
-  } else if(typeof content.ret !== 'undefined') {
-    // transform ret to Array
-    content.ret = JSON.parse(content.ret)
-  }
-  // return JSON.parse(packet);
+  // get content from data packet
+  // var content = Packet.decode(packet);
+  // console.log('unpack:', content);
+  // if(typeof content.args !== 'undefined') {
+    // // transform args to Array
+    // content.args = JSON.parse(content.args);
+  // } else if(typeof content.ret !== 'undefined') {
+    // // transform ret to Array
+    // content.ret = JSON.parse(content.ret)
+  // }
+  return JSON.parse(packet);
   return content;
 }
 
@@ -353,7 +357,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
     this._callStack[content.token] = cb;
   }
   var conn = this._getConnection(dstAddr);
-  conn.write(this._packet(content) + this._END, function() {
+  conn.write(this._packet(content) + this._END , function() {
     // TODO: do sth after sending packet
     // If this is a RPC msg, call this callback after reciving responses from remote
     if(content.action != 0 || content.func == 'on' || content.func == 'off') {

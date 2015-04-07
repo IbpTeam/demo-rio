@@ -13,13 +13,15 @@ fs.readFile('./encodeFile',function(err,data){
 	var info = new User.Info();
 	var decrypt = User.decode(data);
 
-	console.log(decrypt.get('cyUserno'));
-	console.log(decrypt.get('cyPassWord'));
-	console.log(decrypt.get('cyStatus'));
-	console.log(decrypt.get('inf').get('phone'));
-	console.log(decrypt.get('inf').get('Email'));
-	console.log(decrypt.get('inf').get('Address'));
-	console.log(decrypt.get('sex'));
+  console.log(data);
+  console.log(decrypt);
+	// console.log(decrypt.get('cyUserno'));
+	// console.log(decrypt.get('cyPassWord'));
+	// console.log(decrypt.get('cyStatus'));
+	// console.log(decrypt.get('inf').get('phone'));
+	// console.log(decrypt.get('inf').get('Email'));
+	// console.log(decrypt.get('inf').get('Address'));
+	// console.log(decrypt.get('sex'));
 });
 
 

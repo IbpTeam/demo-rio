@@ -34,12 +34,38 @@ var userModel = new User({
 		"Address": "Beijing Dongcheng"
 	}
 });
+var buffer1 = userModel.encode().toBuffer();
+console.log(buffer1);
 
-var buffer = userModel.encode().toBuffer();
+var userModel2 = new User({
+	"cyUserno": "3333333",
+	"cyPassWord": "321545",
+	"cyStatus": 23,
+	"sex": 'FEMALE',
+	"inf":{
+		"phone": "13455256678",
+		"Email": "daw@sfda.net",
+		"Address": "Beijing Dongcheng"
+	}
+});
+var buffer2 = userModel2.encode().toBuffer();
+console.log(buffer2);
 
-console.log(buffer);
+var userModel3 = new User({
+	"cyUserno": "4444444",
+	"cyPassWord": "321545",
+	"cyStatus": 23,
+	"sex": 'FEMALE',
+	"inf":{
+		"phone": "13455256678",
+		"Email": "daw@sfda.net",
+		"Address": "Beijing Dongcheng"
+	}
+});
+var buffer3 = userModel3.encode().toBuffer();
+console.log(buffer3);
 
-fs.writeFile('encodeFile',buffer,function(err){
+fs.writeFile('encodeFile',Buffer.concat([buffer1, buffer2, buffer3]),function(err){
 	if (err) {
 		throw err;
 	};
