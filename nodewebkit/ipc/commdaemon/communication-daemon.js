@@ -82,7 +82,7 @@ var builder = ProtoBuf.loadProtoFile('./packet.proto'),
 
 function PeerEnd() {
   this._port = 56765;
-  this._END = '0x1f17';
+  // this._END = '0x1f17';
   this._token = 0;
   this._callStack = [];
   this._notifyCB = [];
@@ -147,14 +147,13 @@ PeerEnd.prototype._accept = function(cliSock) {
   // TODO: cache accepted connection
   // self._connList.set(cliSock.remoteAddress, cliSock);
   cliSock.on('data', function(data) {
-    console.log(this.remoteAddress + ':' + this.remotePort + ' sends: ' + data.toString());
+    console.log(this.remoteAddress + ':' + this.remotePort + ' sends: ', data);
     // TODO: make sure this is a completed data packet
-    var dataArr = data.toString().split(self._END);
+    var dataArr = self._getPackets(data);
     for(var i = 0; i < dataArr.length; ++i) {
       if(dataArr[i] != '')
         self._dispatcher(dataArr[i], this.remoteAddress);
     }
-    // self._dispatcher(data);
   }).on('error', function(err) {
     // TODO: handle errors
     console.log(err);
@@ -163,33 +162,54 @@ PeerEnd.prototype._accept = function(cliSock) {
   });
 }
 
+PeerEnd.prototype._getPackets = function(rawData) {
+  // return rawData.toString().split(this._END);
+  // TODO: get data content from packet
+  var total = rawData.length,
+      offset = 0,
+      bufArr = [];
+  while(offset < total) {
+    var l = rawData.slice(offset, offset + 2).readUInt16BE(0),
+        L = l + 2;
+    // console.log('getPackets:', total, offset, l);
+    bufArr.push(rawData.slice(offset + 2, offset + L));
+    offset += L;
+  }
+  return bufArr;
+}
+
 PeerEnd.prototype._packet = function(content) {
-  // if(typeof content.args !== 'undefined') {
-    // // transform args to String
-    // content.args = JSON.stringify(content.args);
-  // } else if(typeof content.ret !== 'undefined') {
-    // // transform ret to String
-    // content.ret = JSON.stringify(content.ret);
-  // }
+  if(typeof content.args !== 'undefined') {
+    // transform args to String
+    content.args = JSON.stringify(content.args);
+  }
+  if(typeof content.ret !== 'undefined') {
+    // transform ret to String
+    content.ret = JSON.stringify(content.ret);
+  }
   // console.log('packet:', content);
   // put content into a data packet
-  return JSON.stringify(content);
-  var packet = new Packet(content);
-  return packet.encode().toBuffer();
+  // return (JSON.stringify(content) + this._END);
+  var packet = new Packet(content),
+      pBuf = packet.encode().toBuffer(),
+      pHead = new Buffer(2);
+  pHead.writeUInt16BE(pBuf.length, 0, 2);
+  return Buffer.concat([pHead, pBuf]);
 }
 
 PeerEnd.prototype._unpack = function(packet) {
   // get content from data packet
-  // var content = Packet.decode(packet);
+  var content = Packet.decode(packet);
   // console.log('unpack:', content);
-  // if(typeof content.args !== 'undefined') {
-    // // transform args to Array
-    // content.args = JSON.parse(content.args);
-  // } else if(typeof content.ret !== 'undefined') {
-    // // transform ret to Array
-    // content.ret = JSON.parse(content.ret)
-  // }
-  return JSON.parse(packet);
+  if(typeof content.args !== 'undefined') {
+    // transform args to Array
+    content.args = JSON.parse(content.args);
+  }
+  if(typeof content.ret !== 'undefined') {
+    // transform ret to Array
+    content.ret = JSON.parse(content.ret)
+  }
+  // return JSON.parse(packet);
   return content;
 }
 
@@ -215,7 +235,7 @@ PeerEnd.prototype._dispatcher = function(msg, srcAddr) {
         break;
     }
   } catch(e) {
-    console.log(e);
+    console.log('dispatcher:', e);
   }
 }
 
@@ -257,6 +277,7 @@ PeerEnd.prototype._callHandler = function(content) {
     };
     content.args.push(self._notifyCB[content.srcAddr][content.svr]);
   } else if(content.func == 'off') {
+    // TODO: maybe has a bug
     content.args.push(self._notifyCB[content.srcAddr][content.svr]);
     self._notifyCB[content.srcAddr][content.svr] = null;
     delete self._notifyCB[content.srcAddr][content.svr];
@@ -357,7 +378,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
     this._callStack[content.token] = cb;
   }
   var conn = this._getConnection(dstAddr);
-  conn.write(this._packet(content) + this._END , function() {
+  conn.write(this._packet(content), function() {
     // TODO: do sth after sending packet
     // If this is a RPC msg, call this callback after reciving responses from remote
     if(content.action != 0 || content.func == 'on' || content.func == 'off') {

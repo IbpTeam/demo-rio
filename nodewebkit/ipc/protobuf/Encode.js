@@ -23,6 +23,7 @@ userModel.set('inf',info);
 /*
 Use Object initiation to set the value
 */
+var _head = new Buffer(2);
 var userModel = new User({
 	"cyUserno": "2222222",
 	"cyPassWord": "321545",
@@ -36,6 +37,11 @@ var userModel = new User({
 });
 var buffer1 = userModel.encode().toBuffer();
 console.log(buffer1);
+// _head.writeUInt16BE(buffer1.length, 0, 2);
+// buffer1 = Buffer.concat([_head, buffer1]);
+// console.log(buffer1);
+// var l = buffer1.slice(0, 2).readUInt16BE(0);
+// console.log(buffer1.length, l);
 
 var userModel2 = new User({
 	"cyUserno": "3333333",
