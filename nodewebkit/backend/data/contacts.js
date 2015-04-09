@@ -23,6 +23,7 @@ var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
+var N3 = require('n3');
 
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";
@@ -34,6 +35,9 @@ var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
 
 
 function createData(item, callback) {
+
+  console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++createData");
+  
   if (item == [] || item == '') {
     console.log('no contact info ...');
     return callback('no contact info ...', null);
@@ -279,6 +283,9 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
+
+  console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++initContacts");
+
   function csvTojsonCb(json) {
     var oJson = JSON.parse(json);
     var oContacts = [];
@@ -308,7 +315,80 @@ function initContacts(loadContactsCb, sItemPath) {
           return loadContactsCb(null, 'success');
         }
       }
+      var fileWriteStream = fs.createWriteStream(config.RESOURCEPATH + '/' + CATEGORY_NAME + 'Des/contact');
+      var writer = N3.Writer(fileWriteStream, { prefixes: { 'contact': 'http://example.org/category/contact#' } });
+      writer.addTriple('http://example.org/category#Contact',
+      	'http://www.w3.org/category#type',
+      	'http://example.org/contact#Contact');
       for (var k = 0; k < oContacts.length; k++) {
+    	
+      	var tripleItem = oContacts[k];
+      	var currentTime = (new Date());
+      	var fullName = tripleItem["姓"] + tripleItem["名"];
+      	var fullNameUrl = 'http://example.org/category/contact#' + fullName;
+
+      	writer.addTriple('http://example.org/category#Contact',
+      		'http://example.org/category/contact#Person',
+      		fullNameUrl);
+      	writer.addTriple(fullNameUrl,
+      		'http://www.w3.org/contact#type',
+      		'http://example.org/category/contact#Person');
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#FN',
+      		object:    tripleItem["姓"]
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#name',
+      		object:    tripleItem["名"]
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#sex',
+      		object:    tripleItem["性别"]
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#Email',
+      		object:    tripleItem["电子邮件地址"]
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#Phone',
+      		object:    tripleItem["移动电话"]
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#createTime',
+      		object:    currentTime
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#lastModifyTime',
+      		object:    currentTime
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#lastAccessTime',
+      		object:    currentTime
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#createDev',
+      		object:    config.uniqueID
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#lastModifyDev',
+      		object:    config.uniqueID
+      	});
+      	writer.addTriple({
+      		subject:   fullNameUrl,
+      		predicate: 'http://example.org/category/contact#lastAccessDev',
+      		object:    config.uniqueID
+      	});
+
         var isContactEnd = (k == (oContacts.length - 1));
         addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
           var contactName = oContact.name;
@@ -320,10 +400,11 @@ function initContacts(loadContactsCb, sItemPath) {
               console.log("succcess");
               console.log("initContacts is end!!!");
             }
-          })
-        })
+          });
+        });
       }
-    })
+	  writer.end();
+    });
   }
   csvtojson.csvTojson(sItemPath, csvTojsonCb);
 }
