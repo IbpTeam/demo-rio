@@ -334,11 +334,27 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             'SessionID':wsID
           });
         }
+        return;
       }
-      continue;
     } else {
-      if (!net.isIP(accSetItem.toIP)) {
-        console.log('Input IP Format Error!:::', accSetItem.toIP);
+      if (accSetItem===undefined||!net.isIP(accSetItem.toIP)) {
+        console.log('Input IP Format Error!:::', accSetItem===undefined?'undefined':accSetItem.toIP);
+        if ((++countFlag) === len) {
+          SentCallBack(msgRst);
+          if(flag&&msgRst!==undefined){
+            msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+            if(msgRst.MsgObj===undefined){
+              msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
+            }
+            router.wsNotify({
+              'Action': 'notify',
+              'Event': 'imChat',
+              'Data': msgRst,
+              'SessionID':wsID
+            });
+          }
+          return;
+        }
       } else {
         ipset["IP"] = accSetItem.toIP;
         ipset["UID"] = accSetItem.toUID;
@@ -357,6 +373,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
                   'SessionID':wsID
                 });
               }    
+              return;
             }
           });
         } else {
@@ -374,6 +391,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
                   'SessionID':wsID
                 });
               }
+              return;
             }
           });
         }
