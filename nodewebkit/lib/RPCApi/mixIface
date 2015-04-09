@@ -1,0 +1,16 @@
+{
+  "remote": "true",
+  "service": "mix",
+  "interfaces": [
+    {
+      "name": "getHello",
+      "in": [],
+      "out": "String"
+    },
+    {
+      "name": "getHello2",
+      "in": [],
+      "out": "Object"
+    }
+  ]
+}
