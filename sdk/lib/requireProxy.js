@@ -2,8 +2,8 @@ var util = require('util');
 // RPC API lib.
 console.log("head of requireProxy.js.");
 
-exports.requireAPI = function(proxyName, remote, callback) {
-    util.log("requireAPI:" + proxyName);
+exports.requireProxy = function(proxyName, remote, callback) {
+    util.log("requireProxy:" + proxyName);
     var i;
     var apiArr = new Array(proxyName.length);
     if (remote === false) {
