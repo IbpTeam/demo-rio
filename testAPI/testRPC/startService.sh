@@ -10,7 +10,7 @@ case $num in
 	node $dir
 	;;
 	2) 
-	#start data service
+	echo "not DONE yet, please add start data service code here."
 	;;
 	*) echo 'Please choose a right service to start.'
 	;;
