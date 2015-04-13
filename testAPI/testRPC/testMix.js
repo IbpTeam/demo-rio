@@ -1,5 +1,5 @@
 var proxy = require('../../sdk/lib/requireProxy');
-proxy.requireAPI(['mix'],function(mix){
+proxy.requireAPI(['mix'],false,function(mix){
     mix.getHello(function(result){
         console.log("this is in Client call"+result);
     });
