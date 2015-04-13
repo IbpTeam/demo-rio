@@ -13,7 +13,7 @@ var initObj = {
 
 function Proxy() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('../../ipc/ipc').getIPC(initObj);
+  this.ipc = require('../../../nodewebkit/ipc/ipc.js').getIPC(initObj);
 
   // TODO: choose to implement interfaces of ipc
   /* handle message send from service

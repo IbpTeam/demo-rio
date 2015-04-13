@@ -1,4 +1,4 @@
-var mix = require('./mix.js');
+var mix = require('../implements/mix.js');
 // This file is auto generated based on user-defined interface.
 // Please make sure that you have checked all TODOs in this file.
 // TODO: please replace types with peramters' name you wanted of any functions
@@ -46,7 +46,7 @@ var initObj = {
 
 function Stub() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('../../ipc/ipc').getIPC(initObj);
+  this.ipc = require('../../../nodewebkit/ipc/ipc.js').getIPC(initObj);
 }
 
 Stub.prototype.notify = function(event) {
@@ -60,7 +60,7 @@ exports.getStub = function(proxyAddr) {
     if(typeof proxyAddr === 'undefined')
       throw 'The path of proxy\'s module file we need!';
     // TODO: replace $cdProxy to the path of commdaemonProxy
-    cd = require('../../ipc/commdaemon/commdaemonProxy').getProxy();
+    cd = require('../../../nodewebkit/ipc/commdaemon/commdaemonProxy').getProxy();
     cd.register(initObj.name, proxyAddr, function(ret) {
       if(ret < 0)
         throw 'Fail to register online';

@@ -11,6 +11,16 @@
       "name": "getHello2",
       "in": [],
       "out": "Object"
+    },
+    {
+      "name": "getHello3",
+      "in": [],
+      "out": "Object"
+    },
+    {
+      "name": "openDev",
+      "in": [],
+      "out": "Boolean"
     }
   ]
 }
