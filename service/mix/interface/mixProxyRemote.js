@@ -38,6 +38,30 @@ Proxy.prototype.getHello2 = function(callback) {
   this.cd.send(this.ip, argv, callback);
 };
 
+Proxy.prototype.getHello3 = function(callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  var argv = {
+      action: 0,
+      svr: 'nodejs.webde.mix',
+      func: 'getHello3',
+      args: args
+    };
+  this.cd.send(this.ip, argv, callback);
+};
+
+Proxy.prototype.openDev = function(callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  var argv = {
+      action: 0,
+      svr: 'nodejs.webde.mix',
+      func: 'openDev',
+      args: args
+    };
+  this.cd.send(this.ip, argv, callback);
+};
+
 Proxy.prototype.on = function(event, handler) {
   this.cd.on(event, handler);
   var argvs = {

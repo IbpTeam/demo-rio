@@ -57,6 +57,37 @@ Proxy.prototype.getHello2 = function(callback) {
   });
 };
 
+Proxy.prototype.getHello3 = function(callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  this.ipc.invoke({
+    name: 'getHello3',
+    in: args,
+    callback: callback
+  });
+};
+
+Proxy.prototype.openDev = function(callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  this.ipc.invoke({
+    name: 'openDev',
+    in: args,
+    callback: callback
+  });
+};
+
+Proxy.prototype.isLocal = function(callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  this.ipc.invoke({
+    name: 'isLocal',
+    in: args,
+    callback: callback
+  });
+};
+
+
 Proxy.prototype.on = function(event, handler) {
   this.ipc.on(event, handler);
 };
