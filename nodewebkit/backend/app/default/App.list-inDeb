@@ -1,0 +1,22 @@
+{
+  "datamgr-app": {
+    "id": "datamgr-app",
+    "path": "../app/newdatamgr"
+  },
+  "app-register": {
+    "id": "app-register",
+    "path": "app/app-register"
+  },
+  "flash-app": {
+    "id": "flash-app",
+    "path": "app/flash"
+  },
+  "app-viewerPDF": {
+    "id": "app-viewerPDF",
+    "path": "../app/viewerPDF"
+  },
+  "app-controlPPT": {
+    "id": "app-controlPPT",
+    "path": "../app/controlPPT"
+  }
+}
