@@ -21,6 +21,7 @@ var initObj = {
 function Proxy() {
   // TODO: please replace $IPC with the real path of ipc module in your project
   this.ipc = require('../ipc').getIPC(initObj);
+  this._token = 0;
 
   // TODO: choose to implement interfaces of ipc
   /* handle message send from service
@@ -48,6 +49,7 @@ Proxy.prototype.send = function(String, Object, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
+    token: this._token++,
     name: 'send',
     in: args,
     callback: callback
@@ -58,6 +60,7 @@ Proxy.prototype.register = function(String, String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
+    token: this._token++,
     name: 'register',
     in: args,
     callback: callback
@@ -68,6 +71,7 @@ Proxy.prototype.unregister = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this.ipc.invoke({
+    token: this._token++,
     name: 'unregister',
     in: args,
     callback: callback
