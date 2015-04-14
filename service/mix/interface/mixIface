@@ -21,6 +21,11 @@
       "name": "openDev",
       "in": [],
       "out": "Boolean"
+    },
+    {
+      "name": "isLocal",
+      "in": [],
+      "out": "Boolean"
     }
   ]
 }

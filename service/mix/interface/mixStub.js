@@ -20,6 +20,21 @@ var initObj = {
       "name": "getHello2",
       "in": [],
       "out": "Object"
+    },
+    {
+      "name": "getHello3",
+      "in": [],
+      "out": "Object"
+    },
+    {
+      "name": "openDev",
+      "in": [],
+      "out": "Boolean"
+    },
+    {
+      "name": "isLocal",
+      "in": [],
+      "out": "Boolean"
     }
   ],
   "serviceObj": {
@@ -38,6 +53,33 @@ var initObj = {
         res[1] = pa1;
         res[2] = pa2;
         res[3] = pa3;
+        callback(res);
+      });
+    },
+    getHello3: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      mix.getHello3(function(pa1,pa2){
+        var res = new Object();
+        res.para1 = pa1;
+        res.para2 = pa2;
+        console.log("getHello3 para1 : "+res.para1.str1);
+        console.log("getHello3 para1 : "+res.para1.str2);
+        console.log("getHello3 para2 : "+res.para2[0]);
+        console.log("getHello3 para2 : "+res.para2[1]);
+        console.log("getHello3 para2 : "+res.para2[2]);
+        callback(res);
+      });
+    },
+    openDev: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      mix.openDev(function(flag){
+        var res = flag;
+        console.log("openDev : "+res);
+        callback(res);
+      });
+    },
+    isLocal: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      mix.isLocal(function(flag){
+        var res = flag;
+        console.log("isLocal : "+res);
         callback(res);
       });
     }
