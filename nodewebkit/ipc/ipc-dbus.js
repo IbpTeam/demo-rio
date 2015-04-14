@@ -59,12 +59,12 @@ DBusIPC.prototype._addService = function() {
         inArray[j] = self._typeConvert[interfaces[i]['in'][j]];
       }
     }
-    if(typeof interfaces[i].out !== 'undefined') {
-      outType = self._typeConvert[interfaces[i]['out']];
-    }
+    // if(typeof interfaces[i].out !== 'undefined') {
+      // outType = self._typeConvert[interfaces[i]['out']];
+    // }
     iface.addMethod(serviceName, {
       in: inArray,
-      out: outType
+      out: self._typeConvert['Object']/* outType */
     }, self._property.serviceObj[serviceName]);
   }
   iface.addSignal('notify', {

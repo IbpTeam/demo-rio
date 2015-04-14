@@ -45,7 +45,7 @@ var initObj = {
     send: function(dstAddr, content, callback) {
       peer.send(dstAddr, content, function(err, result) {
         if(err) callback({err: err});
-        else callback({ret: result});
+        else callback(result);
       });
     },
     register: function(svrName, svrAddr, callback) {
