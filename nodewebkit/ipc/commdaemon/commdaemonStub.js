@@ -31,33 +31,33 @@ var initObj = {
         "String",
         "String"
       ],
-      "out": "Number"
+      "out": "Object"
     },
     {
       "name": "unregister",
       "in": [
         "String"
       ],
-      "out": "Number"
+      "out": "Object"
     }
   ],
   "serviceObj": {
     send: function(dstAddr, content, callback) {
       peer.send(dstAddr, content, function(err, result) {
-        if(err) callback(err);
-        else callback(result);
+        if(err) callback({err: err});
+        else callback({ret: result});
       });
     },
     register: function(svrName, svrAddr, callback) {
       peer.register(svrName, svrAddr, function(err) {
-        if(err) callback(1);
-        else callback(0);
+        if(err) callback({err: err});
+        else callback({});
       });
     },
     unregister: function(svrName, callback) {
       peer.unregister(svrName, function(err) {
-        if(err) callback(1);
-        else callback(0);
+        if(err) callback({err: err});
+        else callback({err: null});
       });
     }
   }
