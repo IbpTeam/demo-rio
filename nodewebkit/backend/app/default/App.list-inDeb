@@ -11,10 +11,6 @@
     "id": "flash-app",
     "path": "app/flash"
   },
-  "help-app": {
-    "id": "help-app",
-    "path": "app/help"
-  },
   "app-viewerPDF": {
     "id": "app-viewerPDF",
     "path": "../app/viewerPDF"
