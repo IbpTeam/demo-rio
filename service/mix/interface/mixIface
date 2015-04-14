@@ -1,0 +1,31 @@
+{
+  "remote": "true",
+  "service": "mix",
+  "interfaces": [
+    {
+      "name": "getHello",
+      "in": [],
+      "out": "String"
+    },
+    {
+      "name": "getHello2",
+      "in": [],
+      "out": "Object"
+    },
+    {
+      "name": "getHello3",
+      "in": [],
+      "out": "Object"
+    },
+    {
+      "name": "openDev",
+      "in": [],
+      "out": "Boolean"
+    },
+    {
+      "name": "isLocal",
+      "in": [],
+      "out": "Boolean"
+    }
+  ]
+}
