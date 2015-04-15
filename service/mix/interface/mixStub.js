@@ -13,50 +13,49 @@ var initObj = {
   "interface": [
     {
       "name": "getHello",
-      "in": [],
-      "out": "String"
+      "in": []
     },
     {
       "name": "getHello2",
-      "in": [],
-      "out": "Object"
+      "in": []
     },
     {
       "name": "getHello3",
-      "in": [],
-      "out": "Object"
+      "in": []
     },
     {
       "name": "openDev",
-      "in": [],
-      "out": "Boolean"
+      "in": []
     },
     {
       "name": "isLocal",
-      "in": [],
-      "out": "Boolean"
+      "in": []
     }
   ],
   "serviceObj": {
-    getHello: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+    getHello: function(callback) {
       mix.getHello(function(para){
+        var retObj = new Object();
         console.log("This is in Server "+ para);
-        callback(para);
+        retObj.ret = para;
+        callback(retObj);
       });
     },
-    getHello2: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+    getHello2: function(callback) {
       mix.getHello2(function(pa1,pa2,pa3){
         console.log("This is in Server pa1"+ pa1);
         console.log("This is in Server pa2"+ pa2);
         console.log("This is in Server pa3"+ pa3);
-        var res=[];
-        res[1] = pa1;
-        res[2] = pa2;
-        res[3] = pa3;
-        callback(res);
+        var res = [];
+        res[0] = pa1;
+        res[1] = pa2;
+        res[2] = pa3;
+        var retObj = new Object();
+        retObj.ret = res;
+        callback(retObj);
       });
     },
-    getHello3: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+    getHello3: function(callback) {
       mix.getHello3(function(pa1,pa2){
         var res = new Object();
         res.para1 = pa1;
@@ -66,21 +65,27 @@ var initObj = {
         console.log("getHello3 para2 : "+res.para2[0]);
         console.log("getHello3 para2 : "+res.para2[1]);
         console.log("getHello3 para2 : "+res.para2[2]);
-        callback(res);
+        var retObj = new Object();
+        retObj.ret = res;
+        callback(retObj);
       });
     },
-    openDev: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+    openDev: function(callback) {
       mix.openDev(function(flag){
         var res = flag;
         console.log("openDev : "+res);
-        callback(res);
+        var retObj = new Object();
+        retObj.ret = res;
+        callback(retObj);
       });
     },
-    isLocal: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+    isLocal: function(callback) {
       mix.isLocal(function(flag){
         var res = flag;
         console.log("isLocal : "+res);
-        callback(res);
+        var retObj = new Object();
+        retObj.ret = res;
+        callback(retObj);
       });
     }
   }
@@ -88,11 +93,11 @@ var initObj = {
 
 function Stub() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('../../../nodewebkit/ipc/ipc.js').getIPC(initObj);
+  this._ipc = require('../../../nodewebkit/ipc/ipc.js').getIPC(initObj);
 }
 
 Stub.prototype.notify = function(event) {
-  this.ipc.notify.apply(this.ipc, arguments);
+  this._ipc.notify.apply(this._ipc, arguments);
 };
 
 var stub = null,

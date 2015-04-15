@@ -11,7 +11,8 @@ function Proxy(ip) {
   }
 
   // TODO: replace $cdProxy to the real path
-  this.cd = require('$cdProxy').getProxy();
+  this._cd = require('../../../nodewebkit/ipc/commdaemon/commdaemonProxy.js').getProxy();  this._token = 0;
+
 }
 
 Proxy.prototype.getHello = function(callback) {
@@ -23,7 +24,7 @@ Proxy.prototype.getHello = function(callback) {
       func: 'getHello',
       args: args
     };
-  this.cd.send(this.ip, argv, callback);
+  this._cd.send(this.ip, argv, callback);
 };
 
 Proxy.prototype.getHello2 = function(callback) {
@@ -35,7 +36,7 @@ Proxy.prototype.getHello2 = function(callback) {
       func: 'getHello2',
       args: args
     };
-  this.cd.send(this.ip, argv, callback);
+  this._cd.send(this.ip, argv, callback);
 };
 
 Proxy.prototype.getHello3 = function(callback) {
@@ -47,7 +48,7 @@ Proxy.prototype.getHello3 = function(callback) {
       func: 'getHello3',
       args: args
     };
-  this.cd.send(this.ip, argv, callback);
+  this._cd.send(this.ip, argv, callback);
 };
 
 Proxy.prototype.openDev = function(callback) {
@@ -59,29 +60,41 @@ Proxy.prototype.openDev = function(callback) {
       func: 'openDev',
       args: args
     };
-  this.cd.send(this.ip, argv, callback);
+  this._cd.send(this.ip, argv, callback);
+};
+
+Proxy.prototype.isLocal = function(callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  var argv = {
+      action: 0,
+      svr: 'nodejs.webde.mix',
+      func: 'isLocal',
+      args: args
+    };
+  this._cd.send(this.ip, argv, callback);
 };
 
 Proxy.prototype.on = function(event, handler) {
-  this.cd.on(event, handler);
+  this._cd.on(event, handler);
   var argvs = {
     'action': 0,
     'svr': 'nodejs.webde.mix',
     'func': 'on',
     'args': [event]
   };
-  this.cd.send(this.ip, argvs);
+  this._cd.send(this.ip, argvs);
 };
 
 Proxy.prototype.off = function(event, handler) {
-  this.cd.off(event, handler);
+  this._cd.off(event, handler);
   var argvs = {
     'action': 0,
     'svr': 'nodejs.webde.mix',
     'func': 'off',
     'args': [event]
   };
-  this.cd.send(this.ip, argvs);
+  this._cd.send(this.ip, argvs);
 };
 
 var proxy = null;
