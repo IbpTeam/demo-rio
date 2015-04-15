@@ -57,7 +57,7 @@ function readJSONFile(path_, callback_) {
 }
 
 readJSONFile(process.argv[2], function(err, interfaces) {
-  if(err) return console.log(err);
+  if(err) return console.log('Interface File error:', err);
   builder(interfaces);
 });
 
@@ -261,3 +261,5 @@ function buildProxy(filename, initObj, ifaces, remote) {
   }
 }
 
+// TODO: build a HTML document to describ interfaces
+//
