@@ -23,7 +23,8 @@ var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
-var N3 = require('n3');
+var levelgraph = require('levelgraph');
+var db = levelgraph(config.LEVELDBPATH);
 
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";

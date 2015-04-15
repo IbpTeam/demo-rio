@@ -12,6 +12,7 @@
 
 var config = require("./backend/config");
 var initRio = require("./backend/initRio");
+var initLevelDB = require("./backend/commonHandle/rdfHandle");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
@@ -25,6 +26,8 @@ var cp = require('child_process');
 var path = require('path');
 var cryptoApp= require('./backend/crypto_app');
 var appManager = require('./backend/app/appManager');
+// var levelgraph = require('levelgraph');
+// var db = levelgraph(config.LEVELDBPATH);
 //var process = require('process');
 
 var handle = {}
@@ -84,6 +87,7 @@ function initializeApp(sFullPath) {
   var sUniqueIDPath = path.join(config.USERCONFIGPATH, config.UNIQUEID_JS);
   var sDatabasePath = config.DATABASEPATH;
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
+  initLevelDB.dbInitial();
   console.log("UniqueID Path is : " + sUniqueIDPath);
     /*
      * TODO: desktop config part is not working now, will fix it later
