@@ -2,22 +2,19 @@ var util = require('util');
 var net = require('net');
 // RPC API lib.
 console.log("head of requireProxy.js.");
-/*
-exports.requireProxy = function(proxyName, remote, callback) {
-    util.log("requireProxy:" + proxyName);
-    var i;
-    var apiArr = new Array(proxyName.length);
-    if (remote === false) {
-        for (i = 0; i < proxyName.length; i += 1) {
-            apiArr[i] = require('../../service/' + proxyName[i] + '/interface/' + proxyName[i] + 'Proxy').getProxy();
-        }
-        setTimeout(function() {
-            callback.apply(null, apiArr)
-        }, 0);
-    }else{
-        //ToDo: to require remote calls
-    }
-}
+/* requireProxy takes 2 or 3 parameters, if you want to call a local service ,
+    take 2 parameters as follows:
+ requireProxy(['mix',function(mix){
+    mix.getHello(function(res){
+    Do something here.
+    });
+ }]);
+ if you want to call a remote service, take 3 parameters as follows:
+requireProxy(['mix'],"127.0.0.1",function(mix){
+    mix.getHello(function(result){
+        Do something here.
+    });
+});
 */
 exports.requireProxy = function() {
     if (typeof (arguments[arguments.length-1]) !== "function" ) {
