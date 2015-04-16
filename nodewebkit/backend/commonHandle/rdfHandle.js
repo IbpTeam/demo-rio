@@ -121,13 +121,13 @@ exports.dbClear = dbClear;
  *
  */
 function dbOpen(callback) {
-  levelgraph(config.LEVELDBPATH, function(err, db) {
+  levelgraph(config.LEVELDBPATH, null, function(err, db) {
     if (err) {
-      return callback(err);
+      throw err;
     }
     if (!db.isOpen()) {
       var _err = new Error("DATABASE NOT FOUND!");
-      return callback(_err);
+      throw _err;
     }
     return callback(null, db);
   });
@@ -169,25 +169,17 @@ exports.dbOpen = dbOpen;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-function dbPut(metadata, callback) {
+function dbPut(db, metadata, callback) {
   if (typeof metadata !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
     return callback(_err)
   }
-  dbOpen(function(err, db) {
+  db.put(metadata, function(err) {
     if (err) {
-      return callback(err)
+      console.log(err)
+      return callback(err);
     }
-    db.put(metadata, function(err) {
-      if (err) {
-        db.close(function(err) {
-          return callback(err);
-        });
-      }
-      db.close(function(err) {
-        return callback(err);
-      });
-    });
+    return callback();
   });
 }
 exports.dbPut = dbPut;
@@ -231,9 +223,7 @@ function dbSearch(db, query, callback) {
     if (err) {
       return callback(err)
     }
-    db.close(function(err) {
-      callback(null, results);
-    });
+    callback(null, results);
   });
 }
 exports.dbSearch = dbSearch;
