@@ -54,7 +54,7 @@ var PRI_KEY = "rio_rsa";
 var PUB_KEY = "rio_rsa.pub";
 var AUTHORIZED_KEYS = "authorized_keys";
 var CONFIG_FILE = "config";
-var RESOURCES_PATH = path.join(process.env["HOME"],".resources");
+var RESOURCES_PATH = path.join(process.env["HOME"],".custard","resource");
 
 var iCurrentState = syncState.SYNC_IDLE;
 var syncList = new Array();
@@ -74,7 +74,7 @@ exports.initServer = function(){
 
 function recieveMsgCb(msgobj){
   var msg = msgobj['MsgObj'];
-//  console.log("Receive message : " + msg.message);
+  console.log("Receive message : 9999999999999999999999000000000000" + msg.message);
   var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
@@ -124,7 +124,7 @@ function sendMsg(device,msgObj){
     Msg: sMsgStr,
     App: "app1"
   };
-//  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
+  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
   im.sendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
@@ -139,7 +139,7 @@ function sendMsgCb(msg){
   // TO-DO
   // Right now, this callback do nothing, may be set it null.
   //var msg = msgObj['MsgObj'];
-  //console.log("Send Msg Successful in sendAppMsg function, msg :::", msg);
+  console.log("Send Msg Successful in sendAppMsg function, msg :::", msg);
 }
 
 /**
@@ -292,7 +292,7 @@ function getPubKey(callback){
   checkPubKey(function(isPubKeyExist){
     if(!isPubKeyExist){
       var sPriKeyPath = path.join(process.env['HOME'],SSH_DIR,PRI_KEY);
-      var sCommandStr = "ssh-keygen -t rsa -P '' -f '" + sPriKeyPath + "'";
+      var sCommandStr = "ssh-keygen -t rsa -P '' -f '" + sPriKeyPath + "' && ssh-add " + sPriKeyPath;
       cp.exec(sCommandStr,function(err,stdout,stderr){
         if(err)
           console.log(err);
@@ -314,6 +314,7 @@ function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
     return;
   }
+  console.log("###########################################");
   if(device.syncMethod == undefined){
     device.syncMethod = syncMethod.METHOD_AUTO;
   }
@@ -557,23 +558,31 @@ function syncStart(msgObj){
     }
     break;
     case syncState.SYNC_RESPONSE:{
-      //Start to sync
-      iCurrentState = syncState.SYNC_START;
-      var aHotRepos = msgObj.repositories;
-      var iRepoNum = 0;
-      console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+aHotRepos.length);
-      if(aHotRepos.length > 0){
-        aHotRepos.forEach(function(hotRepo){
-          utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
-            iRepoNum++;
-            if(iRepoNum == aHotRepos.length){
-              mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
-            }
+      var sPriKeyPath = path.join(process.env['HOME'],SSH_DIR,PRI_KEY);
+      var sCommandStr = "ssh-add " + sPriKeyPath;
+      cp.exec(sCommandStr,function(err,stdout,stderr){
+        if(err)
+          console.log(err);
+        console.log("############################" + stdout);
+        //Start to sync
+        iCurrentState = syncState.SYNC_START;
+        var aHotRepos = msgObj.repositories;
+        var iRepoNum = 0;
+        console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@:"+aHotRepos.length);
+        if(aHotRepos.length > 0){
+          aHotRepos.forEach(function(hotRepo){
+            utils.getCategoryObjectByDes(hotRepo).pullRequest(msgObj.deviceId,msgObj.ip,msgObj.account,msgObj.resourcePath,function(){
+              iRepoNum++;
+              if(iRepoNum == aHotRepos.length){
+                mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
+              }
+            });
           });
-        });
-      }else{
-        mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
-      }
+        }else{
+          mergeComplete(msgObj.deviceId,msgObj.ip,msgObj.account);
+        }
+      });
+      
     }
     break;
     case syncState.SYNC_START:{

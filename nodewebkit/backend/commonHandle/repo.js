@@ -225,7 +225,7 @@ function getBranchList(stdout) {
 
 exports.haveBranch = function(resourcesPath, branch, callback) {
   var sBaseName = path.basename(resourcesPath);
-  var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
+  var sLocalResourcesPath = path.join(process.env["HOME"], ".custard","resource", sBaseName);
   var cp = require('child_process');
   var cmd = 'cd ' + sLocalResourcesPath + '&& git branch';
   console.log(cmd);
@@ -249,7 +249,7 @@ exports.haveBranch = function(resourcesPath, branch, callback) {
 exports.addBranch = function(deviceId, address, account, resourcesPath, callback) {
   console.log("add branch : " + deviceId);
   var sBaseName = path.basename(resourcesPath);
-  var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
+  var sLocalResourcesPath = path.join(process.env["HOME"], ".custard","resource", sBaseName);
   var cp = require('child_process');
   var cmd = 'cd ' + sLocalResourcesPath + '&& git remote add ' + deviceId + ' ' + account + '@' + address + ':' + resourcesPath;
   console.log(cmd);
@@ -286,7 +286,7 @@ function getPullFileList(stdout) {
 
 exports.pullFromOtherRepo = function(resourcesPath, branch, callback) {
   var sBaseName = path.basename(resourcesPath);
-  var sLocalResourcesPath = path.join(process.env["HOME"], ".resources", sBaseName);
+  var sLocalResourcesPath = path.join(process.env["HOME"], ".custard","resource", sBaseName);
   var cp = require('child_process');
   var cmd = 'cd ' + sLocalResourcesPath + '&& git checkout ' + branch;
   console.log(cmd);
