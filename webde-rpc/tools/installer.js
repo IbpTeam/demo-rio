@@ -1,5 +1,6 @@
 // TODO: install an appointed service
 //
+var json4line = require('../../sdk/utils/json4line');
 
 if(process.argv.length < 3)
   return console.log('Usage: node installer.js ${Paths_of_Your_Service_Package}');
@@ -13,14 +14,17 @@ function doInstall(pkg) {
     if(!exist) {
       return console.log(pkg, 'is not Found!!');
     }
-    var pkgName = path.basename(pkg),
-        pkgEntrance = path.resolve(pkg, 'start.js'),
-        content = pkgName + ' ' + pkgEntrance + '\n';
-    // console.log(content);
-    fs.appendFile(svrPath, content, function(err) {
-      if(err)
-        return console.log(err);
-      console.log(pkgName, 'installed OK');
+    json4line.readJSONFile(pkg + '/package.json', function(err, data) {
+      // console.log(data);
+      var pkgName = data.name,
+          pkgEntrance = path.resolve(pkg, data.main),
+          content = pkgName + ' ' + pkgEntrance + '\n';
+      // console.log(content);
+      fs.appendFile(svrPath, content, function(err) {
+        if(err)
+          return console.log(err);
+        console.log(pkgName, 'installed OK');
+      });
     });
   });
 }

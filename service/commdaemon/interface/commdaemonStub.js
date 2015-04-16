@@ -65,7 +65,7 @@ var initObj = {
 
 function Stub() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this.ipc = require('../ipc').getIPC(initObj);
+  this.ipc = require('webde-rpc').getIPC(initObj);
 }
 
 Stub.prototype.notify = function(event) {

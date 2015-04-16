@@ -1,7 +1,7 @@
 // TODO: implements the server for reciving RPC requests from clients
 //   and register/unregister requests from services
 var net = require('net'),
-    Stub = require('./commdaemonStub'),
+    Stub = require('../interface/commdaemonStub'),
     ProtoBuf = require('protobufjs');
 
 // Elements of this cache are objects like: {
@@ -77,7 +77,7 @@ Cache.prototype._findOldest = function(list) {
   }
 }
 
-var builder = ProtoBuf.loadProtoFile('./packet.proto'),
+var builder = ProtoBuf.loadProtoFile(__dirname + '/packet.proto'),
     Packet = builder.build('WebDE').Packet.PacketModel;
 
 function PeerEnd() {

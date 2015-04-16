@@ -56,7 +56,7 @@ exports.getStub = function(proxyAddr) {
     if(typeof proxyAddr === 'undefined') 
       throw 'The path of proxy\'s module file we need!';
     console.log(proxyAddr);
-    cd = require('../../service/commdaemon/commdaemonProxy').getProxy();
+    cd = require('../../service/commdaemon/interface/commdaemonProxy').getProxy();
     cd.register(initObj.name, proxyAddr, function(ret) {
       if(ret.err) {
         return console.log(ret.err
