@@ -26,8 +26,6 @@ var cp = require('child_process');
 var path = require('path');
 var cryptoApp= require('./backend/crypto_app');
 var appManager = require('./backend/app/appManager');
-// var levelgraph = require('levelgraph');
-// var db = levelgraph(config.LEVELDBPATH);
 //var process = require('process');
 
 var handle = {}
