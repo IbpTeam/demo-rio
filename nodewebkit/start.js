@@ -87,7 +87,6 @@ function initializeApp(sFullPath) {
   var sUniqueIDPath = path.join(config.USERCONFIGPATH, config.UNIQUEID_JS);
   var sDatabasePath = config.DATABASEPATH;
   var sNetLinkStatusPath = path.join(config.USERCONFIGPATH, NETLINKSTATUS);
-  initLevelDB.dbInitial();
   console.log("UniqueID Path is : " + sUniqueIDPath);
     /*
      * TODO: desktop config part is not working now, will fix it later
@@ -131,6 +130,12 @@ function initializeApp(sFullPath) {
           });
         }
       });*/
+      //init the leveldb for levelgraph
+      initLevelDB.dbInitial(function(err) {
+        if(err){
+          return console.log(err);
+        } 
+      });
     });
   });
   device = require("./backend/data/device");

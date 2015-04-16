@@ -45,79 +45,140 @@
     }
   }
 
-  function loadContactCb(result){
+  function cb(err, result) {
     var win = window.open('');
-    win.document.write("test API loadContactCb()");
+    if (err) {
+      return print(win, err);
+    }
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win, result);
   }
 
-  function test_dbInitial(){
-    WDC.requireAPI(['data'], function(data){
-      data.test_rdfHandle.dbInitial();
+  function test_dbInitial(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbInitial(function(err) {
+          cb(err, "initial leveldb sucess!")
+        });
+      })
     });
   }
 
-  // function test_dbInitial(){
-  //   WDC.requireAPI(['data'], function(data){
-  //     data.test_rdfHandle(function(rdfHandle){
-  //       rdfHandle.dbInitial();
-  //     });
-  //   });
-  // }
+  function test_dbClear(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbClear(function(err) {
+          cb(err, "dbCleat sucess!")
+        });
+      })
+    });
+  }
+
+  var fullNameUrl = 'http://example.org/category/contact#xiquan';
+  var currentTime = (new Date());
+  var _metadata =
+    [{
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#createTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastModifyTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastAccessTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#createDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastModifyDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastAccessDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#lastname',
+      object: '"' + "dai" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#firstname',
+      object: '"' + "xiquan" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#sex',
+      object: '"' + "male" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#email',
+      object: '"' + "xiquan@iscas.ac.cn" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#phone',
+      object: '"' + "13911164063" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/Base#lastAccessDev',
+      object: '"' + "10086" + '"'
+    }]
+
+
+
+  function test_dbPut(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbPut(_metadata, function(err) {
+          cb(err, "dbPut sucess!")
+        });
+      })
+    });
+  }
+
+  function test_dbSearch(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbOpen(function(err, db) {
+          if (err) {
+            return cb(err);
+          }
+          var _query_get_all = [{
+            subject: db.v('x'),
+            predicate: db.v('y'),
+            object: db.v('z')
+          }]
+          rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
+            cb(err, result)
+          });
+        })
+      })
+    });
+  }
+
 
 
   </script>
 
-<h2 onclick="show('dbInitial')">dbInitial()<span><a class="mark" href="#test_dbInitial" id="test_dbInitial" onclick="test_dbInitial()">test</a></span></h2>
+<h2 onclick="show('dbInitial')">dbInitial(cb)<span><a class="mark" href="#test_dbInitial" id="test_dbInitial" onclick="test_dbInitial(cb)">test</a></span></h2>
 <div id="dbInitial" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>  
-</pre>
-</div>
 </div>
 
-<h2 onclick="show('getAllContacts')">getAllContacts(getAllContactsCb)<span><a class="mark" href="#test_getAllContacts" id="test_getAllContacts" onclick="test_getAllContacts(getAllContactsCb)">test</a></span></h2>
-<div id="getAllContacts" style="display:none;">
-<div style="color:#930000">
-  <pre>
-    @method : getAllContacts 获得所有联系人数组
-      @param1 : getAllContactsCb 回调函数
-        @result : 
-          array[cate]: 联系人数组
-            cate数据如下：
-              cate{
-                URI;
-                version;
-                name;
-                photPath;
-              }
-  </pre>
+<h2 onclick="show('dbPut')">dbPut(cb)<span><a class="mark" href="#test_dbPut" id="test_dbPut" onclick="test_dbPut(cb)">test</a></span></h2>
+<div id="dbPut" style="display:none;">
 </div>
-<div style="color:#004B97">
-  <pre>
-    具体实现：<br>
-    function getAllContactsCb(result){
-      var win = window.open('');
-      win.document.write("test API getAllContacts()");
-      win.document.write("&lt;br/&gt;");
-      win.document.write("callback result: "+result);
-      win.document.write("&lt;br/&gt;");
-    }
 
-    function test_getAllContacts(getAllContactsCb){
-      WDC.requireAPI(['data'], function(data){
-        data.getAllContacts(getAllContactsCb,path);
-      });
-    }        
-</pre>
+<h2 onclick="show('dbClear')">dbClear(cb)<span><a class="mark" href="#test_dbClear" id="test_dbClear" onclick="test_dbClear(cb)">test</a></span></h2>
+<div id="dbClear" style="display:none;">
 </div>
+
+<h2 onclick="show('dbSearch')">dbSearch(cb)<span><a class="mark" href="#test_dbSearch" id="test_dbSearch" onclick="test_dbSearch(cb)">test</a></span></h2>
+<div id="dbSearch" style="display:none;">
 </div>
 
 </body>

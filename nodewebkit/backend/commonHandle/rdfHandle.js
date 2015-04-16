@@ -8,7 +8,7 @@ var levelgraph = require('levelgraph');
  *   ition triples into database, including base properties.
  *
  */
-function dbInitial() {
+function dbInitial(callback) {
   var triples_base_type =
     [{
       subject: 'http://example.org/category#Base',
@@ -65,17 +65,21 @@ function dbInitial() {
     }];
   dbOpen(function(err, db) {
     if (err) {
-      console.log(err)
-      throw err;
+      return callback(err);
     }
     db.put(triples_base_type, function(err) {
       if (err) {
         db.close();
-        throw err;
+        return callback(err);
       };
-      return db.close();
-    })
-  })
+      db.close(function(err) {
+        if (err) {
+          return callback(err);
+        }
+        return callback();
+      });
+    });
+  });
 }
 exports.dbInitial = dbInitial;
 
@@ -94,14 +98,13 @@ function dbClear(callback) {
     if (err) {
       return callback(err);
     }
-    db.close();
     fs_extra.remove(config.LEVELDBPATH, function(err) {
       if (err) {
         callback(err);
       };
       return callback(null);
-    })
-  })
+    });
+  });
 }
 exports.dbClear = dbClear;
 
@@ -118,14 +121,18 @@ exports.dbClear = dbClear;
  *
  */
 function dbOpen(callback) {
-  var db = levelgraph(config.LEVELDBPATH);
-  console.log(db.isOpen());
-  if (!db.isOpen()) {
-    var _err = new Error("DATABASE NOT FOUND!");
-    return callback(_err);
-  }
-  return callback(null, db);
+  levelgraph(config.LEVELDBPATH, function(err, db) {
+    if (err) {
+      return callback(err);
+    }
+    if (!db.isOpen()) {
+      var _err = new Error("DATABASE NOT FOUND!");
+      return callback(_err);
+    }
+    return callback(null, db);
+  });
 }
+exports.dbOpen = dbOpen;
 
 /**
  * @method dbPut
@@ -169,17 +176,19 @@ function dbPut(metadata, callback) {
   }
   dbOpen(function(err, db) {
     if (err) {
-      return callback(err);
+      return callback(err)
     }
     db.put(metadata, function(err) {
       if (err) {
-        db.close();
-        return callback(err);
+        db.close(function(err) {
+          return callback(err);
+        });
       }
-      db.close();
-      return callback(null);
-    })
-  })
+      db.close(function(err) {
+        return callback(err);
+      });
+    });
+  });
 }
 exports.dbPut = dbPut;
 
@@ -213,21 +222,18 @@ exports.dbPut = dbPut;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-function dbSearch(query, callback) {
+function dbSearch(db, query, callback) {
   if (typeof query !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
     return callback(_err);
   }
-  dbOpen(function(err, db) {
+  db.search(query, function(err, results) {
     if (err) {
       return callback(err)
     }
-    db.search(query, function(err, results) {
-      if (err) {
-        return callback(err)
-      }
+    db.close(function(err) {
       callback(null, results);
     });
-  })
+  });
 }
 exports.dbSearch = dbSearch;

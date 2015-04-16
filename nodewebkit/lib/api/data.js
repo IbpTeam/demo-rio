@@ -1608,7 +1608,7 @@ exports.repoSearch = repoSearch;
  *
  **/
 function test_rdfHandle(callback) {
-  var rdfHandle = require("../../backend/commonHandle/commonHandle/rdfHandle");
+  var rdfHandle = require("../../backend/commonHandle/rdfHandle");
   callback(rdfHandle);
 }
 exports.test_rdfHandle = test_rdfHandle;
