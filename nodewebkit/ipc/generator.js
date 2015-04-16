@@ -140,8 +140,10 @@ function buildStub(filename, initObj, ifaces, remote) {
         + "    // TODO: replace $cdProxy to the path of commdaemonProxy\n"
         + "    cd = require('$cdProxy').getProxy();\n"
         + "    cd.register(initObj.name, proxyAddr, function(ret) {\n"
-        + "      if(ret < 0)\n"
-        + "        throw 'Fail to register online';\n"
+        + "      if(ret.err) {\n"
+        + "        return console.log(ret.err\n"
+        + "          , 'This service cannot be accessed from other devices since failed to register on CD');\n"
+        + "      }\n"
         + "    });\n" : "")
         + "    stub = new Stub();\n"
         + "  }\n"

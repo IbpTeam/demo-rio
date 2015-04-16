@@ -58,8 +58,10 @@ exports.getStub = function(proxyAddr) {
     console.log(proxyAddr);
     cd = require('./commdaemon/commdaemonProxy').getProxy();
     cd.register(initObj.name, proxyAddr, function(ret) {
-      if(ret.err)
-        throw ret.err;
+      if(ret.err) {
+        return console.log(ret.err
+          , 'This service cannot be accessed from other devices since failed to register on CD');
+      }
       console.log('register OK');
     });
     // register services on ipc-framework
