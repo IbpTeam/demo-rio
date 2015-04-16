@@ -17,7 +17,7 @@ function doInstall(pkg) {
     json4line.readJSONFile(pkg + '/package.json', function(err, data) {
       // console.log(data);
       var pkgName = data.name,
-          pkgEntrance = path.resolve(pkg, data.main),
+          pkgEntrance = path.resolve(pkg),
           content = pkgName + ' ' + pkgEntrance + '\n';
       // console.log(content);
       fs.appendFile(svrPath, content, function(err) {
