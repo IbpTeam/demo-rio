@@ -392,7 +392,7 @@ PeerEnd.prototype.send = function(dstAddr, content, callback) {
 PeerEnd.prototype.register = function(svrName, svrAddr, callback) {
   var cb = callback || function() {};
   if(typeof this._svrList[svrName] !== 'undefined')
-    cb('Service has been registered.');
+    return cb('Service has been registered.');
   // TODO: varify this svrAddr
   this._svrList[svrName] = svrAddr;
   console.log(svrName, 'registered OK!');

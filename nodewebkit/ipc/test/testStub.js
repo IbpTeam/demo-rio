@@ -14,12 +14,13 @@ var initObj = {
       "name": "setVal",
       "in": [
         "String"
-      ]
+      ],
+      "out": "Object"
     },
     {
       "name": "getVal",
       "in": [],
-      "out": "String"
+      "out": "Object"
     }
   ],
   "serviceObj": {
@@ -27,11 +28,11 @@ var initObj = {
       /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
       v = val;
       console.log(val);
-      callback();
+      callback({});
     },
     getVal: function(callback) {
       /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
-      callback(v);
+      callback({ret: v});
     }
   }
 }
@@ -57,9 +58,9 @@ exports.getStub = function(proxyAddr) {
     console.log(proxyAddr);
     cd = require('./commdaemon/commdaemonProxy').getProxy();
     cd.register(initObj.name, proxyAddr, function(ret) {
-      console.log(ret);
-      if(ret < 0)
-        throw 'Fail to register online.';
+      if(ret.err)
+        throw ret.err;
+      console.log('register OK');
     });
     // register services on ipc-framework
     stub = new Stub();

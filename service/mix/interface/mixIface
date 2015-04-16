@@ -4,28 +4,23 @@
   "interfaces": [
     {
       "name": "getHello",
-      "in": [],
-      "out": "String"
+      "in": []
     },
     {
       "name": "getHello2",
-      "in": [],
-      "out": "Object"
+      "in": []
     },
     {
       "name": "getHello3",
-      "in": [],
-      "out": "Object"
+      "in": []
     },
     {
       "name": "openDev",
-      "in": [],
-      "out": "Boolean"
+      "in": []
     },
     {
       "name": "isLocal",
-      "in": [],
-      "out": "Boolean"
+      "in": []
     }
   ]
 }

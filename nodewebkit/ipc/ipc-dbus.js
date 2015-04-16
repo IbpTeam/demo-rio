@@ -25,6 +25,7 @@ function DBusIPC(initObj) {
     self._addService();
   } else {
     self._getInterface();
+    self._callStack = {};
   }
 }
 util.inherits(DBusIPC, events.EventEmitter);
@@ -58,12 +59,12 @@ DBusIPC.prototype._addService = function() {
         inArray[j] = self._typeConvert[interfaces[i]['in'][j]];
       }
     }
-    if(typeof interfaces[i].out !== 'undefined') {
-      outType = self._typeConvert[interfaces[i]['out']];
-    }
+    // if(typeof interfaces[i].out !== 'undefined') {
+      // outType = self._typeConvert[interfaces[i]['out']];
+    // }
     iface.addMethod(serviceName, {
       in: inArray,
-      out: outType
+      out: self._typeConvert['Object']/* outType */
     }, self._property.serviceObj[serviceName]);
   }
   iface.addSignal('notify', {
@@ -81,14 +82,18 @@ DBusIPC.prototype.notify = function(msg) {
   this._getServiceInterface().emit('notify', msg);
 }
 
-DBusIPC.prototype._getInterface = function(callback) {
+DBusIPC.prototype._getInterface = function(ret, callback) {
   // get service interface from D-Bus based on init perameters
   var bus = dbus.getBus('session'),
       prop = this._property,
       self = this,
+      _ret = ret || function() {},
       cb = callback || function() {};
   bus.getInterface(prop.address, prop.path, prop.name, function(err, iface) {
-    if(err) return self.emit('error', err);
+    if(err) {
+      _ret({err: err});
+      return self.emit('error', err);
+    }
     self._initSingal(iface);
     cb(iface);
   });
@@ -110,13 +115,25 @@ DBusIPC.prototype._initSingal = function(iface) {
 DBusIPC.prototype.invoke = function(peramObj) {
   var self = this,
       cb = peramObj.callback || function() {};
-  this._getInterface(function(iface) {
-    if(typeof iface[peramObj.name] === 'undefined')
-      return self.emit('error', 'No such interface: ' + peramObj.name);
+  self._getInterface(cb, function(iface) {
+    if(typeof iface[peramObj.name] === 'undefined') {
+      var err = 'No such interface: ' + peramObj.name;
+      cb({err: err});
+      return self.emit('error', err);
+    }
+    self._callStack[peramObj.token] = cb;
     iface[peramObj.name]['timeout'] = 1000;
-    iface[peramObj.name]['finish'] = cb;
+    iface[peramObj.name]['finish'] = function(result) {
+      // if(typeof result.err === 'undefined') result.err = null;
+      self._callStack[peramObj.token](result);
+      self._callStack[peramObj.token] = null;
+      delete self._callStack[peramObj.token];
+    };
     iface[peramObj.name]['error'] = function(err) {
       self.emit('error', err);
+      self._callStack[peramObj.token]({err: err});
+      self._callStack[peramObj.token] = null;
+      delete self._callStack[peramObj.token];
     }
     iface[peramObj.name].apply(iface, peramObj.in);
   });
