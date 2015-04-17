@@ -1,0 +1,15 @@
+{
+  "remote": "true",
+  "service": "test",
+  "interfaces": [
+    {
+      "name": "setVal",
+      "in": ["String"]
+    },
+    {
+      "name": "getVal",
+      "in": [],
+      "out": "String"
+    }
+  ]
+}

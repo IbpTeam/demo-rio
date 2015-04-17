@@ -1,0 +1,19 @@
+{
+  "author": "CannedFish <lianggy0719@126.com>",
+  "name": "webde-rpc",
+  "description": "a simple RPC framework for webde",
+  "version": "0.1.0",
+  "repository": {
+    "url": ""
+  },
+  "main": "lib/ipc.js",
+  "dependencies": {
+    "dbus": ">= 0.2.10",
+    "commdaemon": "../service/commdaemon"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": ">= 0.8.0"
+  }
+}
