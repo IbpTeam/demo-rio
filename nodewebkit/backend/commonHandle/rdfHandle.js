@@ -63,21 +63,17 @@ function dbInitial(callback) {
       predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
       object: 'http://example.org/category#Base'
     }];
-  dbOpen(function(err, db) {
+  var db = dbOpen();
+  db.put(triples_base_type, function(err) {
     if (err) {
+      db.close();
       return callback(err);
-    }
-    db.put(triples_base_type, function(err) {
+    };
+    db.close(function(err) {
       if (err) {
-        db.close();
         return callback(err);
-      };
-      db.close(function(err) {
-        if (err) {
-          return callback(err);
-        }
-        return callback();
-      });
+      }
+      return callback();
     });
   });
 }
@@ -94,43 +90,23 @@ exports.dbInitial = dbInitial;
  *
  */
 function dbClear(callback) {
-  dbOpen(function(err, db) {
+  fs_extra.remove(config.LEVELDBPATH, function(err) {
     if (err) {
-      return callback(err);
-    }
-    fs_extra.remove(config.LEVELDBPATH, function(err) {
-      if (err) {
-        callback(err);
-      };
-      return callback(null);
-    });
+      callback(err);
+    };
+    return callback(null);
   });
 }
 exports.dbClear = dbClear;
 
 /**
  * @method dbOpen
- *   open the levegraph database
+ *   open the levegraph database; would return a database object
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
- *
- *   @result
- *      object，the database object
  *
  */
-function dbOpen(callback) {
-  levelgraph(config.LEVELDBPATH, null, function(err, db) {
-    if (err) {
-      throw err;
-    }
-    if (!db.isOpen()) {
-      var _err = new Error("DATABASE NOT FOUND!");
-      throw _err;
-    }
-    return callback(null, db);
-  });
+function dbOpen() {
+  return new levelgraph(config.LEVELDBPATH);
 }
 exports.dbOpen = dbOpen;
 

@@ -322,68 +322,64 @@ function initContacts(loadContactsCb, sItemPath) {
         }
       }
 
-      rdfHandle.dbOpen(function(err, _db) {
-        if (err) {
-          throw err;
-        }
-        for (var k = 0; k < oContacts.length; k++) {
-          var tripleItem = oContacts[k];
-          var currentTime = (new Date());
-          var fullName = tripleItem["姓"] + tripleItem["名"];
-          var fullNameUrl = 'http://example.org/category/contact#' + fullName;
-          var _triples = [{
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/base#createTime',
-            object: '"' + currentTime + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/base#lastModifyTime',
-            object: '"' + currentTime + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/base#lastAccessTime',
-            object: '"' + currentTime + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/base#createDev',
-            object: '"' + config.uniqueID + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/base#lastModifyDev',
-            object: '"' + config.uniqueID + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/base#lastAccessDev',
-            object: '"' + config.uniqueID + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/contact#lastname',
-            object: '"' + tripleItem["姓"] + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/contact#firstname',
-            object: '"' + tripleItem["名"] + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/contact#sex',
-            object: '"' + tripleItem["性别"] + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/contact#email',
-            object: '"' + tripleItem["电子邮件地址"] + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/contact#phone',
-            object: '"' + tripleItem["移动电话"] + '"'
-          }, {
-            subject: fullNameUrl,
-            predicate: 'http://example.org/property/Base#lastAccessDev',
-            object: '"' + config.uniqueID + '"'
-          }]
-          var _isContactEnd = (k == (oContacts.length - 1));
-          addTriples(_isContactEnd, _db, _triples, loadContactsCb);
-        }
-      })
+      var _db = rdfHandle.dbOpen();
+      for (var k = 0; k < oContacts.length; k++) {
+        var tripleItem = oContacts[k];
+        var currentTime = (new Date());
+        var fullName = tripleItem["姓"] + tripleItem["名"];
+        var fullNameUrl = 'http://example.org/category/contact#' + fullName;
+        var _triples = [{
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/base#createTime',
+          object: '"' + currentTime + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/base#lastModifyTime',
+          object: '"' + currentTime + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/base#lastAccessTime',
+          object: '"' + currentTime + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/base#createDev',
+          object: '"' + config.uniqueID + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/base#lastModifyDev',
+          object: '"' + config.uniqueID + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/base#lastAccessDev',
+          object: '"' + config.uniqueID + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/contact#lastname',
+          object: '"' + tripleItem["姓"] + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/contact#firstname',
+          object: '"' + tripleItem["名"] + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/contact#sex',
+          object: '"' + tripleItem["性别"] + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/contact#email',
+          object: '"' + tripleItem["电子邮件地址"] + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/contact#phone',
+          object: '"' + tripleItem["移动电话"] + '"'
+        }, {
+          subject: fullNameUrl,
+          predicate: 'http://example.org/property/Base#lastAccessDev',
+          object: '"' + config.uniqueID + '"'
+        }]
+        var _isContactEnd = (k == (oContacts.length - 1));
+        addTriples(_isContactEnd, _db, _triples, loadContactsCb);
+      }
     });
   }
   csvtojson.csvTojson(sItemPath, csvTojsonCb);
