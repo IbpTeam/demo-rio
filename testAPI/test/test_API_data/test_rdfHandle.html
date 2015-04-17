@@ -134,7 +134,8 @@
   function test_dbPut(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
-        rdfhandle.dbPut(_metadata, function(err) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.dbPut(db, _metadata, function(err) {
           cb(err, "dbPut sucess!")
         });
       })
@@ -144,19 +145,15 @@
   function test_dbSearch(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
-        rdfhandle.dbOpen(function(err, db) {
-          if (err) {
-            return cb(err);
-          }
+        var db = rdfhandle.dbOpen();
           var _query_get_all = [{
             subject: db.v('x'),
-            predicate: db.v('y'),
+            predicate: "http://example.org/property/contact#lastname",//db.v('y'),
             object: db.v('z')
           }]
           rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
             cb(err, result)
           });
-        })
       })
     });
   }
