@@ -103,13 +103,13 @@ function loadFile(loadFileCb, sFilePath) {
           'filepath': resultFilePath,
           'tags': []
         };
-        if(result[0]['others'] !== ''){
+        if (result[0]['others'] !== '') {
           result_.tags = result[0]['others'].split(',');
         }
         loadFileCb(null, result_);
       }
       var sCondition = ["path ='" + resultFilePath + "'"];
-      commonDAO.findItems(['uri', 'path','others'], category, sCondition, null, findItemsCb);
+      commonDAO.findItems(['uri', 'path', 'others'], category, sCondition, null, findItemsCb);
     })
   }
 }
@@ -126,7 +126,7 @@ exports.loadFile = loadFile;
  *      string, specific err info
  *   @result
  *      array，object array, include file info of name exist file.
- *  
+ *
  *   example:
  *   [{
  *     "origin_path": "/home/xiquan/WORK_DIRECTORY/resources/pictures/city1.jpg",
@@ -137,7 +137,7 @@ exports.loadFile = loadFile;
  *     "old_name": "city3.jpg",
  *     "re_name": "duplicate_at_2014年12月17日_下午1:30:40_duplicate_at_2014年12月17日_下午1:30:40_city3.jpg"
  *   }]
- *  
+ *
  * @param2 path
  *   string，要加载资源的路径
  */
@@ -361,8 +361,8 @@ exports.getDataByUri = getDataByUri;
 //返回具体数据类型对象
 function getDataByPath(getDataByPathCb, sPath) {
   console.log("Request handler 'getDataByPath' was called.");
-  if(sPath.substr(sPath.length-3,sPath.length-1) === '.md'){
-    sPath = sPath.substr(0,sPath.length-3);
+  if (sPath.substr(sPath.length - 3, sPath.length - 1) === '.md') {
+    sPath = sPath.substr(0, sPath.length - 3);
   }
   var cate = utils.getCategoryByPath(sPath);
   var category = cate.category;
@@ -1526,7 +1526,7 @@ exports.deviceInfo = deviceInfo;
  *
  *    @param2: result,
  *        string, data is returned in binary encoded with base64. You could acc-
- *                ess the picture like: 
+ *                ess the picture like:
  *                var img = document.getElementById("test_img");
  *                img.src = 'data:image/jpeg;base64,' + result;
  *
@@ -1557,7 +1557,7 @@ exports.getMusicPicData = getMusicPicData;
  *
  *    @param2: result,
  *        string, data is returned in binary encoded with base64. You could acc-
- *                ess the picture like: 
+ *                ess the picture like:
  *                var img = document.getElementById("test_img");
  *                img.src = 'data:image/jpeg;base64,' + result;
  *
@@ -1601,3 +1601,14 @@ function repoSearch(repoSearchCb, category, sKey) {
   cate.repoSearch(repoSearchCb, sKey);
 }
 exports.repoSearch = repoSearch;
+
+/** 
+ * @Method: test_rdfHandle
+ *    just for testing rdfHandle
+ *
+ **/
+function test_rdfHandle(callback) {
+  var rdfHandle = require("../../backend/commonHandle/rdfHandle");
+  callback(rdfHandle);
+}
+exports.test_rdfHandle = test_rdfHandle;

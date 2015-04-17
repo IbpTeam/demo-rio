@@ -13,6 +13,7 @@
 var commonDAO = require("../commonHandle/CommonDAO");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
+var rdfHandle = require("../commonHandle/rdfHandle");
 var pathModule = require('path');
 var fs = require('fs');
 var fs_extra = require('fs-extra');
@@ -23,7 +24,7 @@ var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
-var N3 = require('n3');
+var levelgraph = require('levelgraph');
 
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";
@@ -37,7 +38,7 @@ var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
 function createData(item, callback) {
 
   console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++createData");
-  
+
   if (item == [] || item == '') {
     console.log('no contact info ...');
     return callback('no contact info ...', null);
@@ -47,7 +48,7 @@ function createData(item, callback) {
     if (err) {
       return callback(err, null);
     } else if (result != '' && result != null) {
-      var _err = 'contact exists: '+ item.name + ' ...';
+      var _err = 'contact exists: ' + item.name + ' ...';
       return callback(_err, null)
     }
     uniqueID.getFileUid(function(uri) {
@@ -182,48 +183,53 @@ name, phone, sex, age, email, photoPath
  *
  *
  */
-function addContact(Item, sItemDesPath, isContactEnd, callback) {
-  function getFileUidCb(uri) {
-    var category = CATEGORY_NAME;
-    console.log(JSON.stringify(Item));
-    var currentTime = (new Date());
-    var phone2 = Item["商务电话"] == undefined ? "" : Item["商务电话"];
-    var phone3 = Item["商务电话 2"] == undefined ? "" : Item["商务电话 2"];
-    var phone4 = Item["住宅电话"] == undefined ? "" : Item["住宅电话"];
-    var phone5 = Item["住宅电话 2"] == undefined ? "" : Item["住宅电话 2"];
-    var email2 = Item["电子邮件 2 地址"] == undefined ? "" : Item["电子邮件 2 地址"];
-    var oNewItem = {
-      id: null,
-      URI: uri + "#" + category,
-      category: category,
-      name: Item["姓"] + Item["名"],
-      phone: Item["移动电话"],
-      phone2: phone2,
-      phone3: phone3,
-      phone4: phone4,
-      phone5: phone5,
-      sex: Item["性别"],
-      age: "",
-      email: Item["电子邮件地址"],
-      email2: email2,
-      id: "",
-      photoPath: "",
-      createTime: currentTime,
-      lastModifyTime: currentTime,
-      lastAccessTime: currentTime,
-      createDev: config.uniqueID,
-      lastModifyDev: config.uniqueID,
-      lastAccessDev: config.uniqueID,
-      others: ""
-    }
+// function addContact(Item, sItemDesPath, isContactEnd, callback) {
+//   function getFileUidCb(uri) {
+//     var category = CATEGORY_NAME;
+//     console.log(JSON.stringify(Item));
+//     var currentTime = (new Date());
+//     var phone2 = Item["商务电话"] == undefined ? "" : Item["商务电话"];
+//     var phone3 = Item["商务电话 2"] == undefined ? "" : Item["商务电话 2"];
+//     var phone4 = Item["住宅电话"] == undefined ? "" : Item["住宅电话"];
+//     var phone5 = Item["住宅电话 2"] == undefined ? "" : Item["住宅电话 2"];
+//     var email2 = Item["电子邮件 2 地址"] == undefined ? "" : Item["电子邮件 2 地址"];
+//     var oNewItem = {
+//       id: null,
+//       URI: uri + "#" + category,
+//       category: category,
+//       name: Item["姓"] + Item["名"],
+//       phone: Item["移动电话"],
+//       phone2: phone2,
+//       phone3: phone3,
+//       phone4: phone4,
+//       phone5: phone5,
+//       sex: Item["性别"],
+//       age: "",
+//       email: Item["电子邮件地址"],
+//       email2: email2,
+//       id: "",
+//       photoPath: "",
+//       createTime: currentTime,
+//       lastModifyTime: currentTime,
+//       lastAccessTime: currentTime,
+//       createDev: config.uniqueID,
+//       lastModifyDev: config.uniqueID,
+//       lastAccessDev: config.uniqueID,
+//       others: ""
+//     }
 
-    function createItemCb() {
-      callback(isContactEnd, oNewItem);
-    }
-    dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
-  }
-  uniqueID.getFileUid(getFileUidCb);
+//     function createItemCb() {
+//       callback(isContactEnd, oNewItem);
+//     }
+//     dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
+//   }
+//   uniqueID.getFileUid(getFileUidCb);
+// }
+
+function addContact(metadata, callback) {
+
 }
+
 
 /**
  * @method removeDocumentByUri
@@ -315,100 +321,89 @@ function initContacts(loadContactsCb, sItemPath) {
           return loadContactsCb(null, 'success');
         }
       }
-      var fileWriteStream = fs.createWriteStream(config.RESOURCEPATH + '/' + CATEGORY_NAME + 'Des/contact');
-      var writer = N3.Writer(fileWriteStream, { prefixes: { 'contact': 'http://example.org/category/contact#' } });
-      writer.addTriple('http://example.org/category#Contact',
-      	'http://www.w3.org/category#type',
-      	'http://example.org/contact#Contact');
-      for (var k = 0; k < oContacts.length; k++) {
-    	
-      	var tripleItem = oContacts[k];
-      	var currentTime = (new Date());
-      	var fullName = tripleItem["姓"] + tripleItem["名"];
-      	var fullNameUrl = 'http://example.org/category/contact#' + fullName;
 
-      	writer.addTriple('http://example.org/category#Contact',
-      		'http://example.org/category/contact#Person',
-      		fullNameUrl);
-      	writer.addTriple(fullNameUrl,
-      		'http://www.w3.org/contact#type',
-      		'http://example.org/category/contact#Person');
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#FN',
-      		object:    tripleItem["姓"]
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#name',
-      		object:    tripleItem["名"]
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#sex',
-      		object:    tripleItem["性别"]
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#Email',
-      		object:    tripleItem["电子邮件地址"]
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#Phone',
-      		object:    tripleItem["移动电话"]
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#createTime',
-      		object:    currentTime
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#lastModifyTime',
-      		object:    currentTime
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#lastAccessTime',
-      		object:    currentTime
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#createDev',
-      		object:    config.uniqueID
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#lastModifyDev',
-      		object:    config.uniqueID
-      	});
-      	writer.addTriple({
-      		subject:   fullNameUrl,
-      		predicate: 'http://example.org/category/contact#lastAccessDev',
-      		object:    config.uniqueID
-      	});
-
-        var isContactEnd = (k == (oContacts.length - 1));
-        addContact(oContacts[k], dataDesPath, isContactEnd, function(isContactEnd, oContact) {
-          var contactName = oContact.name;
-          var contactPath = dataDesPath + '/' + contactName + '.md';
-          oDesFiles.push(contactPath);
-          commonDAO.createItem(oContact, function() {
-            if (isContactEnd) {
-              repo.repoCommit(contactsPath, oDesFiles, null, "add", loadContactsCb);
-              console.log("succcess");
-              console.log("initContacts is end!!!");
-            }
-          });
-        });
-      }
-	  writer.end();
+      rdfHandle.dbOpen(function(err, _db) {
+        if (err) {
+          throw err;
+        }
+        for (var k = 0; k < oContacts.length; k++) {
+          var tripleItem = oContacts[k];
+          var currentTime = (new Date());
+          var fullName = tripleItem["姓"] + tripleItem["名"];
+          var fullNameUrl = 'http://example.org/category/contact#' + fullName;
+          var _triples = [{
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/base#createTime',
+            object: '"' + currentTime + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/base#lastModifyTime',
+            object: '"' + currentTime + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/base#lastAccessTime',
+            object: '"' + currentTime + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/base#createDev',
+            object: '"' + config.uniqueID + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/base#lastModifyDev',
+            object: '"' + config.uniqueID + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/base#lastAccessDev',
+            object: '"' + config.uniqueID + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/contact#lastname',
+            object: '"' + tripleItem["姓"] + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/contact#firstname',
+            object: '"' + tripleItem["名"] + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/contact#sex',
+            object: '"' + tripleItem["性别"] + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/contact#email',
+            object: '"' + tripleItem["电子邮件地址"] + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/contact#phone',
+            object: '"' + tripleItem["移动电话"] + '"'
+          }, {
+            subject: fullNameUrl,
+            predicate: 'http://example.org/property/Base#lastAccessDev',
+            object: '"' + config.uniqueID + '"'
+          }]
+          var _isContactEnd = (k == (oContacts.length - 1));
+          addTriples(_isContactEnd, _db, _triples, loadContactsCb);
+        }
+      })
     });
   }
   csvtojson.csvTojson(sItemPath, csvTojsonCb);
 }
 exports.initContacts = initContacts;
+
+function addTriples(isContactEnd, db, triples, loadContactsCb) {
+  rdfHandle.dbPut(db, triples, function(err) {
+    if (err) {
+      if (err) throw err;
+      return loadContactsCb(err);
+    }
+    if (isContactEnd) {
+      db.close(function(err) {
+        if (err) throw err;
+        return loadContactsCb(null, "success");
+      })
+    }
+  })
+}
 
 function updateDataValue(item, callback) {
   console.log('update value : ', item)
@@ -429,7 +424,6 @@ function updateDataValue(item, callback) {
           })
         }
       })
-
     }
   })
 }

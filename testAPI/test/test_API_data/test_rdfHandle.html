@@ -1,0 +1,185 @@
+<html>
+<head>
+  <title>test_rdfHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+  
+  function print(win,something){
+    if(typeof something == "object"){
+      win.document.write("{");
+      for(var k in something){
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win,something[k]);
+        win.document.write(", ");        
+        win.document.write("<br/>");
+      }
+      win.document.write("}");
+      win.document.write("<br/>");
+    }else{
+      win.document.write(something);
+    }
+  }
+  
+  function show(id){
+    var id_style = document.getElementById(id).style.cssText;
+    if(id_style == "display: inline;"){
+      document.getElementById(id).style.cssText = "display: none;";
+    }else if(id_style == "display: none;"){
+      document.getElementById(id).style.cssText = "display: inline;";
+    }else{
+      var win = window.open('');
+      win.document.write("div "+id+" display wrong!");
+    }
+  }
+
+  function cb(err, result) {
+    var win = window.open('');
+    if (err) {
+      return print(win, err);
+    }
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win, result);
+  }
+
+  function test_dbInitial(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbInitial(function(err) {
+          cb(err, "initial leveldb sucess!")
+        });
+      })
+    });
+  }
+
+  function test_dbClear(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbClear(function(err) {
+          cb(err, "dbCleat sucess!")
+        });
+      })
+    });
+  }
+
+  var fullNameUrl = 'http://example.org/category/contact#xiquan';
+  var currentTime = (new Date());
+  var _metadata =
+    [{
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#createTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastModifyTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastAccessTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#createDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastModifyDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastAccessDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#lastname',
+      object: '"' + "dai" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#firstname',
+      object: '"' + "xiquan" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#sex',
+      object: '"' + "male" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#email',
+      object: '"' + "xiquan@iscas.ac.cn" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#phone',
+      object: '"' + "13911164063" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/Base#lastAccessDev',
+      object: '"' + "10086" + '"'
+    }]
+
+
+
+  function test_dbPut(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbPut(_metadata, function(err) {
+          cb(err, "dbPut sucess!")
+        });
+      })
+    });
+  }
+
+  function test_dbSearch(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbOpen(function(err, db) {
+          if (err) {
+            return cb(err);
+          }
+          var _query_get_all = [{
+            subject: db.v('x'),
+            predicate: db.v('y'),
+            object: db.v('z')
+          }]
+          rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
+            cb(err, result)
+          });
+        })
+      })
+    });
+  }
+
+
+
+  </script>
+
+<h2 onclick="show('dbInitial')">dbInitial(cb)<span><a class="mark" href="#test_dbInitial" id="test_dbInitial" onclick="test_dbInitial(cb)">test</a></span></h2>
+<div id="dbInitial" style="display:none;">
+</div>
+
+<h2 onclick="show('dbPut')">dbPut(cb)<span><a class="mark" href="#test_dbPut" id="test_dbPut" onclick="test_dbPut(cb)">test</a></span></h2>
+<div id="dbPut" style="display:none;">
+</div>
+
+<h2 onclick="show('dbClear')">dbClear(cb)<span><a class="mark" href="#test_dbClear" id="test_dbClear" onclick="test_dbClear(cb)">test</a></span></h2>
+<div id="dbClear" style="display:none;">
+</div>
+
+<h2 onclick="show('dbSearch')">dbSearch(cb)<span><a class="mark" href="#test_dbSearch" id="test_dbSearch" onclick="test_dbSearch(cb)">test</a></span></h2>
+<div id="dbSearch" style="display:none;">
+</div>
+
+</body>
+</html>

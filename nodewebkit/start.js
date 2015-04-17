@@ -12,6 +12,7 @@
 
 var config = require("./backend/config");
 var initRio = require("./backend/initRio");
+var initLevelDB = require("./backend/commonHandle/rdfHandle");
 var server = require("./backend/server");
 var router = require("./backend/router");
 var desktopConf = require("./backend/data/desktop");
@@ -127,6 +128,12 @@ function initializeApp(sFullPath) {
           });
         }
       });*/
+      //init the leveldb for levelgraph
+      initLevelDB.dbInitial(function(err) {
+        if(err){
+          return console.log(err);
+        } 
+      });
     });
   });
   device = require("./backend/data/device");

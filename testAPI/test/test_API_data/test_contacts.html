@@ -45,18 +45,22 @@
     }
   }
 
-  function loadContactCb(result){
+  function loadContactCb(err, result) {
     var win = window.open('');
+    if (err) {
+      return print(win, err)
+    }
     win.document.write("test API loadContactCb()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
-    print(win,result);
+    print(win, result);
   }
-  function test_loadContacts(loadContactCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = "/home/xwh/WORK_DIRECOTRY/resources/contacts/contacts.CSV";
-      data.loadContacts(loadContactCb,path);
+
+  function test_loadContacts(loadContactCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = "/home/xiquan/WORK_DIR/resources/contacts/contacts.CSV";
+      data.loadContacts(loadContactCb, path);
     });
   }
 
