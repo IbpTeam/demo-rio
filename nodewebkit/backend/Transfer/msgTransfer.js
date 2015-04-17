@@ -74,7 +74,6 @@ exports.initServer = function(){
 
 function recieveMsgCb(msgobj){
   var msg = msgobj['MsgObj'];
-  console.log("Receive message : 9999999999999999999999000000000000" + msg.message);
   var oMessage = JSON.parse(msg.message);
   switch(oMessage.type){
     case msgType.TYPE_REQUEST: {
@@ -124,7 +123,7 @@ function sendMsg(device,msgObj){
     Msg: sMsgStr,
     App: "app1"
   };
-  console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
+  //console.log("sendMsg To "+device.ip+"-------------------------"+sMsgStr);
   im.sendAppMsg(sendMsgCb,imMsgObj);
 }
 exports.sendMsg=sendMsg;
@@ -241,9 +240,10 @@ function setConfig(callback){
         readPubKeyFile(callback);
         return;        
       });
+    }else{
+      //Todo 配置文件存在，需检查是否按要求进行了配置
+      readPubKeyFile(callback);
     }
-    //Todo 配置文件存在，需检查是否按要求进行了配置
-    readPubKeyFile(callback);
   });
 }
 
@@ -314,7 +314,7 @@ function serviceUp(device){
   if(device.device_id.localeCompare(config.uniqueID) <= 0){
     return;
   }
-  console.log("###########################################");
+  //console.log("###########################################");
   if(device.syncMethod == undefined){
     device.syncMethod = syncMethod.METHOD_AUTO;
   }
