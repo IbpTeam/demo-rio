@@ -153,6 +153,9 @@ function buildProxy(filename, initObj, ifaces, remote) {
       + (remote ? "" : EVENTHANDLER)
       + '}\n');
     for(var i = 0; i < ifaces.length; ++i) {
+      // console.log(ifaces[i].show);
+      if((ifaces[i].show == 'l' && remote) || (ifaces[i].show == 'r' && !remote))
+        continue;
       outputFile.push("Proxy.prototype." + ifaces[i].name + " = function(" 
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
