@@ -19,9 +19,6 @@ function doExtract(mPath) {
       };
   console.log('Extracting', mPath, '...');
   for(var key in obj) {
-    // if(typeof key.obj === 'function') {
-      // console.log(key.obj);
-    // }
     output.interfaces.push({
       'name': key,
       'in': [],
