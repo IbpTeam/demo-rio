@@ -1,0 +1,46 @@
+{
+  "service": "app",
+  "remote": "false",
+  "interfaces": [
+    {
+      "name": "startApp",
+      "in": ["Object", "String"],
+      "show": "l"
+    },
+    {
+      "name": "sendKeyToApp",
+      "in": ["String", "String"],
+      "show": "l"
+    },
+    {
+      "name": "registerApp",
+      "in": ["Object", "Object"],
+      "show": "l"
+    },
+    {
+      "name": "unregisterApp",
+      "in": ["String"],
+      "show": "l"
+    },
+    {
+      "name": "getRegisteredApp",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getRegisteredAppInfo",
+      "in": ["String"],
+      "show": "l"
+    },
+    {
+      "name": "getBasePath",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "generateAppByURL",
+      "in": ["String", "Object"],
+      "show": "l"
+    }
+  ]
+}

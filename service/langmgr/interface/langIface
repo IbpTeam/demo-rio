@@ -1,0 +1,46 @@
+{
+  "service": "lang",
+  "remote": "false",
+  "interfaces": [
+    {
+      "name": "getInitInfo",
+      "in": []
+    },
+    {
+      "name": "getLang",
+      "in": []
+    },
+    {
+      "name": "getLangByName",
+      "in": []
+    },
+    {
+      "name": "setLocale",
+      "in": []
+    },
+    {
+      "name": "getLocale",
+      "in": []
+    },
+    {
+      "name": "addListener",
+      "in": []
+    },
+    {
+      "name": "removeListener",
+      "in": []
+    },
+    {
+      "name": "getLangList",
+      "in": []
+    },
+    {
+      "name": "addLang",
+      "in": []
+    },
+    {
+      "name": "removeLang",
+      "in": []
+    }
+  ]
+}

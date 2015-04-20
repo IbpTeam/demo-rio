@@ -17,16 +17,16 @@ function doExtract(mPath) {
         'remote': 'false',
         'interfaces': []
       };
-  console.log('Extracting', mPath, '...');
   for(var key in obj) {
     output.interfaces.push({
       'name': key,
       'in': [],
-      'show': undefined
+      'show': 'l'
     });
   }
   json4line.writeJSONFile(svrName + 'Iface', output, function(err) {
-    if(err) console.log(err);
+    if(err) console.log(svrName + ':', err);
+    console.log('Extract', mPath, 'OK');
   });
 }
 
