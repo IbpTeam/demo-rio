@@ -161,7 +161,7 @@ function dbPut(db, metadata, callback) {
 exports.dbPut = dbPut;
 
 /**
- * @method dbPut
+ * @method dbSearch
  *   put triples into database
  *
  * @param1 query
@@ -203,51 +203,6 @@ function dbSearch(db, query, callback) {
   });
 }
 exports.dbSearch = dbSearch;
-
-/**
- * @method dbPut
- *   put triples into database
- *
- * @param1 query
- *      array，of one or more triples that could indicate the relations of target data.
- *      As the example shows below, the "x", "y" would be the target that are being
- *      searching.
- *
- *  exmaple:
- *   var query =
- *    [{
- *        subject: "matteo",
- *        predicate: "friend",
- *        object: db.v("x")
- *      }, {
- *        subject: db.v("x"),
- *        predicate: "friend",
- *        object: db.v("y")
- *      }, {
- *        subject: db.v("y"),
- *        predicate: "friend",
- *        object: "davide"
- *      }]
- *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
- *
- */
-function dbSearch(db, query, callback) {
-  if (typeof query !== 'object') {
-    var _err = new Error("INPUT TYPE ERROR!");
-    return callback(_err);
-  }
-  db.search(query, function(err, results) {
-    if (err) {
-      return callback(err)
-    }
-    callback(null, results);
-  });
-}
-exports.dbSearch = dbSearch;
-
 
 
 /**
