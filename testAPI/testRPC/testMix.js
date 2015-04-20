@@ -20,5 +20,11 @@ proxy.requireProxy(['mix'],"127.0.0.1",function(mix){
     mix.isLocal(function(res){
         console.log("calling isLocal : "+res.ret);
     });
+
+    var cb = function(str){
+        console.log('Event: E1','Arg: ',str);
+    }
+
+    mix.on('E1',cb);
 });
 
