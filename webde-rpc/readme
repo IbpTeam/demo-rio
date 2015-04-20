@@ -14,6 +14,7 @@ Interface definition:
     {
       name: interface name -> String
       in: [type of perameters -> String] -> Array
+      show: {'r'|'l'} indicates this interface will show in local or remote proxy. Default will show in both. [optional] -> String
     } -> Object
   ] -> Array
 }
