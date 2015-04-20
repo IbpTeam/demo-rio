@@ -204,11 +204,6 @@ function dbSearch(db, query, callback) {
 }
 exports.dbSearch = dbSearch;
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 0e026998be7adc25cc4bb38170c7e2652e734e69
 /**
  * @method TripleGenerator
  *   generate triples from file infomation object
