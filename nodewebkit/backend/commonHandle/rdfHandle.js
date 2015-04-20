@@ -203,3 +203,119 @@ function dbSearch(db, query, callback) {
   });
 }
 exports.dbSearch = dbSearch;
+
+/**
+ * @method dbPut
+ *   put triples into database
+ *
+ * @param1 query
+ *      array，of one or more triples that could indicate the relations of target data.
+ *      As the example shows below, the "x", "y" would be the target that are being
+ *      searching.
+ *
+ *  exmaple:
+ *   var query =
+ *    [{
+ *        subject: "matteo",
+ *        predicate: "friend",
+ *        object: db.v("x")
+ *      }, {
+ *        subject: db.v("x"),
+ *        predicate: "friend",
+ *        object: db.v("y")
+ *      }, {
+ *        subject: db.v("y"),
+ *        predicate: "friend",
+ *        object: "davide"
+ *      }]
+ *
+ * @param1 callback
+ *   @err
+ *      error，return 'null' if sucess;otherwise return err
+ *
+ */
+function dbSearch(db, query, callback) {
+  if (typeof query !== 'object') {
+    var _err = new Error("INPUT TYPE ERROR!");
+    return callback(_err);
+  }
+  db.search(query, function(err, results) {
+    if (err) {
+      return callback(err)
+    }
+    callback(null, results);
+  });
+}
+exports.dbSearch = dbSearch;
+
+
+
+/**
+ * @method TripleGenerator
+ *   generate triples from file infomation object
+ *
+ * @param1 info
+ *      object, contain infomastion of the file as below
+ *
+ *  exmaple:
+ *    var info = {
+ *      subject:"example",
+ *      base: {
+ *        URI: "exapmle",
+ *        createTime: "exapmle",
+ *        lastModifyTime: "exapmle",
+ *        lastAccessTime: "exapmle",
+ *        createDev: "exapmle",
+ *        lastModifyDev: "exapmle",
+ *        lastAccessDev: "exapmle",
+ *        createDev: "exapmle",
+ *        filename: "exapmle",
+ *        postfix: "exapmle",
+ *        category: "exapmle",
+ *        size: "exapmle",
+ *        path: "exapmle",
+ *        tags: "exapmle"
+ *      },
+ *      extra: {
+ *        project: '上海专项',
+ *      }
+ *    }
+ *
+ * @param1 callback
+ *   @err
+ *      error，return 'null' if sucess;otherwise return err
+ *
+ */
+function tripleGenerator(info, callback) {
+  var _triples = [];
+  var _namespace_subject = 'http://example.org/category/';
+  var _namespace_predicate = 'http://example.org/property/';
+  try {
+    var _base = info.base;
+    for (var entry in _base) {
+      var _triple_base = {
+        subject: _namespace_subject + _base.category + '#' + info.object,
+        predicate: _namespace_predicate + 'base#' + entry,
+        object: _base[entry]
+      };
+      _triples.push(_triple_base);
+    }
+  } catch (err) {
+    return callback(err);
+  }
+  try {
+    var _extra = info.extra;
+    for (var entry in _extra) {
+      var _triple_extra = {
+        subject: _namespace_subject + '#' + info.object,
+        predicate: _namespace_predicate + _base.category + '#' + entry,
+        object: _extra[entry]
+      };
+      _triples.push(_triple_extra);
+    }
+  } catch (err) {
+    return callback(err);
+  }
+  callback(nullo, _triples);
+}
+exports.TripleGenerator = TripleGenerator;

@@ -129,7 +129,28 @@
       object: '"' + "10086" + '"'
     }]
 
-
+     var info = {
+      subject:"xiquan",
+       base: {
+         URI: "exapmle",
+         createTime: "exapmle",
+         lastModifyTime: "exapmle",
+         lastAccessTime: "exapmle",
+         createDev: "exapmle",
+         lastModifyDev: "exapmle",
+         lastAccessDev: "exapmle",
+         createDev: "exapmle",
+         filename: "exapmle",
+         postfix: "exapmle",
+         category: "exapmle",
+         size: "exapmle",
+         path: "exapmle",
+         tags: "exapmle"
+       },
+       extra: {
+         project: '上海专项',
+       }
+     }
 
   function test_dbPut(cb) {
     WDC.requireAPI(['data'], function(data) {
@@ -146,14 +167,25 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
         var db = rdfhandle.dbOpen();
-          var _query_get_all = [{
-            subject: db.v('x'),
-            predicate: "http://example.org/property/contact#lastname",//db.v('y'),
-            object: db.v('z')
-          }]
-          rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
-            cb(err, result)
-          });
+        var _query_get_all = [{
+          subject: db.v('x'),
+          predicate: "http://example.org/property/contact#lastname", //db.v('y'),
+          object: db.v('z')
+        }]
+        rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
+          cb(err, result)
+        });
+      })
+    });
+  }
+
+  function test_tripleGenerator(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.tripleGenerator(info, function(err, result) {
+          cb(err, result)
+        });
       })
     });
   }
@@ -176,6 +208,10 @@
 
 <h2 onclick="show('dbSearch')">dbSearch(cb)<span><a class="mark" href="#test_dbSearch" id="test_dbSearch" onclick="test_dbSearch(cb)">test</a></span></h2>
 <div id="dbSearch" style="display:none;">
+</div>
+
+<h2 onclick="show('test_tripleGenerator')">test_tripleGenerator(cb)<span><a class="mark" href="#test_test_tripleGenerator" id="test_test_tripleGenerator" onclick="test_test_tripleGenerator(cb)">test</a></span></h2>
+<div id="test_tripleGenerator" style="display:none;">
 </div>
 
 </body>
