@@ -248,7 +248,7 @@ function tripleGenerator(info, callback) {
     var _base = info.base;
     for (var entry in _base) {
       var _triple_base = {
-        subject: _namespace_subject + _base.category + '#' + info.object,
+        subject: _namespace_subject + _base.category + '#' + info.subject,
         predicate: _namespace_predicate + 'base#' + entry,
         object: _base[entry]
       };
@@ -261,7 +261,7 @@ function tripleGenerator(info, callback) {
     var _extra = info.extra;
     for (var entry in _extra) {
       var _triple_extra = {
-        subject: _namespace_subject + '#' + info.object,
+        subject: _namespace_subject + '#' + info.subject,
         predicate: _namespace_predicate + _base.category + '#' + entry,
         object: _extra[entry]
       };
@@ -270,6 +270,6 @@ function tripleGenerator(info, callback) {
   } catch (err) {
     return callback(err);
   }
-  callback(nullo, _triples);
+  callback(null, _triples);
 }
 exports.TripleGenerator = TripleGenerator;
