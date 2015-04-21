@@ -8,10 +8,11 @@ var fs = require('fs'),
     json4line = require('../../../sdk/utils/json4line'),
     // router = require('../router'),
     AppList = {},
-    listeners = [];
+    listeners = [],
+    stub = null;
 
 // load registered HTML5 apps from system
-exports.loadAppList = function(callback_) {
+function loadAppList(callback_) {
   var cb_ = callback_ || function() {};
   if(os.type() == 'Linux') {
     // initialize this list from local to global
@@ -50,7 +51,7 @@ exports.loadAppList = function(callback_) {
       if(err_) return cb_('Fail to load app list: ' + err_);
     });
   } else {
-    console.log("Not a linux system! Not supported now!");
+    return cb_("Not a linux system! Not supported now!");
   }
 }
 
@@ -335,32 +336,37 @@ exports.startApp = function(appInfo_, params_, callback_) {
 }
 
 function emit(event_, appID_, option_) {
-  for(var i = 0; i < listeners.length; ++i) {
-    listeners[i].call(this, {
-      event: event_,
-      appID: appID_,
-      option: option_
-    });
-  }
+  // TODO: replace with stub.notify
+  // for(var i = 0; i < listeners.length; ++i) {
+    // listeners[i].call(this, {
+      // event: event_,
+      // appID: appID_,
+      // option: option_
+    // });
+  // }
+  stub.notify(event_, {
+    appID: appID_,
+    option: option_
+  });
 }
 
-exports.addListener = function(listener_, callback_) {
-  var cb_ = callback_ || function() {};
-  if(typeof listener_ !== 'function') return cb_('listener must be a function');
-  listeners.push(listener_);
-  cb_(null);
-}
+// exports.addListener = function(listener_, callback_) {
+  // var cb_ = callback_ || function() {};
+  // if(typeof listener_ !== 'function') return cb_('listener must be a function');
+  // listeners.push(listener_);
+  // cb_(null);
+// }
 
-exports.removeListener = function(listener_, callback_) {
-  var cb_ = callback_ || function() {};
-  for(var i = 0; i < listeners.length; ++i) {
-    if(listener_ == listeners[i]) {
-      listeners.splice(i, 1);
-      cb_(null);
-    }
-  }
-  cb_('listener not regiestered');
-}
+// exports.removeListener = function(listener_, callback_) {
+  // var cb_ = callback_ || function() {};
+  // for(var i = 0; i < listeners.length; ++i) {
+    // if(listener_ == listeners[i]) {
+      // listeners.splice(i, 1);
+      // cb_(null);
+    // }
+  // }
+  // cb_('listener not regiestered');
+// }
 
 //  return {
 //    hostname: string,
@@ -509,4 +515,48 @@ exports.generateAppByURL = function(url_, option_, callback_) {
   });
 }
 
-// TODO: add main function, add sendKeyToApp, modify add/removeListener and emit
+exports.sendKeyToApp = function(windowName_, key_, callback_) {
+  console.log("Request handler 'sendKeyToApp' was called.");
+  //This follow command can get windowid from a pid.
+  //  pstree -pn 25372 |grep -o "([[:digit:]]*)" |grep -o "[[:digit:]]*" | while read pid ; do xdotool search --pid $pid --onlyvisible ; done 2>/dev/null
+  // xdotool send key command： xdotool windowactivate --sync 46137380 & xdotool key --clearmodifiers --window 46137380 Ctrl+w
+  var cb_ = callback_ || function() {},
+      getpid = exec("xdotool search --name \""
+        + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)")
+        + "\" | sort", function(error, stdout, stderr) {
+          if(error) {
+            return cb_(error);
+          }
+          var nTail = stdout.lastIndexOf("\n"),
+              nHead = stdout.lastIndexOf("\n", stdout.length - 2);
+          nHead = nHead < 0 ? 0 : nHead + 1;
+          if(nTail != stdout.length - 1 || nHead >= nTail) {
+            console.log("Error: stdout is illegal! : "
+              + stdout + " from command:" + "xdotool search --name \""
+              + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort");
+            return cb_('stdout is illegal!');
+          }
+
+          var windowid = stdout.substring(nHead, nTail),
+              sendkeycommand = "xdotool windowactivate --sync "
+                  + windowid + " && xdotool key --clearmodifiers --window "
+                  + windowid + " " + key;
+          exec(sendkeycommand, function(error, stdout, stderr) {
+            if(error) {
+              return cb_(error);
+            }
+            cb_(null);
+          });
+        });
+}
+
+(function Init() {
+  loadAppList(function(err) {
+    if(err) {
+      return console.log('InitError:', err);
+    }
+    stub = require('../interface/appStub').getStub(exports);
+    console.log('App manager start OK');
+  });
+})();
+

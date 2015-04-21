@@ -1,2 +1,1 @@
-var appMgr = require('implements/appManager');
-appMgr.loadAppList();
+module.exports = require('implements/appManager');

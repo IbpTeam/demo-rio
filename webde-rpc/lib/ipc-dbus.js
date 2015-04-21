@@ -69,7 +69,7 @@ DBusIPC.prototype._addService = function() {
   }
   iface.addSignal('notify', {
     types: [
-      self._typeConvert['String']
+      self._typeConvert['Auto']
     ]
   });
   // console.log('iface:', iface);
