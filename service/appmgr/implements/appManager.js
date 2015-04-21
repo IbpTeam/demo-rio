@@ -3,17 +3,30 @@ var fs = require('fs'),
     path = require("path"),
     http = require('http'),
     exec = require('child_process').exec,
-    config = require('../config'),
+    config = require('../../../nodewebkit/backend/config'),
     flowctl = require('../../../sdk/utils/flowctl'),
-    json4line = require('../../../sdk/utils/json4line'),
+    json4line = require('../../../sdk/utils/json4line');
     // router = require('../router'),
-    AppList = {},
-    listeners = [],
-    stub = null;
+
+function AppMgr(ret_) {
+  var ret = ret_ || {
+    success: function() {},
+    fail: function() {}
+  };
+  this._AppList = {};
+
+  this._loadAppList(function(err) {
+    if(err) {
+      return ret.fail(err);
+    }
+    ret.success();
+  })
+}
 
 // load registered HTML5 apps from system
-function loadAppList(callback_) {
-  var cb_ = callback_ || function() {};
+AppMgr.prototype._loadAppList = function(callback_) {
+  var cb_ = callback_ || function() {},
+      self = this;
   if(os.type() == 'Linux') {
     // initialize this list from local to global
     flowctl.series([
@@ -21,8 +34,8 @@ function loadAppList(callback_) {
         fn: function(pera_, callback_) {
           json4line.readJSONFile(pera_.arg0, function(err_, data_) {
             if(err_) return callback_(null);
-            AppList = data_;
-            for(var key in AppList) AppList[key].local = true;
+            self._AppList = data_;
+            for(var key in self._AppList) self._AppList[key].local = true;
             callback_(null);
           });
         },
@@ -35,9 +48,9 @@ function loadAppList(callback_) {
           json4line.readJSONFile(pera_.arg0, function(err_, data_) {
             if(err_) return callback_(err_);
             for(var key in data_) {
-              if(typeof AppList[key] === 'undefined') {
-                AppList[key] = data_[key];
-                AppList[key].local = false;
+              if(typeof self._AppList[key] === 'undefined') {
+                self._AppList[key] = data_[key];
+                self._AppList[key].local = false;
               }
             }
             callback_(null);
@@ -49,6 +62,7 @@ function loadAppList(callback_) {
       }
     ], function(err_, rets_) {
       if(err_) return cb_('Fail to load app list: ' + err_);
+      cb_(null);
     });
   } else {
     return cb_("Not a linux system! Not supported now!");
@@ -59,29 +73,30 @@ function loadAppList(callback_) {
 // callback_: function(err_)
 //    err_: error description or null
 // save App list to system
-function save(local_, callback_) {
-  var cb_ = callback_ || function() {};
+AppMgr.prototype.saveAppList = AppMgr.prototype._save = function(local_, callback_) {
+  var cb_ = callback_ || function() {},
+      self = this;
   if(os.type() == 'Linux') {
     var p, d = {};
     if(local_) {
       // save to local app list
       p = config.APP_DATA_PATH[0] + '/App.list';
-      for(var key in AppList) {
-        if(AppList[key].local) {
+      for(var key in self._AppList) {
+        if(self._AppList[key].local) {
           d[key] = {
-            id: AppList[key].id,
-            path: AppList[key].path
+            id: self._AppList[key].id,
+            path: self._AppList[key].path
           }
         }
       }
     } else {
       // save to global app list
       p = config.APP_DATA_PATH[1] + '/App.list';
-      for(var key in AppList) {
-        if(!AppList[key].local) {
+      for(var key in self._AppList) {
+        if(!self._AppList[key].local) {
           d[key] = {
-            id: AppList[key].id,
-            path: AppList[key].path
+            id: self._AppList[key].id,
+            path: self._AppList[key].path
           }
         }
       }
@@ -92,10 +107,9 @@ function save(local_, callback_) {
     });
   }
 }
-exports.saveAppList = save;
 
 // path validate
-function pathValidate(path_, callback_) {
+AppMgr.prototype._pathValidate = function(path_, callback_) {
   var cb_ = callback_ || function() {};
   // if(path_.match(/^(demo-webde|demo-rio)[\/].*/) == null) return cb_('Bad path');
   fs.exists(path_ + '/package.json', function(exist) {
@@ -113,28 +127,29 @@ function pathValidate(path_, callback_) {
 // }
 // callback_: function(err_)
 //    err_: error discription or null
-function registerApp(appInfo_, option_, callback_) {
+AppMgr.prototype.registerApp = function(appInfo_, option_, callback_) {
   var cb_ = callback_ || function() {},
       op_ = {
         desktop: false,
         dock: false 
-      };
+      },
+      self = this;
   for(var key in option_) {
     op_[key] = option_[key];
   }
-  if(isRegistered(appInfo_.id)) return cb_('This ID has been registered already');
+  if(self._isRegistered(appInfo_.id)) return cb_('This ID has been registered already');
   if(appInfo_.id.match(/.*[\.:]+.*/) != null)
     return cb_('Illegal characters(.|:) are included in ID');
-  pathValidate(appInfo_.path, function(err_) {
+  self._pathValidate(appInfo_.path, function(err_) {
     if(err_) return cb_(err_);
-    AppList[appInfo_.id] = appInfo_;
-    save(appInfo_.local, function(err_) {
+    self._AppList[appInfo_.id] = appInfo_;
+    self._save(appInfo_.local, function(err_) {
       if(err_) {
-        AppList[appInfo_.id] = null;
-        delete AppList[appInfo_.id];
+        self._AppList[appInfo_.id] = null;
+        delete self._AppList[appInfo_.id];
         return cb_('Failed to register to system: ' + err_);
       }
-      emit('register', appInfo_.id, op_);
+      self._emit('register', appInfo_.id, op_);
       // router.wsNotify({
         // 'Action': 'notify',
         // 'Event': 'app',
@@ -148,26 +163,26 @@ function registerApp(appInfo_, option_, callback_) {
     });
   });
 }
-exports.registerApp = registerApp;
 
 // Unregister a HTML5 app from system
 // appID: id of app
 // local: true or false(if false means try to unregister from global, need root authority)
 // callback_: function(err_)
 //    err_: error discription or null
-exports.unregisterApp = function(appID_, callback_) {
-  var cb_ = callback_ || function() {};
-  if(!isRegistered(appID_)) return cb_('The app has not registered');
-  var tmp = AppList[appID_];
-  AppList[appID_] = null;
-  delete AppList[appID_];
-  save(tmp.local, function(err_) {
+AppMgr.prototype.unregisterApp = function(appID_, callback_) {
+  var cb_ = callback_ || function() {},
+      self = this;
+  if(!self._isRegistered(appID_)) return cb_('The app has not registered');
+  var tmp = self._AppList[appID_];
+  self._AppList[appID_] = null;
+  delete self._AppList[appID_];
+  self._save(tmp.local, function(err_) {
     if(err_) {
-      AppList[appID_] = tmp;
+      self._AppList[appID_] = tmp;
       return cb_('Failed to unregister from system: ' + err_);
     }
     tmp = null;
-    emit('unregister', appID_);
+    self._emit('unregister', appID_);
     // router.wsNotify({
       // 'Action': 'notify',
       // 'Event': 'app',
@@ -181,27 +196,28 @@ exports.unregisterApp = function(appID_, callback_) {
 }
 
 // check an app is registered or not
-function isRegistered(appID_) {
-  return ((typeof AppList[appID_] === 'undefined') ? false : true);
+AppMgr.prototype._isRegistered = function(appID_) {
+  return ((typeof this._AppList[appID_] === 'undefined') ? false : true);
 }
 
 // get registered app list 
-exports.getRegisteredApp = function() {
-  var arr = [];
-  for(var key in AppList) {
+AppMgr.prototype.getRegisteredApp = function(callback_) {
+  var cb_ = callback_ || function() {},
+      arr = [];
+  for(var key in this._AppList) {
     arr.push(key);
   }
-  return arr;
+  cb_(null, arr);
 }
 
 // get registered app list 
 // appID_: the ID of app
-exports.getRegistedInfo = function(appID_) {
-  var ret = AppList[appID_] || null;
+AppMgr.prototype.getRegistedInfo = function(appID_) {
+  var ret = this._AppList[appID_] || null;
   return ret;
 }
 
-function parsePackageJSON(path_, callback_) {
+AppMgr.prototype._parsePackageJSON = function(path_, callback_) {
   var cb_ = callback_ || function() {};
   json4line.readJSONFile(path_, function(err_, data_) {
     if(err_) return cb_(err_);
@@ -220,14 +236,14 @@ function parsePackageJSON(path_, callback_) {
 // callback_: function(err_, data_)
 //    err_: error discription or null
 //    data_: info object of app
-function getRegisteredAppInfo(appID_, callback_) {
+AppMgr.prototype.getRegisteredAppInfo = function(appID_, callback_) {
   var cb_ = callback_ || function() {};
-  if(isRegistered(appID_)) {
-    // change to parse package.json under AppList[appID_].path first
+  if(self._isRegistered(appID_)) {
+    // change to parse package.json under _AppList[appID_].path first
     //  and then return corresponding information json object.
-    var p = ((AppList[appID_].local) ? (AppList[appID_].path)
-              : (config.APPBASEPATH + '/' + AppList[appID_].path));
-    return parsePackageJSON(path.join(p, 'package.json')
+    var p = ((this._AppList[appID_].local) ? (this._AppList[appID_].path)
+              : (config.APPBASEPATH + '/' + this._AppList[appID_].path));
+    return this._parsePackageJSON(path.join(p, 'package.json')
         , function(err_, data_) {
           if(err_) return cb_(err_);
           var info = {
@@ -245,7 +261,6 @@ function getRegisteredAppInfo(appID_, callback_) {
   }
   cb_('App not registered');
 }
-exports.getRegisteredAppInfo = getRegisteredAppInfo;
 
 // get app information by value of one attribute
 // key_: the attribute to be matched
@@ -253,34 +268,34 @@ exports.getRegisteredAppInfo = getRegisteredAppInfo;
 // callback_: function(err_, data_)
 //    err_: error discription or null
 //    data_: info object of app
-function getRegisteredAppInfoByAttr(key_, value_, callback_) {
+AppMgr.prototype.getRegisteredAppInfoByAttr = function(key_, value_, callback_) {
   var cb_ = callback_ || function() {};
-  for(var key in AppList) {
-    if(AppList[key][key_] == value_) {
-      return getRegisteredAppInfo(key, cb_);
+  for(var key in this._AppList) {
+    if(this._AppList[key][key_] == value_) {
+      return this.getRegisteredAppInfo(key, cb_);
     }
   }
   cb_('App not registered');
 }
-exports.getRegisteredAppInfoByAttr = getRegisteredAppInfoByAttr;
 
-exports.getBasePath = function() {
-  return config.APPBASEPATH;
+AppMgr.prototype.getBasePath = function(callback_) {
+  var cb_ = callback_ || function() {};
+  cb_(null, config.APPBASEPATH);
 }
 
-function max(a, b) {
+AppMgr.prototype._max = function(a, b) {
   if(typeof a === 'undefined') return b;
   if(typeof b === 'undefined') return a;
   return ((a > b) ? a : b);
 }
 
-function min(a, b) {
+AppMgr.prototype._min = function(a, b) {
   if(typeof a === 'undefined') return b;
   if(typeof b === 'undefined') return a;
   return ((a > b) ? b : a);
 }
 
-function createWindow(appInfo_) {
+AppMgr.prototype._createWindow = function(appInfo_) {
   // create a window whose attributes based on app info
   var title = appInfo_.window.title || appInfo_.name,
       height = appInfo_.window.height || 500,
@@ -288,18 +303,18 @@ function createWindow(appInfo_) {
       left = appInfo_.window.left || 200,
       top = appInfo_.window.top || 200,
       pos = appInfo_.window.position || 'center';
-  height = max(height, appInfo_.window.min_height);
-  height = min(height, appInfo_.window.max_height);
-  width = max(width, appInfo_.window.min_width);
-  width = min(width, appInfo_.window.max_width);
+  height = this._max(height, appInfo_.window.min_height);
+  height = this._min(height, appInfo_.window.max_height);
+  width = this._max(width, appInfo_.window.min_width);
+  width = this._min(width, appInfo_.window.max_width);
   if(pos == 'center') {
     try {
       var gui = require('nw.gui'),
           win = gui.Window.get(),
           w = win.width(),
           h = win.height();
-      left = max((w - width) * 0.5, 0);
-      top = max((h - height) * 0.5, 0);
+      left = this._max((w - width) * 0.5, 0);
+      top = this._max((h - height) * 0.5, 0);
     } catch(e) {
       left = 200;
       top = 200;
@@ -317,11 +332,12 @@ function createWindow(appInfo_) {
   });
 }
 
-exports.startApp = function(appInfo_, params_, callback_) {
+AppMgr.prototype.startApp = function(appInfo_, params_, callback_) {
   var cb_ = callback_ || function() {},
       p_ = params_ || null;
   try {
-    var win = createWindow(appInfo_);
+    // TODO: only App in a web browser
+    var win = this._createWindow(appInfo_);
     // if this app is genarate from a URL, do something
     if(appInfo_.url) {
       win.appendHtml(appInfo_.main);
@@ -335,7 +351,7 @@ exports.startApp = function(appInfo_, params_, callback_) {
   }
 }
 
-function emit(event_, appID_, option_) {
+AppMgr.prototype._emit = function(event_, appID_, option_) {
   // TODO: replace with stub.notify
   // for(var i = 0; i < listeners.length; ++i) {
     // listeners[i].call(this, {
@@ -372,7 +388,7 @@ function emit(event_, appID_, option_) {
 //    hostname: string,
 //    path: string
 //  }
-function parseURL(url_) {
+AppMgr.prototype._parseURL = function(url_) {
   var tmp = url_.match(/^(http|https):\/\/(.*)/);
   if(tmp == null) return {};
   var idx = tmp[2].indexOf('/');
@@ -383,7 +399,7 @@ function parseURL(url_) {
 }
 
 // return herf of icon or null
-function extractIconHref(html_) {
+AppMgr.prototype._extractIconHref = function(html_) {
   var link = html_.match(/<link.*icon.*\/>/g);
   if(link == null) link = html_.match(/<link.*icon.*>/g);
   if(link == null) return null;
@@ -399,10 +415,11 @@ function extractIconHref(html_) {
 // dst_: where to save icon file
 // callback_: function(err_)
 //    err_: error discription or null
-function extractIconFromURL(url_, dst_, callback_) {
+AppMgr.prototype._extractIconFromURL = function(url_, dst_, callback_) {
   var cb_ = callback_ || function() {},
       url = url_ || {},
-      data = '';
+      data = '',
+      self = this;
   http.request({
     hostname: url.hostname,
     port: 80,
@@ -412,7 +429,7 @@ function extractIconFromURL(url_, dst_, callback_) {
     res_.on('data', function(chunk_) {
       data += chunk_;
     }).on('end', function() {
-      var iconHref = extractIconHref(data);
+      var iconHref = self._extractIconHref(data);
       if(iconHref == null) {
         url.path = '/favicon.ico';
       } else if(iconHref.match(/^(http|https):\/\/.*/) == null) {
@@ -423,7 +440,7 @@ function extractIconFromURL(url_, dst_, callback_) {
           url.path = '/' + iconHref;
         }
       } else {
-        url = parseURL(iconHref);
+        url = self._parseURL(iconHref);
       }
       http.request({
         hostname: url.hostname,
@@ -448,10 +465,11 @@ function extractIconFromURL(url_, dst_, callback_) {
 // url_: url of website 
 // callback_: function(err_)
 //    err_: error discription or null
-function generateOnlineApp(url_, callback_) {
+AppMgr.prototype._generateOnlineApp = function(url_, callback_) {
   var cb_ = callback_ || function() {},
-      url = parseURL(url_),
-      dst_ = config.APP_DATA_PATH[0] + '/' + url.hostname;
+      url = this._parseURL(url_),
+      dst_ = config.APP_DATA_PATH[0] + '/' + url.hostname,
+      self = this;
   fs.mkdir(dst_, function(err_) {
     if(err_) return console.log(err_);
     var imgDir = dst_ + '/img',
@@ -473,7 +491,7 @@ function generateOnlineApp(url_, callback_) {
     // generate the icon of this app
     fs.mkdir(imgDir, function(err_) {
       if(err_) return console.log(err_);
-      extractIconFromURL(url, imgDir + '/' + iconName, function(err_) {
+      self._extractIconFromURL(url, imgDir + '/' + iconName, function(err_) {
         if(err_) {
           // cp a defualt icon to this img dir
           return exec('cp ' + config.D_APP_ICON + ' ' + imgDir, function(err_, stdout_, stderr_) {
@@ -487,19 +505,20 @@ function generateOnlineApp(url_, callback_) {
   });
 }
 
-exports.generateAppByURL = function(url_, option_, callback_) {
-  var cb_ = callback_ || function() {};
+AppMgr.prototype.generateAppByURL = function(url_, option_, callback_) {
+  var cb_ = callback_ || function() {},
+      self = this;
   flowctl.series([
     {
       fn: function(pera_, callback_) {
-        generateOnlineApp(url_, callback_);
+        self._generateOnlineApp(url_, callback_);
       }
     }
   ], function(err_, rets_) {
     if(err_) cb_(err_);
     var path = rets_[0],
         id = path.match(/[^\/]*$/)[0].replace(/[\.:]/g, '-');
-    registerApp({
+    self.registerApp({
       id: 'app-' + id,
       path: path,
       local: true
@@ -515,14 +534,14 @@ exports.generateAppByURL = function(url_, option_, callback_) {
   });
 }
 
-exports.sendKeyToApp = function(windowName_, key_, callback_) {
+AppMgr.prototype.sendKeyToApp = function(windowName_, key_, callback_) {
   console.log("Request handler 'sendKeyToApp' was called.");
   //This follow command can get windowid from a pid.
   //  pstree -pn 25372 |grep -o "([[:digit:]]*)" |grep -o "[[:digit:]]*" | while read pid ; do xdotool search --pid $pid --onlyvisible ; done 2>/dev/null
   // xdotool send key command： xdotool windowactivate --sync 46137380 & xdotool key --clearmodifiers --window 46137380 Ctrl+w
   var cb_ = callback_ || function() {},
       getpid = exec("xdotool search --name \""
-        + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)")
+        + windowName_.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)")
         + "\" | sort", function(error, stdout, stderr) {
           if(error) {
             return cb_(error);
@@ -533,14 +552,14 @@ exports.sendKeyToApp = function(windowName_, key_, callback_) {
           if(nTail != stdout.length - 1 || nHead >= nTail) {
             console.log("Error: stdout is illegal! : "
               + stdout + " from command:" + "xdotool search --name \""
-              + windowname.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort");
+              + windowName_.replace(/\(/g, "\\\(").replace(/\)/g, "\\\)") + "\" | sort");
             return cb_('stdout is illegal!');
           }
 
           var windowid = stdout.substring(nHead, nTail),
               sendkeycommand = "xdotool windowactivate --sync "
                   + windowid + " && xdotool key --clearmodifiers --window "
-                  + windowid + " " + key;
+                  + windowid + " " + key_;
           exec(sendkeycommand, function(error, stdout, stderr) {
             if(error) {
               return cb_(error);
@@ -550,13 +569,17 @@ exports.sendKeyToApp = function(windowName_, key_, callback_) {
         });
 }
 
-(function Init() {
-  loadAppList(function(err) {
-    if(err) {
-      return console.log('InitError:', err);
+var stub = null;
+(function main() {
+  var appMgr = new AppMgr({
+    success: function() {
+      stub = require('../interface/appmgrStub').getStub(appMgr);
+      console.log('App manager start OK');
+    },
+    fail: function(reason) {
+      appMgr = null;
+      console.log('App manager start failed:', reason);
     }
-    stub = require('../interface/appStub').getStub(exports);
-    console.log('App manager start OK');
   });
 })();
 

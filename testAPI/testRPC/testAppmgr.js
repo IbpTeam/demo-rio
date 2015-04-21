@@ -1,0 +1,1 @@
+../../service/appmgr/test/client.js

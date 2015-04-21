@@ -37,21 +37,21 @@ function IPC(initObj) {
 util.inherits(IPC, events.EventEmitter);
 
 IPC.prototype.onMsg = function(msg) {
-  console.log('Recive message:', msg);
+  // console.log('Recive message:', msg);
   // TODO: make sure the communication protocol
   this._dispatch(msg);
 }
 
 IPC.prototype.onConnect = function() {
-  console.log('Connect successfully');
+  // console.log('Connect successfully');
 }
 
 IPC.prototype.onClose = function() {
-  console.log('Connection has been closed');
+  // console.log('Connection has been closed');
 }
 
 IPC.prototype.onError = function(err) {
-  console.log('Error occured:', err);
+  // console.log('Error occured:', err);
 }
 
 // peramObj: {

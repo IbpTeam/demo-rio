@@ -4,9 +4,9 @@
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
 var initObj = {
-  "address": "nodejs.webde.app",
-  "path": "/nodejs/webde/app",
-  "name": "nodejs.webde.app",
+  "address": "nodejs.webde.appmgr",
+  "path": "/nodejs/webde/appmgr",
+  "name": "nodejs.webde.appmgr",
   "type": "dbus",
   "service": true,
   "interface": [

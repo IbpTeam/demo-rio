@@ -91,7 +91,7 @@ DBusIPC.prototype._getInterface = function(ret, callback) {
       cb = callback || function() {};
   bus.getInterface(prop.address, prop.path, prop.name, function(err, iface) {
     if(err) {
-      _ret({err: err});
+      _ret({err: 'Service called is exited on D-Bus'});
       return self.emit('error', err);
     }
     self._initSingal(iface);
