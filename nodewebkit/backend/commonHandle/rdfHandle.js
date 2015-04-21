@@ -161,7 +161,7 @@ function dbPut(db, metadata, callback) {
 exports.dbPut = dbPut;
 
 /**
- * @method dbPut
+ * @method dbSearch
  *   put triples into database
  *
  * @param1 query
@@ -203,3 +203,73 @@ function dbSearch(db, query, callback) {
   });
 }
 exports.dbSearch = dbSearch;
+
+/**
+ * @method TripleGenerator
+ *   generate triples from file infomation object
+ *
+ * @param1 info
+ *      object, contain infomastion of the file as below
+ *
+ *  exmaple:
+ *    var info = {
+ *      subject:"example",
+ *      base: {
+ *        URI: "exapmle",
+ *        createTime: "exapmle",
+ *        lastModifyTime: "exapmle",
+ *        lastAccessTime: "exapmle",
+ *        createDev: "exapmle",
+ *        lastModifyDev: "exapmle",
+ *        lastAccessDev: "exapmle",
+ *        createDev: "exapmle",
+ *        filename: "exapmle",
+ *        postfix: "exapmle",
+ *        category: "exapmle",
+ *        size: "exapmle",
+ *        path: "exapmle",
+ *        tags: "exapmle"
+ *      },
+ *      extra: {
+ *        project: '上海专项',
+ *      }
+ *    }
+ *
+ * @param1 callback
+ *   @err
+ *      error，return 'null' if sucess;otherwise return err
+ *
+ */
+function tripleGenerator(info, callback) {
+  var _triples = [];
+  var _namespace_subject = 'http://example.org/category/';
+  var _namespace_predicate = 'http://example.org/property/';
+  try {
+    var _base = info.base;
+    for (var entry in _base) {
+      var _triple_base = {
+        subject: _namespace_subject + _base.category + '#' + info.subject,
+        predicate: _namespace_predicate + 'base#' + entry,
+        object: _base[entry]
+      };
+      _triples.push(_triple_base);
+    }
+  } catch (err) {
+    return callback(err);
+  }
+  try {
+    var _extra = info.extra;
+    for (var entry in _extra) {
+      var _triple_extra = {
+        subject: _namespace_subject + '#' + info.subject,
+        predicate: _namespace_predicate + _base.category + '#' + entry,
+        object: _extra[entry]
+      };
+      _triples.push(_triple_extra);
+    }
+  } catch (err) {
+    return callback(err);
+  }
+  callback(null, _triples);
+}
+exports.TripleGenerator = TripleGenerator;
