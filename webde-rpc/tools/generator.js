@@ -84,7 +84,7 @@ function buildStub(filename, initObj, ifaces, remote) {
     // interface to get proxy object
     var arg = (remote ? 'proxyAddr' : '');
     outputFile.push("var stub = null"
-        + (remote ? ",\n    cd = null;\n" : ";")
+        + (remote ? ",\n    cd = null;\n" : ";\n")
         + "exports.getStub = function(" + arg + ") {\n"
         + "  if(stub == null) {\n"
         + (remote ? "    if(typeof proxyAddr === 'undefined')\n"
