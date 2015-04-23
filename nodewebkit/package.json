@@ -28,7 +28,8 @@
     "tape" : "3.0.1",
     "id3v2-parser": "0.3.0",
     "node-notifier": "4.1.0",
-    "protobufjs": "4.0.0"
+    "protobufjs": "4.0.0",
+    "levelgraph":"0.10.4"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }

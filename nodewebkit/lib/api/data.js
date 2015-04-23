@@ -1601,3 +1601,15 @@ function repoSearch(repoSearchCb, category, sKey) {
   cate.repoSearch(repoSearchCb, sKey);
 }
 exports.repoSearch = repoSearch;
+
+
+/** 
+ * @Method: test_rdfHandle
+ *    just for testing rdfHandle
+ *
+ **/
+function test_rdfHandle(callback) {
+  var rdfHandle = require("../../backend/commonHandle/rdfHandle");
+  callback(rdfHandle);
+}
+exports.test_rdfHandle = test_rdfHandle;
