@@ -169,7 +169,7 @@
         var db = rdfhandle.dbOpen();
         var _query_get_all = [{
           subject: db.v('x'),
-          predicate: "http://example.org/property/contact#lastname", //db.v('y'),
+          predicate: db.v('y'),//"http://example.org/property/contact#lastname", //
           object: db.v('z')
         }]
         rdfhandle.dbSearch(db, _query_get_all, function(err, result) {

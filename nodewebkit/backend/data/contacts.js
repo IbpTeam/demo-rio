@@ -323,7 +323,7 @@ function initContacts(loadContactsCb, sItemPath) {
         }
       }
 
-      var _db = rdfHandle.dbOpen();
+      //var _db = rdfHandle.dbOpen();
       for (var k = 0; k < oContacts.length; k++) {
         var _isContactEnd = (k == (oContacts.length - 1));
         var _info = dataInfo(oContacts[k]);
@@ -332,7 +332,7 @@ function initContacts(loadContactsCb, sItemPath) {
             return callback(err);
           }
           _triples = _triples.concat(triples);
-          if (isContactEnd) {
+          if (_isContactEnd) {
             addTriples(_triples, loadContactsCb);
           }
         })
