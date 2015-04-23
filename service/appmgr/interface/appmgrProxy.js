@@ -38,6 +38,24 @@ function Proxy() {
   }*/
 }
 
+/**
+ * @description
+ *    This function is for starting an app
+ * @param
+ *    param1: info object of an app which is got from getRegisteredAppInfo() -> Object
+ *    param2: a JSON string includes parameters for starting -> String
+ *    param3: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *            ret: window of this started App -> String
+ *          }
+ * @return
+ *    error or window of App got from callback
+ */
 Proxy.prototype.startApp = function(Object, String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -49,6 +67,23 @@ Proxy.prototype.startApp = function(Object, String, callback) {
   });
 };
 
+/**
+ * @description
+ *    send a key event to a running app
+ * @param
+ *    param1: the window name of app -> String
+ *    param2: key event to send -> String
+ *    param3: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *          }
+ * @return
+ *    error or undefined
+ */
 Proxy.prototype.sendKeyToApp = function(String, String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -60,6 +95,31 @@ Proxy.prototype.sendKeyToApp = function(String, String, callback) {
   });
 };
 
+/**
+ * @description
+ *    Register a HTML5 app to system
+ * @param
+ *    param1: info of app to be registered -> Object
+ *      {
+ *        id: ${app id},
+ *        path: ${path of app},
+ *      }
+ *    param2: options to create an app -> Object
+ *      {
+ *        desktop: (true|false) // create a shortcut on desktop or not
+ *        dock: (true|false) // create a shortcut on dock or not
+ *      }
+ *    param3: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *          }
+ * @return
+ *    error or undefined
+ */
 Proxy.prototype.registerApp = function(Object, Object, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -71,6 +131,22 @@ Proxy.prototype.registerApp = function(Object, Object, callback) {
   });
 };
 
+/**
+ * @description
+ *    Unregister an app from system
+ * @param
+ *    param1: id of app to be unregistered -> String
+ *    param2: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *          }
+ * @return
+ *    error or undefined
+ */
 Proxy.prototype.unregisterApp = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -82,6 +158,22 @@ Proxy.prototype.unregisterApp = function(String, callback) {
   });
 };
 
+/**
+ * @description
+ *    Get all registered app
+ * @param
+ *    param1: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *            ret: the list of app ID -> Array
+ *          }
+ * @return
+ *    error or list of app ID
+ */
 Proxy.prototype.getRegisteredApp = function(callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -93,6 +185,23 @@ Proxy.prototype.getRegisteredApp = function(callback) {
   });
 };
 
+/**
+ * @description
+ *    Get registered app info by id
+ * @param
+ *    param1: ID of app -> String
+ *    param2: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *            ret: the info object of this app -> Object
+ *          }
+ * @return
+ *    error or undefined
+ */
 Proxy.prototype.getRegisteredAppInfo = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -104,6 +213,22 @@ Proxy.prototype.getRegisteredAppInfo = function(String, callback) {
   });
 };
 
+/**
+ * @description
+ *    Get all app base path
+ * @param
+ *    param1: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *            ret: the base path of this app -> String
+ *          }
+ * @return
+ *    error or base path of apps
+ */
 Proxy.prototype.getBasePath = function(callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -115,6 +240,28 @@ Proxy.prototype.getBasePath = function(callback) {
   });
 };
 
+/**
+ * @description
+ *    generate and register an HTML5 App by a URL
+ * @param
+ *    param1: URL of a website -> String
+ *    param2: options to create an app -> Object
+ *      {
+ *        desktop: (true|false) // create a shortcut on desktop or not
+ *        dock: (true|false) // create a shortcut on desktop or not
+ *      }
+ *    param3: a callback function -> Function
+ *      @description
+ *        a callback function for getting returns of this interface
+ *      @param
+ *        param1: the return object -> Object
+ *          {
+ *            err: err description or undefined,
+ *            ret: the ID of new generated app -> String
+ *          }
+ * @return
+ *    error or app ID
+ */
 Proxy.prototype.generateAppByURL = function(String, Object, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
@@ -126,12 +273,56 @@ Proxy.prototype.generateAppByURL = function(String, Object, callback) {
   });
 };
 
+/**
+ * @description
+ *    add listener for app 'register' or 'unregister' event
+ * @param
+ *    param1: event to listen -> String
+ *    param2: a listener function -> Function
+ *      @description
+ *        a callback function called when events happened 
+ *      @param
+ *        param1: the info of register app -> Object
+ *          {
+ *            appID: id of app
+ *            option: options to create an inside app(object)
+ *              {
+ *                desktop: (true|false) // create a shortcut on desktop or not
+ *                dock: (true|false) // create a shortcut on desktop or not
+ *              }
+ *          }
+ * @return
+ *    itself of this instance
+ */
 Proxy.prototype.on = function(event, handler) {
   this._ipc.on(event, handler);
+  return this;
 };
 
+/**
+ * @description
+ *    remove listener from app 'register' or 'unregister' event
+ * @param
+ *    param1: event to listen -> String
+ *    param2: a listener function -> Function
+ *      @description
+ *        a callback function called when events happened 
+ *      @param
+ *        param1: the info of register app -> Object
+ *          {
+ *            appID: id of app
+ *            option: options to create an inside app(object)
+ *              {
+ *                desktop: (true|false) // create a shortcut on desktop or not
+ *                dock: (true|false) // create a shortcut on desktop or not
+ *              }
+ *          }
+ * @return
+ *    itself of this instance
+ */
 Proxy.prototype.off = function(event, handler) {
   this._ipc.removeListener(event, handler);
+  return this;
 };
 
 var proxy = null;
@@ -141,3 +332,4 @@ exports.getProxy = function() {
   }
   return proxy;
 };
+
