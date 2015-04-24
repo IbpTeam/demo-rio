@@ -61,23 +61,23 @@ function LocalServ(servName, cb) {
   this.serv = servName;
   this.callback = cb;
   var self = this;
-  this.run = function() {
+  this.runserv = function() {
     proxy.requireProxy(['im'], function(improxy) {
       self.im = improxy;
       improxy.on(self.serv, self.callback);
     });
   }
-  this.stop = function() {
+  this.stopserv = function() {
     self.im.off(self.serv, self.callback);
   }
 }
 
 LocalServ.prototype.run = function() {
-  this.run();
+  this.runserv();
 }
 
 LocalServ.prototype.stop = function() {
-  this.stop();
+  this.stopserv();
 }
 
 var localObj = null;
