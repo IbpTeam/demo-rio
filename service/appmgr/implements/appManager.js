@@ -238,7 +238,7 @@ AppMgr.prototype._parsePackageJSON = function(path_, callback_) {
 //    data_: info object of app
 AppMgr.prototype.getRegisteredAppInfo = function(appID_, callback_) {
   var cb_ = callback_ || function() {};
-  if(self._isRegistered(appID_)) {
+  if(this._isRegistered(appID_)) {
     // change to parse package.json under _AppList[appID_].path first
     //  and then return corresponding information json object.
     var p = ((this._AppList[appID_].local) ? (this._AppList[appID_].path)

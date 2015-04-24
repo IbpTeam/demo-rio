@@ -113,6 +113,11 @@ var initObj = {
         if(err) {
           return callback({err: err});
         }
+        for(var key in appInfo) {
+          if(typeof appInfo[key] === 'undefined') {
+            delete appInfo[key];
+          }
+        }
         callback({ret: appInfo});
       });
     },

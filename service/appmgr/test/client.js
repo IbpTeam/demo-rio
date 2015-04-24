@@ -29,8 +29,14 @@ requireProxy(['appmgr'], function(appmgr) {
     console.log('unregister: OK');
   });
 
-  appmgr.getRegisteredAppInfo('flash-app', function(ret) {
+  appmgr.getRegisteredAppInfo('datamgr-app', function(ret) {
     if(ret.err) return console.log('getRegisteredAppInfo error:', ret.err);
     console.log('getRegisteredAppInfo:', ret.ret);
   });
-})
+
+  appmgr.generateAppByURL('http://www.baidu.com/', {}, function(ret) {
+    if(ret.err) return console.log('generateAppByURL error:', ret.err);
+    console.log('generateAppByURL:', ret.ret);
+  });
+});
+
