@@ -268,10 +268,14 @@ function createData_RDF(fileInfo, callback) {
     var _itme = fileInfo[i];
     var _isEnd = (i === (fileInfo.length - 1));
     doCreate(_TRIPLES, _isEnd, function(err) {
-      if (err) return callback(err);
+      if (err) {
+        return callback(err);
+      }
       if (_isEnd) {
         addTriples(_TRIPLES, function(err) {
-          if (err) return callback(err);
+          if (err) {
+            return callback(err);
+          }
         })
       }
     })
@@ -280,11 +284,15 @@ function createData_RDF(fileInfo, callback) {
 
 function doCreate(_TRIPLES, isEnd, callback) {
   rdfHandle.tripleGenerator(_itme, function(err, triples) {
-    if (err) return callback(err);
+    if (err) {
+      return callback(err);
+    }
     _triples = _triples.concat(triples);
     if (_isEnd) {
       addTriples(_triples, function(err) {
-        if (err) return callback(err)
+        if (err) {
+          return callback(err)
+        }
         return callback();
       })
     }
