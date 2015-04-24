@@ -60,9 +60,6 @@ function watcherStop(category,callback){
 }
 exports.watcherStop = watcherStop;
 
-
-
-
 /**
  * @method createData
  *    To create des file, dataBase resocrd and git commit for single data. This
@@ -94,51 +91,45 @@ exports.watcherStop = watcherStop;
  *    string, retrieve 'success' when success
  *
  */
-function createData(item, callback) {
-  var sOriginPath = item.path;
-  var sFileName = utils.renameExists([item.filename + '.' + item.postfix])[0];
-  var category = item.category;
-  var sRealRepoDir = utils.getRepoDir(category);
-  var sDesRepoDir = utils.getDesRepoDir(category);
-  var sRealDir = utils.getRealDir(category);
-  var sDesDir = utils.getDesDir(category);
-  var sFilePath = path.join(sRealDir, sFileName);
-  var sDesFilePath = path.join(sDesDir, sFileName + '.md');
-  item.path = sFilePath;
-  utils.copyFileSync(sOriginPath, sFilePath, function(err) {
-    if (err) {
-      console.log(err);
-      return callback(err);
-    }
-    dataDes.createItem(item, sDesDir, function() {
-      commonDAO.createItem(item, function(err) {
+function createData(fileInfo, callback) {
+  var _TRIPLES = [];
+  var _callback = callback;
+  for (var i = 0; i < fileInfo.length; i++) {
+    var _item = fileInfo[i];
+    var _isEnd = (i == (fileInfo.length - 1));
+
+    function doCreate_RDF(item, isEnd, callback) {
+      rdfHandle.tripleGenerator(item, function(err, triples) {
         if (err) {
-          console.log(err);
           return callback(err);
         }
-        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
-          if (err) {
-            console.log(result);
-            return callback(null);
-          }
-          if (item.others != '') {
-            var oTags = item.others.split(',');
-            tagsHandles.addInTAGS(oTags, item.URI, function(err) {
-              if (err) {
-                console.log(err);
-                return callback(err, null);
-              }
-              callback('success', sFilePath);
-            })
-          } else {
-            callback('success', sFilePath);
-          }
-        })
+        _TRIPLES = _TRIPLES.concat(triples);
+        if (isEnd) {
+          return addTriples(_TRIPLES, callback);
+        }
       })
-    });
-  });
+    }
+    doCreate_RDF(_item, _isEnd, _callback)
+  }
 }
 exports.createData = createData;
+
+
+
+function addTriples(triples, callback) {
+  var db = rdfHandle.dbOpen();
+  rdfHandle.dbPut(db, triples, function(err) {
+    if (err) {
+      return callback(err);
+    }
+    db.close(function(err) {
+      if (err) {
+        return callback(err);
+      }
+      return callback();
+    })
+  })
+}
 
 
 /**
@@ -261,47 +252,6 @@ function createDataAll(items, callback) {
   }
 }
 exports.createDataAll = createDataAll;
-
-function createData_RDF(fileInfo, callback) {
-  var _TRIPLES = [];
-  var _callback = callback;
-  for (var i = 0; i < fileInfo.length; i++) {
-    var _item = fileInfo[i];
-    var _isEnd = (i == (fileInfo.length - 1));
-
-    function doCreate_RDF(item, isEnd, callback) {
-      rdfHandle.tripleGenerator(item, function(err, triples) {
-        if (err) {
-          return callback(err);
-        }
-        _TRIPLES = _TRIPLES.concat(triples);
-        if (isEnd) {
-          return addTriples(_TRIPLES, callback);
-        }
-      })
-      
-    }
-    doCreate_RDF(_item, _isEnd, _callback)
-  }
-}
-exports.createData_RDF = createData_RDF;
-
-
-
-function addTriples(triples, callback) {
-  var db = rdfHandle.dbOpen();
-  rdfHandle.dbPut(db, triples, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    db.close(function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback();
-    })
-  })
-}
 
 
 exports.getItemByUri = function(category, uri, callback) {
