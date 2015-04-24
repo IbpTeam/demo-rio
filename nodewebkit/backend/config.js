@@ -27,6 +27,11 @@ exports.UNIQUEID_JS = UNIQUEID_JS;
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
 
+//levelgraph database info
+var DATABASENAME = "custard_rdf";
+var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
+exports.LEVELDBPATH = LEVELDBPATH;
+
 /**
  * APP Path
  * Default APP Base path is repo/app dir，we use __dirname to locate it

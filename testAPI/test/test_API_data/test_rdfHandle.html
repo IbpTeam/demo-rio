@@ -16,32 +16,32 @@
 <body>
   <script language=javascript>  
   
-  function print(win,something){
-    if(typeof something == "object"){
+  function print(win, something) {
+    if (typeof something == "object") {
       win.document.write("{");
-      for(var k in something){
+      for (var k in something) {
         win.document.write(k);
         win.document.write(" : ");
-        print(win,something[k]);
-        win.document.write(", ");        
+        print(win, something[k]);
+        win.document.write(", ");
         win.document.write("<br/>");
       }
       win.document.write("}");
       win.document.write("<br/>");
-    }else{
+    } else {
       win.document.write(something);
     }
   }
-  
-  function show(id){
+
+  function show(id) {
     var id_style = document.getElementById(id).style.cssText;
-    if(id_style == "display: inline;"){
+    if (id_style == "display: inline;") {
       document.getElementById(id).style.cssText = "display: none;";
-    }else if(id_style == "display: none;"){
+    } else if (id_style == "display: none;") {
       document.getElementById(id).style.cssText = "display: inline;";
-    }else{
+    } else {
       var win = window.open('');
-      win.document.write("div "+id+" display wrong!");
+      win.document.write("div " + id + " display wrong!");
     }
   }
 
@@ -129,28 +129,28 @@
       object: '"' + "10086" + '"'
     }]
 
-     var info = {
-      subject:"xiquan",
-       base: {
-         URI: "exapmle",
-         createTime: "exapmle",
-         lastModifyTime: "exapmle",
-         lastAccessTime: "exapmle",
-         createDev: "exapmle",
-         lastModifyDev: "exapmle",
-         lastAccessDev: "exapmle",
-         createDev: "exapmle",
-         filename: "exapmle",
-         postfix: "exapmle",
-         category: "exapmle",
-         size: "exapmle",
-         path: "exapmle",
-         tags: "exapmle"
-       },
-       extra: {
-         project: '上海专项',
-       }
-     }
+  var info = {
+    subject: "xiquan",
+    base: {
+      URI: "exapmle",
+      createTime: "exapmle",
+      lastModifyTime: "exapmle",
+      lastAccessTime: "exapmle",
+      createDev: "exapmle",
+      lastModifyDev: "exapmle",
+      lastAccessDev: "exapmle",
+      createDev: "exapmle",
+      filename: "exapmle",
+      postfix: "exapmle",
+      category: "exapmle",
+      size: "exapmle",
+      path: "exapmle",
+      tags: "exapmle"
+    },
+    extra: {
+      project: '上海专项',
+    }
+  }
 
   function test_dbPut(cb) {
     WDC.requireAPI(['data'], function(data) {
@@ -169,7 +169,7 @@
         var db = rdfhandle.dbOpen();
         var _query_get_all = [{
           subject: db.v('x'),
-          predicate: "http://example.org/property/contact#lastname", //db.v('y'),
+          predicate: db.v('y'),//"http://example.org/property/contact#lastname", //
           object: db.v('z')
         }]
         rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
@@ -210,8 +210,8 @@
 <div id="dbSearch" style="display:none;">
 </div>
 
-<h2 onclick="show('test_tripleGenerator')">test_tripleGenerator(cb)<span><a class="mark" href="#test_test_tripleGenerator" id="test_test_tripleGenerator" onclick="test_test_tripleGenerator(cb)">test</a></span></h2>
-<div id="test_tripleGenerator" style="display:none;">
+<h2 onclick="show('tripleGenerator')">tripleGenerator(cb)<span><a class="mark" href="#test_tripleGenerator" id="test_tripleGenerator" onclick="test_tripleGenerator(cb)">test</a></span></h2>
+<div id="tripleGenerator" style="display:none;">
 </div>
 
 </body>

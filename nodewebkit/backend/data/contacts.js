@@ -296,6 +296,7 @@ function initContacts(loadContactsCb, sItemPath) {
     var oJson = JSON.parse(json);
     var oContacts = [];
     var oDesFiles = [];
+    var _triples = [];
     var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
     var dataDesPath = contactsPath + "/data";
     fs.readdir(DES_DIR, function(err, result) {
@@ -322,63 +323,19 @@ function initContacts(loadContactsCb, sItemPath) {
         }
       }
 
-      var _db = rdfHandle.dbOpen();
+      //var _db = rdfHandle.dbOpen();
       for (var k = 0; k < oContacts.length; k++) {
-        var tripleItem = oContacts[k];
-        var currentTime = (new Date());
-        var fullName = tripleItem["姓"] + tripleItem["名"];
-        var fullNameUrl = 'http://example.org/category/contact#' + fullName;
-        var _triples = [{
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/base#createTime',
-          object: '"' + currentTime + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/base#lastModifyTime',
-          object: '"' + currentTime + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/base#lastAccessTime',
-          object: '"' + currentTime + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/base#createDev',
-          object: '"' + config.uniqueID + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/base#lastModifyDev',
-          object: '"' + config.uniqueID + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/base#lastAccessDev',
-          object: '"' + config.uniqueID + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/contact#lastname',
-          object: '"' + tripleItem["姓"] + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/contact#firstname',
-          object: '"' + tripleItem["名"] + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/contact#sex',
-          object: '"' + tripleItem["性别"] + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/contact#email',
-          object: '"' + tripleItem["电子邮件地址"] + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/contact#phone',
-          object: '"' + tripleItem["移动电话"] + '"'
-        }, {
-          subject: fullNameUrl,
-          predicate: 'http://example.org/property/Base#lastAccessDev',
-          object: '"' + config.uniqueID + '"'
-        }]
         var _isContactEnd = (k == (oContacts.length - 1));
-        addTriples(_isContactEnd, _db, _triples, loadContactsCb);
+        var _info = dataInfo(oContacts[k]);
+        rdfHandle.tripleGenerator(_info, function(err, triples) {
+          if (err) {
+            return callback(err);
+          }
+          _triples = _triples.concat(triples);
+          if (_isContactEnd) {
+            addTriples(_triples, loadContactsCb);
+          }
+        })
       }
     });
   }
@@ -386,18 +343,49 @@ function initContacts(loadContactsCb, sItemPath) {
 }
 exports.initContacts = initContacts;
 
-function addTriples(isContactEnd, db, triples, loadContactsCb) {
+function dataInfo(itemInfo) {
+  var fullName = itemInfo["姓"] + itemInfo["名"];
+  var fullNameUrl = 'http://example.org/category/contact#' + fullName;
+  var _info = {
+    subject: fullNameUrl,
+    base: {
+      //URI: "",
+      createTime: new Date(),
+      lastModifyTime: new Date(),
+      lastAccessTime: new Date(),
+      createDev: config.uniqueID,
+      lastModifyDev: config.uniqueID,
+      lastAccessDev: config.uniqueID,
+      createDev: config.uniqueID,
+      //filename: "exapmle",
+      //postfix: "exapmle",
+      category: "contact",
+      //size: "exapmle",
+      //path: "exapmle",
+      tags: "exapmle"
+    },
+    extra: {
+      project: '上海专项',
+      lastname: itemInfo["姓"],
+      firstname: itemInfo["名"],
+      sex: itemInfo["性别"],
+      email: itemInfo["电子邮件地址"],
+      phone: itemInfo["移动电话"]
+    }
+  }
+  return _info;
+}
+
+function addTriples(triples, loadContactsCb) {
+  var db = rdfHandle.dbOpen();
   rdfHandle.dbPut(db, triples, function(err) {
     if (err) {
-      if (err) throw err;
       return loadContactsCb(err);
     }
-    if (isContactEnd) {
-      db.close(function(err) {
-        if (err) throw err;
-        return loadContactsCb(null, "success");
-      })
-    }
+    db.close(function(err) {
+      if (err) throw err;
+      return loadContactsCb(null, "success");
+    })
   })
 }
 

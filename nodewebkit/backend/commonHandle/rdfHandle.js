@@ -106,7 +106,8 @@ exports.dbClear = dbClear;
  *
  */
 function dbOpen() {
-  return new levelgraph(config.LEVELDBPATH);
+  var db = levelgraph(config.LEVELDBPATH);
+  return db;
 }
 exports.dbOpen = dbOpen;
 
@@ -272,4 +273,4 @@ function tripleGenerator(info, callback) {
   }
   callback(null, _triples);
 }
-exports.TripleGenerator = TripleGenerator;
+exports.tripleGenerator = tripleGenerator;
