@@ -4,26 +4,27 @@
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
 function Proxy(ip) {
-  if(typeof ip !== 'undefined') {
+  if (typeof ip !== 'undefined') {
     this.ip = ip;
   } else {
     return console.log('The remote IP is required');
   }
 
   // TODO: replace $cdProxy to the real path
-  this._cd = require('../../../nodewebkit/ipc/commdaemon/commdaemonProxy.js').getProxy();  this._token = 0;
+  this._cd = require('../../../nodewebkit/ipc/commdaemon/commdaemonProxy.js').getProxy();
+  this._token = 0;
 
 }
 
 Proxy.prototype.send = function(String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   var argv = {
-      action: 0,
-      svr: 'nodejs.webde.im',
-      func: 'send',
-      args: args
-    };
+    action: 0,
+    svr: 'nodejs.webde.im',
+    func: 'send',
+    args: args
+  };
   this._cd.send(this.ip, argv, callback);
 };
 
@@ -51,7 +52,7 @@ Proxy.prototype.off = function(event, handler) {
 
 var proxy = null;
 exports.getProxy = function(ip) {
-  if(proxy == null) {
+  if (proxy == null) {
     proxy = new Proxy(ip);
   }
   return proxy;

@@ -9,18 +9,16 @@ var initObj = {
   "name": "nodejs.webde.im",
   "type": "dbus",
   "service": true,
-  "interface": [
-    {
-      "name": "send",
-      "in": [
-        "String"
-      ]
-    }
-  ],
+  "interface": [{
+    "name": "send",
+    "in": [
+      "String"
+    ]
+  }],
   "serviceObj": {
     send: function(val, callback) {
       var msg = JSON.parse(val);
-      stub.notify(msg.typ,msg.txt);
+      stub.notify(msg.typ, msg.txt);
       var retObj = new Object();
       retObj.ret = msg.txt;
       callback(retObj);
@@ -38,17 +36,16 @@ Stub.prototype.notify = function(event) {
 };
 
 var stub = null,
-    cd = null;
+  cd = null;
 exports.getStub = function(proxyAddr) {
-  if(stub == null) {
-    if(typeof proxyAddr === 'undefined')
+  if (stub == null) {
+    if (typeof proxyAddr === 'undefined')
       throw 'The path of proxy\'s module file we need!';
     // TODO: replace $cdProxy to the path of commdaemonProxy
     cd = require('../../../nodewebkit/ipc/commdaemon/commdaemonProxy').getProxy();
     cd.register(initObj.name, proxyAddr, function(ret) {
-      if(ret.err) {
-        return console.log(ret.err
-          , 'This service cannot be accessed from other devices since failed to register on CD');
+      if (ret.err) {
+        return console.log(ret.err, 'This service cannot be accessed from other devices since failed to register on CD');
       }
     });
     stub = new Stub();
