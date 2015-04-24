@@ -126,7 +126,15 @@ var EVENTHANDLER = "  // TODO: choose to implement interfaces of ipc\n"
         + "  /* handle the event emitted when error occured\n"
         + "  this._ipc.onError = function(err) {\n"
         + "    // TODO: your handler\n"
-        + "  }*/\n";
+        + "  }*/\n",
+    COMMENTS = "/**\n"
+        + " * @description\n"
+        + " *    some brief introduction of this interface\n"
+        + " * @param\n"
+        + " *    parameter list. e.g. param1: description -> value type\n"
+        + " * @return\n"
+        + " *    what will return from this interface\n"
+        + " */\n";
 
 function buildProxy(filename, initObj, ifaces, remote) {
   var outputFile = [];
@@ -155,7 +163,8 @@ function buildProxy(filename, initObj, ifaces, remote) {
     for(var i = 0; i < ifaces.length; ++i) {
       if((ifaces[i].show == 'l' && remote) || (ifaces[i].show == 'r' && !remote))
         continue;
-      outputFile.push("Proxy.prototype." + ifaces[i].name + " = function(" 
+      outputFile.push(COMMENTS
+          + "Proxy.prototype." + ifaces[i].name + " = function(" 
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
           + "  var l = arguments.length,\n"
@@ -176,7 +185,20 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + "};\n");
     }
     // add on/off interface
-    outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
+    outputFile.push("/**\n"
+        + " * @description\n"
+        + " *    add listener for ...\n"
+        + " * @param\n"
+        + " *    param1: event to listen -> String\n"
+        + " *    param2: a listener function -> Function\n"
+        + " *      @description\n"
+        + " *        a callback function called when events happened\n"
+        + " *      @param\n"
+        + " *        param1: description of this parameter -> type\n"
+        + " * @return\n"
+        + " *    itself of this instance\n"
+        + " */\n"
+        + "Proxy.prototype.on = function(event, handler) {\n"
         // send on request to remote peer
         + (remote ? ("  this._cd.on(event, handler);\n"
         + "  var argvs = {\n"
@@ -188,6 +210,19 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "  this._cd.send(this.ip, argvs);\n")
         : "  this._ipc.on(event, handler);\n")
         + "};\n\n"
+        + "/**\n"
+        + " * @description\n"
+        + " *    remove listener from ...\n"
+        + " * @param\n"
+        + " *    param1: event to listen -> String\n"
+        + " *    param2: a listener function -> Function\n"
+        + " *      @description\n"
+        + " *        a callback function called when events happened\n"
+        + " *      @param\n"
+        + " *        param1: description of this parameter -> type\n"
+        + " * @return\n"
+        + " *    itself of this instance\n"
+        + " */\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
         // send off request to remote peer
         + (remote ? ("  this._cd.off(event, handler);\n"
