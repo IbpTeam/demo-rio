@@ -264,42 +264,29 @@ exports.createDataAll = createDataAll;
 
 function createData_RDF(fileInfo, callback) {
   var _TRIPLES = [];
+  var _callback = callback;
   for (var i = 0; i < fileInfo.length; i++) {
-    var _itme = fileInfo[i];
-    var _isEnd = (i === (fileInfo.length - 1));
-    doCreate(_TRIPLES, _isEnd, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      if (_isEnd) {
-        addTriples(_TRIPLES, function(err) {
-          if (err) {
-            return callback(err);
-          }
-        })
-      }
-    })
+    var _item = fileInfo[i];
+    var _isEnd = (i == (fileInfo.length - 1));
+
+    function doCreate_RDF(item, isEnd, callback) {
+      rdfHandle.tripleGenerator(item, function(err, triples) {
+        if (err) {
+          return callback(err);
+        }
+        _TRIPLES = _TRIPLES.concat(triples);
+        if (isEnd) {
+          return addTriples(_TRIPLES, callback);
+        }
+      })
+      
+    }
+    doCreate_RDF(_item, _isEnd, _callback)
   }
 }
+exports.createData_RDF = createData_RDF;
 
-function doCreate(_TRIPLES, isEnd, callback) {
-  rdfHandle.tripleGenerator(_itme, function(err, triples) {
-    if (err) {
-      return callback(err);
-    }
-    _triples = _triples.concat(triples);
-    if (_isEnd) {
-      addTriples(_triples, function(err) {
-        if (err) {
-          return callback(err)
-        }
-        return callback();
-      })
-    }
-    var _err = new Error("loop not end ...");
-    return callback(_err);
-  })
-}
+
 
 function addTriples(triples, callback) {
   var db = rdfHandle.dbOpen();

@@ -192,7 +192,7 @@ function loadResources(loadResourcesCb, path) {
   }
   walk(path);
 
-  documents.createData(DocList, function(err, result) {
+  documents.createData_RDF(DocList, function(err, result) {
     if (err) {
       console.log(err);
       return loadResourcesCb(err, null);
