@@ -67,18 +67,22 @@
     });
   }
 
-  function loadResourcesCb(result){
+  function loadResourcesCb(err, result) {
     var win = window.open('');
+    if (err) {
+      return print(win, err);
+    }
     win.document.write("test API loadResources()");
     win.document.write("<br/>");
-    win.document.write("callback result: ");
+    win.document.write("callback result: success");
     win.document.write("<br/>");
-    print(win,result);
+    print(win, result);
   }
-  function test_loadResources(loadResourcesCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = "/home/xiquan/resources";
-      data.loadResources(loadResourcesCb,path);
+
+  function test_loadResources(loadResourcesCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = "/home/xiquan/resources/documents";
+      data.loadResources(loadResourcesCb, path);
     });
   }
 
@@ -340,6 +344,31 @@
   }
 
   </script>
+
+<h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
+<div id="loadResources" style="display:none;">
+<div style="color:#930000">
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function loadResourcesCb(result){
+    var win = window.open('');
+    win.document.write("test API loadResources()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_loadResources(loadResourcesCb){
+    WDC.requireAPI(['data'], function(data){
+      var path = "/home/xiquan/resources/test.txt";
+      data.loadResources(loadResourcesCb,path);
+    });
+  }       
+</pre>
+</div>
+</div>
 
 <h2 onclick="show('loadFile')">loadFile(loadFileCb,path)<span><a class="mark" href="#test_loadFile" id="test_loadFile" onclick="test_loadFile(loadFileCb)">test</a></span></h2>
 <div id="loadFile" style="display:none;">

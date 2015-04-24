@@ -71,124 +71,121 @@ var watchFilesNum=0;
  *
  */
 function createData(items, callback) {
-  if (items == [] || items == "") {
-    return callback(null, 'no Documents');
+  if (!items.length) {
+    var items = [items];
   }
-  if (typeof items == 'string') {
-    fs.stat(items, function(err, stat) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      var mtime = stat.mtime;
-      var ctime = stat.ctime;
-      var size = stat.size;
-      var cate = utils.getCategoryByPath(items);
-      var category = CATEGORY_NAME;
-      var itemFilename = cate.filename;
-      var itemPostfix = cate.postfix;
-      var someTags = tagsHandle.getTagsByPath(items);
-      var resourcesPath = config.RESOURCEPATH + '/' + category;
-      uniqueID.getFileUid(function(uri) {
-        var itemInfo = {
-          id: null,
-          URI: uri + "#" + category,
-          category: category,
-          others: someTags.join(","),
-          filename: itemFilename,
-          postfix: itemPostfix,
-          size: size,
-          path: items,
-          project: '上海专项',
-          createTime: ctime,
-          lastModifyTime: mtime,
-          lastAccessTime: ctime,
-          createDev: config.uniqueID,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID
-        };
-        commonHandle.createData(itemInfo, function(result, resultFile) {
-          if (result === 'success') {
-            callback(null, resultFile);
-          } else {
-            var _err = 'createData: commonHandle createData error!';
-            console.log('createData error!');
-            callback(_err, null);
+  var _file_info = [];
+  for (var i = 0; i < items.length; i++) {
+    var _isEnd = (i == (items.length - 1));
+    var _item = items[i];
+
+    function doCreate(isEnd, item, callback) {
+      fs.stat(item, function(err, stat) {
+        if (err) {
+          return callback(err);
+        }
+        var _mtime = stat.mtime;
+        var _ctime = stat.ctime;
+        var _size = stat.size;
+        var _cate = utils.getCategoryByPath(item);
+        var _category = CATEGORY_NAME;
+        var _filename = _cate.filename;
+        var _postfix = _cate.postfix
+        var _tags = tagsHandle.getTagsByPath(item);
+        uniqueID.getFileUid(function(_uri) {
+          var item_info = {
+            subject: 'http://example.org/category/document#' + _filename,
+            base: {
+              URI: _uri,
+              createTime: _ctime,
+              lastModifyTime: _mtime,
+              lastAccessTime: _ctime,
+              createDev: config.uniqueID,
+              lastModifyDev: config.uniqueID,
+              lastAccessDev: config.uniqueID,
+              createDev: config.uniqueID,
+              filename: _filename,
+              postfix: _postfix,
+              category: "document",
+              size: _size,
+              path: item,
+              tags: _tags
+            },
+            extra: {
+              project: '上海专项',
+            }
+          }
+          _file_info.push(item_info);
+          if (isEnd) {
+            commonHandle.createData(_file_info, function(err) {
+              if (err) {
+                return callback(err);
+              }
+              callback();
+            })
           }
         })
       })
-    })
-  } else if (typeof items == 'object') {
-    if (!items.length) {
-      console.log('create data input error!');
-      var _err = 'createData: items should be an array!';
-      callback(_err, null);
-    } else {
-      var itemInfoAll = [];
-      var count = 0;
-      var lens = items.length;
-      for (var i = 0; i < lens; i++) {
-        var item = items[i];
-        (function(_item) {
-          fs.stat(_item, function(err, stat) {
-            if (err) {
-              console.log(err);
-              var _err = err;
-              callback(_err, null);
-            } else {
-              var mtime = stat.mtime;
-              var ctime = stat.ctime;
-              var size = stat.size;
-              var cate = utils.getCategoryByPath(_item);
-              var category = CATEGORY_NAME;
-              var itemFilename = cate.filename;
-              var itemPostfix = cate.postfix
-              var someTags = tagsHandle.getTagsByPath(_item);
-              var resourcesPath = config.RESOURCEPATH + '/' + category;
-              uniqueID.getFileUid(function(uri) {
-                var itemInfo = {
-                  id: null,
-                  URI: uri + "#" + category,
-                  category: category,
-                  others: someTags.join(","),
-                  filename: itemFilename,
-                  postfix: itemPostfix,
-                  size: size,
-                  path: _item,
-                  project: '上海专项',
-                  createTime: ctime,
-                  lastModifyTime: mtime,
-                  lastAccessTime: ctime,
-                  createDev: config.uniqueID,
-                  lastModifyDev: config.uniqueID,
-                  lastAccessDev: config.uniqueID
-                };
-                itemInfoAll.push(itemInfo);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(err, result) {
-                    if (err) {
-                      var _err = 'createData: commonHandle createData all error!';
-                      console.log('createData error!');
-                      return callback(_err, null);
-                    }
-                    callback(null, result);
-                  })
-                }
-                count++;
-              })
-            }
-          })
-        })(item)
-      }
     }
-  } else {
-    console.log('input error: items is undefined!');
-    var _err = 'createData: input error';
-    callback(_err, null);
+    doCreate(_isEnd, _item, function(err) {
+      if (err) {
+        return callback(err)
+      }
+      return callback();
+    });
   }
 }
 exports.createData = createData;
+
+function doCreate(isEnd, item, file_info, callback) {
+  fs.stat(item, function(err, stat) {
+    if (err) {
+      return callback(err);
+    }
+    var _mtime = stat.mtime;
+    var _ctime = stat.ctime;
+    var _size = stat.size;
+    var _cate = utils.getCategoryByPath(item);
+    var _category = CATEGORY_NAME;
+    var _filename = _cate.filename;
+    var _postfix = _cate.postfix
+    var _tags = tagsHandle.getTagsByPath(item);
+    uniqueID.getFileUid(function(_uri) {
+      var item_info = {
+        subject: 'http://example.org/category/document#' + _filename,
+        base: {
+          URI: _uri,
+          createTime: _ctime,
+          lastModifyTime: _mtime,
+          lastAccessTime: _ctime,
+          createDev: config.uniqueID,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID,
+          createDev: config.uniqueID,
+          filename: _filename,
+          postfix: _postfix,
+          category: "document",
+          size: _size,
+          path: item,
+          tags: _tags
+        },
+        extra: {
+          project: '上海专项',
+        }
+      }
+      file_info.push(item_info);
+      if (isEnd) {
+        commonHandle.createData_RDF(file_info, function(err) {
+          if (err) {
+            return callback(err);
+          }
+          callback();
+        })
+      }
+    })
+  })
+}
+
 
 /**
  * @method removeDocumentByUri
