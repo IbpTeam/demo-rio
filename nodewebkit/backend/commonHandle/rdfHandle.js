@@ -2,6 +2,60 @@ var fs_extra = require('fs-extra');
 var config = require('../config');
 var levelgraph = require('levelgraph');
 
+var BASE_TYPE = [{
+  subject: 'http://example.org/category#Base',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Class'
+}, {
+  subject: 'http://example.org/property/base#createTime',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#createTime',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#Base'
+}, {
+  subject: 'http://example.org/property/base#lastModifyTime',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#lastModifyTime',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#Base'
+}, {
+  subject: 'http://example.org/property/base#lastAccessTime',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#lastAccessTime',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#Base'
+}, {
+  subject: 'http://example.org/property/base#createDev',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#createDev',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#Base'
+}, {
+  subject: 'http://example.org/property/base#lastModifyDev',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#lastModifyDev',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#Base'
+}, {
+  subject: 'http://example.org/property/base#lastAccessDev',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#lastAccessDev',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#Base'
+}];
+
 /**
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
@@ -9,60 +63,7 @@ var levelgraph = require('levelgraph');
  *
  */
 function dbInitial(callback) {
-  var triples_base_type =
-    [{
-      subject: 'http://example.org/category#Base',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Class'
-    }, {
-      subject: 'http://example.org/property/base#createTime',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-    }, {
-      subject: 'http://example.org/property/base#createTime',
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#Base'
-    }, {
-      subject: 'http://example.org/property/base#lastModifyTime',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-    }, {
-      subject: 'http://example.org/property/base#lastModifyTime',
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#Base'
-    }, {
-      subject: 'http://example.org/property/base#lastAccessTime',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-    }, {
-      subject: 'http://example.org/property/base#lastAccessTime',
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#Base'
-    }, {
-      subject: 'http://example.org/property/base#createDev',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-    }, {
-      subject: 'http://example.org/property/base#createDev',
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#Base'
-    }, {
-      subject: 'http://example.org/property/base#lastModifyDev',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-    }, {
-      subject: 'http://example.org/property/base#lastModifyDev',
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#Base'
-    }, {
-      subject: 'http://example.org/property/base#lastAccessDev',
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-    }, {
-      subject: 'http://example.org/property/base#lastAccessDev',
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#Base'
-    }];
+  var triples_base_type = BASE_TYPE;
   var db = dbOpen();
   db.put(triples_base_type, function(err) {
     if (err) {
