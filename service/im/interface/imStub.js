@@ -42,7 +42,7 @@ exports.getStub = function(proxyAddr) {
     if (typeof proxyAddr === 'undefined')
       throw 'The path of proxy\'s module file we need!';
     // TODO: replace $cdProxy to the path of commdaemonProxy
-    cd = require('../../../nodewebkit/ipc/commdaemon/commdaemonProxy').getProxy();
+    cd = require('../../commdaemon/interface/commdaemonProxy').getProxy();
     cd.register(initObj.name, proxyAddr, function(ret) {
       if (ret.err) {
         return console.log(ret.err, 'This service cannot be accessed from other devices since failed to register on CD');
