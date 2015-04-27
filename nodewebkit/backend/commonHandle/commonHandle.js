@@ -167,8 +167,8 @@ function baseInfo(itemPath, callback) {
 }
 exports.baseInfo = baseInfo;
 
-function dataStore(items, extraCallback, callback){
-    if (items.length == 0) {
+function dataStore(items, extraCallback, callback) {
+  if (items.length == 0) {
     return callback();
   } else if (!items.length) {
     var items = [items];
@@ -183,21 +183,27 @@ function dataStore(items, extraCallback, callback){
         if (err) {
           return callback(err);
         }
-        extraCallback(_item, function(err, result) {
-          var item_info = {
-            subject: 'http://example.org/category/' + _base.URI + '#' + _base.filename,
-            base: _base,
-            extra: result
+        var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+        fs_extra.copy(item, _newPath, function(err) {
+          if (err) {
+            console.log(err);
           }
-          _file_info.push(item_info);
-          if (isEnd) {
-            createData(_file_info, function(err) {
-              if (err) {
-                return callback(err);
-              }
-              callback();
-            })
-          }
+          extraCallback(_item, function(err, result) {
+            var item_info = {
+              subject: 'http://example.org/category/' + _base.URI + '#' + _base.filename,
+              base: _base,
+              extra: result
+            }
+            _file_info.push(item_info);
+            if (isEnd) {
+              createData(_file_info, function(err) {
+                if (err) {
+                  return callback(err);
+                }
+                callback();
+              })
+            }
+          })
         })
       })
     }
@@ -209,7 +215,7 @@ function dataStore(items, extraCallback, callback){
     });
   }
 }
-exports.dataStore = dataStore; 
+exports.dataStore = dataStore;
 
 
 /**
