@@ -262,6 +262,9 @@ function tripleGenerator(info, callback) {
   }
   try {
     var _extra = info.extra;
+    if(_extra == {}){
+      return callback(null, _triples);
+    }
     for (var entry in _extra) {
       var _triple_extra = {
         subject: _namespace_subject + '#' + info.subject,

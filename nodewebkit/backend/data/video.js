@@ -173,6 +173,36 @@ exports.readVideoThumbnail = readVideoThumbnail;
  *
  */
 function createData(items, callback) {
+  commonHandle.dataStore(items, extraInfo, function(err) {
+    if (err) {
+      return callback(err);
+    }
+    callback();
+  })
+}
+exports.createData = createData;
+
+function extraInfo(item, callback) {
+  readVideoMetadata(item, function(err, metadata) {
+    if (err) {
+      return callback(err);
+    }
+    var _extra = {
+      format_long_name: metadata.format_long_name,
+      width: metadata.width,
+      height: metadata.height,
+      display_aspect_ratio: metadata.display_aspect_ratio,
+      pix_fmt: metadata.pix_fmt,
+      duration: metadata.duration,
+      major_brand: metadata.major_brand,
+      minor_version: metadata.minor_version,
+      compatible_brands: metadata.compatible_brands,
+    }
+    callback(null, _extra);
+  })
+}
+
+function createData(items, callback) {
   if (items == [] || items == "") {
     return callback(null, 'no Video');
   }
@@ -213,15 +243,7 @@ function createData(items, callback) {
             createDev: config.uniqueID,
             lastModifyDev: config.uniqueID,
             lastAccessDev: config.uniqueID,
-            format_long_name: metadata.format_long_name,
-            width: metadata.width,
-            height: metadata.height,
-            display_aspect_ratio: metadata.display_aspect_ratio,
-            pix_fmt: metadata.pix_fmt,
-            duration: metadata.duration,
-            major_brand: metadata.major_brand,
-            minor_version: metadata.minor_version,
-            compatible_brands: metadata.compatible_brands,
+            
           };
           commonHandle.createData(itemInfo, function(result, resultFile) {
             if (result === 'success') {
