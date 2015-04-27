@@ -174,39 +174,39 @@ function dataStore(items, extraCallback, callback) {
     var items = [items];
   }
   var _file_info = [];
+
+  function doCreate(isEnd, item, callback) {
+    baseInfo(item, function(err, _base) {
+      if (err) {
+        return callback(err);
+      }
+      var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+      fs_extra.copy(item, _newPath, function(err) {
+        if (err) {
+          console.log(err);
+        }
+        extraCallback(_item, function(err, result) {
+          var item_info = {
+            subject: 'http://example.org/category/' + _base.URI + '#' + _base.filename,
+            base: _base,
+            extra: result
+          }
+          _file_info.push(item_info);
+          if (isEnd) {
+            createData(_file_info, function(err) {
+              if (err) {
+                return callback(err);
+              }
+              callback();
+            })
+          }
+        })
+      })
+    })
+  }
   for (var i = 0; i < items.length; i++) {
     var _isEnd = (i == (items.length - 1));
     var _item = items[i];
-
-    function doCreate(isEnd, item, callback) {
-      baseInfo(item, function(err, _base) {
-        if (err) {
-          return callback(err);
-        }
-        var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
-        fs_extra.copy(item, _newPath, function(err) {
-          if (err) {
-            console.log(err);
-          }
-          extraCallback(_item, function(err, result) {
-            var item_info = {
-              subject: 'http://example.org/category/' + _base.URI + '#' + _base.filename,
-              base: _base,
-              extra: result
-            }
-            _file_info.push(item_info);
-            if (isEnd) {
-              createData(_file_info, function(err) {
-                if (err) {
-                  return callback(err);
-                }
-                callback();
-              })
-            }
-          })
-        })
-      })
-    }
     doCreate(_isEnd, _item, function(err) {
       if (err) {
         return callback(err)
