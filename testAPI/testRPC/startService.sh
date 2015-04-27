@@ -29,7 +29,7 @@ if [ $num -eq 0 ]; then
 fi
 
 echo "Starting ${name[$num]} service"
-nodejs ${path[$num]}
+node ${path[$num]}
 
 # case $num in
 	# 1) echo "Starting mix service"

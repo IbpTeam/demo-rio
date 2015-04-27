@@ -1,0 +1,10 @@
+{
+  "remote": "true",
+  "service": "im",
+  "interfaces": [
+    {
+      "name": "send",
+      "in": ["String"]
+    }
+  ]
+}

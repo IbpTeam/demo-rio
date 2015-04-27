@@ -3,60 +3,12 @@
 if(process.argv.length < 3)
   return console.log('Usage: node generator.js ${Your_Interface_File} [ipc type]');
 
-var /* utils = require('../backend/utils'), TODO: for node to run */
-    IPC = require('./ipc'),
-    fs = require('fs'),
+var fs = require('fs'),
     util = require('util'),
-    events = require('events');
+    events = require('events'),
+    json4line = require('../../sdk/utils/json4line');
 
-function LineReader(file_, separator_) {
-  this._separator = separator_ || /\r?\n|\r/;
-  this._rStream = fs.createReadStream(file_, {encoding: 'utf8'});
-  this._remain = '';
-  events.EventEmitter.call(this);
-
-  var _this = this;
-  this._rStream.on('open', function() {
-  }).on('data', function(data_) {
-    _this.parseData(data_);
-  }).on('error', function(err_) {
-    _this.emit('error', err_);
-  }).on('end', function() {
-    if(_this._remain != '')
-      _this.emit('lines', [_this._remain]);
-    _this.emit('end');
-  });
-}
-util.inherits(LineReader, events.EventEmitter);
-
-LineReader.prototype.parseData = function(data_) {
-  var lines = data_.split(this._separator);
-  lines[0] = this._remain + lines[0];
-  this._remain = lines.pop();
-  this.emit('lines', lines);
-}
-  
-function readJSONFile(path_, callback_) {
-  var cb_ = callback_ || function() {},
-      lr = new LineReader(path_),
-      content = [];
-  lr.on('lines', function(lines_) {
-    for(var i in lines_) {
-      if(lines_[i].match(/^\s*#/) == null) content.push(lines_[i]);
-    }
-  }).on('end', function(){
-    try {
-      json = JSON.parse(content.join(''));
-      return cb_(null, json);
-    } catch(e) {
-      return cb_(e);
-    }
-  }).on('error', function(err_) {
-    cb_('Fail to load file: ' + err_);
-  });
-}
-
-readJSONFile(process.argv[2], function(err, interfaces) {
+json4line.readJSONFile(process.argv[2], function(err, interfaces) {
   if(err) return console.log('Interface File error:', err);
   builder(interfaces);
 });
@@ -95,7 +47,7 @@ var NOTICE = "// This file is auto generated based on user-defined interface.\n"
             + "// Please make sure that you have checked all TODOs in this file.\n"
             + "// TODO: please replace types with peramters' name you wanted of any functions\n"
             + "// TODO: please replace $ipcType with one of dbus, binder, websocket and socket\n";
-var GETIPC = "  // TODO: please replace $IPC with the real path of ipc module in your project\n"
+var GETIPC = "  // TODO: please replace $IPC with the real path of webde-rpc module in your project\n"
             + "  this._ipc = require('$IPC').getIPC(initObj);\n";
 
 function buildStub(filename, initObj, ifaces, remote) {
@@ -132,7 +84,7 @@ function buildStub(filename, initObj, ifaces, remote) {
     // interface to get proxy object
     var arg = (remote ? 'proxyAddr' : '');
     outputFile.push("var stub = null"
-        + (remote ? ",\n    cd = null;\n" : ";")
+        + (remote ? ",\n    cd = null;\n" : ";\n")
         + "exports.getStub = function(" + arg + ") {\n"
         + "  if(stub == null) {\n"
         + (remote ? "    if(typeof proxyAddr === 'undefined')\n"
@@ -174,7 +126,15 @@ var EVENTHANDLER = "  // TODO: choose to implement interfaces of ipc\n"
         + "  /* handle the event emitted when error occured\n"
         + "  this._ipc.onError = function(err) {\n"
         + "    // TODO: your handler\n"
-        + "  }*/\n";
+        + "  }*/\n",
+    COMMENTS = "/**\n"
+        + " * @description\n"
+        + " *    some brief introduction of this interface\n"
+        + " * @param\n"
+        + " *    parameter list. e.g. param1: description -> value type\n"
+        + " * @return\n"
+        + " *    what will return from this interface\n"
+        + " */\n";
 
 function buildProxy(filename, initObj, ifaces, remote) {
   var outputFile = [];
@@ -201,7 +161,10 @@ function buildProxy(filename, initObj, ifaces, remote) {
       + (remote ? "" : EVENTHANDLER)
       + '}\n');
     for(var i = 0; i < ifaces.length; ++i) {
-      outputFile.push("Proxy.prototype." + ifaces[i].name + " = function(" 
+      if((ifaces[i].show == 'l' && remote) || (ifaces[i].show == 'r' && !remote))
+        continue;
+      outputFile.push(COMMENTS
+          + "Proxy.prototype." + ifaces[i].name + " = function(" 
           + ifaces[i].in.join(', ')
           + (ifaces[i].in.length == 0 ? "" : ", ") + "callback) {\n"
           + "  var l = arguments.length,\n"
@@ -222,7 +185,20 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + "};\n");
     }
     // add on/off interface
-    outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
+    outputFile.push("/**\n"
+        + " * @description\n"
+        + " *    add listener for ...\n"
+        + " * @param\n"
+        + " *    param1: event to listen -> String\n"
+        + " *    param2: a listener function -> Function\n"
+        + " *      @description\n"
+        + " *        a callback function called when events happened\n"
+        + " *      @param\n"
+        + " *        param1: description of this parameter -> type\n"
+        + " * @return\n"
+        + " *    itself of this instance\n"
+        + " */\n"
+        + "Proxy.prototype.on = function(event, handler) {\n"
         // send on request to remote peer
         + (remote ? ("  this._cd.on(event, handler);\n"
         + "  var argvs = {\n"
@@ -234,6 +210,19 @@ function buildProxy(filename, initObj, ifaces, remote) {
         + "  this._cd.send(this.ip, argvs);\n")
         : "  this._ipc.on(event, handler);\n")
         + "};\n\n"
+        + "/**\n"
+        + " * @description\n"
+        + " *    remove listener from ...\n"
+        + " * @param\n"
+        + " *    param1: event to listen -> String\n"
+        + " *    param2: a listener function -> Function\n"
+        + " *      @description\n"
+        + " *        a callback function called when events happened\n"
+        + " *      @param\n"
+        + " *        param1: description of this parameter -> type\n"
+        + " * @return\n"
+        + " *    itself of this instance\n"
+        + " */\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
         // send off request to remote peer
         + (remote ? ("  this._cd.off(event, handler);\n"

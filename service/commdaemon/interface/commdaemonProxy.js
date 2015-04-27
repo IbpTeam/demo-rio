@@ -3,102 +3,87 @@
 // TODO: please replace types with peramters' name you wanted of any functions
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
+var type = 'dbus', pf = process.platform;
+if(pf == 'linux') {
+  type = 'dbus';
+} else if(pf == 'win32') {
+} else if(pf == 'darwin') {
+}
+
 var initObj = {
-  "address": "nodejs.webde.mix",
-  "path": "/nodejs/webde/mix",
-  "name": "nodejs.webde.mix",
-  "type": "dbus",
+  "address": "nodejs.webde.commdaemon",
+  "path": "/nodejs/webde/commdaemon",
+  "name": "nodejs.webde.commdaemon",
+  "type": type,
   "service": false
 }
 
 function Proxy() {
   // TODO: please replace $IPC with the real path of ipc module in your project
-  this._ipc = require('../../../webde-rpc').getIPC(initObj);
+  this.ipc = require('webde-rpc').getIPC(initObj);
   this._token = 0;
 
   // TODO: choose to implement interfaces of ipc
   /* handle message send from service
-  this._ipc.onMsg = function(msg) {
+  this.ipc.onMsg = function(msg) {
     // TODO: your handler
   }*/
 
   /* handle the event emitted when connected succeffuly
-  this._ipc.onConnect = function() {
+  this.ipc.onConnect = function() {
     // TODO: your handler
   }*/
 
   /* handle the event emitted when connection has been closed
-  this._ipc.onClose = function() {
+  this.ipc.onClose = function() {
     // TODO: your handler
   }*/
 
   /* handle the event emitted when error occured
-  this._ipc.onError = function(err) {
+  this.ipc.onError = function(err) {
     // TODO: your handler
   }*/
 }
 
-Proxy.prototype.getHello = function(callback) {
+Proxy.prototype.send = function(String, Object, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
-  this._ipc.invoke({
+  this.ipc.invoke({
     token: this._token++,
-    name: 'getHello',
+    name: 'send',
     in: args,
     callback: callback
   });
 };
 
-Proxy.prototype.getHello2 = function(callback) {
+Proxy.prototype.register = function(String, String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
-  this._ipc.invoke({
+  this.ipc.invoke({
     token: this._token++,
-    name: 'getHello2',
+    name: 'register',
     in: args,
     callback: callback
   });
 };
 
-Proxy.prototype.getHello3 = function(callback) {
+Proxy.prototype.unregister = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
-  this._ipc.invoke({
+  this.ipc.invoke({
     token: this._token++,
-    name: 'getHello3',
-    in: args,
-    callback: callback
-  });
-};
-
-Proxy.prototype.openDev = function(callback) {
-  var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
-  this._ipc.invoke({
-    token: this._token++,
-    name: 'openDev',
-    in: args,
-    callback: callback
-  });
-};
-
-Proxy.prototype.isLocal = function(callback) {
-  var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
-  this._ipc.invoke({
-    token: this._token++,
-    name: 'isLocal',
+    name: 'unregister',
     in: args,
     callback: callback
   });
 };
 
 Proxy.prototype.on = function(event, handler) {
-  this._ipc.on(event, handler);
+  this.ipc.on(event, handler);
 };
 
 Proxy.prototype.off = function(event, handler) {
-  this._ipc.removeListener(event, handler);
+  this.ipc.removeListener(event, handler);
 };
 
 var proxy = null;
