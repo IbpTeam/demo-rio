@@ -61,120 +61,19 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *
  */
 function createData(items, callback) {
-  if (items == [] || items == "") {
-    return callback(null, 'no Documents');
-  }
-  if (typeof items == 'string') {
-    fs.stat(items, function(err, stat) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      var mtime = stat.mtime;
-      var ctime = stat.ctime;
-      var size = stat.size;
-      var cate = utils.getCategoryByPath(items);
-      var category = CATEGORY_NAME;
-      var itemFilename = cate.filename;
-      var itemPostfix = cate.postfix;
-      var someTags = tagsHandle.getTagsByPath(items);
-      var resourcesPath = config.RESOURCEPATH + '/' + category;
-      uniqueID.getFileUid(function(uri) {
-        var itemInfo = {
-          id: null,
-          URI: uri + "#" + category,
-          category: category,
-          others: someTags.join(","),
-          filename: itemFilename,
-          postfix: itemPostfix,
-          size: size,
-          path: items,
-          createTime: ctime,
-          lastModifyTime: mtime,
-          lastAccessTime: ctime,
-          createDev: config.uniqueID,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID
-        };
-        commonHandle.createData(itemInfo, function(result, resultFile) {
-          if (result === 'success') {
-            callback(null, resultFile);
-          } else {
-            var _err = 'createData: commonHandle createData error!';
-            console.log('createData error!');
-            callback(_err, null);
-          }
-        })
-      })
-    })
-  } else if (typeof items == 'object') {
-    if (!items.length) {
-      console.log('create data input error!');
-      var _err = 'createData: items should be an array!';
-      callback(_err, null);
-    } else {
-      var itemInfoAll = [];
-      var count = 0;
-      var lens = items.length;
-      for (var i = 0; i < lens; i++) {
-        var item = items[i];
-        (function(_item) {
-          fs.stat(_item, function(err, stat) {
-            if (err) {
-              console.log(err);
-              var _err = err;
-              callback(_err, null);
-            } else {
-              var mtime = stat.mtime;
-              var ctime = stat.ctime;
-              var size = stat.size;
-              var cate = utils.getCategoryByPath(_item);
-              var category = CATEGORY_NAME;
-              var itemFilename = cate.filename;
-              var itemPostfix = cate.postfix
-              var someTags = tagsHandle.getTagsByPath(_item);
-              var resourcesPath = config.RESOURCEPATH + '/' + category;
-              uniqueID.getFileUid(function(uri) {
-                var itemInfo = {
-                  id: null,
-                  URI: uri + "#" + category,
-                  category: category,
-                  others: someTags.join(","),
-                  filename: itemFilename,
-                  postfix: itemPostfix,
-                  size: size,
-                  path: _item,
-                  createTime: ctime,
-                  lastModifyTime: mtime,
-                  lastAccessTime: ctime,
-                  createDev: config.uniqueID,
-                  lastModifyDev: config.uniqueID,
-                  lastAccessDev: config.uniqueID
-                };
-                itemInfoAll.push(itemInfo);
-                var isEnd = (count === lens - 1);
-                if (isEnd) {
-                  commonHandle.createDataAll(itemInfoAll, function(err, result) {
-                    if (err) {
-                      var _err = 'createData: commonHandle createData all error!';
-                      console.log('createData error!');
-                      return callback(_err, null);
-                    }
-                    callback(null, result);
-                  })
-                }
-                count++;
-              })
-            }
-          })
-        })(item)
-      }
+  commonHandle.dataStore(items, extraInfo, function(err) {
+    if (err) {
+      return callback(err);
     }
-  } else {
-    console.log('input error: items is undefined!');
-    var _err = 'createData: input error';
-    callback(_err, null);
+    callback();
+  })
+}
+exports.createData = createData;
+
+function extraInfo(category, callback) {
+  var _extra = {
   }
+  callback(null, _extra);
 }
 exports.createData = createData;
 
