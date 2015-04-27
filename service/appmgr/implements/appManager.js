@@ -334,18 +334,22 @@ AppMgr.prototype._createWindow = function(appInfo_) {
 
 AppMgr.prototype.startApp = function(appInfo_, params_, callback_) {
   var cb_ = callback_ || function() {},
-      p_ = params_ || null;
+      p_ = params_ || null,
+      cmd_ = 'nw ' + appInfo_.path;
   try {
     // TODO: only App in a web browser
-    var win = this._createWindow(appInfo_);
+    // var win = this._createWindow(appInfo_);
     // if this app is genarate from a URL, do something
-    if(appInfo_.url) {
-      win.appendHtml(appInfo_.main);
-    } else {
-      win.appendHtml(path.join(appInfo_.path, appInfo_.main)
-        + '?id=' + appInfo_.id + (p_ === null ? "" : ("&" + p_)));
-    }
-    cb_(null, win);
+    // if(appInfo_.url) {
+      // win.appendHtml(appInfo_.main);
+    // } else {
+      // win.appendHtml(path.join(appInfo_.path, appInfo_.main)
+        // + '?id=' + appInfo_.id + (p_ === null ? "" : ("&" + p_)));
+    // }
+    exec(cmd_, function(err, stdout, stderr) {
+      if(err) return cb_(err);
+      return cb_(null);
+    })
   } catch(e) {
     return cb_(e);
   }
@@ -471,7 +475,10 @@ AppMgr.prototype._generateOnlineApp = function(url_, callback_) {
       dst_ = config.APP_DATA_PATH[0] + '/' + url.hostname,
       self = this;
   fs.mkdir(dst_, function(err_) {
-    if(err_) return console.log(err_);
+    if(err_) {
+      cb_(err_);
+      return console.log(err_);
+    }
     var imgDir = dst_ + '/img',
         iconName = 'favicon.ico',
         pJson = {
@@ -490,7 +497,10 @@ AppMgr.prototype._generateOnlineApp = function(url_, callback_) {
     });
     // generate the icon of this app
     fs.mkdir(imgDir, function(err_) {
-      if(err_) return console.log(err_);
+      if(err_) {
+        cb_(err_);
+        return console.log(err_);
+      }
       self._extractIconFromURL(url, imgDir + '/' + iconName, function(err_) {
         if(err_) {
           // cp a defualt icon to this img dir
@@ -515,7 +525,7 @@ AppMgr.prototype.generateAppByURL = function(url_, option_, callback_) {
       }
     }
   ], function(err_, rets_) {
-    if(err_) cb_(err_);
+    if(err_) return cb_(err_);
     var path = rets_[0],
         id = path.match(/[^\/]*$/)[0].replace(/[\.:]/g, '-');
     self.registerApp({

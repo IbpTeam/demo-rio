@@ -15,6 +15,9 @@ function doInstall(pkg) {
       return console.log(pkg, 'is not Found!!');
     }
     json4line.readJSONFile(pkg + '/package.json', function(err, data) {
+      if(err) {
+        return console.log(err);
+      }
       // console.log(data);
       var pkgName = data.name,
           pkgEntrance = path.resolve(pkg),
