@@ -26,7 +26,7 @@ var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
-var tagsHandles = require("./tagsHandle");
+var tagsHandle = require("./tagsHandle");
 var utils = require("../utils")
 var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
@@ -130,6 +130,86 @@ function addTriples(triples, callback) {
     })
   })
 }
+
+function baseInfo(itemPath, callback) {
+  fs.stat(itemPath, function(err, stat) {
+    if (err) {
+      return callback(err);
+    }
+    var _mtime = stat.mtime;
+    var _ctime = stat.ctime;
+    var _size = stat.size;
+    var _cate = utils.getCategoryByPath(itemPath);
+    var _category = _cate.category;
+    var _filename = _cate.filename;
+    var _postfix = _cate.postfix;
+    var _tags = tagsHandle.getTagsByPath(itemPath);
+    uniqueID.getFileUid(function(_uri) {
+      var _base = {
+        URI: _uri,
+        createTime: _ctime,
+        lastModifyTime: _mtime,
+        lastAccessTime: _ctime,
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID,
+        createDev: config.uniqueID,
+        filename: _filename,
+        postfix: _postfix,
+        category: _category,
+        size: _size,
+        path: itemPath,
+        tags: _tags
+      }
+      return callback(null, _base);
+    })
+  })
+}
+exports.baseInfo = baseInfo;
+
+function dataStore(items, extraCallback, callback){
+    if (items.length == 0) {
+    return callback();
+  } else if (!items.length) {
+    var items = [items];
+  }
+  var _file_info = [];
+  for (var i = 0; i < items.length; i++) {
+    var _isEnd = (i == (items.length - 1));
+    var _item = items[i];
+
+    function doCreate(isEnd, item, callback) {
+      baseInfo(item, function(err, _base) {
+        if (err) {
+          return callback(err);
+        }
+        extraCallback(_item, function(err, result) {
+          var item_info = {
+            subject: 'http://example.org/category/' + _base.URI + '#' + _base.filename,
+            base: _base,
+            extra: result
+          }
+          _file_info.push(item_info);
+          if (isEnd) {
+            createData(_file_info, function(err) {
+              if (err) {
+                return callback(err);
+              }
+              callback();
+            })
+          }
+        })
+      })
+    }
+    doCreate(_isEnd, _item, function(err) {
+      if (err) {
+        return callback(err)
+      }
+      return callback();
+    });
+  }
+}
+exports.dataStore = dataStore; 
 
 
 /**

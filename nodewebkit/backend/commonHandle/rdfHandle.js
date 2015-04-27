@@ -1,4 +1,5 @@
 var fs_extra = require('fs-extra');
+var fs = require('fs');
 var config = require('../config');
 var levelgraph = require('levelgraph');
 
@@ -275,3 +276,5 @@ function tripleGenerator(info, callback) {
   callback(null, _triples);
 }
 exports.tripleGenerator = tripleGenerator;
+
+

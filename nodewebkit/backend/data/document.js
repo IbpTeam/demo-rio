@@ -71,121 +71,21 @@ var watchFilesNum=0;
  *
  */
 function createData(items, callback) {
-  if (!items.length) {
-    var items = [items];
-  }
-  var _file_info = [];
-  for (var i = 0; i < items.length; i++) {
-    var _isEnd = (i == (items.length - 1));
-    var _item = items[i];
-
-    function doCreate(isEnd, item, callback) {
-      fs.stat(item, function(err, stat) {
-        if (err) {
-          return callback(err);
-        }
-        var _mtime = stat.mtime;
-        var _ctime = stat.ctime;
-        var _size = stat.size;
-        var _cate = utils.getCategoryByPath(item);
-        var _category = CATEGORY_NAME;
-        var _filename = _cate.filename;
-        var _postfix = _cate.postfix
-        var _tags = tagsHandle.getTagsByPath(item);
-        uniqueID.getFileUid(function(_uri) {
-          var item_info = {
-            subject: 'http://example.org/category/document#' + _filename,
-            base: {
-              URI: _uri,
-              createTime: _ctime,
-              lastModifyTime: _mtime,
-              lastAccessTime: _ctime,
-              createDev: config.uniqueID,
-              lastModifyDev: config.uniqueID,
-              lastAccessDev: config.uniqueID,
-              createDev: config.uniqueID,
-              filename: _filename,
-              postfix: _postfix,
-              category: "document",
-              size: _size,
-              path: item,
-              tags: _tags
-            },
-            extra: {
-              project: '上海专项',
-            }
-          }
-          _file_info.push(item_info);
-          if (isEnd) {
-            commonHandle.createData(_file_info, function(err) {
-              if (err) {
-                return callback(err);
-              }
-              callback();
-            })
-          }
-        })
-      })
-    }
-    doCreate(_isEnd, _item, function(err) {
-      if (err) {
-        return callback(err)
-      }
-      return callback();
-    });
-  }
-}
-exports.createData = createData;
-
-function doCreate(isEnd, item, file_info, callback) {
-  fs.stat(item, function(err, stat) {
+  commonHandle.dataStore(items, extraInfo, function(err) {
     if (err) {
       return callback(err);
     }
-    var _mtime = stat.mtime;
-    var _ctime = stat.ctime;
-    var _size = stat.size;
-    var _cate = utils.getCategoryByPath(item);
-    var _category = CATEGORY_NAME;
-    var _filename = _cate.filename;
-    var _postfix = _cate.postfix
-    var _tags = tagsHandle.getTagsByPath(item);
-    uniqueID.getFileUid(function(_uri) {
-      var item_info = {
-        subject: 'http://example.org/category/document#' + _filename,
-        base: {
-          URI: _uri,
-          createTime: _ctime,
-          lastModifyTime: _mtime,
-          lastAccessTime: _ctime,
-          createDev: config.uniqueID,
-          lastModifyDev: config.uniqueID,
-          lastAccessDev: config.uniqueID,
-          createDev: config.uniqueID,
-          filename: _filename,
-          postfix: _postfix,
-          category: "document",
-          size: _size,
-          path: item,
-          tags: _tags
-        },
-        extra: {
-          project: '上海专项',
-        }
-      }
-      file_info.push(item_info);
-      if (isEnd) {
-        commonHandle.createData_RDF(file_info, function(err) {
-          if (err) {
-            return callback(err);
-          }
-          callback();
-        })
-      }
-    })
+    callback();
   })
 }
+exports.createData = createData;
 
+function extraInfo(category, callback) {
+  var _extra = {
+    project: '上海专项',
+  }
+  callback(null, _extra);
+}
 
 /**
  * @method removeDocumentByUri
