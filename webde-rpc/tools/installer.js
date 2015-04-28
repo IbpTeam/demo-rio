@@ -18,7 +18,6 @@ function doInstall(pkg) {
       if(err) {
         return console.log(err);
       }
-      // console.log(data);
       var pkgName = data.name,
           pkgEntrance = path.resolve(pkg),
           content = pkgName + ' ' + pkgEntrance + '\n';
