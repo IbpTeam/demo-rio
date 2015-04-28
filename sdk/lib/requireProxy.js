@@ -1,13 +1,14 @@
 var util = require('util');
 var net = require('net');
 var fs = require('fs');
+var config = require('../../config');
 // RPC API lib.
 console.log("head of requireProxy.js.");
 
 var debug = true;
 
-var LOCALPATH = "/usr/local/share/webde/proxy/";
-var USERPATH = process.env.HOME + "/.local/share/webde/proxy/";
+var LOCALPATH = config.proxyLocalPath;
+var USERPATH = config.proxyUerPath;
 
 /* requireProxy takes 2 or 3 parameters, if you want to call a local service ,
     take 2 parameters as follows:
