@@ -38,12 +38,14 @@ exports.requireProxy = function() {
         apiArr[i] = require('../../service/' + arguments[0][i] + '/interface/' + arguments[0][i] + 'Proxy').getProxy();
       }
     } else {
-      if (fs.existsSync(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy.js')) {
-        apiArr[i] = require(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy').getProxy();
-      } else if (fs.existsSync(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy.js')) {
-        apiArr[i] = require(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy').getProxy();
-      } else {
-        console.log("Error : service proxy not found");
+      for (i = 0; i < arguments[0].length; i += 1) {
+        if (fs.existsSync(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy.js')) {
+          apiArr[i] = require(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy').getProxy();
+        } else if (fs.existsSync(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy.js')) {
+          apiArr[i] = require(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy').getProxy();
+        } else {
+          console.log("Error : service proxy not found");
+        }
       }
     }
     setTimeout(function() {
@@ -64,12 +66,14 @@ exports.requireProxy = function() {
         apiArr[i] = require('../../service/' + arguments[0][i] + '/interface/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
       }
     } else {
-      if (fs.existsSync(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js')) {
-        apiArr[i] = require(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
-      } else if (fs.existsSync(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js')) {
-        apiArr[i] = require(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
-      } else {
-        console.log("Error : service proxy not found");
+      for (i = 0; i < arguments[0].length; i += 1) {
+        if (fs.existsSync(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js')) {
+          apiArr[i] = require(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
+        } else if (fs.existsSync(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js')) {
+          apiArr[i] = require(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
+        } else {
+          console.log("Error : service proxy not found");
+        }
       }
     }
     setTimeout(function() {
