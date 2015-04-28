@@ -5,7 +5,6 @@ The cross device communication is depend on a deamon process called commdaemon w
 To implement ipc your own, you should realize interfaces called invoke and notify of IPC at least just like ipc-dbus.js done.
 
 Interface definition:
-```javascript
 {
   package: package's name [optional] -> String
   service: service's name -> String
@@ -19,7 +18,6 @@ Interface definition:
     } -> Object
   ] -> Array
 }
-```
 
 When finish define your interface, use generator.js under tools to get correponding Proxy and Stub.
 e.g. nodejs generator.js $your_interface_file
