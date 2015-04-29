@@ -1,13 +1,14 @@
 var util = require('util');
 var net = require('net');
 var fs = require('fs');
+var config = require('../../config');
 // RPC API lib.
 console.log("head of requireProxy.js.");
 
-var debug = true;
+var debug = false;
 
-var LOCALPATH = "/usr/local/share/webde/proxy/";
-var USERPATH = process.env.HOME + "/.local/share/webde/proxy/";
+var LOCALPATH = config.proxyLocalPath;
+var USERPATH = config.proxyUerPath;
 
 /* requireProxy takes 2 or 3 parameters, if you want to call a local service ,
     take 2 parameters as follows:
@@ -39,10 +40,12 @@ exports.requireProxy = function() {
       }
     } else {
       for (i = 0; i < arguments[0].length; i += 1) {
-        if (fs.existsSync(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy.js')) {
-          apiArr[i] = require(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy').getProxy();
-        } else if (fs.existsSync(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy.js')) {
-          apiArr[i] = require(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'proxy').getProxy();
+        var usrPath = USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'Proxy.js',
+            localPath = LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'Proxy.js';
+        if (fs.existsSync(usrPath)) {
+          apiArr[i] = require(usrPath).getProxy();
+        } else if (localPath) {
+          apiArr[i] = require(localPath).getProxy();
         } else {
           console.log("Error : service proxy not found");
         }
@@ -67,10 +70,12 @@ exports.requireProxy = function() {
       }
     } else {
       for (i = 0; i < arguments[0].length; i += 1) {
-        if (fs.existsSync(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js')) {
-          apiArr[i] = require(USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
-        } else if (fs.existsSync(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js')) {
-          apiArr[i] = require(LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
+        var userPath = USERPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js',
+            localPath = LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'ProxyRemote.js';
+        if (fs.existsSync(userPath)) {
+          apiArr[i] = require(userPath).getProxy(arguments[1]);
+        } else if (fs.existsSync(localPath)) {
+          apiArr[i] = require(localPath).getProxy(arguments[1]);
         } else {
           console.log("Error : service proxy not found");
         }

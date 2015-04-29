@@ -105,15 +105,17 @@ function parallel(fnArr_, callback_) {
   }
   var cb_ = callback_ || function() {},
       toComplete = fnArr_.length,
+      erred = false,
       rets = [];
   var doParallel = function(parallellor_) {
     for(var i = 0; i < fnArr_.length; ++i) {
       parallellor_(fnArr_[i], i, function(err_) {
         if(err_) {
+          erred = true;
           callback_(err_);
         } else {
           toComplete--;
-          if(toComplete == 0) {
+          if(toComplete == 0 && !erred) {
             cb_(null, rets);
           }
         }
