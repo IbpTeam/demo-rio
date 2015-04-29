@@ -44,7 +44,7 @@ exports.requireProxy = function() {
             localPath = LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'Proxy.js';
         if (fs.existsSync(usrPath)) {
           apiArr[i] = require(usrPath).getProxy();
-        } else if (localPath) {
+        } else if (fs.existsSync(localPath)) {
           apiArr[i] = require(localPath).getProxy();
         } else {
           console.log("Error : service proxy not found");

@@ -1,0 +1,15 @@
+{
+  "service": "httpserver",
+  "interfaces": [
+    {
+      "name": "restart",
+      "in": ["String"],
+      "show": "l"
+    },
+    {
+      "name": "stop",
+      "in": [],
+      "show": "l"
+    }
+  ]
+}
