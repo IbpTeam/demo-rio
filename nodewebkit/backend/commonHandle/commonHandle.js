@@ -167,21 +167,23 @@ function baseInfo(itemPath, callback) {
 }
 exports.baseInfo = baseInfo;
 
-function dataStore(items, extraCallback, callback){
-    if (items.length == 0) {
+function dataStore(items, extraCallback, callback) {
+  if (items.length == 0) {
     return callback();
   } else if (!items.length) {
     var items = [items];
   }
   var _file_info = [];
-  for (var i = 0; i < items.length; i++) {
-    var _isEnd = (i == (items.length - 1));
-    var _item = items[i];
 
-    function doCreate(isEnd, item, callback) {
-      baseInfo(item, function(err, _base) {
+  function doCreate(isEnd, item, callback) {
+    baseInfo(item, function(err, _base) {
+      if (err) {
+        return callback(err);
+      }
+      var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+      fs_extra.copy(item, _newPath, function(err) {
         if (err) {
-          return callback(err);
+          console.log(err);
         }
         extraCallback(_item, function(err, result) {
           var item_info = {
@@ -200,7 +202,11 @@ function dataStore(items, extraCallback, callback){
           }
         })
       })
-    }
+    })
+  }
+  for (var i = 0; i < items.length; i++) {
+    var _isEnd = (i == (items.length - 1));
+    var _item = items[i];
     doCreate(_isEnd, _item, function(err) {
       if (err) {
         return callback(err)
@@ -209,7 +215,7 @@ function dataStore(items, extraCallback, callback){
     });
   }
 }
-exports.dataStore = dataStore; 
+exports.dataStore = dataStore;
 
 
 /**
