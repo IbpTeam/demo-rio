@@ -33,8 +33,17 @@ function doInstall(pkg) {
       {
         fn: function(pera_, callback_) {
           // remove old links
-          fs.rmdir(config.proxyUerPath + pkgName, function(err) {
-            callback_(null);
+          var prPath = config.proxyUerPath + pkgName;
+          fs.readdir(prPath, function(err, files) {
+            flowctl.parallel1(files, function(pera_, cb_) {
+              fs.unlink(prPath + '/' + pera_, function(err) {
+                if(err) return cb_(err);
+                cb_(null);
+              });
+            }, function(err, rets) {
+              if(err) return callback_(err);
+              callback_(null);
+            });
           });
         }
       },
