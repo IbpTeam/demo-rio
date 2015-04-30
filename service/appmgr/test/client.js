@@ -29,8 +29,23 @@ requireProxy(['appmgr'], function(appmgr) {
     console.log('unregister: OK');
   });
 
-  appmgr.getRegisteredAppInfo('flash-app', function(ret) {
+  appmgr.getRegisteredAppInfo('datamgr-app', function(ret) {
     if(ret.err) return console.log('getRegisteredAppInfo error:', ret.err);
     console.log('getRegisteredAppInfo:', ret.ret);
+    appmgr.startApp(ret.ret, {}, function(ret) {
+      if(ret.err) return console.log('startApp error:', ret.err);
+      console.log('startApp OK');
+    });
   });
-})
+
+  appmgr.generateAppByURL('http://www.baidu.com/', {}, function(ret) {
+    if(ret.err) return console.log('generateAppByURL error:', ret.err);
+    console.log('generateAppByURL:', ret.ret);
+  });
+
+  appmgr.sendKeyToApp('IPC.ppt', 'F5', function(ret) {
+    if(ret.err) return console.log('sendKeyToApp error:', ret.err);
+    console.log('sendKeyToApp OK');
+  })
+});
+
