@@ -29,7 +29,7 @@ HTTPServer.prototype.close = function(callback) {
 HTTPServer.prototype._onRequest = function(request, response) {
   var postData = "",
       pathname = decodeURIComponent(url.parse(request.url).pathname),
-      self = this;
+      self = httpServer;
 
   config.riolog("Request for " + pathname + " received.");
   request.setEncoding("utf8");
@@ -94,7 +94,7 @@ exports.setStub = function(stub_) {
 exports.start = function(callback) {
   var cb = callback || function() {};
   if(httpServer == null) {
-    httpServer = new HTTPServer();
+    httpServer = new HTTPServer(router);
     stub.notify('start');
     cb(null);
   }
@@ -103,7 +103,7 @@ exports.start = function(callback) {
 
 exports.stop = function(callback) {
   var cb = callback || function() {};
-  if(httpServer == null) cb('Server has not started');
+  if(httpServer == null) return cb('Server has not started');
   httpServer.close(function() {
     httpServer = null;
     stub.notify('stop');
