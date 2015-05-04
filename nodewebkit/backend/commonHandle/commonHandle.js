@@ -381,29 +381,49 @@ exports.removeFile = function(category, item, callback) {
         utils.getDesRepoDir(category), [path.join(utils.getRealDir(category), sFullName)], [path.join(utils.getDesDir(category), sDesFullName)],
         callback);
     });
+
   });
 };
 
 exports.getAllCate = function(getAllCateCb) {
-  function getCategoriesCb(err, items) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('x'),
+    predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+    object: 'http://example.org/category#base'
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      throw err;
     }
-    var cates = new Array();
-    items.forEach(function(each) {
-      cates.push({
-        URI: each.id,
-        version: each.version,
-        type: each.type,
-        path: each.logoPath,
-        desc: each.desc
-      });
-    });
-    getAllCateCb(cates);
-  }
-  commonDAO.findItems(null, "category", null, null, getCategoriesCb);
+    _db.close(function() {
+      getAllCateCb(result);
+    })
+  });
 }
+
+
+// exports.getAllCate = function(getAllCateCb) {
+//   function getCategoriesCb(err, items) {
+//     if (err) {
+//       console.log(err);
+//       return;
+//     }
+//     var cates = new Array();
+//     items.forEach(function(each) {
+//       cates.push({
+//         URI: each.id,
+//         version: each.version,
+//         type: each.type,
+//         path: each.logoPath,
+//         desc: each.desc
+//       });
+//     });
+//     getAllCateCb(cates);
+//   }
+//   commonDAO.findItems(null, "category", null, null, getCategoriesCb);
+// }
+
 
 exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
@@ -435,6 +455,38 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   }
   commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
 }
+
+
+// exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
+//   console.log("Request handler 'getAllDataByCate' was called.");
+
+//   function getAllByCaterotyCb(err, items) {
+//     if (err) {
+//       console.log(err);
+//       return;
+//     }
+//     var cates = new Array();
+//     items.forEach(function(each) {
+//       cates.push({
+//         URI: each.URI,
+//         version: each.version,
+//         filename: each.filename,
+//         postfix: each.postfix,
+//         path: each.path
+//       });
+//     });
+//     getAllDataByCateCb(cates);
+//   }
+
+//   function getAllDevicesCb(err, items) {
+//     if (err) {
+//       console.log(err);
+//       return;
+//     }
+//     getAllDataByCateCb(items);
+//   }
+//   commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
+// }
 
 /** 
  * @Method: repoReset
