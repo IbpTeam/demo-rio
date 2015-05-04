@@ -132,6 +132,8 @@ function parallel(fnArr_, callback_) {
 exports.parallel = parallel;
 
 function parallel1(peraArr_, fn_, callback_) {
+  if(typeof peraArr_ === 'undefined' || typeof fn_ === 'undefined')
+    throw "arguments[0] or arguments[1] can't be undefined";
   var fnArr = [];
   for(var i = 0; i < peraArr_.length; ++i) {
     fnArr[i] = {
