@@ -2,12 +2,17 @@
   "service": "httpserver",
   "interfaces": [
     {
-      "name": "restart",
-      "in": ["String"],
+      "name": "start",
+      "in": [],
       "show": "l"
     },
     {
       "name": "stop",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "restart",
       "in": [],
       "show": "l"
     }

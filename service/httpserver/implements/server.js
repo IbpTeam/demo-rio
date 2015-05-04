@@ -16,7 +16,14 @@ function HTTPServer(router) {
   this._router = router;
   this._proxy = {};
 
-  this._start({});
+  this._start();
+}
+
+HTTPServer.prototype.close = function(callback) {
+  var cb = callback || function() {};
+  // needed?
+  // this._wsServer.close();
+  this._server.close(cb);
 }
   
 HTTPServer.prototype._onRequest = function(request, response) {
@@ -29,7 +36,7 @@ HTTPServer.prototype._onRequest = function(request, response) {
 
   request.on("data", function(postDataChunk) {
     postData += postDataChunk;
-    config.riolog("Received POST data chunk '"+ postDataChunk + "'.");
+    config.riolog("Received POST data chunk '" + postDataChunk + "'.");
   }).on("end", function() {
     self._router.route(self._proxy, pathname, response, postData);
   });
@@ -77,10 +84,30 @@ HTTPServer.prototype._start = function() {
   config.riolog("Server has started.");
 }
 
-var httpServer = null;
-exports.start = function() {
+var httpServer = null,
+    stub = null;
+exports.setStub = function(stub_) {
+  if(typeof stub_ !== 'undefined')
+    stub = stub_;
+};
+
+exports.start = function(callback) {
+  var cb = callback || function() {};
   if(httpServer == null) {
     httpServer = new HTTPServer();
+    stub.notify('start');
+    cb(null);
   }
+  cb('Server already started');
+};
+
+exports.stop = function(callback) {
+  var cb = callback || function() {};
+  if(httpServer == null) cb('Server has not started');
+  httpServer.close(function() {
+    httpServer = null;
+    stub.notify('stop');
+    cb(null);
+  });
 };
 
