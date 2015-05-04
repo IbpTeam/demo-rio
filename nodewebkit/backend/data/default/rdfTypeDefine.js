@@ -18,6 +18,22 @@ var _base = [{
   predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
   object: 'http://www.w3.org/2000/01/rdf-schema#Class'
 }, {
+  subject: 'http://example.org/property/base#URI',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#URI',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
+  subject: 'http://example.org/property/base#category',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#category',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
   subject: 'http://example.org/property/base#createTime',
   predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
   object: 'http://www.w3.org/2000/01/rdf-schema#Property'
@@ -63,6 +79,46 @@ var _base = [{
   object: 'http://www.w3.org/2000/01/rdf-schema#Property'
 }, {
   subject: 'http://example.org/property/base#lastAccessDev',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
+  subject: 'http://example.org/property/base#filename',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#filename',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
+  subject: 'http://example.org/property/base#postfix',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#postfix',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
+  subject: 'http://example.org/property/base#size',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#size',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
+  subject: 'http://example.org/property/base#path',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#path',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#base'
+}, {
+  subject: 'http://example.org/property/base#tags',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/base#tags',
   predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
   object: 'http://example.org/category#base'
 }];

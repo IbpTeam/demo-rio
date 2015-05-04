@@ -14,6 +14,8 @@ var fs_extra = require('fs-extra');
 var fs = require('fs');
 var config = require('../config');
 var levelgraph = require('levelgraph');
+var utils = require('../utils');
+
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 
 /**
@@ -166,7 +168,9 @@ function dbSearch(db, query, callback) {
     if (err) {
       return callback(err)
     }
-    callback(null, results);
+    db.close(function() {
+      callback(null, results);
+    })
   });
 }
 exports.dbSearch = dbSearch;
@@ -208,11 +212,16 @@ exports.dbSearch = dbSearch;
  *
  */
 function tripleGenerator(info, callback) {
-  var _triples = [];
   var _namespace_subject = 'http://example.org/category/';
   var _namespace_predicate = 'http://example.org/property/';
+  var _triples = [];
   try {
     var _base = info.base;
+    _triples.push({
+      subject: _namespace_subject + _base.category + '#' + info.subject,
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: 'http://example.org/category#' + _base.category
+    });
     for (var entry in _base) {
       var _triple_base = {
         subject: _namespace_subject + _base.category + '#' + info.subject,
@@ -243,3 +252,37 @@ function tripleGenerator(info, callback) {
   callback(null, _triples);
 }
 exports.tripleGenerator = tripleGenerator;
+
+/**
+ * @method decodeTripeles
+ *   translate triples into info object,just a backward process of methond tripleGener-
+ *    ator
+ *
+ * @param1 triples
+ *      object, the seach result of leveldb.
+ *
+ * @param1 callback
+ *   @err
+ *      error，return 'null' if sucess;otherwise return err
+ *
+ */
+function decodeTripeles(triples, callback) {
+  var info = {};
+  try {
+    for (var i = 0, l = triples.length; i < l; i++) {
+      var item = triples[i];
+      var title = utils.getTitle(item.predicate)
+      if (info.hasOwnProperty(item.subject)) {
+        (info[item.subject])[title] = item.object;
+      } else {
+        var itemInfo = {};
+        itemInfo[title] = item.object;
+        info[item.subject] = itemInfo;
+      }
+    }
+  } catch (err) {
+    return callback(err);
+  }
+  return callback(null, info);
+}
+exports.decodeTripeles = decodeTripeles;
