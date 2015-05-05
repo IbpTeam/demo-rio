@@ -352,8 +352,7 @@ exports.rmDataByUri = rmDataByUri;
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
   console.log("Request handler 'getDataByUri' was called.");
-  var cate = utils.getCategoryObjectByUri(uri);
-  cate.getByUri(uri, getDataByUriCb);
+  commonHandle.getItemByUri(null, uri, getDataByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 

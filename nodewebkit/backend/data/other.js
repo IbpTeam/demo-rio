@@ -102,19 +102,6 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
-/**
- * @method getByUri
- *    Get document info in db.
- * @param uri
- *    The document's URI.
- * @param callback
- *    Callback
- */
-function getByUri(uri, callback) {
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
-}
-exports.getByUri = getByUri;
-
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：
 //result{

@@ -229,18 +229,6 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
-/**
- * @method getByUri
- *    Get Video info in db.
- * @param uri
- *    The Video's URI.
- * @param callback
- *    Callback
- */
-function getByUri(uri, callback) {
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
-}
-exports.getByUri = getByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
