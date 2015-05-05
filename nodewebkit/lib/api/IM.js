@@ -314,7 +314,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
   var accSetItem = {};
   var ipset = {};
   var countFlag = 0;
-  var msgRst={};
+  var msgRst = undefined; //msgRst初始值为undefined;发送消息收到应到之后，msgRst=msg（收到应答后返回此次发送的消息内容）;发送消息未收到应到时，msgRst=msg（undefined）。该发送消息方法的回调函数会返回发送消息返回结果msgRst
   var len = Object.keys(MsgObj.toAccList).length;
   for (var accSetItemKey in MsgObj.toAccList) {
     accSetItem = MsgObj.toAccList[accSetItemKey];
@@ -334,11 +334,27 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
             'SessionID':wsID
           });
         }
+        return;
       }
-      continue;
     } else {
-      if (!net.isIP(accSetItem.toIP)) {
-        console.log('Input IP Format Error!:::', accSetItem.toIP);
+      if (accSetItem===undefined||!net.isIP(accSetItem.toIP)) {
+        console.log('Input IP Format Error!:::', accSetItem===undefined?'undefined':accSetItem.toIP);
+        if ((++countFlag) === len) {
+          SentCallBack(msgRst);
+          if(flag&&msgRst!==undefined){
+            msgRst['destInfo']={'Account':MsgObj.Account,'UID':MsgObj.UID,'IP':MsgObj.IP};
+            if(msgRst.MsgObj===undefined){
+              msgRst['MsgObj']={'message':MsgObj.Msg,'from':MsgObj.Account,'uuid':MsgObj.localUID};
+            }
+            router.wsNotify({
+              'Action': 'notify',
+              'Event': 'imChat',
+              'Data': msgRst,
+              'SessionID':wsID
+            });
+          }
+          return;
+        }
       } else {
         ipset["IP"] = accSetItem.toIP;
         ipset["UID"] = accSetItem.toUID;
@@ -357,6 +373,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
                   'SessionID':wsID
                 });
               }    
+              return;
             }
           });
         } else {
@@ -374,6 +391,7 @@ function sendAppMsgByAccount(SentCallBack, MsgObj,wsID,flag) {
                   'SessionID':wsID
                 });
               }
+              return;
             }
           });
         }

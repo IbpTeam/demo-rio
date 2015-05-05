@@ -1,0 +1,86 @@
+#English version for desktop
+{
+  "launcher": "Launcher",
+  "dock": "Dock",
+
+  #Context menu
+  #Desktop menu
+  "c_txt": "Create Document",
+  "script": "Script",
+  "terminal": "Terminal",
+  "gedit": "Gedit",
+  "resize": "Desktop Resize",
+  "refresh": "Refresh",
+  "window": "Window",
+  "add-plugin": "Add Plugin",
+  "clock": "Clock",
+  "messenger_set": "Messenger Set",
+  "position": "Position",
+  "left-bottom": "Left-bottom",
+  "left-top": "Left-top",
+  "top": "Top",
+  "right-top": "Right-top",
+  "right-bottom": "Right-bottom",
+  "bottom": "Bottom",
+  "max_messages": "Max Messages",
+  "switch_motion": "Switch Motion",
+
+  #Plugin menu
+  "zoom_in": "Zoom in",
+  "zoom_out": "Zoom out",
+  "remove": "Remove",
+  "show_clock": "Show Clock",
+
+  #Entry menu
+  "run": "Run",
+  "open": "Open",
+  "open_with": "Open with...",
+  "close": "Close",
+  "rename": "Rename",
+  "delete": "Delete",
+  "property": "Property",
+  "move2trash": "Move to trash",
+  "delete_warnning": "Are you sure to delete this file permanently?",
+  "sure": "Sure",
+  "cancel": "Cancel",
+  "success": "success",
+  "fail": "fail",
+  "space": " ",
+
+  #Launcher menu
+  "add2desktop": "Add to Desktop",
+  "add2dock": "Add to Dock",
+
+  #Dock menu
+  "add_reflect": "Add reflect",
+  "remove_reflect": "Remove reflect",
+
+  #Launcher entry
+  "All": "All",
+  "AudioVideo": "AudioVideo",
+  "Audio": "AudioVideo",
+  "Video": "AudioVideo",
+  "Development": "Development",
+  "Education": "Education",
+  "Game": "Game",
+  "Graphics": "Graphics",
+  "Network": "Network",
+  "Office": "Office",
+  "Science": "Science",
+  "Settings": "Settings",
+  "System": "System",
+  "Utility": "Utility",
+  "Other": "Other",
+
+  #Login dialog
+  "account": "Account",
+  "passwd": "Password",
+  "sure_passwd": "Confirm Password",
+  "register": "Register",
+  "login": "Login",
+  "logout": "Logout",
+  "logging": "Logging now, please wait...",
+  "commit": "Commit",
+  "logout_warnning": "Are you sure to logout?",
+  "search": "Search"
+}
