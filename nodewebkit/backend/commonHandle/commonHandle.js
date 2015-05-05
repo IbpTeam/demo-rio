@@ -443,37 +443,6 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   });
 }
 
-// exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
-//   console.log("Request handler 'getAllDataByCate' was called.");
-
-//   function getAllByCaterotyCb(err, items) {
-//     if (err) {
-//       console.log(err);
-//       return;
-//     }
-//     var cates = new Array();
-//     items.forEach(function(each) {
-//       cates.push({
-//         URI: each.URI,
-//         version: each.version,
-//         filename: each.filename,
-//         postfix: each.postfix,
-//         path: each.path
-//       });
-//     });
-//     getAllDataByCateCb(cates);
-//   }
-
-//   function getAllDevicesCb(err, items) {
-//     if (err) {
-//       console.log(err);
-//       return;
-//     }
-//     getAllDataByCateCb(items);
-//   }
-//   commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
-// }
-
 /** 
  * @Method: repoReset
  *    To reset git repo to a history commit version. This action would also res-
