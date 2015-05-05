@@ -1,0 +1,18 @@
+{
+  "author": "wangbo",
+  "name": "data",
+  "description": "data api in RPC",
+  "version": "0.1.0",
+  "repository": {
+    "url": ""
+  },
+  "main": "start.js",
+  "dependencies": {
+    "webde-rpc": "../webde-rpc"
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": ">= 0.8.0"
+  }
+}
