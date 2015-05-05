@@ -5,7 +5,7 @@ var config = require('../../config');
 // RPC API lib.
 console.log("head of requireProxy.js.");
 
-var debug = false;
+var debug = true;
 
 var LOCALPATH = config.proxyLocalPath;
 var USERPATH = config.proxyUerPath;
@@ -44,7 +44,7 @@ exports.requireProxy = function() {
             localPath = LOCALPATH + '/' + arguments[0][i] + '/' + arguments[0][i] + 'Proxy.js';
         if (fs.existsSync(usrPath)) {
           apiArr[i] = require(usrPath).getProxy();
-        } else if (localPath) {
+        } else if (fs.existsSync(localPath)) {
           apiArr[i] = require(localPath).getProxy();
         } else {
           console.log("Error : service proxy not found");

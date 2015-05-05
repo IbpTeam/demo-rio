@@ -33,8 +33,9 @@ function doInstall(pkg) {
       {
         fn: function(pera_, callback_) {
           // remove old links
-          var prPath = config.proxyUerPath + pkgName;
+          var prPath = config.proxyUerPath + '/' + pkgName;
           fs.readdir(prPath, function(err, files) {
+            if(err) return callback_(null);
             flowctl.parallel1(files, function(pera_, cb_) {
               fs.unlink(prPath + '/' + pera_, function(err) {
                 if(err) return cb_(err);
@@ -51,7 +52,7 @@ function doInstall(pkg) {
         fn: function(pera_, callback_) {
           // build links
           var srcPath = pkg + '/interface',
-              dstPath = config.proxyUerPath + pkgName;
+              dstPath = config.proxyUerPath + '/' + pkgName;
           fs.mkdir(dstPath, function(err) {
             var pPath = srcPath + '/' + pkgName + 'Proxy.js',
                 rpPath = srcPath + '/' + pkgName + 'ProxyRemote.js';
