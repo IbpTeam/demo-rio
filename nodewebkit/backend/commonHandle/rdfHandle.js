@@ -1,61 +1,22 @@
+/**
+ * @Copyright:
+ *
+ * @Description: Functions dealing wit RDF are presented here.
+ *
+ * @author: Xiquan
+ *
+ * @Data:2015.4.16
+ *
+ * @version:0.0.1
+ **/
+
 var fs_extra = require('fs-extra');
 var fs = require('fs');
 var config = require('../config');
 var levelgraph = require('levelgraph');
+var utils = require('../utils');
 
-var BASE_TYPE = [{
-  subject: 'http://example.org/category#Base',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Class'
-}, {
-  subject: 'http://example.org/property/base#createTime',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#createTime',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#Base'
-}, {
-  subject: 'http://example.org/property/base#lastModifyTime',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastModifyTime',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#Base'
-}, {
-  subject: 'http://example.org/property/base#lastAccessTime',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastAccessTime',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#Base'
-}, {
-  subject: 'http://example.org/property/base#createDev',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#createDev',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#Base'
-}, {
-  subject: 'http://example.org/property/base#lastModifyDev',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastModifyDev',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#Base'
-}, {
-  subject: 'http://example.org/property/base#lastAccessDev',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastAccessDev',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#Base'
-}];
+var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 
 /**
  * @method dbInitial
@@ -64,9 +25,14 @@ var BASE_TYPE = [{
  *
  */
 function dbInitial(callback) {
-  var triples_base_type = BASE_TYPE;
   var db = dbOpen();
-  db.put(triples_base_type, function(err) {
+  var allTriples = [];
+  for (var i in DEFINED_TYPE) {
+    if (DEFINED_TYPE.hasOwnProperty(i)) {
+      allTriples = allTriples.concat(DEFINED_TYPE[i]);
+    }
+  }
+  db.put(allTriples, function(err) {
     if (err) {
       db.close();
       return callback(err);
@@ -202,7 +168,9 @@ function dbSearch(db, query, callback) {
     if (err) {
       return callback(err)
     }
-    callback(null, results);
+    db.close(function() {
+      callback(null, results);
+    })
   });
 }
 exports.dbSearch = dbSearch;
@@ -244,11 +212,16 @@ exports.dbSearch = dbSearch;
  *
  */
 function tripleGenerator(info, callback) {
-  var _triples = [];
   var _namespace_subject = 'http://example.org/category/';
   var _namespace_predicate = 'http://example.org/property/';
+  var _triples = [];
   try {
     var _base = info.base;
+    _triples.push({
+      subject: _namespace_subject + _base.category + '#' + info.subject,
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: 'http://example.org/category#' + _base.category
+    });
     for (var entry in _base) {
       var _triple_base = {
         subject: _namespace_subject + _base.category + '#' + info.subject,
@@ -262,7 +235,7 @@ function tripleGenerator(info, callback) {
   }
   try {
     var _extra = info.extra;
-    if(_extra == {}){
+    if (_extra == {}) {
       return callback(null, _triples);
     }
     for (var entry in _extra) {
@@ -280,4 +253,36 @@ function tripleGenerator(info, callback) {
 }
 exports.tripleGenerator = tripleGenerator;
 
-
+/**
+ * @method decodeTripeles
+ *   translate triples into info object,just a backward process of methond tripleGener-
+ *    ator
+ *
+ * @param1 triples
+ *      object, the seach result of leveldb.
+ *
+ * @param1 callback
+ *   @err
+ *      error，return 'null' if sucess;otherwise return err
+ *
+ */
+function decodeTripeles(triples, callback) {
+  var info = {};
+  try {
+    for (var i = 0, l = triples.length; i < l; i++) {
+      var item = triples[i];
+      var title = utils.getTitle(item.predicate)
+      if (info.hasOwnProperty(item.subject)) {
+        (info[item.subject])[title] = item.object;
+      } else {
+        var itemInfo = {};
+        itemInfo[title] = item.object;
+        info[item.subject] = itemInfo;
+      }
+    }
+  } catch (err) {
+    return callback(err);
+  }
+  return callback(null, info);
+}
+exports.decodeTripeles = decodeTripeles;

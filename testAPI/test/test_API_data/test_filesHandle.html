@@ -81,7 +81,7 @@
 
   function test_loadResources(loadResourcesCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = "/home/xiquan/resources/documents";
+      var path = "/home/xiquan/resources";
       data.loadResources(loadResourcesCb, path);
     });
   }
@@ -100,8 +100,11 @@
     });
   }
 
-  function getAllDataByCateCb(text){
+  function getAllDataByCateCb(err,text){
     var win = window.open(''); 
+    if(err){
+      throw err
+    }
     win.document.write("test API getAllDataByCate()");
     win.document.write("<br/>");
     var result=JSON.stringify(text);
