@@ -128,12 +128,14 @@ function initializeApp(sFullPath) {
           });
         }
       });*/
-      initLevelDB.dbInitial(function(err) {
-        if (err) {
-          throw err;
-          //return console.log(err);
-        }
-      });
+
+      /* TODO: put init in a script */
+      // initLevelDB.dbInitial(function(err) {
+      //   if (err) {
+      //     throw err;
+      //     //return console.log(err);
+      //   }
+      // });
     });
   });
   device = require("./backend/data/device");

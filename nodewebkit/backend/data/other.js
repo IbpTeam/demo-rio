@@ -75,7 +75,6 @@ function extraInfo(category, callback) {
   }
   callback(null, _extra);
 }
-exports.createData = createData;
 
 /**
  * @method removeDocumentByUri

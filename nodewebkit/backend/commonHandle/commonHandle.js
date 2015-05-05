@@ -428,14 +428,16 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
           return getAllDataByCateCb(err);
         }
         var items = [];
-        for(var item in info){
-          items.push({
-            URI: info[item].URI,
-            version: "",
-            filename: info[item].filename,
-            postfix:info[item].postfix,
-            path: info[item].path
-          })
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push({
+              URI: info[item].URI,
+              version: "",
+              filename: info[item].filename,
+              postfix: info[item].postfix,
+              path: info[item].path
+            })
+          }
         }
         return getAllDataByCateCb(null, items);
       })

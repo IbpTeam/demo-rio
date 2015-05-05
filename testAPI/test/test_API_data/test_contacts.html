@@ -60,8 +60,11 @@
     });
   }
 
-  function getAllContactsCb(result){
+  function getAllContactsCb(err, result){
     var win = window.open('');
+    if(err){
+      throw err;
+    }
     win.document.write("test API getAllContacts()");
     win.document.write("<br/>");
     win.document.write("callback result: ");

@@ -34,7 +34,6 @@ function dbInitial(callback) {
   }
   db.put(allTriples, function(err) {
     if (err) {
-      db.close();
       return callback(err);
     };
     db.close(function(err) {
@@ -224,7 +223,7 @@ function tripleGenerator(info, callback) {
     });
     for (var entry in _base) {
       var _triple_base = {
-        subject: _namespace_subject + _base.category + '#' + info.subject,
+        subject: _namespace_subject + '#' + info.subject,
         predicate: _namespace_predicate + 'base#' + entry,
         object: _base[entry]
       };

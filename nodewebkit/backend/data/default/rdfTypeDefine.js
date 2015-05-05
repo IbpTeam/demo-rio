@@ -159,6 +159,22 @@ var _contact = [{
   subject: 'http://example.org/property/contact#phone',
   predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
   object: 'http://example.org/category#contact'
+}, {
+  subject: 'http://example.org/property/contact#sex',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/contact#sex',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#contact'
+}, {
+  subject: 'http://example.org/property/contact#age',
+  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
+}, {
+  subject: 'http://example.org/property/contact#age',
+  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  object: 'http://example.org/category#contact'
 }];
 
 var _document = [{
