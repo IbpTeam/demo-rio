@@ -1,8 +1,6 @@
 var config = require('../../../nodewebkit/backend/config'),
-    //utils = require('../utils'),
     flowctl = require('../../../sdk/utils/flowctl'),
     json4line = require('../../../sdk/utils/json4line'),
-    //router = require('../router'),
     util = require('util'),
     event = require('events'),
     localPath = config.LANG[0] + '/locale.conf',
@@ -247,9 +245,6 @@ Language.prototype.removeLang = function(lang_, callback_) {
   }
   cb_('Language not found');
 }
-
-//var language = new Language();
-//exports.language = language;
 
 var stub = null;
 (function main() {
