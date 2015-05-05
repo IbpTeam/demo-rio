@@ -13,7 +13,7 @@ function remoteObj(servName, IP) {
   }
 }
 
-remoteObj.prototype.sendmsg = function(content) {
+remoteObj.prototype.sendmsg = function(content,rescall) {
   var self = this;
   if (this.im === null) {
     serie.series([{
@@ -24,25 +24,26 @@ remoteObj.prototype.sendmsg = function(content) {
       pera: {}
     }, {
       fn: function(pera_, cb_) {
-        self.insend(pera_.con, cb_);
+        self.insend(pera_.con, cb_, pera_.sentcb);
       },
       pera: {
-        con: content
+        con: content,
+        sentcb: rescall
       }
     }], function(err_, rets_) {
 
     });
   } else {
-    this.insend(content, function() {});
+    this.insend(content, function() {},self.rescall);
   }
 }
 
-remoteObj.prototype.insend = function(content, cb) {
+remoteObj.prototype.insend = function(content, cb,callback) {
   var msg = {};
   msg.typ = this.serv;
   msg.txt = content;
   this.im.send(JSON.stringify(msg), function(res) {
-
+    callback(res);
   });
   cb(null);
 }
