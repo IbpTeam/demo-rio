@@ -41,7 +41,7 @@ function builder(ifaces) {
     buildProxy(ifaces.service + 'ProxyRemote.js', initObj, ifaces.interfaces, true)
   }
 }
-
+exports.builder = builder;
 var NOTICE = "// This file is auto generated based on user-defined interface.\n" + "// Please make sure that you have checked all TODOs in this file.\n" + "// TODO: please replace types with peramters' name you wanted of any functions\n" + "// TODO: please replace $ipcType with one of dbus, binder, websocket and socket\n";
 var GETIPC = "  // TODO: please replace $IPC with the real path of webde-rpc module in your project\n" + "  this._ipc = require('$IPC').getIPC(initObj);\n";
 
