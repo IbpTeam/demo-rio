@@ -114,19 +114,6 @@ function removeByUri(uri, callback) {
 exports.removeByUri = removeByUri;
 
 /**
- * @method getByUri
- *    Get document info in db.
- * @param uri
- *    The document's URI.
- * @param callback
- *    Callback
- */
-function getByUri(uri, callback) {
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
-}
-exports.getByUri = getByUri;
-
-/**
  * @method changeData
  *    Change document by filePath.
  * @param filePath

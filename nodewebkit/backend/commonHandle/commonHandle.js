@@ -340,15 +340,35 @@ function createDataAll(items, callback) {
 exports.createDataAll = createDataAll;
 
 
-exports.getItemByUri = function(category, uri, callback) {
-  var conditions = ["URI = " + "'" + uri + "'"];
-  commonDAO.findItems(null, category, conditions, null, function(err, result) {
+exports.getItemByProperty = function(options, callback) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: "http://example.org/property/" + options._type + "#" + options._property,
+    object: options._value
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
-    } else {
-      callback(result);
+      throw err;
     }
+    _db.close(function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return callback(err);
+        }
+        var items = [];
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push(info[item]);
+          }
+        }
+        return callback(null, items);
+      })
+    })
   });
 }
 
@@ -467,16 +487,36 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
  *
  **/
 exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
-  function findItemsCb(err, items) {
+  console.log("Request handler 'getRecentAccessData' was called.");
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: "http://example.org/property/base#category",
+    object: category
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return getRecentAccessDataCb(err, null);
+      throw err;
     }
-    var DataByNum = utils.getRecent(items, num);
-    getRecentAccessDataCb(null, DataByNum);
-  }
-  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc ";
-  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
+    _db.close(function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return getAllDataByCateCb(err);
+        }
+        var items = [];
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push()
+          }
+        }
+        return getAllDataByCateCb(null, items);
+      })
+    })
+  });
 }
 
 exports.updateDB = function(category, updateDBCb) {

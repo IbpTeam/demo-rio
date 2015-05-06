@@ -102,18 +102,6 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
-/**
- * @method getByUri
- *    Get Picture info in db.
- * @param uri
- *    The Picture's URI.
- * @param callback
- *    Callback
- */
-function getByUri(uri, callback) {
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
-}
-exports.getByUri = getByUri;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
