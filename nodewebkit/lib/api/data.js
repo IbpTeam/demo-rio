@@ -352,7 +352,12 @@ exports.rmDataByUri = rmDataByUri;
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
   console.log("Request handler 'getDataByUri' was called.");
-  commonHandle.getItemByUri(null, uri, getDataByUriCb);
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: uri
+  }
+  commonHandle.getItemByProperty(_options, getDataByUriCb);
 }
 exports.getDataByUri = getDataByUri;
 
@@ -360,26 +365,44 @@ exports.getDataByUri = getDataByUri;
 //返回具体数据类型对象
 function getDataByPath(getDataByPathCb, sPath) {
   console.log("Request handler 'getDataByPath' was called.");
-  if(sPath.substr(sPath.length-3,sPath.length-1) === '.md'){
-    sPath = sPath.substr(0,sPath.length-3);
+  var _options = {
+    _type: "base",
+    _property: "path",
+    _value: sPath
   }
-  var cate = utils.getCategoryByPath(sPath);
-  var category = cate.category;
-  var filename = cate.filename;
-  var postfix = cate.postfix;
-  var sCondition = ["postfix='" + postfix + "'", "filename='" + filename + "'"];
-  commonDAO.findItems(null, category, sCondition, null, function(err, result) {
-    if (err) {
-      return getDataByPathCb(err, null);
-    } else if (result == '' || result === null) {
-      return getDataByPathCb(sPath + ': not found in database ...', null);
-    }
-    var uri = result[0].URI;
-    var cateObject = utils.getCategoryObject(category);
-    cateObject.getByUri(uri, getDataByPathCb);
-  })
+  commonHandle.getItemByProperty(_options, getDataByPathCb);
 }
 exports.getDataByPath = getDataByPath;
+
+
+/**
+ * @method openDataByUri
+ *   打开URI对应的数据
+ *
+ * @param1 getDataByUriCb
+ *   回调函数
+ *   @err
+ *    return error message
+ *
+ *   @result
+ *     array: 显示数据或结果
+ *
+ * @param2 options
+ *   object, including specific infomation for searhcing data
+ *
+ *    example:
+ *    var options = {
+ *                              _type: "base",  
+ *                              _property: "URI",
+ *                              _value: "ajsdawjdjiajwdj"
+ *                              }
+ *
+ */
+function getDataByProperty(getDataByUriCb, options) {
+  console.log("Request handler 'getDataByUri' was called.");
+  commonHandle.getItemByProperty(options, getDataByUriCb);
+}
+exports.getDataByUri = getDataByUri;
 
 /**
  * @method openDataByUri
