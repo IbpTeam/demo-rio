@@ -372,38 +372,6 @@ exports.getItemByProperty = function(options, callback) {
   });
 }
 
- // exports.getItemByUri = function(category, uri, callback) {
- //  var _db = rdfHandle.dbOpen();
- //  var _query = [{
- //    subject: _db.v('subject'),
- //    predicate: "http://example.org/property/base#URI",
- //    object: uri
- //  }, {
- //    subject: _db.v('subject'),
- //    predicate: _db.v('predicate'),
- //    object: _db.v('object')
- //  }];
- //  rdfHandle.dbSearch(_db, _query, function(err, result) {
- //    if (err) {
- //      throw err;
- //    }
- //    _db.close(function() {
- //      rdfHandle.decodeTripeles(result, function(err, info) {
- //        if (err) {
- //          return callback(err);
- //        }
- //        var items = [];
- //        for (var item in info) {
- //          if (info.hasOwnProperty(item)) {
- //            items.push(info[item]);
- //          }
- //        }
- //        return callback(null, items);
- //      })
- //    })
- //  });
- // }
-
 function deleteItemByUri(category, uri, callback) {
   var aConditions = ["URI = " + "'" + uri + "'"];
   var oItem = {
