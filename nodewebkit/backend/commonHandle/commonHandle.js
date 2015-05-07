@@ -376,7 +376,7 @@ exports.getItemByProperty = function(options, callback) {
 function getTriples(db, options, callback) {
   var _query_get_medatada = [{
     subject: db.v('subject'),
-    predicate: "http://example.org/property/" + options._type + "#" + options._property,
+    predicate: DEFINED_PROP[options._type][options._property],
     object: options._value
   }, {
     subject: db.v('subject'),
