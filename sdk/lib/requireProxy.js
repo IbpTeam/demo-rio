@@ -5,7 +5,7 @@ var config = require('../../config');
 // RPC API lib.
 console.log("head of requireProxy.js.");
 
-var debug = false;
+var debug = true;
 
 var LOCALPATH = config.proxyLocalPath;
 var USERPATH = config.proxyUerPath;

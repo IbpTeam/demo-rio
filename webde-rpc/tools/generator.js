@@ -42,6 +42,7 @@ function builder(ifaces) {
     buildProxy(ifaces.service + 'ProxyRemote.js', initObj, ifaces.interfaces, true)
   }
 }
+exports.builder = builder;
 
 var NOTICE = "// This file is auto generated based on user-defined interface.\n"
             + "// Please make sure that you have checked all TODOs in this file.\n"

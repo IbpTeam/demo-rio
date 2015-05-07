@@ -1,0 +1,301 @@
+{
+  "service": "data",
+  "remote": "false",
+  "interfaces": [
+    {
+      "name": "getLocalData",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "startIMChatServer",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "sendIMMsg",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "loadFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "loadResources",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "loadContacts",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllCate",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllDataByCate",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllContacts",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "rmDataByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getDataByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getDataByPath",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "openDataByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "openDataByPath",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "updateDataValue",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getRecentAccessData",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getServerAddress",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getDeviceDiscoveryService",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "pasteFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "createFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getResourceDataDir",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllTagsByCategory",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getTagsByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getTagsByUris",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "setTagByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "setTagByUriMulti",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getFilesByTags",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getFilesByTagsInCategory",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "rmTagsAll",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "rmTagsByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "initDesktop",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllDesktopFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "readDesktopConfig",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "writeDesktopConfig",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "shellExec",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "moveFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "renameDesktopFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "linkAppToDesktop",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "unlinkApp",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "moveToDesktopSingle",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "moveToDesktop",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "removeFileFromDB",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "removeFileFromDesk",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getFilesFromDesk",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllVideo",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getAllMusic",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "createFileOnDesk",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "renameFileOnDesk",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getIconPath",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "setRelativeTagByPath",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "pullFromOtherRepoTest",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getGitLog",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "repoReset",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "repoResetFile",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "renameDataByUri",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "deviceInfo",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getMusicPicData",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "getVideoThumbnail",
+      "in": [],
+      "show": "l"
+    },
+    {
+      "name": "repoSearch",
+      "in": [],
+      "show": "l"
+    }
+  ]
+}

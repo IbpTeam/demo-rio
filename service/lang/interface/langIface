@@ -4,43 +4,43 @@
   "interfaces": [
     {
       "name": "getInitInfo",
-      "in": []
+      "in": ["String"],
+      "show": "l"
     },
     {
       "name": "getLang",
-      "in": []
+      "in": ["String"],
+      "show": "l"
     },
     {
       "name": "getLangByName",
-      "in": []
+      "in": ["String"],
+      "show": "l"
     },
     {
       "name": "setLocale",
-      "in": []
+      "in": ["String"],
+      "show": "l"
     },
     {
       "name": "getLocale",
-      "in": []
-    },
-    {
-      "name": "addListener",
-      "in": []
-    },
-    {
-      "name": "removeListener",
-      "in": []
+      "in": [],
+      "show": "l"
     },
     {
       "name": "getLangList",
-      "in": []
+      "in": [],
+      "show": "l"
     },
     {
       "name": "addLang",
-      "in": []
+      "in": ["Object"],
+      "show": "l"
     },
     {
       "name": "removeLang",
-      "in": []
+      "in": ["Object"],
+      "show": "l"
     }
   ]
 }

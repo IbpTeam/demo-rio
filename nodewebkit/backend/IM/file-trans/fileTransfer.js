@@ -5,14 +5,19 @@ var os = require('os');
 var TIMEOUT = 10000;
 
 function getLocalIP(){
-  var IPv4;   
-  for(var i=0;i<os.networkInterfaces().eth0.length;i++){      
-    if(os.networkInterfaces().eth0[i].family=='IPv4'){        
-      IPv4=os.networkInterfaces().eth0[i].address; 
-      return IPv4;     
-    }  
-  } 
-  return;
+  var ifaces = os.networkInterfaces();
+  var IPv4=null;
+
+  Object.keys(ifaces).forEach(function (ifname) {
+    ifaces[ifname].forEach(function (iface) {
+      if (null!==IPv4){return};
+      if ('IPv4' !== iface.family || iface.internal !== false) {
+        return;
+      }
+      IPv4=iface.address;
+    });
+  });
+  return IPv4;
 }
 function getFileSize(num) {
   var type = 'byte';
