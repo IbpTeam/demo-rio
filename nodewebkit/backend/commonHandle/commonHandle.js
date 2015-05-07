@@ -32,6 +32,7 @@ var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar'); 
 var rdfHandle = require("./rdfHandle");
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 
 var writeDbNum = 0;
 var dataPath;
@@ -147,19 +148,18 @@ function baseInfo(itemPath, callback) {
     uniqueID.getFileUid(function(_uri) {
       var _base = {
         URI: _uri,
+        filename: _filename,
+        postfix: _postfix,
+        category: _category,
+        size: _size,
+        path: itemPath,
+        tags: _tags,
         createTime: _ctime,
         lastModifyTime: _mtime,
         lastAccessTime: _ctime,
         createDev: config.uniqueID,
         lastModifyDev: config.uniqueID,
         lastAccessDev: config.uniqueID,
-        createDev: config.uniqueID,
-        filename: _filename,
-        postfix: _postfix,
-        category: _category,
-        size: _size,
-        path: itemPath,
-        tags: _tags
       }
       return callback(null, _base);
     })
@@ -345,7 +345,7 @@ exports.getItemByProperty = function(options, callback) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: "http://example.org/property/" + options._type + "#" + options._property,
+    predicate: DEFINED_PROP[options._type][options._property],
     object: options._value
   }, {
     subject: _db.v('subject'),
@@ -465,7 +465,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: "http://example.org/property/base#category",
+    predicate: DEFINED_PROP["base"][cate],
     object: cate
   }, {
     subject: _db.v('subject'),
@@ -525,7 +525,7 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: "http://example.org/property/base#category",
+    predicate: DEFINED_PROP["base"][category],
     object: category
   }, {
     subject: _db.v('subject'),

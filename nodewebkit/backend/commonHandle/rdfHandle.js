@@ -15,8 +15,8 @@ var fs = require('fs');
 var config = require('../config');
 var levelgraph = require('levelgraph');
 var utils = require('../utils');
-
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 
 /**
  * @method dbInitial
@@ -235,7 +235,7 @@ function tripleGenerator(info, callback) {
     for (var entry in _base) {
       var _triple_base = {
         subject: _namespace_subject + '#' + info.subject,
-        predicate: _namespace_predicate + 'base#' + entry,
+        predicate: DEFINED_PROP["base"][entry],
         object: _base[entry]
       };
       _triples.push(_triple_base);
@@ -251,7 +251,7 @@ function tripleGenerator(info, callback) {
     for (var entry in _extra) {
       var _triple_extra = {
         subject: _namespace_subject + '#' + info.subject,
-        predicate: _namespace_predicate + _base.category + '#' + entry,
+        predicate: DEFINED_PROP[_base.category][entry],
         object: _extra[entry]
       };
       _triples.push(_triple_extra);
