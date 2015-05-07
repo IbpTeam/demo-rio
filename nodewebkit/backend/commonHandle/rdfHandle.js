@@ -113,20 +113,33 @@ exports.dbOpen = dbOpen;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-function dbPut(db, metadata, callback) {
-  if (typeof metadata !== 'object') {
+function dbPut(db, triples, callback) {
+  if (typeof triples !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
     return callback(_err)
   }
-  db.put(metadata, function(err) {
+  db.put(triples, function(err) {
     if (err) {
-      console.log(err)
       return callback(err);
     }
     return callback();
   });
 }
 exports.dbPut = dbPut;
+
+function dbDelete(db, triples, callback) {
+  if (typeof triples !== 'object') {
+    var _err = new Error("INPUT TYPE ERROR!");
+    return callback(_err)
+  }
+  db.del(triples, function(err) {
+    if (err) {
+      return callback(err)
+    }
+    return callback()
+  })
+}
+exports.dbDelete = dbDelete;
 
 /**
  * @method dbSearch
@@ -167,9 +180,7 @@ function dbSearch(db, query, callback) {
     if (err) {
       return callback(err)
     }
-    db.close(function() {
-      callback(null, results);
-    })
+    return callback(null, results);
   });
 }
 exports.dbSearch = dbSearch;

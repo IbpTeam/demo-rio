@@ -181,6 +181,7 @@ function dataStore(items, extraCallback, callback) {
         return callback(err);
       }
       var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+      _base.path = _newPath;
       fs_extra.copy(item, _newPath, function(err) {
         if (err) {
           console.log(err);
@@ -372,38 +373,71 @@ exports.getItemByProperty = function(options, callback) {
   });
 }
 
-function deleteItemByUri(category, uri, callback) {
-  var aConditions = ["URI = " + "'" + uri + "'"];
-  var oItem = {
-    category: category,
-    conditions: aConditions
-  };
-  commonDAO.deleteItem(oItem, callback);
-}
-exports.deleteItemByUri = deleteItemByUri;
-
-exports.removeFile = function(category, item, callback) {
-  //TODO delete desFile
-  var sFullName = path.basename(item.path);
-  var sDesFullName = sFullName + ".md";
-  var sDesPath = utils.getDesPath(category, sFullName);
-  fs.unlink(sDesPath, function(err) {
-    if (err)
-      console.log(err);
-    //TODO delete data from db
-    deleteItemByUri(category, item.URI, function(isSuccess) {
-      if (isSuccess == "rollback") {
-        callback("error");
-        return;
+function getTriples(db, options, callback) {
+  var _query_get_medatada = [{
+    subject: db.v('subject'),
+    predicate: "http://example.org/property/" + options._type + "#" + options._property,
+    object: options._value
+  }, {
+    subject: db.v('subject'),
+    predicate: db.v('predicate'),
+    object: db.v('object')
+  }];
+  rdfHandle.dbSearch(db, _query_get_medatada, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    var _info = {
+      triples: result
+    };
+    //get path and category from triples
+    for (var i = 0, l = result.length; i < l; i++) {
+      if (result[i].predicate === "http://example.org/property/base#category") {
+        _info.category = result[i].object;
       }
-      repo.repoCommitBoth('rm',
-        utils.getRepoDir(category),
-        utils.getDesRepoDir(category), [path.join(utils.getRealDir(category), sFullName)], [path.join(utils.getDesDir(category), sDesFullName)],
-        callback);
-    });
+      if (result[i].predicate === "http://example.org/property/base#path") {
+        _info.path = result[i].object;
+      }
+    }
+    return callback(null, _info);
+  })
+}
 
-  });
-};
+exports.removeItemByProperty = function(options, callback) {
+  var _db = rdfHandle.dbOpen();
+  getTriples(_db, options, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    //delete all realted triples in leveldb
+    rdfHandle.dbDelete(_db, result.triples, function(err) {
+      if (err) {
+        return callback(err);
+      }
+      //if no path or category found, them the file should not exist in by now.
+      if (result.category === undefined && result.path === undefined) {
+        return callback();
+      }
+      //if type is contact, then it is done for now.
+      if (result.category === "contact") {
+        _db.close(function() {
+          return callback();
+        });
+      } else {
+        //delete file itself
+        fs.unlink(result.path, function(err) {
+          if (err) {
+            return callback(err);
+          }
+          _db.close(function() {
+            return callback();
+          });
+        })
+      }
+    })
+  })
+}
+
 
 exports.getAllCate = function(getAllCateCb) {
   var _db = rdfHandle.dbOpen();
