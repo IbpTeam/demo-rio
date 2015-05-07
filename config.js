@@ -41,11 +41,11 @@ exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
  * TODO: need modify
  */
 var APPBASEPATH;
-APPBASEPATH = path.join(__dirname, "../../..");
+APPBASEPATH = path.join(__dirname, "..");
 exports.APPBASEPATH = APPBASEPATH;
 var APP_DATA_PATH = [
   path.join($HOME, '.local/share/webde'),
-  __dirname + '/app/default'
+  __dirname + '/service/appmgr/implements/default'
 ];
 exports.APP_DATA_PATH = APP_DATA_PATH;
 exports.D_APP_ICON = __dirname + '/app/default/favicon.ico';
