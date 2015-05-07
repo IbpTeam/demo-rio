@@ -60,7 +60,6 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  */
 function extraInfo(category, callback) {
   var _extra = {
-    project: '上海专项',
     location: "Mars",
   }
   callback(null, _extra);
