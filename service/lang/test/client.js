@@ -1,7 +1,7 @@
 var requireProxy = require('../../../sdk/lib/requireProxy').requireProxy;
 requireProxy(['lang'], function(lang) {
-  lang.getInitInfo("desktop",function(ret) {
-    if(ret.err) return console.log('get Init Info error:', ret.err);
+  lang.getInitInfo("desktop", function(ret) {
+    if (ret.err) return console.log('get Init Info error:', ret.err);
     console.log('localeInfo:', ret.ret);
   });
 
@@ -15,7 +15,7 @@ requireProxy(['lang'], function(lang) {
     console.log('ret:', ret.ret);
   });*/
 
-   /*lang.getLangList(function(ret) {
+  /*lang.getLangList(function(ret) {
     if(ret.err) return console.log('get Lang List error:', ret.err);
     console.log('LangList:', ret.ret);
   });*/
@@ -30,7 +30,7 @@ requireProxy(['lang'], function(lang) {
     console.log('Locale:', ret.ret);
   });*/
 
- /*var langString = {"name":"en","path":"/home/qiushi/work/app/demo-rio/service/lang/implements/langs/en"};
+  /*var langString = {"name":"en","path":"/home/qiushi/work/app/demo-rio/service/lang/implements/langs/en"};
   lang.addLang(langString,function(ret) {
     if(ret.err) return console.log('add Lang error:', ret.err);
     console.log('add Lang: OK');

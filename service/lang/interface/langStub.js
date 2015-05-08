@@ -10,154 +10,178 @@ var initObj = {
   "name": "nodejs.webde.lang",
   "type": "dbus",
   "service": true,
-  "interface": [
-    {
-      "name": "getInitInfo",
-      "in": [
-        "String"
-      ],
-      "show": "l"
-    },
-    {
-      "name": "getLang",
-      "in": [
-        "String"
-      ],
-      "show": "l"
-    },
-    {
-      "name": "getLangByName",
-      "in": [
-        "String"
-      ],
-      "show": "l"
-    },
-    {
-      "name": "setLocale",
-      "in": [
-        "String"
-      ],
-      "show": "l"
-    },
-    {
-      "name": "getLocale",
-      "in": [],
-      "show": "l"
-    },
-    {
-      "name": "getLangList",
-      "in": [],
-      "show": "l"
-    },
-    {
-      "name": "addLang",
-      "in": [
-        "Object"
-      ],
-      "show": "l"
-    },
-    {
-      "name": "removeLang",
-      "in": [
-        "Object"
-      ],
-      "show": "l"
-    }
-  ],
+  "interface": [{
+    "name": "getInitInfo",
+    "in": [
+      "String"
+    ],
+    "show": "l"
+  }, {
+    "name": "getLang",
+    "in": [
+      "String"
+    ],
+    "show": "l"
+  }, {
+    "name": "getLangByName",
+    "in": [
+      "String"
+    ],
+    "show": "l"
+  }, {
+    "name": "setLocale",
+    "in": [
+      "String"
+    ],
+    "show": "l"
+  }, {
+    "name": "getLocale",
+    "in": [],
+    "show": "l"
+  }, {
+    "name": "getLangList",
+    "in": [],
+    "show": "l"
+  }, {
+    "name": "addLang",
+    "in": [
+      "Object"
+    ],
+    "show": "l"
+  }, {
+    "name": "removeLang",
+    "in": [
+      "Object"
+    ],
+    "show": "l"
+  }],
   "serviceObj": {
     getInitInfo: function(name, callback_) {
-       flowctl.parallel([
-    {
-      fn: function(pera_, callback) {
-        lang.getCurLocale(function(err, locale){
-          if(err) { 
-            return callback({err: err});
-           }
-          callback(null,{'current locale': locale});
-        });
-       }
-    },
-    {
-      fn: function(pera_, callback) {
-        lang.getLangList(function(err, list){
-         if(err) {
-          return callback({err: err});
-          }
-        callback(null,{'the list of available languages': list});
-        });
-      }
-    },
-    {
-      fn: function(pera_, callback) {
-        console.log(pera_);
-        lang.getLangByName(pera_, function(err,langObj) {
-        if(err) {
-          return callback({err: err});
+      flowctl.parallel([{
+        fn: function(pera_, callback) {
+          lang.getCurLocale(function(err, locale) {
+            if (err) {
+              return callback({
+                err: err
+              });
+            }
+            callback(null, {
+              'current locale': locale
+            });
+          });
         }
-        callback(null,{'language object': langObj});
-        });
-      },
-       pera: name
-    }
-  ],function(err,rets) {
-        if(err) {
-          return callback_({err: err});
+      }, {
+        fn: function(pera_, callback) {
+          lang.getLangList(function(err, list) {
+            if (err) {
+              return callback({
+                err: err
+              });
+            }
+            callback(null, {
+              'the list of available languages': list
+            });
+          });
         }
-        callback_({ret:rets});
+      }, {
+        fn: function(pera_, callback) {
+          lang.getLangByName(pera_, function(err, langObj) {
+            if (err) {
+              return callback({
+                err: err
+              });
+            }
+            callback(null, {
+              'language object': langObj
+            });
+          });
+        },
+        pera: name
+      }], function(err, rets) {
+        if (err) {
+          return callback_({
+            err: err
+          });
+        }
+        callback_({
+          ret: rets
+        });
       });
     },
     getLang: function(path, callback) {
       lang.getLang(path, function(err, langObj) {
-          if(err) {
-              return callback({err: err});
-             }
-            callback({ret: langObj});
+        if (err) {
+          return callback({
+            err: err
           });
+        }
+        callback({
+          ret: langObj
+        });
+      });
     },
     getLangByName: function(name, callback) {
-      lang.getLangByName(name, function(err,langObj) {
-        if(err) {
-          return callback({err: err});
+      lang.getLangByName(name, function(err, langObj) {
+        if (err) {
+          return callback({
+            err: err
+          });
         }
-        callback({ret: langObj});
+        callback({
+          ret: langObj
+        });
       });
     },
     setLocale: function(locale, callback) {
       lang.setLocale(locale, function(err) {
-        if(err) {
-          return callback({err: err});
+        if (err) {
+          return callback({
+            err: err
+          });
         }
         callback({});
       });
     },
     getLocale: function(callback) {
-      lang.getCurLocale(function(err, locale){
-        if(err) {
-          return callback({err: err});
+      lang.getCurLocale(function(err, locale) {
+        if (err) {
+          return callback({
+            err: err
+          });
         }
-        callback({ret: locale});
+        callback({
+          ret: locale
+        });
       });
     },
     getLangList: function(callback) {
-      lang.getLangList(function(err, list){
-        if(err) {
-          return callback({err: err});
+      lang.getLangList(function(err, list) {
+        if (err) {
+          return callback({
+            err: err
+          });
         }
-        callback({ret: list});
+        callback({
+          ret: list
+        });
       });
     },
     addLang: function(langObject, callback) {
       lang.addLang(langObject, function(err) {
-        if(err) {
-          return callback({err: err});
+        if (err) {
+          return callback({
+            err: err
+          });
         }
         callback({});
       });
     },
     removeLang: function(langObject, callback) {
       lang.removeLang(langObject, function(err) {
-        if(err) {
-          return callback({err: err});
+        if (err) {
+          return callback({
+            err: err
+          });
         }
         callback({});
       });
@@ -175,9 +199,9 @@ Stub.prototype.notify = function(event) {
 };
 
 var stub = null,
-         lang = null;
+  lang = null;
 exports.getStub = function(lang_) {
-  if(stub ==null) {
+  if (stub == null) {
     stub = new Stub();
     lang = lang_;
   }
