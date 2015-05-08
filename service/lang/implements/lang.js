@@ -1,6 +1,7 @@
 var config = require('../../../nodewebkit/backend/config'),
     flowctl = require('../../../sdk/utils/flowctl'),
     json4line = require('../../../sdk/utils/json4line'),
+    fs = require( 'fs' ),
     util = require('util'),
     event = require('events'),
     localPath = config.LANG[0] + '/locale.conf',
@@ -95,7 +96,18 @@ Language.prototype.__emit = function(event) {
 
 // for outside app, they can their own language file by this interface
 Language.prototype.getLang = function(path_, callback_) {
-  json4line.readJSONFile(path_, callback_);
+   var cb_ = callback_ || function() {};
+  if(path_ == ''){
+     json4line.readJSONFile(localPath, function(err_, json_) {
+       if(err_) return callback_(err_);
+           cb_(null, json_);
+        });
+  }else{
+     json4line.readJSONFile(path_, function(err_, json_) {
+       if(err_) return callback_(err_);
+           cb_(null, json_);
+       });
+  }
 }
 
 // this interface is for inside app
@@ -147,14 +159,14 @@ Language.prototype.notify = function(event_, locale_) {
       locale: locale_
     }
   });
-  router.wsNotify({
+  /*router.wsNotify({
     'Action': 'notify',
     'Event': 'locale',
     'Data': {
       'event': event_, 
       'locale': locale_
     }
-  });
+  });*/
 }
 
 Language.prototype.setLocale = function(locale_, callback_) {
@@ -163,7 +175,7 @@ Language.prototype.setLocale = function(locale_, callback_) {
   if(this._lConf.locale == locale_) return cb_('Locale is not changed')
   this._lConf.locale = locale_;
   var _this = this;
-  json4line.writeJSONFile(configPath, this._lConf, function(err_) {
+  json4line.writeJSONFile(localPath, this._lConf, function(err_) {
     _this.notify('change', locale_);
     cb_(null);
   });
@@ -200,17 +212,61 @@ Language.prototype.getLangList = function(callback_) {
 }
 
 function languageValidate(lang_) {
+   var path_exists = fs.existsSync(lang_.path);
+   return path_exists;
 }
 
 Language.prototype.addLang = function(lang_, callback_) {
   if(!this.__init) return this.on('init', this.addLang);
   var cb_ = callback_ || function() {},
-      _this = this;
+      _this = this,
+       stat = fs.stat;
   // validate the new language
   if(!languageValidate(lang_)) return cb_('Illage language');
-  // TODO: move lang files from lang_.path to config.LANG[0]
+
+  // move lang files from lang_.path to config.LANG[0]
+var copy = function(src, dst ){
+    fs.readdir(src, function(err, paths ){
+        if( err ){
+            throw err;
+        }
+        paths.forEach(function( path ){
+            var _src = src + '/' + path,
+                _dst = dst + '/' + path,
+                readable, writable;       
+            stat( _src, function( err, st ){
+                if( err ){
+                    throw err;
+                }
+                if( st.isFile() ){
+                    readable = fs.createReadStream( _src );
+                    writable = fs.createWriteStream( _dst );  
+                    readable.pipe( writable );
+                }
+                else if( st.isDirectory() ){
+                    exists( _src, _dst, copy );
+                }
+            });
+        });
+    });
+};
+var exists = function( src, dst, callback ){
+    fs.exists( dst, function( exists ){
+        if( exists ){
+            callback( src, dst );
+        }
+        else{
+            fs.mkdir( dst, function(){
+                callback( src, dst );
+            });
+        }
+    });
+};
+exists(lang_.path, config.LANG[0]+ '/' + lang_.name, copy );
+
+// add lang name to locale.conf
   _this._lConf.langList.push(lang_.name);
-  json4line.writeJSONFile(configPath, _this._lConf, function(err_) {
+  json4line.writeJSONFile(localPath, _this._lConf, function(err_) {
     if(err_) {
       for(var i = 0; i < _this._lConf.langList.length; ++i) {
         if(_this._lConf.langList[i] == lang_.name) {
@@ -228,12 +284,30 @@ Language.prototype.addLang = function(lang_, callback_) {
 Language.prototype.removeLang = function(lang_, callback_) {
   if(!this.__init) return this.on('init', this.removeLang);
   var cb_ = callback_ || function() {},
-      _this = this;
+    _this = this;
+  var deleteFolderRecursive = function(path) {
+    var files = [];
+    if( fs.existsSync(path) ) {
+        files = fs.readdirSync(path);
+        files.forEach(function(file,index){
+            var curPath = path + "/" + file;
+            if(fs.statSync(curPath).isDirectory()) { 
+                deleteFolderRecursive(curPath);
+            } else { 
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(path);
+      }
+   };
   for(var i = 0; i < _this._lConf.langList.length; ++i) {
     if(_this._lConf.langList[i] == lang_.name) {
-      // TODO: remove langage files first
+      // remove langage files first
+      deleteFolderRecursive(config.LANG[0]+ '/' + lang_.name);
+
+      //remove lang name from locale.conf
       _this._lConf.langList.splice(i, 1);
-      return json4line.writeJSONFile(configPath, _this._lConf, function(err_) {
+      return json4line.writeJSONFile(localPath, _this._lConf, function(err_) {
         if(err_) {
           _this._lConf.langList.push(lang_.name);
           return cb_(err_);

@@ -3,6 +3,7 @@
 // TODO: please replace types with peramters' name you wanted of any functions
 // TODO: please replace $ipcType with one of dbus, binder, websocket and socket
 
+var flowctl = require('../../../sdk/utils/flowctl');
 var initObj = {
   "address": "nodejs.webde.lang",
   "path": "/nodejs/webde/lang",
@@ -64,62 +65,62 @@ var initObj = {
     }
   ],
   "serviceObj": {
-    getInitInfo: function(String, callback) {
-       utils.parallel([
+    getInitInfo: function(name, callback_) {
+       flowctl.parallel([
     {
-      fn: function(String, callback) {
+      fn: function(pera_, callback) {
         lang.getCurLocale(function(err, locale){
           if(err) {
             return callback({err: err});
            }
-          callback({ret: locale});
+          callback(null,{'current locale': locale});
         });
        }
     },
     {
-      fn: function(String, callback) {
+      fn: function(pera_, callback) {
         lang.getLangList(function(err, list){
          if(err) {
           return callback({err: err});
           }
-        callback({ret: list});
+        callback(null,{'the list of available languages': list});
         });
       }
     },
     {
-      fn: function(String, callback) {
-        lang.getLangByName(name, function(err) {
-          if(err) {
-            return callback({err: err});
-          }
-          callback({});
+      fn: function(name, callback) {
+        lang.getLangByName(name, function(err,langObj) {
+        if(err) {
+          return callback({err: err});
+        }
+        callback(null,{'language object': langObj});
         });
       }
     }
   ],function(err) {
         if(err) {
-          return callback({err: err});
+          return callback_({err: err});
         }
-        callback({});
+        callback_({});
       });
     },
-    getLang: function(String, callback) {
-      lang.getLang(path, function(err) {
+    getLang: function(path, callback) {
+      lang.getLang(path, function(err, langObj) {
+          if(err) {
+              return callback({err: err});
+             }
+            callback({ret: langObj});
+          });
+    },
+    getLangByName: function(name, callback) {
+      lang.getLangByName(name, function(err,langObj) {
         if(err) {
           return callback({err: err});
         }
-        callback({});
+        callback({ret: langObj});
       });
     },
-    getLangByName: function(String, callback) {
-      lang.getLangByName(name, function(err) {
-        if(err) {
-          return callback({err: err});
-        }
-        callback({});
-      });
-    },
-    setLocale: function(String, callback) {
+    setLocale: function(locale, callback) {
       lang.setLocale(locale, function(err) {
         if(err) {
           return callback({err: err});
@@ -143,16 +144,16 @@ var initObj = {
         callback({ret: list});
       });
     },
-    addLang: function(Object, callback) {
-      lang.addLang(lang, function(err) {
+    addLang: function(langObject, callback) {
+      lang.addLang(langObject, function(err) {
         if(err) {
           return callback({err: err});
         }
         callback({});
       });
     },
-    removeLang: function(Object, callback) {
-      lang.removeLang(lang, function(err) {
+    removeLang: function(langObject, callback) {
+      lang.removeLang(langObject, function(err) {
         if(err) {
           return callback({err: err});
         }
