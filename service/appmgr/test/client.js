@@ -29,7 +29,7 @@ requireProxy(['appmgr'], function(appmgr) {
     console.log('unregister: OK');
   });
 
-  appmgr.getRegisteredAppInfo('datamgr-app', function(ret) {
+  appmgr.getRegisteredAppInfo('exam-app', function(ret) {
     if(ret.err) return console.log('getRegisteredAppInfo error:', ret.err);
     console.log('getRegisteredAppInfo:', ret.ret);
     appmgr.startApp(ret.ret, {}, function(ret) {

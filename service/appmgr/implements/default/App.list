@@ -11,6 +11,10 @@
     "id": "datamgr-app",
     "path": "demo-rio/newdatamgr"
   },
+  "exam-app": {
+    "id": "exam-app",
+    "path": "demo-rio/appExample"
+  },
   "app-register": {
     "id": "app-register",
     "path": "demo-webde/nw/app/app-register"
