@@ -4,13 +4,10 @@ var http = require("http"),
     path = require('path'),
     fs = require('fs'),
     config = require('../../../config'),
-    requireProxy = require('../../../sdk/lib/requireProxy').requireProxy,
+    requireProxy = require('../../../sdk/lib/requireProxy').requireProxySync,
     Cache = require('../../../sdk/utils/cache').Cache,
     flowctl = require('../../../sdk/utils/flowctl'),
-    appManager = null;
-requireProxy(['appmgr'], function(appmgr) {
-  appManager = appmgr;
-});
+    appManager = requireProxy('appmgr');
 
 var appInfoCache = new Cache(20, {
   init: function(key, list) {

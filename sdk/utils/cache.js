@@ -1,7 +1,33 @@
+// e.g.:
+// var cache = new Cache(20, {
+//  init: function(key, list) {
+//    // called when you call cache.set(key, val);
+//    // used for initializing this new element
+//  },
+//  update: function(key, list) {
+//    // called when you call cache.get(key, val);
+//    // used for updating the state of element get
+//  },
+//  repTarget: function(key, list) {
+//    // may called when you call cache.set(key, val) only when this cache has full
+//    // used to find the proper element to be replacemented
+//  }
+// });
+// 
 // Elements of this cache are objects like: {
 //  val: the real value
 //  age: the age of this value
 // }, by default.
+
+/**
+ * @description
+ *    a simple cache
+ * @param
+ *    capacity: size of this cache -> Number
+ *    stratagy: cache policy, default is LRU -> Object [option]
+ * @return
+ *    an instance of Cache
+ */
 function Cache(capacity, stratagy) {
   this._capacity = capacity || 10;
   this._size = 0;
