@@ -1,3 +1,4 @@
+
 <html>
 <head>
   <title>test_rdfHandle_API</title>
@@ -48,7 +49,7 @@
   function cb(err, result) {
     var win = window.open('');
     if (err) {
-      return print(win, err);
+      throw err;
     }
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -166,13 +167,17 @@
   function test_dbSearch(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
-        var db = rdfhandle.dbOpen();
+        var _db = rdfhandle.dbOpen();
         var _query_get_all = [{
-          subject: db.v('x'),
-          predicate: db.v('y'),//"http://example.org/property/contact#lastname", //
-          object: db.v('z')
-        }]
-        rdfhandle.dbSearch(db, _query_get_all, function(err, result) {
+          subject: _db.v('subject'),
+          predicate: "http://example.org/property/base#URI",
+          object: "rio369rio#1a5b27aff29e0944d20b",
+        }, {
+          subject: _db.v('subject'),
+          predicate: _db.v('predicate'),
+          object: _db.v('object')
+        }];
+        rdfhandle.dbSearch(_db, _query_get_all, function(err, result) {
           cb(err, result)
         });
       })

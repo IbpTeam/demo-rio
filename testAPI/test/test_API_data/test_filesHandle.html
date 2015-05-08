@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "32a365a5ee8e6e27eeb342ae1837b665#7fd0182cc6ae55d049f4#document";
+  var test_uri = "rio369rio#1d71cf77be18db6e0895";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -81,7 +81,7 @@
 
   function test_loadResources(loadResourcesCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = "/home/xiquan/resources/documents";
+      var path = "/home/xiquan/resources";
       data.loadResources(loadResourcesCb, path);
     });
   }
@@ -100,8 +100,11 @@
     });
   }
 
-  function getAllDataByCateCb(text){
+  function getAllDataByCateCb(err,text){
     var win = window.open(''); 
+    if(err){
+      throw err
+    }
     win.document.write("test API getAllDataByCate()");
     win.document.write("<br/>");
     var result=JSON.stringify(text);
@@ -110,7 +113,7 @@
   }
   function test_getAllDataByCate() {
     WDC.requireAPI(['data'], function(data){
-      data.getAllDataByCate(getAllDataByCateCb,['document']);
+      data.getAllDataByCate(getAllDataByCateCb,'document');
     });
   }
 
@@ -156,7 +159,10 @@
     });
   }
 
-  function getDataByUriCb(result){
+  function getDataByUriCb(err, result){
+    if(err){
+      throw err;
+    }
     var win = window.open(''); 
     win.document.write("test API getDataByUri()");
     win.document.write("<br/>");
@@ -170,7 +176,10 @@
     });
   }
 
-  function getDataByPathCb(result){
+  function getDataByPathCb(err, result){
+    if(err){
+      throw err
+    }
     var win = window.open(''); 
     win.document.write("test API getDataByPath()");
     win.document.write("<br/>");
@@ -180,7 +189,7 @@
   }
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/.resources/document/data/ReleaseNoteFor基础版1.0.txt';
+      var path = '/home/xiquan/resources/documents/桌面操作系统发展趋势探讨2.ppt';
       data.getDataByPath(getDataByPathCb,path);
     });
   }

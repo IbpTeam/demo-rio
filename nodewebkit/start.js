@@ -128,6 +128,8 @@ function initializeApp(sFullPath) {
           });
         }
       });*/
+
+      /* TODO: put init in a script */
       // initLevelDB.dbInitial(function(err) {
       //   if (err) {
       //     throw err;

@@ -123,112 +123,44 @@ exports.createData = createData;
  */
 function getAllContacts(getAllCb) {
   console.log("Request handler 'getAllContacts' was called.");
-
-  function getAllByCaterotyCb(err, data) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: "http://example.org/property/base#category",
+    object: 'contact'
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      throw err;
     }
-    var contacts = [];
-    data.forEach(function(each) {
-      if (each != '' && each != null) {
-        var tmp = {
-          URI: each.URI,
-          name: each.name,
-          sex: each.sex,
-          age: each.age,
-          photoPath: each.photoPath,
-          phone: each.phone,
-          email: each.email,
-          others: each.others
+    _db.close(function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return getAllDataByCateCb(err);
         }
-        for (var i = 2; i < 6; i++) {
-          if (each['phone' + String(i)] != null && each['phone' + String(i)] != '') {
-            tmp['phone' + String(i)] = each['phone' + String(i)];
-          }
+        var items = [];
+        for (var item in info) {
+          items.push({
+            URI: info[item].URI,
+            name: info[item].lastname + info[item].firstname,
+            sex: info[item].sex,
+            age: info[item].age,
+            photoPath: info[item].photoPath,
+            phone: info[item].phone,
+            email: info[item].email,
+            others: info[item].tags
+          })
         }
-        if (each.email2 != null && each.email2 != '') {
-          tmp.email2 = each.email2;
-        }
-        contacts.push(tmp);
-      }
-    });
-    getAllCb(contacts);
-  }
-  commonDAO.findItems(null, [CATEGORY_NAME], null, null, getAllByCaterotyCb);
+        return getAllCb(null, items);
+      })
+    })
+  });
 }
 exports.getAllContacts = getAllContacts;
-
-/*
-CONTENT in contacts info:
-URI, lastAccessTime, id
-createTime, createDev lastModifyTime, lastModifyDev lastAccessTime, lastAccessDev,
-name, phone, sex, age, email, photoPath
-*/
-/**
- * @method addContact
- *   add contact info in to db and des files
- *
- * @param1 Item
- *   obdject, the item needs to be added into des file
- *
- * @param2 sItemDesPath
- *   string, the des file path for item
- *
- * @param3 isContactEnd
- *   bool, is true when get all contacts done otherwise false
- *
- * @param4 callback
- *   回调函数, call back when get all data
- *
- *
- */
-// function addContact(Item, sItemDesPath, isContactEnd, callback) {
-//   function getFileUidCb(uri) {
-//     var category = CATEGORY_NAME;
-//     console.log(JSON.stringify(Item));
-//     var currentTime = (new Date());
-//     var phone2 = Item["商务电话"] == undefined ? "" : Item["商务电话"];
-//     var phone3 = Item["商务电话 2"] == undefined ? "" : Item["商务电话 2"];
-//     var phone4 = Item["住宅电话"] == undefined ? "" : Item["住宅电话"];
-//     var phone5 = Item["住宅电话 2"] == undefined ? "" : Item["住宅电话 2"];
-//     var email2 = Item["电子邮件 2 地址"] == undefined ? "" : Item["电子邮件 2 地址"];
-//     var oNewItem = {
-//       id: null,
-//       URI: uri + "#" + category,
-//       category: category,
-//       name: Item["姓"] + Item["名"],
-//       phone: Item["移动电话"],
-//       phone2: phone2,
-//       phone3: phone3,
-//       phone4: phone4,
-//       phone5: phone5,
-//       sex: Item["性别"],
-//       age: "",
-//       email: Item["电子邮件地址"],
-//       email2: email2,
-//       id: "",
-//       photoPath: "",
-//       createTime: currentTime,
-//       lastModifyTime: currentTime,
-//       lastAccessTime: currentTime,
-//       createDev: config.uniqueID,
-//       lastModifyDev: config.uniqueID,
-//       lastAccessDev: config.uniqueID,
-//       others: ""
-//     }
-
-//     function createItemCb() {
-//       callback(isContactEnd, oNewItem);
-//     }
-//     dataDes.createItem(oNewItem, sItemDesPath, createItemCb);
-//   }
-//   uniqueID.getFileUid(getFileUidCb);
-// }
-
-function addContact(metadata, callback) {
-
-}
 
 
 /**
@@ -289,7 +221,6 @@ exports.getByUri = getByUri;
  *   string, the resource path + csvFilename
  */
 function initContacts(loadContactsCb, sItemPath) {
-
   console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++initContacts");
 
   function csvTojsonCb(json) {
@@ -323,19 +254,23 @@ function initContacts(loadContactsCb, sItemPath) {
         }
       }
 
-      //var _db = rdfHandle.dbOpen();
-      for (var k = 0; k < oContacts.length; k++) {
-        var _isContactEnd = (k == (oContacts.length - 1));
-        var _info = dataInfo(oContacts[k]);
-        rdfHandle.tripleGenerator(_info, function(err, triples) {
-          if (err) {
-            return callback(err);
-          }
-          _triples = _triples.concat(triples);
-          if (_isContactEnd) {
-            addTriples(_triples, loadContactsCb);
-          }
+      function initHelper(isEnd, rawInfo, callback) {
+        dataInfo(rawInfo, function(info) {
+          rdfHandle.tripleGenerator(info, function(err, triples) {
+            if (err) {
+              return callback(err);
+            }
+            _triples = _triples.concat(triples);
+            if (isEnd) {
+              addTriples(_triples, callback);
+            }
+          })
         })
+      }
+
+      for (var k = 0, l = oContacts.length; k < l; k++) {
+        var _isContactEnd = (k == (l - 1));
+        initHelper(_isContactEnd, oContacts[k], loadContactsCb);
       }
     });
   }
@@ -343,39 +278,35 @@ function initContacts(loadContactsCb, sItemPath) {
 }
 exports.initContacts = initContacts;
 
-function dataInfo(itemInfo) {
+function dataInfo(itemInfo, callback) {
   var fullName = itemInfo["姓"] + itemInfo["名"];
   var fullNameUrl = 'http://example.org/category/contact#' + fullName;
-  var _info = {
-    subject: fullNameUrl,
-    base: {
-      //URI: "",
-      createTime: new Date(),
-      lastModifyTime: new Date(),
-      lastAccessTime: new Date(),
-      createDev: config.uniqueID,
-      lastModifyDev: config.uniqueID,
-      lastAccessDev: config.uniqueID,
-      createDev: config.uniqueID,
-      //filename: "exapmle",
-      //postfix: "exapmle",
-      category: "contact",
-      //size: "exapmle",
-      //path: "exapmle",
-      tags: "exapmle"
-    },
-    extra: {
-      project: '上海专项',
-      lastname: itemInfo["姓"],
-      firstname: itemInfo["名"],
-      sex: itemInfo["性别"],
-      email: itemInfo["电子邮件地址"],
-      phone: itemInfo["移动电话"]
+  uniqueID.getFileUid(function(uri) {
+    var _info = {
+      subject: fullNameUrl,
+      base: {
+        URI: uri,
+        createTime: new Date(),
+        lastModifyTime: new Date(),
+        lastAccessTime: new Date(),
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID,
+        createDev: config.uniqueID,
+        category: "contact",
+        tags: "exapmle"
+      },
+      extra: {
+        lastname: itemInfo["姓"],
+        firstname: itemInfo["名"],
+        sex: itemInfo["性别"],
+        email: itemInfo["电子邮件地址"],
+        phone: itemInfo["移动电话"]
+      }
     }
-  }
-  return _info;
+    return callback(_info);
+  })
 }
-
 function addTriples(triples, loadContactsCb) {
   var db = rdfHandle.dbOpen();
   rdfHandle.dbPut(db, triples, function(err) {

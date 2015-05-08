@@ -32,6 +32,7 @@ var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar'); 
 var rdfHandle = require("./rdfHandle");
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 
 var writeDbNum = 0;
 var dataPath;
@@ -147,19 +148,18 @@ function baseInfo(itemPath, callback) {
     uniqueID.getFileUid(function(_uri) {
       var _base = {
         URI: _uri,
+        filename: _filename,
+        postfix: _postfix,
+        category: _category,
+        size: _size,
+        path: itemPath,
+        tags: _tags,
         createTime: _ctime,
         lastModifyTime: _mtime,
         lastAccessTime: _ctime,
         createDev: config.uniqueID,
         lastModifyDev: config.uniqueID,
         lastAccessDev: config.uniqueID,
-        createDev: config.uniqueID,
-        filename: _filename,
-        postfix: _postfix,
-        category: _category,
-        size: _size,
-        path: itemPath,
-        tags: _tags
       }
       return callback(null, _base);
     })
@@ -187,7 +187,7 @@ function dataStore(items, extraCallback, callback) {
         }
         extraCallback(_item, function(err, result) {
           var item_info = {
-            subject: 'http://example.org/category/' + _base.URI + '#' + _base.filename,
+            subject: _base.URI,
             base: _base,
             extra: result
           }
@@ -340,15 +340,35 @@ function createDataAll(items, callback) {
 exports.createDataAll = createDataAll;
 
 
-exports.getItemByUri = function(category, uri, callback) {
-  var conditions = ["URI = " + "'" + uri + "'"];
-  commonDAO.findItems(null, category, conditions, null, function(err, result) {
+exports.getItemByProperty = function(options, callback) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP[options._type][options._property],
+    object: options._value
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
-    } else {
-      callback(result);
+      throw err;
     }
+    _db.close(function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return callback(err);
+        }
+        var items = [];
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push(info[item]);
+          }
+        }
+        return callback(null, items);
+      })
+    })
   });
 }
 
@@ -381,59 +401,68 @@ exports.removeFile = function(category, item, callback) {
         utils.getDesRepoDir(category), [path.join(utils.getRealDir(category), sFullName)], [path.join(utils.getDesDir(category), sDesFullName)],
         callback);
     });
+
   });
 };
 
 exports.getAllCate = function(getAllCateCb) {
-  function getCategoriesCb(err, items) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+    object: 'http://example.org/category#base'
+  }, {
+    subject: _db.v('filename'),
+    predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+    object: _db.v('subject')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      throw err;
     }
-    var cates = new Array();
-    items.forEach(function(each) {
-      cates.push({
-        URI: each.id,
-        version: each.version,
-        type: each.type,
-        path: each.logoPath,
-        desc: each.desc
-      });
-    });
-    getAllCateCb(cates);
-  }
-  commonDAO.findItems(null, "category", null, null, getCategoriesCb);
+    _db.close(function() {
+      getAllCateCb(result);
+    })
+  });
 }
 
 exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
-
-  function getAllByCaterotyCb(err, items) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"][cate],
+    object: cate
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      throw err;
     }
-    var cates = new Array();
-    items.forEach(function(each) {
-      cates.push({
-        URI: each.URI,
-        version: each.version,
-        filename: each.filename,
-        postfix: each.postfix,
-        path: each.path
-      });
-    });
-    getAllDataByCateCb(cates);
-  }
-
-  function getAllDevicesCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    getAllDataByCateCb(items);
-  }
-  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
+    _db.close(function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return getAllDataByCateCb(err);
+        }
+        var items = [];
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push({
+              URI: info[item].URI,
+              version: "",
+              filename: info[item].filename,
+              postfix: info[item].postfix,
+              path: info[item].path
+            })
+          }
+        }
+        return getAllDataByCateCb(null, items);
+      })
+    })
+  });
 }
 
 /** 
@@ -458,16 +487,36 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
  *
  **/
 exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
-  function findItemsCb(err, items) {
+  console.log("Request handler 'getRecentAccessData' was called.");
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"][category],
+    object: category
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return getRecentAccessDataCb(err, null);
+      throw err;
     }
-    var DataByNum = utils.getRecent(items, num);
-    getRecentAccessDataCb(null, DataByNum);
-  }
-  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc ";
-  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
+    _db.close(function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return getAllDataByCateCb(err);
+        }
+        var items = [];
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push()
+          }
+        }
+        return getAllDataByCateCb(null, items);
+      })
+    })
+  });
 }
 
 exports.updateDB = function(category, updateDBCb) {
