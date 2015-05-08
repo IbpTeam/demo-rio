@@ -70,7 +70,7 @@ var initObj = {
     {
       fn: function(pera_, callback) {
         lang.getCurLocale(function(err, locale){
-          if(err) {
+          if(err) { 
             return callback({err: err});
            }
           callback(null,{'current locale': locale});
@@ -88,20 +88,22 @@ var initObj = {
       }
     },
     {
-      fn: function(name, callback) {
-        lang.getLangByName(name, function(err,langObj) {
+      fn: function(pera_, callback) {
+        console.log(pera_);
+        lang.getLangByName(pera_, function(err,langObj) {
         if(err) {
           return callback({err: err});
         }
         callback(null,{'language object': langObj});
         });
-      }
+      },
+       pera: name
     }
-  ],function(err) {
+  ],function(err,rets) {
         if(err) {
           return callback_({err: err});
         }
-        callback_({});
+        callback_({ret:rets});
       });
     },
     getLang: function(path, callback) {

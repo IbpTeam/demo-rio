@@ -1,14 +1,14 @@
 var requireProxy = require('../../../sdk/lib/requireProxy').requireProxy;
 requireProxy(['lang'], function(lang) {
-  /*lang.getInitInfo("en",function(ret) {
+  lang.getInitInfo("desktop",function(ret) {
     if(ret.err) return console.log('get Init Info error:', ret.err);
     console.log('localeInfo:', ret.ret);
-  });*/
+  });
 
-  lang.getLang('',function(ret) {
+  /*lang.getLang('',function(ret) {
     if(ret.err) return console.log('get Lang error:', ret.err);
     console.log('Lang:', ret.ret);
-  });
+  });*/
 
   /*lang.getLangByName("desktop",function(ret) {
     if(ret.err) return console.log('get Lang By Name error:', ret.err);
