@@ -48,11 +48,11 @@ function Proxy() {
  */
 Proxy.prototype.getInitInfo = function(String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'getInitInfo',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -67,11 +67,11 @@ Proxy.prototype.getInitInfo = function(String, callback) {
  */
 Proxy.prototype.getLang = function(String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'getLang',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -86,11 +86,11 @@ Proxy.prototype.getLang = function(String, callback) {
  */
 Proxy.prototype.getLangByName = function(String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'getLangByName',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -105,11 +105,11 @@ Proxy.prototype.getLangByName = function(String, callback) {
  */
 Proxy.prototype.setLocale = function(String, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'setLocale',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -124,11 +124,11 @@ Proxy.prototype.setLocale = function(String, callback) {
  */
 Proxy.prototype.getLocale = function(callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'getLocale',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -143,11 +143,11 @@ Proxy.prototype.getLocale = function(callback) {
  */
 Proxy.prototype.getLangList = function(callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'getLangList',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -162,11 +162,11 @@ Proxy.prototype.getLangList = function(callback) {
  */
 Proxy.prototype.addLang = function(Object, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'addLang',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -181,11 +181,11 @@ Proxy.prototype.addLang = function(Object, callback) {
  */
 Proxy.prototype.removeLang = function(Object, callback) {
   var l = arguments.length,
-      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+    args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
     name: 'removeLang',
-    in: args,
+    in : args,
     callback: callback
   });
 };
@@ -226,7 +226,7 @@ Proxy.prototype.off = function(event, handler) {
 
 var proxy = null;
 exports.getProxy = function() {
-  if(proxy == null) {
+  if (proxy == null) {
     proxy = new Proxy();
   }
   return proxy;
