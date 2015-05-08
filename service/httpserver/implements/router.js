@@ -3,8 +3,26 @@ var http = require("http"),
     sys = require('sys'),
     path = require('path'),
     fs = require('fs'),
-    config = require('../../../config');
-// var appManager = require('./app/appManager');
+    config = require('../../../config'),
+    requireProxy = require('../../../sdk/lib/requireProxy').requireProxySync,
+    Cache = require('../../../sdk/utils/cache').Cache,
+    flowctl = require('../../../sdk/utils/flowctl'),
+    appManager = requireProxy('appmgr');
+
+var appInfoCache = new Cache(20, {
+  init: function(key, list) {
+    list[key].timer = setTimeout(function() {
+      list[key] = null;
+      delete list[key];
+    }, 120000);
+  },
+  update: function(key, list) {
+    // nothing need to do
+  },
+  repTarget: function(list) {
+    // nothing need to do
+  }
+})
 
 var mimeTypes = {
  "html": "text/html",
@@ -20,15 +38,22 @@ var mimeTypes = {
  "ico": "image/x-icon"
 };
 
-function getRemoteAPIFile(handle, modulename, response){
-  var realPath = path.join(__dirname, "../lib/api/", modulename + "_remote.js");
-  // TODO: replace to proxy
-  var onehandle = require("../lib/api/" + modulename + ".js");
+function errorHandler(errorNum, response, msg) {
+  response.writeHead(errorNum, {
+    'Content-Type': 'text/plain'
+  });
+  response.write(msg);
+  response.end();
+}
+
+function getRemoteAPIFile(handle, modulename, response) {
+  var realPath = path.join(__dirname, "../../../APIs", modulename + "_remote.js"),
+      onehandle = require("../../../APIs/" + modulename + ".js");
   handle[modulename] = onehandle;
-  path.exists(realPath, function (exists) {
-    var handle_remote=[];
-    if (exists){
-      handle_remote=require(realPath);
+  path.exists(realPath, function(exists) {
+    var handle_remote = [];
+    if(exists) {
+      handle_remote = require(realPath);
     }
     //The follow content is template for write code.
     //The mix_remote.js file is example of replacing remote function.
@@ -69,13 +94,13 @@ function getRemoteAPIFile(handle, modulename, response){
     var remotejs='define(function(){var o={};function sendrequest(a, ar){var sd = {};var cb=ar.shift();sd.api = a;sd.args = ar;$.ajax({      url: "/callapi", type: "post", contentType: "application/json;charset=utf-8", dataType: "json", data: JSON.stringify(sd), success: function(r) {setTimeout(cb.apply(null,r), 0);}, error: function(e) {throw e;} });};';
     response.write(remotejs, "binary");
     var func;
-    for (func in onehandle) {
+    for(func in onehandle) {
       response.write("o.");
       response.write(func);
       if ( "function" === typeof handle_remote[func]) {
         response.write("=");
         response.write(handle_remote[func]+";");
-      }else {
+      } else {
         response.write('=function(){sendrequest("');
         response.write(modulename);
         response.write('.');
@@ -90,28 +115,22 @@ function getRemoteAPIFile(handle, modulename, response){
   return;
 }
 
-function getRealFile(pathname, response){
-  path.exists("."+pathname, function (exists) {
+function getRealFile(pathname, response) {
+  path.exists("." + pathname, function(exists) {
     var realPath;
-    if (!exists) {
+    if(!exists) {
       realPath = pathname;
-    }else {
+    } else {
       realPath = "." + pathname;
     }
     path.exists(realPath, function (exists) {
-      if (!exists) {
-        response.writeHead(404, {
-          'Content-Type': 'text/plain'
-        });
-        response.write("This request URL " + realPath + " was not found on this server.");
-        response.end();
-      }else {
+      if(!exists) {
+        errorHandler(404, response
+          , "This request URL " + realPath + " was not found on this server.");
+      } else {
         fs.readFile(realPath, "binary", function (err, file) {
           if (err) {
-            response.writeHead(500, {
-                'Content-Type': 'text/plain'
-            });
-            response.end(err.message);
+            errorHandler(500, response, err.message);
           } else {
             var content_type;
             var suffix = pathname.substring(pathname.lastIndexOf('.') + 1).toLowerCase();
@@ -139,6 +158,81 @@ function getRealFile(pathname, response){
     });
   });
 }
+
+/*********************************/
+/*     handler for API call      */
+/*********************************/
+
+function handleAPICall(handle, pathname, response, postData) {
+  if(postData === null || postData.length === 0) {
+    errorHandler(404, response, "Invalid callapi");
+  }
+  var postDataJSON = JSON.parse(postData),
+      args = postDataJSON.args,
+      apiPathArr = postDataJSON.api.split("."),
+      sendresponse = function() {
+        response.writeHead(200, {"Content-Type": mimeTypes["js"]});
+        response.write(JSON.stringify(Array.prototype.slice.call(arguments)));
+        response.end();
+      };
+  args.unshift(sendresponse);
+  handle[apiPathArr[0]][apiPathArr[1]].apply(null, args);
+  return ;
+}
+
+/*********************************/
+/*     handler for APP call      */
+/*********************************/
+
+function handleAPPCall(handle, pathname, response, postData) {
+  // request url: /callapp/ + appID + / + request file name
+  // TODO: cache APP info
+  var url = pathname.replace(/^\//, '').split('/'),
+      sAppID = url[1],
+      sFilename = path.join.apply(this, url.slice(2)),
+      runapp = null;
+
+  flowctl.series([
+    {
+      fn: function(pera, cb) {
+        try {
+          runapp = appInfoCache.get(sAppID);
+          cb(null);
+        } catch(e) {
+          appManager.getRegisteredAppInfo(sAppID, function(ret) {
+            if(!ret.err) {
+              appInfoCache.set(sAppID, ret.ret);
+              runapp = ret.ret;
+            }
+            cb(null);
+          });
+        }
+      }
+    }
+  ], function(err, rets) {
+    if(runapp === null) {
+      console.log("Error: App " + sAppID + " is not found");
+      errorHandler(404, response, "This request URL " + pathname + " was not found on this server.");
+      return ;
+    }
+
+    if(sFilename === "index.html") {
+      getRealFile(path.join(runapp.path, sFilename), response);
+    } else if(sFilename === "lib/api.js") {
+      getRealFile(path.join(runapp.path, "lib/api_remote.js"), response);
+    } else if(sFilename.lastIndexOf("lib/api/", 0) === 0 
+        && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
+      var modulename = sFilename.substring(8, sFilename.length - 3);
+      getRemoteAPIFile(handle, modulename, response);
+    } else {
+      getRealFile(path.join(runapp.path, sFilename), response);
+    }
+  });
+}
+
+/******************************************/
+/*     handler for websocket message      */
+/******************************************/
 
 // used for web socket server to store ws client
 var eventList = [];
@@ -266,84 +360,44 @@ exports.wsNotify = wsNotify;
  */
 function route(handle, pathname, response, postData) {
   console.log("The route for path: %s, data: %s", pathname, postData);
-  if(pathname == '/') {
-    response.write("The index pages is blank.");
-    response.end();
-    return;
-  } else if(pathname == '/ws') {
-    var wsclient = response;
-    var message = postData;
-    wsclient.send("I have got your message whose length is " + postData.length);
-    // Handle message
-    handleWSMsg(wsclient, message);
-    return;
-  } else if(pathname == '/callapi') {
-    //This is for remote call api in internet browser.
-    if ( postData === null || postData.length === 0 ){
-      response.writeHead(404, {'Content-Type': 'text/plain'});
-      response.write("Invalid callapi");
+  try {
+    if(pathname == '/') {
+      response.write("The index pages is blank.");
       response.end();
       return;
-    }
-    var postDataJSON=JSON.parse(postData);
-    var args=postDataJSON.args;
-    var apiPathArr=postDataJSON.api.split(".");
-    var sendresponse = function() {
-      response.writeHead(200, {"Content-Type": mimeTypes["js"]});
-      response.write(JSON.stringify(Array.prototype.slice.call(arguments)));
-      response.end();
-    }
-    args.unshift(sendresponse);
-    handle[apiPathArr[0]][apiPathArr[1]].apply(null, args);
-    return;
-  } else if(pathname.lastIndexOf("/callapp/", 0) === 0) {
-    // This is for remote open app in internet browser.
-    // request url: /callapp/ + appID + / + request file name
-    var url = pathname.replace(/^\//, '').split('/'),
-        sAppID = url[1],
-        sFilename = path.join.apply(this, url.slice(2)),
-        runapp = appManager.getRegistedInfo(sAppID),
-        rootPath = (runapp.local ? '' : config.APPBASEPATH);
-
-    if(runapp === null) {
-      console.log("Error no app " + sAppID);
-      response.writeHead(404, {
-        'Content-Type': 'text/plain'
-      });
-      response.write("This request URL " + pathname + " was not found on this server.");
-      response.end();
+    } else if(pathname == '/ws') {
+      var wsclient = response;
+      var message = postData;
+      wsclient.send("I have got your message whose length is " + postData.length);
+      // handle message
+      handlewsmsg(wsclient, message);
       return;
-    }
-
-    if(sFilename === "index.html") {
-      getRealFile(path.join(rootPath, runapp.path, sFilename), response);
-    } else if(sFilename === "lib/api.js") {
-      getRealFile(path.join(rootPath, runapp.path, "lib/api_remote.js"), response);
-    } else if(sFilename.lastIndexOf("lib/api/", 0) === 0 
-        && sFilename.indexOf(".js", sFilename.length - 3) !== -1) {
-      var modulename = sFilename.substring(8, sFilename.length - 3);
-      getRemoteAPIFile(handle, modulename, response);
+    } else if(pathname == '/callapi') {
+      // this is for remote call api in internet browser.
+      return handleAPICall(handle, pathname, response, postData);
+    } else if(pathname.lastIndexOf("/callapp/", 0) === 0) {
+      // This is for remote open app in internet browser.
+      return handleAPPCall(handle, pathname, response, postData);
     } else {
-      getRealFile(path.join(rootPath, runapp.path, sFilename), response);
-    }
-    return;
-  } else {
-    //Use api_remote.js for /lib/api.js
-    var realPath;
-    if(pathname == "/lib/api.js") {
-      pathname = "./lib/api_remote.js";
-      getRealFile(pathname, response);
-      return;
-    } else if(pathname.lastIndexOf("/lib/api/", 0) === 0
-        && pathname.indexOf(".js", pathname.length - 3) !== -1) {
-      var modulename = pathname.substring(9, pathname.length - 3);
-      getRemoteAPIFile(handle, modulename, response);
-      return;
-    }else {
-      getRealFile(pathname, response);
-      return;
-    }//end of /lib/api/***.js
-  }//end of if callapi callapp and else
+      //Use api_remote.js for /lib/api.js
+      var realPath;
+      if(pathname == "/lib/api.js") {
+        pathname = "./lib/api_remote.js";
+        getRealFile(pathname, response);
+        return;
+      } else if(pathname.lastIndexOf("/lib/api/", 0) === 0
+          && pathname.indexOf(".js", pathname.length - 3) !== -1) {
+        var modulename = pathname.substring(9, pathname.length - 3);
+        getRemoteAPIFile(handle, modulename, response);
+        return;
+      }else {
+        getRealFile(pathname, response);
+        return;
+      }//end of /lib/api/***.js
+    }//end of if callapi callapp and else
+  } catch(e) {
+    errorHandler(500, response, e.toString());
+  }
 }
 
 exports.route = route;

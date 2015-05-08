@@ -1,5 +1,5 @@
 var config = require('../../backend/config');
-var appManager = require('../../backend/app/appManager');
+// var appManager = require('../../backend/app/appManager');
 var path = require("path");
 
 /**

@@ -86,3 +86,26 @@ exports.requireProxy = function() {
     }, 0);
   };
 }
+
+exports.requireProxySync = function(proxy, addr) {
+  if(typeof proxy === 'undefined') throw 'Not enough parameter';
+  var userPath = USERPATH + '/' + proxy + '/' + proxy,
+      localPath = LOCALPATH + '/' + proxy + '/' + proxy,
+      proxyIns = null;
+  if(typeof addr === 'undefined') {
+    userPath += 'Proxy.js';
+    localPath += 'Proxy.js';
+  } else {
+    userPath += 'ProxyRemote.js';
+    localPath += 'ProxyRemote.js';
+  }
+  if(fs.existsSync(userPath)) {
+    proxyIns = require(userPath).getProxy(addr);
+  } else if (fs.existsSync(localPath)) {
+    proxyIns = require(localPath).getProxy(addr);
+  } else {
+    throw "Proxy " + proxy + " not found";
+  }
+  return proxyIns;
+}
+
