@@ -72,9 +72,10 @@ exports.dbClear = dbClear;
  *
  */
 function dbOpen() {
-  if (__db.isClosed()) {
-    __db = levelgraph(config.LEVELDBPATH);
-  }
+  /*TODO: need to find a suitable time to close database*/
+  // if (__db.isOpen()) {
+  //  return  __db;// = levelgraph(config.LEVELDBPATH);
+  // }
   return __db
 }
 exports.dbOpen = dbOpen;
