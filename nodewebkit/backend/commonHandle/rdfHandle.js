@@ -70,7 +70,6 @@ exports.dbClear = dbClear;
  * @method dbOpen
  *   open the levegraph database; would return a database object
  *
- *
  */
 function dbOpen() {
   console.log(__db.isOpen())
@@ -81,7 +80,13 @@ function dbOpen() {
 }
 exports.dbOpen = dbOpen;
 
+/**
+ * @method dbClose
+ *   close the levegraph database
+ *
+ */
 function dbClose(db, callback) {
+  /*TODO: need to find a suitable time to close database*/
   //setImmediate(function() {
     //db.close(function() {
       callback();
