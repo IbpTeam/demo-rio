@@ -72,7 +72,6 @@ exports.dbClear = dbClear;
  *
  */
 function dbOpen() {
-  console.log(__db.isOpen())
   if (__db.isClosed()) {
     __db = levelgraph(config.LEVELDBPATH);
   }
@@ -182,7 +181,7 @@ function dbSearch(db, query, callback) {
   }
   db.search(query, function(err, results) {
     if (err) {
-      console.log(err, "===============================");
+      console.log(err);
       return callback(err)
     }
     return callback(null, results);
