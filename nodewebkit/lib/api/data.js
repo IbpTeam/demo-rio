@@ -1645,8 +1645,8 @@ exports.test_rdfHandle = test_rdfHandle;
 function test_baseinfo(callback) {
   var config = require("../../backend/config");
   var element = {
-    home : config.HOME,
-    resource : config.HOME + "/resources"
+    HOMEFOLDER : path.join(config.HOME),
+    RESOURCEFOLDER : path.join(config.HOME, "resources")
   }
   callback(element);
 }

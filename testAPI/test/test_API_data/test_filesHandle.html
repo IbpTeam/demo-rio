@@ -62,9 +62,10 @@
   }
   function test_loadFile(loadFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = Home + "testFile/music/咖啡.mp3";
-      //var path = Home + "resources/contacts/contacts.CSV";
-      data.loadFile(loadFileCb, path);
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + "testFile/music/咖啡.mp3";;
+        data.loadFile(loadFileCb, path);
+      });      
     });
   }
 
@@ -84,7 +85,7 @@
   function test_loadResources(loadResourcesCb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.resource;
+        var path = baseinfo.RESOURCEFOLDER;
         data.loadResources(loadResourcesCb, path);
       });
     });
@@ -130,22 +131,26 @@
     print(win,result);      
   }
   function test_updateDataValue(updateDataValueCb){
+
     WDC.requireAPI(['data'], function(data){
-      var item=[{
-        id:"",
-        URI:test_uri,
-        category:"document",
-        others:null,
-        filename:"testFile",
-        path:Home+"resources/documents/Teaching/11/章节介绍.txt",
-        postfix:"txt",
-        size:1204,
-        project:'上海专项',
-        createTime:1111,
-        lastModifyTime:1111,
-        lastAccessTime:1111,
-      }];
-      data.updateDataValue(updateDataValueCb,item);
+      data.test_baseinfo(function(baseinfo) {
+          var item=[{
+          id:"",
+          URI:test_uri,
+          category:"document",
+          others:null,
+          filename:"testFile",
+          path:baseinfo.RESOURCEFOLDER + "documents/Teaching/11/章节介绍.txt",
+          postfix:"txt",
+          size:1204,
+          project:'上海专项',
+          createTime:1111,
+          lastModifyTime:1111,
+          lastAccessTime:1111,
+        }];
+        data.updateDataValue(updateDataValueCb,item);
+      }); 
+      
     });
   }
 
@@ -193,8 +198,11 @@
   }
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
-      var path = Home + 'resources/documents/桌面操作系统发展趋势探讨2.ppt';
-      data.getDataByPath(getDataByPathCb,path);
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.RESOURCEFOLDER + 'documents/桌面操作系统发展趋势探讨2.ppt';
+        data.getDataByPath(getDataByPathCb,path);
+      });
+      
     });
   }
 
@@ -246,9 +254,13 @@
   }
   function test_pasteFile(pasteFileCb){
     WDC.requireAPI(['data'], function(data){
-      var sourcePath = Home + "resources/documents/testfile.txt";
-      var desPath = Home + "resources/.des/documents/testfile.txt.md";
-      data.pasteFile(pasteFileCb, sourcePath, desPath);
+      data.test_baseinfo(function(baseinfo) {
+        var resources = baseinfo.RESOURCEFOLDER;
+        var sourcePath = resources + "documents/testfile.txt";
+        var desPath = resources + ".des/documents/testfile.txt.md";
+        data.pasteFile(pasteFileCb, sourcePath, desPath);
+      });
+      
     });        
   }  
 
@@ -304,8 +316,10 @@
 
   function test_getMusicPicData(getMusicPicDataCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = Home + 'testFile/music/咖啡.mp3';
-      data.getMusicPicData(getMusicPicDataCb, path);
+      data.test_baseinfo(function(baseinfo) {
+         var path = baseinfo.HOMEFOLDER + 'testFile/music/咖啡.mp3';
+         data.getMusicPicData(getMusicPicDataCb, path);
+      });
     });
   }
 
@@ -375,8 +389,11 @@
   }
   function test_loadResources(loadResourcesCb){
     WDC.requireAPI(['data'], function(data){
-      var path = Home + "resources/test.txt";
-      data.loadResources(loadResourcesCb,path);
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.RESOURCEFOLDER + "test.txt";
+        data.loadResources(loadResourcesCb,path);
+      });
+      
     });
   }       
 </pre>
@@ -400,7 +417,7 @@
   }
   function test_loadFile(loadFileCb){
     WDC.requireAPI(['data'], function(data){
-      var path = Home + "resources/test.txt";
+      var path = baseinfo.RESOURCEFOLDER + "test.txt";
       data.loadFile(loadFileCb,path);
     });
   }       
@@ -546,23 +563,25 @@
 
     function test_updateDataValue(updateDataValueCb){
       WDC.requireAPI(['data'], function(data){
-        var item=[{
-          id:"",
-          URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
-          category:"Documents",
-          commit_id: null,
-          version:null,
-          others:null,
-          filename:"testFile",
-          postfix:"txt",
-          size:1204,
-          path: Home + "testFile",
-          project:'上海专项',
-          createTime:1111,
-          lastModifyTime:1111,
-          lastAccessTime:1111,
-        }];
-        data.updateDataValue(updateDataValueCb,item);
+        data.test_baseinfo(function(baseinfo) {
+          var item=[{
+            id:"",
+            URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
+            category:"Documents",
+            commit_id: null,
+            version:null,
+            others:null,
+            filename:"testFile",
+            postfix:"txt",
+            size:1204,
+            path: baseinfo.HOMEFOLDER + "testFile",
+            project:'上海专项',
+            createTime:1111,
+            lastModifyTime:1111,
+            lastAccessTime:1111,
+          }];
+          data.updateDataValue(updateDataValueCb,item);
+        });
       });
     }
   </pre>
@@ -878,10 +897,12 @@
     }
   }
   function test_getMusicPicData(getMusicPicDataCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = Home + 'testFile/music/打错了.mp3';
-      data.getMusicPicData(getMusicPicDataCb,path);
-    });        
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + + 'testFile/music/打错了.mp3';
+        data.getMusicPicData(getMusicPicDataCb,path);
+      });      
+    });     
   }
   </pre>
 </div>
@@ -908,10 +929,16 @@
       print(win, result);
     }
   }
+
   function test_getVideoThumbnail(getVideoThumbnailCb){
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + 'testFile/music/打错了.mp4';
+        data.getVideoThumbnail(getVideoThumbnailCb,path);
+      });      
+    });     
     WDC.requireAPI(['data'], function(data){
-      var path = Home + 'testFile/music/打错了.mp4';
-      data.getVideoThumbnail(getVideoThumbnailCb,path);
+      
     });        
   }
   </pre>
