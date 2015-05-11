@@ -55,8 +55,10 @@
   }
   function test_loadContacts(loadContactCb){
     WDC.requireAPI(['data'], function(data){
-      var path = "/home/xiquan/backup_code/WORKSPACE/resources/contacts/contacts.CSV";
-      data.loadContacts(loadContactCb,path);
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + "backup_code/WORKSPACE/resources/contacts/contacts.CSV";
+        data.loadContacts(loadContactCb,path);
+      });
     });
   }
 
@@ -101,8 +103,10 @@
 
     function test_loadResources(loadContactCb){
       WDC.requireAPI(['data'], function(data){
-        var path = "/home/xiquan/resources";
-        data.loadResources(loadContactCb,path);
+        data.test_baseinfo(function(baseinfo) {
+          var path = baseinfo.RESOURCEFOLDER;
+          data.loadResources(loadContactCb,path);
+        });  
       });
     }        
 </pre>
