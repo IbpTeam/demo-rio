@@ -16,7 +16,9 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio19091rio#066fde593115ed715dab"";
+  var test_uri = "rio369rio#1d71cf77be18db6e0895";
+  var Home = "/home/xwh/"
+
   function print(win,something){
     if(typeof something == "object"){
       win.document.write("{");
@@ -931,7 +933,7 @@
   function test_getVideoThumbnail(getVideoThumbnailCb){
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.HOMEFOLDER + '/testFile/music/打错了.mp4';
+        var path = baseinfo.HOMEFOLDER + 'testFile/music/打错了.mp4';
         data.getVideoThumbnail(getVideoThumbnailCb,path);
       });      
     });     
