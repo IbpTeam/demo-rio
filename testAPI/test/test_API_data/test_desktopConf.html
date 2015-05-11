@@ -382,7 +382,7 @@
     WDC.requireAPI(['data'], function(data) {
       WDC.requireAPI(['data'], function(data){
         data.test_baseinfo(function(baseinfo) {
-          var sFilePath = baseinfo.HOMEFOLDER +  'testFile/testJSON.txt';
+          var sFilePath = baseinfo.HOMEFOLDER +  '/testFile/testJSON.txt';
           data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
         });  
       });
@@ -406,10 +406,10 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-          var sFilePath = [ homefolder +'testFile/small_image.jpg',
-                       homefolder +'testFile/testJSON.txt',
-                       homefolder +'testFile/testJSON1.txt',
-                       homefolder +'testFile/test_1.mp3'
+          var sFilePath = [ homefolder +'/testFile/small_image.jpg',
+                       homefolder +'/testFile/testJSON.txt',
+                       homefolder +'/testFile/testJSON1.txt',
+                       homefolder +'/testFile/test_1.mp3'
                        ];
       data.moveToDesktop(moveToDesktopCb,sFilePath);
       });  
@@ -433,7 +433,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '.resources/document/data/testJSON.txt';
+        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
         data.removeFileFromDB(removeFileFromDBCb,sFilePath);
       });
     });
@@ -455,7 +455,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '.resources/document/data/testJSON.txt';
+        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
         data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
       });
     });
@@ -554,7 +554,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '.resources/document/data/testJSON.txt';
+        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
         var sTags = '$desktop$aa$bb$';
         data.setRelativeTagByPath(setRelativeTagByPathCb,sFilePath, sTags);
       });
@@ -1067,7 +1067,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + 'testFile/testJSON.txt';
+        var sFilePath = homefolder + '/testFile/testJSON.txt';
         data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
       });
     });
@@ -1101,7 +1101,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + 'testFile/testJSON.txt';
+        var sFilePath = homefolder + '/testFile/testJSON.txt';
         data.moveToDesktop(moveToDesktopCb,sFilePath);
       });
     });
@@ -1135,7 +1135,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + 'testFile/small_image.jpg';
+        var sFilePath = homefolder + '/testFile/small_image.jpg';
         data.removeFileFromDB(removeFileFromDBCb,sFilePath);
       });
     });
@@ -1169,7 +1169,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '.resources/picture/data/small_image.jpg';
+        var sFilePath = homefolder + '/.resources/picture/data/small_image.jpg';
         data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
       });
     });
@@ -1325,7 +1325,7 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '.resources/document/testJSON.txt';
+        var sFilePath = homefolder + '/.resources/document/testJSON.txt';
         var sTags = '$desktop$aa$bb$';
         data.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
       });

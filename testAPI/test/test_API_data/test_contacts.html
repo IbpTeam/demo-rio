@@ -56,7 +56,7 @@
   function test_loadContacts(loadContactCb){
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.HOMEFOLDER + "backup_code/WORKSPACE/resources/contacts/contacts.CSV";
+        var path = baseinfo.RESOURCEFOLDER + "/contacts/contacts.CSV";
         data.loadContacts(loadContactCb,path);
       });
     });

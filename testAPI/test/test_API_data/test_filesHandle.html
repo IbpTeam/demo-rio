@@ -63,7 +63,7 @@
   function test_loadFile(loadFileCb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.HOMEFOLDER + "testFile/music/咖啡.mp3";;
+        var path = baseinfo.HOMEFOLDER + "/testFile/music/咖啡.mp3";;
         data.loadFile(loadFileCb, path);
       });      
     });
@@ -140,7 +140,7 @@
           category:"document",
           others:null,
           filename:"testFile",
-          path:baseinfo.RESOURCEFOLDER + "documents/Teaching/11/章节介绍.txt",
+          path:baseinfo.RESOURCEFOLDER + "/documents/Teaching/11/章节介绍.txt",
           postfix:"txt",
           size:1204,
           project:'上海专项',
@@ -199,7 +199,7 @@
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER + 'documents/桌面操作系统发展趋势探讨2.ppt';
+        var path = baseinfo.RESOURCEFOLDER + '/documents/桌面操作系统发展趋势探讨2.ppt';
         data.getDataByPath(getDataByPathCb,path);
       });
       
@@ -256,7 +256,7 @@
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
         var resources = baseinfo.RESOURCEFOLDER;
-        var sourcePath = resources + "documents/testfile.txt";
+        var sourcePath = resources + "/documents/testfile.txt";
         var desPath = resources + ".des/documents/testfile.txt.md";
         data.pasteFile(pasteFileCb, sourcePath, desPath);
       });
@@ -317,7 +317,7 @@
   function test_getMusicPicData(getMusicPicDataCb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
-         var path = baseinfo.HOMEFOLDER + 'testFile/music/咖啡.mp3';
+         var path = baseinfo.HOMEFOLDER + '/testFile/music/咖啡.mp3';
          data.getMusicPicData(getMusicPicDataCb, path);
       });
     });
@@ -390,7 +390,7 @@
   function test_loadResources(loadResourcesCb){
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER + "test.txt";
+        var path = baseinfo.RESOURCEFOLDER + "/test.txt";
         data.loadResources(loadResourcesCb,path);
       });
       
@@ -417,7 +417,7 @@
   }
   function test_loadFile(loadFileCb){
     WDC.requireAPI(['data'], function(data){
-      var path = baseinfo.RESOURCEFOLDER + "test.txt";
+      var path = baseinfo.RESOURCEFOLDER + "/test.txt";
       data.loadFile(loadFileCb,path);
     });
   }       
@@ -574,7 +574,7 @@
             filename:"testFile",
             postfix:"txt",
             size:1204,
-            path: baseinfo.HOMEFOLDER + "testFile",
+            path: baseinfo.HOMEFOLDER + "/testFile",
             project:'上海专项',
             createTime:1111,
             lastModifyTime:1111,
@@ -899,7 +899,7 @@
   function test_getMusicPicData(getMusicPicDataCb){
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.HOMEFOLDER + + 'testFile/music/打错了.mp3';
+        var path = baseinfo.HOMEFOLDER + + '/testFile/music/打错了.mp3';
         data.getMusicPicData(getMusicPicDataCb,path);
       });      
     });     
@@ -933,7 +933,7 @@
   function test_getVideoThumbnail(getVideoThumbnailCb){
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.HOMEFOLDER + 'testFile/music/打错了.mp4';
+        var path = baseinfo.HOMEFOLDER + '/testFile/music/打错了.mp4';
         data.getVideoThumbnail(getVideoThumbnailCb,path);
       });      
     });     
