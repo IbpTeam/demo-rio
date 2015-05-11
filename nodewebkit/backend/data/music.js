@@ -175,31 +175,6 @@ function extraInfo(item, callback) {
   })
 }
 
-/**
- * @method removeByUri
- *    Remove Music by uri.
- * @param uri
- *    The Music's URI.
- * @param callback
- *    Callback
- */
-function removeByUri(uri, callback) {
-  getByUri(uri, function(items) {
-    //Remove real file
-    fs.unlink(items[0].path, function(err) {
-      if (err) {
-        console.log(err);
-        callback("error");
-      } else {
-        //Remove Des file
-        //Delete in db
-        //Git commit
-        commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
-      }
-    });
-  });
-}
-exports.removeByUri = removeByUri;
 
 //API openDataByUri:通过Uri获取数据资源地址
 //返回类型：

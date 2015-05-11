@@ -203,33 +203,6 @@ function extraInfo(item, callback) {
 }
 
 
-/**
- * @method removeByUri
- *    Remove Video by uri.
- * @param uri
- *    The Video's URI.
- * @param callback
- *    Callback
- */
-function removeByUri(uri, callback) {
-  getByUri(uri, function(items) {
-    //Remove real file
-    fs.unlink(items[0].path, function(err) {
-      if (err) {
-        console.log(err);
-        callback("error");
-      } else {
-        //Remove Des file
-        //Delete in db
-        //Git commit
-        commonHandle.removeFile(CATEGORY_NAME, items[0], callback);
-      }
-    });
-  });
-}
-exports.removeByUri = removeByUri;
-
-
 function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
 }

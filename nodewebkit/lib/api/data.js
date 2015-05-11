@@ -342,9 +342,12 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataByUri' was called.");
-  var cate = utils.getCategoryObjectByUri(uri);
-  console.log("Request handler 'rmDataByUri' was called. ====" + cate);
-  cate.removeByUri(uri, rmDataByUriCb);
+    var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: uri
+  }
+  commonHandle.removeItemByProperty(_options, rmDataByUriCb);
 }
 exports.rmDataByUri = rmDataByUri;
 
