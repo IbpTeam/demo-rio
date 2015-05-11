@@ -22,7 +22,7 @@ var appInfoCache = new Cache(20, {
   repTarget: function(list) {
     // nothing need to do
   }
-})
+});
 
 var mimeTypes = {
  "html": "text/html",
@@ -47,8 +47,9 @@ function errorHandler(errorNum, response, msg) {
 }
 
 function getRemoteAPIFile(handle, modulename, response) {
-  var realPath = path.join(__dirname, "../../../APIs", modulename + "_remote.js"),
-      onehandle = require("../../../APIs/" + modulename + ".js");
+  var realPath = path.resolve("../../APIs", modulename + "_remote.js"),
+      modulePath = path.resolve("../../APIs", modulename + ".js"),
+      onehandle = require(modulePath);
   handle[modulename] = onehandle;
   path.exists(realPath, function(exists) {
     var handle_remote = [];
@@ -172,6 +173,7 @@ function handleAPICall(handle, pathname, response, postData) {
       apiPathArr = postDataJSON.api.split("."),
       sendresponse = function() {
         response.writeHead(200, {"Content-Type": mimeTypes["js"]});
+        console.log('callapi return:', arguments);
         response.write(JSON.stringify(Array.prototype.slice.call(arguments)));
         response.end();
       };
@@ -387,6 +389,7 @@ function route(handle, pathname, response, postData) {
         return;
       } else if(pathname.lastIndexOf("/lib/api/", 0) === 0
           && pathname.indexOf(".js", pathname.length - 3) !== -1) {
+        console.log('api:', pathname);
         var modulename = pathname.substring(9, pathname.length - 3);
         getRemoteAPIFile(handle, modulename, response);
         return;
@@ -396,6 +399,7 @@ function route(handle, pathname, response, postData) {
       }//end of /lib/api/***.js
     }//end of if callapi callapp and else
   } catch(e) {
+    console.log('Router Error:', e);
     errorHandler(500, response, e.toString());
   }
 }
