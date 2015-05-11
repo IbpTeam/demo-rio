@@ -1635,3 +1635,19 @@ function test_rdfHandle(callback) {
   callback(rdfHandle);
 }
 exports.test_rdfHandle = test_rdfHandle;
+
+
+/** 
+ * @Method: test_baseinfo
+ *    just for testing rdfHandle
+ *
+ **/
+function test_baseinfo(callback) {
+  var config = require("../../backend/config");
+  var element = {
+    home : config.HOME,
+    resource : config.HOME + "/resources"
+  }
+  callback(element);
+}
+exports.test_baseinfo = test_baseinfo;

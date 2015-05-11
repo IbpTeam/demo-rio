@@ -17,7 +17,8 @@
   <script language=javascript>  
 
   var test_uri = "rio369rio#1d71cf77be18db6e0895";
-
+  var Home = "/home/xwh/"
+  var V1Home = "/home/v1/"
   function print(win,something){
     if(typeof something == "object"){
       win.document.write("{");
@@ -61,8 +62,8 @@
   }
   function test_loadFile(loadFileCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = "/home/xiquan/testFile/music/咖啡.mp3";
-      //var path = "/home/xiquan/resources/contacts/contacts.CSV";
+      var path = Home + "testFile/music/咖啡.mp3";
+      //var path = Home + "resources/contacts/contacts.CSV";
       data.loadFile(loadFileCb, path);
     });
   }
@@ -78,11 +79,14 @@
     win.document.write("<br/>");
     print(win, result);
   }
+  
 
   function test_loadResources(loadResourcesCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = "/home/xiquan/resources";
-      data.loadResources(loadResourcesCb, path);
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.resource;
+        data.loadResources(loadResourcesCb, path);
+      });
     });
   }
 
@@ -133,7 +137,7 @@
         category:"document",
         others:null,
         filename:"testFile",
-        path:"/home/xiquan/resources/documents/Teaching/11/章节介绍.txt",
+        path:Home+"resources/documents/Teaching/11/章节介绍.txt",
         postfix:"txt",
         size:1204,
         project:'上海专项',
@@ -189,7 +193,7 @@
   }
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/resources/documents/桌面操作系统发展趋势探讨2.ppt';
+      var path = Home + 'resources/documents/桌面操作系统发展趋势探讨2.ppt';
       data.getDataByPath(getDataByPathCb,path);
     });
   }
@@ -242,8 +246,8 @@
   }
   function test_pasteFile(pasteFileCb){
     WDC.requireAPI(['data'], function(data){
-      var sourcePath = "/home/xiquan/resources/documents/testfile.txt";
-      var desPath = "/home/xiquan/resources/.des/documents/testfile.txt.md";
+      var sourcePath = Home + "resources/documents/testfile.txt";
+      var desPath = Home + "resources/.des/documents/testfile.txt.md";
       data.pasteFile(pasteFileCb, sourcePath, desPath);
     });        
   }  
@@ -300,7 +304,7 @@
 
   function test_getMusicPicData(getMusicPicDataCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = '/home/xiquan/testFile/music/咖啡.mp3';
+      var path = Home + 'testFile/music/咖啡.mp3';
       data.getMusicPicData(getMusicPicDataCb, path);
     });
   }
@@ -321,7 +325,7 @@
   }
   function test_getVideoThumbnail(getVideoThumbnailCb) {
     WDC.requireAPI(['data'], function(data) {
-      var path = '/home/v1/dde/resources/video/movie.ogg';
+      var path = V1Home + 'dde/resources/video/movie.ogg';
       data.getVideoThumbnail(getVideoThumbnailCb, path);
     });
   }
@@ -371,7 +375,7 @@
   }
   function test_loadResources(loadResourcesCb){
     WDC.requireAPI(['data'], function(data){
-      var path = "/home/xiquan/resources/test.txt";
+      var path = Home + "resources/test.txt";
       data.loadResources(loadResourcesCb,path);
     });
   }       
@@ -396,7 +400,7 @@
   }
   function test_loadFile(loadFileCb){
     WDC.requireAPI(['data'], function(data){
-      var path = "/home/xiquan/resources/test.txt";
+      var path = Home + "resources/test.txt";
       data.loadFile(loadFileCb,path);
     });
   }       
@@ -552,7 +556,7 @@
           filename:"testFile",
           postfix:"txt",
           size:1204,
-          path:"/home/xiquan/testFile",
+          path: Home + "testFile",
           project:'上海专项',
           createTime:1111,
           lastModifyTime:1111,
@@ -875,7 +879,7 @@
   }
   function test_getMusicPicData(getMusicPicDataCb){
     WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/testFile/music/打错了.mp3';
+      var path = Home + 'testFile/music/打错了.mp3';
       data.getMusicPicData(getMusicPicDataCb,path);
     });        
   }
@@ -906,7 +910,7 @@
   }
   function test_getVideoThumbnail(getVideoThumbnailCb){
     WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/testFile/music/打错了.mp4';
+      var path = Home + 'testFile/music/打错了.mp4';
       data.getVideoThumbnail(getVideoThumbnailCb,path);
     });        
   }
@@ -952,3 +956,4 @@
 
 </body>
 </html>
+S
