@@ -500,24 +500,23 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
 }
 
 /** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
+ * @Method: getRecentAccessData
+ *    To get recent accessed data.
  *
- * @param1: repoResetCb
+ * @param2: category
+ *    string, a category name, as 'document'
+ *
+ * @param1: getRecentAccessDataCb
  *    @result, (_err,result)
  *
  *    @param1: _err,
  *        string, contain specific error
  *
  *    @param2: result,
- *        string, retieve 'success' when success
+ *        array, of file info object, by nember num
  *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ * @param3: num
+ *    integer, number of file you want to get
  *
  **/
 exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
@@ -536,19 +535,21 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return getAllDataByCateCb(err);
+    rdfHandle.decodeTripeles(result, function(err, info) {
+      if (err) {
+        return getAllDataByCateCb(err);
+      }
+      var items = [];
+      for (var item in info) {
+        if (info.hasOwnProperty(item)) {
+          items.push(info[item]);
         }
-        var items = [];
-        for (var item in info) {
-          if (info.hasOwnProperty(item)) {
-            items.push()
-          }
-        }
-        return getAllDataByCateCb(null, items);
+      }
+      items.sort(function(a, b) {
+        return new Date(b.lastAccessTime) - new Date(a.lastAccessTime);
       })
+      var _result = (items.length > num) ? items.slice(0, num - 1) : items;
+      return getRecentAccessDataCb(null, _result);
     })
   });
 }
