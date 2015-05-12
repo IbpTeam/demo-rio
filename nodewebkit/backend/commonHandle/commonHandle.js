@@ -340,8 +340,7 @@ function createDataAll(items, callback) {
 }
 exports.createDataAll = createDataAll;
 
-
-exports.getItemByProperty = function(options, callback) {
+function getTriplesByProperty(options, callback) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -356,34 +355,32 @@ exports.getItemByProperty = function(options, callback) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return callback(err);
+    return callback(null, result);
+  });
+}
+
+exports.getItemByProperty = function(options, callback) {
+  getTriplesByProperty(options, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    rdfHandle.decodeTripeles(result, function(err, info) {
+      if (err) {
+        return callback(err);
+      }
+      var items = [];
+      for (var item in info) {
+        if (info.hasOwnProperty(item)) {
+          items.push(info[item]);
         }
-        var items = [];
-        for (var item in info) {
-          if (info.hasOwnProperty(item)) {
-            items.push(info[item]);
-          }
-        }
-        return callback(null, items);
-      })
+      }
+      return callback(null, items);
     })
   });
 }
 
-function getTriples(db, options, callback) {
-  var _query_get_medatada = [{
-    subject: db.v('subject'),
-    predicate: DEFINED_PROP[options._type][options._property],
-    object: options._value
-  }, {
-    subject: db.v('subject'),
-    predicate: db.v('predicate'),
-    object: db.v('object')
-  }];
-  rdfHandle.dbSearch(db, _query_get_medatada, function(err, result) {
+function getTriples(options, callback) {
+  getTriplesByProperty(options, function(err, result) {
     if (err) {
       return callback(err);
     }
@@ -405,7 +402,7 @@ function getTriples(db, options, callback) {
 
 exports.removeItemByProperty = function(options, callback) {
   var _db = rdfHandle.dbOpen();
-  getTriples(_db, options, function(err, result) {
+  getTriples(options, function(err, result) {
     if (err) {
       return callback(err);
     }
@@ -552,6 +549,53 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
       return getRecentAccessDataCb(null, _result);
     })
   });
+}
+
+function updateTriples(_db, originTriples, newTriples, callback) {
+  rdfHandle.dbDelete(_db, originTriples, function(err) {
+    if (err) {
+      return callback(err);
+    }
+    rdfHandle.dbPut(_db, newTriples, function(err) {
+      if (err) {
+        return callback(err);
+      }
+      return callback();
+    })
+  })
+}
+
+exports.updatePropertyValue = function(property, updatePropertyValueCb) {
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: property._uri
+  }
+  getTriplesByProperty(_options, function(err, result) {
+    var _new_triples = [];
+    var _origin_triples = [];
+    for (var i = 0, l = result.length; i < l; i++) {
+      var _predicate = result[i].predicate;
+      var _reg_property = new RegExp("#" + property._property);
+      if (_reg_property.test(_predicate)) {
+        _origin_triples.push(result[i]);
+        var _new_triple = {
+          subject: result[i].subject,
+          predicate: result[i].predicate,
+          object: result[i].object
+        }
+        _new_triple["object"] = property._value;
+        _new_triples.push(_new_triple);
+      }
+    }
+    var _db = rdfHandle.dbOpen();
+    updateTriples(_db, _origin_triples, _new_triples, function(err) {
+      if (err) {
+        return updatePropertyValueCb(err);
+      }
+      return updatePropertyValueCb();
+    })
+  })
 }
 
 exports.updateDB = function(category, updateDBCb) {

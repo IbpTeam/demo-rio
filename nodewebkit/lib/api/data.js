@@ -514,8 +514,9 @@ exports.openDataByPath = openDataByPath;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  var cate = utils.getCategoryObject(item[0].category);
-  cate.updateDataValue(item[0], updateDataValueCb);
+  // var cate = utils.getCategoryObject(item[0].category);
+  // cate.updateDataValue(item[0], updateDataValueCb);
+  commonHandle.updatePropertyValue(item, updateDataValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
