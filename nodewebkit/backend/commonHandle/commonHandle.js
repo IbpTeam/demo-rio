@@ -582,21 +582,6 @@ function resolveTriples(chenges, triple) {
   return null;
 }
 
-/*
-var property = {
-  _uri: "",
-  _changes:[
-                      {
-                        _property:"filename",
-                        _value:"aaa"
-                      },
-                      {
-                        _property:"postfix",
-                        _value:"txt"
-                      },
-                    ]
-}
-*/
 /** 
  * @Method: updatePropertyValue
  *    To update data property value.
