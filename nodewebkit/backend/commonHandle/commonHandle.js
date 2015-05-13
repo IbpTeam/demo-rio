@@ -583,7 +583,6 @@ function resolveTriples(chenges, triple) {
 }
 
 /*
-
 var property = {
   _uri: "",
   _changes:[
@@ -598,6 +597,35 @@ var property = {
                     ]
 }
 */
+/** 
+ * @Method: updatePropertyValue
+ *    To update data property value.
+ *
+ * @param2: property
+ *    object, contain modification info as below,
+ *
+ *        var property = {
+ *          _uri: "",
+ *          _changes:[
+ *                              {
+ *                                _property:"filename",
+ *                                _value:"aaa"
+ *                              },
+ *                              {
+ *                                _property:"postfix",
+ *                                _value:"txt"
+ *                              },
+ *                            ]
+ *        }
+ *
+ * @param1: updatePropertyValueCb
+ *    @result, (_err,result)
+ *
+ *    @param1: _err,
+ *        string, contain specific error
+ *
+ *
+ **/
 exports.updatePropertyValue = function(property, updatePropertyValueCb) {
   var _options = {
     _type: "base",
