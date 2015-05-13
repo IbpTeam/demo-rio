@@ -563,6 +563,41 @@ function updateTriples(_db, originTriples, newTriples, callback) {
   })
 }
 
+function resolveTriples(chenges, triple) {
+  var _predicate = triple.predicate;
+  var _reg_property = new RegExp("#" + chenges._property);
+  if (_reg_property.test(_predicate)) {
+    var _new_triple = {
+      subject: triple.subject,
+      predicate: triple.predicate,
+      object: triple.object
+    }
+    _new_triple["object"] = chenges._value;
+
+    return {
+      _origin: triple,
+      _new: _new_triple
+    }
+  }
+  return null;
+}
+
+/*
+
+var property = {
+  _uri: "",
+  _changes:[
+                      {
+                        _property:"filename",
+                        _value:"aaa"
+                      },
+                      {
+                        _property:"postfix",
+                        _value:"txt"
+                      },
+                    ]
+}
+*/
 exports.updatePropertyValue = function(property, updatePropertyValueCb) {
   var _options = {
     _type: "base",
@@ -573,17 +608,12 @@ exports.updatePropertyValue = function(property, updatePropertyValueCb) {
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
-      var _predicate = result[i].predicate;
-      var _reg_property = new RegExp("#" + property._property);
-      if (_reg_property.test(_predicate)) {
-        _origin_triples.push(result[i]);
-        var _new_triple = {
-          subject: result[i].subject,
-          predicate: result[i].predicate,
-          object: result[i].object
+      for(var j=0,k=property._changes.length;j<k;j++){
+        var _resolved = resolveTriples(property._changes[j], result[i]);
+        if (_resolved) {
+          _origin_triples.push(_resolved._origin);
+          _new_triples.push(_resolved._new);
         }
-        _new_triple["object"] = property._value;
-        _new_triples.push(_new_triple);
       }
     }
     var _db = rdfHandle.dbOpen();
