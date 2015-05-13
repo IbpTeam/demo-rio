@@ -17,7 +17,7 @@ var levelgraph = require('levelgraph');
 var utils = require('../utils');
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
-
+var __db = levelgraph(config.LEVELDBPATH);
 /**
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
@@ -70,13 +70,30 @@ exports.dbClear = dbClear;
  * @method dbOpen
  *   open the levegraph database; would return a database object
  *
- *
  */
 function dbOpen() {
-  var db = levelgraph(config.LEVELDBPATH);
-  return db;
+  /*TODO: need to find a suitable time to close database*/
+  // if (__db.isOpen()) {
+  //  return  __db;// = levelgraph(config.LEVELDBPATH);
+  // }
+  return __db
 }
 exports.dbOpen = dbOpen;
+
+/**
+ * @method dbClose
+ *   close the levegraph database
+ *
+ */
+function dbClose(db, callback) {
+  /*TODO: need to find a suitable time to close database*/
+  //setImmediate(function() {
+    //db.close(function() {
+      callback();
+    //})
+  //})
+}
+exports.dbClose = dbClose;
 
 /**
  * @method dbPut
@@ -178,6 +195,7 @@ function dbSearch(db, query, callback) {
   }
   db.search(query, function(err, results) {
     if (err) {
+      console.log(err);
       return callback(err)
     }
     return callback(null, results);

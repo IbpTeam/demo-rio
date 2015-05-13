@@ -123,12 +123,10 @@ function addTriples(triples, callback) {
     if (err) {
       return callback(err);
     }
-    db.close(function(err) {
-      if (err) {
-        return callback(err);
-      }
+    rdfHandle.dbClose(db, function() {
       return callback();
     })
+
   })
 }
 
@@ -376,7 +374,7 @@ exports.getItemByProperty = function(options, callback) {
       }
       return callback(null, items);
     })
-  });
+  })
 }
 
 function getTriples(options, callback) {
@@ -451,7 +449,7 @@ exports.getAllCate = function(getAllCateCb) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       getAllCateCb(result);
     })
   });
@@ -473,7 +471,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       rdfHandle.decodeTripeles(result, function(err, info) {
         if (err) {
           return getAllDataByCateCb(err);
@@ -532,18 +530,18 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     if (err) {
       throw err;
     }
-    rdfHandle.decodeTripeles(result, function(err, info) {
-      if (err) {
-        return getAllDataByCateCb(err);
-      }
-      var items = [];
-      for (var item in info) {
-        if (info.hasOwnProperty(item)) {
-          items.push(info[item]);
+    rdfHandle.dbClose(_db, function() {
+      rdfHandle.decodeTripeles(result, function(err, info) {
+        if (err) {
+          return getRecentAccessDataCb(err);
         }
-      }
-      items.sort(function(a, b) {
-        return new Date(b.lastAccessTime) - new Date(a.lastAccessTime);
+        var items = [];
+        for (var item in info) {
+          if (info.hasOwnProperty(item)) {
+            items.push()
+          }
+        }
+        return getRecentAccessDataCb(null, items);
       })
       var _result = (items.length > num) ? items.slice(0, num - 1) : items;
       return getRecentAccessDataCb(null, _result);

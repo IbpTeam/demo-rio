@@ -137,7 +137,7 @@ function getAllContacts(getAllCb) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       rdfHandle.decodeTripeles(result, function(err, info) {
         if (err) {
           return getAllDataByCateCb(err);
