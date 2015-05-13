@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio369rio#1d71cf77be18db6e0895";
+  var test_uri = "rio21848rio#001a8080a65e7abb98d6";
   var Home = "/home/xwh/"
 
   function print(win,something){
@@ -134,21 +134,24 @@
 
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-          var item=[{
-          id:"",
-          URI:test_uri,
-          category:"document",
-          others:null,
-          filename:"testFile",
-          path:baseinfo.RESOURCEFOLDER + "/documents/Teaching/11/章节介绍.txt",
-          postfix:"txt",
-          size:1204,
-          project:'上海专项',
-          createTime:1111,
-          lastModifyTime:1111,
-          lastAccessTime:1111,
-        }];
-        data.updateDataValue(updateDataValueCb,item);
+        var _item = {
+          _uri:test_uri,
+          _changes:[
+          {
+            _property:"filename",
+            _value:"asdasdasdasd"
+          },
+          {
+            _property:"path",
+            _value:"aaaa/bbbb/cccc"
+          },
+          {
+            _property:"postfix",
+            _value:"testest"
+          }
+          ]
+        }
+        data.updateDataValue(updateDataValueCb,_item);
       }); 
       
     });
