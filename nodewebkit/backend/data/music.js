@@ -175,112 +175,78 @@ function extraInfo(item, callback) {
   })
 }
 
-
-//API openDataByUri:通过Uri获取数据资源地址
-//返回类型：
-//result{
-//  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
-//  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
-//}
-function openDataByUri(openDataByUriCb, uri) {
-  function getItemByUriCb(items) {
-    var item = items[0];
-    if (item == null) {
-      config.riolog("read data : " + item);
-      openDataByUriCb('undefined');
-    } else {
-      config.riolog("read data : " + item.path);
-      var source;
-      if (item.postfix == null) {
+function getOpenInfo(item) {
+  if (item == null) {
+    config.riolog("read data : " + item);
+    return undefined;
+  }
+  config.riolog("read data : " + item.path);
+  var source;
+  if (item.postfix == null) {
+    source = {
+      openmethod: 'alert',
+      content: item.path + ' can not be recognized.'
+    };
+  } else {
+    switch (item.postfix) {
+      case 'ogg':
+      case 'OGG':
         source = {
-          openmethod: 'alert',
-          content: item.path + ' can not be recognized.'
-        };
-      } else {
-        switch (item.postfix) {
-          case 'ogg':
-          case 'OGG':
-            source = {
-              openmethod: 'html',
-              format: 'audio',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
-          case 'mp3':
-          case 'MP3':
-            source = {
-              openmethod: 'html',
-              format: 'audio',
-              title: '文件浏览',
-              content: item.path
-            }
-            break;
-          case 'none':
-            source = {
-              openmethod: 'alert',
-              content: item.path + ' can not be recognized.'
-            };
-            break;
-          default:
-            /*
-             * TODO: The opening DOC/PPT/XLS files way need to be supported by noVNC.
-             * var host = window.location.host.split(':')[0];       //localhost run
-             * console.log(host);
-             * var password = "demo123";
-             * function turnToVNC()
-             * {
-             *   window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
-             * }
-             * setTimeout(turnToVNC,1000);
-             **/
-
-            source = {
-              openmethod: 'html',
-              format: 'txt',
-              title: '文件浏览',
-              content: "成功打开文件" + item.path
-            }
-
-            var exec = require('child_process').exec;
-            var s_command;
-            var supportedKeySent = false;
-            var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
-            switch (item.postfix) {
-              default:
-                s_command = "xdg-open \"" + item.path + "\"";
-                break;
-            }
-            var child = exec(s_command, function(error, stdout, stderr) {});
-            if (supportedKeySent === true) {
-              source.windowname = s_windowname;
-            }
-            break;
+          openmethod: 'html',
+          format: 'audio',
+          title: '文件浏览',
+          content: item.path
         }
-      }
-      var currentTime = (new Date());
-      var updateItem = item;
-      updateItem.lastAccessTime = currentTime;
-      updateItem.lastAccessDev = config.uniqueID;
-          updateItem.category = CATEGORY_NAME;
-          var updateItems = new Array();
-          var condition = [];
-          condition.push("URI='" + item.URI + "'");
-          updateItems.conditions = condition;
-          updateItems.push(updateItem);
-          readId3FromMp3(item.path,function(err,tags){
-                  console.log("read mp3 "+item);
-                  console.log(err);
-                  console.log(tags);
-                });
+        break;
+      case 'mp3':
+      case 'MP3':
+        source = {
+          openmethod: 'html',
+          format: 'audio',
+          title: '文件浏览',
+          content: item.path
+        }
+        break;
+      default:
+        /*
+         * TODO: The opening DOC/PPT/XLS files way need to be supported by noVNC.
+         * var host = window.location.host.split(':')[0];       //localhost run
+         * console.log(host);
+         * var password = "demo123";
+         * function turnToVNC()
+         * {
+         *   window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
+         * }
+         * setTimeout(turnToVNC,1000);
+         **/
 
-            openDataByUriCb(source);
+        source = {
+          openmethod: 'html',
+          format: 'txt',
+          title: '文件浏览',
+          content: "成功打开文件" + item.path
+        }
 
+        var s_command;
+        var supportedKeySent = false;
+        var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
+        switch (item.postfix) {
+          default: s_command = "xdg-open \"" + item.path + "\"";
+          break;
+        }
+
+        var _exec = require('child_process');
+        _exec.exec(s_command, function() {});
+
+        if (supportedKeySent === true) {
+          source.windowname = s_windowname;
+        }
+        break;
     }
   }
-  getByUri(uri, getItemByUriCb);
+  return source;
 }
-exports.openDataByUri = openDataByUri;
+exports.getOpenInfo = getOpenInfo;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')

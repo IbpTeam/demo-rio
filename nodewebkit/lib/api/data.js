@@ -448,16 +448,17 @@ function openDataByUri(openDataByUriCb, uri) {
       throw err;
     }
     var cate = utils.getCategoryObject(result[0].category);
-    cate.openData(result[0], function(source) {
-      if (result.format === "html5ppt") {
-        console.log("open html5ppt:" + result.content);
-        window.open(result.content);
-        result.content = "成功打开文件" + result.content;
-        setTimeout(openDataByUriCb(result), 0);
+    var _source = cate.getOpenInfo(result[0]);
+    commonHandle.openData(uri, function() {
+      if (_source.format === "html5ppt") {
+        console.log("open html5ppt:" + _source.content);
+        window.open(_source.content);
+        _source.content = "成功打开文件" + _source.content;
+        setTimeout(openDataByUriCb(_source), 0);
       } else {
-        setTimeout(openDataByUriCb(result), 0);
+        setTimeout(openDataByUriCb(_source), 0);
       }
-    })
+    });
   })
 }
 exports.openDataByUri = openDataByUri;
@@ -523,8 +524,7 @@ exports.openDataByPath = openDataByPath;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  var cate = utils.getCategoryObject(item[0].category);
-  cate.updateDataValue(item[0], updateDataValueCb);
+  commonHandle.updatePropertyValue(item, updateDataValueCb);
 }
 exports.updateDataValue = updateDataValue;
 
