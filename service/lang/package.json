@@ -1,0 +1,16 @@
+{
+  "author": "qiushi1989",
+  "name": "lang",
+  "description": "This package is for language managerment",
+  "version": "0.1.0",
+  "repository": {
+    "url": ""
+  },
+   "main": "implements/lang.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

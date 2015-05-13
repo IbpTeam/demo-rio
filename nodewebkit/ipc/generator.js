@@ -1,7 +1,7 @@
 // generate Proxy and Stub automatically base on user defined interface
 //
-if(process.argv.length != 3)
-  return console.log('Usage: node generator.js ${Your_Interface_File}');
+if(process.argv.length < 3)
+  return console.log('Usage: node generator.js ${Your_Interface_File} [ipc type]');
 
 var /* utils = require('../backend/utils'), TODO: for node to run */
     IPC = require('./ipc'),
@@ -57,14 +57,14 @@ function readJSONFile(path_, callback_) {
 }
 
 readJSONFile(process.argv[2], function(err, interfaces) {
-  if(err) return console.log(err);
+  if(err) return console.log('Interface File error:', err);
   builder(interfaces);
 });
 
 function builder(ifaces) {
   if(typeof ifaces.service === 'undefined')
     return console.log('Service\'s name not found');
-  // TODO: add 'type' and 'remote' field to interface file to determine features of proxy and stub
+  // add 'type' and 'remote' field to interface file to determine features of proxy and stub
   //  will be generated.
   var remote = ifaces.remote || 'false',
       pkgName = ifaces.package || 'nodejs.webde',
@@ -74,8 +74,12 @@ function builder(ifaces) {
         address: addr,
         path: path,
         name: addr/*  + '.' + ifaces.service */,
-        type: ifaces.type || '$ipcType'
+        type: '$ipcType'
       };
+  if(process.argv[3] == 'dbus') {
+    initObj.type = 'dbus';
+  } else if(process.argv[3] == 'binder') {}
+
   buildProxy(ifaces.service + 'Proxy.js', initObj, ifaces.interfaces, false);
   buildStub(ifaces.service + 'Stub.js', initObj, ifaces.interfaces,
       (remote == 'true' ? true : false));
@@ -92,7 +96,7 @@ var NOTICE = "// This file is auto generated based on user-defined interface.\n"
             + "// TODO: please replace types with peramters' name you wanted of any functions\n"
             + "// TODO: please replace $ipcType with one of dbus, binder, websocket and socket\n";
 var GETIPC = "  // TODO: please replace $IPC with the real path of ipc module in your project\n"
-            + "  this.ipc = require('$IPC').getIPC(initObj);\n";
+            + "  this._ipc = require('$IPC').getIPC(initObj);\n";
 
 function buildStub(filename, initObj, ifaces, remote) {
   var outputFile = [],
@@ -123,7 +127,7 @@ function buildStub(filename, initObj, ifaces, remote) {
       // TODO: register proxy to server-deamon, if this service will serve for other devices
       + '}\n');
     outputFile.push("Stub.prototype.notify = function(event) {\n"
-        + "  this.ipc.notify.apply(this.ipc, arguments);\n"
+        + "  this._ipc.notify.apply(this._ipc, arguments);\n"
         + "};\n");
     // interface to get proxy object
     var arg = (remote ? 'proxyAddr' : '');
@@ -136,8 +140,10 @@ function buildStub(filename, initObj, ifaces, remote) {
         + "    // TODO: replace $cdProxy to the path of commdaemonProxy\n"
         + "    cd = require('$cdProxy').getProxy();\n"
         + "    cd.register(initObj.name, proxyAddr, function(ret) {\n"
-        + "      if(ret < 0)\n"
-        + "        throw 'Fail to register online';\n"
+        + "      if(ret.err) {\n"
+        + "        return console.log(ret.err\n"
+        + "          , 'This service cannot be accessed from other devices since failed to register on CD');\n"
+        + "      }\n"
         + "    });\n" : "")
         + "    stub = new Stub();\n"
         + "  }\n"
@@ -154,19 +160,19 @@ function buildStub(filename, initObj, ifaces, remote) {
 
 var EVENTHANDLER = "  // TODO: choose to implement interfaces of ipc\n"
         + "  /* handle message send from service\n"
-        + "  this.ipc.onMsg = function(msg) {\n"
+        + "  this._ipc.onMsg = function(msg) {\n"
         + "    // TODO: your handler\n"
         + "  }*/\n\n"
         + "  /* handle the event emitted when connected succeffuly\n"
-        + "  this.ipc.onConnect = function() {\n"
+        + "  this._ipc.onConnect = function() {\n"
         + "    // TODO: your handler\n"
         + "  }*/\n\n"
         + "  /* handle the event emitted when connection has been closed\n"
-        + "  this.ipc.onClose = function() {\n"
+        + "  this._ipc.onClose = function() {\n"
         + "    // TODO: your handler\n"
         + "  }*/\n\n"
         + "  /* handle the event emitted when error occured\n"
-        + "  this.ipc.onError = function(err) {\n"
+        + "  this._ipc.onError = function(err) {\n"
         + "    // TODO: your handler\n"
         + "  }*/\n";
 
@@ -189,7 +195,8 @@ function buildProxy(filename, initObj, ifaces, remote) {
       + initS
       // the string to get ipc or cdProxy object
       + (remote ? "  // TODO: replace $cdProxy to the real path\n"
-      + "  this.cd = require('$cdProxy').getProxy();" : GETIPC) + "\n"
+      + "  this._cd = require('$cdProxy').getProxy();" : GETIPC)
+      + "  this._token = 0;\n\n"
       // the string to implement event handler user-own
       + (remote ? "" : EVENTHANDLER)
       + '}\n');
@@ -206,7 +213,8 @@ function buildProxy(filename, initObj, ifaces, remote) {
           + "      func: '" + ifaces[i].name + "',\n"
           + "      args: args\n"
           + "    };\n"
-          + "  this.cd.send(this.ip, argv, callback);\n") : ("  this.ipc.invoke({\n"
+          + "  this._cd.send(this.ip, argv, callback);\n") : ("  this._ipc.invoke({\n"
+          + "    token: this._token++,\n"
           + "    name: '" + ifaces[i].name + "',\n"
           + "    in: args,\n"
           + "    callback: callback\n"
@@ -216,27 +224,27 @@ function buildProxy(filename, initObj, ifaces, remote) {
     // add on/off interface
     outputFile.push("Proxy.prototype.on = function(event, handler) {\n"
         // send on request to remote peer
-        + (remote ? ("  this.cd.on(event, handler);\n"
+        + (remote ? ("  this._cd.on(event, handler);\n"
         + "  var argvs = {\n"
         + "    'action': 0,\n"
         + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'on',\n"
         + "    'args': [event]\n"
         + "  };\n"
-        + "  this.cd.send(this.ip, argvs);\n")
-        : "  this.ipc.on(event, handler);\n")
+        + "  this._cd.send(this.ip, argvs);\n")
+        : "  this._ipc.on(event, handler);\n")
         + "};\n\n"
         + "Proxy.prototype.off = function(event, handler) {\n"
         // send off request to remote peer
-        + (remote ? ("  this.cd.off(event, handler);\n"
+        + (remote ? ("  this._cd.off(event, handler);\n"
         + "  var argvs = {\n"
         + "    'action': 0,\n"
         + "    'svr': '" + initObj.name + "',\n"
         + "    'func': 'off',\n"
         + "    'args': [event]\n"
         + "  };\n"
-        + "  this.cd.send(this.ip, argvs);\n")
-        : "  this.ipc.removeListener(event, handler);\n")
+        + "  this._cd.send(this.ip, argvs);\n")
+        : "  this._ipc.removeListener(event, handler);\n")
         + "};\n");
     // interface to get proxy object
     outputFile.push("var proxy = null;\n"
@@ -255,3 +263,5 @@ function buildProxy(filename, initObj, ifaces, remote) {
   }
 }
 
+// TODO: build a HTML document to describ interfaces
+//
