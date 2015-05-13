@@ -438,18 +438,27 @@ exports.getDataByUri = getDataByUri;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  var cate = utils.getCategoryObjectByUri(uri);
-  cate.openDataByUri(function(result) {
-    if (result.format === "html5ppt") {
-      console.log("open html5ppt:" + result.content);
-      window.open(result.content);
-
-      result.content = "成功打开文件" + result.content;
-      setTimeout(openDataByUriCb(result), 0);
-    } else {
-      setTimeout(openDataByUriCb(result), 0);
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: uri
+  }
+  commonHandle.getItemByProperty(_options, function(err, result) {
+    if (err) {
+      throw err;
     }
-  }, uri);
+    var cate = utils.getCategoryObject(result[0].category);
+    cate.openData(result[0], function(source) {
+      if (result.format === "html5ppt") {
+        console.log("open html5ppt:" + result.content);
+        window.open(result.content);
+        result.content = "成功打开文件" + result.content;
+        setTimeout(openDataByUriCb(result), 0);
+      } else {
+        setTimeout(openDataByUriCb(result), 0);
+      }
+    })
+  })
 }
 exports.openDataByUri = openDataByUri;
 

@@ -135,199 +135,137 @@ exports.changeData = changeData;
 //  openmethod;//三个值：'direct'表示直接通过http访问;'remote'表示通过VNC远程访问;'local'表示直接在本地打开
 //  content;//如果openmethod是'direct'或者'local'，则表示路径; 如果openmethod是'remote'，则表示端口号
 //}
-function openDataByUri(openDataByUriCb, uri) {
-  function getItemByUriCb(items) {
-    var item = items[0];
-    if (item == null) {
-      config.riolog("read data : " + item);
-      openDataByUriCb('undefined');
-    } else {
-      config.riolog("read data : " + item.path);
-      var source;
-      if (item.postfix == null) {
+function openData(item, openDataCb) {
+  if (item == null) {
+    config.riolog("read data : " + item);
+    return openDataCb('undefined');
+  }
+  config.riolog("read data : " + item.path);
+  var source;
+  if (item.postfix == null) {
+    source = {
+      openmethod: 'alert',
+      content: item.path + ' can not be recognized.'
+    };
+  } else {
+    switch (item.postfix) {
+      case 'pdf':
+      case 'PDF':
+        source = {
+          openmethod: 'pdf',
+          format: 'pdffile',
+          title: '文件浏览',
+          content: item.path
+        }
+        break;
+      case 'txt':
+      case 'TXT':
+        source = {
+          openmethod: 'html',
+          format: 'txtfile',
+          title: '文件浏览',
+          content: item.path
+        }
+        break;
+      case 'html5ppt':
+      case 'HTML5PPT':
+        source = {
+          openmethod: 'html',
+          format: 'html5ppt',
+          title: '文件浏览',
+          content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
+        }
+        break;
+      case 'none':
         source = {
           openmethod: 'alert',
           content: item.path + ' can not be recognized.'
         };
-      } else {
+        break;
+      default:
+        /*
+         * TODO: The opening DOC/PPT/XLS files way need to be supported by noVNC.
+         * var host = window.location.host.split(':')[0];       //localhost run
+         * console.log(host);
+         * var password = "demo123";
+         * function turnToVNC()
+         * {
+         *   window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
+         * }
+         * setTimeout(turnToVNC,1000);
+         **/
+
+        source = {
+          openmethod: 'html',
+          format: 'txt',
+          title: '文件浏览',
+          content: "成功打开文件" + item.path
+        }
+
+        var exec = require('child_process').exec;
+        var s_command;
+        var supportedKeySent = false;
+        var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
         switch (item.postfix) {
-          case 'pdf':          
+          case 'pdf':
           case 'PDF':
-            source = {
-              openmethod: 'pdf',
-              format: 'pdffile',
-              title: '文件浏览',
-              content: item.path
-            }
             break;
-          case 'txt':            
-          case 'TXT':
-            source = {
-              openmethod: 'html',
-              format: 'txtfile',
-              title: '文件浏览',
-              content: item.path
-            }
+          case 'ppt':
+          case 'PPT':
+            s_command = "wpp \"" + item.path + "\"";
+            supportedKeySent = true;
+            var h = item.path.lastIndexOf('/');
+            s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
             break;
-          case 'html5ppt':            
-          case 'HTML5PPT':
-            source = {
-              openmethod: 'html',
-              format: 'html5ppt',
-              title: '文件浏览',
-              content: item.path.substring(0, item.path.lastIndexOf('.')) + '/index.html'
-            }
+          case 'pptx':
+          case 'PPTX':
+            s_command = "wpp \"" + item.path + "\"";
+            supportedKeySent = true;
+            var h = item.path.lastIndexOf('/');
+            s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
             break;
-          case 'none':
-            source = {
-              openmethod: 'alert',
-              content: item.path + ' can not be recognized.'
-            };
+          case 'doc':
+          case 'DOC':
+            s_command = "wps \"" + item.path + "\"";
+            break;
+          case 'docx':
+          case 'DOCX':
+            s_command = "wps \"" + item.path + "\"";
+            break;
+          case 'xls':
+          case 'XLS':
+            s_command = "et \"" + item.path + "\"";
+            break;
+          case 'xlsx':
+          case 'XLSX':
+            s_command = "et \"" + item.path + "\"";
             break;
           default:
-            /*
-             * TODO: The opening DOC/PPT/XLS files way need to be supported by noVNC.
-             * var host = window.location.host.split(':')[0];       //localhost run
-             * console.log(host);
-             * var password = "demo123";
-             * function turnToVNC()
-             * {
-             *   window.open("../backend/vnc/noVNC/vnc.html?host="+host+"&port="+content+"&password="+password+"&autoconnect=true");
-             * }
-             * setTimeout(turnToVNC,1000);
-             **/
-
-            source = {
-              openmethod: 'html',
-              format: 'txt',
-              title: '文件浏览',
-              content: "成功打开文件" + item.path
-            }
-
-            var exec = require('child_process').exec;
-            var s_command;
-            var supportedKeySent = false;
-            var s_windowname; //表示打开文件的窗口名称，由于无法直接获得，因此一般设置成文件名，既可以查找到对应的窗口
-            switch (item.postfix) {
-              case 'pdf':              
-              case 'PDF':
-                break;
-              case 'ppt':                
-              case 'PPT':
-                s_command = "wpp \"" + item.path + "\"";
-                supportedKeySent = true;
-                var h = item.path.lastIndexOf('/');
-                s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
-                break;
-              case 'pptx':                
-              case 'PPTX':
-                s_command = "wpp \"" + item.path + "\"";
-                supportedKeySent = true;
-                var h = item.path.lastIndexOf('/');
-                s_windowname = item.path.substring(h < 0 ? 0 : h + 1, item.path.length);
-                break;
-              case 'doc':                
-              case 'DOC':
-                s_command = "wps \"" + item.path + "\"";
-                break;
-              case 'docx':                
-              case 'DOCX':
-                s_command = "wps \"" + item.path + "\"";
-                break;
-              case 'xls':                
-              case 'XLS':
-                s_command = "et \"" + item.path + "\"";
-                break;
-              case 'xlsx':                
-              case 'XLSX':
-                s_command = "et \"" + item.path + "\"";
-                break;
-              default:
-                s_command = "xdg-open \"" + item.path + "\"";
-                break;
-            }
-            var child = exec(s_command, function(error, stdout, stderr) {
-              if(watchFilesNum>0){
-                watchFilesNum--;              
-              }
-              console.log("watchFilesNum = "+watchFilesNum);
-              if(watchFilesNum==0){
-                commonHandle.watcherStop(CATEGORY_NAME,function(){
-                  console.log(CATEGORY_NAME+" watcher stoped!!");
-                });
-              }
-            });
-            if (supportedKeySent === true) {
-              source.windowname = s_windowname;
-            }
+            s_command = "xdg-open \"" + item.path + "\"";
             break;
         }
-      }
-      var currentTime = (new Date());
-      var updateItem = item;
-      updateItem.lastAccessTime = currentTime;
-      updateItem.lastAccessDev = config.uniqueID;
-      util.log("item.path=" + item.path);
-      var re = new RegExp('/' + CATEGORY_NAME + '/')
-      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
-      util.log("desPath=" + desFilePath);
-      dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "open", function() {
-          updateItem.category = CATEGORY_NAME;
-          var updateItems = new Array();
-          updateItems.push(updateItem);
-          commonDAO.updateItems(updateItems, function(result) {
-            if(result!='commit'){
-              console.log("DB update error:");
-              console.log(result);
-              return;
-            }           
-            //目前如果数据是ppt/pptx/doc/docx/xls/xlsx类型，需要用外部程序打开，此时需要使用monitor监视数据的修改
-            if(item.postfix=='ppt' || item.postfix=='PPT' || 
-               item.postfix=='pptx'|| item.postfix=='PPTX' ||
-               item.postfix=='doc' || item.postfix=='DOC' ||
-               item.postfix=='docx'|| item.postfix=='DOCX' ||
-               item.postfix=='xls' || item.postfix=='XLS' ||
-               item.postfix=='xlsx' || item.postfix=='XLSX'){
-              if(watchFilesNum==0)
-              {
-                console.log(CATEGORY_NAME+" watcher started!!");
-                watchFilesNum++;
-                console.log("watchFilesNum = "+watchFilesNum);
-                openDataByUriCb(source);
-                commonHandle.watcherStart(CATEGORY_NAME,function(path,event){
-                  console.log(path+" : "+event);
-                  if(event=='change'){
-                    var conditions = ["path = " + "'" + path + "'"];
-                    commonDAO.findItems(null, CATEGORY_NAME, conditions, null, function(err, items) {
-                      changeData(path,items[0].URI,function(result){
-                        if(result!='commit'){
-                          console.log("DB update error:");
-                          console.log(result);
-                          return;
-                        } 
-                      });
-                    });
-                  }
-                });
-              }
-              else{
-                watchFilesNum++;
-                console.log("watchFilesNum = "+watchFilesNum);
-                openDataByUriCb(source);
-              }
-            }
-            else{
-              openDataByUriCb(source);
-            }
-          });
-        });
-      });
+        try {
+          var child = execSync(s_command)
+        } catch (err) {
+          throw err;
+        }
+        if (supportedKeySent === true) {
+          source.windowname = s_windowname;
+        }
+        break;
     }
+    var currentTime = (new Date());
+    var updateItem = item;
+    updateItem.lastAccessTime = currentTime;
+    updateItem.lastAccessDev = config.uniqueID;
+    updateItem.category = CATEGORY_NAME;
+    var updateItems = new Array();
+    updateItems.push(updateItem);
+    
+    openDataCb(source);
   }
-  getByUri(uri, getItemByUriCb);
 }
-exports.openDataByUri = openDataByUri;
+exports.openData = openData;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');

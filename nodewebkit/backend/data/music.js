@@ -262,12 +262,6 @@ function openDataByUri(openDataByUriCb, uri) {
       var updateItem = item;
       updateItem.lastAccessTime = currentTime;
       updateItem.lastAccessDev = config.uniqueID;
-      util.log("item.path=" + item.path);
-      var re = new RegExp('/' + CATEGORY_NAME + '/')
-      var desFilePath = item.path.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
-      util.log("desPath=" + desFilePath);
-      dataDes.updateItem(desFilePath, updateItem, function() {
-        resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null,"open", function() {
           updateItem.category = CATEGORY_NAME;
           var updateItems = new Array();
           var condition = [];
@@ -279,16 +273,12 @@ function openDataByUri(openDataByUriCb, uri) {
                   console.log(err);
                   console.log(tags);
                 });
-          commonDAO.updateItems(updateItems, function(result) {
-            console.log(result);
+
             openDataByUriCb(source);
-          });
-        });
-      });
+
     }
   }
   getByUri(uri, getItemByUriCb);
-
 }
 exports.openDataByUri = openDataByUri;
 

@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio369rio#1d71cf77be18db6e0895";
+  var test_uri = "rio21848rio#105237ae206c6f3a9285";
   var Home = "/home/xwh/"
 
   function print(win,something){
@@ -72,6 +72,7 @@
   function loadResourcesCb(err, result) {
     var win = window.open('');
     if (err) {
+      throw err;
       return print(win, err);
     }
     win.document.write("test API loadResources()");
@@ -134,20 +135,21 @@
 
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-          var item=[{
-          id:"",
-          URI:test_uri,
-          category:"document",
-          others:null,
-          filename:"testFile",
-          path:baseinfo.RESOURCEFOLDER + "/documents/Teaching/11/章节介绍.txt",
-          postfix:"txt",
-          size:1204,
-          project:'上海专项',
-          createTime:1111,
-          lastModifyTime:1111,
-          lastAccessTime:1111,
-        }];
+          var item={
+          // id:"",
+          _uri:test_uri,
+          _property:"size",
+          // category:"document",
+          // others:null,
+          _value:"123123123123",
+          // path:baseinfo.RESOURCEFOLDER + "/documents/Teaching/11/章节介绍.txt",
+          // postfix:"txt",
+          // size:1204,
+          // project:'上海专项',
+          // createTime:1111,
+          // lastModifyTime:1111,
+          // lastAccessTime:1111,
+        };
         data.updateDataValue(updateDataValueCb,item);
       }); 
       
@@ -235,7 +237,7 @@
   function test_getRecentAccessData(getRecentAccessDataCb){
     WDC.requireAPI(['data'], function(data){
       var num = 10;
-      data.getRecentAccessData(getRecentAccessDataCb,'video',num);
+      data.getRecentAccessData(getRecentAccessDataCb,'document',num);
     });        
   }
 
