@@ -123,12 +123,10 @@ function addTriples(triples, callback) {
     if (err) {
       return callback(err);
     }
-    db.close(function(err) {
-      if (err) {
-        return callback(err);
-      }
+    rdfHandle.dbClose(db, function() {
       return callback();
     })
+
   })
 }
 
@@ -356,7 +354,7 @@ exports.getItemByProperty = function(options, callback) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       rdfHandle.decodeTripeles(result, function(err, info) {
         if (err) {
           return callback(err);
@@ -454,7 +452,7 @@ exports.getAllCate = function(getAllCateCb) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       getAllCateCb(result);
     })
   });
@@ -476,7 +474,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       rdfHandle.decodeTripeles(result, function(err, info) {
         if (err) {
           return getAllDataByCateCb(err);
@@ -536,10 +534,10 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     if (err) {
       throw err;
     }
-    _db.close(function() {
+    rdfHandle.dbClose(_db, function() {
       rdfHandle.decodeTripeles(result, function(err, info) {
         if (err) {
-          return getAllDataByCateCb(err);
+          return getRecentAccessDataCb(err);
         }
         var items = [];
         for (var item in info) {
@@ -547,7 +545,7 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
             items.push()
           }
         }
-        return getAllDataByCateCb(null, items);
+        return getRecentAccessDataCb(null, items);
       })
     })
   });
