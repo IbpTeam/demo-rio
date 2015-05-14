@@ -5,6 +5,8 @@ var fs = require('fs');
 var config = require("../config");
 var dataDes = require("./desFilesHandle");
 var commonDAO = require("./CommonDAO");
+var commonHandle = require("./commonHandle");
+var rdfHandle = require("./rdfHandle");
 var repo = require("./repo");
 var utils = require("../utils");
 
@@ -59,45 +61,31 @@ exports.getTagsByPath = getTagsByPath;
  *
  */
 function getAllTagsByCategory(callback, category) {
-  var TagFile = {
-    tags: [],
-    tagFiles: {}
-  };
-
-  function findItemsCb(err, items) {
+  var _db = rdfHandle.dbOpen();
+  var _query_get_all = [{
+    subject: _db.v('tag'),
+    predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+    object: 'http://example.org/property/base#tags'
+  }, {
+    subject: _db.v('tag'),
+    predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+    object: 'http://example.org/category#' + category
+  }]
+  rdfHandle.dbSearch(_db, _query_get_all, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      return callback(err);
     }
-    for (var k in items) {
-      items[k].others = (items[k].others).split(",");
-      var oItem = items[k];
-      for (var j in oItem.others) {
-        var sTag = oItem.others[j];
-        var sUri = oItem.URI;
-        var sFilename = oItem.filename;
-        var sPostfix = oItem.postfix;
-        var sPath = oItem.path;
-        if (sTag != null && sTag != "") {
-          if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
-          } else {
-            TagFile.tagFiles[sTag] = [
-              [sUri, sFilename, sPostfix, sPath]
-            ];
-            TagFile.tags.push(sTag);
-          }
-        }
-      }
+    var _tags = [];
+    for (var i = result.length; i--; i > 0) {
+      _tags.push(utils.getTitle(result[i].tag));
     }
-    callback(TagFile);
-  }
-  var fields = (category === 'contact') ? ['others', 'name', 'uri'] : ['others', 'filename', 'uri', 'postfix', 'path'];
-  commonDAO.findItems(fields, category, null, null, findItemsCb);
+    return callback(null, _tags);
+  });
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
 
+/*TODO: no more use, prepare to delete*/
 /**
  * @method getAllTags
  *   get all tags in db
@@ -115,18 +103,18 @@ function getAllTags(callback) {
   var TagFile = {};
 
   function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    for (var k in items) {
-      if (TagFile.hasOwnProperty(items[k].tag)) {
-        TagFile[items[k].tag].push(items[k].file_URI);
-      } else {
-        TagFile[items[k].tag] = [items[k].file_URI];
-      }
-      callback(TagFile);
-    }
+    // if (err) {
+    //   console.log(err);
+    //   return;
+    // }
+    // for (var k in items) {
+    //   if (TagFile.hasOwnProperty(items[k].tag)) {
+    //     TagFile[items[k].tag].push(items[k].file_URI);
+    //   } else {
+    //     TagFile[items[k].tag] = [items[k].file_URI];
+    //   }
+    //   callback(TagFile);
+    // }
   }
   commonDAO.findItems(null, ['tags'], null, null, findItemsCb);
 }
@@ -152,7 +140,7 @@ function getTagsByUri(callback, sUri) {
     if (err) {
       console.log(err);
       return callback(null);
-    }else if(result == '' || result == null){
+    } else if (result == '' || result == null) {
       return callback(null);
     }
     var tags = result[0].others;
@@ -422,7 +410,7 @@ function setTagByUri(callback, oTags, sUri) {
       var newTags = oldTags.sort().join(',');
     }
     if (oldTags.length == lens) {
-      return callback(null);//no more new tags added return
+      return callback(null); //no more new tags added return
     }
     UpdateItem = {
       URI: item.URI,
@@ -451,7 +439,7 @@ function setTagByUri(callback, oTags, sUri) {
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
         repo.repoCommit(chPath, [desFilePath], null, "ch", function(err) {
-          if(err){
+          if (err) {
             return callback(err);
           }
           addInTAGS(oTags, sUri, function(err) {
