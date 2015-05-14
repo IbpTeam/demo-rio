@@ -256,17 +256,17 @@ function tripleGenerator(info, callback) {
         for (var i = 0, l = _tags.length; i < l; i++) {
           //define tags for getAllTags()
           var _tag_triple_define = {
-            subject: 'http://example.org/tags#' + _tags[i],
-            predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-            object: 'http://example.org/property/base#tags'
-          }
-          //define domain for getTagsInCatedory()
+              subject: 'http://example.org/tags#' + _tags[i],
+              predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+              object: 'http://example.org/property/base#tags'
+            }
+            //define domain for getTagsInCatedory()
           var _tag_triple_domain = {
-            subject: 'http://example.org/tags#' + _tags[i],
-            predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-            object: 'http://example.org/category#' + _base.category
-          }
-          //define triples for tag searching
+              subject: 'http://example.org/tags#' + _tags[i],
+              predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+              object: 'http://example.org/category#' + _base.category
+            }
+            //define triples for tag searching
           var _tag_triple = {
             subject: _subject,
             predicate: DEFINED_PROP["base"]["tags"],
@@ -325,14 +325,31 @@ function decodeTripeles(triples, callback) {
   var info = {};
   try {
     for (var i = 0, l = triples.length; i < l; i++) {
-      var item = triples[i];
-      var title = utils.getTitle(item.predicate)
-      if (info.hasOwnProperty(item.subject)) {
-        (info[item.subject])[title] = item.object;
+      var _item = triples[i];
+      var _predicate = utils.getTitle(_item.predicate);
+      var _subject = _item.subject;
+      var _object = _item.object;
+      if (info.hasOwnProperty(_subject)) {
+        if (_predicate === "tags") {
+          var _tag = utils.getTitle(_object);
+          if ((info[_subject]).hasOwnProperty(_predicate)) {
+            (info[_subject])[_predicate].push(_tag);
+          } else {
+            (info[_subject])[_predicate] = [_tag];
+          }
+        } else {
+          (info[_subject])[_predicate] = _object;
+        }
       } else {
-        var itemInfo = {};
-        itemInfo[title] = item.object;
-        info[item.subject] = itemInfo;
+        if (_predicate === "tags") {
+          var itemInfo = {};
+          itemInfo[_predicate] = [_object];
+          info[_subject] = itemInfo;
+        } else {
+          var itemInfo = {};
+          itemInfo[_predicate] = _object;
+          info[_subject] = itemInfo;
+        }
       }
     }
   } catch (err) {
