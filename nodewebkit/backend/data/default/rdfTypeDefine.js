@@ -398,6 +398,7 @@ var _document_property = {
 }
 
 var _picture_property = {
+  project: 'http://example.org/property/document#project',
   location: 'http://example.org/property/picture#location',
 }
 
