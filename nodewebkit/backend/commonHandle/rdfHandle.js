@@ -240,38 +240,40 @@ exports.dbSearch = dbSearch;
  *
  */
 function tripleGenerator(info, callback) {
-  var _subject = 'http://example.org/category#' + info.subject;
   var _triples = [];
   try {
     var _base = info.base;
+    var _subject = 'http://example.org/category#' + info.subject;
+    var _object_defined = 'http://example.org/category#' + _base.category;
     _triples.push({
       subject: _subject,
       predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://example.org/category#' + _base.category
+      object: _object_defined
     });
     for (var entry in _base) {
       //tags needs specific process 
       if (entry === "tags") {
         var _tags = _base[entry];
         for (var i = 0, l = _tags.length; i < l; i++) {
+          var _subject_tag = 'http://example.org/tags#' + _tags[i];
           //define tags for getAllTags()
           var _tag_triple_define = {
-              subject: 'http://example.org/tags#' + _tags[i],
-              predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-              object: 'http://example.org/property/base#tags'
-            }
-            //define domain for getTagsInCatedory()
+            subject: _subject_tag,
+            predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+            object: 'http://example.org/property/base#tags'
+          };
+          //define domain for getTagsInCatedory()
           var _tag_triple_domain = {
-              subject: 'http://example.org/tags#' + _tags[i],
-              predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-              object: 'http://example.org/category#' + _base.category
-            }
-            //define triples for tag searching
+            subject: _subject_tag,
+            predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+            object: _object_defined
+          };
+          //define triples for tag searching
           var _tag_triple = {
             subject: _subject,
             predicate: DEFINED_PROP["base"]["tags"],
-            object: 'http://example.org/tags#' + _tags[i]
-          }
+            object: _subject_tag
+          };
           _triples.push(_tag_triple_define);
           _triples.push(_tag_triple_domain);
           _triples.push(_tag_triple);

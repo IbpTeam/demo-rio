@@ -516,7 +516,7 @@ function rmTagsByUri(callback, oTags, sUri) {
 }
 exports.rmTagsByUri = rmTagsByUri;
 
-
+/*TODO: no more use, prepare to delete*/
 /**
  * @method rmTagsAll
  *   remove tags from all data base and des files
@@ -529,69 +529,40 @@ exports.rmTagsByUri = rmTagsByUri;
  *
  *
  */
-function rmTagsAll(callback, oTags) {
-  var allFiles = [];
-  var condition = [];
-  var deleteTags = [];
-  for (var k in oTags) {
-    condition.push("others like '%" + oTags[k] + "%'");
-  }
-  var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
+function rmTagAll(callback, tag, category) {
+  var _db = rdfHandle.dbOpen();
+  var _object = 'http://example.org/tags#' + tag;
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _object
+  }];
+
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      return callback(err);
     }
-    buildDeleteItems(allFiles, resultDoc)
-    commonDAO.findItems(null, ['music'], sCondition, null, function(err, resultMusic) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      buildDeleteItems(allFiles, resultMusic)
-      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        buildDeleteItems(allFiles, resultPic)
-        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          buildDeleteItems(allFiles, resultVideo);
-          var resultItems = doDeleteTags(allFiles, oTags);
-          dataDes.updateItems(resultItems, function(result) {
-            if (result === "success") {
-              var files = [];
-              for (var k in allFiles) {
-                var desFilePath;
-                var category = allFiles[k].category;
-                if (category === "contact") {
-                  desFilePath = config.RESOURCEPATH + '/contactDes/data/' + allFiles[k].name + '.md';
-                } else {
-                  var filePath = allFiles[k].path;
-                  var re = new RegExp('/' + category + '/', "i");
-                  desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
-                }
-                files.push(desFilePath);
-              }
-              var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-              repo.repoCommit(desPath, files, null, "ch", function() {
-                callback(result);
-              });
-            } else {
-              console.log("error in update des files");
-              return;
-            }
-          })
-        })
-      })
+
+    for (var i = 0, l = result.length; i < l; i++) {
+      result[i].object = _object;
+    }
+
+    //tag triple for catedory search
+    result.push({
+      subject: _object,
+      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+      object: 'http://example.org/category#' + category
     })
+
+    rdfHandle.dbDelete(_db, result, function(err) {
+      if (err) {
+        return callback(err);
+      }
+      return callback();
+    });
   });
 }
-exports.rmTagsAll = rmTagsAll;
+exports.rmTagAll = rmTagAll;
 
 //build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles, result) {

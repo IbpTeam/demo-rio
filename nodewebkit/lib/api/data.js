@@ -805,11 +805,11 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *    var oTags = ['documents','music','picture']
  *
  */
-function rmTagsAll(rmTagsAllCb, oTags) {
-  console.log("Request handler 'rmTagsAll' was called.");
-  tagsHandle.rmTagsAll(rmTagsAllCb, oTags);
+function rmTagAll(rmTagAllCb, oTags, category) {
+  console.log("Request handler 'rmTagAll' was called.");
+  tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
 }
-exports.rmTagsAll = rmTagsAll;
+exports.rmTagAll = rmTagAll;
 
 /**
  * @method rmTagsByUri
