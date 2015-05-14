@@ -231,46 +231,37 @@ exports.getTagsByUris = getTagsByUris;
  *
  */
 function getFilesByTags(callback, oTags) {
-  var allFiles = [];
-  var condition = [];
-  for (var k in oTags) {
-    condition.push("others like '%" + oTags[k] + "%'");
-  }
-  var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    }
-    allFiles = allFiles.concat(resultDoc);
-    commonDAO.findItems(null, ['music'], sCondition, null, function(err, resultMusic) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      allFiles = allFiles.concat(resultMusic);
-      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        allFiles = allFiles.concat(resultPic);
-        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          commonDAO.findItems(null, ['contact'], sCondition, null, function(err, resultContact) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            allFiles = allFiles.concat(resultContact);
-            callback(null, allFiles);
-          })
-        })
-      })
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: 'http://example.org/property/base#tags',
+      object: 'http://example.org/tags#' + oTags[i]
     })
+  }
+
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  })
+
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    rdfHandle.decodeTripeles(result, function(err, result) {
+      if (err) {
+        return callback(err)
+      }
+      var _result = [];
+      for (var file in result) {
+        _result.push(result[file]);
+      }
+      return callback(null, _result);
+    });
   });
 }
 exports.getFilesByTags = getFilesByTags;
