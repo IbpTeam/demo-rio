@@ -5,6 +5,8 @@ var fs = require('fs');
 var config = require("../config");
 var dataDes = require("./desFilesHandle");
 var commonDAO = require("./CommonDAO");
+var commonHandle = require("./commonHandle");
+var rdfHandle = require("./rdfHandle");
 var repo = require("./repo");
 var utils = require("../utils");
 
@@ -59,45 +61,31 @@ exports.getTagsByPath = getTagsByPath;
  *
  */
 function getAllTagsByCategory(callback, category) {
-  var TagFile = {
-    tags: [],
-    tagFiles: {}
-  };
-
-  function findItemsCb(err, items) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('tag'),
+    predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+    object: 'http://example.org/property/base#tags'
+  }, {
+    subject: _db.v('tag'),
+    predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+    object: 'http://example.org/category#' + category
+  }]
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      return callback(err);
     }
-    for (var k in items) {
-      items[k].others = (items[k].others).split(",");
-      var oItem = items[k];
-      for (var j in oItem.others) {
-        var sTag = oItem.others[j];
-        var sUri = oItem.URI;
-        var sFilename = oItem.filename;
-        var sPostfix = oItem.postfix;
-        var sPath = oItem.path;
-        if (sTag != null && sTag != "") {
-          if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
-          } else {
-            TagFile.tagFiles[sTag] = [
-              [sUri, sFilename, sPostfix, sPath]
-            ];
-            TagFile.tags.push(sTag);
-          }
-        }
-      }
+    var _tags = [];
+    for (var i = 0, l = result.length; i < l; i++) {
+      _tags.push(utils.getTitle(result[i].tag));
     }
-    callback(TagFile);
-  }
-  var fields = (category === 'contact') ? ['others', 'name', 'uri'] : ['others', 'filename', 'uri', 'postfix', 'path'];
-  commonDAO.findItems(fields, category, null, null, findItemsCb);
+    return callback(null, _tags);
+  });
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
 
+/*TODO: no more use, prepare to delete*/
 /**
  * @method getAllTags
  *   get all tags in db
@@ -115,18 +103,18 @@ function getAllTags(callback) {
   var TagFile = {};
 
   function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    for (var k in items) {
-      if (TagFile.hasOwnProperty(items[k].tag)) {
-        TagFile[items[k].tag].push(items[k].file_URI);
-      } else {
-        TagFile[items[k].tag] = [items[k].file_URI];
-      }
-      callback(TagFile);
-    }
+    // if (err) {
+    //   console.log(err);
+    //   return;
+    // }
+    // for (var k in items) {
+    //   if (TagFile.hasOwnProperty(items[k].tag)) {
+    //     TagFile[items[k].tag].push(items[k].file_URI);
+    //   } else {
+    //     TagFile[items[k].tag] = [items[k].file_URI];
+    //   }
+    //   callback(TagFile);
+    // }
   }
   commonDAO.findItems(null, ['tags'], null, null, findItemsCb);
 }
@@ -143,26 +131,31 @@ exports.getAllTags = getAllTags;
  *    string, uri
  *
  */
-function getTagsByUri(callback, sUri) {
-  var sTableName = utils.getCategoryByUri(sUri);
-  var condition = ["uri = '" + sUri + "'"];
-  var column = ["others"];
-
-  function findItemsCb(err, result) {
+function getTagsByUri(callback, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: 'http://example.org/property/base#URI',
+    object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: 'http://example.org/property/base#tags',
+    object: _db.v('tag')
+  }]
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return callback(null);
-    }else if(result == '' || result == null){
-      return callback(null);
+      return callback(err);
     }
-    var tags = result[0].others;
-    tags = tags.split(",");
-    callback(tags);
-  }
-  commonDAO.findItems(null, sTableName, condition, null, findItemsCb);
+    var _tags = [];
+    for (var i = 0, l = result.length; i < l; i++) {
+      _tags.push(utils.getTitle(result[i].tag));
+    }
+    return callback(null, _tags);
+  });
 }
 exports.getTagsByUri = getTagsByUri;
 
+/*TODO: no more use, prepare to delete*/
 /**
  * @method getTagsByUris
  *   get tags with specifc uris
@@ -175,53 +168,53 @@ exports.getTagsByUri = getTagsByUri;
  *
  */
 function getTagsByUris(callback, oUris) {
-  if (oUris.length == 0 || oUris[0] == "") {
-    callback("error");
-  }
-  var sTableName = utils.getCategoryByUri(oUris[0]);
-  var condition = 'uri in (';
-  for (var i = 0; i < oUris.length - 1; i++) {
-    condition += '"' + oUris[i] + '", ';
-  }
-  condition += '"' + oUris[oUris.length - 1] + '")';
-  var column = ["distinct others"];
+  // if (oUris.length == 0 || oUris[0] == "") {
+  //   callback("error");
+  // }
+  // var sTableName = utils.getCategoryByUri(oUris[0]);
+  // var condition = 'uri in (';
+  // for (var i = 0; i < oUris.length - 1; i++) {
+  //   condition += '"' + oUris[i] + '", ';
+  // }
+  // condition += '"' + oUris[oUris.length - 1] + '")';
+  // var column = ["distinct others"];
 
-  var TagFile = {
-    tags: [],
-    tagFiles: {}
-  };
+  // var TagFile = {
+  //   tags: [],
+  //   tagFiles: {}
+  // };
 
-  function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    for (var k in items) {
-      items[k].others = (items[k].others).split(",");
-      var oItem = items[k];
-      for (var j in oItem.others) {
-        var sTag = oItem.others[j];
-        var sUri = oItem.URI;
-        var sFilename = oItem.filename || oItem.name;
-        var sPostfix = oItem.postfix;
-        var sPath = oItem.path || oItem.photopath;
-        if (sTag != null && sTag != "") {
-          var oContent = (sTableName === 'contact') ? [sUri, sFilename, sPath] : [sUri, sFilename, sPostfix, sPath];
-          if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push(oContent);
-          } else {
-            TagFile.tagFiles[sTag] = [
-              oContent
-            ];
-            TagFile.tags.push(sTag);
-          }
-        }
-      }
-    }
-    callback(TagFile);
-  }
-  var column = (sTableName === 'contact') ? ['others', 'name', 'uri', 'photopath'] : ['others', 'filename', 'uri', 'postfix', 'path'];
-  commonDAO.findItems(column, sTableName, [condition], null, findItemsCb);
+  // function findItemsCb(err, items) {
+  //   if (err) {
+  //     console.log(err);
+  //     return;
+  //   }
+  //   for (var k in items) {
+  //     items[k].others = (items[k].others).split(",");
+  //     var oItem = items[k];
+  //     for (var j in oItem.others) {
+  //       var sTag = oItem.others[j];
+  //       var sUri = oItem.URI;
+  //       var sFilename = oItem.filename || oItem.name;
+  //       var sPostfix = oItem.postfix;
+  //       var sPath = oItem.path || oItem.photopath;
+  //       if (sTag != null && sTag != "") {
+  //         var oContent = (sTableName === 'contact') ? [sUri, sFilename, sPath] : [sUri, sFilename, sPostfix, sPath];
+  //         if (TagFile.tagFiles.hasOwnProperty(sTag)) {
+  //           TagFile.tagFiles[sTag].push(oContent);
+  //         } else {
+  //           TagFile.tagFiles[sTag] = [
+  //             oContent
+  //           ];
+  //           TagFile.tags.push(sTag);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   callback(TagFile);
+  // }
+  // var column = (sTableName === 'contact') ? ['others', 'name', 'uri', 'photopath'] : ['others', 'filename', 'uri', 'postfix', 'path'];
+  // commonDAO.findItems(column, sTableName, [condition], null, findItemsCb);
 }
 exports.getTagsByUris = getTagsByUris;
 
@@ -238,140 +231,79 @@ exports.getTagsByUris = getTagsByUris;
  *
  */
 function getFilesByTags(callback, oTags) {
-  var allFiles = [];
-  var condition = [];
-  for (var k in oTags) {
-    condition.push("others like '%" + oTags[k] + "%'");
-  }
-  var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    }
-    allFiles = allFiles.concat(resultDoc);
-    commonDAO.findItems(null, ['music'], sCondition, null, function(err, resultMusic) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      allFiles = allFiles.concat(resultMusic);
-      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        allFiles = allFiles.concat(resultPic);
-        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          commonDAO.findItems(null, ['contact'], sCondition, null, function(err, resultContact) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            allFiles = allFiles.concat(resultContact);
-            callback(null, allFiles);
-          })
-        })
-      })
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: 'http://example.org/property/base#tags',
+      object: 'http://example.org/tags#' + oTags[i]
     })
+  }
+
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  })
+
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    rdfHandle.decodeTripeles(result, function(err, result) {
+      if (err) {
+        return callback(err)
+      }
+      var _result = [];
+      for (var file in result) {
+        _result.push(result[file]);
+      }
+      return callback(null, _result);
+    });
   });
 }
 exports.getFilesByTags = getFilesByTags;
 
-/*
-TODO: this is a much quiker way to get files by tag, but not precisely enough. 
-May improve it in futre.
-*/
-// function getFilesByTagsInCategory(callback, category, sTag) {
-//   var condition = ["others like '%" + sTag + "%'"];
-//   commonDAO.findItems(null, category, condition, null, function(err, result) {
-//     if (err) {
-//       console.log(err);
-//       return callback(err, null);
-//     } else if (result == undefined) {
-//       var _err = 'not found in data base ...';
-//       return callback(_err, null);
-//     }
-//     callback(null, result);
-//   })
-// }
-// exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
 function getFilesByTagsInCategory(callback, category, oTags) {
-  var condition = [];
-  if (oTags == "" || oTags == null) {
-    var _err = 'no input tags ...';
-    return callback(_err, null);
-  } else if (typeof oTags === "string") {
-    condition = ["tag='" + oTags + "'"];
-  } else {
-    for (var i = 0; i < oTags.length; i++) {
-      if (oTags[i] != null && oTags[i] != "") {
-        condition.push("tag='" + oTags[i] + "'");
-      }
-    }
-    condition = [condition.join(' or ')];
-  }
-  commonDAO.findItems(null, 'tags', condition, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == '' || result == null) {
-      var _err = 'not found in data base ...';
-      return callback(_err, null);
-    }
-    var oUris = [];
-    for (var tmp in result) {
-      if (result[tmp].file_URI != '' && result[tmp].file_URI != null) {
-        oUris.push(result[tmp].file_URI);
-      }
-    }
-    var oCondition = [];
-    for (var j = 0; j < oUris.length; j++) {
-      var pos = oUris[j].lastIndexOf('#');
-      var _category = oUris[j].substr(pos + 1);
-      if (_category === category) {
-        var tmpCondition = "uri='" + oUris[j] + "'";
-        oCondition.push(tmpCondition);
-      }
-    }
-    if (oCondition == "") {
-      var _err = 'no matched items ...';
-      return callback(_err, null);
-    }
-    var sCondition = oCondition.join(' or ');
-    commonDAO.findItems(null, category, [sCondition], null, function(err, result) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      } else if (result == undefined) {
-        var _err = 'not found in data base ...';
-        return callback(_err, null);
-      }
-      //filter files to pick out those contains tag in oTags by walking 'result' 
-      //and comparing the tags. 
-      var _result = [];
-      for (var k in result) {
-        var NotMatch = false;
-        var oTagsAll = result[k].others.split(',');
-        for (var l in oTags) {
-          //break if item doesn't have target tag
-          if (!utils.isExist(oTags[l], oTagsAll)) {
-            NotMatch = true;
-            break;
-          }
-        }
-        //if all tags match 
-        if (!NotMatch) {
-          _result.push(result[k]);
-        }
-      }
-      callback(null, _result);
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: 'http://example.org/property/base#category',
+    object: category
+  })
+
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: 'http://example.org/property/base#tags',
+      object: 'http://example.org/tags#' + oTags[i]
     })
+  }
+
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  })
+
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    rdfHandle.decodeTripeles(result, function(err, result) {
+      if (err) {
+        return callback(err)
+      }
+      var _result = [];
+      for (var file in result) {
+        _result.push(result[file]);
+      }
+      return callback(null, _result);
+    });
   });
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
@@ -422,7 +354,7 @@ function setTagByUri(callback, oTags, sUri) {
       var newTags = oldTags.sort().join(',');
     }
     if (oldTags.length == lens) {
-      return callback(null);//no more new tags added return
+      return callback(null); //no more new tags added return
     }
     UpdateItem = {
       URI: item.URI,
@@ -451,7 +383,7 @@ function setTagByUri(callback, oTags, sUri) {
         }
         var chPath = config.RESOURCEPATH + '/' + category + 'Des';
         repo.repoCommit(chPath, [desFilePath], null, "ch", function(err) {
-          if(err){
+          if (err) {
             return callback(err);
           }
           addInTAGS(oTags, sUri, function(err) {

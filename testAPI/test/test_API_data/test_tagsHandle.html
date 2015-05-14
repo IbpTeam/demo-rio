@@ -50,7 +50,10 @@
     }
   }
 
-  function getAllTagsByCategoryCb(result){
+  function getAllTagsByCategoryCb(err, result){
+    if(err){
+      throw err;
+    }    
     var win = window.open('');
     win.document.write("test API getAllTagsByCategory()");
     win.document.write("<br/>");
@@ -64,7 +67,10 @@
     });      
   }
 
-  function getTagsByUriCb(result){
+  function getTagsByUriCb(err, result){
+    if(err){
+      throw err;
+    }
     var win = window.open('');
     win.document.write("test API getTagsByUri()");
     win.document.write("<br/>");
@@ -116,6 +122,9 @@
   }
 
   function getFilesByTagsCb(err,result){
+    if(err){
+      throw err;
+    }    
     var win = window.open('');
     win.document.write("test API getFilesByTags()");
     win.document.write("<br/>");

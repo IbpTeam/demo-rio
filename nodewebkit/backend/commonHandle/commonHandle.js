@@ -484,7 +484,8 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
               version: "",
               filename: info[item].filename,
               postfix: info[item].postfix,
-              path: info[item].path
+              path: info[item].path,
+              tags: info[item].tags
             })
           }
         }
