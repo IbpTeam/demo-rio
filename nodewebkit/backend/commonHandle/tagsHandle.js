@@ -62,7 +62,7 @@ exports.getTagsByPath = getTagsByPath;
  */
 function getAllTagsByCategory(callback, category) {
   var _db = rdfHandle.dbOpen();
-  var _query_get_all = [{
+  var _query = [{
     subject: _db.v('tag'),
     predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
     object: 'http://example.org/property/base#tags'
@@ -71,7 +71,7 @@ function getAllTagsByCategory(callback, category) {
     predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
     object: 'http://example.org/category#' + category
   }]
-  rdfHandle.dbSearch(_db, _query_get_all, function(err, result) {
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
       return callback(err);
     }
@@ -131,23 +131,27 @@ exports.getAllTags = getAllTags;
  *    string, uri
  *
  */
-function getTagsByUri(callback, sUri) {
-  var sTableName = utils.getCategoryByUri(sUri);
-  var condition = ["uri = '" + sUri + "'"];
-  var column = ["others"];
-
-  function findItemsCb(err, result) {
+function getTagsByUri(callback, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: 'http://example.org/property/base#URI',
+    object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: 'http://example.org/property/base#tags',
+    object: _db.v('tag')
+  }]
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return callback(null);
-    } else if (result == '' || result == null) {
-      return callback(null);
+      return callback(err);
     }
-    var tags = result[0].others;
-    tags = tags.split(",");
-    callback(tags);
-  }
-  commonDAO.findItems(null, sTableName, condition, null, findItemsCb);
+    var _tags = [];
+    for (var i = result.length; i--; i > 0) {
+      _tags.push(utils.getTitle(result[i].tag));
+    }
+    return callback(null, _tags);
+  });
 }
 exports.getTagsByUri = getTagsByUri;
 
