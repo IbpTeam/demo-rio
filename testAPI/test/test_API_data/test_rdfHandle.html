@@ -157,8 +157,13 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
         var db = rdfhandle.dbOpen();
-        rdfhandle.dbPut(db, _metadata, function(err) {
-          cb(err, "dbPut sucess!")
+        // rdfhandle.dbPut(db, _metadata, function(err) {
+          // cb(err, "dbPut sucess!")
+        // });
+        rdfhandle.Q_dbPut(db,_metadata).done(function() {
+          cb(null,"dbPut sucess!");
+        },function(err) {
+          cb(err);
         });
       })
     });

@@ -18,6 +18,10 @@ var utils = require('../utils');
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var __db = levelgraph(config.LEVELDBPATH);
+
+var Q = require('../../node_modules/q/q');
+
+
 /**
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
@@ -46,6 +50,28 @@ function dbInitial(callback) {
 }
 exports.dbInitial = dbInitial;
 
+
+function Q_dbInitial(callback) {
+  var db = dbOpen();
+  var allTriples = [];
+  for (var i in DEFINED_TYPE) {
+    if (DEFINED_TYPE.hasOwnProperty(i)) {
+      allTriples = allTriples.concat(DEFINED_TYPE[i]);
+    }
+  }
+  db.put(allTriples, function(err) {
+    if (err) {
+      return callback(err);
+    };
+    db.close(function(err) {
+      if (err) {
+        return callback(err);
+      }
+      return callback();
+    });
+  });
+}
+exports.Q_dbInitial = Q_dbInitial;
 
 /**
  * @method dbClear
@@ -143,6 +169,26 @@ function dbPut(db, triples, callback) {
   });
 }
 exports.dbPut = dbPut;
+
+function Q_dbPut(db, triples) {
+  var deferred = Q.defer();
+  if (typeof triples !== 'object') {
+    var _err = new Error("INPUT TYPE ERROR!");
+    deferred.reject(_err);
+  }
+  else{
+    db.put(triples, function(err) {
+      if (err) {
+        deferred.reject(new Error(err));
+      }
+      else{
+        deferred.resolve();
+      }
+    });
+  }
+  return deferred.promise;
+}
+exports.Q_dbPut = Q_dbPut;
 
 function dbDelete(db, triples, callback) {
   if (typeof triples !== 'object') {
