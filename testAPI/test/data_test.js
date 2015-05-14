@@ -26,5 +26,11 @@ function loadResCb(err,result){
   console.log("TTTTTTTTTTT"+result);
 }
 
-data.loadResources(loadResCb,"/home/rtty/WORK_DIR/resources");
+//data.loadResources(loadResCb,"/home/rtty/WORKDIR/resources");
 //data.getAllContacts(cb1);
+
+function loadConCb(res){
+  console.log("LLLLoading",res);
+}
+
+data.loadContacts(loadConCb,"/home/rtty/WORKDIR/resources/contacts/contacts.CSV");

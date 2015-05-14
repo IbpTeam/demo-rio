@@ -122,7 +122,7 @@ DBusIPC.prototype.invoke = function(peramObj) {
       return self.emit('error', err);
     }
     self._callStack[peramObj.token] = cb;
-    iface[peramObj.name]['timeout'] = 1000;
+    iface[peramObj.name]['timeout'] = 5000;
     iface[peramObj.name]['finish'] = function(result) {
       // if(typeof result.err === 'undefined') result.err = null;
       self._callStack[peramObj.token](result);

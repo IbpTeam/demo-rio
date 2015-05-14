@@ -33,12 +33,16 @@ var initObj = {
     },
     {
       "name": "loadResources",
-      "in": [],
+      "in": [
+        "String"
+      ],
       "show": "l"
     },
     {
       "name": "loadContacts",
-      "in": [],
+      "in": [
+        "String"
+      ],
       "show": "l"
     },
     {
@@ -312,8 +316,23 @@ var initObj = {
     startIMChatServer: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
     sendIMMsg: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
     loadFile: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
-    loadResources: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
-    loadContacts: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
+    loadResources: function(val, callback) {
+      dataAPI.loadResources(function(err,result){
+        var retObj = new Object();
+        retObj.ret = result;
+        if (err) {
+          retObj.retErr = err;
+        };
+        callback(retObj);
+      },val);
+    },
+    loadContacts: function(val, callback) {
+      dataAPI.loadContacts(function(res){
+         var retObj = new Object();
+        retObj.ret = "success";
+      callback(retObj);
+      },val);
+    },
     getAllCate: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
     getAllDataByCate: function(callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/},
     getAllContacts: function(callback) {
