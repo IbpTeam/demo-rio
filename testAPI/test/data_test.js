@@ -18,4 +18,13 @@ function cb1(res){
     console.log(res[0].photPath);
 }
 
-data.getAllContacts(cb1);
+
+function loadResCb(err,result){
+  if (err) {
+    console.log(err);
+  };
+  console.log("TTTTTTTTTTT"+result);
+}
+
+data.loadResources(loadResCb,"/home/rtty/WORK_DIR/resources");
+//data.getAllContacts(cb1);
