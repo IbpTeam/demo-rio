@@ -9,8 +9,9 @@ var commonHandle = require("./commonHandle");
 var rdfHandle = require("./rdfHandle");
 var repo = require("./repo");
 var utils = require("../utils");
-
-
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
+var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
 /**
  * @method getTagsByPath
  *   get tags from a path
@@ -64,12 +65,12 @@ function getAllTagsByCategory(callback, category) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('tag'),
-    predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-    object: 'http://example.org/property/base#tags'
+    predicate: DEFINED_VOC.rdf._type,
+    object: DEFINED_TYPE["base"]["tags"]
   }, {
     subject: _db.v('tag'),
-    predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-    object: 'http://example.org/category#' + category
+    predicate: DEFINED_VOC.rdf._domain,
+    object: DEFINED_VOC.category[category]
   }]
   rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
@@ -135,13 +136,13 @@ function getTagsByUri(callback, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: 'http://example.org/property/base#URI',
+    predicate: DEFINED_PROP["base"]["URI"],
     object: uri
   }, {
     subject: _db.v('subject'),
-    predicate: 'http://example.org/property/base#tags',
+    predicate: DEFINED_PROP["base"]["tags"],
     object: _db.v('tag')
-  }]
+  }];
   rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
       return callback(err);
@@ -237,7 +238,7 @@ function getFilesByTags(callback, oTags) {
   for (var i = 0, l = oTags.length; i < l; i++) {
     _query.push({
       subject: _db.v('subject'),
-      predicate: 'http://example.org/property/base#tags',
+      predicate: DEFINED_PROP["base"]["tags"],
       object: 'http://example.org/tags#' + oTags[i]
     })
   }
@@ -272,14 +273,14 @@ function getFilesByTagsInCategory(callback, category, oTags) {
   var _query = [];
   _query.push({
     subject: _db.v('subject'),
-    predicate: 'http://example.org/property/base#category',
+    predicate: DEFINED_PROP["base"]["category"],
     object: category
   })
 
   for (var i = 0, l = oTags.length; i < l; i++) {
     _query.push({
       subject: _db.v('subject'),
-      predicate: 'http://example.org/property/base#tags',
+      predicate: DEFINED_PROP["base"]["tags"],
       object: 'http://example.org/tags#' + oTags[i]
     })
   }
@@ -460,58 +461,37 @@ exports.setTagByUriMulti = setTagByUriMulti;
  * @param1 callback
  *    return commit if successed
  *
- * @param2 oTags
- *    array, an array of tags to be removed
+ * @param2 sTags
+ *    string, uri string
  *
  *
  */
-function rmTagsByUri(callback, oTags, sUri) {
-  var allFiles = [];
-  var condition = [];
-  var deleteTags = [];
-  var sCondition = ["uri = '" + sUri + "'"];
-  var category = utils.getCategoryByUri(sUri);
-  commonDAO.findItems(null, [category], sCondition, null, function(err, result_find) {
+function rmTagsByUri(callback, tag, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
-      return;
+      return callback(err);
+    } else if (result == []) {
+      var _err = new Error("NOT FOUND IN DATABASE!");
+      return callback(_err)
     }
-    buildDeleteItems(allFiles, result_find);
-    var resultItems = doDeleteTags(allFiles, oTags);
-    console.log(resultItems);
-    dataDes.updateItems(resultItems, function(result) {
-      console.log("my update result: ", result);
-      if (result === "success") {
-        var files = [];
-        if (category === "contact") {
-          var desFilePath = config.RESOURCEPATH + '/contactDes/data/' + allFiles[0].name + '.md';
-        } else {
-          var filePath = allFiles[0].path;
-          var re = new RegExp('/' + category + '/', "i");
-          var desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
-        }
-        files.push(desFilePath);
-        commonDAO.updateItems(resultItems, function(result) {
-          if (result === 'rollback') {
-            console.log(result);
-            return callback(result);
-          }
-          var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-          repo.repoCommit(desPath, files, null, "ch", function() {
-            rmInTAGS(oTags, sUri, function(err) {
-              if (err) {
-                return callback(err);
-              }
-              console.log("rm tags: ", oTags, " success!");
-              callback(result);
-            })
-          });
-        })
-      } else {
-        console.log("error in update des files");
-        return;
+    var _subject = result[0].subject;
+    var _query_delete = [{
+      subject: _subject,
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: "http://example.org/tags#" + tag
+    }]
+    rdfHandle.dbDelete(_db, _query_delete, function(err) {
+      if (err) {
+        return callback(err);
       }
-    })
+      return callback();
+    });
   });
 }
 exports.rmTagsByUri = rmTagsByUri;
@@ -550,8 +530,8 @@ function rmTagAll(callback, tag, category) {
     //tag triple for catedory search
     result.push({
       subject: _object,
-      predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-      object: 'http://example.org/category#' + category
+      predicate: DEFINED_PROP.rdf._domain,
+      object: DEFINED_VOC.category[category]
     })
 
     rdfHandle.dbDelete(_db, result, function(err) {

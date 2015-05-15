@@ -17,6 +17,7 @@ var levelgraph = require('levelgraph');
 var utils = require('../utils');
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
 var __db = levelgraph(config.LEVELDBPATH);
 /**
  * @method dbInitial
@@ -244,10 +245,10 @@ function tripleGenerator(info, callback) {
   try {
     var _base = info.base;
     var _subject = 'http://example.org/category#' + info.subject;
-    var _object_defined = 'http://example.org/category#' + _base.category;
+    var _object_defined = DEFINED_VOC.category[_base.category];
     _triples.push({
       subject: _subject,
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      predicate: DEFINED_VOC.rdf._type,
       object: _object_defined
     });
     for (var entry in _base) {
@@ -259,13 +260,13 @@ function tripleGenerator(info, callback) {
           //define tags for getAllTags()
           var _tag_triple_define = {
             subject: _subject_tag,
-            predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-            object: 'http://example.org/property/base#tags'
+            predicate: DEFINED_VOC.rdf._type,
+            object: DEFINED_PROP["base"]["tags"]
           };
           //define domain for getTagsInCatedory()
           var _tag_triple_domain = {
             subject: _subject_tag,
-            predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
+            predicate: DEFINED_VOC.rdf._domain,
             object: _object_defined
           };
           //define triples for tag searching
