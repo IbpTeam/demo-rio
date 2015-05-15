@@ -16,7 +16,8 @@
 </head>
 <body>
   <script language=javascript>  
-  
+  var Q = require('q');
+
   function print(win, something) {
     if (typeof something == "object") {
       win.document.write("{");
@@ -67,11 +68,37 @@
     });
   }
 
+  function test_Q_dbInitial(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.Q_dbInitial()
+        .done(function() {
+          cb(null,"initial leveldb sucess!");
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
   function test_dbClear(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
         rdfhandle.dbClear(function(err) {
           cb(err, "dbCleat sucess!")
+        });
+      })
+    });
+  }
+
+  function test_Q_dbClear(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.Q_dbClear()
+        .done(function() {
+          cb(null,"initial leveldb sucess!");
+        },function(err) {
+          cb(err);
         });
       })
     });
@@ -143,14 +170,28 @@
       createDev: "exapmle",
       filename: "exapmle",
       postfix: "exapmle",
-      category: "exapmle",
+      category: "document",
       size: "exapmle",
       path: "exapmle",
       tags: "exapmle"
     },
     extra: {
-      project: '上海专项',
+      project: '上海专项'
     }
+  }
+
+  function test_Q_dbPut(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.Q_dbPut(db,_metadata)
+        .done(function() {
+          cb(null,"dbPut sucess!");
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
   }
 
   function test_dbPut(cb) {
@@ -171,7 +212,7 @@
         var _query_get_all = [{
           subject: _db.v('subject'),
           predicate: "http://example.org/property/base#URI",
-          object: "rio369rio#1a5b27aff29e0944d20b",
+          object: "rio30253rio#84119ad3450bf4cfc2b8"
         }, {
           subject: _db.v('subject'),
           predicate: _db.v('predicate'),
@@ -179,6 +220,30 @@
         }];
         rdfhandle.dbSearch(_db, _query_get_all, function(err, result) {
           cb(err, result)
+        });
+      })
+    });
+  }
+
+  function test_Q_dbSearch(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var _db = rdfhandle.dbOpen();
+        var _query_get_all = [{
+          subject: _db.v('subject'),
+          predicate: "http://example.org/property/base#URI",
+          object: "rio30253rio#84119ad3450bf4cfc2b8",
+        }, {
+          subject: _db.v('subject'),
+          predicate: _db.v('predicate'),
+          object: _db.v('object')
+        }];
+
+        rdfhandle.Q_dbSearch(_db, _query_get_all) 
+        .done(function(results) {
+          cb(null,results);
+        },function(err) {
+          cb(err);
         });
       })
     });
@@ -195,9 +260,42 @@
     });
   }
 
+  function test_Q_tripleGenerator(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.Q_tripleGenerator(info)
+        .done(function(_triples) {
+          cb(null,_triples);
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
+
 
 
   </script>
+<h2 onclick="show('Q_dbInitial')">Q_dbInitial(cb)<span><a class="mark" href="#test_Q_dbInitial" id="test_Q_dbInitial" onclick="test_Q_dbInitial(cb)">test</a></span></h2>
+<div id="Q_dbInitial" style="display:none;">
+</div>
+
+<h2 onclick="show('Q_dbPut')">Q_dbPut(cb)<span><a class="mark" href="#test_Q_dbPut" id="test_Q_dbPut" onclick="test_Q_dbPut(cb)">test</a></span></h2>
+<div id="Q_dbPut" style="display:none;">
+</div>
+<h2 onclick="show('Q_dbClear')">Q_dbClear(cb)<span><a class="mark" href="#test_Q_dbClear" id="test_Q_dbClear" onclick="test_Q_dbClear(cb)">test</a></span></h2>
+<div id="Q_dbClear" style="display:none;">
+</div>
+
+<h2 onclick="show('Q_dbSearch')">Q_dbSearch(cb)<span><a class="mark" href="#test_Q_dbSearch" id="test_Q_dbSearch" onclick="test_Q_dbSearch(cb)">test</a></span></h2>
+<div id="Q_dbSearch" style="display:none;">
+</div>
+
+<h2 onclick="show('Q_tripleGenerator')">Q_tripleGenerator(cb)<span><a class="mark" href="#test_Q_tripleGenerator" id="test_Q_tripleGenerator" onclick="test_Q_tripleGenerator(cb)">test</a></span></h2>
+<div id="Q_tripleGenerator" style="display:none;">
+</div>
 
 <h2 onclick="show('dbInitial')">dbInitial(cb)<span><a class="mark" href="#test_dbInitial" id="test_dbInitial" onclick="test_dbInitial(cb)">test</a></span></h2>
 <div id="dbInitial" style="display:none;">

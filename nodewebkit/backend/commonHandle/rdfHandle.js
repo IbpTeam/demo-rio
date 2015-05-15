@@ -18,6 +18,8 @@ var utils = require('../utils');
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var __db = levelgraph(config.LEVELDBPATH);
+var Q = require('q');
+
 /**
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
@@ -46,6 +48,31 @@ function dbInitial(callback) {
 }
 exports.dbInitial = dbInitial;
 
+var deferred = Q.defer();
+
+function Q_dbInitial() {
+  var db = dbOpen();
+  var allTriples = [];
+
+  for (var i in DEFINED_TYPE) {
+    if (DEFINED_TYPE.hasOwnProperty(i)) {
+      allTriples = allTriples.concat(DEFINED_TYPE[i]);
+    }
+  }
+  db.put(allTriples, function(err) {
+    if (err) {
+      deferred.reject(new Error(err));
+    };
+    db.close(function(err) {
+      if (err) {
+        deferred.reject(new Error(err));
+      }
+      deferred.resolve();
+    });
+  });
+  return deferred.promise;
+}
+exports.Q_dbInitial = Q_dbInitial;
 
 /**
  * @method dbClear
@@ -66,6 +93,19 @@ function dbClear(callback) {
 }
 exports.dbClear = dbClear;
 
+
+function Q_dbClear(callback) {
+  var deferred = Q.defer();
+  fs_extra.remove(config.LEVELDBPATH, function(err) {
+    if (err) {
+       deferred.reject(new Error(err));
+    }
+    else
+      deferred.resolve();    
+  });
+  return deferred.promise;
+}
+exports.Q_dbClear = Q_dbClear;
 /**
  * @method dbOpen
  *   open the levegraph database; would return a database object
@@ -94,6 +134,7 @@ function dbClose(db, callback) {
   //})
 }
 exports.dbClose = dbClose;
+
 
 /**
  * @method dbPut
@@ -144,6 +185,26 @@ function dbPut(db, triples, callback) {
 }
 exports.dbPut = dbPut;
 
+function Q_dbPut(db, triples) {
+  var deferred = Q.defer();
+  if (typeof triples !== 'object') {
+    var _err = new Error("INPUT TYPE ERROR!");
+    deferred.reject(_err);
+  }
+  else{
+    db.put(triples, function(err) {
+      if (err) {
+        deferred.reject(new Error(err));
+      }
+      else{
+        deferred.resolve();
+      }
+    });
+  }
+  return deferred.promise;
+}
+exports.Q_dbPut = Q_dbPut;
+
 function dbDelete(db, triples, callback) {
   if (typeof triples !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
@@ -157,6 +218,22 @@ function dbDelete(db, triples, callback) {
   })
 }
 exports.dbDelete = dbDelete;
+
+function Q_dbDelete(db, triples) {
+  var deferred = Q.defer();
+  if (typeof triples !== 'object') {
+    var _err = new Error("INPUT TYPE ERROR!");
+    deferred.reject(_err);
+  }
+  db.del(triples, function(err) {
+    if (err) 
+      deferred.reject(err);
+    else
+      deferred.resolve();
+  })
+  return deferred.promise;
+}
+exports.Q_dbDelete = Q_dbDelete;
 
 /**
  * @method dbSearch
@@ -202,6 +279,25 @@ function dbSearch(db, query, callback) {
   });
 }
 exports.dbSearch = dbSearch;
+
+function Q_dbSearch(db, query) {
+  var deferred = Q.defer();
+  if (typeof query !== 'object') {
+    var _err = new Error("INPUT TYPE ERROR!");
+    deferred.reject(new Error(_err));
+  }
+  db.search(query, function(err, results) {
+    if (err) {
+      console.log(err);
+      deferred.reject(new Error(err));
+    }
+    else
+      deferred.resolve(results);
+  });
+
+  return deferred.promise;
+}
+exports.Q_dbSearch = Q_dbSearch;
 
 /**
  * @method TripleGenerator
@@ -308,6 +404,46 @@ function tripleGenerator(info, callback) {
 }
 exports.tripleGenerator = tripleGenerator;
 
+function Q_tripleGenerator(info) {
+  var _namespace_subject = 'http://example.org/category/';
+  var _namespace_predicate = 'http://example.org/property/';
+  var _triples = [];
+  var deferred = Q.defer();
+  try {
+    var _base = info.base;
+    _triples.push({
+      subject: _namespace_subject + _base.category + '#' + info.subject,
+      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+      object: 'http://example.org/category#' + _base.category
+    });
+    for (var entry in _base) {
+      var _triple_base = {
+        subject: _namespace_subject + '#' + info.subject,
+        predicate: DEFINED_PROP["base"][entry],
+        object: _base[entry]
+      };
+      _triples.push(_triple_base);
+    }
+    var _extra = info.extra;
+    if (_extra != {}) {      
+      for (var entry in _extra) {
+        var _triple_extra = {
+          subject: _namespace_subject + '#' + info.subject,
+          predicate: DEFINED_PROP[_base.category][entry],
+          object: _extra[entry]
+        };
+        _triples.push(_triple_extra);
+      }
+    }
+    deferred.resolve(_triples);
+  } catch (err) {
+    deferred.reject(new Error(err));
+  }
+  
+  return deferred.promise;
+}
+exports.Q_tripleGenerator = Q_tripleGenerator;
+
 /**
  * @method decodeTripeles
  *   translate triples into info object,just a backward process of methond tripleGener-
@@ -358,3 +494,26 @@ function decodeTripeles(triples, callback) {
   return callback(null, info);
 }
 exports.decodeTripeles = decodeTripeles;
+
+function Q_decodeTripeles(triples) {
+  var info = {};
+  var deferred = Q.defer();
+  try {
+    for (var i = 0, l = triples.length; i < l; i++) {
+      var item = triples[i];
+      var title = utils.getTitle(item.predicate)
+      if (info.hasOwnProperty(item.subject)) {
+        (info[item.subject])[title] = item.object;
+      } else {
+        var itemInfo = {};
+        itemInfo[title] = item.object;
+        info[item.subject] = itemInfo;
+      }
+    }
+    deferred.resolve(info);
+  } catch (err) {
+    deferred.reject(new Error(err));
+  }
+  return deferred.promise;
+}
+exports.Q_decodeTripeles = Q_decodeTripeles;
