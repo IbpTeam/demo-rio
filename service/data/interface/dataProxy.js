@@ -122,7 +122,7 @@ Proxy.prototype.loadFile = function(callback) {
  * @return
  *    what will return from this interface
  */
-Proxy.prototype.loadResources = function(callback) {
+Proxy.prototype.loadResources = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
@@ -141,7 +141,7 @@ Proxy.prototype.loadResources = function(callback) {
  * @return
  *    what will return from this interface
  */
-Proxy.prototype.loadContacts = function(callback) {
+Proxy.prototype.loadContacts = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({

@@ -18,4 +18,19 @@ function cb1(res){
     console.log(res[0].photPath);
 }
 
-data.getAllContacts(cb1);
+
+function loadResCb(err,result){
+  if (err) {
+    console.log(err);
+  };
+  console.log("TTTTTTTTTTT"+result);
+}
+
+//data.loadResources(loadResCb,"/home/rtty/WORKDIR/resources");
+//data.getAllContacts(cb1);
+
+function loadConCb(res){
+  console.log("LLLLoading",res);
+}
+
+data.loadContacts(loadConCb,"/home/rtty/WORKDIR/resources/contacts/contacts.CSV");
