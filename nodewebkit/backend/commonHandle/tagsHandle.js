@@ -435,7 +435,7 @@ function rmTagAll(callback, tag, category) {
     //tag triple for catedory search
     result.push({
       subject: _object,
-      predicate: DEFINED_PROP.rdf._domain,
+      predicate: DEFINED_VOC.rdf._domain,
       object: DEFINED_VOC.category[category]
     })
 
