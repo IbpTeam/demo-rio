@@ -226,10 +226,10 @@ function Q_dbDelete(db, triples) {
     deferred.reject(_err);
   }
   db.del(triples, function(err) {
-    if (err) {
+    if (err) 
       deferred.reject(err);
-    }
-    deferred.resolve();
+    else
+      deferred.resolve();
   })
   return deferred.promise;
 }
