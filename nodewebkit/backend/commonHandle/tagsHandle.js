@@ -316,143 +316,48 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *    set tags to a file by uri
  *
  * @param1 callback
- *    @result, (result)
- *    @param: result,
- *        string, retieve 'commit' when success
+ *    @result, (err),
+ *       err would be object when error occurs
  *
- * @param2 oTags
+ * @param2 tags
  *    array, an array of tags to be set
  *
  * @param3 sUri
  *    string, a specific uri
  *
  */
-function setTagByUri(callback, oTags, sUri) {
-  var category = utils.getCategoryByUri(sUri);
-
-  function findItemsCb(err, items) {
+function setTagByUri(callback, tags, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
-      console.log(err);
+      return callback(err);
+    } else if (result == []) {
+      var _err = new Error("NOT FOUND IN DATABASE!");
       return callback(err);
     }
-    var UpdateItem = [];
-    var item = items[0];
-    console.log(item)
-    if (oTags == '' || oTags == null) {
-      return callback(null);
-    }
-    if (item.others == '' || item.others == null) { //item has no tags 
-      var newTags = oTags.sort().join(",");
-      var oldTags = [];
-    } else { //item has tag(s)
-      var oldTags = item.others.split(',');
-      var lens = oldTags.length;
-      for (var tag in oTags) {
-        if (!utils.isExist(oTags[tag], oldTags)) {
-          oldTags.push(oTags[tag]);
-        }
-      }
-      var newTags = oldTags.sort().join(',');
-    }
-    if (oldTags.length == lens) {
-      return callback(null); //no more new tags added return
-    }
-    UpdateItem = {
-      URI: item.URI,
-      path: item.path,
-      others: newTags,
-      category: category
-    };
-    var re = new RegExp('/' + category + '/', "i");
-    if (category == 'contact') {
-      var desFilePath = pathModule.join(utils.getDesDir(category), item.name + '.md');
-    } else {
-      var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
-    }
-    dataDes.updateItem(desFilePath, UpdateItem, function(result) {
-      if (result !== "success") {
-        console.log("error in update des file!");
-        return callback("error in update des file!");
-      }
-      if (category == 'contact') {
-        delete UpdateItem.path;
-      }
-      commonDAO.updateItem(UpdateItem, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err);
-        }
-        var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function(err) {
-          if (err) {
-            return callback(err);
-          }
-          addInTAGS(oTags, sUri, function(err) {
-            if (err) {
-              return callback(err);
-            }
-            console.log('set tags des git committed!');
-            callback(null);
-          })
-        });
+    var _subject = result[0].subject;
+    var _query_add = []
+    for (var i = 0, l = tags.length; i < l; i++) {
+      _query_add.push({
+        subject: _subject,
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: 'http://example.org/tags#' + tags[i]
       });
-    });
-  }
-  var condition = ["URI = " + "'" + sUri + "'"];
-  commonDAO.findItems(null, [category], condition, null, findItemsCb);
+    }
+    rdfHandle.dbPut(_db, _query_add, function(err) {
+      if (err) {
+        return callback(err);
+      }
+      return callback();
+    })
+  });
 }
 exports.setTagByUri = setTagByUri;
-
-/**
- * @method setTagByUriMulti
- *   set tags to multiple files by uri
- *
- * @param1 callback
- *    @result, (_err,result)
- *
- *    @param: _err,
- *        string, return specific error info
- *
- *    @param: result,
- *        string, retieve 'success' when success
- *
- * @param2 oTags
- *    array, an array of tags to be set
- *
- * @param3 oUri
- *    array, an array of uri
- *
- */
-function setTagByUriMulti(callback, oTags, oUri) {
-  if (oTags == []) {
-    console.log('Tags are not changed!')
-    return callback(null, 'success')
-  } else if (oUri == []) {
-    var _err = 'Error: empty URI input!';
-    console.log(_err);
-    return callback(_err, null)
-  }
-  var count = 0;
-  var lens = oUri.length;
-  for (var i = 0; i < lens; i++) {
-    var sUri = oUri[i];
-    (function(_sUri, _oTags) {
-      function setTagByUriCb(err) {
-        if (err) {
-          console.log(err, 'set tags error!');
-          return callback(err, null);
-        }
-        var isEnd = (count === lens - 1);
-        if (isEnd) {
-          callback(null, 'success');
-        }
-        count++;
-      }
-      setTagByUri(setTagByUriCb, _oTags, _sUri);
-    })(sUri, oTags);
-  }
-}
-exports.setTagByUriMulti = setTagByUriMulti;
 
 /**
  * @method rmTagsByUri
