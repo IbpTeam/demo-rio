@@ -84,7 +84,6 @@ exports.Q_dbInitial = Q_dbInitial;
  *
  */
 function dbClear(callback) {
-  var deferred = Q.defer();
   fs_extra.remove(config.LEVELDBPATH, function(err) {
     if (err) {
       callback(err);
