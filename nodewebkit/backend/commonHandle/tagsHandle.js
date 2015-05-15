@@ -381,7 +381,7 @@ function rmTagsByUri(callback, tag, uri) {
   rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
       return callback(err);
-    } else if (result == []) {
+    } else if (result == "") {
       var _err = new Error("NOT FOUND IN DATABASE!");
       return callback(_err)
     }
