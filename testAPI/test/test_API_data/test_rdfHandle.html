@@ -182,25 +182,7 @@
 
   
 
-  // function test_Q_dbPut(cb) {
-  //   var Q_rqrAPI = Q.nfbind(WDC.requireAPI);
-
-  //   Q_rqrAPI(['data'])
-  //   .then(function (data){
-  //     return Q.nfbind(data.test_rdfHandle);
-  //   })
-  //   .then(function(promise){
-  //     return promise(function(rdfhandle) {
-  //       var db = rdfhandle.dbOpen();
-  //       rdfhandle.Q_dbPut(db,_metadata);
-  //     });
-  //   })
-  //   .done(function() {
-  //         cb(null,"dbPut sucess!");
-  //       },function(err) {
-  //         cb(err);
-  //       });    
-  // }
+  
 
   function test_Q_dbPut(cb) {
     WDC.requireAPI(['data'], function(data) {
