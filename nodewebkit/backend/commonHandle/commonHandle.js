@@ -361,6 +361,9 @@ exports.getItemByProperty = function(options, callback) {
   getTriplesByProperty(options, function(err, result) {
     if (err) {
       return callback(err);
+    } else if (result == []) {
+      var _err = new Error("ITEM NOT FOUND!");
+      return callback(_err);
     }
     rdfHandle.decodeTripeles(result, function(err, info) {
       if (err) {
@@ -612,7 +615,7 @@ function resolveTriples(chenges, triple) {
  *
  *
  **/
-exports.updatePropertyValue = function(property, updatePropertyValueCb) {
+function updatePropertyValue(property, updatePropertyValueCb) {
   var _options = {
     _type: "base",
     _property: "URI",
@@ -637,6 +640,27 @@ exports.updatePropertyValue = function(property, updatePropertyValueCb) {
       }
       return updatePropertyValueCb();
     })
+  })
+}
+exports.updatePropertyValue = updatePropertyValue;
+
+exports.openData = function(uri, openDataCb) {
+  var currentTime = (new Date());
+  var property = {
+    _uri: uri,
+    _changes: [{
+      _property: "lastAccessTime",
+      _value: currentTime
+    }, {
+      _property: "lastAccessDev",
+      _value: config.uniqueID
+    }, ]
+  }
+  updatePropertyValue(property, function(err) {
+    if (err) {
+      throw err;
+    }
+    openDataCb();
   })
 }
 

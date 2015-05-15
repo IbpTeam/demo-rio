@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio21848rio#001a8080a65e7abb98d6";
+  var test_uri = "rio11388rio#3abbd28d4ff6c4cb5a08";
   var Home = "/home/xwh/"
 
   function print(win,something){
@@ -72,6 +72,7 @@
   function loadResourcesCb(err, result) {
     var win = window.open('');
     if (err) {
+      throw err;
       return print(win, err);
     }
     win.document.write("test API loadResources()");
@@ -118,7 +119,7 @@
   }
   function test_getAllDataByCate() {
     WDC.requireAPI(['data'], function(data){
-      data.getAllDataByCate(getAllDataByCateCb,'document');
+      data.getAllDataByCate(getAllDataByCateCb,'video');
     });
   }
 
@@ -153,7 +154,6 @@
         }
         data.updateDataValue(updateDataValueCb,_item);
       }); 
-      
     });
   }
 
@@ -238,7 +238,7 @@
   function test_getRecentAccessData(getRecentAccessDataCb){
     WDC.requireAPI(['data'], function(data){
       var num = 10;
-      data.getRecentAccessData(getRecentAccessDataCb,'video',num);
+      data.getRecentAccessData(getRecentAccessDataCb,'document',num);
     });        
   }
 
