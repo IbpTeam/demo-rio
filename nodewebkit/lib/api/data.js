@@ -665,44 +665,18 @@ exports.getTagsByUris = getTagsByUris;
  *    oTags example:
  *    var oTags = ['documents','music','picture']
  *
- * @param3 : oUri, array
+ * @param3 : sUri, string
  *
- *    oUri example:
- *    var oUri = ['some_uri_1','some_uri_2','some_uri_2']
+ *    sUri example:
+ *    var sUri = 'some_uri_1'
  *
  *
  */
-function setTagByUri(setTagByUriCb, oTags, oUri) {
+function setTagByUri(setTagByUriCb, oTags, sUri) {
   console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.setTagByUri(setTagByUriCb, oTags, oUri);
+  tagsHandle.setTagByUri(setTagByUriCb, oTags, sUri);
 }
 exports.setTagByUri = setTagByUri;
-
-/**
- * @method setTagByUriMulti
- *   set tags to multiple files by uri
- *
- * @param1 callback
- *    @result, (_err,result)
- *
- *    @param: _err,
- *        string, return specific error info
- *
- *    @param: result,
- *        string, retieve 'success' when success
- *
- * @param2 oTags
- *    array, an array of tags to be set
- *
- * @param3 oUri
- *    array, an array of uri
- *
- */
-function setTagByUriMulti(setTagByUriMultiCb, oTags, oUri) {
-  console.log("Request handler 'setTagByUriMulti' was called.");
-  tagsHandle.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
-}
-exports.setTagByUriMulti = setTagByUriMulti;
 
 /**
  * @method getFilesByTag
@@ -760,11 +734,11 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *    var oTags = ['documents','music','picture']
  *
  */
-function rmTagsAll(rmTagsAllCb, oTags) {
-  console.log("Request handler 'rmTagsAll' was called.");
-  tagsHandle.rmTagsAll(rmTagsAllCb, oTags);
+function rmTagAll(rmTagAllCb, oTags, category) {
+  console.log("Request handler 'rmTagAll' was called.");
+  tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
 }
-exports.rmTagsAll = rmTagsAll;
+exports.rmTagAll = rmTagAll;
 
 /**
  * @method rmTagsByUri

@@ -11,362 +11,22 @@
  *
  * @version:0.0.1
  **/
+var _rdf = {
+  _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  _domain: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  _property: 'http://www.w3.org/2000/01/rdf-schema#Property',
+  _subClaseOf: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
+  _Class: 'http://www.w3.org/2000/01/rdf-schema#Class'
+}
 
-var _base = [{
-  subject: 'http://example.org/category#base',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Class'
-}, {
-  subject: 'http://example.org/property/base#URI',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#URI',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#category',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#category',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#createTime',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#createTime',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#lastModifyTime',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastModifyTime',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#lastAccessTime',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastAccessTime',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#createDev',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#createDev',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#lastModifyDev',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastModifyDev',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#lastAccessDev',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#lastAccessDev',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#filename',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#filename',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#postfix',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#postfix',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#size',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#size',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#path',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#path',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/base#tags',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/base#tags',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#base'
-}];
-
-var _contact = [{
-  subject: 'http://example.org/category#contact',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/contact#lastname',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#lastname',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#contact'
-}, {
-  subject: 'http://example.org/property/contact#firstname',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#firstname',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#contact'
-}, {
-  subject: 'http://example.org/property/contact#email',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#email',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#contact'
-}, {
-  subject: 'http://example.org/property/contact#phone',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#phone',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#contact'
-}, {
-  subject: 'http://example.org/property/contact#sex',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#sex',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#contact'
-}, {
-  subject: 'http://example.org/property/contact#age',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#age',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#contact'
-}];
-
-var _document = [{
-  subject: 'http://example.org/category#document',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/contact#project',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#project',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#document'
-}];
-
-var _picture = [{
-  subject: 'http://example.org/category#picture',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/contact#location',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#location',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#picture'
-}];
-
-var _music = [{
-  subject: 'http://example.org/category#music',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/contact#bit_rate',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#bit_rate',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#frequency',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#frequency',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#track',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#track',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#TDRC',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#TDRC',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#APIC',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#APIC',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#TALB',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#TALB',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#TPE1',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#TPE1',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#TIT2',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#TIT2',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#TXXX',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#TXXX',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}, {
-  subject: 'http://example.org/property/contact#COMM',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#COMM',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#music'
-}];
-
-var _video = [{
-  subject: 'http://example.org/category#video',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-  object: 'http://example.org/category#base'
-}, {
-  subject: 'http://example.org/property/contact#format_long_name',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#format_long_name',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#width',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#width',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#height',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#height',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#display_aspect_ratio',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#display_aspect_ratio',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#pix_fmt',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#pix_fmt',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#duration',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#duration',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#major_brand',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#major_brand',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#minor_version',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#minor_version',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}, {
-  subject: 'http://example.org/property/contact#compatible_brands',
-  predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  object: 'http://www.w3.org/2000/01/rdf-schema#Property'
-}, {
-  subject: 'http://example.org/property/contact#compatible_brands',
-  predicate: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  object: 'http://example.org/category#video'
-}];
+var _category = {
+  base: 'http://example.org/category#base',
+  document: 'http://example.org/category#document',
+  music: 'http://example.org/category#music',
+  video: 'http://example.org/category#video',
+  picture: 'http://example.org/category#picture',
+  other: 'http://example.org/category#other'
+}
 
 var _base_property = {
   URI: 'http://example.org/property/base#URI',
@@ -428,6 +88,364 @@ var _video_property = {
   compatible_brands: 'http://example.org/property/video#compatible_brands'
 }
 
+var _base = [{
+  subject: _category.base,
+  predicate: _rdf._type,
+  object: _rdf._Class
+}, {
+  subject: _base_property.URI,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.URI,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.category,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.category,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.createTime,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.createTime,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.lastModifyTime,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.lastModifyTime,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.lastAccessTime,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.lastAccessTime,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.createDev,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.createDev,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.lastModifyDev,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.lastModifyDev,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.lastAccessDev,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.lastAccessDev,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.filename,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.filename,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.postfix,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.postfix,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.size,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.size,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.path,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.path,
+  predicate: _rdf._domain,
+  object: _category.base
+}, {
+  subject: _base_property.tags,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _base_property.tags,
+  predicate: _rdf._domain,
+  object: _category.base
+}];
+
+var _contact = [{
+  subject: _category.contact,
+  predicate: _rdf._subClaseOf,
+  object: _category.base
+}, {
+  subject: _contact_property.lastname,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.lastname,
+  predicate: _rdf._domain,
+  object: _category.contact
+}, {
+  subject: _contact_property.firstname,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.firstname,
+  predicate: _rdf._domain,
+  object: _category.contact
+}, {
+  subject: _contact_property.email,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.email,
+  predicate: _rdf._domain,
+  object: _category.contact
+}, {
+  subject: _contact_property.phone,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.phone,
+  predicate: _rdf._domain,
+  object: _category.contact
+}, {
+  subject: _contact_property.sex,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.sex,
+  predicate: _rdf._domain,
+  object: _category.contact
+}, {
+  subject: _contact_property.age,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.age,
+  predicate: _rdf._domain,
+  object: _category.contact
+}];
+
+var _document = [{
+  subject: _category.document,
+  predicate: _rdf._subClaseOf,
+  object: _category.base
+}, {
+  subject: _document_property.project,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _document_property.project,
+  predicate: _rdf._domain,
+  object: _category.document
+}];
+
+var _picture = [{
+  subject: _category.picture,
+  predicate: _rdf._subClaseOf,
+  object: _category.base
+}, {
+  subject: _picture_property.location,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _picture_property.location,
+  predicate: _rdf._domain,
+  object: _category.picture
+}];
+
+var _music = [{
+  subject: _category.music,
+  predicate: _rdf._subClaseOf,
+  object: _category.base
+}, {
+  subject: _music_property.bit_rate,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.bit_rate,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.frequency,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.frequency,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.track,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.track,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.TDRC,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.TDRC,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.APIC,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.APIC,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.TALB,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.TALB,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.TPE1,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.TPE1,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.TIT2,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.TIT2,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.TXXX,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.TXXX,
+  predicate: _rdf._domain,
+  object: _category.music
+}, {
+  subject: _music_property.COMM,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _music_property.COMM,
+  predicate: _rdf._domain,
+  object: _category.music
+}];
+
+var _video = [{
+  subject: _category.video,
+  predicate: _rdf._subClaseOf,
+  object: _category.base
+}, {
+  subject: _video_property.format_long_name,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.format_long_name,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.width,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.width,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.height,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.height,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.display_aspect_ratio,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.display_aspect_ratio,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.pix_fmt,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.pix_fmt,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.duration,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.duration,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.major_brand,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.major_brand,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.minor_version,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.minor_version,
+  predicate: _rdf._domain,
+  object: _category.video
+}, {
+  subject: _video_property.compatible_brands,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _video_property.compatible_brands,
+  predicate: _rdf._domain,
+  object: _category.video
+}];
+
+
+
 exports.vocabulary = {
   base: _base,
   contact: _contact,
@@ -445,3 +463,8 @@ exports.property = {
   music: _music_property,
   video: _video_property
 };
+
+exports.definition = {
+  category: _category,
+  rdf: _rdf
+}
