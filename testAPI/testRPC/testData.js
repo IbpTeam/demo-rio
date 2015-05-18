@@ -19,9 +19,26 @@ proxy.requireProxy(['data'], function(dataAPI) {
     console.log(retObj.ret);
   });
 
-    */
+
   dataAPI.loadContacts("/home/rtty/WORKDIR/resources/contacts/contacts.CSV",function(retObj){
     console.log(retObj);
   });
 
+  dataAPI.getAllCate(function(retObj){
+    console.log(retObj.ret);
+  });
+
+  dataAPI.getAllDataByCate("Contact",function(retObj){
+    console.log(retObj.ret);
+  });
+
+
+  dataAPI.rmDataByUri("undefined#ce31c951d2fdfdeee7aa#contact", function(retObj) {
+    console.log(retObj.ret);
+  });
+  */
+
+  dataAPI.getDataByUri("undefined#b6ef889b5b05cfae72e6#picture", function(retObj){
+    console.log(retObj.ret);
+  });
 });
