@@ -33,4 +33,10 @@ function loadConCb(res){
   console.log("LLLLoading",res);
 }
 
-data.loadContacts(loadConCb,"/home/rtty/WORKDIR/resources/contacts/contacts.CSV");
+//data.loadContacts(loadConCb,"/home/rtty/WORKDIR/resources/contacts/contacts.CSV");
+
+function getAllcataCb(result){
+  console.log(result);
+}
+
+data.getAllCate(getAllcataCb);
