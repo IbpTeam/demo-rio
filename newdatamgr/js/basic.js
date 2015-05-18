@@ -291,7 +291,7 @@ var Basic = Class.extend({
         }else{
           window.alert("Add tags failed!");
         }
-      }, [_newTag], uri_);
+      }, _newTag, uri_);
     });
   },
 //显示删除标签界面
@@ -358,7 +358,7 @@ var Basic = Class.extend({
               infoList.fixTagNum(_tags[i],-1);
             };
             if (_category === 'contact') {
-              var _tagsArr = contact._contacts[contact._selectId]['others'].split(',');
+              var _tagsArr = contact._contacts[contact._selectId]['tags'];
               var _others = '';
               for (var j = 0; j < _tagsArr.length; j++) {
                 if (_tagsArr[j] == _tags[i]) continue;
@@ -368,7 +368,7 @@ var Basic = Class.extend({
                   _others += ','+_tagsArr[j];
                 }
               };
-              contact._contacts[contact._selectId]['others'] = _others;
+              contact._contacts[contact._selectId]['tags'] = _others;
             };
           }
         }else{

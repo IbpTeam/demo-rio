@@ -371,7 +371,7 @@ exports.setTagByUri = setTagByUri;
  *
  *
  */
-function rmTagsByUri(callback, tag, uri) {
+function rmTagsByUri(callback, tags, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -386,11 +386,19 @@ function rmTagsByUri(callback, tag, uri) {
       return callback(_err)
     }
     var _subject = result[0].subject;
-    var _query_delete = [{
-      subject: _subject,
-      predicate: DEFINED_PROP["base"]["tags"],
-      object: "http://example.org/tags#" + tag
-    }]
+
+
+
+    var _query_delete = []
+
+    for (var i = 0, l = tags.length; i < l; i++) {
+      _query_delete.push({
+        subject: _subject,
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: "http://example.org/tags#" + tags[i]
+      })
+    }
+
     rdfHandle.dbDelete(_db, _query_delete, function(err) {
       if (err) {
         return callback(err);
