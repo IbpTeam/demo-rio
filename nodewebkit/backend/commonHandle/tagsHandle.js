@@ -85,42 +85,6 @@ function getAllTagsByCategory(callback, category) {
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
-
-/*TODO: no more use, prepare to delete*/
-/**
- * @method getAllTags
- *   get all tags in db
- *
- * @param callback
- *    all result in array
- *    example:
- *    TagFile = {
- *                tag1:[file_uri1,file_uri3]
- *                tag2:[file_uri2]
- *              }
- *
- */
-function getAllTags(callback) {
-  var TagFile = {};
-
-  function findItemsCb(err, items) {
-    // if (err) {
-    //   console.log(err);
-    //   return;
-    // }
-    // for (var k in items) {
-    //   if (TagFile.hasOwnProperty(items[k].tag)) {
-    //     TagFile[items[k].tag].push(items[k].file_URI);
-    //   } else {
-    //     TagFile[items[k].tag] = [items[k].file_URI];
-    //   }
-    //   callback(TagFile);
-    // }
-  }
-  commonDAO.findItems(null, ['tags'], null, null, findItemsCb);
-}
-exports.getAllTags = getAllTags;
-
 /**
  * @method getTagsByUri
  *   get tags with specifc uri
@@ -155,70 +119,6 @@ function getTagsByUri(callback, uri) {
   });
 }
 exports.getTagsByUri = getTagsByUri;
-
-/*TODO: no more use, prepare to delete*/
-/**
- * @method getTagsByUris
- *   get tags with specifc uris
- *
- * @param1 callback
- *    all result in array
- *
- * @param2 oUris
- *    array, an array of uris, uris should in the same category
- *
- */
-function getTagsByUris(callback, oUris) {
-  // if (oUris.length == 0 || oUris[0] == "") {
-  //   callback("error");
-  // }
-  // var sTableName = utils.getCategoryByUri(oUris[0]);
-  // var condition = 'uri in (';
-  // for (var i = 0; i < oUris.length - 1; i++) {
-  //   condition += '"' + oUris[i] + '", ';
-  // }
-  // condition += '"' + oUris[oUris.length - 1] + '")';
-  // var column = ["distinct others"];
-
-  // var TagFile = {
-  //   tags: [],
-  //   tagFiles: {}
-  // };
-
-  // function findItemsCb(err, items) {
-  //   if (err) {
-  //     console.log(err);
-  //     return;
-  //   }
-  //   for (var k in items) {
-  //     items[k].others = (items[k].others).split(",");
-  //     var oItem = items[k];
-  //     for (var j in oItem.others) {
-  //       var sTag = oItem.others[j];
-  //       var sUri = oItem.URI;
-  //       var sFilename = oItem.filename || oItem.name;
-  //       var sPostfix = oItem.postfix;
-  //       var sPath = oItem.path || oItem.photopath;
-  //       if (sTag != null && sTag != "") {
-  //         var oContent = (sTableName === 'contact') ? [sUri, sFilename, sPath] : [sUri, sFilename, sPostfix, sPath];
-  //         if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-  //           TagFile.tagFiles[sTag].push(oContent);
-  //         } else {
-  //           TagFile.tagFiles[sTag] = [
-  //             oContent
-  //           ];
-  //           TagFile.tags.push(sTag);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   callback(TagFile);
-  // }
-  // var column = (sTableName === 'contact') ? ['others', 'name', 'uri', 'photopath'] : ['others', 'filename', 'uri', 'postfix', 'path'];
-  // commonDAO.findItems(column, sTableName, [condition], null, findItemsCb);
-}
-exports.getTagsByUris = getTagsByUris;
-
 
 /**
  * @method getFilesByTags
@@ -409,7 +309,6 @@ function rmTagsByUri(callback, tags, uri) {
 }
 exports.rmTagsByUri = rmTagsByUri;
 
-/*TODO: no more use, prepare to delete*/
 /**
  * @method rmTagsAll
  *   remove tags from all data base and des files
