@@ -297,7 +297,10 @@ var Basic = Class.extend({
 //显示删除标签界面
   removeTagView:function(this_,uri_,category_){
     var _this = this;
-    DataAPI.getTagsByUri(function(tags_){
+    DataAPI.getTagsByUri(function(err, tags_){
+      if(err){
+        throw err;
+      }
       if(tags_ != null && tags_.length > 0 && tags_[0] != ""){
         var _deleteTagForm = $('<form>', {
           'id': 'delete-tag-form'
@@ -344,8 +347,8 @@ var Basic = Class.extend({
     var _uri = uri_;
     var _category = category_;
     if(_tags && _uri){
-      DataAPI.rmTagsByUri(function(result){
-        if (result === 'commit') {
+      DataAPI.rmTagsByUri(function(err){
+        if (err_ !== null) {
           if(basic._tagDragged){
             basic._tagDragged.removeTagByText(_tags);
             basic._tagDragged = undefined;

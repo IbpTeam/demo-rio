@@ -66,7 +66,7 @@ function getAllTagsByCategory(callback, category) {
   var _query = [{
     subject: _db.v('tag'),
     predicate: DEFINED_VOC.rdf._type,
-    object: DEFINED_TYPE["base"]["tags"]
+    object: DEFINED_PROP["base"]["tags"]
   }, {
     subject: _db.v('tag'),
     predicate: DEFINED_VOC.rdf._domain,
