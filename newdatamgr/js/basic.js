@@ -273,25 +273,25 @@ var Basic = Class.extend({
     $('#add-tag-button').on('click', function(){
       var _newTag = document.getElementById('new-tag').value;
       DataAPI.setTagByUri(function(err){
-        if(err === null){
-          if(category_ === 'contact'){
+        if (err) {
+          window.alert("Add tags failed!");
+        } else {
+          if (category_ === 'contact') {
             this_._tagView.addTag(_newTag);
             infoList.setContent();
-          }else{
-            try{
+          } else {
+            try {
               basic._uri = uri_;
               basic._tag = _newTag;
-              infoList.fixTagNum(_newTag,1);
+              infoList.fixTagNum(_newTag, 1);
               _this._tagDragged.addPreTag(_newTag);
-            }catch(e){
+            } catch (e) {
               console.log(e);
             }
           }
           $('#popupDialog').remove();
-        }else{
-          window.alert("Add tags failed!");
         }
-      }, _newTag, uri_);
+      }, [_newTag], uri_);
     });
   },
 //显示删除标签界面
