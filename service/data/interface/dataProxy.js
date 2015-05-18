@@ -179,7 +179,7 @@ Proxy.prototype.getAllCate = function(callback) {
  * @return
  *    what will return from this interface
  */
-Proxy.prototype.getAllDataByCate = function(callback) {
+Proxy.prototype.getAllDataByCate = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
@@ -217,7 +217,7 @@ Proxy.prototype.getAllContacts = function(callback) {
  * @return
  *    what will return from this interface
  */
-Proxy.prototype.rmDataByUri = function(callback) {
+Proxy.prototype.rmDataByUri = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
@@ -236,7 +236,7 @@ Proxy.prototype.rmDataByUri = function(callback) {
  * @return
  *    what will return from this interface
  */
-Proxy.prototype.getDataByUri = function(callback) {
+Proxy.prototype.getDataByUri = function(String, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({

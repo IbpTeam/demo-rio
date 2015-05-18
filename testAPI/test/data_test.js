@@ -39,4 +39,16 @@ function getAllcataCb(result){
   console.log(result);
 }
 
-data.getAllCate(getAllcataCb);
+//data.getAllCate(getAllcataCb);
+
+//data.getAllDataByCate(getAllcataCb,"Picture");
+/*
+data.rmDataByUri(function(err){
+  console.log(err,"Testing");
+}, "undefined#2dd48e7f723db8c78b12#contact");
+*/
+
+
+data.getDataByUri(function(res){
+  console.log(res);
+},"undefined#b6ef889b5b05cfae72e6#picture");

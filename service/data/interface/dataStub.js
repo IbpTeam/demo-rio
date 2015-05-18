@@ -44,7 +44,9 @@ var initObj = {
     "show": "l"
   }, {
     "name": "getAllDataByCate",
-    "in": [],
+    "in": [
+      "String"
+    ],
     "show": "l"
   }, {
     "name": "getAllContacts",
@@ -52,11 +54,15 @@ var initObj = {
     "show": "l"
   }, {
     "name": "rmDataByUri",
-    "in": [],
+    "in": [
+      "String"
+    ],
     "show": "l"
   }, {
     "name": "getDataByUri",
-    "in": [],
+    "in": [
+      "String"
+    ],
     "show": "l"
   }, {
     "name": "getDataByPath",
@@ -275,8 +281,20 @@ var initObj = {
         callback(retObj);
       }, val);
     },
-    getAllCate: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
-    getAllDataByCate: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
+    getAllCate: function(callback) {
+      dataAPI.getAllCate(function(res){
+        var retObj = new Object();
+        retObj.ret = JSON.stringify(res);
+        callback(retObj);
+      });
+    },
+    getAllDataByCate: function(val, callback) {
+      dataAPI.getAllDataByCate(function(res){
+        var retObj = new Object();
+        retObj.ret = res;
+        callback(retObj);
+      },val);
+    },
     getAllContacts: function(callback) {
       dataAPI.getAllContacts(function(res) {
         var retObj = new Object();
@@ -284,8 +302,29 @@ var initObj = {
         callback(retObj);
       });
     },
-    rmDataByUri: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
-    getDataByUri: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
+    rmDataByUri: function(val, callback) {
+      dataAPI.rmDataByUri(function(err){
+        var retObj = new Object();
+        if (err === null) {
+          retObj.ret = "success";
+        }else{
+          res.ret = res;
+        }
+        callback(retObj);
+      },val);
+    },
+    getDataByUri: function(val, callback) {
+      dataAPI.getDataByUri(function(res){
+        var retObj = new Object();
+        if (res === null) {
+          retObj.ret = "failed";
+        }else{
+          retObj.ret = res;
+          console.log(res);
+        }
+        callback(retObj);
+      },val);
+    },
     getDataByPath: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
     openDataByUri: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
     openDataByPath: function(callback) { /* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/ },
