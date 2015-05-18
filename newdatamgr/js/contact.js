@@ -40,7 +40,7 @@ var Contact = Class.extend({
 
   setContactsList:function(){
     var _this = this;
-    DataAPI.getAllDataByCate(function(contact_json_){
+    DataAPI.getAllDataByCate(function(err, contact_json_){
       _this._contacts = contact_json_;
       if(_this._contacts != null && _this._contacts.length > 0){
         _this.loadContactsList(0);

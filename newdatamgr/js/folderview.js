@@ -598,7 +598,10 @@ var ShowFiles = Class.extend({
 
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
-  getCallBackData:function(files){
+  getCallBackData:function(err, files){
+    if(err){
+      throw err;
+    }
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     var returnContent = _globalSelf.showFilesNormal(files);
@@ -1040,7 +1043,7 @@ var ShowFiles = Class.extend({
             max:3
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1076,7 +1079,7 @@ var ShowFiles = Class.extend({
             max:3
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1103,7 +1106,7 @@ var ShowFiles = Class.extend({
             max:0
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.bindDrag(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
@@ -1144,7 +1147,7 @@ var ShowFiles = Class.extend({
             max:3
           });
           _tagView.setParent(tagHolder,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(tagHolder[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1172,7 +1175,7 @@ var ShowFiles = Class.extend({
             max:0
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;

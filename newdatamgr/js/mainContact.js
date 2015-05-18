@@ -40,7 +40,10 @@ var MainContactView = Class.extend({
 
   setContent:function(){
     var _this = this;
-    DataAPI.getAllDataByCate(function(contact_json_){
+    DataAPI.getAllDataByCate(function(err, contact_json_){
+      if(err){
+        throw err;
+      }
       if(contact_json_.length === 0){
         homePage._noneData++;
         if (homePage._noneData === homePage._dataClasses) {
