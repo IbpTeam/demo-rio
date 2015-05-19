@@ -545,7 +545,13 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
             items.push(info[item]);
           }
         }
-        return getRecentAccessDataCb(null, items);
+        items = items.sort(function(a, b) {
+          var _a = new Date(a.lastAccessTime);
+          var _b = new Date(b.lastAccessTime);
+          return _b - _a;
+        });
+        var _result = (items.length > num) ? items.slice(0, num - 1) : items;
+        return getRecentAccessDataCb(null, _result);
       })
     })
   });
