@@ -307,12 +307,12 @@ function dataInfo(itemInfo, callback) {
   })
 }
 function addTriples(triples, loadContactsCb) {
-  var db = rdfHandle.dbOpen();
-  rdfHandle.dbPut(db, triples, function(err) {
+  var _db = rdfHandle.dbOpen();
+  rdfHandle.dbPut(_db, triples, function(err) {
     if (err) {
       return loadContactsCb(err);
     }
-    db.close(function(err) {
+    rdfHandle.dbClose(_db, function(err) {
       if (err) throw err;
       return loadContactsCb(null, "success");
     })
