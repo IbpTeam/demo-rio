@@ -232,6 +232,10 @@ function setTagByUri(callback, tags, uri) {
     subject: _db.v('subject'),
     predicate: DEFINED_PROP["base"]["URI"],
     object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: _db.v('category'),
   }];
   rdfHandle.dbSearch(_db, _query, function(err, result) {
     if (err) {
@@ -241,12 +245,24 @@ function setTagByUri(callback, tags, uri) {
       return callback(err);
     }
     var _subject = result[0].subject;
+    var _category = result[0].category;
     var _query_add = []
     for (var i = 0, l = tags.length; i < l; i++) {
+      var _tag_url = 'http://example.org/tags#' + tags[i];
+      _query_add.push({
+        subject: _tag_url,
+        predicate: DEFINED_VOC.rdf._type,
+        object: DEFINED_PROP["base"]["tags"]
+      });
+      _query_add.push({
+        subject: _tag_url,
+        predicate: DEFINED_VOC.rdf._domain,
+        object: DEFINED_VOC.category[_category]
+      });
       _query_add.push({
         subject: _subject,
         predicate: DEFINED_PROP["base"]["tags"],
-        object: 'http://example.org/tags#' + tags[i]
+        object: _tag_url
       });
     }
     rdfHandle.dbPut(_db, _query_add, function(err) {
