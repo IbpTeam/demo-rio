@@ -21,6 +21,7 @@ var _rdf = {
 
 var _category = {
   base: 'http://example.org/category#base',
+  contact: 'http://example.org/category#contact',
   document: 'http://example.org/category#document',
   music: 'http://example.org/category#music',
   video: 'http://example.org/category#video',

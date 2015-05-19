@@ -24,7 +24,6 @@ var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
-var levelgraph = require('levelgraph');
 
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";
