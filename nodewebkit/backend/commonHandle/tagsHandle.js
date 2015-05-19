@@ -270,7 +270,7 @@ function setTagByUri(callback, tags, uri) {
         return callback(err);
       }
       return callback();
-    })
+    });
   });
 }
 exports.setTagByUri = setTagByUri;
