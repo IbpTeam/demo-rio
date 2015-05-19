@@ -140,6 +140,7 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
+
   function test_setTagByUri(setTagByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['asdawfwf'];
@@ -147,7 +148,6 @@
       data.setTagByUri(setTagByUriCb,oTags,oUri);
     });    
   }
-
   function Q_setTagByUriCb(result){
     var win = window.open('');
     win.document.write("test API setTagByUri()");
@@ -156,6 +156,7 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
+
   function test_Q_setTagByUri(Q_setTagByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['asdawfwf'];
@@ -200,6 +201,7 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
+
   function test_getFilesByTags(getFilesByTagsCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['resources'];
@@ -220,6 +222,7 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
+
   function test_Q_getFilesByTags(Q_getFilesByTagsCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['resources'];
@@ -246,6 +249,7 @@
       print(win, result);
     }
   }
+  
   function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['resources'];
@@ -265,6 +269,7 @@
       print(win, result);
     }
   }
+
   function test_Q_getFilesByTagsInCategory(Q_getFilesByTagsInCategoryCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['resources'];
@@ -300,6 +305,7 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
+
   function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ["pictures"];
@@ -314,6 +320,7 @@
     win.document.write("<br/>"); 
     print(win,result);  
   }
+
   function test_Q_rmTagsByUri(Q_rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ["music"];
@@ -341,7 +348,23 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  
+  function test_getAllTagsByCategory(getAllTagsByCategoryCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getAllTagsByCategory(getAllTagsByCategoryCb,'resources');
+    });      
+  }
+
+  function Q_getAllTagsByCategoryCb(err, result){
+    if(err){
+      throw err;
+    }    
+    var win = window.open('');
+    win.document.write("test API Q_getAllTagsByCategory()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);    
+  }
   </pre>
 </div>
 </div>
@@ -360,7 +383,23 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  
+  function test_getTagsByUri(getTagsByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getTagsByUri(getTagsByUriCb,test_uri);
+    });   
+  }
+
+  function Q_getTagsByUriCb(err, result){
+    if(err){
+      throw err;
+    }
+    var win = window.open('');
+    win.document.write("test API getTagsByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
   </pre>
 </div>
 </div>
@@ -380,7 +419,26 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  
+  function test_getFilesByTags(getFilesByTagsCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['resources'];
+      var oUri = test_uri;
+      data.getFilesByTags(getFilesByTagsCb,oTags);
+      
+    });  
+  }
+
+  function Q_getFilesByTagsCb(err,result){
+    if(err){
+      throw err;
+    }    
+    var win = window.open('');
+    win.document.write("test API Q_getFilesByTagsCb()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
   </pre>
 </div>
 </div>
@@ -394,7 +452,25 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
+  function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['resources'];
+      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'music',oTags);
+    });  
+  }
 
+  function Q_getFilesByTagsInCategoryCb(err,result){
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API Q_getFilesByTagsInCategory()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
   </pre>
 </div>
 </div>
@@ -411,7 +487,21 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  
+  function test_setTagByUri(setTagByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['asdawfwf'];
+      var oUri = test_uri2;
+      data.setTagByUri(setTagByUriCb,oTags,oUri);
+    });    
+  }
+  function Q_setTagByUriCb(result){
+    var win = window.open('');
+    win.document.write("test API setTagByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
   </pre>
 </div>
 </div>
@@ -431,7 +521,20 @@
 <div style="color:#004B97">
   <pre>
   具体实现：<br>
-  
+  function test_rmTagsByUri(rmTagsByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ["pictures"];
+      data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
+    });  
+  }
+  function Q_rmTagsByUriCb(result){
+    var win = window.open('');
+    win.document.write("test API Q_rmTagsByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
   </pre>
 </div>
 </div>
