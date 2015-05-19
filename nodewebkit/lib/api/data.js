@@ -643,7 +643,7 @@ function getTagsByUri(getTagsByUriCb, sUri) {
 }
 exports.getTagsByUri = getTagsByUri;
 
-function Q_getTagsByUri(getTagsByUriCb, sUri) {
+function Q_getTagsByUri(sUri) {
   console.log("Request handler 'Q_getTagsByUri' was called.");
   return tagsHandle.Q_getTagsByUri(sUri);
 }

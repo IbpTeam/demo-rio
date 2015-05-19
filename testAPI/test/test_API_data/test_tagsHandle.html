@@ -122,10 +122,11 @@
   function test_Q_getTagsByUri(Q_getTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
       data.Q_getTagsByUri(test_uri)
+      .fail(function(err) {
+          Q_getTagsByUriCb(err);
+        })
       .done(function(results) {
           Q_getTagsByUriCb(null,results);
-        },function(err) {
-          Q_getTagsByUriCb(err);
         });
     });   
   }

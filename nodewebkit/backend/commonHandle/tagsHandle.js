@@ -200,7 +200,9 @@ function Q_getTagsByUri(uri) {
     }
     return _tags;
   } 
-  return rdfHandle.Q_dbSearch(_db, _query)
+  return rdfHandle
+  .Q_dbSearch(_db, _query)
+  .fail(function(err){throw new Error(err);})
   .then(tagMaker);
 }
 exports.Q_getTagsByUri = Q_getTagsByUri;
