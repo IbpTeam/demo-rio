@@ -31,7 +31,23 @@ ResourceMgr.prototype.initResource=function(callback_){
   });
 }
 
-ResourceMgr.prototype.getResourceList = function(agrsObj_, callback_) {
+/**
+ * @method getResourceList
+ *   根据参数获取资源列表
+ *
+ * @param1 callback function(err, rst)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      rst: resource info
+ * @param2 params string
+ *   传入的参数，可以json格式封装
+ *  {
+ *    'type':['all'];//['all']:获取所有资源数据;['hardResouce']:获取硬件资源的所有数据;['hardResouce','input']:获取硬件资源的所有输入设备数据
+ *  } 
+ */
+ResourceMgr.prototype.getResourceList = function(callback_,agrsObj_) {
   var self = this;
   var category = agrsObj_.type[0];
   var rst = {};
@@ -70,6 +86,24 @@ ResourceMgr.prototype.getResourceList = function(agrsObj_, callback_) {
   }
 }
 
+/**
+ * @method setVideoChat
+ *   设置视频聊天对应资源为已被占用
+ *
+ * @param1 callback function(err, rst)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      rst: resource info 成功设置的资源的设置信息
+ *      {"type":"hardResource","detail":[{"type":["output","audio"],"state":1}]}
+ * @param2 params string
+ *   传入的参数，可以json格式封装
+ *  {
+ *    'type':'hardResource',//hardResouce:硬件资源
+ *    'detail':[{'type':['input','camera'],'state':1},{['output','video'],'state':1},{['output','audio'],'state':1}]
+ *  } 
+ */
 ResourceMgr.prototype.setVideoChat = function(callback_) {
   var self = this;
   var agrsObj = {};
@@ -100,6 +134,24 @@ ResourceMgr.prototype.setVideoChat = function(callback_) {
   self.resourceMgr['hardResource'].setResourceState(agrsObj, function(ret_){callback_(ret_.err,ret_.rst)});
 }
 
+/**
+ * @method setVideoChat
+ *   设置视频聊天对应资源为已被占用
+ *
+ * @param1 callback function(err, rst)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      rst: resource info 成功设置的资源的设置信息
+ *      {"type":"hardResource","detail":[{"type":["output","audio"],"state":1}]}
+ * @param2 agrsObj_
+ *   传入的参数，可以json格式封装
+ *  {
+ *    'type':'hardResource',//hardResouce:硬件资源
+ *    'detail':[{'type':['input','camera'],'state':1},{['output','video'],'state':1},{['output','audio'],'state':1}]
+ *  } 
+ */
 ResourceMgr.prototype.setResourceState = function(agrsObj_, callback_) {
   var self = this;
   var category = agrsObj_.type;
