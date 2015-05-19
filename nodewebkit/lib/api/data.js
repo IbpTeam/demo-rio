@@ -781,7 +781,7 @@ function rmTagAll(rmTagAllCb, oTags, category) {
       rmTagAllCb(err);
     });
 }
-exports.rmTagsAll = rmTagAll;
+exports.rmTagAll = rmTagAll;
 
 /**
  * @method rmTagsByUri

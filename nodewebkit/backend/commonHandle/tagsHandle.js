@@ -649,10 +649,10 @@ function Q_rmTagAll(tag, category) {
     return result;
   }
 
-  return rdfHandle.dbSearch(_db, _query)
+  return rdfHandle.Q_dbSearch(_db, _query)
   .then(tagTriMaker)
   .then(function(result){
-    rdfHandle.dbDelete(_db, result);
+    rdfHandle.Q_dbDelete(_db, result);
   });
 }
 exports.Q_rmTagAll = Q_rmTagAll;

@@ -179,7 +179,20 @@
       data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
     });  
   }
-
+  function rmTagAllCb(result){
+    var win = window.open('');
+    win.document.write("test API rmTagsAll()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_rmTagAll(rmTagAllCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['musics','documents','contactsphoto','Conference','ReleaseNote','pictures'];
+      data.rmTagAll(rmTagAllCb,oTags);
+    });  
+  }
 
   </script>
 
@@ -313,7 +326,7 @@
 </div>
 
 
-<h2 onclick="show('rmTagAll')">rmTagAlls(rmTagsAllCb,oTags)<span><a class="mark" href="#test_rmTagAll" id="test_rmTagAll" onclick="test_rmTagAll(rmTagAllCb)">test</a></span></h2>
+<h2 onclick="show('rmTagAll')">rmTagAll(rmTagAllCb,oTags)<span><a class="mark" href="#test_rmTagAll" id="test_rmTagAll" onclick="test_rmTagAll(rmTagAllCb)">test</a></span></h2>
 <div id="rmTagAll" style="display:none;">
 <div style="color:#930000">
   <pre>
