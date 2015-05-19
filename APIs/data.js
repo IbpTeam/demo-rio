@@ -76,3 +76,71 @@ exports.loadContacts = function(loadContactCb, path) {
     loadResourcesCb(retObj.ret);
   });
 }
+
+/**
+ * @method getAllCate
+ *   查询所有基本分类
+ *
+ * @param1 getAllCateCb
+ *   回调函数
+ *   @result
+ *     array[cate]: 分类数组
+ *        cate{
+ *           id;
+ *           type;
+ *           path;
+ *        }
+ */
+ exports.getAllCate = function(getAllCateCb){
+  data.getAllCate(function(retObj){
+    getAllCateCb(retObj.ret);
+  });
+ }
+
+ /**
+ * @method getAllDataByCate
+ *   查询某基本分类下的所有数据
+ *
+ * @param1 getAllDataByCateCb
+ *   回调函数
+ *   @result
+ *     array[cate]: 数据数组
+ *        如果是联系人，则返回数据如下：
+ *        cate{
+ *           URI;
+ *           version;
+ *           name;
+ *           photPath;
+ *        }
+ *        如果是其他类型，则返回数据如下：
+ *        cate{
+ *           URI;
+ *           version;
+ *           filename;
+ *           postfix;
+ *           path;
+ *        }
+ */
+ exports.getAllDataByCate = function(getAllDataByCateCb, cate){
+  data.getAllDataByCate(cate, function(retObj){
+    getAllDataByCateCb(retObj.ret);
+  });
+ }
+
+ //API rmDataById:通过URI删除数据
+//返回字符串：
+//成功返回success;
+//失败返回失败原因
+exports.rmDataByUri = function(rmDataByUriCb, uri){
+  data.rmDataByUri(uri, function(retObj){
+    rmDataByUriCb(retObj.ret);
+  });
+}
+
+//API getDataByUri:通过Uri查看数据所有信息
+//返回具体数据类型对象
+exports.getDataByUri = function(getDataByUriCb, uri){
+  data.getDataByUri(uri, function(retObj){
+    getDataByUriCb(retObj.ret);
+  });
+}
