@@ -418,7 +418,7 @@ exports.removeItemByProperty = function(options, callback) {
       }
       //if type is contact, then it is done for now.
       if (result.category === "contact") {
-        _db.close(function() {
+        rdfHandle.dbClose(_db, function() {
           return callback();
         });
       } else {
@@ -427,7 +427,7 @@ exports.removeItemByProperty = function(options, callback) {
           if (err) {
             return callback(err);
           }
-          _db.close(function() {
+          rdfHandle.dbClose(_db, function() {
             return callback();
           });
         })

@@ -378,7 +378,7 @@ var Basic = Class.extend({
     }else if(_uri && !_tags){  //drag file to remove
       if (_category === 'mainDoc') {
         DataAPI.rmDataByUri(function(err_){
-          if(err_ !== null){
+          if(err_ ){
             console.log('Delect file failed:' + err_);
             return 0;
           }

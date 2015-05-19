@@ -129,13 +129,13 @@ var Contact = Class.extend({
         }}
       ]},
       {text: 'Remove Contact', action:function(){
-        DataAPI.rmDataByUri(function(err, result){
-          if(result == "success"){
+        DataAPI.rmDataByUri(function(err){
+          if (err) {
+            window.alert("Delete file failed!");
+          } else {
             _this._contacts.splice(_this._selectId, 1);
             _this.loadContactsList(0);
             infoList.setContent();
-          }else{
-            window.alert("Delete file failed!");
           }
         },_this._contacts[_this._selectId]['URI']);
       }},

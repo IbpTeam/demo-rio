@@ -758,22 +758,21 @@ var ShowFiles = Class.extend({
       window.alert('the file is not found');
     }
     else{
-      DataAPI.rmDataByUri(function(err,result){
-        if(result == 'success'){
-          for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-            if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']){
-              _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+      DataAPI.rmDataByUri(function(err){
+        if (err) {
+          window.alert('Delete file failed');
+        } else {
+          for (var i = 0; i < _globalSelf._getFiles[_globalSelf._index].length; i++) {
+            if (_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']) {
+              _globalSelf._getFiles[_globalSelf._index].splice(i, 1);
               break;
             }
           }
-          $("#"+modifyURI_+'div').remove();
-          $("#"+modifyURI_+'tr').remove();
-          if(_globalSelf._index ==1 && _globalSelf._showNormal[1] ==0){
+          $("#" + modifyURI_ + 'div').remove();
+          $("#" + modifyURI_ + 'tr').remove();
+          if (_globalSelf._index == 1 && _globalSelf._showNormal[1] == 0) {
             //查看是否瀑布流删除之后进行操作，待定？
           }
-        }
-        else{
-          window.alert('Delete file failed');
         }
       },file['URI']);
     }
