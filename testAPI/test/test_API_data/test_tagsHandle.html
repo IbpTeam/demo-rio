@@ -63,33 +63,10 @@
   }
   function test_getAllTagsByCategory(getAllTagsByCategoryCb){
     WDC.requireAPI(['data'], function(data){
-      data.getAllTagsByCategory(getAllTagsByCategoryCb,'resources');
+      data.getAllTagsByCategory(getAllTagsByCategoryCb,'document');
     });      
   }
 
-  function Q_getAllTagsByCategoryCb(err, result){
-    if(err){
-      throw err;
-    }    
-    var win = window.open('');
-    win.document.write("test API Q_getAllTagsByCategory()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);    
-  }
-
-  function test_Q_getAllTagsByCategory(Q_getAllTagsByCategoryCb){
-    WDC.requireAPI(['data'], function(data){
-      data.Q_getAllTagsByCategory('resources')
-      .then(function(results) {
-          Q_getAllTagsByCategoryCb(null,results);
-        })
-      .catch(function(err) {
-          Q_getAllTagsByCategoryCb(err);
-        });
-    });      
-  }
 
   function getTagsByUriCb(err, result){
     if(err){
@@ -108,29 +85,6 @@
     });   
   }
 
-  function Q_getTagsByUriCb(err, result){
-    if(err){
-      throw err;
-    }
-    var win = window.open('');
-    win.document.write("test API getTagsByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  function test_Q_getTagsByUri(Q_getTagsByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      data.Q_getTagsByUri(test_uri)
-      .fail(function(err) {
-          Q_getTagsByUriCb(err);
-        })
-      .done(function(results) {
-          Q_getTagsByUriCb(null,results);
-        });
-    });   
-  }
-
 
   function setTagByUriCb(result){
     var win = window.open('');
@@ -146,27 +100,6 @@
       var oTags = ['asdawfwf'];
       var oUri = test_uri2;
       data.setTagByUri(setTagByUriCb,oTags,oUri);
-    });    
-  }
-  function Q_setTagByUriCb(result){
-    var win = window.open('');
-    win.document.write("test API setTagByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-
-  function test_Q_setTagByUri(Q_setTagByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['asdawfwf'];
-      var oUri = test_uri;
-      data.Q_setTagByUri(oTags,oUri)
-      .done(function(results) {
-          Q_setTagByUriCb(null,results);
-        },function(err) {
-          Q_setTagByUriCb(err);
-        });
     });    
   }
 
@@ -211,32 +144,6 @@
     });  
   }
 
-  function Q_getFilesByTagsCb(err,result){
-    if(err){
-      throw err;
-    }    
-    var win = window.open('');
-    win.document.write("test API Q_getFilesByTagsCb()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-
-  function test_Q_getFilesByTags(Q_getFilesByTagsCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['resources'];
-      var oUri = test_uri;
-      data.Q_getFilesByTags(oTags)
-      .done(function(results) {
-          Q_getFilesByTagsCb(null,results);
-        },function(err) {
-          Q_getFilesByTagsCb(err);
-        });
-    });  
-  }
-
-
   function getFilesByTagsInCategoryCb(err,result){
     var win = window.open('');
     if (err) {
@@ -249,51 +156,11 @@
       print(win, result);
     }
   }
-  
+
   function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
     WDC.requireAPI(['data'], function(data){
       var oTags = ['resources'];
       data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'music',oTags);
-    });  
-  }
-
-  function Q_getFilesByTagsInCategoryCb(err,result){
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API Q_getFilesByTagsInCategory()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-    }
-  }
-
-  function test_Q_getFilesByTagsInCategory(Q_getFilesByTagsInCategoryCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['resources'];
-      data.Q_getFilesByTagsInCategory('music',oTags)
-        .done(function(results) {
-          Q_getFilesByTagsInCategoryCb(null,results);
-        },function(err) {
-          Q_getFilesByTagsInCategoryCb(err);
-        });
-    });  
-  }
-
-  function rmTagsAllCb(result){
-    var win = window.open('');
-    win.document.write("test API rmTagsAll()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  function test_rmTagsAll(rmTagsAllCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['musics','documents','contactsphoto','Conference','ReleaseNote','pictures'];
-      data.rmTagsAll(rmTagsAllCb,oTags);
     });  
   }
 
@@ -312,235 +179,9 @@
       data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
     });  
   }
-  function Q_rmTagsByUriCb(result){
-    var win = window.open('');
-    win.document.write("test API Q_rmTagsByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-
-  function test_Q_rmTagsByUri(Q_rmTagsByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ["music"];
-      data.Q_rmTagsByUri(oTags,test_uri)
-      .done(function(results) {
-          Q_rmTagsByUriCb(null,results);
-        },function(err) {
-          Q_rmTagsByUriCb(err);
-        });
-    });  
-  }
 
 
   </script>
-<h2 onclick="show('Q_getAllTagsByCategory')">Q_getAllTagsByCategory()<span><a class="mark" href="#test_Q_getAllTagsByCategory" id="test_Q_getAllTagsByCategory" onclick="test_Q_getAllTagsByCategory(Q_getAllTagsByCategoryCb)">test</a></span></h2>
-<div id="Q_getAllTagsByCategory" style="display:none;">
-<div style="color:#930000">
-  <pre>
-    @method : test_Q_getAllTagsByCategory 
-      @param1 : getAllTagsByCategoryCb 回调函数
-        @result : string
-      @param2 : array,
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function test_getAllTagsByCategory(getAllTagsByCategoryCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getAllTagsByCategory(getAllTagsByCategoryCb,'resources');
-    });      
-  }
-
-  function Q_getAllTagsByCategoryCb(err, result){
-    if(err){
-      throw err;
-    }    
-    var win = window.open('');
-    win.document.write("test API Q_getAllTagsByCategory()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);    
-  }
-  </pre>
-</div>
-</div>
-<h2 onclick="show('Q_getTagsByUri')">Q_getTagsByUri(sUri)<span><a class="mark" href="#test_Q_getTagsByUri" id="test_Q_getTagsByUri" onclick="test_Q_getTagsByUri(Q_getTagsByUriCb)">test</a></span></h2>
-<div id="Q_getTagsByUri" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  @method Q_getTagsByUri
-    get tags with specifc uri
-  @param1 callback
-     all result in array
-  @param2 sUri
-     string, uri
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function test_getTagsByUri(getTagsByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getTagsByUri(getTagsByUriCb,test_uri);
-    });   
-  }
-
-  function Q_getTagsByUriCb(err, result){
-    if(err){
-      throw err;
-    }
-    var win = window.open('');
-    win.document.write("test API getTagsByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  </pre>
-</div>
-</div>
-
-<h2 onclick="show('Q_getFilesByTags')">Q_getFilesByTags(oTags)<span><a class="mark" href="#test_Q_getFilesByTags" id="test_Q_getFilesByTags" onclick="test_Q_getFilesByTags(Q_getFilesByTagsCb)">test</a></span></h2>
-<div id="Q_getFilesByTags" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  @method getFilesByTag
-    get all files with specific tags
-  @param1 callback
-     all result in array
-  @param2 oTags
-     array, an array of tags
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function test_getFilesByTags(getFilesByTagsCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['resources'];
-      var oUri = test_uri;
-      data.getFilesByTags(getFilesByTagsCb,oTags);
-      
-    });  
-  }
-
-  function Q_getFilesByTagsCb(err,result){
-    if(err){
-      throw err;
-    }    
-    var win = window.open('');
-    win.document.write("test API Q_getFilesByTagsCb()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  </pre>
-</div>
-</div>
-
-<h2 onclick="show('Q_getFilesByTagsInCategory')">Q_getFilesByTagsInCategory(category,oTags)<span><a class="mark" href="#test_Q_getFilesByTagsInCategory" id="test_Q_getFilesByTagsInCategory" onclick="test_Q_getFilesByTagsInCategory(Q_getFilesByTagsInCategoryCb)">test</a></span></h2>
-<div id="Q_getFilesByTagsInCategory" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['resources'];
-      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'music',oTags);
-    });  
-  }
-
-  function Q_getFilesByTagsInCategoryCb(err,result){
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API Q_getFilesByTagsInCategory()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-    }
-  }
-  </pre>
-</div>
-</div>
-<h2 onclick="show('Q_setTagByUri')">Q_setTagByUri(oTags,oUri)<span><a class="mark" href="#test_Q_setTagByUri" id="test_Q_setTagByUri" onclick="test_Q_setTagByUri(Q_setTagByUriCb)">test</a></span></h2>
-<div id="Q_setTagByUri" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  @method : getAllTagsByCategory 
-  @param1 : getAllTagsByCategoryCb 回调函数
-    @result : string
-  @param2 : category, array
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function test_setTagByUri(setTagByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['asdawfwf'];
-      var oUri = test_uri2;
-      data.setTagByUri(setTagByUriCb,oTags,oUri);
-    });    
-  }
-  function Q_setTagByUriCb(result){
-    var win = window.open('');
-    win.document.write("test API setTagByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  </pre>
-</div>
-</div>
-
-<h2 onclick="show('Q_rmTagsByUri')">Q_rmTagsByUri(rmTagsByUriCb,sTag,oUri)<span><a class="mark" href="#test_Q_rmTagsByUri" id="test_Q_rmTagsByUri" onclick="test_Q_rmTagsByUri(Q_rmTagsByUriCb)">test</a></span></h2>
-<div id="Q_rmTagsByUri" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  @method rmTagsByUri
-    remove a tag from some files with specific uri
-  @param1 callback
-     return commit if successed
-  @param2 oTags
-     array, an array of tags to be removed
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function test_rmTagsByUri(rmTagsByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ["pictures"];
-      data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
-    });  
-  }
-  function Q_rmTagsByUriCb(result){
-    var win = window.open('');
-    win.document.write("test API Q_rmTagsByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  </pre>
-</div>
-</div>
-<div style="color:#004B97">---------------------------------------------------------------------------------------------------------------------------------------------------</div>
-
-
 
 <h2 onclick="show('getAllTagsByCategory')">getAllTagsByCategory(getAllTagsByCategoryCb)<span><a class="mark" href="#test_getAllTagsByCategory" id="test_getAllTagsByCategory" onclick="test_getAllTagsByCategory(getAllTagsByCategoryCb)">test</a></span></h2>
 <div id="getAllTagsByCategory" style="display:none;">
@@ -567,66 +208,6 @@
     WDC.requireAPI(['data'], function(data){
       data.getAllTagsByCategory(getAllTagsByCategoryCb,'documents');
     });      
-  }
-  </pre>
-</div>
-</div>
-
-<h2 onclick="show('setTagByUri')">setTagByUri(setTagByUriCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUri" id="test_setTagByUri" onclick="test_setTagByUri(setTagByUriCb)">test</a></span></h2>
-<div id="setTagByUri" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  @method : getAllTagsByCategory 
-  @param1 : getAllTagsByCategoryCb 回调函数
-    @result : string
-  @param2 : category, array
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function setTagByUriCb(){
-    var win = window.open('');
-    win.document.write("test API setTagByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  function test_setTagByUri(setTagByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['my','good','tag'];
-      var oUri = [test_uri];
-      data.setTagByUri(setTagByUriCb,oTags,oUri);
-    });    
-  }
-  </pre>
-</div>
-</div>
-
-<h2 onclick="show('setTagByUriMulti')">setTagByUriMulti(setTagByUriMultiCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUriMulti" id="test_setTagByUriMulti" onclick="test_setTagByUriMulti(setTagByUriMultiCb)">test</a></span></h2>
-<div id="setTagByUriMulti" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function setTagByUriMultiCb(result){
-    var win = window.open('');
-    win.document.write("test API setTagByUriMulti()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  function test_setTagByUriMulti(setTagByUriMultiCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['my','good','tag'];
-      var oUri = [test_uri,test_uri2,test_uri3,test_uri1];
-      data.setTagByUriMulti(setTagByUriMultiCb,oTags,oUri);
-    });    
   }
   </pre>
 </div>
@@ -659,6 +240,39 @@
     WDC.requireAPI(['data'], function(data){
       data.getTagsByUri(getTagsByUriCb,test_uri);
     });   
+  }
+  </pre>
+</div>
+</div>
+
+
+<h2 onclick="show('setTagByUri')">setTagByUri(setTagByUriCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUri" id="test_setTagByUri" onclick="test_setTagByUri(setTagByUriCb)">test</a></span></h2>
+<div id="setTagByUri" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  @method : getAllTagsByCategory 
+  @param1 : getAllTagsByCategoryCb 回调函数
+    @result : string
+  @param2 : category, array
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function setTagByUriCb(){
+    var win = window.open('');
+    win.document.write("test API setTagByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_setTagByUri(setTagByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['my','good','tag'];
+      var oUri = [test_uri];
+      data.setTagByUri(setTagByUriCb,oTags,oUri);
+    });    
   }
   </pre>
 </div>
@@ -698,38 +312,12 @@
 </div>
 </div>
 
-<h2 onclick="show('getFilesByTagsInCategory')">getFilesByTagsInCategory(getFilesByTagsInCategoryCb,category,oTags)<span><a class="mark" href="#test_getFilesByTagsInCategory" id="test_getFilesByTagsInCategory" onclick="test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb)">test</a></span></h2>
-<div id="getFilesByTagsInCategory" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function getFilesByTagsInCategoryCb(err,result){
-    var win = window.open('');
-    win.document.write("test API getFilesByTagsInCategory()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);  
-  }
-  function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
-    WDC.requireAPI(['data'], function(data){
-      var oTags = ['music','picture','document'];
-      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'document',oTags);
-    });  
-  }
-  </pre>
-</div>
-</div>
 
-<h2 onclick="show('rmTagsAll')">rmTagsAlls(rmTagsAllCb,oTags)<span><a class="mark" href="#test_rmTagsAll" id="test_rmTagsAll" onclick="test_rmTagsAll(rmTagsAllCb)">test</a></span></h2>
-<div id="rmTagsAll" style="display:none;">
+<h2 onclick="show('rmTagAll')">rmTagAlls(rmTagsAllCb,oTags)<span><a class="mark" href="#test_rmTagAll" id="test_rmTagAll" onclick="test_rmTagAll(rmTagAllCb)">test</a></span></h2>
+<div id="rmTagAll" style="display:none;">
 <div style="color:#930000">
   <pre>
-  @method rmTagsAll
+  @method rmTagAll
     remove tags from all data base and des files
   @param1 callback
      return success if successed
@@ -792,6 +380,75 @@
   </pre>
 </div>
 </div>
+
+<h2 onclick="show('getFilesByTagsInCategory')">getFilesByTagsInCategory(getFilesByTagsInCategoryCb,category,oTags)<span><a class="mark" href="#test_getFilesByTagsInCategory" id="test_getFilesByTagsInCategory" onclick="test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb)">test</a></span></h2>
+<div id="getFilesByTagsInCategory" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function getFilesByTagsInCategoryCb(err,result){
+    var win = window.open('');
+    win.document.write("test API getFilesByTagsInCategory()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['music','picture','document'];
+      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'document',oTags);
+    });  
+  }
+  </pre>
+</div>
+</div>
+
+<div style="color:#004B97">---------------------------------------------------------------------------------------------------------------------------------------------------</div>
+
+
+
+
+
+
+
+<h2 onclick="show('setTagByUriMulti')">setTagByUriMulti(setTagByUriMultiCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUriMulti" id="test_setTagByUriMulti" onclick="test_setTagByUriMulti(setTagByUriMultiCb)">test</a></span></h2>
+<div id="setTagByUriMulti" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  具体实现：<br>
+  function setTagByUriMultiCb(result){
+    var win = window.open('');
+    win.document.write("test API setTagByUriMulti()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);  
+  }
+  function test_setTagByUriMulti(setTagByUriMultiCb){
+    WDC.requireAPI(['data'], function(data){
+      var oTags = ['my','good','tag'];
+      var oUri = [test_uri,test_uri2,test_uri3,test_uri1];
+      data.setTagByUriMulti(setTagByUriMultiCb,oTags,oUri);
+    });    
+  }
+  </pre>
+</div>
+</div>
+
+
+
+
+
+
 
 </body>
 </html>

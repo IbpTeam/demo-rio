@@ -615,16 +615,17 @@ exports.getResourceDataDir = getResourceDataDir;
  * @param2 : category, array
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
-  console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
+  console.log("Request handler 'Q_getAllTagsByCategory' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
+  tagsHandle.Q_getAllTagsByCategory(category)
+      .done(function(results) {
+          getAllTagsByCategoryCb(null,results);
+        },function(err) {
+          getAllTagsByCategoryCb(err);
+        });
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
-
-function Q_getAllTagsByCategory(getAllTagsByCategoryCb, category) {
-  console.log("Request handler 'Q_getAllTagsByCategory' was called.");
-  return tagsHandle.Q_getAllTagsByCategory(category);
-}
-exports.Q_getAllTagsByCategory = Q_getAllTagsByCategory;
 
 /**
  * @method getTagsByUri
@@ -638,16 +639,19 @@ exports.Q_getAllTagsByCategory = Q_getAllTagsByCategory;
  *
  */
 function getTagsByUri(getTagsByUriCb, sUri) {
-  console.log("Request handler 'getTagsByUri' was called.");
-  tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
+  console.log("Request handler 'Q_getTagsByUri' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
+  tagsHandle.Q_getTagsByUri(sUri)
+      .fail(function(err) {
+          getTagsByUriCb(err);
+        })
+      .done(function(results) {
+          getTagsByUriCb(null,results);
+        });
 }
 exports.getTagsByUri = getTagsByUri;
 
-function Q_getTagsByUri(sUri) {
-  console.log("Request handler 'Q_getTagsByUri' was called.");
-  return tagsHandle.Q_getTagsByUri(sUri);
-}
-exports.Q_getTagsByUri = Q_getTagsByUri;
 
 /**
  * @method getTagsByUris
@@ -685,16 +689,17 @@ exports.getTagsByUris = getTagsByUris;
  *
  */
 function setTagByUri(setTagByUriCb, oTags, sUri) {
-  console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.setTagByUri(setTagByUriCb, oTags, sUri);
+  console.log("Request handler 'Q_setTagByUri' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.Q_setTagByUri(setTagByUriCb, oTags, sUri);
+  tagsHandle.Q_setTagByUri(oTags,sUri)
+  .done(function(results) {
+      Q_setTagByUriCb(null,results);
+    },function(err) {
+      Q_setTagByUriCb(err);
+    });
 }
 exports.setTagByUri = setTagByUri;
-
-function Q_setTagByUri(oTags, sUri) {
-  console.log("Request handler 'Q_setTagByUri' was called.");
-  return tagsHandle.Q_setTagByUri(oTags, sUri);
-}
-exports.Q_setTagByUri = Q_setTagByUri;
 
 /**
  * @method getFilesByTag
@@ -711,16 +716,17 @@ exports.Q_setTagByUri = Q_setTagByUri;
  *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
-  console.log("Request handler 'getFilesByTags' was called.");
-  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+  console.log("Request handler 'Q_getFilesByTags' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+  tagsHandle.Q_getFilesByTags(oTags)
+    .done(function(results) {
+        getFilesByTagsCb(null,results);
+      },function(err) {
+        getFilesByTagsCb(err);
+      });
 }
 exports.getFilesByTags = getFilesByTags;
-
-function Q_getFilesByTags(oTags) {
-  console.log("Request handler 'Q_getFilesByTags' was called.");
-  return tagsHandle.Q_getFilesByTags(oTags);
-}
-exports.Q_getFilesByTags = Q_getFilesByTags;
 
 /**
  * @method getFilesByTagsInCategory
@@ -738,15 +744,17 @@ exports.Q_getFilesByTags = Q_getFilesByTags;
  */
 function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
   console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
+  tagsHandle.Q_getFilesByTagsInCategory(category,oTags)
+    .done(function(results) {
+      getFilesByTagsInCategoryCb(null,results);
+    },function(err) {
+      getFilesByTagsInCategoryCb(err);
+    });
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
-function Q_getFilesByTagsInCategory(category, oTags) {
-  console.log("Request handler 'Q_getFilesByTagsInCategory' was called.");
-  return tagsHandle.Q_getFilesByTagsInCategory(category, oTags);
-}
-exports.Q_getFilesByTagsInCategory = Q_getFilesByTagsInCategory;
 /**
  * @method rmTagsAll
  *   remove tags from all data base and des files
@@ -764,15 +772,16 @@ exports.Q_getFilesByTagsInCategory = Q_getFilesByTagsInCategory;
  */
 function rmTagAll(rmTagAllCb, oTags, category) {
   console.log("Request handler 'rmTagAll' was called.");
-  tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
+  tagsHandle.Q_rmTagAll(oTags, category)
+  .done(function(results) {
+      rmTagAllCb(null,results);
+    },function(err) {
+      rmTagAllCb(err);
+    });
 }
-exports.rmTagAll = rmTagAll;
-
-function Q_rmTagAll(oTags, category) {
-  console.log("Request handler 'Q_rmTagAll' was called.");
-  return tagsHandle.Q_rmTagAll(oTags, category);
-}
-exports.Q_rmTagAll = Q_rmTagAll;
+exports.rmTagsAll = rmTagAll;
 
 /**
  * @method rmTagsByUri
@@ -790,17 +799,17 @@ exports.Q_rmTagAll = Q_rmTagAll;
  *
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
-  console.log("Request handler 'rmTagsByUri' was called.");
-  tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
+  console.log("Request handler 'Q_rmTagsByUri' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
+  tagsHandle.Q_rmTagsByUri(sTag,oUri)
+  .done(function(results) {
+      rmTagsByUriCb(null,results);
+    },function(err) {
+      rmTagsByUriCb(err);
+    });
 }
 exports.rmTagsByUri = rmTagsByUri;
-
-function Q_rmTagsByUri(sTag, oUri) {
-  console.log("Request handler 'Q_rmTagsByUri' was called.");
-  return tagsHandle.Q_rmTagsByUri(sTag, oUri);
-}
-exports.Q_rmTagsByUri = Q_rmTagsByUri;
-
 
 function initDesktop(initDesktopCb) {
   console.log("Request handler 'initDesktop' was called.");
