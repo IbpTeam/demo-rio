@@ -292,8 +292,8 @@ function dataInfo(itemInfo, callback) {
         lastModifyDev: config.uniqueID,
         lastAccessDev: config.uniqueID,
         createDev: config.uniqueID,
-        category: "contact",
-        tags: "exapmle"
+        category: CATEGORY_NAME,
+        tags: ""
       },
       extra: {
         lastname: itemInfo["姓"],

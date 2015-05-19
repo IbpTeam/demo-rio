@@ -168,7 +168,7 @@ var Contact = Class.extend({
 
     var _uri = contact_? contact_['URI']:undefined;
     var _tags = [];
-    var _tagStr = contact_ ? contact_['others']:undefined;
+    var _tagStr = contact_ ? contact_['tags']:undefined;
     if (typeof _tagStr === 'string' && _tagStr.length > 0) {
       _tags = _tagStr.split(',');
     };
@@ -436,7 +436,7 @@ var Contact = Class.extend({
           if(!contact._tagView.addTag(_tag)){
             return 0;
           }
-          contact._contacts[contact._selectId]['others'] += ','+_tag;
+          contact._contacts[contact._selectId]['tags'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
           var _tagedFile = [contact._contacts[contact._selectId]['URI']];
           if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
