@@ -97,12 +97,6 @@ ResourceMgr.prototype.getResourceList = function(callback_,agrsObj_) {
  *   @cbparam2
  *      rst: resource info 成功设置的资源的设置信息
  *      {"type":"hardResource","detail":[{"type":["output","audio"],"state":1}]}
- * @param2 params string
- *   传入的参数，可以json格式封装
- *  {
- *    'type':'hardResource',//hardResouce:硬件资源
- *    'detail':[{'type':['input','camera'],'state':1},{['output','video'],'state':1},{['output','audio'],'state':1}]
- *  } 
  */
 ResourceMgr.prototype.setVideoChat = function(callback_) {
   var self = this;
@@ -169,6 +163,17 @@ ResourceMgr.prototype.setResourceState = function(agrsObj_, callback_) {
 }
 
 var resMgr=null;
+/**
+ * @method getResMgr
+ *   接口对象
+ *
+ * @param1 callback function(err, rst)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      rst: ResourceMgr
+ */
 function getResMgr(callback_){
   if(resMgr==null){
       resMgr=new ResourceMgr({
