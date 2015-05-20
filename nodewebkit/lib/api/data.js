@@ -615,8 +615,15 @@ exports.getResourceDataDir = getResourceDataDir;
  * @param2 : category, array
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
-  console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
+  console.log("Request handler 'Q_getAllTagsByCategory' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
+  tagsHandle.Q_getAllTagsByCategory(category)
+      .done(function(results) {
+          getAllTagsByCategoryCb(null,results);
+        },function(err) {
+          getAllTagsByCategoryCb(err);
+        });
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
@@ -632,10 +639,19 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  *
  */
 function getTagsByUri(getTagsByUriCb, sUri) {
-  console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
+  console.log("Request handler 'Q_getTagsByUri' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
+  tagsHandle.Q_getTagsByUri(sUri)
+      .fail(function(err) {
+          getTagsByUriCb(err);
+        })
+      .done(function(results) {
+          getTagsByUriCb(null,results);
+        });
 }
 exports.getTagsByUri = getTagsByUri;
+
 
 /**
  * @method getTagsByUris
@@ -673,8 +689,15 @@ exports.getTagsByUris = getTagsByUris;
  *
  */
 function setTagByUri(setTagByUriCb, oTags, sUri) {
-  console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.setTagByUri(setTagByUriCb, oTags, sUri);
+  console.log("Request handler 'Q_setTagByUri' was called.");
+  // To-Do: Save this line for Rewriting
+  // tagsHandle.setTagByUri(setTagByUriCb, oTags, sUri);
+  tagsHandle.Q_setTagByUri(oTags,sUri)
+  .done(function(results) {
+      setTagByUriCb(null,results);
+    },function(err) {
+      setTagByUriCb(err);
+    });
 }
 exports.setTagByUri = setTagByUri;
 
@@ -693,8 +716,15 @@ exports.setTagByUri = setTagByUri;
  *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
-  console.log("Request handler 'getFilesByTags' was called.");
-  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+  console.log("Request handler 'Q_getFilesByTags' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+  tagsHandle.Q_getFilesByTags(oTags)
+    .done(function(results) {
+        getFilesByTagsCb(null,results);
+      },function(err) {
+        getFilesByTagsCb(err);
+      });
 }
 exports.getFilesByTags = getFilesByTags;
 
@@ -714,10 +744,16 @@ exports.getFilesByTags = getFilesByTags;
  */
 function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
   console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
+  tagsHandle.Q_getFilesByTagsInCategory(category,oTags)
+    .done(function(results) {
+      getFilesByTagsInCategoryCb(null,results);
+    },function(err) {
+      getFilesByTagsInCategoryCb(err);
+    });
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
 
 /**
  * @method rmTagsAll
@@ -736,7 +772,14 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  */
 function rmTagAll(rmTagAllCb, oTags, category) {
   console.log("Request handler 'rmTagAll' was called.");
-  tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
+  tagsHandle.Q_rmTagAll(oTags, category)
+  .done(function(results) {
+      rmTagAllCb(null,results);
+    },function(err) {
+      rmTagAllCb(err);
+    });
 }
 exports.rmTagAll = rmTagAll;
 
@@ -756,17 +799,24 @@ exports.rmTagAll = rmTagAll;
  *
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
-  console.log("Request handler 'rmTagsByUri' was called.");
-  tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
+  console.log("Request handler 'Q_rmTagsByUri' was called.");
+  //To-Do: Save this line for Rewriting
+  // tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
+  tagsHandle.Q_rmTagsByUri(sTag,oUri)
+  .done(function(results) {
+      rmTagsByUriCb(null,results);
+    },function(err) {
+      rmTagsByUriCb(err);
+    });
 }
 exports.rmTagsByUri = rmTagsByUri;
-
 
 function initDesktop(initDesktopCb) {
   console.log("Request handler 'initDesktop' was called.");
   desktopConf.initDesktop(initDesktopCb);
 }
 exports.initDesktop = initDesktop;
+
 
 
 /** 

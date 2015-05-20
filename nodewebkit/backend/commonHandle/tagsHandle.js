@@ -12,6 +12,7 @@ var utils = require("../utils");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
+var Q = require('q');
 /**
  * @method getTagsByPath
  *   get tags from a path
@@ -66,7 +67,7 @@ function getAllTagsByCategory(callback, category) {
   var _query = [{
     subject: _db.v('tag'),
     predicate: DEFINED_VOC.rdf._type,
-    object: DEFINED_TYPE["base"]["tags"]
+    object: DEFINED_PROP["base"]["tags"]
   }, {
     subject: _db.v('tag'),
     predicate: DEFINED_VOC.rdf._domain,
@@ -85,6 +86,30 @@ function getAllTagsByCategory(callback, category) {
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
+function Q_getAllTagsByCategory(category) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('tag'),
+    predicate: DEFINED_VOC.rdf._type,
+    object: DEFINED_PROP["base"]["tags"]
+  }, {
+    subject: _db.v('tag'),
+    predicate: DEFINED_VOC.rdf._domain,
+    object: DEFINED_VOC.category[category]
+  }]
+
+  var tagMaker = function(results){
+    var _tags = [];
+    for (var i = 0, l = results.length; i < l; i++) {
+      _tags.push(utils.getTitle(results[i].tag));
+    }
+    return _tags;
+  }
+
+  return rdfHandle.Q_dbSearch(_db, _query)
+  .then(tagMaker);
+}
+exports.Q_getAllTagsByCategory = Q_getAllTagsByCategory;
 
 /*TODO: no more use, prepare to delete*/
 /**
@@ -121,6 +146,7 @@ function getAllTags(callback) {
 }
 exports.getAllTags = getAllTags;
 
+
 /**
  * @method getTagsByUri
  *   get tags with specifc uri
@@ -155,6 +181,31 @@ function getTagsByUri(callback, uri) {
   });
 }
 exports.getTagsByUri = getTagsByUri;
+
+function Q_getTagsByUri(uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["tags"],
+    object: _db.v('tag')
+  }];
+  var tagMaker = function(result){
+    var _tags = [];
+    for (var i = 0, l = result.length; i < l; i++) {
+      _tags.push(utils.getTitle(result[i].tag));
+    }
+    return _tags;
+  } 
+  return rdfHandle
+  .Q_dbSearch(_db, _query)
+  .fail(function(err){throw new Error(err);})
+  .then(tagMaker);
+}
+exports.Q_getTagsByUri = Q_getTagsByUri;
 
 /*TODO: no more use, prepare to delete*/
 /**
@@ -267,6 +318,37 @@ function getFilesByTags(callback, oTags) {
 }
 exports.getFilesByTags = getFilesByTags;
 
+function Q_getFilesByTags(oTags) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + oTags[i]
+    })
+  }
+
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  })
+  
+  var resultMaker = function(result){
+      var _result = [];
+      for (var file in result) {
+        _result.push(result[file]);
+      }
+      return _result;
+    }
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(rdfHandle.Q_decodeTripeles)
+    .then(resultMaker);
+}
+exports.Q_getFilesByTags = Q_getFilesByTags;
+
 
 function getFilesByTagsInCategory(callback, category, oTags) {
   var _db = rdfHandle.dbOpen();
@@ -309,7 +391,42 @@ function getFilesByTagsInCategory(callback, category, oTags) {
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
+function Q_getFilesByTagsInCategory(category, oTags) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: category
+  })
 
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + oTags[i]
+    })
+  }
+
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  })
+
+  var resultMaker = function(result){
+    var _result = [];
+    for (var file in result) {
+      _result.push(result[file]);
+    }
+    return _result;
+  }
+  return rdfHandle.Q_dbSearch(_db, _query) 
+    .then(rdfHandle.Q_decodeTripeles)
+    .then(resultMaker);
+
+}
+exports.Q_getFilesByTagsInCategory = Q_getFilesByTagsInCategory;
 
 /**
  * @method setTagByUri
@@ -359,6 +476,37 @@ function setTagByUri(callback, tags, uri) {
 }
 exports.setTagByUri = setTagByUri;
 
+
+function Q_setTagByUri(tags, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }];
+  var queryTripleMaker = function(result){
+    if(result == ""){
+      throw Error("NOT FOUND IN DATABASE!");
+    }
+    var _subject = result[0].subject;
+    var _query_add = []
+    for (var i = 0, l = tags.length; i < l; i++) {
+      _query_add.push({
+        subject: _subject,
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: 'http://example.org/tags#' + tags[i]
+      });
+    }
+    return _query_add;
+  }
+  
+  return rdfHandle.Q_dbSearch(_db, _query)
+  .then(queryTripleMaker)
+  .then(function(result){
+      return rdfHandle.Q_dbPut(_db, result);
+    });
+}
+exports.Q_setTagByUri = Q_setTagByUri;
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri
@@ -400,6 +548,36 @@ function rmTagsByUri(callback, tag, uri) {
   });
 }
 exports.rmTagsByUri = rmTagsByUri;
+
+
+function Q_rmTagsByUri(tag, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }];
+
+  var queryTripleMaker = function(result){
+    if(result == ""){
+      throw Error("NOT FOUND IN DATABASE!");
+    }
+    var _subject = result[0].subject;
+    var _query_delete = [{
+      subject: _subject,
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: "http://example.org/tags#" + tag
+    }]
+    return _query_delete;
+  }
+  
+  return rdfHandle.Q_dbSearch(_db, _query)
+  .then(queryTripleMaker)
+  .then(function(result){
+      rdfHandle.Q_dbDelete(_db, result)
+    });
+}
+exports.Q_rmTagsByUri = Q_rmTagsByUri;
 
 /*TODO: no more use, prepare to delete*/
 /**
@@ -448,6 +626,36 @@ function rmTagAll(callback, tag, category) {
   });
 }
 exports.rmTagAll = rmTagAll;
+
+function Q_rmTagAll(tag, category) {
+  var _db = rdfHandle.dbOpen();
+  var _object = 'http://example.org/tags#' + tag;
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _object
+  }];
+  var tagTriMaker = function(result){
+    for (var i = 0, l = result.length; i < l; i++) {
+      result[i].object = _object;
+    }
+
+    //tag triple for catedory search
+    result.push({
+      subject: _object,
+      predicate: DEFINED_VOC.rdf._domain,
+      object: DEFINED_VOC.category[category]
+    })
+    return result;
+  }
+
+  return rdfHandle.Q_dbSearch(_db, _query)
+  .then(tagTriMaker)
+  .then(function(result){
+    rdfHandle.Q_dbDelete(_db, result);
+  });
+}
+exports.Q_rmTagAll = Q_rmTagAll;
 
 //build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles, result) {
