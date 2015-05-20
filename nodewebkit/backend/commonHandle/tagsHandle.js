@@ -477,7 +477,7 @@ function setTagByUri(callback, tags, uri) {
 exports.setTagByUri = setTagByUri;
 
 
-function Q_setTagByUri(callback, tags, uri) {
+function Q_setTagByUri(tags, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -503,7 +503,7 @@ function Q_setTagByUri(callback, tags, uri) {
   return rdfHandle.Q_dbSearch(_db, _query)
   .then(queryTripleMaker)
   .then(function(result){
-      rdfHandle.Q_dbPut(_db, result)
+      return rdfHandle.Q_dbPut(_db, result);
     });
 }
 exports.Q_setTagByUri = Q_setTagByUri;

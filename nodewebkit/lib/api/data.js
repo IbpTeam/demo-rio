@@ -690,8 +690,8 @@ exports.getTagsByUris = getTagsByUris;
  */
 function setTagByUri(setTagByUriCb, oTags, sUri) {
   console.log("Request handler 'Q_setTagByUri' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.Q_setTagByUri(setTagByUriCb, oTags, sUri);
+  // To-Do: Save this line for Rewriting
+  // tagsHandle.setTagByUri(setTagByUriCb, oTags, sUri);
   tagsHandle.Q_setTagByUri(oTags,sUri)
   .done(function(results) {
       setTagByUriCb(null,results);

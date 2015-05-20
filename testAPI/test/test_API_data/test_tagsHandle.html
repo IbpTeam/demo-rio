@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio6498rio#42461c662742e522c751";
+  var test_uri = "rio15140rio#066664d3ce2cab956b79";
   var test_uri1 = "rio25216rio#b509dd897da10d9161eb#contact";
   var test_uri2 = "rio18926rio#4fd885e2fe4ce3974275#document";
   var test_uri3 = "32a365a5ee8e6e27eeb342ae1837b665#104250bc84de4cbab0c7#picture";
@@ -97,8 +97,8 @@
 
   function test_setTagByUri(setTagByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ['asdawfwf'];
-      var oUri = test_uri2;
+      var oTags = ['11111'];
+      var oUri = test_uri;
       data.setTagByUri(setTagByUriCb,oTags,oUri);
     });    
   }
@@ -175,7 +175,7 @@
 
   function test_rmTagsByUri(rmTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ["pictures"];
+      var oTags = ["video"];
       data.rmTagsByUri(rmTagsByUriCb,oTags,test_uri);
     });  
   }
