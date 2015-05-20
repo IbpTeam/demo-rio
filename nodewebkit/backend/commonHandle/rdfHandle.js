@@ -458,9 +458,6 @@ exports.Q_tripleGenerator = Q_tripleGenerator;
  */
 function decodeTripeles(triples, callback) {
   var info = {};
-  // if (triples == "") {
-  //   return callback(, []);
-  // }
   for (var i = 0, l = triples.length; i < l; i++) {
     try {
       var _item = triples[i];
