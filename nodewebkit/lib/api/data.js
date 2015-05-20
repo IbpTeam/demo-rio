@@ -694,9 +694,9 @@ function setTagByUri(setTagByUriCb, oTags, sUri) {
   // tagsHandle.Q_setTagByUri(setTagByUriCb, oTags, sUri);
   tagsHandle.Q_setTagByUri(oTags,sUri)
   .done(function(results) {
-      Q_setTagByUriCb(null,results);
+      setTagByUriCb(null,results);
     },function(err) {
-      Q_setTagByUriCb(err);
+      setTagByUriCb(err);
     });
 }
 exports.setTagByUri = setTagByUri;
