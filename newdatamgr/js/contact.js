@@ -351,23 +351,43 @@ var Contact = Class.extend({
     _buttonsDiv.append(_saveButton);
     _this._contactDetails.append(_buttonsDiv);
     $('#save-button').on('click', function(){
-      var _newContact = {};
+      var _newContact = {
+        _uri: contact_.URI,
+        _changes: []
+      };
       for(var key in contact_){
         if(key == 'URI') continue;
         var _newValue = document.getElementById(key).value;
-        _newContact[key] = _newValue;
+        _newContact._changes.push({
+          _property: key,
+          _value: _newValue
+        });
       }
-      _newContact['category'] = 'contact';
-      _newContact['URI'] = contact_['URI'];
-      DataAPI.updateDataValue(function(result_){
-        if(result_ == 'success'){
-          _this.removeDetails();
-          _this.setDetails(_newContact);
-          _this._contacts[id] = _newContact;
-        } else {
+      DataAPI.updateDataValue(function(err){
+        if (err) {
           alert('Saved failed!');
+        } else {
+          DataAPI.getDataByUri(function(err, result_){
+            if (err) {
+              alert('Saved failed!');
+            } else {
+              var _newContent = {
+                URI: result_[0].URI,
+                name: result_[0].lastname + result_[0].firstname,
+                sex: result_[0].sex,
+                age: result_[0].age,
+                photoPath: result_[0].photoPath,
+                phone: result_[0].phone,
+                email: result_[0].email,
+                tags: result_[0].tags
+              };
+              _this.removeDetails();
+              _this.setDetails(_newContent);
+              _this._contacts[id] = _newContact;
+            }
+          },contact_.URI);
         }
-      }, [_newContact]);
+      }, _newContact);
     });
   },
 
@@ -454,8 +474,10 @@ var Contact = Class.extend({
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
       _contactJson['category'] = 'contact';
-      DataAPI.updateDataValue(function(result_){
-        if(result_ == 'success'){
+      DataAPI.updateDataValue(function(err){
+        if(err){
+          alert('Saved failed!');
+        }else{
           contact._contacts[contact._selectId] = _contactJson;
           contact.removeHead();
           contact.setHead(_contactJson);
