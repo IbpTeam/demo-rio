@@ -1,0 +1,14 @@
+{
+  "remote": "true",
+  "service": "hardResMgr",
+  "interfaces": [
+    {
+      "name": "getResourceList",
+      "in": ["Object"]
+    },
+    {
+      "name": "setResourceState",
+      "in": ["Object"]
+    }
+  ]
+}
