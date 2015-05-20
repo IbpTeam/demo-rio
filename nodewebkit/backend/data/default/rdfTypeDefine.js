@@ -51,7 +51,8 @@ var _contact_property = {
   email: 'http://example.org/property/contact#email',
   phone: 'http://example.org/property/contact#phone',
   sex: 'http://example.org/property/contact#sex',
-  age: 'http://example.org/property/contact#age'
+  age: 'http://example.org/property/contact#age',
+  photoPath: 'http://example.org/property/contact#photoPath'
 }
 
 var _document_property = {
@@ -249,6 +250,14 @@ var _contact = [{
   object: _rdf._property
 }, {
   subject: _contact_property.age,
+  predicate: _rdf._domain,
+  object: _category.contact
+}, {
+  subject: _contact_property.photoPath,
+  predicate: _rdf._type,
+  object: _rdf._property
+}, {
+  subject: _contact_property.photoPath,
   predicate: _rdf._domain,
   object: _category.contact
 }];

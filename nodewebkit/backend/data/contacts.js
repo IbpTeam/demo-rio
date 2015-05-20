@@ -139,19 +139,19 @@ function getAllContacts(getAllCb) {
     rdfHandle.dbClose(_db, function() {
       rdfHandle.decodeTripeles(result, function(err, info) {
         if (err) {
-          return getAllDataByCateCb(err);
+          return getAllCb(err);
         }
         var items = [];
         for (var item in info) {
           items.push({
-            URI: info[item].URI,
+            URI: info[item].URI || "",
             name: info[item].lastname + info[item].firstname,
-            sex: info[item].sex,
-            age: info[item].age,
-            photoPath: info[item].photoPath,
-            phone: info[item].phone,
-            email: info[item].email,
-            others: info[item].tags
+            sex: info[item].sex || "",
+            age: info[item].age || "",
+            photoPath: info[item].photoPath || "",
+            phone: info[item].phone || "",
+            email: info[item].email || "",
+            tags: info[item].tags || ""
           })
         }
         return getAllCb(null, items);
@@ -299,13 +299,16 @@ function dataInfo(itemInfo, callback) {
         lastname: itemInfo["姓"],
         firstname: itemInfo["名"],
         sex: itemInfo["性别"],
+        age: itemInfo["年龄"] || "",
         email: itemInfo["电子邮件地址"],
-        phone: itemInfo["移动电话"]
+        phone: itemInfo["移动电话"],
+        photoPath: ""
       }
     }
     return callback(_info);
   })
 }
+
 function addTriples(triples, loadContactsCb) {
   var _db = rdfHandle.dbOpen();
   rdfHandle.dbPut(_db, triples, function(err) {

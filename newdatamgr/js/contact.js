@@ -383,7 +383,7 @@ var Contact = Class.extend({
               };
               _this.removeDetails();
               _this.setDetails(_newContent);
-              _this._contacts[id] = _newContact;
+              _this._contacts[id] = _newContent;
             }
           },contact_.URI);
         }
