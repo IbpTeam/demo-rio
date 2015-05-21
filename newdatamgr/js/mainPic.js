@@ -24,7 +24,7 @@ var MainPicView = Class.extend({
           'URI': picture_json_[i]['URI'],
           'postfix':picture_json_[i]['postfix'],
           'date': _date.toDateString(),
-          'tags': picture_json_[i]['others'].split(',')
+          'tags': picture_json_[i]['tags']
         }
         _this.setPicture(_this._picData);
       }

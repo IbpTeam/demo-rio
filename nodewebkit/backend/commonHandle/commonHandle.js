@@ -418,7 +418,7 @@ exports.removeItemByProperty = function(options, callback) {
       }
       //if type is contact, then it is done for now.
       if (result.category === "contact") {
-        _db.close(function() {
+        rdfHandle.dbClose(_db, function() {
           return callback();
         });
       } else {
@@ -427,7 +427,7 @@ exports.removeItemByProperty = function(options, callback) {
           if (err) {
             return callback(err);
           }
-          _db.close(function() {
+          rdfHandle.dbClose(_db, function() {
             return callback();
           });
         })
@@ -463,7 +463,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"][cate],
+    predicate: DEFINED_PROP["base"]["category"],
     object: cate
   }, {
     subject: _db.v('subject'),
@@ -542,13 +542,17 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
         var items = [];
         for (var item in info) {
           if (info.hasOwnProperty(item)) {
-            items.push()
+            items.push(info[item]);
           }
         }
-        return getRecentAccessDataCb(null, items);
+        items = items.sort(function(a, b) {
+          var _a = new Date(a.lastAccessTime);
+          var _b = new Date(b.lastAccessTime);
+          return _b - _a;
+        });
+        var _result = (items.length > num) ? items.slice(0, num - 1) : items;
+        return getRecentAccessDataCb(null, _result);
       })
-      var _result = (items.length > num) ? items.slice(0, num - 1) : items;
-      return getRecentAccessDataCb(null, _result);
     })
   });
 }

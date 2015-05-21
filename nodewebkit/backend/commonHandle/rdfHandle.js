@@ -99,10 +99,9 @@ function Q_dbClear(callback) {
   var deferred = Q.defer();
   fs_extra.remove(config.LEVELDBPATH, function(err) {
     if (err) {
-       deferred.reject(new Error(err));
-    }
-    else
-      deferred.resolve();    
+      deferred.reject(new Error(err));
+    } else
+      deferred.resolve();
   });
   return deferred.promise;
 }
@@ -191,13 +190,11 @@ function Q_dbPut(db, triples) {
   if (typeof triples !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
     deferred.reject(_err);
-  }
-  else{
+  } else {
     db.put(triples, function(err) {
       if (err) {
         deferred.reject(new Error(err));
-      }
-      else{
+      } else {
         deferred.resolve();
       }
     });
@@ -227,7 +224,7 @@ function Q_dbDelete(db, triples) {
     deferred.reject(_err);
   }
   db.del(triples, function(err) {
-    if (err) 
+    if (err)
       deferred.reject(err);
     else
       deferred.resolve();
@@ -291,8 +288,7 @@ function Q_dbSearch(db, query) {
     if (err) {
       console.log(err);
       deferred.reject(new Error(err));
-    }
-    else
+    } else
       deferred.resolve(results);
   });
 
@@ -428,7 +424,7 @@ function Q_tripleGenerator(info) {
       _triples.push(_triple_base);
     }
     var _extra = info.extra;
-    if (_extra != {}) {      
+    if (_extra != {}) {
       for (var entry in _extra) {
         var _triple_extra = {
           subject: _namespace_subject + '#' + info.subject,
@@ -442,7 +438,7 @@ function Q_tripleGenerator(info) {
   } catch (err) {
     deferred.reject(new Error(err));
   }
-  
+
   return deferred.promise;
 }
 exports.Q_tripleGenerator = Q_tripleGenerator;
@@ -462,8 +458,8 @@ exports.Q_tripleGenerator = Q_tripleGenerator;
  */
 function decodeTripeles(triples, callback) {
   var info = {};
-  try {
-    for (var i = 0, l = triples.length; i < l; i++) {
+  for (var i = 0, l = triples.length; i < l; i++) {
+    try {
       var _item = triples[i];
       var _predicate = utils.getTitle(_item.predicate);
       var _subject = _item.subject;
@@ -490,9 +486,10 @@ function decodeTripeles(triples, callback) {
           info[_subject] = itemInfo;
         }
       }
+    } catch (err) {
+      console.log(_item);
+      return callback(err);
     }
-  } catch (err) {
-    return callback(err);
   }
   return callback(null, info);
 }

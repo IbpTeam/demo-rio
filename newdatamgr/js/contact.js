@@ -40,7 +40,7 @@ var Contact = Class.extend({
 
   setContactsList:function(){
     var _this = this;
-    DataAPI.getAllDataByCate(function(contact_json_){
+    DataAPI.getAllDataByCate(function(err, contact_json_){
       _this._contacts = contact_json_;
       if(_this._contacts != null && _this._contacts.length > 0){
         _this.loadContactsList(0);
@@ -129,13 +129,13 @@ var Contact = Class.extend({
         }}
       ]},
       {text: 'Remove Contact', action:function(){
-        DataAPI.rmDataByUri(function(err, result){
-          if(result == "success"){
+        DataAPI.rmDataByUri(function(err){
+          if (err) {
+            window.alert("Delete file failed!");
+          } else {
             _this._contacts.splice(_this._selectId, 1);
             _this.loadContactsList(0);
             infoList.setContent();
-          }else{
-            window.alert("Delete file failed!");
           }
         },_this._contacts[_this._selectId]['URI']);
       }},
@@ -168,7 +168,7 @@ var Contact = Class.extend({
 
     var _uri = contact_? contact_['URI']:undefined;
     var _tags = [];
-    var _tagStr = contact_ ? contact_['others']:undefined;
+    var _tagStr = contact_ ? contact_['tags']:undefined;
     if (typeof _tagStr === 'string' && _tagStr.length > 0) {
       _tags = _tagStr.split(',');
     };
@@ -351,23 +351,43 @@ var Contact = Class.extend({
     _buttonsDiv.append(_saveButton);
     _this._contactDetails.append(_buttonsDiv);
     $('#save-button').on('click', function(){
-      var _newContact = {};
+      var _newContact = {
+        _uri: contact_.URI,
+        _changes: []
+      };
       for(var key in contact_){
         if(key == 'URI') continue;
         var _newValue = document.getElementById(key).value;
-        _newContact[key] = _newValue;
+        _newContact._changes.push({
+          _property: key,
+          _value: _newValue
+        });
       }
-      _newContact['category'] = 'contact';
-      _newContact['URI'] = contact_['URI'];
-      DataAPI.updateDataValue(function(result_){
-        if(result_ == 'success'){
-          _this.removeDetails();
-          _this.setDetails(_newContact);
-          _this._contacts[id] = _newContact;
-        } else {
+      DataAPI.updateDataValue(function(err){
+        if (err) {
           alert('Saved failed!');
+        } else {
+          DataAPI.getDataByUri(function(err, result_){
+            if (err) {
+              alert('Saved failed!');
+            } else {
+              var _newContent = {
+                URI: result_[0].URI,
+                name: result_[0].lastname + result_[0].firstname,
+                sex: result_[0].sex,
+                age: result_[0].age,
+                photoPath: result_[0].photoPath,
+                phone: result_[0].phone,
+                email: result_[0].email,
+                tags: result_[0].tags
+              };
+              _this.removeDetails();
+              _this.setDetails(_newContent);
+              _this._contacts[id] = _newContent;
+            }
+          },contact_.URI);
         }
-      }, [_newContact]);
+      }, _newContact);
     });
   },
 
@@ -436,7 +456,7 @@ var Contact = Class.extend({
           if(!contact._tagView.addTag(_tag)){
             return 0;
           }
-          contact._contacts[contact._selectId]['others'] += ','+_tag;
+          contact._contacts[contact._selectId]['tags'] += ','+_tag;
           infoList.fixTagNum(_tag,1);
           var _tagedFile = [contact._contacts[contact._selectId]['URI']];
           if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
@@ -454,8 +474,10 @@ var Contact = Class.extend({
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
       _contactJson['category'] = 'contact';
-      DataAPI.updateDataValue(function(result_){
-        if(result_ == 'success'){
+      DataAPI.updateDataValue(function(err){
+        if(err){
+          alert('Saved failed!');
+        }else{
           contact._contacts[contact._selectId] = _contactJson;
           contact.removeHead();
           contact.setHead(_contactJson);

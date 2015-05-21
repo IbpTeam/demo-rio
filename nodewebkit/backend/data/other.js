@@ -94,6 +94,7 @@ function getOpenInfo(item) {
 
   return source;
 }
+exports.getOpenInfo = getOpenInfo;
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');

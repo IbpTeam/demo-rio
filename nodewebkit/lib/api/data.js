@@ -666,7 +666,26 @@ exports.getTagsByUri = getTagsByUri;
  */
 function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
-  tagsHandle.getTagsByUris(getTagsByUrisCb, oUris);
+  var _tmp_result = {};
+  for (var i = 0, l = oUris.length; i < l; i++) {
+    var _isEnd = (i === l - 1);
+    tagsHandle.getTagsByUri(function(err, result) {
+      if(err){
+        return getTagsByUrisCb(err);
+      }
+      for (var j = 0, m = result.length; j < m; j++) {
+        _tmp_result[result[j]] = true;
+      }
+      if (_isEnd) {
+        var _result = [];
+        for (var tag in _tmp_result) {
+          if (_tmp_result.hasOwnProperty(tag))
+            _result.push(tag);
+        }
+        getTagsByUrisCb(null, _result);
+      }
+    }, oUris[i]);
+  }
 }
 exports.getTagsByUris = getTagsByUris;
 
