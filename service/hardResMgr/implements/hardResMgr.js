@@ -26,18 +26,22 @@ function ResourceManager(ret_) {
 
 ResourceManager.prototype._initResource = function(callback_) {
   var self = this;
-  json4line.readJSONFile(configPath, function(err_, data_) {
-    if (err_) return callback_(err_);
-    self._resource = data_;
-    self._cpiCmd = 'lspci';
-    self._inputDeviceCmd = 'cat /proc/bus/input/devices';
-    self._diskCmd = 'df -lh'
-    self._cmdExtended = ' | grep ';
-    self._initHardResourceList(function(err_){
+  try {
+    json4line.readJSONFile(configPath, function(err_, data_) {
       if (err_) return callback_(err_);
-      callback_(null);
+      self._resource = data_;
+      self._cpiCmd = 'lspci';
+      self._inputDeviceCmd = 'cat /proc/bus/input/devices';
+      self._diskCmd = 'df -lh'
+      self._cmdExtended = ' | grep ';
+      self._initHardResourceList(function(err_) {
+        if (err_) return callback_(err_);
+        callback_(null);
+      });
     });
-  });
+  } catch (e) {
+    console.log('init resource error ' + e);
+  }
 }
 ResourceManager.prototype.refreshResource = function(callback_) {
   var self = this;
@@ -47,73 +51,157 @@ ResourceManager.prototype.refreshResource = function(callback_) {
 }
 
 ResourceManager.prototype.getResourceList = function(argObj_, callback_) {
-  var self = this; 
-  var args = argObj_.type;
-  switch (args[0]) {
-    case 'all':
-      {
-        callback_(null,self._resource);
-      }
-      break;
-    default:
-      {
-        var argsNxt = Array.prototype.slice.call(args, 1, args.length);
-        self._getResouceListByCate(argsNxt, callback_);
-      }
+  var self = this;
+  try {
+    var args = argObj_.type;
+    switch (args[0]) {
+      case 'all':
+        {
+          callback_(null, self._resource);
+        }
+        break;
+      default:
+        {
+          var argsNxt = Array.prototype.slice.call(args, 1, args.length);
+          self._getResouceListByCate(argsNxt, callback_);
+        }
+    }
+  } catch (e) {
+    callback_('get resource list fail '+e);
   }
 }
 
-ResourceManager.prototype.setResourceState = function(argObj_, callback_) {
+ResourceManager.prototype.applyResource = function(argObj_, callback_) {
   var self = this;
-  var err = false;
   var rst = undefined;
   var rstObj = undefined;
-  var func = function(args, funcCb) {
-    self._setResourceState(args, function(err_, rst_) {
-      if (err_) {
-        err=true;
-        console.log('setResourceState error on ' + rst_);
-      }else {
-        if (rst === undefined) {
-          rst = [];
-          rstObj={};
-          rstObj['type']=argObj_.type;
-          rstObj['detail']=rst;
+  var tmpDetail = undefined;
+  var abort = false;
+  try {
+    var funcAllowOrNot = function(args, funcCb) {
+      if (abort) {
+        funcCb();
+      } else {
+        self._getResouceForApply(args, function(err_, rst_) {
+          if (err_) {
+            if (args['option'] === undefined || args.option !== 0) abort = true;
+            console.log('applyResource error when get resource ' + err_);
+          } else {
+            if (rst === undefined) {
+              rst = [];
+              tmpDetail = {};
+              rstObj = {};
+              rstObj['type'] = argObj_.type;
+              rstObj['detail'] = rst;
+            }
+            tmpDetail[rst_] = args;
+            rst.push(rst_);
+          }
+          funcCb();
+        });
+      }
+    }
+    var detailRst = undefined;
+    var funcApply = function(args, funcCb) {
+      self._setResourceState(args, 1, function(err_, rst_) {
+        if (err_) {
+          console.log('apply  Resource error when set state ' + err_);
+        } else {
+          if (detailRst === undefined) {
+            detailRst = [];
+          }
+          detailRst.push(tmpDetail[args]);
         }
-        rst.push(args);
+        funcCb();
+      });
+    }
+    var argObj = argObj_.detail;
+    flowctl.parallel1(argObj, funcAllowOrNot, function(err_, rets_) {
+      if (abort || rstObj === undefined) {
+        callback_('apply abort');
+      } else {
+        flowctl.parallel1(rstObj['detail'], funcApply, function(err_, rets_) {
+          if (detailRst === undefined) {
+            callback_('apply  failed');
+          } else {
+            rstObj['detail'] = detailRst;
+            callback_(null, rstObj);
+          }
+        });
       }
-      funcCb();
     });
+  } catch (e) {
+    callback_('apply resource fail '+e);
   }
-  var argObj=argObj_.detail;
-  flowctl.parallel1(argObj, func, function(err_, rets_) {
-    callback_(err, rstObj);
-  });  
 }
-ResourceManager.prototype._setResourceState = function(argObj_, callback_) {
+
+ResourceManager.prototype.releaseResource = function(argObj_, callback_) {
   var self = this;
-  var item = undefined;
-  var args = argObj_.type;
-  var depth = args.length;
-  switch (depth) {
-    case 1:
-      {
-        item = self._resource.detail[args[0]];
+  var rst = undefined;
+  var rstObj = undefined;
+  try {
+    var funcRst = function(argsTmp_, cb_) {
+      if (rst === undefined) {
+        rst = [];
+        rstObj = {};
+        rstObj['type'] = argObj_.type;
+        rstObj['detail'] = rst;
       }
-      break;
-    case 2:
-      {
-        item = self._resource.detail[args[0]].detail[args[1]];
-      }
-      break;
-    default:
-      {}
+      rst.push(argsTmp_);
+      cb_();
+    }
+    var releaseFunc = function(args, funcCb) {
+      self._getResouceListByCate(args.type, function(err_, rst_) {
+        if (err_) {
+          console.log('releaseResource error when get resource ' + err_);
+          funcCb();
+        } else {
+          //if (rst_.state === 0) {
+          //   funcRst(args, function() {
+          //     funcCb();
+          //  });
+          //  } else {
+          if (rst_.state === 1) {
+            self._setResourceState(rst_, 0, function(err_, rst_) {
+              if (err_) {
+                console.log('releaseResource error when set state ' + err_);
+                funcCb();
+              } else {
+                funcRst(args, function() {
+                  funcCb();
+                });
+              }
+            });
+          }
+        }
+      });
+    }
+    var argObj = argObj_.detail;
+    flowctl.parallel1(argObj, releaseFunc, function(err_, rets_) {
+      if (rstObj === undefined) return callback_(err_ || 'release no one');
+      callback_(null, rstObj);
+    });
+  } catch (e) {
+    callback_('release resource fail ' + e);
   }
-  if (item === undefined || item['state'] == undefined) {
-    callback_(true, 'can not find the resource');
-  } else {
-    item['state'] = argObj_.state;
-    callback_(false, 'set resource state success');
+}
+
+ResourceManager.prototype._getResouceForApply = function(argObj_, callback_) {
+  var self = this;
+  self._getResouceListByCate(argObj_.type, function(err_, rst_) {
+    if (err_) return callback_(err_);
+    if (rst_.state === 1) return callback_('unAvailable');
+    callback_(null, rst_);
+  });
+}
+
+ResourceManager.prototype._setResourceState = function(item_,state_ ,callback_) {
+  var self = this;
+  try{
+    item_.state=state_;
+    callback_(null,item_);
+  }catch(e){
+    callback_(e,item_);
   }
 }
 ResourceManager.prototype._initHardResourceList=function(callback_) {
@@ -143,12 +231,23 @@ ResourceManager.prototype._initHardResourceList=function(callback_) {
 }
 ResourceManager.prototype._getResouceListByCate = function(args_, callback_) {
   var self=this;
-  var category = args_[0];
-  var rst=undefined;
-  if(args_.length>1)rst=self._resource.detail[category].detail[args_[1]];
-  else rst =self._resource.detail[category];
-  if(rst===undefined) callback_('no such resource ',rst);
-  else callback_(false,rst);
+  var item = undefined;
+  switch (args_.length) {
+    case 1:
+      {
+        item = self._resource.detail[args_[0]];
+      }
+      break;
+    case 2:
+      {
+        item = self._resource.detail[args_[0]].detail[args_[1]];
+      }
+      break;
+    default:
+      {}
+  }
+  if(item===undefined) callback_('no such resource ',item);
+  else callback_(false,item);
 }
 //output
 ResourceManager.prototype._getOutputInfo=function(callback_) {

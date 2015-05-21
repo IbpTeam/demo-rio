@@ -1,4 +1,6 @@
 var path = require("path"),
+  util = require('util'),
+  events = require('events'),
   flowctl = require('../sdk/utils/flowctl'),
   json4line = require('../sdk/utils/json4line');
 requireProxy = require('../sdk/lib/requireProxy').requireProxySync;
@@ -10,12 +12,14 @@ function ResourceMgr(ret_){
     success: function() {},
     fail: function() {}
   };
+  events.EventEmitter.call(self);
   this.resourceMgr = undefined;
   this.initResource(function(err_){
     if (err_) return ret.fail(err_);
     return ret.success();
   });
 }
+util.inherits(ResourceMgr, events.EventEmitter);
 
 ResourceMgr.prototype.initResource=function(callback_){
   var self=this;
@@ -25,6 +29,9 @@ ResourceMgr.prototype.initResource=function(callback_){
       self.resourceMgr={};
       for (var key in data_) {
         self.resourceMgr[data_[key].type] = requireProxy(key);
+        self.resourceMgr[data_[key].type].on('stateChange',function(obj_){
+          self.emit('stateChange',obj_);
+        });
       }
       callback_(null);
     }
@@ -48,6 +55,7 @@ ResourceMgr.prototype.initResource=function(callback_){
  *  } 
  */
 ResourceMgr.prototype.getResourceList = function(callback_,agrsObj_) {
+  console.log();
   var self = this;
   var category = agrsObj_.type[0];
   var rst = {};
@@ -87,7 +95,67 @@ ResourceMgr.prototype.getResourceList = function(callback_,agrsObj_) {
 }
 
 /**
- * @method setVideoChat
+ * @method applyResource
+ *   获取资源
+ *
+ * @param1 callback function(err, rst)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      rst: resource info 成功获取的资源信息
+ *      {"type":"hardResource","detail":[{"type":["output","audio"]}],"option":0}//option:0-获取失败也不强制其他操作回滚;1-获取失败其他操作回滚（默认abort）;2-强制占用资源-未实现
+ * @param2 agrsObj_
+ *   传入的参数，可以json格式封装
+ *  {
+ *    'type':'hardResource',//hardResouce:硬件资源
+ *    'detail':[{'type':['input','camera'],"option":0},{['output','video']},{['output','audio'],"option":0}]
+ *  } 
+ */
+ResourceMgr.prototype.applyResource = function( callback_,agrsObj_) {
+  var self = this;
+  var category = agrsObj_.type;
+  var detail = agrsObj_['detail'];
+  var resMgr = self.resourceMgr[category];
+  if (resMgr === undefined || detail === undefined ) return callback_('arguments is not correct', undefined);
+  resMgr.applyResource(agrsObj_, function(ret_) {
+    if (ret_.err) console.log('apply resource state error');
+    callback_(ret_.err, ret_.ret);
+  });
+}
+
+/**
+ * @method releaseResource
+ *   获取资源
+ *
+ * @param1 callback function(err, rst)
+ *   回调函数
+ *   @cbparam1
+ *      err: error object, string or just null
+ *   @cbparam2
+ *      rst: resource info 成功释放的资源信息
+ *      {"type":"hardResource","detail":[{"type":["output","audio"]},{"type":["output","video"]}]}
+ * @param2 agrsObj_
+ *   传入的参数，可以json格式封装
+ *  {
+ *    'type':'hardResource',//hardResouce:硬件资源
+ *    'detail':[{'type':['input','camera']},{'type':['output','video']},{'type':['output','audio']}]
+ *  } 
+ */
+ResourceMgr.prototype.releaseResource = function( callback_,agrsObj_) {
+  var self = this;
+  var category = agrsObj_.type;
+  var detail = agrsObj_['detail'];
+  var resMgr = self.resourceMgr[category];
+  if (resMgr === undefined || detail === undefined ) return callback_('arguments is not correct', undefined);
+  resMgr.releaseResource(agrsObj_, function(ret_) {
+    if (ret_.err) console.log('release resource  error');
+    callback_(ret_.err, ret_.ret);
+  });
+}
+
+/**
+ * @method applyVideoChat
  *   设置视频聊天对应资源为已被占用
  *
  * @param1 callback function(err, rst)
@@ -96,9 +164,9 @@ ResourceMgr.prototype.getResourceList = function(callback_,agrsObj_) {
  *      err: error object, string or just null
  *   @cbparam2
  *      rst: resource info 成功设置的资源的设置信息
- *      {"type":"hardResource","detail":[{"type":["output","audio"],"state":1}]}
+ *      {'type':'hardResource','detail':[{'type':['input','camera']},{['output','video']},{['output','audio']}]}
  */
-ResourceMgr.prototype.setVideoChat = function(callback_) {
+ResourceMgr.prototype.applyVideoChat = function(callback_) {
   var self = this;
   var agrsObj = {};
   agrsObj['type']='hardResource';
@@ -108,58 +176,23 @@ ResourceMgr.prototype.setVideoChat = function(callback_) {
   type.push('input');
   type.push('camera');
   typeItem['type']=type;
-  typeItem['state']=1;
   detail.push(typeItem);
   typeItem={};
   type=[];
   type.push('output');
   type.push('audio');
   typeItem['type']=type;
-  typeItem['state']=1;
   detail.push(typeItem);
   typeItem={};
   type=[];
   type.push('output');
   type.push('video');
   typeItem['type']=type;
-  typeItem['state']=1;
   detail.push(typeItem);
   agrsObj['detail']=detail;
-  self.resourceMgr['hardResource'].setResourceState(agrsObj, function(ret_){callback_(ret_.err,ret_.rst)});
-}
-
-/**
- * @method setVideoChat
- *   设置视频聊天对应资源为已被占用
- *
- * @param1 callback function(err, rst)
- *   回调函数
- *   @cbparam1
- *      err: error object, string or just null
- *   @cbparam2
- *      rst: resource info 成功设置的资源的设置信息
- *      {"type":"hardResource","detail":[{"type":["output","audio"],"state":1}]}
- * @param2 agrsObj_
- *   传入的参数，可以json格式封装
- *  {
- *    'type':'hardResource',//hardResouce:硬件资源
- *    'detail':[{'type':['input','camera'],'state':1},{['output','video'],'state':1},{['output','audio'],'state':1}]
- *  } 
- */
-ResourceMgr.prototype.setResourceState = function(agrsObj_, callback_) {
-  var self = this;
-  var category = agrsObj_.type;
-  var detail=agrsObj_['detail'];
-  var resMgr=self.resourceMgr[category];
-  if (resMgr===undefined||detail===undefined||detail['type']==undefined) callback_('arguments is not correct',undefined);
-  else{
-    resMgr.setResourceState(detail, function(ret_) {
-      if (ret_.err) console.log('set resource state error');
-      if(ret_.rst!==undefined) {
-      }
-      callback_(ret_.err, ret_.rst);
-    });
-  }
+  self.resourceMgr['hardResource'].applyResource(agrsObj, function(ret_){
+      callback_(ret_.err,ret_.ret);
+  });
 }
 
 var resMgr=null;
@@ -183,7 +216,7 @@ function getResMgr(callback_){
       },
       fail: function(error) {
         resMgr = null;
-        console.log('resource manager init failed:', error);
+        console.log('hard resource manager init failed:', error);
         callback_(error,undefined);
       }
     });

@@ -17,7 +17,13 @@ var initObj = {
       ]
     },
     {
-      "name": "setResourceState",
+      "name": "applyResource",
+      "in": [
+        "Object"
+      ]
+    },
+    {
+      "name": "releaseResource",
       "in": [
         "Object"
       ]
@@ -34,12 +40,18 @@ var initObj = {
         });
       });
     },
-    setResourceState: function(Object, callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
-      hardResMgr.setResourceState(Object,function(err,result){
-        return callback({
-          err: err,
-          rst:result
-        });
+    applyResource: function(Object, callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      hardResMgr.applyResource(Object,function(err,result){
+        if(err)return callback({err: err});
+        callback({ret:result});
+        stub._notifyStateChg(result,'1');
+      });
+    },
+    releaseResource: function(Object, callback) {/* TODO: Implement your service. Make sure that call the callback at the end of this function whose parameter is the return of this service.*/
+      hardResMgr.releaseResource(Object,function(err,result){
+        if(err)return callback({err: err});
+        callback({ret:result});
+        stub._notifyStateChg(result,'0');
       });
     }
   }
@@ -52,6 +64,20 @@ function Stub() {
 
 Stub.prototype.notify = function(event) {
   this._ipc.notify.apply(this._ipc, arguments);
+};
+
+Stub.prototype._notifyStateChg = function(items_, state_) {
+  try {
+    var detail=items_['detail'];
+    for (var i=0;i< detail.length;i++) {
+      var item =detail[i];
+      if (item['option'] !== undefined) delete item['option'];
+      item['state'] = state_;
+    }
+    stub.notify('stateChange',items_);
+  } catch (e) {
+    console.log('state changed notify fail');
+  }
 };
 
 var stub = null,
