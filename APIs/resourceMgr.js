@@ -55,7 +55,6 @@ ResourceMgr.prototype.initResource=function(callback_){
  *  } 
  */
 ResourceMgr.prototype.getResourceList = function(callback_,agrsObj_) {
-  console.log();
   var self = this;
   var category = agrsObj_.type[0];
   var rst = {};
