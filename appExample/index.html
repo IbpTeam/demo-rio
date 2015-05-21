@@ -24,35 +24,37 @@
             if(err) return $('#applist').text('Error: ' + err);
             $('#applist').text("已安装的程序有：" + appArr.length + "个，包括：" + appArr);
             var definedapp = new Array();
-
+            var tem = 0;
             for(var i=0;i<appArr.length;i++)
               {
                 app.getRegisteredAppInfo(function(err,ret){
                   if(err){
                     console.log("undefined app...");
+                    tem++;
                   }else{
                     definedapp.push(ret.id);
                     url="http://" + location.host + "/callapp/" + ret.id + "/index.html";
                     console.log(url);
                     $('#applink').append('<li><a href='+url+' target="_blank">'+ ret.name +'</a></li>') ;
+                    tem++;
                   }
-                },appArr[i]);
-              }
-
-            setTimeout(function(){
-              for (var i = 0; i < appArr.length; i++){
-                var count = 0;
-                for(var j = 0;j < definedapp.length; j++){
-                  if(appArr[i] == definedapp[j])
-                    {console.log(appArr[i] + " is valid.");
-                      break;
+                if(tem == appArr.length){
+                  for (var i = 0; i < appArr.length; i++){
+                    var count = 0;
+                    for(var j = 0;j < definedapp.length; j++){
+                      if(appArr[i] == definedapp[j])
+                        {
+                          console.log(appArr[i] + " is valid.");
+                          break;
+                        }
+                      count++;
                     }
-                    count++;
+                    if(count >= definedapp.length)
+                      $('#applink').append('<li>' + appArr[i] + '</li>');
+                  }    
                 }
-                if(count >= definedapp.length)
-                  $('#applink').append('<li>' + appArr[i] + '</li>');
+                },appArr[i]);
               }    
-            },100);
           });
         });
       }
