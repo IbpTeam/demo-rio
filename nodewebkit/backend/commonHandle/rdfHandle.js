@@ -476,7 +476,6 @@ function Q_tripleGenerator(info, callback) {
     }
 
   } catch (err) {
-    console.log(info)
     deferred.reject(new Error(err));
   }
   return deferred.promise;

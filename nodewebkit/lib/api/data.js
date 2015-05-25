@@ -224,7 +224,10 @@ exports.loadResources = loadResources;
  */
 function loadContacts(loadContactCb, path) {
   console.log("Request handler 'loadContacts' was called.");
-  contacts.initContacts(loadContactCb, path);
+  contacts.initContacts(path)
+    .then(loadContactCb)
+    .fail(loadContactCb)
+    .done();
 }
 exports.loadContacts = loadContacts;
 
@@ -300,7 +303,14 @@ exports.getAllDataByCate = getAllDataByCate;
  */
 function getAllContacts(getAllContactsCb) {
   console.log("Request handler 'getAllContacts' was called.");
-  contacts.getAllContacts(getAllContactsCb);
+  contacts.getAllContacts()
+    .then(function(result) {
+      getAllContactsCb(null, result);
+    })
+    .fail(function(err) {
+      getAllContactsCb(err);
+    })
+    .done();
 }
 exports.getAllContacts = getAllContacts;
 

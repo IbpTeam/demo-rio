@@ -24,7 +24,9 @@ var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
+var Q = require('q');
 
+var DEFINED_PROP =  require('../data/default/rdfTypeDefine').property;
 var CATEGORY_NAME = "contact";
 var DES_NAME = "contactDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
@@ -120,81 +122,38 @@ exports.createData = createData;
  *           photPath;
  *        }
  */
-function getAllContacts(getAllCb) {
+function getAllContacts() {
   console.log("Request handler 'getAllContacts' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: "http://example.org/property/base#category",
+    predicate:  DEFINED_PROP["base"]["category"],
     object: 'contact'
   }, {
     subject: _db.v('subject'),
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
-    }
-    rdfHandle.dbClose(_db, function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return getAllCb(err);
-        }
-        var items = [];
-        for (var item in info) {
-          items.push({
-            URI: info[item].URI || "",
-            name: info[item].lastname + info[item].firstname,
-            sex: info[item].sex || "",
-            age: info[item].age || "",
-            photoPath: info[item].photoPath || "",
-            phone: info[item].phone || "",
-            email: info[item].email || "",
-            tags: info[item].tags || ""
-          })
-        }
-        return getAllCb(null, items);
-      })
-    })
-  });
-}
-exports.getAllContacts = getAllContacts;
-
-
-/**
- * @method removeDocumentByUri
- *    Remove document by uri.
- * @param uri
- *    The document's URI.
- * @param callback
- *    Callback
- */
-function removeByUri(uri, callback) {
-  getByUri(uri, function(items) {
-    //Remove des file
-    var sDesFullPath = utils.getDesPath(CATEGORY_NAME, items[0].name);
-    fs.unlink(sDesFullPath, function(err) {
-      if (err) {
-        console.log(err);
-        callback("err");
-      } else {
-        //Delete from db
-        commonHandle.deleteItemByUri(CATEGORY_NAME, uri, function(isSuccess) {
-          if (isSuccess == "rollback") {
-            callback("error");
-            return;
-          }
-          //Git commit
-          var aDesFiles = [sDesFullPath];
-          var sDesDir = utils.getDesDir(CATEGORY_NAME);
-          repo.repoCommit(sDesDir, aDesFiles, null, "rm", callback);
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(rdfHandle.Q_decodeTripeles)
+    .then(function(info_) {
+      var _items = [];
+      for (var item in info_) {
+        _items.push({
+          URI: info_[item].URI || "",
+          name: info_[item].lastname + info_[item].firstname,
+          sex: info_[item].sex || "",
+          age: info_[item].age || "",
+          photoPath: info_[item].photoPath || "",
+          phone: info_[item].phone || "",
+          email: info_[item].email || "",
+          tags: info_[item].tags || ""
         });
       }
+      return _items;
     });
-  });
 }
-exports.removeByUri = removeByUri;
+exports.getAllContacts = getAllContacts;
 
 
 /**
@@ -207,20 +166,56 @@ exports.removeByUri = removeByUri;
  * @param2 sItemPath
  *   string, the resource path + csvFilename
  */
-function initContacts(loadContactsCb, sItemPath) {
-  console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++initContacts");
+function initContacts(sItemPath) {
+  console.log("Request handler 'initContacts' was called.");
 
-  function csvTojsonCb(json) {
+  //convert csv to json
+  return csvtojson.Q_csvTojson(sItemPath)
+    .then(function(result_) {
+      //get all contact info into object
+      return infoMaker(result_)
+        .then(function(info_) {
+          //reform the info 
+          return Q.all(info_.map(dataInfo))
+            .then(function(result_) {
+              var _info_result = [];
+              for (var i = 0, l = result_.length; i < l; i++) {
+                _info_result = _info_result.concat(result_[i]);
+              }
+              //make triples
+              return Q.all(_info_result.map(rdfHandle.Q_tripleGenerator))
+                .then(function(triples_) {
+                  var _triple_result = [];
+                  for (var i = 0, l = triples_.length; i < l; i++) {
+                    _triple_result = _triple_result.concat(triples_[i]);
+                  }
+                  var _db = rdfHandle.dbOpen();
+                  return rdfHandle.Q_dbPut(_db, _triple_result);
+                })
+            })
+        })
+    })
+}
+exports.initContacts = initContacts;
+
+
+function infoMaker(json) {
+  var deferred = Q.defer();
+  try {
     var oJson = JSON.parse(json);
-    var oContacts = [];
-    var oDesFiles = [];
-    var _triples = [];
-    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
-    var dataDesPath = contactsPath + "/data";
-    fs.readdir(DES_DIR, function(err, result) {
-      if (err) {
-        return loadContactsCb(err, null);
-      }
+  } catch (err) {
+    throw err;
+  }
+
+  var oContacts = [];
+  var oDesFiles = [];
+  var _triples = [];
+  var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
+  var dataDesPath = contactsPath + "/data";
+  fs.readdir(DES_DIR, function(err, result) {
+    if (err) {
+      deferred.reject(new Error(err));
+    } else {
       if (result == '') {
         for (var k in oJson) {
           if (oJson[k].hasOwnProperty("姓")) {
@@ -236,78 +231,44 @@ function initContacts(loadContactsCb, sItemPath) {
             }
           }
         }
-        if (oContacts == '') {
-          return loadContactsCb(null, 'success');
-        }
       }
-
-      function initHelper(isEnd, rawInfo, callback) {
-        dataInfo(rawInfo, function(info) {
-          rdfHandle.tripleGenerator(info, function(err, triples) {
-            if (err) {
-              return callback(err);
-            }
-            _triples = _triples.concat(triples);
-            if (isEnd) {
-              addTriples(_triples, callback);
-            }
-          })
-        })
-      }
-
-      for (var k = 0, l = oContacts.length; k < l; k++) {
-        var _isContactEnd = (k == (l - 1));
-        initHelper(_isContactEnd, oContacts[k], loadContactsCb);
-      }
-    });
-  }
-  csvtojson.csvTojson(sItemPath, csvTojsonCb);
+      deferred.resolve(oContacts);
+    }
+  });
+  return deferred.promise;
 }
-exports.initContacts = initContacts;
 
-function dataInfo(itemInfo, callback) {
+
+function dataInfo(itemInfo) {
   var fullName = itemInfo["姓"] + itemInfo["名"];
   var fullNameUrl = 'http://example.org/category/contact#' + fullName;
-  uniqueID.getFileUid(function(uri) {
-    var _info = {
-      subject: fullNameUrl,
-      base: {
-        URI: uri,
-        createTime: new Date(),
-        lastModifyTime: new Date(),
-        lastAccessTime: new Date(),
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID,
-        createDev: config.uniqueID,
-        category: CATEGORY_NAME,
-        tags: ""
-      },
-      extra: {
-        lastname: itemInfo["姓"],
-        firstname: itemInfo["名"],
-        sex: itemInfo["性别"],
-        age: itemInfo["年龄"] || "",
-        email: itemInfo["电子邮件地址"],
-        phone: itemInfo["移动电话"],
-        photoPath: ""
+  return uniqueID.Q_getFileUid()
+    .then(function(uri_) {
+      return {
+        subject: fullNameUrl,
+        base: {
+          URI: uri_,
+          createTime: new Date(),
+          lastModifyTime: new Date(),
+          lastAccessTime: new Date(),
+          createDev: config.uniqueID,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID,
+          createDev: config.uniqueID,
+          category: CATEGORY_NAME,
+          tags: ""
+        },
+        extra: {
+          lastname: itemInfo["姓"] || "",
+          firstname: itemInfo["名"] || "",
+          sex: itemInfo["性别"] || "",
+          age: itemInfo["年龄"] || "",
+          email: itemInfo["电子邮件地址"] || "",
+          phone: itemInfo["移动电话"] || "",
+          photoPath: ""
+        }
       }
-    }
-    return callback(_info);
-  })
-}
-
-function addTriples(triples, loadContactsCb) {
-  var _db = rdfHandle.dbOpen();
-  rdfHandle.dbPut(_db, triples, function(err) {
-    if (err) {
-      return loadContactsCb(err);
-    }
-    rdfHandle.dbClose(_db, function(err) {
-      if (err) throw err;
-      return loadContactsCb(null, "success");
-    })
-  })
+    });
 }
 
 
