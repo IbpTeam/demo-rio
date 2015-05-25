@@ -137,12 +137,7 @@ exports.dbClose = dbClose;
 
 function Q_dbClose(db) {
   var deferred = Q.defer;
-  // if (err) {
-  //   deferred.reject(new Error(err));
-  // }
-  // else
-    
-  return Q.fcall(function(){});
+  return Q.fcall(function() {});
 }
 exports.Q_dbClose = Q_dbClose;
 
@@ -540,24 +535,43 @@ function decodeTripeles(triples, callback) {
 }
 exports.decodeTripeles = decodeTripeles;
 
+
 function Q_decodeTripeles(triples) {
   var info = {};
   var deferred = Q.defer();
-  try {
-    for (var i = 0, l = triples.length; i < l; i++) {
-      var item = triples[i];
-      var title = utils.getTitle(item.predicate)
-      if (info.hasOwnProperty(item.subject)) {
-        (info[item.subject])[title] = item.object;
+  for (var i = 0, l = triples.length; i < l; i++) {
+    try {
+      var _item = triples[i];
+      var _predicate = utils.getTitle(_item.predicate);
+      var _subject = _item.subject;
+      var _object = _item.object;
+      if (info.hasOwnProperty(_subject)) {
+        if (_predicate === "tags") {
+          var _tag = utils.getTitle(_object);
+          if ((info[_subject]).hasOwnProperty(_predicate)) {
+            (info[_subject])[_predicate].push(_tag);
+          } else {
+            (info[_subject])[_predicate] = [_tag];
+          }
+        } else {
+          (info[_subject])[_predicate] = _object;
+        }
       } else {
-        var itemInfo = {};
-        itemInfo[title] = item.object;
-        info[item.subject] = itemInfo;
+        if (_predicate === "tags") {
+          var itemInfo = {};
+          itemInfo[_predicate] = [_object];
+          info[_subject] = itemInfo;
+        } else {
+          var itemInfo = {};
+          itemInfo[_predicate] = _object;
+          info[_subject] = itemInfo;
+        }
       }
+      deferred.resolve(info);
+    } catch (err) {
+      console.log(_item);
+      deferred.reject(new Error(err));
     }
-    deferred.resolve(info);
-  } catch (err) {
-    deferred.reject(new Error(err));
   }
   return deferred.promise;
 }
