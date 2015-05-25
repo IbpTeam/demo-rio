@@ -135,6 +135,17 @@ function dbClose(db, callback) {
 }
 exports.dbClose = dbClose;
 
+function Q_dbClose(db) {
+  var deferred = Q.defer;
+  // if (err) {
+  //   deferred.reject(new Error(err));
+  // }
+  // else
+    
+  return Q.fcall(function(){});
+}
+exports.Q_dbClose = Q_dbClose;
+
 
 /**
  * @method dbPut
@@ -189,6 +200,7 @@ function Q_dbPut(db, triples) {
   var deferred = Q.defer();
   if (typeof triples !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
+    console.log(triples)
     deferred.reject(_err);
   } else {
     db.put(triples, function(err) {
@@ -403,42 +415,75 @@ function tripleGenerator(info, callback) {
 }
 exports.tripleGenerator = tripleGenerator;
 
-function Q_tripleGenerator(info) {
-  var _namespace_subject = 'http://example.org/category/';
-  var _namespace_predicate = 'http://example.org/property/';
+function Q_tripleGenerator(info, callback) {
   var _triples = [];
   var deferred = Q.defer();
   try {
     var _base = info.base;
+    var _subject = 'http://example.org/category#' + info.subject;
+    var _object_defined = DEFINED_VOC.category[_base.category];
     _triples.push({
-      subject: _namespace_subject + _base.category + '#' + info.subject,
-      predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-      object: 'http://example.org/category#' + _base.category
+      subject: _subject,
+      predicate: DEFINED_VOC.rdf._type,
+      object: _object_defined
     });
     for (var entry in _base) {
-      var _triple_base = {
-        subject: _namespace_subject + '#' + info.subject,
-        predicate: DEFINED_PROP["base"][entry],
-        object: _base[entry]
-      };
-      _triples.push(_triple_base);
+      //tags needs specific process 
+      if (entry === "tags") {
+        var _tags = _base[entry];
+        for (var i = 0, l = _tags.length; i < l; i++) {
+          var _subject_tag = 'http://example.org/tags#' + _tags[i];
+          //define tags for getAllTags()
+          var _tag_triple_define = {
+            subject: _subject_tag,
+            predicate: DEFINED_VOC.rdf._type,
+            object: DEFINED_PROP["base"]["tags"]
+          };
+          //define domain for getTagsInCatedory()
+          var _tag_triple_domain = {
+            subject: _subject_tag,
+            predicate: DEFINED_VOC.rdf._domain,
+            object: _object_defined
+          };
+          //define triples for tag searching
+          var _tag_triple = {
+            subject: _subject,
+            predicate: DEFINED_PROP["base"]["tags"],
+            object: _subject_tag
+          };
+          _triples.push(_tag_triple_define);
+          _triples.push(_tag_triple_domain);
+          _triples.push(_tag_triple);
+        }
+      } else {
+        var _triple_base = {
+          subject: _subject,
+          predicate: DEFINED_PROP["base"][entry],
+          object: _base[entry]
+        };
+        _triples.push(_triple_base);
+      }
     }
+
     var _extra = info.extra;
-    if (_extra != {}) {
+    if (_extra == {}) {
+      deferred.resolve();
+    } else {
       for (var entry in _extra) {
         var _triple_extra = {
-          subject: _namespace_subject + '#' + info.subject,
+          subject: _subject,
           predicate: DEFINED_PROP[_base.category][entry],
           object: _extra[entry]
         };
         _triples.push(_triple_extra);
       }
+      deferred.resolve(_triples);
     }
-    deferred.resolve(_triples);
+
   } catch (err) {
+    console.log(info)
     deferred.reject(new Error(err));
   }
-
   return deferred.promise;
 }
 exports.Q_tripleGenerator = Q_tripleGenerator;

@@ -34,6 +34,7 @@ var chokidar = require('chokidar');
 var rdfHandle = require("./rdfHandle");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var Q = require('q');
+Q.longStackSupport = true;
 
 var writeDbNum = 0;
 var dataPath;
@@ -93,32 +94,18 @@ exports.watcherStop = watcherStop;
  *    string, retrieve 'success' when success
  *
  */
-function createData(fileInfo, callback) {
+function writeTriples(fileInfo) {
   var _triples_result = [];
   return Q.all(fileInfo.map(rdfHandle.Q_tripleGenerator))
-  then(function(triples_) {
-    for (var i = 0, l = triples_.length; i < l; i++) {
-      _triples_result = _triples_result.concat(triples_[i]);
-    }
-    return rdfHandle.Q_dbPut(_triples_result);
-  })
-}
-exports.createData = createData;
-
-
-
-function addTriples(triples, callback) {
-  var db = rdfHandle.dbOpen();
-  rdfHandle.dbPut(db, triples, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    rdfHandle.dbClose(db, function() {
-      return callback();
+    .then(function(triples_) {
+      for (var i = 0, l = triples_.length; i < l; i++) {
+        _triples_result = _triples_result.concat(triples_[i]);
+      }
+      var _db = rdfHandle.dbOpen();
+      return rdfHandle.Q_dbPut(_db, _triples_result);
     })
-
-  })
 }
+exports.writeTriples = writeTriples;
 
 function Q_copy(filePath, newPath) {
   var deferred = Q.defer();
@@ -187,6 +174,7 @@ function dataStore(items, extraCallback, callback) {
           })
       })
   }
+
   if (items == "") {
     return Q.fcall(function() {
       return null;
@@ -198,8 +186,7 @@ function dataStore(items, extraCallback, callback) {
         for (var i = 0, l = result.length; i < l; i++) {
           _file_info.push(result[i]);
         }
-        var _db = rdfHandle.dbOpen();
-        return rdfHandle.Q_dbPut(_db, _file_info);
+        return writeTriples(_file_info);
       });
   }
 }
