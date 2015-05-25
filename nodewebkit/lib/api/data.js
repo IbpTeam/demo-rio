@@ -447,14 +447,13 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getRecentAccessData(num, function(err, result) {
+  commonHandle.getRecentAccessData(category, function(err, result) {
     if (err) {
       console.log(err);
       return getRecentAccessDataCb(err, null);
     }
     getRecentAccessDataCb(null, result);
-  })
+  }, num);
 }
 exports.getRecentAccessData = getRecentAccessData;
 

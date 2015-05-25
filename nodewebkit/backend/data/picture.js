@@ -74,14 +74,6 @@ function extraInfo(category) {
 }
 
 
-
-
-function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
-  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
-}
-exports.getRecentAccessData = getRecentAccessData;
-
 function getOpenInfo(item) {
   if (item == null) {
     config.riolog("read data : " + item);

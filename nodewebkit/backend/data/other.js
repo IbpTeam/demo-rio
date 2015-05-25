@@ -92,11 +92,6 @@ function getOpenInfo(item) {
 }
 exports.getOpenInfo = getOpenInfo;
 
-function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
-  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
-}
-exports.getRecentAccessData = getRecentAccessData;
 
 /**
  * @method pullRequest

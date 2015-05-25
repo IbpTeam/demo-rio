@@ -201,10 +201,6 @@ function extraInfo(item, callback) {
   return deferred.promise;
 }
 
-function getRecentAccessData(num, getRecentAccessDataCb) {
-  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
-}
-exports.getRecentAccessData = getRecentAccessData;
 
 function getOpenInfo(item) {
   if (item == null) {
