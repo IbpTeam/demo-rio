@@ -354,27 +354,22 @@ function getTriplesByProperty(options) {
 }
 
 
-exports.getItemByProperty = function(options, callback) {
-  getTriplesByProperty(options, function(err, result) {
-    if (err) {
-      return callback(err);
-    } else if (result == []) {
-      var _err = new Error("ITEM NOT FOUND!");
-      return callback(_err);
+exports.getItemByProperty = function(options) {
+  if (result == []) {
+    throw new Error("ITEM NOT FOUND!");
+  }
+  var itemsMaker = function(info){
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push(info[item]);
+      }
     }
-    rdfHandle.decodeTripeles(result, function(err, info) {
-      if (err) {
-        return callback(err);
-      }
-      var items = [];
-      for (var item in info) {
-        if (info.hasOwnProperty(item)) {
-          items.push(info[item]);
-        }
-      }
-      return callback(null, items);
-    })
-  })
+    return items;
+  }
+  return getTriplesByProperty(options)
+    .then(rdfHandle.Q_decodeTripeles)
+      .then(itemsMaker);
 }
 
 function getTriples(options) {
@@ -543,18 +538,9 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
   });
 }
 
-function updateTriples(_db, originTriples, newTriples, callback) {
-  rdfHandle.dbDelete(_db, originTriples, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    rdfHandle.dbPut(_db, newTriples, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback();
-    })
-  })
+function updateTriples(_db, originTriples, newTriples) {
+  return rdfHandle.Q_dbDelete(_db, originTriples)
+    .then(rdfHandle.Q_dbPut(_db, newTriples));
 }
 
 function resolveTriples(chenges, triple) {
@@ -605,13 +591,13 @@ function resolveTriples(chenges, triple) {
  *
  *
  **/
-function updatePropertyValue(property, updatePropertyValueCb) {
+function updatePropertyValue(property) {
   var _options = {
     _type: "base",
     _property: "URI",
     _value: property._uri
   }
-  getTriplesByProperty(_options, function(err, result) {
+  var updateMaker = function(result){
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
@@ -624,17 +610,14 @@ function updatePropertyValue(property, updatePropertyValueCb) {
       }
     }
     var _db = rdfHandle.dbOpen();
-    updateTriples(_db, _origin_triples, _new_triples, function(err) {
-      if (err) {
-        return updatePropertyValueCb(err);
-      }
-      return updatePropertyValueCb();
-    })
-  })
+    return updateTriples(_db, _origin_triples, _new_triples);
+  }
+  return getTriplesByProperty(_options)
+    .then(updateMaker);
 }
 exports.updatePropertyValue = updatePropertyValue;
 
-exports.openData = function(uri, openDataCb) {
+exports.openData = function(uri) {
   var currentTime = (new Date());
   var property = {
     _uri: uri,
@@ -646,12 +629,7 @@ exports.openData = function(uri, openDataCb) {
       _value: config.uniqueID
     }, ]
   }
-  updatePropertyValue(property, function(err) {
-    if (err) {
-      throw err;
-    }
-    openDataCb();
-  })
+  return updatePropertyValue(property);
 }
 
 exports.updateDB = function(category, updateDBCb) {

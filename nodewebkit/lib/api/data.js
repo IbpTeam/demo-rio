@@ -368,7 +368,14 @@ function getDataByUri(getDataByUriCb, uri) {
     _property: "URI",
     _value: uri
   }
-  commonHandle.getItemByProperty(_options, getDataByUriCb);
+  commonHandle.getItemByProperty(_options)
+    .then(function(result){
+      getDataByUriCb(null, result);
+    })
+    .fail(function(err){
+      getDataByUriCb(err);
+    })
+    .done();
 }
 exports.getDataByUri = getDataByUri;
 
@@ -381,7 +388,14 @@ function getDataByPath(getDataByPathCb, sPath) {
     _property: "path",
     _value: sPath
   }
-  commonHandle.getItemByProperty(_options, getDataByPathCb);
+  commonHandle.getItemByProperty(_options)
+  .then(function(result){
+      getDataByPathCb(null, result);
+    })
+    .fail(function(err){
+      getDataByPathCb(err);
+    })
+    .done();
 }
 exports.getDataByPath = getDataByPath;
 
@@ -444,20 +458,17 @@ exports.getDataByUri = getDataByUri;
  * @param2 uri
  *   string，要打开数据的URI
  */
-function openDataByUri(openDataByUriCb, uri) {
+function openDataByUri(uri) {
   console.log("Request handler 'openDataByUri' was called.");
   var _options = {
     _type: "base",
     _property: "URI",
     _value: uri
   }
-  commonHandle.getItemByProperty(_options, function(err, result) {
-    if (err) {
-      throw err;
-    }
+  var dataMaker = function(result){
     var cate = utils.getCategoryObject(result[0].category);
     var _source = cate.getOpenInfo(result[0]);
-    commonHandle.openData(uri, function() {
+    var openMaker = function() {
       if (_source.format === "html5ppt") {
         console.log("open html5ppt:" + _source.content);
         window.open(_source.content);
@@ -466,8 +477,10 @@ function openDataByUri(openDataByUriCb, uri) {
       } else {
         setTimeout(openDataByUriCb(_source), 0);
       }
-    });
-  })
+    };
+    return commonHandle.openData(uri).then(openMaker);
+  }
+  return commonHandle.getItemByProperty(_options)
 }
 exports.openDataByUri = openDataByUri;
 
@@ -475,9 +488,16 @@ exports.openDataByUri = openDataByUri;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb, item) {
+function updateDataValue(item) {
   console.log("Request handler 'updateDataValue' was called.");
-  commonHandle.updatePropertyValue(item, updateDataValueCb);
+  commonHandle.updatePropertyValue(item)
+  .then(function(result){
+      getDataByPathCb(null, result);
+    })
+    .fail(function(err){
+      getDataByPathCb(err);
+    })
+    .done();
 }
 exports.updateDataValue = updateDataValue;
 
