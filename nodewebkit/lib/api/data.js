@@ -305,16 +305,24 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
+
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    // commonHandle.getAllDataByCate(getAllDataByCateCb, cate);
+    commonHandle.getAllDataByCate(cate)
+        .then(function(result){
+          getAllDataByCateCb(null, result);
+        })
+        .fail(function(err){
+          getAllDataByCateCb(err);
+        })
+        .done();
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
-
 /**
  * @method getAllContacts
  *   获得所有联系人数组
@@ -494,7 +502,7 @@ exports.openDataByUri = openDataByUri;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(item) {
+function updateDataValue(getDataByPathCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
   .then(function(result){

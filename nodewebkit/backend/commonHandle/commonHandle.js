@@ -442,44 +442,39 @@ exports.getAllCate = function(getAllCateCb) {
   });
 }
 
-exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
+function getAllDataByCate (cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["category"],
+    predicate: DEFINED_PROP["base"][cate],
     object: cate
   }, {
     subject: _db.v('subject'),
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
+  var dataMaker = function(info){
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push({
+          URI: info[item].URI,
+          version: "",
+          filename: info[item].filename,
+          postfix: info[item].postfix,
+          path: info[item].path,
+          tags: info[item].tags
+        })
+      }
     }
-    rdfHandle.dbClose(_db, function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return getAllDataByCateCb(err);
-        }
-        var items = [];
-        for (var item in info) {
-          if (info.hasOwnProperty(item)) {
-            items.push({
-              URI: info[item].URI,
-              version: "",
-              filename: info[item].filename,
-              postfix: info[item].postfix,
-              path: info[item].path,
-              tags: info[item].tags
-            })
-          }
-        }
-        return getAllDataByCateCb(null, items);
-      })
-    })
-  });
+    return items;
+  };
+
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(rdfHandle.Q_decodeTripeles)
+      .then(dataMaker);
+        // .then(rdfHandle.Q_dbClose);
 }
 
 /** 
