@@ -196,18 +196,6 @@ function removeByUri(uri, callback) {
 }
 exports.removeByUri = removeByUri;
 
-/**
- * @method getByUri
- *    Get document info in db.
- * @param uri
- *    The document's URI.
- * @param callback
- *    Callback
- */
-function getByUri(uri, callback) {
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
-}
-exports.getByUri = getByUri;
 
 /**
  * @method initContacts
@@ -321,30 +309,6 @@ function addTriples(triples, loadContactsCb) {
     })
   })
 }
-
-function updateDataValue(item, callback) {
-  console.log('update value : ', item)
-  var desFilePath = pathModule.join(DES_DIR, item.name + '.md');
-  dataDes.updateItem(desFilePath, item, function(result) {
-    if (result === "success") {
-      commonDAO.updateItem(item, function(err) {
-        if (err) {
-          console.log(err);
-          var _err = {
-            "contact": err
-          };
-          callback(_err);
-        } else {
-          console.log('update contact success!');
-          repo.repoCommit(DES_REPO_DIR, [desFilePath], null, "ch", function() {
-            callback('success')
-          })
-        }
-      })
-    }
-  })
-}
-exports.updateDataValue = updateDataValue;
 
 
 /** 
