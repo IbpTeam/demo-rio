@@ -520,16 +520,31 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getRecentAccessData(num, function(err, result) {
-    if (err) {
+  // var cate = utils.getCategoryObject(category);
+  commonHandle.getRecentAccessData(category,num)
+    .then(function(result){
+      getRecentAccessDataCb(null, result);
+    })
+    .fail(function(err){
       console.log(err);
-      return getRecentAccessDataCb(err, null);
-    }
-    getRecentAccessDataCb(null, result);
-  })
+      return getRecentAccessDataCb(err);
+    })
+    .done();
 }
 exports.getRecentAccessData = getRecentAccessData;
+
+// function getRecentAccessData(getRecentAccessDataCb, category, num) {
+//   console.log("Request handler 'getRecentAccessData' was called.");
+//   var cate = utils.getCategoryObject(category);
+//   cate.getRecentAccessData(num, function(err, result) {
+//     if (err) {
+//       console.log(err);
+//       return getRecentAccessDataCb(err, null);
+//     }
+//     getRecentAccessDataCb(null, result);
+//   })
+// }
+// exports.getRecentAccessData = getRecentAccessData;
 
 //API getServerAddress:获得最近访问数据的信息
 //返回类型：
