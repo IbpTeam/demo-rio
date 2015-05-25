@@ -61,19 +61,15 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *
  */
 function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
-  })
+  return commonHandle.dataStore(items, extraInfo);
 }
 exports.createData = createData;
 
 function extraInfo(category, callback) {
-  var _extra = {
-  }
-  callback(null, _extra);
+  var _extra = {}
+  return Q.fcall(function() {
+    return _extra;
+  })
 }
 
 function getOpenInfo(item) {

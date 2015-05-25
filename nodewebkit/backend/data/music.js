@@ -30,7 +30,7 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var rdfHandle = require('../commonHandle/rdfHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
-
+var Q = require('q');
 
 
 //@const
@@ -143,36 +143,34 @@ exports.readId3FromMp3 = readId3FromMp3;
  *    string, retrieve 'success' when success
  *
  */
-function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
-  })
+function createData(items) {
+  return commonHandle.dataStore(items, extraInfo);
 }
 exports.createData = createData;
 
-function extraInfo(item, callback) {
+function extraInfo(item) {
+  var deferred = Q.defer();
   readId3FromMp3(item, function(err, tags) {
     if (err) {
-      return callback(err);
+      deferred.reject(new Error(err));
+    } else {
+      var _extra = {
+        format: tags.format,
+        bit_rate: tags.bit_rate,
+        frequency: tags.frequency,
+        track: tags.track,
+        TDRC: tags.TDRC,
+        APIC: tags.APIC,
+        TALB: tags.TALB,
+        TPE1: tags.TPE1,
+        TIT2: tags.TIT2,
+        TXXX: tags.TXXX,
+        COMM: tags.COMM
+      }
+      deferred.resolve(_extra);
     }
-    var _extra = {
-      format: tags.format,
-      bit_rate: tags.bit_rate,
-      frequency: tags.frequency,
-      track: tags.track,
-      TDRC: tags.TDRC,
-      APIC: tags.APIC,
-      TALB: tags.TALB,
-      TPE1: tags.TPE1,
-      TIT2: tags.TIT2,
-      TXXX: tags.TXXX,
-      COMM: tags.COMM
-    }
-    callback(null, _extra);
-  })
+  });
+  return deferred.promise;
 }
 
 function getOpenInfo(item) {

@@ -29,6 +29,7 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
+var Q = require('q');
 
 //@const
 var CATEGORY_NAME = "document";
@@ -70,21 +71,18 @@ var watchFilesNum=0;
  *        string, retrieve 'success' when success
  *
  */
-function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
-  })
+function createData(items) {
+  return commonHandle.dataStore(items, extraInfo);
 }
 exports.createData = createData;
 
-function extraInfo(category, callback) {
+function extraInfo(category) {
   var _extra = {
     project: '上海专项',
   }
-  callback(null, _extra);
+  return Q.fcall(function() {
+    return _extra;
+  })
 }
 
 /**

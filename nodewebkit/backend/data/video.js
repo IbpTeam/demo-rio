@@ -23,6 +23,7 @@ var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
 var exec = require('child_process').exec;
+var Q = require('q');
 
 //@const
 var CATEGORY_NAME = "video";
@@ -172,36 +173,33 @@ exports.readVideoThumbnail = readVideoThumbnail;
  *    string, retrieve 'success' when success
  *
  */
-function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
-  })
+function createData(items) {
+  return commonHandle.dataStore(items, extraInfo);
 }
 exports.createData = createData;
 
 function extraInfo(item, callback) {
+  var deferred = Q.defer();
   readVideoMetadata(item, function(err, metadata) {
     if (err) {
-      return callback(err);
+      deferred.reject(new Error(err));
+    } else {
+      var _extra = {
+        format_long_name: metadata.format_long_name,
+        width: metadata.width,
+        height: metadata.height,
+        display_aspect_ratio: metadata.display_aspect_ratio,
+        pix_fmt: metadata.pix_fmt,
+        duration: metadata.duration,
+        major_brand: metadata.major_brand,
+        minor_version: metadata.minor_version,
+        compatible_brands: metadata.compatible_brands,
+      }
+      deferred.resolve(_extra);
     }
-    var _extra = {
-      format_long_name: metadata.format_long_name,
-      width: metadata.width,
-      height: metadata.height,
-      display_aspect_ratio: metadata.display_aspect_ratio,
-      pix_fmt: metadata.pix_fmt,
-      duration: metadata.duration,
-      major_brand: metadata.major_brand,
-      minor_version: metadata.minor_version,
-      compatible_brands: metadata.compatible_brands,
-    }
-    callback(null, _extra);
-  })
+  });
+  return deferred.promise;
 }
-
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
   commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);

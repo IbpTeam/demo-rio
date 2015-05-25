@@ -29,6 +29,7 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
+var Q = require('q');
 
 //@const
 var CATEGORY_NAME = "picture";
@@ -58,22 +59,21 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *    string, retrieve 'success' when success
  *
  */
-function extraInfo(category, callback) {
+function createData(items) {
+  return commonHandle.dataStore(items, extraInfo);
+}
+exports.createData = createData;
+
+function extraInfo(category) {
   var _extra = {
     location: "Mars",
   }
-  callback(null, _extra);
-}
- function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
+  return Q.fcall(function() {
+    return _extra;
   })
 }
 
-exports.createData = createData;
+
 
 
 function getRecentAccessData(num, getRecentAccessDataCb) {
