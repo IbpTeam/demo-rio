@@ -228,14 +228,7 @@
   }
   function test_openDataByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      data.openDataByUri(test_uri)
-        .then(function(result){
-          getDataSourceCb(null,result);
-        })
-        .fail(function(err){
-          getDataSourceCb(err);
-        })
-        .done();
+      data.openDataByUri(getDataSourceCb, test_uri);
     });        
   }
 

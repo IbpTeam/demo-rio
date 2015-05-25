@@ -458,7 +458,7 @@ exports.getDataByUri = getDataByUri;
  * @param2 uri
  *   string，要打开数据的URI
  */
-function openDataByUri(uri) {
+function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
   var _options = {
     _type: "base",
@@ -468,21 +468,27 @@ function openDataByUri(uri) {
   var dataMaker = function(result){
     var cate = utils.getCategoryObject(result[0].category);
     var _source = cate.getOpenInfo(result[0]);
-    var openMaker = function(_source) {
-      if (_source.format === "html5ppt") {
-        console.log("open html5ppt:" + _source.content);
-        window.open(_source.content);
-        _source.content = "成功打开文件" + _source.content;
-        setTimeout(openDataByUriCb(_source), 0);
-      } else {
-        setTimeout(openDataByUriCb(_source), 0);
-      }
-    };
-    return commonHandle.openData(uri).then(openMaker);
+    if (_source.format === "html5ppt") {
+      console.log("open html5ppt:" + _source.content);
+      window.open(_source.content);
+      _source.content = "成功打开文件" + _source.content;
+      setTimeout(openDataByUriCb(_source), 0);
+    } else {
+      setTimeout(openDataByUriCb(_source), 0);
+    }
   }
-  return commonHandle.getItemByProperty(_options).then(dataMaker);
+  return commonHandle.getItemByProperty(_options)
+    .then(dataMaker)
+    .then(function(){
+      commonHandle.openData(_options, uri);
+    })
+    .fail(function(err){
+        openDataByUriCb(err);
+      })
+    .done();;
 }
 exports.openDataByUri = openDataByUri;
+
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
