@@ -204,12 +204,8 @@ function loadResources(loadResourcesCb, path) {
     .then(function() {
       return other.createData(OtherList);
     })
-    .then(function() {
-      loadResourcesCb();
-    })
-    .fail(function(err) {
-      loadResourcesCb(err);
-    })
+    .then(loadResourcesCb)
+    .fail(loadResourcesCb)
     .done();
 }
 exports.loadResources = loadResources;
@@ -431,9 +427,7 @@ function openDataByUri(openDataByUriCb, uri) {
     .then(function() {
       return commonHandle.Q_openData(uri);
     })
-    .fail(function(err) {
-      openDataByUriCb(err);
-    })
+    .fail(openDataByUriCb)
     .done();
 }
 exports.openDataByUri = openDataByUri;
