@@ -16,6 +16,7 @@ var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
 var repo = require('../../backend/commonHandle/repo');
+var Q = require('q');
 
 /*
  *getLocalData
@@ -347,7 +348,14 @@ function rmDataByUri(rmDataByUriCb, uri) {
     _property: "URI",
     _value: uri
   }
-  commonHandle.removeItemByProperty(_options, rmDataByUriCb);
+  commonHandle.removeItemByProperty(_options)
+    .then(function(result){
+      rmDataByUriCb(null,result);
+    })
+    .fail(function(err){
+      rmDataByUriCb(err);
+    })
+    .done();
 }
 exports.rmDataByUri = rmDataByUri;
 

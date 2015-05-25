@@ -33,6 +33,7 @@ var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar'); 
 var rdfHandle = require("./rdfHandle");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var Q = require('q');
 
 var writeDbNum = 0;
 var dataPath;
@@ -157,7 +158,7 @@ function baseInfo(itemPath, callback) {
         lastAccessTime: _ctime,
         createDev: config.uniqueID,
         lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID,
+        lastAccessDev: config.uniqueID
       }
       return callback(null, _base);
     })
@@ -338,7 +339,7 @@ function createDataAll(items, callback) {
 }
 exports.createDataAll = createDataAll;
 
-function getTriplesByProperty(options, callback) {
+function getTriplesByProperty(options) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -349,13 +350,9 @@ function getTriplesByProperty(options, callback) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
-    }
-    return callback(null, result);
-  });
+  return rdfHandle.Q_dbSearch(_db, _query);
 }
+
 
 exports.getItemByProperty = function(options, callback) {
   getTriplesByProperty(options, function(err, result) {
@@ -396,43 +393,33 @@ function getTriples(options) {
     }
     return _info;
   }
-  return Q_getTriplesByProperty(options)
+  return getTriplesByProperty(options)
     .then(TriplesMaker);
 }
 
-exports.removeItemByProperty = function(options, callback) {
+exports.removeItemByProperty = function(options) {
   var _db = rdfHandle.dbOpen();
-  getTriples(options, function(err, result) {
-    if (err) {
-      return callback(err);
+  var FilesRemove = function(result){
+    //if no path or category found, them the file should not exist in by now.
+    if (result.category === undefined && result.path === undefined) {
     }
+    //if type is contact, then it is done for now.
+    if (result.category === "contact") {
+      //_db.close(function() {
+      //});
+    } else {
+      //delete file itself
+      var Q_unlink = Q.nfbind(fs.unlink);
+      Q_unlink(result.path);
+    }
+    return result;
+  }
+  var TriplesRemove = function(result){
     //delete all realted triples in leveldb
-    rdfHandle.dbDelete(_db, result.triples, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      //if no path or category found, them the file should not exist in by now.
-      if (result.category === undefined && result.path === undefined) {
-        return callback();
-      }
-      //if type is contact, then it is done for now.
-      if (result.category === "contact") {
-        rdfHandle.dbClose(_db, function() {
-          return callback();
-        });
-      } else {
-        //delete file itself
-        fs.unlink(result.path, function(err) {
-          if (err) {
-            return callback(err);
-          }
-          rdfHandle.dbClose(_db, function() {
-            return callback();
-          });
-        })
-      }
-    })
-  })
+    rdfHandle.Q_dbDelete(_db, result.triples);
+    return result;
+  }
+  return getTriples(options).then(TriplesRemove).then(FilesRemove);
 }
 
 
