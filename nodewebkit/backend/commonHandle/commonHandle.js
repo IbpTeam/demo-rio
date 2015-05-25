@@ -380,11 +380,8 @@ exports.getItemByProperty = function(options, callback) {
   })
 }
 
-function getTriples(options, callback) {
-  getTriplesByProperty(options, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
+function getTriples(options) {
+  var TriplesMaker = function(result){
     var _info = {
       triples: result
     };
@@ -397,8 +394,10 @@ function getTriples(options, callback) {
         _info.path = result[i].object;
       }
     }
-    return callback(null, _info);
-  })
+    return _info;
+  }
+  return Q_getTriplesByProperty(options)
+    .then(TriplesMaker);
 }
 
 exports.removeItemByProperty = function(options, callback) {
