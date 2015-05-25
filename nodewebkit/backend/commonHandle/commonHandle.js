@@ -350,14 +350,17 @@ function getTriplesByProperty(options) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  return rdfHandle.Q_dbSearch(_db, _query);
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(function (result){
+      if(result == [])
+        throw new Error("Empty Triples");
+      else
+        return result;
+    });
 }
 
 
 exports.getItemByProperty = function(options) {
-  if (result == []) {
-    throw new Error("ITEM NOT FOUND!");
-  }
   var itemsMaker = function(info){
     var items = [];
     for (var item in info) {
@@ -369,7 +372,7 @@ exports.getItemByProperty = function(options) {
   }
   return getTriplesByProperty(options)
     .then(rdfHandle.Q_decodeTripeles)
-      .then(itemsMaker);
+    .then(itemsMaker);
 }
 
 function getTriples(options) {

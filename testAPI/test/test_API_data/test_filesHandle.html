@@ -6,7 +6,7 @@
   a {
     font-size: 25px;
     font-family: sans-serif;
-    line-height: 2;
+    line-height: 2
   }
   </style>
   <script src="../../lib/require.js"></script>
@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio13621rio#a8da41a786a55521aa5a";
+  var test_uri = "rio13621rio#20454fe8df19487c8edc";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -210,7 +210,7 @@
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER + '/documents/桌面操作系统发展趋势探讨2.ppt';
+        var path = baseinfo.RESOURCEFOLDER + '/resource/video/data/我的歌声里.ogg';
         data.getDataByPath(getDataByPathCb,path);
       });
       
@@ -355,6 +355,7 @@
       img.src = 'data:image/jpeg;base64,' + result;
     }
   }
+
   function test_getVideoThumbnail(getVideoThumbnailCb) {
     WDC.requireAPI(['data'], function(data) {
       var path = '/home/v1/dde/resources/video/movie.ogg';

@@ -389,7 +389,7 @@ function getDataByPath(getDataByPathCb, sPath) {
     _value: sPath
   }
   commonHandle.getItemByProperty(_options)
-  .then(function(result){
+    .then(function(result){
       getDataByPathCb(null, result);
     })
     .fail(function(err){
@@ -480,7 +480,7 @@ function openDataByUri(uri) {
     };
     return commonHandle.openData(uri).then(openMaker);
   }
-  return commonHandle.getItemByProperty(_options)
+  return commonHandle.getItemByProperty(_options);
 }
 exports.openDataByUri = openDataByUri;
 
