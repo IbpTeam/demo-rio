@@ -17,6 +17,7 @@
   <script language=javascript>  
 
   var test_uri = "rio13621rio#20454fe8df19487c8edc";
+  var Q = require('q');
 
   function print(win,something){
     if(typeof something == "object"){
@@ -219,7 +220,7 @@
 
   function openDataByUriCb(result){
     var win = window.open(''); 
-    win.document.write("test API getDataSourceByUri()");
+    win.document.write("test API getDataByUri()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>"); 

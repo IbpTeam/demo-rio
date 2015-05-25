@@ -480,7 +480,7 @@ function openDataByUri(uri) {
     };
     return commonHandle.openData(uri).then(openMaker);
   }
-  return commonHandle.getItemByProperty(_options);
+  return commonHandle.getItemByProperty(_options).then(dataMaker);
 }
 exports.openDataByUri = openDataByUri;
 
