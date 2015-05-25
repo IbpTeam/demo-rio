@@ -468,7 +468,7 @@ function openDataByUri(uri) {
   var dataMaker = function(result){
     var cate = utils.getCategoryObject(result[0].category);
     var _source = cate.getOpenInfo(result[0]);
-    var openMaker = function() {
+    var openMaker = function(_source) {
       if (_source.format === "html5ppt") {
         console.log("open html5ppt:" + _source.content);
         window.open(_source.content);

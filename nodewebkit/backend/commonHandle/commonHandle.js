@@ -350,13 +350,13 @@ function getTriplesByProperty(options) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(function (result){
-      if(result == [])
-        throw new Error("Empty Triples");
-      else
-        return result;
-    });
+  return rdfHandle.Q_dbSearch(_db, _query);
+    // .then(function (result){
+    //   if(result == "")
+    //     throw new Error("Empty Triples");
+    //   else
+    //     return result;
+    // });
 }
 
 

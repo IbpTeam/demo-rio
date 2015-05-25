@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio13621rio#20454fe8df19487c8edc";
+  var test_uri = "rio10055rio#5002c623f901ff16872f";
   var Q = require('q');
 
   function print(win,something){
@@ -211,7 +211,7 @@
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER + '/resource/video/data/我的歌声里.ogg';
+        var path = baseinfo.RESOURCEFOLDER + 'aaaa/bbbb/cccc';
         data.getDataByPath(getDataByPathCb,path);
       });
       
