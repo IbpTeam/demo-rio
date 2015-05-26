@@ -351,12 +351,6 @@ function getTriplesByProperty(options) {
     object: _db.v('object')
   }];
   return rdfHandle.Q_dbSearch(_db, _query);
-    // .then(function (result){
-    //   if(result == "")
-    //     throw new Error("Empty Triples");
-    //   else
-    //     return result;
-    // });
 }
 
 
@@ -620,7 +614,7 @@ exports.openData = function(uri) {
     }, {
       _property: "lastAccessDev",
       _value: config.uniqueID
-    }, ]
+    }]
   }
   return updatePropertyValue(property);
 }
