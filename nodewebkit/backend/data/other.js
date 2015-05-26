@@ -22,13 +22,8 @@ var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
 
-
 //@const
 var CATEGORY_NAME = "other";
-var DES_NAME = "otherDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
-var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 
 
 /**

@@ -27,11 +27,6 @@ var Q = require('q');
 
 //@const
 var CATEGORY_NAME = "video";
-var DES_NAME = "videoDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
-var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-
 
 
 function readVideoMetadata(sPath, callback) {

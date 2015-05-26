@@ -28,11 +28,6 @@ var Q = require('q');
 
 var DEFINED_PROP =  require('../data/default/rdfTypeDefine').property;
 var CATEGORY_NAME = "contact";
-var DES_NAME = "contactDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
-var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
 
 
 /*TODO: rewrite */
@@ -204,38 +199,16 @@ function infoMaker(json) {
   var deferred = Q.defer();
   try {
     var oJson = JSON.parse(json);
-  } catch (err) {
-    throw err;
-  }
-
-  var oContacts = [];
-  var oDesFiles = [];
-  var _triples = [];
-  var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
-  var dataDesPath = contactsPath + "/data";
-  fs.readdir(DES_DIR, function(err, result) {
-    if (err) {
-      deferred.reject(new Error(err));
-    } else {
-      if (result == '') {
-        for (var k in oJson) {
-          if (oJson[k].hasOwnProperty("姓")) {
-            oContacts.push(oJson[k]);
-          }
-        }
-      } else {
-        for (var k in oJson) {
-          if (oJson[k].hasOwnProperty("姓")) {
-            var sName = oJson[k]["姓"] + oJson[k]["名"] + '.md';
-            if (!utils.isExist(sName, result)) {
-              oContacts.push(oJson[k]);
-            }
-          }
-        }
+    var oContacts = [];
+    for (var k in oJson) {
+      if (oJson[k].hasOwnProperty("姓")) {
+        oContacts.push(oJson[k]);
       }
-      deferred.resolve(oContacts);
     }
-  });
+    deferred.resolve(oContacts);
+  } catch (err) {
+    deferred.reject(new Error(err));
+  }
   return deferred.promise;
 }
 

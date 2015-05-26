@@ -32,14 +32,8 @@ var rdfHandle = require('../commonHandle/rdfHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
 var Q = require('q');
 
-
 //@const
 var CATEGORY_NAME = "music";
-var DES_NAME = "musicDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
-var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-
 
 
 function getTagsFromString(str) {
