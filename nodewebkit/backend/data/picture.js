@@ -62,7 +62,7 @@ exports.createData = createData;
 
 function extraInfo(category) {
   var _extra = {
-    location: "Mars",
+    location: "Mars"
   }
   return Q.fcall(function() {
     return _extra;

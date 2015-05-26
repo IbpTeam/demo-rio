@@ -40,7 +40,7 @@ function readVideoMetadata(sPath, callback) {
     duration: '',
     major_brand: '',
     minor_version: '',
-    compatible_brands: '',
+    compatible_brands: ''
   }
   var sCommand = 'avprobe ' + sPath;
   exec(sCommand, function(err, stdout, stderr) {
@@ -188,7 +188,7 @@ function extraInfo(item, callback) {
         duration: metadata.duration,
         major_brand: metadata.major_brand,
         minor_version: metadata.minor_version,
-        compatible_brands: metadata.compatible_brands,
+        compatible_brands: metadata.compatible_brands
       }
       deferred.resolve(_extra);
     }
