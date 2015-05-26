@@ -210,10 +210,10 @@ function getTriples(options) {
     };
     //get path and category from triples
     for (var i = 0, l = result.length; i < l; i++) {
-      if (result[i].predicate === "http://example.org/property/base#category") {
+      if (result[i].predicate === DEFINED_PROP["base"]["category"]) {
         _info.category = result[i].object;
       }
-      if (result[i].predicate === "http://example.org/property/base#path") {
+      if (result[i].predicate === DEFINED_PROP["base"]["path"]) {
         _info.path = result[i].object;
       }
     }
