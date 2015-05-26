@@ -193,7 +193,10 @@ function getFilesByTagsInCategory(category, oTags) {
     subject: _db.v('subject'),
     predicate: _db.v('predicate'),
     object: _db.v('object')
-  })
+  });
+
+  console.log(_query);
+
 
   var resultMaker = function(result){
     var _result = [];
