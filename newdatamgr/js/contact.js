@@ -47,7 +47,7 @@ var Contact = Class.extend({
       }
       infoList.searchTag(_params);
       _this._first = false;
-    }, 'Contact');
+    }, 'contact');
   },
 
   loadContactsList:function(_index, showList){

@@ -280,16 +280,23 @@ exports.getAllCate = getAllCate;
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if (cate == 'Contact' || cate == 'contact') {
-    contacts.getAllContacts(getAllDataByCateCb);
+    contacts.getAllContacts()
+      .then(function(result) {
+        getAllDataByCateCb(null, result);
+      })
+      .fail(function(err) {
+        getAllDataByCateCb(err);
+      })
+      .done();
   } else {
     commonHandle.getAllDataByCate(cate)
-        .then(function(result){
-          getAllDataByCateCb(null, result);
-        })
-        .fail(function(err){
-          getAllDataByCateCb(err);
-        })
-        .done();
+      .then(function(result) {
+        getAllDataByCateCb(null, result);
+      })
+      .fail(function(err) {
+        getAllDataByCateCb(err);
+      })
+      .done();
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -511,7 +518,7 @@ function getRecentAccessData(getRecentAccessDataCb, category, num) {
     })
     .fail(function(err){
       console.log(err);
-      return getRecentAccessDataCb(err);
+      getRecentAccessDataCb(err);
     })
     .done();
 }
