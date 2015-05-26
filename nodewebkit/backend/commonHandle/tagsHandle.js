@@ -186,7 +186,7 @@ function getFilesByTagsInCategory(category, oTags) {
       subject: _db.v('subject'),
       predicate: DEFINED_PROP["base"]["tags"],
       object: 'http://example.org/tags#' + oTags[i]
-    })
+    });
   }
 
   _query.push({
@@ -195,18 +195,19 @@ function getFilesByTagsInCategory(category, oTags) {
     object: _db.v('object')
   });
 
-  // console.log(_query);
-
-
   var resultMaker = function(result){
     var _result = [];
     for (var file in result) {
       _result.push(result[file]);
     }
     return _result;
-  }
+
+    console.log(_result);
+  };
   return rdfHandle.dbSearch(_db, _query) 
-    .then(rdfHandle.decodeTripeles)
+    .then(function(triples_){
+      return rdfHandle.decodeTripeles(triples_);
+    })
     .then(resultMaker);
 
 }

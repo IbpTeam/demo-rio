@@ -343,11 +343,12 @@ exports.tripleGenerator = tripleGenerator;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-function decodeTripeles(triples) {
+ function decodeTripeles(triples) {
   var info = {};
   var deferred = Q.defer();
-  for (var i = 0, l = triples.length; i < l; i++) {
-    try {
+  try {
+    for (var i = 0, l = triples.length; i < l; i++) {
+
       var _item = triples[i];
       var _predicate = utils.getTitle(_item.predicate);
       var _subject = _item.subject;
@@ -374,11 +375,11 @@ function decodeTripeles(triples) {
           info[_subject] = itemInfo;
         }
       }
-      deferred.resolve(info);
-    } catch (err) {
-      console.log(_item);
-      deferred.reject(new Error(err));
     }
+    deferred.resolve(info);
+  } catch (err) {
+    console.log(_item);
+    deferred.reject(new Error(err));
   }
   return deferred.promise;
 }

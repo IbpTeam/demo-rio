@@ -152,8 +152,8 @@
 
   function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = 'video';
-      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'music',oTags);
+      var oTags = ['documents'];
+      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'document',oTags);
     });  
   }
 
