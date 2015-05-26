@@ -504,7 +504,7 @@ function getRecentAccessData(getRecentAccessDataCb, category, num) {
     })
     .fail(function(err){
       console.log(err);
-      return getRecentAccessDataCb(err);
+      getRecentAccessDataCb(err);
     })
     .done();
 }

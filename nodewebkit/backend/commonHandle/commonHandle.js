@@ -355,7 +355,6 @@ exports.getAllDataByCate = getAllDataByCate;
   return rdfHandle.Q_dbSearch(_db, _query)
     .then(rdfHandle.Q_decodeTripeles)
     .then(itemsMaker)
-    .then(rdfHandle.Q_dbClose);
 }
 
 function updateTriples(_db, originTriples, newTriples) {
