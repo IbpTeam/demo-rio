@@ -110,7 +110,8 @@ exports.writeTriples = writeTriples;
 function Q_copy(filePath, newPath) {
   var deferred = Q.defer();
   fs_extra.copy(filePath, newPath, function(err) {
-    if (err) {
+    //drop into reject only when error is not "ENOENT"
+    if (err && err[0].code !== "ENOENT") {
       deferred.reject(new Error(err));
     } else {
       deferred.resolve();
