@@ -354,7 +354,7 @@ exports.getAllDataByCate = getAllDataByCate;
   }
   return rdfHandle.dbSearch(_db, _query)
     .then(rdfHandle.decodeTripeles)
-    .then(itemsMaker)
+    .then(itemsMaker);
 }
 
 function updateTriples(_db, originTriples, newTriples) {
