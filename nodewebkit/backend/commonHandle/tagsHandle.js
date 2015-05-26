@@ -83,7 +83,7 @@ function getAllTagsByCategory(category) {
     return _tags;
   }
 
-  return rdfHandle.Q_dbSearch(_db, _query)
+  return rdfHandle.dbSearch(_db, _query)
   .then(tagMaker);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
@@ -165,8 +165,8 @@ function getFilesByTags(oTags) {
       }
       return _result;
     }
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(rdfHandle.Q_decodeTripeles)
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
     .then(resultMaker);
 }
 exports.getFilesByTags = getFilesByTags;
@@ -289,10 +289,10 @@ function rmTagsByUri(tag, uri) {
     return _query_delete;
   }
   
-  return rdfHandle.Q_dbSearch(_db, _query)
+  return rdfHandle.dbSearch(_db, _query)
   .then(queryTripleMaker)
   .then(function(result){
-      rdfHandle.Q_dbDelete(_db, result)
+      rdfHandle.dbDelete(_db, result)
     });
 }
 exports.rmTagsByUri = rmTagsByUri;

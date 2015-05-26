@@ -643,13 +643,15 @@ exports.getResourceDataDir = getResourceDataDir;
  * @param2 : category, array
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
-  console.log("Request handler 'Q_getAllTagsByCategory' was called.");
+  console.log("Request handler 'getAllTagsByCategory' was called.");
   tagsHandle.getAllTagsByCategory(category)
-      .done(function(results) {
-          getAllTagsByCategoryCb(null,results);
-        },function(err) {
-          getAllTagsByCategoryCb(err);
-        });
+      .then(function(results) {
+        getAllTagsByCategoryCb(null,results);
+      })
+      .fail(function(err) {
+        getAllTagsByCategoryCb(err);
+      })
+      .done();
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
@@ -665,14 +667,15 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  *
  */
 function getTagsByUri(getTagsByUriCb, sUri) {
-  console.log("Request handler 'Q_getTagsByUri' was called.");
+  console.log("Request handler 'getTagsByUri' was called.");
   tagsHandle.getTagsByUri(sUri)
+      .then(function(results) {
+        getTagsByUriCb(null,results);
+      })
       .fail(function(err) {
-          getTagsByUriCb(err);
-        })
-      .done(function(results) {
-          getTagsByUriCb(null,results);
-        });
+        getTagsByUriCb(err);
+      })
+      .done();
 }
 exports.getTagsByUri = getTagsByUri;
 
@@ -698,7 +701,8 @@ function getTagsByUris(getTagsByUrisCb, oUris) {
       })
       .fail(function(err){
         getTagsByUrisCb(err);
-      });
+      })
+      .done();
   }
   getTagsByUrisCb(null,results);
 }
@@ -723,13 +727,15 @@ exports.getTagsByUris = getTagsByUris;
  *
  */
 function setTagByUri(setTagByUriCb, oTags, sUri) {
-  console.log("Request handler 'Q_setTagByUri' was called.");
+  console.log("Request handler 'setTagByUri' was called.");
   tagsHandle.setTagByUri(oTags,sUri)
-  .done(function(results) {
+    .then(function(results) {
       setTagByUriCb(null,results);
-    },function(err) {
+    }
+    .fail(function(err) {
       setTagByUriCb(err);
-    });
+    })
+    .done();
 }
 exports.setTagByUri = setTagByUri;
 
@@ -748,13 +754,15 @@ exports.setTagByUri = setTagByUri;
  *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
-  console.log("Request handler 'Q_getFilesByTags' was called.");
+  console.log("Request handler 'getFilesByTags' was called.");
   tagsHandle.getFilesByTags(oTags)
-    .done(function(results) {
-        getFilesByTagsCb(null,results);
-      },function(err) {
-        getFilesByTagsCb(err);
-      });
+    .then(function(results) {
+      getFilesByTagsCb(null,results);
+    })
+    .fail(function(err) {
+      getFilesByTagsCb(err);
+    })
+    .done();
 }
 exports.getFilesByTags = getFilesByTags;
 
@@ -775,11 +783,13 @@ exports.getFilesByTags = getFilesByTags;
 function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
   console.log("Request handler 'getFilesByTagsInCategory' was called.");
   tagsHandle.getFilesByTagsInCategory(category,oTags)
-    .done(function(results) {
+    .then(function(results) {
       getFilesByTagsInCategoryCb(null,results);
-    },function(err) {
+    })
+    .fail(function(err) {
       getFilesByTagsInCategoryCb(err);
-    });
+    })
+    .done();
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
@@ -801,11 +811,13 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 function rmTagAll(rmTagAllCb, oTags, category) {
   console.log("Request handler 'rmTagAll' was called.");
   tagsHandle.rmTagAll(oTags, category)
-  .done(function(results) {
-      rmTagAllCb(null,results);
-    },function(err) {
-      rmTagAllCb(err);
-    });
+  .then(function(results) {
+    rmTagAllCb(null,results);
+  })
+  .fail(function(err) {
+    rmTagAllCb(err);
+  })
+  .done();
 }
 exports.rmTagAll = rmTagAll;
 
@@ -825,13 +837,15 @@ exports.rmTagAll = rmTagAll;
  *
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
-  console.log("Request handler 'Q_rmTagsByUri' was called.");
+  console.log("Request handler 'rmTagsByUri' was called.");
   tagsHandle.rmTagsByUri(sTag,oUri)
-  .done(function(results) {
+    .then(function(results) {
       rmTagsByUriCb(null,results);
-    },function(err) {
+    })
+    .fail(function(err) {
       rmTagsByUriCb(err);
-    });
+    })
+    .done();
 }
 exports.rmTagsByUri = rmTagsByUri;
 

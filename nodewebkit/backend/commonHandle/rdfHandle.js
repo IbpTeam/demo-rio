@@ -31,6 +31,7 @@ var Q = require('q');
 function dbInitial() {
   var db = dbOpen();
   var allTriples = [];
+  var deferred = Q.defer();
 
   for (var i in DEFINED_TYPE) {
     if (DEFINED_TYPE.hasOwnProperty(i)) {
