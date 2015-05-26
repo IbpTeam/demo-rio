@@ -7,7 +7,11 @@
       "in": ["Object"]
     },
     {
-      "name": "setResourceState",
+      "name": "applyResource",
+      "in": ["Object"]
+    },
+    {
+      "name": "releaseResource",
       "in": ["Object"]
     }
   ]

@@ -65,12 +65,31 @@ Proxy.prototype.getResourceList = function(Object, callback) {
  * @return
  *    what will return from this interface
  */
-Proxy.prototype.setResourceState = function(Object, callback) {
+Proxy.prototype.applyResource = function(Object, callback) {
   var l = arguments.length,
       args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
   this._ipc.invoke({
     token: this._token++,
-    name: 'setResourceState',
+    name: 'applyResource',
+    in: args,
+    callback: callback
+  });
+};
+
+/**
+ * @description
+ *    some brief introduction of this interface
+ * @param
+ *    parameter list. e.g. param1: description -> value type
+ * @return
+ *    what will return from this interface
+ */
+Proxy.prototype.releaseResource = function(Object, callback) {
+  var l = arguments.length,
+      args = Array.prototype.slice.call(arguments, 0, (typeof callback === 'undefined' ? l : l - 1));
+  this._ipc.invoke({
+    token: this._token++,
+    name: 'releaseResource',
     in: args,
     callback: callback
   });
