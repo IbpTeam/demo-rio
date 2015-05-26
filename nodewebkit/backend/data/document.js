@@ -85,47 +85,6 @@ function extraInfo(category) {
   })
 }
 
-/**
- * @method changeData
- *    Change document by filePath.
- * @param filePath
- *    The document's filePath.
- * @param callback
- *    Callback
- */
-function changeData(filePath,uri, callback) {
-  console.log("change data : "+filePath);
-  var currentTime = (new Date());
-  var re = new RegExp('/' + CATEGORY_NAME + '/');
-  var desFilePath = filePath.replace(re, '/' + CATEGORY_NAME + 'Des/') + ".md";
-  fs.stat(filePath, function(err, stat) {
-    var updateItem = {
-      URI:uri,
-      lastModifyTime : currentTime,
-      lastModifyDev : config.uniqueID,
-      size:stat.size
-    }
-    dataDes.updateItem(desFilePath, updateItem, function() {
-      //resourceRepo.repoCommit(utils.getDesDir(CATEGORY_NAME), [desFilePath], null, "ch", function() {
-      var sRealRepoDir=utils.getRepoDir(CATEGORY_NAME);
-      var sDesRepoDir=utils.getDesRepoDir(CATEGORY_NAME);
-      resourceRepo.repoCommitBoth('ch', sRealRepoDir, sDesRepoDir, [filePath], [desFilePath], function(err, result) {
-        updateItem.category = CATEGORY_NAME;
-        var updateItems = new Array();
-        updateItems.push(updateItem);
-        commonDAO.updateItems(updateItems, function(result) {
-          if(result!='commit'){
-            console.log("DB update error:");
-            console.log(result);
-            return;
-          }
-          callback(result);
-        });
-      });
-    });
-  });
-}
-exports.changeData = changeData;
 
 function getOpenInfo(item) {
   if (item == null) {
@@ -243,6 +202,7 @@ function getOpenInfo(item) {
 exports.getOpenInfo = getOpenInfo;
 
 
+/*TODO: rewrite */
 function rename(sUri, sNewName, callback) {
   commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
     if (err) {
@@ -252,34 +212,5 @@ function rename(sUri, sNewName, callback) {
   })
 }
 exports.rename = rename;
-
-
-/** 
- * @Method: getFilesByTag
- *    To get files with specific tag.
- *
- * @param2: sTag
- *    string, a tag name, as 'document'.
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, file info object in array
- *
- **/
-function getFilesByTag(sTag, callback) {
-  function getFilesCb(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  }
-  tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
-}
-exports.getFilesByTag = getFilesByTag;
 
 

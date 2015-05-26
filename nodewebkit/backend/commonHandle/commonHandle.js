@@ -452,6 +452,8 @@ exports.openData = function(uri) {
   return updatePropertyValue(property);
 }
 
+
+/*TODO: rewrite */
 function renameDataByUri(category, sUri, sNewName, callback) {
   var sCondition = "URI = '" + sUri + "'";
   commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {

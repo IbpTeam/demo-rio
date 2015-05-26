@@ -247,6 +247,7 @@ function getOpenInfo(item) {
 exports.getOpenInfo = getOpenInfo;
 
 
+/*TODO: rewrite */
 function rename(sUri, sNewName, callback) {
   commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
     if (err) {
@@ -257,33 +258,6 @@ function rename(sUri, sNewName, callback) {
 }
 exports.rename = rename;
 
-/** 
- * @Method: getFilesByTag
- *    To get files with specific tag.
- *
- * @param2: sTag
- *    string, a tag name, as 'document'.
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, file info object in array
- *
- **/
-function getFilesByTag(sTag, callback) {
-  function getFilesCb(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  }
-  tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
-}
-exports.getFilesByTag = getFilesByTag;
 
 function getMusicPicData(filePath, callback) {
   var ID3 = require('id3v2-parser');
