@@ -192,54 +192,22 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
-
-  documents.createData(DocList, function(err, result) {
-    if (err) {
-      console.log(err);
-      return loadResourcesCb(err, null);
-    }
-    if (result != '' && result != null && typeof result === 'object') {
-      existFile = existFile.concat(result);
-    }
-    pictures.createData(PicList, function(err, result) {
-      if (err) {
-        console.log(err);
-        return loadResourcesCb(err, null);
-      }
-      if (result != '' && result != null && typeof result === 'object') {
-        existFile = existFile.concat(result);
-      }
-      music.createData(MusList, function(err, result) {
-        if (err) {
-          console.log(err);
-          return loadResourcesCb(err, null);
-        }
-        if (result != '' && result != null && typeof result === 'object') {
-          existFile = existFile.concat(result);
-        }
-        video.createData(VidList, function(err, result) {
-          if (err) {
-            console.log(err);
-            return loadResourcesCb(err, null);
-          }
-          if (result != '' && result != null && typeof result === 'object') {
-            existFile = existFile.concat(result);
-          }
-          other.createData(OtherList, function(err, result) {
-            if (err) {
-              console.log(err);
-              return loadResourcesCb(err, null);
-            }
-            if (result != '' && result != null && typeof result === 'object') {
-              existFile = existFile.concat(result);
-            }
-            console.log("load resources success!", existFile);
-            loadResourcesCb(null, existFile);
-          });
-        });
-      });
-    });
-  });
+  documents.createData(DocList)
+    .then(function() {
+      return pictures.createData(PicList);
+    })
+    .then(function() {
+      return music.createData(MusList);
+    })
+    .then(function() {
+      return video.createData(VidList);
+    })
+    .then(function() {
+      return other.createData(OtherList);
+    })
+    .then(loadResourcesCb)
+    .fail(loadResourcesCb)
+    .done();
 }
 exports.loadResources = loadResources;
 
@@ -257,7 +225,10 @@ exports.loadResources = loadResources;
  */
 function loadContacts(loadContactCb, path) {
   console.log("Request handler 'loadContacts' was called.");
-  contacts.initContacts(loadContactCb, path);
+  contacts.initContacts(path)
+    .then(loadContactCb)
+    .fail(loadContactCb)
+    .done();
 }
 exports.loadContacts = loadContacts;
 
@@ -341,7 +312,14 @@ exports.getAllDataByCate = getAllDataByCate;
  */
 function getAllContacts(getAllContactsCb) {
   console.log("Request handler 'getAllContacts' was called.");
-  contacts.getAllContacts(getAllContactsCb);
+  contacts.getAllContacts()
+    .then(function(result) {
+      getAllContactsCb(null, result);
+    })
+    .fail(function(err) {
+      getAllContactsCb(err);
+    })
+    .done();
 }
 exports.getAllContacts = getAllContacts;
 

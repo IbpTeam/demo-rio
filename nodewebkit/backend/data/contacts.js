@@ -24,16 +24,13 @@ var util = require('util');
 var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
+var Q = require('q');
 
+var DEFINED_PROP =  require('../data/default/rdfTypeDefine').property;
 var CATEGORY_NAME = "contact";
-var DES_NAME = "contactDes";
-var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
-var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
 
 
-
+/*TODO: rewrite */
 function createData(item, callback) {
 
   console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++createData");
@@ -120,94 +117,39 @@ exports.createData = createData;
  *           photPath;
  *        }
  */
-function getAllContacts(getAllCb) {
+function getAllContacts() {
   console.log("Request handler 'getAllContacts' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: "http://example.org/property/base#category",
+    predicate:  DEFINED_PROP["base"]["category"],
     object: 'contact'
   }, {
     subject: _db.v('subject'),
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
-    }
-    rdfHandle.dbClose(_db, function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return getAllCb(err);
-        }
-        var items = [];
-        for (var item in info) {
-          items.push({
-            URI: info[item].URI || "",
-            name: info[item].lastname + info[item].firstname,
-            sex: info[item].sex || "",
-            age: info[item].age || "",
-            photoPath: info[item].photoPath || "",
-            phone: info[item].phone || "",
-            email: info[item].email || "",
-            tags: info[item].tags || ""
-          })
-        }
-        return getAllCb(null, items);
-      })
-    })
-  });
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(rdfHandle.Q_decodeTripeles)
+    .then(function(info_) {
+      var _items = [];
+      for (var item in info_) {
+        _items.push({
+          URI: info_[item].URI || "",
+          name: info_[item].lastname + info_[item].firstname,
+          sex: info_[item].sex || "",
+          age: info_[item].age || "",
+          photoPath: info_[item].photoPath || "",
+          phone: info_[item].phone || "",
+          email: info_[item].email || "",
+          tags: info_[item].tags || ""
+        });
+      }
+      return _items;
+    });
 }
 exports.getAllContacts = getAllContacts;
 
-
-/**
- * @method removeDocumentByUri
- *    Remove document by uri.
- * @param uri
- *    The document's URI.
- * @param callback
- *    Callback
- */
-function removeByUri(uri, callback) {
-  getByUri(uri, function(items) {
-    //Remove des file
-    var sDesFullPath = utils.getDesPath(CATEGORY_NAME, items[0].name);
-    fs.unlink(sDesFullPath, function(err) {
-      if (err) {
-        console.log(err);
-        callback("err");
-      } else {
-        //Delete from db
-        commonHandle.deleteItemByUri(CATEGORY_NAME, uri, function(isSuccess) {
-          if (isSuccess == "rollback") {
-            callback("error");
-            return;
-          }
-          //Git commit
-          var aDesFiles = [sDesFullPath];
-          var sDesDir = utils.getDesDir(CATEGORY_NAME);
-          repo.repoCommit(sDesDir, aDesFiles, null, "rm", callback);
-        });
-      }
-    });
-  });
-}
-exports.removeByUri = removeByUri;
-
-/**
- * @method getByUri
- *    Get document info in db.
- * @param uri
- *    The document's URI.
- * @param callback
- *    Callback
- */
-function getByUri(uri, callback) {
-  commonHandle.getItemByUri(CATEGORY_NAME, uri, callback);
-}
-exports.getByUri = getByUri;
 
 /**
  * @method initContacts
@@ -219,265 +161,87 @@ exports.getByUri = getByUri;
  * @param2 sItemPath
  *   string, the resource path + csvFilename
  */
-function initContacts(loadContactsCb, sItemPath) {
-  console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++initContacts");
+function initContacts(sItemPath) {
+  console.log("Request handler 'initContacts' was called.");
 
-  function csvTojsonCb(json) {
-    var oJson = JSON.parse(json);
-    var oContacts = [];
-    var oDesFiles = [];
-    var _triples = [];
-    var contactsPath = config.RESOURCEPATH + '/' + CATEGORY_NAME + "Des";
-    var dataDesPath = contactsPath + "/data";
-    fs.readdir(DES_DIR, function(err, result) {
-      if (err) {
-        return loadContactsCb(err, null);
-      }
-      if (result == '') {
-        for (var k in oJson) {
-          if (oJson[k].hasOwnProperty("姓")) {
-            oContacts.push(oJson[k]);
-          }
-        }
-      } else {
-        for (var k in oJson) {
-          if (oJson[k].hasOwnProperty("姓")) {
-            var sName = oJson[k]["姓"] + oJson[k]["名"] + '.md';
-            if (!utils.isExist(sName, result)) {
-              oContacts.push(oJson[k]);
-            }
-          }
-        }
-        if (oContacts == '') {
-          return loadContactsCb(null, 'success');
-        }
-      }
-
-      function initHelper(isEnd, rawInfo, callback) {
-        dataInfo(rawInfo, function(info) {
-          rdfHandle.tripleGenerator(info, function(err, triples) {
-            if (err) {
-              return callback(err);
-            }
-            _triples = _triples.concat(triples);
-            if (isEnd) {
-              addTriples(_triples, callback);
-            }
-          })
-        })
-      }
-
-      for (var k = 0, l = oContacts.length; k < l; k++) {
-        var _isContactEnd = (k == (l - 1));
-        initHelper(_isContactEnd, oContacts[k], loadContactsCb);
-      }
+  //convert csv to json
+  return csvtojson.Q_csvTojson(sItemPath)
+    .then(function(result_) {
+      //get all contact info into object
+      return infoMaker(result_)
+        .then(function(info_) {
+          //reform the info object as {_base, _extra}
+          return Q.all(info_.map(dataInfo))
+            .then(function(result_) {
+              var _info_result = [];
+              for (var i = 0, l = result_.length; i < l; i++) {
+                _info_result = _info_result.concat(result_[i]);
+              }
+              //make valid triples
+              return Q.all(_info_result.map(rdfHandle.Q_tripleGenerator))
+                .then(function(triples_) {
+                  var _triple_result = [];
+                  for (var i = 0, l = triples_.length; i < l; i++) {
+                    _triple_result = _triple_result.concat(triples_[i]);
+                  }
+                  //put them in leveldb
+                  var _db = rdfHandle.dbOpen();
+                  return rdfHandle.Q_dbPut(_db, _triple_result);
+                });
+            });
+        });
     });
-  }
-  csvtojson.csvTojson(sItemPath, csvTojsonCb);
 }
 exports.initContacts = initContacts;
 
-function dataInfo(itemInfo, callback) {
-  var fullName = itemInfo["姓"] + itemInfo["名"];
-  var fullNameUrl = 'http://example.org/category/contact#' + fullName;
-  uniqueID.getFileUid(function(uri) {
-    var _info = {
-      subject: fullNameUrl,
-      base: {
-        URI: uri,
-        createTime: new Date(),
-        lastModifyTime: new Date(),
-        lastAccessTime: new Date(),
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID,
-        createDev: config.uniqueID,
-        category: CATEGORY_NAME,
-        tags: ""
-      },
-      extra: {
-        lastname: itemInfo["姓"],
-        firstname: itemInfo["名"],
-        sex: itemInfo["性别"],
-        age: itemInfo["年龄"] || "",
-        email: itemInfo["电子邮件地址"],
-        phone: itemInfo["移动电话"],
-        photoPath: ""
+
+function infoMaker(json) {
+  var deferred = Q.defer();
+  try {
+    var oJson = JSON.parse(json);
+    var oContacts = [];
+    for (var k in oJson) {
+      if (oJson[k].hasOwnProperty("姓")) {
+        oContacts.push(oJson[k]);
       }
     }
-    return callback(_info);
-  })
-}
-
-function addTriples(triples, loadContactsCb) {
-  var _db = rdfHandle.dbOpen();
-  rdfHandle.dbPut(_db, triples, function(err) {
-    if (err) {
-      return loadContactsCb(err);
-    }
-    rdfHandle.dbClose(_db, function(err) {
-      if (err) throw err;
-      return loadContactsCb(null, "success");
-    })
-  })
-}
-
-function updateDataValue(item, callback) {
-  console.log('update value : ', item)
-  var desFilePath = pathModule.join(DES_DIR, item.name + '.md');
-  dataDes.updateItem(desFilePath, item, function(result) {
-    if (result === "success") {
-      commonDAO.updateItem(item, function(err) {
-        if (err) {
-          console.log(err);
-          var _err = {
-            "contact": err
-          };
-          callback(_err);
-        } else {
-          console.log('update contact success!');
-          repo.repoCommit(DES_REPO_DIR, [desFilePath], null, "ch", function() {
-            callback('success')
-          })
-        }
-      })
-    }
-  })
-}
-exports.updateDataValue = updateDataValue;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        array, result of git log
- *
- **/
-function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
-  repo.getGitLog(DES_REPO_DIR, callback);
-}
-exports.getGitLog = getGitLog;
-
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(commitID, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      repo.repoReset(DES_REPO_DIR, commitID, null, function(err, result) {
-        if (err) {
-          console.log(err);
-          callback({
-            'document': err
-          }, null);
-        } else {
-          console.log('reset success!')
-          callback(null, result)
-        }
-      });
-    }
-  });
-}
-exports.repoReset = repoReset;
-
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param resourcesPath
- *    Repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(deviceId, address, account, resourcesPath, callback) {
-  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
-  repo.pullFromOtherRepo(deviceId, address, account, sDesRepoPath, function(desFileNames) {
-    var aFilePaths = new Array();
-    var sDesPath = utils.getDesRepoDir(CATEGORY_NAME);
-    desFileNames.forEach(function(desFileName) {
-      aFilePaths.push(path.join(sDesPath, desFileName));
-    });
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-    //TODO base on files, modify data in db
-    dataDes.readDesFiles(CATEGORY_NAME, aFilePaths, function(desObjs) {
-      dataDes.writeDesObjs2Db(desObjs, function(status) {
-        callback(deviceId, address, account);
-      });
-    });
-  });
-}
-exports.pullRequest = pullRequest;
-
-/** 
- * @Method: getFilesByTag
- *    To get files with specific tag.
- *
- * @param2: sTag
- *    string, a tag name, as 'document'.
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, file info object in array
- *
- **/
-function getFilesByTag(sTag, callback) {
-  function getFilesCb(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
+    deferred.resolve(oContacts);
+  } catch (err) {
+    deferred.reject(new Error(err));
   }
-  tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
+  return deferred.promise;
 }
-exports.getFilesByTag = getFilesByTag;
-
-function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
-  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
-}
-exports.getRecentAccessData = getRecentAccessData;
 
 
-function repoSearch(repoSearchCb, sKey) {
-  repo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
+function dataInfo(itemInfo) {
+  var fullName = itemInfo["姓"] + itemInfo["名"];
+  var fullNameUrl = 'http://example.org/category/contact#' + fullName;
+  return uniqueID.Q_getFileUid()
+    .then(function(uri_) {
+      return {
+        subject: fullNameUrl,
+        base: {
+          URI: uri_,
+          createTime: new Date(),
+          lastModifyTime: new Date(),
+          lastAccessTime: new Date(),
+          createDev: config.uniqueID,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID,
+          createDev: config.uniqueID,
+          category: CATEGORY_NAME,
+          tags: ""
+        },
+        extra: {
+          lastname: itemInfo["姓"] || "",
+          firstname: itemInfo["名"] || "",
+          sex: itemInfo["性别"] || "",
+          age: itemInfo["年龄"] || "",
+          email: itemInfo["电子邮件地址"] || "",
+          phone: itemInfo["移动电话"] || "",
+          photoPath: ""
+        }
+      }
+    });
 }
-exports.repoSearch = repoSearch;
+

@@ -16,6 +16,7 @@ var crypto = require('crypto');
 var config = require('./config');
 var fs = require('fs');
 var path = require('path');
+var Q = require('q');
 
 // @const
 var UNIQUEID_JS = "uniqueID.js";
@@ -81,6 +82,22 @@ function getFileUid(callback){
   });
 }
 
+//a promised getFileUid()
+function Q_getFileUid() {
+  var deferred = Q.defer();
+  getRandomBytes(10, function(token) {
+    if (token != null) {
+      sid = config.uniqueID;
+      sytoken = sid + '#' + token;
+      deferred.resolve(sytoken);
+    } else {
+      var _err = new Error("GET UID ERROR!");
+      deferred.reject(_err);
+    }
+  });
+  return deferred.promise;
+}
+
 //Get random bytes
 function getRandomBytes(length, callback){
   crypto.randomBytes(length,function(ex,buf){
@@ -96,4 +113,5 @@ function getRandomBytes(length, callback){
 
 exports.SetSysUid = SetSysUid;
 exports.getFileUid = getFileUid;
+exports.Q_getFileUid = Q_getFileUid;
 exports.getRandomBytes = getRandomBytes;

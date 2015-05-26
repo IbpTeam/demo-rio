@@ -211,10 +211,6 @@
         var _db = rdfhandle.dbOpen();
         var _query_get_all = [{
           subject: _db.v('subject'),
-          predicate: "http://example.org/property/base#URI",
-          object: "rio30253rio#84119ad3450bf4cfc2b8"
-        }, {
-          subject: _db.v('subject'),
           predicate: _db.v('predicate'),
           object: _db.v('object')
         }];
