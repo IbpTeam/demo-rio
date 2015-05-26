@@ -29,6 +29,7 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var dataDes = require('../commonHandle/desFilesHandle');
+var Q = require('q');
 
 //@const
 var CATEGORY_NAME = "picture";
@@ -58,29 +59,20 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *    string, retrieve 'success' when success
  *
  */
-function extraInfo(category, callback) {
+function createData(items) {
+  return commonHandle.dataStore(items, extraInfo);
+}
+exports.createData = createData;
+
+function extraInfo(category) {
   var _extra = {
     location: "Mars",
   }
-  callback(null, _extra);
-}
- function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
+  return Q.fcall(function() {
+    return _extra;
   })
 }
 
-exports.createData = createData;
-
-
-function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!')
-  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
-}
-exports.getRecentAccessData = getRecentAccessData;
 
 function getOpenInfo(item) {
   if (item == null) {
@@ -137,118 +129,6 @@ function getOpenInfo(item) {
 }
 exports.getOpenInfo = getOpenInfo;
 
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param resourcesPath
- *    Repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(deviceId,address,account,resourcesPath,callback){
-  var sRepoPath = pathModule.join(resourcesPath,CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath,DES_NAME);
-  commonHandle.pullRequest(CATEGORY_NAME,deviceId,address,account,sRepoPath,sDesRepoPath,callback);
-}
-exports.pullRequest = pullRequest;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        array, result of git log
- *
- **/
-function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
-  resourceRepo.getGitLog(DES_REPO_DIR, callback);
-}
-exports.getGitLog = getGitLog;
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(commitID, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID!="null") {
-        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } 
-          else {
-            resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  callback({
-                    'document': err
-                  }, null);
-                } 
-                else {
-                  console.log('reset success!')
-                  callback(null, result)
-                }
-              });
-            });
-          }
-        })
-      } 
-      else {
-        resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } 
-          else {
-            console.log('reset success!')
-            callback(null, result)
-          }
-        });
-      }
-    }
-  });
-}
-exports.repoReset = repoReset;
 
 function rename(sUri, sNewName, callback) {
   commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
@@ -287,9 +167,3 @@ function getFilesByTag(sTag, callback) {
   tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
 }
 exports.getFilesByTag = getFilesByTag;
-
-
-function repoSearch(repoSearchCb, sKey) {
-  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
-}
-exports.repoSearch = repoSearch;

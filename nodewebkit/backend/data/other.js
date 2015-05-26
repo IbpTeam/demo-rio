@@ -61,19 +61,15 @@ var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
  *
  */
 function createData(items, callback) {
-  commonHandle.dataStore(items, extraInfo, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    callback();
-  })
+  return commonHandle.dataStore(items, extraInfo);
 }
 exports.createData = createData;
 
 function extraInfo(category, callback) {
-  var _extra = {
-  }
-  callback(null, _extra);
+  var _extra = {}
+  return Q.fcall(function() {
+    return _extra;
+  })
 }
 
 function getOpenInfo(item) {
@@ -95,169 +91,3 @@ function getOpenInfo(item) {
   return source;
 }
 exports.getOpenInfo = getOpenInfo;
-
-function getRecentAccessData(num, getRecentAccessDataCb) {
-  console.log('getRecentAccessData in ' + CATEGORY_NAME + 'was called!');
-  commonHandle.getRecentAccessData(CATEGORY_NAME, getRecentAccessDataCb, num);
-}
-exports.getRecentAccessData = getRecentAccessData;
-
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param resourcesPath
- *    Repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(deviceId, address, account, resourcesPath, callback) {
-  var sRepoPath = pathModule.join(resourcesPath, CATEGORY_NAME);
-  var sDesRepoPath = pathModule.join(resourcesPath, DES_NAME);
-  commonHandle.pullRequest(CATEGORY_NAME, deviceId, address, account, sRepoPath, sDesRepoPath, callback);
-}
-exports.pullRequest = pullRequest;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        array, result of git log
- *
- **/
-function getGitLog(callback) {
-  console.log('getGitLog in ' + CATEGORY_NAME + 'was called!')
-  resourceRepo.getGitLog(DES_REPO_DIR, callback);
-}
-exports.getGitLog = getGitLog;
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(commitID, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var dataCommitID = oGitLog[commitID].content.relateCommit;
-      if (dataCommitID!="null") {
-        resourceRepo.repoReset(REAL_REPO_DIR,dataCommitID ,null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } 
-          else {
-            resourceRepo.getLatestCommit(REAL_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoReset(DES_REPO_DIR, commitID,relateCommitID, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  callback({
-                    'document': err
-                  }, null);
-                } 
-                else {
-                  console.log('reset success!')
-                  callback(null, result)
-                }
-              });
-            });
-          }
-        })
-      } 
-      else {
-        resourceRepo.repoReset(DES_REPO_DIR, commitID,null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'document': err
-            }, null);
-          } 
-          else {
-            console.log('reset success!')
-            callback(null, result)
-          }
-        });
-      }
-    }
-  });
-}
-exports.repoReset = repoReset;
-
-function repoResetFile(commitID, file, callback) {
-  getGitLog(function(err, oGitLog) {
-    if (err) {
-      callback(err, null);
-    } else {
-      var desCommitID = oGitLog[commitID].content.relateCommit;
-      if (desCommitID) {
-        resourceRepo.repoResetFile(DES_REPO_DIR, file, desCommitID, null, function(err, result) {
-          if (err) {
-            console.log(err);
-            callback({
-              'other': err
-            }, null);
-          } else {
-            getLatestCommit(DES_REPO_DIR, function(relateCommitID) {
-              resourceRepo.repoResetFile(REAL_REPO_DIR, file, commitID, relateCommitID, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  callback({
-                    'other': err
-                  }, null);
-                } else {
-                  console.log('reset success!')
-                  callback(null, result)
-                }
-              })
-            })
-          }
-        })
-      } else {
-        var _err = 'related des commit id error!';
-        console.log(_err);
-        callback({
-          'other': _err
-        }, null);
-      }
-    }
-  })
-}
-exports.repoResetFile = repoResetFile;
-
-
-function repoSearch(repoSearchCb, sKey) {
-  resourceRepo.repoSearch(CATEGORY_NAME, sKey, repoSearchCb);
-}
-exports.repoSearch = repoSearch;
