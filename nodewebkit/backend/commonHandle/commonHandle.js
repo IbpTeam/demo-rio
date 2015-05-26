@@ -522,48 +522,10 @@ exports.getAllDataByCate = getAllDataByCate;
   }
   return rdfHandle.Q_dbSearch(_db, _query)
     .then(rdfHandle.Q_decodeTripeles)
-      .then(itemsMaker)
-        .then(rdfHandle.Q_dbClose);
+    .then(itemsMaker)
+    .then(rdfHandle.Q_dbClose);
 }
 
-// exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
-//   console.log("Request handler 'getRecentAccessData' was called.");
-//   var _db = rdfHandle.dbOpen();
-//   var _query = [{
-//     subject: _db.v('subject'),
-//     predicate: DEFINED_PROP["base"][category],
-//     object: category
-//   }, {
-//     subject: _db.v('subject'),
-//     predicate: _db.v('predicate'),
-//     object: _db.v('object')
-//   }];
-//   rdfHandle.dbSearch(_db, _query, function(err, result) {
-//     if (err) {
-//       throw err;
-//     }
-//     rdfHandle.dbClose(_db, function() {
-//       rdfHandle.decodeTripeles(result, function(err, info) {
-//         if (err) {
-//           return getRecentAccessDataCb(err);
-//         }
-//         var items = [];
-//         for (var item in info) {
-//           if (info.hasOwnProperty(item)) {
-//             items.push(info[item]);
-//           }
-//         }
-//         items = items.sort(function(a, b) {
-//           var _a = new Date(a.lastAccessTime);
-//           var _b = new Date(b.lastAccessTime);
-//           return _b - _a;
-//         });
-//         var _result = (items.length > num) ? items.slice(0, num - 1) : items;
-//         return getRecentAccessDataCb(null, _result);
-//       })
-//     })
-//   });
-// }
 
 function updateTriples(_db, originTriples, newTriples) {
   return rdfHandle.Q_dbDelete(_db, originTriples)

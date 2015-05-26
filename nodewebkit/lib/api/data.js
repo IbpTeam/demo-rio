@@ -493,7 +493,7 @@ function openDataByUri(openDataByUriCb, uri) {
     .fail(function(err){
         openDataByUriCb(err);
       })
-    .done();;
+    .done();
 }
 exports.openDataByUri = openDataByUri;
 
@@ -502,14 +502,14 @@ exports.openDataByUri = openDataByUri;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(getDataByPathCb, item) {
+function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
   .then(function(result){
-      getDataByPathCb(null, result);
+      updateDataValueCb(null, result);
     })
     .fail(function(err){
-      getDataByPathCb(err);
+      updateDataValueCb(err);
     })
     .done();
 }
@@ -520,7 +520,6 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  // var cate = utils.getCategoryObject(category);
   commonHandle.getRecentAccessData(category,num)
     .then(function(result){
       getRecentAccessDataCb(null, result);
@@ -532,19 +531,6 @@ function getRecentAccessData(getRecentAccessDataCb, category, num) {
     .done();
 }
 exports.getRecentAccessData = getRecentAccessData;
-
-// function getRecentAccessData(getRecentAccessDataCb, category, num) {
-//   console.log("Request handler 'getRecentAccessData' was called.");
-//   var cate = utils.getCategoryObject(category);
-//   cate.getRecentAccessData(num, function(err, result) {
-//     if (err) {
-//       console.log(err);
-//       return getRecentAccessDataCb(err, null);
-//     }
-//     getRecentAccessDataCb(null, result);
-//   })
-// }
-// exports.getRecentAccessData = getRecentAccessData;
 
 //API getServerAddress:获得最近访问数据的信息
 //返回类型：
