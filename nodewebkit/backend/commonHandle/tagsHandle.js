@@ -201,13 +201,9 @@ function getFilesByTagsInCategory(category, oTags) {
       _result.push(result[file]);
     }
     return _result;
-
-    console.log(_result);
   };
   return rdfHandle.dbSearch(_db, _query) 
-    .then(function(triples_){
-      return rdfHandle.decodeTripeles(triples_);
-    })
+    .then(rdfHandle.decodeTripeles)
     .then(resultMaker);
 
 }

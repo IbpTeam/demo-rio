@@ -416,7 +416,7 @@ function updatePropertyValue(property) {
     _property: "URI",
     _value: property._uri
   }
-  var updateMaker = function(result){
+  var update4RtTripples = function(result){
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
@@ -432,7 +432,7 @@ function updatePropertyValue(property) {
     return updateTriples(_db, _origin_triples, _new_triples);
   }
   return getTriplesByProperty(_options)
-    .then(updateMaker);
+    .then(update4RtTripples);
 }
 exports.updatePropertyValue = updatePropertyValue;
 

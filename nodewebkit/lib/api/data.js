@@ -497,7 +497,7 @@ exports.openDataByUri = openDataByUri;
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
-  .then(function(result){
+    .then(function(result){
       updateDataValueCb(null, result);
     })
     .fail(function(err){
