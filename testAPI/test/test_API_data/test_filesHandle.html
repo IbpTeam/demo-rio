@@ -92,15 +92,6 @@
     });
   }
 
-  function test_Q_loadResources(Q_loadResourcesCb) {
-    WDC.requireAPI(['data'], function(data) {
-      data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER;
-        data.Q_loadResources(Q_loadResourcesCb, path);
-      });
-    });
-  }
-
   function getAllCateCb(result){
     var win = window.open('');    
     win.document.write("test API getAllCateCb()");
@@ -384,33 +375,6 @@
   }
 
   </script>
-<h2 onclick="show('Q_loadResources')">loadResources(Q_loadResourcesCb,path)<span><a class="mark" href="#test_Q_loadResources" id="test_Q_loadResources" onclick="test_Q_loadResources(loadResourcesCb)">test</a></span></h2>
-<div id="Q_loadResources" style="display:none;">
-<div style="color:#930000">
-</div>
-<div style="color:#004B97">
-  <pre>
-    具体实现：<br>
-  function Q_loadResourcesCb(result){
-    var win = window.open('');
-    win.document.write("test API loadResources()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
-  }
-  function test_Q_loadResources(Q_loadResourcesCb){
-    WDC.requireAPI(['data'], function(data){
-      data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER + "/test.txt";
-        data.Q_loadResources(Q_loadResourcesCb,path);
-      });
-      
-    });
-  }       
-</pre>
-</div>
-</div>
 
 
 <h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
