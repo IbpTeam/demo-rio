@@ -16,6 +16,7 @@ var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
 var repo = require('../../backend/commonHandle/repo');
+var Q = require('q');
 
 /*
  *getLocalData
@@ -304,16 +305,24 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
+
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if (cate == 'Contact' || cate == 'contact') {
     contacts.getAllContacts(getAllDataByCateCb);
   } else {
-    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    // commonHandle.getAllDataByCate(getAllDataByCateCb, cate);
+    commonHandle.getAllDataByCate(cate)
+        .then(function(result){
+          getAllDataByCateCb(null, result);
+        })
+        .fail(function(err){
+          getAllDataByCateCb(err);
+        })
+        .done();
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
-
 /**
  * @method getAllContacts
  *   获得所有联系人数组
@@ -347,7 +356,14 @@ function rmDataByUri(rmDataByUriCb, uri) {
     _property: "URI",
     _value: uri
   }
-  commonHandle.removeItemByProperty(_options, rmDataByUriCb);
+  commonHandle.removeItemByProperty(_options)
+    .then(function(result){
+      rmDataByUriCb(null,result);
+    })
+    .fail(function(err){
+      rmDataByUriCb(err);
+    })
+    .done();
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -360,7 +376,14 @@ function getDataByUri(getDataByUriCb, uri) {
     _property: "URI",
     _value: uri
   }
-  commonHandle.getItemByProperty(_options, getDataByUriCb);
+  commonHandle.getItemByProperty(_options)
+    .then(function(result){
+      getDataByUriCb(null, result);
+    })
+    .fail(function(err){
+      getDataByUriCb(err);
+    })
+    .done();
 }
 exports.getDataByUri = getDataByUri;
 
@@ -373,7 +396,14 @@ function getDataByPath(getDataByPathCb, sPath) {
     _property: "path",
     _value: sPath
   }
-  commonHandle.getItemByProperty(_options, getDataByPathCb);
+  commonHandle.getItemByProperty(_options)
+    .then(function(result){
+      getDataByPathCb(null, result);
+    })
+    .fail(function(err){
+      getDataByPathCb(err);
+    })
+    .done();
 }
 exports.getDataByPath = getDataByPath;
 
@@ -443,25 +473,30 @@ function openDataByUri(openDataByUriCb, uri) {
     _property: "URI",
     _value: uri
   }
-  commonHandle.getItemByProperty(_options, function(err, result) {
-    if (err) {
-      throw err;
-    }
+  var dataMaker = function(result){
     var cate = utils.getCategoryObject(result[0].category);
     var _source = cate.getOpenInfo(result[0]);
-    commonHandle.openData(uri, function() {
-      if (_source.format === "html5ppt") {
-        console.log("open html5ppt:" + _source.content);
-        window.open(_source.content);
-        _source.content = "成功打开文件" + _source.content;
-        setTimeout(openDataByUriCb(_source), 0);
-      } else {
-        setTimeout(openDataByUriCb(_source), 0);
-      }
-    });
-  })
+    if (_source.format === "html5ppt") {
+      console.log("open html5ppt:" + _source.content);
+      window.open(_source.content);
+      _source.content = "成功打开文件" + _source.content;
+      setTimeout(openDataByUriCb(_source), 0);
+    } else {
+      setTimeout(openDataByUriCb(_source), 0);
+    }
+  }
+  return commonHandle.getItemByProperty(_options)
+    .then(dataMaker)
+    .then(function(){
+      commonHandle.openData(_options, uri);
+    })
+    .fail(function(err){
+        openDataByUriCb(err);
+      })
+    .done();
 }
 exports.openDataByUri = openDataByUri;
+
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
@@ -469,7 +504,14 @@ exports.openDataByUri = openDataByUri;
 //失败返回失败原因
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
-  commonHandle.updatePropertyValue(item, updateDataValueCb);
+  commonHandle.updatePropertyValue(item)
+  .then(function(result){
+      updateDataValueCb(null, result);
+    })
+    .fail(function(err){
+      updateDataValueCb(err);
+    })
+    .done();
 }
 exports.updateDataValue = updateDataValue;
 
@@ -478,14 +520,15 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getRecentAccessData(num, function(err, result) {
-    if (err) {
+  commonHandle.getRecentAccessData(category,num)
+    .then(function(result){
+      getRecentAccessDataCb(null, result);
+    })
+    .fail(function(err){
       console.log(err);
-      return getRecentAccessDataCb(err, null);
-    }
-    getRecentAccessDataCb(null, result);
-  })
+      return getRecentAccessDataCb(err);
+    })
+    .done();
 }
 exports.getRecentAccessData = getRecentAccessData;
 

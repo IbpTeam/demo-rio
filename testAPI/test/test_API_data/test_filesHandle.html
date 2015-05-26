@@ -6,7 +6,7 @@
   a {
     font-size: 25px;
     font-family: sans-serif;
-    line-height: 2;
+    line-height: 2
   }
   </style>
   <script src="../../lib/require.js"></script>
@@ -16,8 +16,8 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio11388rio#3abbd28d4ff6c4cb5a08";
-  var Home = "/home/xwh/"
+  var test_uri = "rio10055rio#5002c623f901ff16872f";
+  var Q = require('q');
 
   function print(win,something){
     if(typeof something == "object"){
@@ -211,7 +211,7 @@
   function test_getDataByPath(getDataByPathCb){
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
-        var path = baseinfo.RESOURCEFOLDER + '/documents/桌面操作系统发展趋势探讨2.ppt';
+        var path = baseinfo.RESOURCEFOLDER + 'aaaa/bbbb/cccc';
         data.getDataByPath(getDataByPathCb,path);
       });
       
@@ -220,7 +220,7 @@
 
   function openDataByUriCb(result){
     var win = window.open(''); 
-    win.document.write("test API getDataSourceByUri()");
+    win.document.write("test API getDataByUri()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>"); 
@@ -228,7 +228,7 @@
   }
   function test_openDataByUri(getDataSourceCb){
     WDC.requireAPI(['data'], function(data){
-      data.openDataByUri(openDataByUriCb, test_uri);
+      data.openDataByUri(getDataSourceCb, test_uri);
     });        
   }
 
@@ -349,6 +349,7 @@
       img.src = 'data:image/jpeg;base64,' + result;
     }
   }
+
   function test_getVideoThumbnail(getVideoThumbnailCb) {
     WDC.requireAPI(['data'], function(data) {
       var path = '/home/v1/dde/resources/video/movie.ogg';
@@ -465,8 +466,8 @@
 </div>
 </div>
 
-<h2 onclick="show('getAllCate')">getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
-<div id="getAllCate" style="display:none;">
+<h2 onclick="show('getAllCate2')">getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate2" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
+<div id="getAllCate2" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getAllCate 查询所有基本分类
@@ -918,8 +919,8 @@
 <h2 onclick="show('getMusicPicData')">getMusicPicData(getMusicPicDataCb,path)<span><a class="mark" href="#test_getMusicPicData" id="test_getMusicPicData" onclick="test_getMusicPicData(getMusicPicDataCb)">test</a></span></h2>
 <div id="getMusicPicData" style="display:none;">
 <div style="color:#930000">
-  <canvas id="test_id3" width="100" height="100"></canvas>
-  <img id="test_img"  />
+  <canvas id="test_id4" width="100" height="100"></canvas>
+  <img id="test_img3"  />
 </div>
 <div style="color:#004B97">
   <pre>
@@ -951,7 +952,7 @@
 <h2 onclick="show('getVideoThumbnail')">getVideoThumbnail(getVideoThumbnailCb,path)<span><a class="mark" href="#test_getVideoThumbnail" id="test_getVideoThumbnail" onclick="test_getVideoThumbnail(getVideoThumbnailCb)">test</a></span></h2>
 <div id="getVideoThumbnail" style="display:none;">
 <div style="color:#930000">
-  <canvas id="test_id3" width="100" height="100"></canvas>
+  <canvas id="test_id2" width="100" height="100"></canvas>
   <img id="test_video_img"  />
 </div>
 <div style="color:#004B97">

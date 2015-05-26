@@ -33,6 +33,7 @@ var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar'); 
 var rdfHandle = require("./rdfHandle");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var Q = require('q');
 
 var writeDbNum = 0;
 var dataPath;
@@ -157,7 +158,7 @@ function baseInfo(itemPath, callback) {
         lastAccessTime: _ctime,
         createDev: config.uniqueID,
         lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID,
+        lastAccessDev: config.uniqueID
       }
       return callback(null, _base);
     })
@@ -338,7 +339,7 @@ function createDataAll(items, callback) {
 }
 exports.createDataAll = createDataAll;
 
-function getTriplesByProperty(options, callback) {
+function getTriplesByProperty(options) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -349,42 +350,27 @@ function getTriplesByProperty(options, callback) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
-    }
-    return callback(null, result);
-  });
+  return rdfHandle.Q_dbSearch(_db, _query);
 }
 
-exports.getItemByProperty = function(options, callback) {
-  getTriplesByProperty(options, function(err, result) {
-    if (err) {
-      return callback(err);
-    } else if (result == []) {
-      var _err = new Error("ITEM NOT FOUND!");
-      return callback(_err);
+
+exports.getItemByProperty = function(options) {
+  var itemsMaker = function(info){
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push(info[item]);
+      }
     }
-    rdfHandle.decodeTripeles(result, function(err, info) {
-      if (err) {
-        return callback(err);
-      }
-      var items = [];
-      for (var item in info) {
-        if (info.hasOwnProperty(item)) {
-          items.push(info[item]);
-        }
-      }
-      return callback(null, items);
-    })
-  })
+    return items;
+  }
+  return getTriplesByProperty(options)
+    .then(rdfHandle.Q_decodeTripeles)
+    .then(itemsMaker);
 }
 
-function getTriples(options, callback) {
-  getTriplesByProperty(options, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
+function getTriples(options) {
+  var TriplesMaker = function(result){
     var _info = {
       triples: result
     };
@@ -397,43 +383,35 @@ function getTriples(options, callback) {
         _info.path = result[i].object;
       }
     }
-    return callback(null, _info);
-  })
+    return _info;
+  }
+  return getTriplesByProperty(options)
+    .then(TriplesMaker);
 }
 
-exports.removeItemByProperty = function(options, callback) {
+exports.removeItemByProperty = function(options) {
   var _db = rdfHandle.dbOpen();
-  getTriples(options, function(err, result) {
-    if (err) {
-      return callback(err);
+  var FilesRemove = function(result){
+    //if no path or category found, them the file should not exist in by now.
+    if (result.category === undefined && result.path === undefined) {
     }
+    //if type is contact, then it is done for now.
+    if (result.category === "contact") {
+      //_db.close(function() {
+      //});
+    } else {
+      //delete file itself
+      var Q_unlink = Q.nfbind(fs.unlink);
+      Q_unlink(result.path);
+    }
+    return result;
+  }
+  var TriplesRemove = function(result){
     //delete all realted triples in leveldb
-    rdfHandle.dbDelete(_db, result.triples, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      //if no path or category found, them the file should not exist in by now.
-      if (result.category === undefined && result.path === undefined) {
-        return callback();
-      }
-      //if type is contact, then it is done for now.
-      if (result.category === "contact") {
-        rdfHandle.dbClose(_db, function() {
-          return callback();
-        });
-      } else {
-        //delete file itself
-        fs.unlink(result.path, function(err) {
-          if (err) {
-            return callback(err);
-          }
-          rdfHandle.dbClose(_db, function() {
-            return callback();
-          });
-        })
-      }
-    })
-  })
+    rdfHandle.Q_dbDelete(_db, result.triples);
+    return result;
+  }
+  return getTriples(options).then(TriplesRemove).then(FilesRemove);
 }
 
 
@@ -458,45 +436,41 @@ exports.getAllCate = function(getAllCateCb) {
   });
 }
 
-exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
+function getAllDataByCate (cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["category"],
+    predicate: DEFINED_PROP["base"][cate],
     object: cate
   }, {
     subject: _db.v('subject'),
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
+  var dataMaker = function(info){
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push({
+          URI: info[item].URI,
+          version: "",
+          filename: info[item].filename,
+          postfix: info[item].postfix,
+          path: info[item].path,
+          tags: info[item].tags
+        })
+      }
     }
-    rdfHandle.dbClose(_db, function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return getAllDataByCateCb(err);
-        }
-        var items = [];
-        for (var item in info) {
-          if (info.hasOwnProperty(item)) {
-            items.push({
-              URI: info[item].URI,
-              version: "",
-              filename: info[item].filename,
-              postfix: info[item].postfix,
-              path: info[item].path,
-              tags: info[item].tags
-            })
-          }
-        }
-        return getAllDataByCateCb(null, items);
-      })
-    })
-  });
+    return items;
+  };
+
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(rdfHandle.Q_decodeTripeles)
+      .then(dataMaker);
+        // .then(rdfHandle.Q_dbClose);
 }
+exports.getAllDataByCate = getAllDataByCate;
 
 /** 
  * @Method: getRecentAccessData
@@ -518,7 +492,7 @@ exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
  *    integer, number of file you want to get
  *
  **/
-exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
+ exports.getRecentAccessData = function(category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -530,45 +504,30 @@ exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      throw err;
+  var itemsMaker = function(info){
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push(info[item]);
+      }
     }
-    rdfHandle.dbClose(_db, function() {
-      rdfHandle.decodeTripeles(result, function(err, info) {
-        if (err) {
-          return getRecentAccessDataCb(err);
-        }
-        var items = [];
-        for (var item in info) {
-          if (info.hasOwnProperty(item)) {
-            items.push(info[item]);
-          }
-        }
-        items = items.sort(function(a, b) {
-          var _a = new Date(a.lastAccessTime);
-          var _b = new Date(b.lastAccessTime);
-          return _b - _a;
-        });
-        var _result = (items.length > num) ? items.slice(0, num - 1) : items;
-        return getRecentAccessDataCb(null, _result);
-      })
-    })
-  });
+    items = items.sort(function(a, b) {
+      var _a = new Date(a.lastAccessTime);
+      var _b = new Date(b.lastAccessTime);
+      return _b - _a;
+    });
+    var _result = (items.length > num) ? items.slice(0, num - 1) : items;
+    return _result;
+  }
+  return rdfHandle.Q_dbSearch(_db, _query)
+    .then(rdfHandle.Q_decodeTripeles)
+    .then(itemsMaker)
+    .then(rdfHandle.Q_dbClose);
 }
 
-function updateTriples(_db, originTriples, newTriples, callback) {
-  rdfHandle.dbDelete(_db, originTriples, function(err) {
-    if (err) {
-      return callback(err);
-    }
-    rdfHandle.dbPut(_db, newTriples, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback();
-    })
-  })
+function updateTriples(_db, originTriples, newTriples) {
+  return rdfHandle.Q_dbDelete(_db, originTriples)
+    .then(rdfHandle.Q_dbPut(_db, newTriples));
 }
 
 function resolveTriples(chenges, triple) {
@@ -619,13 +578,13 @@ function resolveTriples(chenges, triple) {
  *
  *
  **/
-function updatePropertyValue(property, updatePropertyValueCb) {
+function updatePropertyValue(property) {
   var _options = {
     _type: "base",
     _property: "URI",
     _value: property._uri
   }
-  getTriplesByProperty(_options, function(err, result) {
+  var updateMaker = function(result){
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
@@ -638,17 +597,14 @@ function updatePropertyValue(property, updatePropertyValueCb) {
       }
     }
     var _db = rdfHandle.dbOpen();
-    updateTriples(_db, _origin_triples, _new_triples, function(err) {
-      if (err) {
-        return updatePropertyValueCb(err);
-      }
-      return updatePropertyValueCb();
-    })
-  })
+    return updateTriples(_db, _origin_triples, _new_triples);
+  }
+  return getTriplesByProperty(_options)
+    .then(updateMaker);
 }
 exports.updatePropertyValue = updatePropertyValue;
 
-exports.openData = function(uri, openDataCb) {
+exports.openData = function(uri) {
   var currentTime = (new Date());
   var property = {
     _uri: uri,
@@ -658,192 +614,10 @@ exports.openData = function(uri, openDataCb) {
     }, {
       _property: "lastAccessDev",
       _value: config.uniqueID
-    }, ]
+    }]
   }
-  updatePropertyValue(property, function(err) {
-    if (err) {
-      throw err;
-    }
-    openDataCb();
-  })
+  return updatePropertyValue(property);
 }
-
-exports.updateDB = function(category, updateDBCb) {
-  var desRepoDir = utils.getDesDir(category);
-  fs.readdir(desRepoDir, function(err, files) {
-    if (err) {
-      console.log(err);
-      updateDBCb({
-        'commonHandle': err
-      }, null);
-    } else {
-      var allFileInfo = [];
-      var count = 0;
-      var lens = files.length;
-      for (var i = 0; i < lens; i++) {
-        var fileItem = path.join(utils.getDesDir(category), files[i]);
-        var isEnd = (count === lens - 1);
-        (function(_fileItem, _isEnd) {
-          fs.readFile(_fileItem, 'utf8', function(err, data) {
-            try {
-              var oFileInfo = JSON.parse(data);
-            } catch (e) {
-              console.log(data)
-              throw e;
-            }
-            allFileInfo.push(oFileInfo);
-            if (_isEnd) {
-              var items = [{
-                category: category
-              }];
-              commonDAO.deleteItems(items, function(result) {
-                if (result == 'commit') {
-                  commonDAO.createItems(allFileInfo, function(result) {
-                    if (result == 'commit') {
-                      updateDBCb(null, 'success');
-                    } else {
-                      var _err = {
-                        'commonHandle': 'create items error!'
-                      }
-                      updateDBCb(_err, null);
-                    }
-                  })
-                } else {
-                  var _err = {
-                    'commonHandle': 'delete items error!'
-                  }
-                  updateDBCb(_err, null);
-                }
-              })
-            }
-          })
-          count++;
-        })(fileItem, isEnd)
-      }
-    }
-  })
-}
-
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param category
- *    Category.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param repoPath
- *    Repository path.
- * @param desRepoPath
- *    Des repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(category, deviceId, address, account, repoPath, desRepoPath, callback) {
-  //First pull real file
-  //Second pull des file
-  //console.log("==============================" + repoPath);
-  //console.log("==============================" + desRepoPath);
-  repo.haveBranch(repoPath, deviceId, function(result) {
-    if (result == false) {
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
-      repo.addBranch(deviceId, address, account, repoPath, function(branchName) {
-        if (branchName != deviceId) {
-          console.log("addBranch error");
-        } else {
-          repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
-            repo.haveBranch(desRepoPath, deviceId, function(result) {
-              if (result == false) {
-                repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
-                  if (branchName != deviceId) {
-                    console.log("addBranch error");
-                  } else {
-                    repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                      var aFilePaths = new Array();
-                      var sDesPath = utils.getDesRepoDir(category);
-                      desFileNames.forEach(function(desFileName) {
-                        aFilePaths.push(path.join(sDesPath, desFileName));
-                      });
-                      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                      //TODO base on files, modify data in db
-                      dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                        dataDes.writeDesObjs2Db(desObjs, function(status) {
-                          callback(deviceId, address, account);
-                        });
-                      });
-                    });
-                  }
-                });
-              } else {
-                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                  var aFilePaths = new Array();
-                  var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName) {
-                    aFilePaths.push(path.join(sDesPath, desFileName));
-                  });
-                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                  //TODO base on files, modify data in db
-                  dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                    dataDes.writeDesObjs2Db(desObjs, function(status) {
-                      callback(deviceId, address, account);
-                    });
-                  });
-                });
-              }
-            });
-          });
-        }
-      });
-    } else {
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
-      repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
-        repo.haveBranch(desRepoPath, deviceId, function(result) {
-          if (result == false) {
-            repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
-              if (branchName != deviceId) {
-                console.log("addBranch error");
-              } else {
-                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                  var aFilePaths = new Array();
-                  var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName) {
-                    aFilePaths.push(path.join(sDesPath, desFileName));
-                  });
-                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                  //TODO base on files, modify data in db
-                  dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                    dataDes.writeDesObjs2Db(desObjs, function(status) {
-                      callback(deviceId, address, account);
-                    });
-                  });
-                });
-              }
-            });
-          } else {
-            repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-              var aFilePaths = new Array();
-              var sDesPath = utils.getDesRepoDir(category);
-              desFileNames.forEach(function(desFileName) {
-                aFilePaths.push(path.join(sDesPath, desFileName));
-              });
-              //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-              //TODO base on files, modify data in db
-              dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                dataDes.writeDesObjs2Db(desObjs, function(status) {
-                  callback(deviceId, address, account);
-                });
-              });
-            });
-          }
-        });
-      });
-    }
-  });
-}
-exports.pullRequest = pullRequest;
 
 function renameDataByUri(category, sUri, sNewName, callback) {
   var sCondition = "URI = '" + sUri + "'";
