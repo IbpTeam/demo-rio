@@ -81,7 +81,7 @@ function getAllTagsByCategory(category) {
       _tags.push(utils.getTitle(results[i].tag));
     }
     return _tags;
-  }
+  };
 
   return rdfHandle.dbSearch(_db, _query)
   .then(tagMaker);

@@ -731,7 +731,7 @@ function setTagByUri(setTagByUriCb, oTags, sUri) {
   tagsHandle.setTagByUri(oTags,sUri)
     .then(function(results) {
       setTagByUriCb(null,results);
-    }
+    })
     .fail(function(err) {
       setTagByUriCb(err);
     })

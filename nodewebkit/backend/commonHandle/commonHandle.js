@@ -75,7 +75,7 @@ var DATA_PATH = "data";
  */
 function writeTriples(fileInfo) {
   var _triples_result = [];
-  return Q.all(fileInfo.map(rdfHandle.Q_tripleGenerator))
+  return Q.all(fileInfo.map(rdfHandle.tripleGenerator))
     .then(function(triples_) {
       for (var i = 0, l = triples_.length; i < l; i++) {
         _triples_result = _triples_result.concat(triples_[i]);
