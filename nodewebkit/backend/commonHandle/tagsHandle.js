@@ -62,32 +62,8 @@ exports.getTagsByPath = getTagsByPath;
  *      }
  *
  */
-function getAllTagsByCategory(callback, category) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [{
-    subject: _db.v('tag'),
-    predicate: DEFINED_VOC.rdf._type,
-    object: DEFINED_PROP["base"]["tags"]
-  }, {
-    subject: _db.v('tag'),
-    predicate: DEFINED_VOC.rdf._domain,
-    object: DEFINED_VOC.category[category]
-  }]
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    var _tags = [];
-    for (var i = 0, l = result.length; i < l; i++) {
-      _tags.push(utils.getTitle(result[i].tag));
-    }
-    return callback(null, _tags);
-  });
-}
-exports.getAllTagsByCategory = getAllTagsByCategory;
 
-
-function Q_getAllTagsByCategory(category) {
+function getAllTagsByCategory(category) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('tag'),
@@ -110,7 +86,7 @@ function Q_getAllTagsByCategory(category) {
   return rdfHandle.Q_dbSearch(_db, _query)
   .then(tagMaker);
 }
-exports.Q_getAllTagsByCategory = Q_getAllTagsByCategory;
+exports.getAllTagsByCategory = getAllTagsByCategory;
 
 
 /**
@@ -124,32 +100,9 @@ exports.Q_getAllTagsByCategory = Q_getAllTagsByCategory;
  *    string, uri
  *
  */
-function getTagsByUri(callback, uri) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [{
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["URI"],
-    object: uri
-  }, {
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["tags"],
-    object: _db.v('tag')
-  }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    var _tags = [];
-    for (var i = 0, l = result.length; i < l; i++) {
-      _tags.push(utils.getTitle(result[i].tag));
-    }
-    return callback(null, _tags);
-  });
-}
-exports.getTagsByUri = getTagsByUri;
  
 
-function Q_getTagsByUri(uri) {
+function getTagsByUri(uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -168,11 +121,11 @@ function Q_getTagsByUri(uri) {
     return _tags;
   } 
   return rdfHandle
-  .Q_dbSearch(_db, _query)
+  .dbSearch(_db, _query)
   .fail(function(err){throw new Error(err);})
   .then(tagMaker);
 }
-exports.Q_getTagsByUri = Q_getTagsByUri;
+exports.getTagsByUri = getTagsByUri;
 
 
 /**
@@ -186,43 +139,8 @@ exports.Q_getTagsByUri = Q_getTagsByUri;
  *    array, an array of tags
  *
  */
-function getFilesByTags(callback, oTags) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [];
 
-  for (var i = 0, l = oTags.length; i < l; i++) {
-    _query.push({
-      subject: _db.v('subject'),
-      predicate: DEFINED_PROP["base"]["tags"],
-      object: 'http://example.org/tags#' + oTags[i]
-    })
-  }
-
-  _query.push({
-    subject: _db.v('subject'),
-    predicate: _db.v('predicate'),
-    object: _db.v('object')
-  })
-
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    rdfHandle.decodeTripeles(result, function(err, result) {
-      if (err) {
-        return callback(err)
-      }
-      var _result = [];
-      for (var file in result) {
-        _result.push(result[file]);
-      }
-      return callback(null, _result);
-    });
-  });
-}
-exports.getFilesByTags = getFilesByTags;
-
-function Q_getFilesByTags(oTags) {
+function getFilesByTags(oTags) {
   var _db = rdfHandle.dbOpen();
   var _query = [];
 
@@ -251,51 +169,10 @@ function Q_getFilesByTags(oTags) {
     .then(rdfHandle.Q_decodeTripeles)
     .then(resultMaker);
 }
-exports.Q_getFilesByTags = Q_getFilesByTags;
+exports.getFilesByTags = getFilesByTags;
 
 
-function getFilesByTagsInCategory(callback, category, oTags) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [];
-  _query.push({
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["category"],
-    object: category
-  })
-
-  for (var i = 0, l = oTags.length; i < l; i++) {
-    _query.push({
-      subject: _db.v('subject'),
-      predicate: DEFINED_PROP["base"]["tags"],
-      object: 'http://example.org/tags#' + oTags[i]
-    })
-  }
-
-  _query.push({
-    subject: _db.v('subject'),
-    predicate: _db.v('predicate'),
-    object: _db.v('object')
-  })
-
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-    rdfHandle.decodeTripeles(result, function(err, result) {
-      if (err) {
-        return callback(err)
-      }
-      var _result = [];
-      for (var file in result) {
-        _result.push(result[file]);
-      }
-      return callback(null, _result);
-    });
-  });
-}
-exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
-function Q_getFilesByTagsInCategory(category, oTags) {
+function getFilesByTagsInCategory(category, oTags) {
   var _db = rdfHandle.dbOpen();
   var _query = [];
   _query.push({
@@ -325,12 +202,12 @@ function Q_getFilesByTagsInCategory(category, oTags) {
     }
     return _result;
   }
-  return rdfHandle.Q_dbSearch(_db, _query) 
-    .then(rdfHandle.Q_decodeTripeles)
+  return rdfHandle.dbSearch(_db, _query) 
+    .then(rdfHandle.decodeTripeles)
     .then(resultMaker);
 
 }
-exports.Q_getFilesByTagsInCategory = Q_getFilesByTagsInCategory;
+exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
 /**
  * @method setTagByUri
@@ -347,57 +224,8 @@ exports.Q_getFilesByTagsInCategory = Q_getFilesByTagsInCategory;
  *    string, a specific uri
  *
  */
-function setTagByUri(callback, tags, uri) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [{
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["URI"],
-    object: uri
-  }, {
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["category"],
-    object: _db.v('category'),
-  }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    } else if (result == "") {
-      var _err = new Error("NOT FOUND IN DATABASE!");
-      return callback(err);
-    }
-    var _subject = result[0].subject;
-    var _category = result[0].category;
-    var _query_add = []
-    for (var i = 0, l = tags.length; i < l; i++) {
-      var _tag_url = 'http://example.org/tags#' + tags[i];
-      _query_add.push({
-        subject: _tag_url,
-        predicate: DEFINED_VOC.rdf._type,
-        object: DEFINED_PROP["base"]["tags"]
-      });
-      _query_add.push({
-        subject: _tag_url,
-        predicate: DEFINED_VOC.rdf._domain,
-        object: DEFINED_VOC.category[_category]
-      });
-      _query_add.push({
-        subject: _subject,
-        predicate: DEFINED_PROP["base"]["tags"],
-        object: _tag_url
-      });
-    }
-    rdfHandle.dbPut(_db, _query_add, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback();
-    });
-  });
-}
-exports.setTagByUri = setTagByUri;
 
-
-function Q_setTagByUri(tags, uri) {
+function setTagByUri(tags, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -420,13 +248,13 @@ function Q_setTagByUri(tags, uri) {
     return _query_add;
   }
   
-  return rdfHandle.Q_dbSearch(_db, _query)
+  return rdfHandle.dbSearch(_db, _query)
   .then(queryTripleMaker)
   .then(function(result){
-      return rdfHandle.Q_dbPut(_db, result);
+      return rdfHandle.dbPut(_db, result);
     });
 }
-exports.Q_setTagByUri = Q_setTagByUri;
+exports.setTagByUri = setTagByUri;
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri
@@ -439,46 +267,8 @@ exports.Q_setTagByUri = Q_setTagByUri;
  *
  *
  */
-function rmTagsByUri(callback, tags, uri) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [{
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["URI"],
-    object: uri
-  }];
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    } else if (result == "") {
-      var _err = new Error("NOT FOUND IN DATABASE!");
-      return callback(_err)
-    }
-    var _subject = result[0].subject;
 
-
-
-    var _query_delete = []
-
-    for (var i = 0, l = tags.length; i < l; i++) {
-      _query_delete.push({
-        subject: _subject,
-        predicate: DEFINED_PROP["base"]["tags"],
-        object: "http://example.org/tags#" + tags[i]
-      })
-    }
-
-    rdfHandle.dbDelete(_db, _query_delete, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback();
-    });
-  });
-}
-exports.rmTagsByUri = rmTagsByUri;
-
-
-function Q_rmTagsByUri(tag, uri) {
+function rmTagsByUri(tag, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -505,7 +295,7 @@ function Q_rmTagsByUri(tag, uri) {
       rdfHandle.Q_dbDelete(_db, result)
     });
 }
-exports.Q_rmTagsByUri = Q_rmTagsByUri;
+exports.rmTagsByUri = rmTagsByUri;
 
 
 /**
@@ -520,42 +310,8 @@ exports.Q_rmTagsByUri = Q_rmTagsByUri;
  *
  *
  */
-function rmTagAll(callback, tag, category) {
-  var _db = rdfHandle.dbOpen();
-  var _object = 'http://example.org/tags#' + tag;
-  var _query = [{
-    subject: _db.v('subject'),
-    predicate: _db.v('predicate'),
-    object: _object
-  }];
 
-  rdfHandle.dbSearch(_db, _query, function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-
-    for (var i = 0, l = result.length; i < l; i++) {
-      result[i].object = _object;
-    }
-
-    //tag triple for catedory search
-    result.push({
-      subject: _object,
-      predicate: DEFINED_VOC.rdf._domain,
-      object: DEFINED_VOC.category[category]
-    })
-
-    rdfHandle.dbDelete(_db, result, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback();
-    });
-  });
-}
-exports.rmTagAll = rmTagAll;
-
-function Q_rmTagAll(tag, category) {
+function rmTagAll(tag, category) {
   var _db = rdfHandle.dbOpen();
   var _object = 'http://example.org/tags#' + tag;
   var _query = [{
@@ -577,13 +333,13 @@ function Q_rmTagAll(tag, category) {
     return result;
   }
 
-  return rdfHandle.Q_dbSearch(_db, _query)
+  return rdfHandle.dbSearch(_db, _query)
   .then(tagTriMaker)
   .then(function(result){
-    rdfHandle.Q_dbDelete(_db, result);
+    rdfHandle.dbDelete(_db, result);
   });
 }
-exports.Q_rmTagAll = Q_rmTagAll;
+exports.rmTagAll = rmTagAll;
 
 //build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles, result) {

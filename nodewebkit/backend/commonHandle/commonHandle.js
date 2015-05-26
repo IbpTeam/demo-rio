@@ -81,7 +81,7 @@ function writeTriples(fileInfo) {
         _triples_result = _triples_result.concat(triples_[i]);
       }
       var _db = rdfHandle.dbOpen();
-      return rdfHandle.Q_dbPut(_db, _triples_result);
+      return rdfHandle.dbPut(_db, _triples_result);
     })
 }
 exports.writeTriples = writeTriples;
@@ -184,7 +184,7 @@ function getTriplesByProperty(options) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  return rdfHandle.Q_dbSearch(_db, _query);
+  return rdfHandle.dbSearch(_db, _query);
 }
 
 
@@ -199,7 +199,7 @@ exports.getItemByProperty = function(options) {
     return items;
   }
   return getTriplesByProperty(options)
-    .then(rdfHandle.Q_decodeTripeles)
+    .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
 }
 
@@ -242,7 +242,7 @@ exports.removeItemByProperty = function(options) {
   }
   var TriplesRemove = function(result){
     //delete all realted triples in leveldb
-    rdfHandle.Q_dbDelete(_db, result.triples);
+    rdfHandle.dbDelete(_db, result.triples);
     return result;
   }
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
@@ -299,8 +299,8 @@ function getAllDataByCate(cate) {
     return items;
   };
 
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(rdfHandle.Q_decodeTripeles)
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
     .then(dataMaker);
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -352,15 +352,15 @@ exports.getAllDataByCate = getAllDataByCate;
     var _result = (items.length > num) ? items.slice(0, num - 1) : items;
     return _result;
   }
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(rdfHandle.Q_decodeTripeles)
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
     .then(itemsMaker)
-    .then(rdfHandle.Q_dbClose);
+    .then(rdfHandle.dbClose);
 }
 
 function updateTriples(_db, originTriples, newTriples) {
-  return rdfHandle.Q_dbDelete(_db, originTriples)
-    .then(rdfHandle.Q_dbPut(_db, newTriples));
+  return rdfHandle.dbDelete(_db, originTriples)
+    .then(rdfHandle.dbPut(_db, newTriples));
 }
 
 function resolveTriples(chenges, triple) {
