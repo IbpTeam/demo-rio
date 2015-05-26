@@ -514,9 +514,14 @@ exports.getAllDataByCate = getAllDataByCate;
     var items = [];
     for (var item in info) {
       if (info.hasOwnProperty(item)) {
-        items.push(item);
+        items.push(info[item]);
       }
     }
+    items = items.sort(function(a, b) {
+      var _a = new Date(a.lastAccessTime);
+      var _b = new Date(b.lastAccessTime);
+      return _b - _a;
+    });
     var _result = (items.length > num) ? items.slice(0, num - 1) : items;
     return _result;
   }
@@ -525,7 +530,6 @@ exports.getAllDataByCate = getAllDataByCate;
     .then(itemsMaker)
     .then(rdfHandle.Q_dbClose);
 }
-
 
 function updateTriples(_db, originTriples, newTriples) {
   return rdfHandle.Q_dbDelete(_db, originTriples)
