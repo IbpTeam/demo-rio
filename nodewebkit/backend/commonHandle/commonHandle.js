@@ -275,7 +275,7 @@ function getAllDataByCate(cate) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"][cate],
+    predicate: DEFINED_PROP["base"]["category"],
     object: cate
   }, {
     subject: _db.v('subject'),
