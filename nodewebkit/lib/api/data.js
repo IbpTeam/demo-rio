@@ -1465,32 +1465,32 @@ exports.getGitLog = getGitLog;
  *    string, a file full path, as '/home/xiquan/document/test.txt'
  *
  **/
-// function repoResetFile(repoResetFileCb, category, commitID, file) {
-//   console.log("Request handler 'getGitLog' was called.");
-//   var cate = utils.getCategoryObject(category);
-//   cate.repoResetFile(commitID, function(err, result) {
-//     if (err) {
-//       var _err = {
-//         'data': err
-//       }
-//       console.log(_err);
-//       repoResetFileCb(_err, null);
-//     } else {
-//       commonHandle.updateDB(category, function(err, result) {
-//         if (err) {
-//           var _err = {
-//             'data': err
-//           }
-//           console.log(_err, null);
-//         } else {
-//           console.log('reset ' + category + ' repo success!');
-//           repoResetFileCb(null, result);
-//         }
-//       })
-//     }
-//   });
-// }
-// exports.repoResetFile = repoResetFile;
+function repoResetFile(repoResetFileCb, category, commitID, file) {
+  console.log("Request handler 'getGitLog' was called.");
+  var cate = utils.getCategoryObject(category);
+  cate.repoResetFile(commitID, function(err, result) {
+    if (err) {
+      var _err = {
+        'data': err
+      }
+      console.log(_err);
+      repoResetFileCb(_err, null);
+    } else {
+      commonHandle.updateDB(category, function(err, result) {
+        if (err) {
+          var _err = {
+            'data': err
+          }
+          console.log(_err, null);
+        } else {
+          console.log('reset ' + category + ' repo success!');
+          repoResetFileCb(null, result);
+        }
+      })
+    }
+  });
+}
+exports.repoResetFile = repoResetFile;
 
 
 /** 
