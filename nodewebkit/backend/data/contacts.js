@@ -175,20 +175,21 @@ function initContacts(sItemPath) {
       //get all contact info into object
       return infoMaker(result_)
         .then(function(info_) {
-          //reform the info object
+          //reform the info object as {_base, _extra}
           return Q.all(info_.map(dataInfo))
             .then(function(result_) {
               var _info_result = [];
               for (var i = 0, l = result_.length; i < l; i++) {
                 _info_result = _info_result.concat(result_[i]);
               }
-              //make triples
+              //make valid triples
               return Q.all(_info_result.map(rdfHandle.Q_tripleGenerator))
                 .then(function(triples_) {
                   var _triple_result = [];
                   for (var i = 0, l = triples_.length; i < l; i++) {
                     _triple_result = _triple_result.concat(triples_[i]);
                   }
+                  //put them in leveldb
                   var _db = rdfHandle.dbOpen();
                   return rdfHandle.Q_dbPut(_db, _triple_result);
                 });
