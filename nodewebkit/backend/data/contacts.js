@@ -175,7 +175,7 @@ function initContacts(sItemPath) {
       //get all contact info into object
       return infoMaker(result_)
         .then(function(info_) {
-          //reform the info 
+          //reform the info object
           return Q.all(info_.map(dataInfo))
             .then(function(result_) {
               var _info_result = [];
@@ -191,10 +191,10 @@ function initContacts(sItemPath) {
                   }
                   var _db = rdfHandle.dbOpen();
                   return rdfHandle.Q_dbPut(_db, _triple_result);
-                })
-            })
-        })
-    })
+                });
+            });
+        });
+    });
 }
 exports.initContacts = initContacts;
 
