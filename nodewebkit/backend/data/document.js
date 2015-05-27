@@ -71,7 +71,7 @@ exports.createData = createData;
 
 function extraInfo(category) {
   var _extra = {
-    project: '上海专项',
+    project: '上海专项'
   }
   return Q.fcall(function() {
     return _extra;

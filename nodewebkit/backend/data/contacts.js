@@ -129,8 +129,8 @@ function getAllContacts() {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(rdfHandle.Q_decodeTripeles)
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
     .then(function(info_) {
       var _items = [];
       for (var item in info_) {
@@ -178,7 +178,7 @@ function initContacts(sItemPath) {
                 _info_result = _info_result.concat(result_[i]);
               }
               //make valid triples
-              return Q.all(_info_result.map(rdfHandle.Q_tripleGenerator))
+              return Q.all(_info_result.map(rdfHandle.tripleGenerator))
                 .then(function(triples_) {
                   var _triple_result = [];
                   for (var i = 0, l = triples_.length; i < l; i++) {
@@ -186,7 +186,7 @@ function initContacts(sItemPath) {
                   }
                   //put them in leveldb
                   var _db = rdfHandle.dbOpen();
-                  return rdfHandle.Q_dbPut(_db, _triple_result);
+                  return rdfHandle.dbPut(_db, _triple_result);
                 });
             });
         });

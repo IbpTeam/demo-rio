@@ -75,13 +75,13 @@ var DATA_PATH = "data";
  */
 function writeTriples(fileInfo) {
   var _triples_result = [];
-  return Q.all(fileInfo.map(rdfHandle.Q_tripleGenerator))
+  return Q.all(fileInfo.map(rdfHandle.tripleGenerator))
     .then(function(triples_) {
       for (var i = 0, l = triples_.length; i < l; i++) {
         _triples_result = _triples_result.concat(triples_[i]);
       }
       var _db = rdfHandle.dbOpen();
-      return rdfHandle.Q_dbPut(_db, _triples_result);
+      return rdfHandle.dbPut(_db, _triples_result);
     })
 }
 exports.writeTriples = writeTriples;
@@ -184,7 +184,7 @@ function getTriplesByProperty(options) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  return rdfHandle.Q_dbSearch(_db, _query);
+  return rdfHandle.dbSearch(_db, _query);
 }
 
 
@@ -199,7 +199,7 @@ exports.getItemByProperty = function(options) {
     return items;
   }
   return getTriplesByProperty(options)
-    .then(rdfHandle.Q_decodeTripeles)
+    .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
 }
 
@@ -242,7 +242,7 @@ exports.removeItemByProperty = function(options) {
   }
   var TriplesRemove = function(result){
     //delete all realted triples in leveldb
-    rdfHandle.Q_dbDelete(_db, result.triples);
+    rdfHandle.dbDelete(_db, result.triples);
     return result;
   }
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
@@ -299,8 +299,8 @@ function getAllDataByCate(cate) {
     return items;
   };
 
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(rdfHandle.Q_decodeTripeles)
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
     .then(dataMaker);
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -352,14 +352,14 @@ exports.getAllDataByCate = getAllDataByCate;
     var _result = (items.length > num) ? items.slice(0, num - 1) : items;
     return _result;
   }
-  return rdfHandle.Q_dbSearch(_db, _query)
-    .then(rdfHandle.Q_decodeTripeles)
-    .then(itemsMaker)
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
+    .then(itemsMaker);
 }
 
 function updateTriples(_db, originTriples, newTriples) {
-  return rdfHandle.Q_dbDelete(_db, originTriples)
-    .then(rdfHandle.Q_dbPut(_db, newTriples));
+  return rdfHandle.dbDelete(_db, originTriples)
+    .then(rdfHandle.dbPut(_db, newTriples));
 }
 
 function resolveTriples(chenges, triple) {
@@ -416,7 +416,7 @@ function updatePropertyValue(property) {
     _property: "URI",
     _value: property._uri
   }
-  var updateMaker = function(result){
+  var update4RtTripples = function(result){
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
@@ -432,7 +432,7 @@ function updatePropertyValue(property) {
     return updateTriples(_db, _origin_triples, _new_triples);
   }
   return getTriplesByProperty(_options)
-    .then(updateMaker);
+    .then(update4RtTripples);
 }
 exports.updatePropertyValue = updatePropertyValue;
 

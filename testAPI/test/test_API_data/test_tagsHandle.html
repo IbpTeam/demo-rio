@@ -115,13 +115,6 @@
       print(win, result);
     }
   }
-  function test_setTagByUriMulti(setTagByUriMultiCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var oTags = ['fas', 'eee', 'ttt'];
-      var oUri = [test_uri, test_uri2, test_uri3, test_uri1];
-      data.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
-    });
-  }
 
   function getFilesByTagsCb(err,result){
     if(err){
@@ -159,8 +152,8 @@
 
   function test_getFilesByTagsInCategory(getFilesByTagsInCategoryCb){
     WDC.requireAPI(['data'], function(data){
-      var oTags = ['resources'];
-      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'music',oTags);
+      var oTags = ['documents'];
+      data.getFilesByTagsInCategory(getFilesByTagsInCategoryCb,'document',oTags);
     });  
   }
 
