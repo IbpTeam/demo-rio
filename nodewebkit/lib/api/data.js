@@ -280,17 +280,23 @@ exports.getAllCate = getAllCate;
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if (cate == 'Contact' || cate == 'contact') {
-    contacts.getAllContacts(getAllDataByCateCb);
+    contacts.getAllContacts()
+      .then(function(result) {
+        getAllDataByCateCb(null, result);
+      })
+      .fail(function(err) {
+        getAllDataByCateCb(err);
+      })
+      .done();
   } else {
-    // commonHandle.getAllDataByCate(getAllDataByCateCb, cate);
     commonHandle.getAllDataByCate(cate)
-        .then(function(result){
-          getAllDataByCateCb(null, result);
-        })
-        .fail(function(err){
-          getAllDataByCateCb(err);
-        })
-        .done();
+      .then(function(result) {
+        getAllDataByCateCb(null, result);
+      })
+      .fail(function(err) {
+        getAllDataByCateCb(err);
+      })
+      .done();
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
@@ -411,7 +417,15 @@ exports.getDataByPath = getDataByPath;
  */
 function getDataByProperty(getDataByUriCb, options) {
   console.log("Request handler 'getDataByUri' was called.");
-  commonHandle.getItemByProperty(options, getDataByUriCb);
+  commonHandle.getItemByProperty(options)
+    .then(function(items){
+      getDataByUriCb(null,items);
+    })
+    .fail(function(err){
+      getDataByUriCb(err);
+    })
+    .done();
+
 }
 exports.getDataByUri = getDataByUri;
 
@@ -483,7 +497,7 @@ exports.openDataByUri = openDataByUri;
 function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
-  .then(function(result){
+    .then(function(result){
       updateDataValueCb(null, result);
     })
     .fail(function(err){
@@ -504,7 +518,7 @@ function getRecentAccessData(getRecentAccessDataCb, category, num) {
     })
     .fail(function(err){
       console.log(err);
-      return getRecentAccessDataCb(err);
+      getRecentAccessDataCb(err);
     })
     .done();
 }
@@ -636,15 +650,15 @@ exports.getResourceDataDir = getResourceDataDir;
  * @param2 : category, array
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
-  console.log("Request handler 'Q_getAllTagsByCategory' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
-  tagsHandle.Q_getAllTagsByCategory(category)
-      .done(function(results) {
-          getAllTagsByCategoryCb(null,results);
-        },function(err) {
-          getAllTagsByCategoryCb(err);
-        });
+  console.log("Request handler 'getAllTagsByCategory' was called.");
+  tagsHandle.getAllTagsByCategory(category)
+      .then(function(results) {
+        getAllTagsByCategoryCb(null,results);
+      })
+      .fail(function(err) {
+        getAllTagsByCategoryCb(err);
+      })
+      .done();
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
@@ -660,16 +674,15 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  *
  */
 function getTagsByUri(getTagsByUriCb, sUri) {
-  console.log("Request handler 'Q_getTagsByUri' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
-  tagsHandle.Q_getTagsByUri(sUri)
+  console.log("Request handler 'getTagsByUri' was called.");
+  tagsHandle.getTagsByUri(sUri)
+      .then(function(results) {
+        getTagsByUriCb(null,results);
+      })
       .fail(function(err) {
-          getTagsByUriCb(err);
-        })
-      .done(function(results) {
-          getTagsByUriCb(null,results);
-        });
+        getTagsByUriCb(err);
+      })
+      .done();
 }
 exports.getTagsByUri = getTagsByUri;
 
@@ -687,26 +700,18 @@ exports.getTagsByUri = getTagsByUri;
  */
 function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
-  var _tmp_result = {};
+  var _tmp_result = [];
   for (var i = 0, l = oUris.length; i < l; i++) {
-    var _isEnd = (i === l - 1);
-    tagsHandle.getTagsByUri(function(err, result) {
-      if(err){
-        return getTagsByUrisCb(err);
-      }
-      for (var j = 0, m = result.length; j < m; j++) {
-        _tmp_result[result[j]] = true;
-      }
-      if (_isEnd) {
-        var _result = [];
-        for (var tag in _tmp_result) {
-          if (_tmp_result.hasOwnProperty(tag))
-            _result.push(tag);
-        }
-        getTagsByUrisCb(null, _result);
-      }
-    }, oUris[i]);
+    tagsHandle.getTagsByUri(oUris[i])
+      .then(function(res){
+        _tmp_result.push(res);
+      })
+      .fail(function(err){
+        getTagsByUrisCb(err);
+      })
+      .done();
   }
+  getTagsByUrisCb(null,results);
 }
 exports.getTagsByUris = getTagsByUris;
 
@@ -729,15 +734,15 @@ exports.getTagsByUris = getTagsByUris;
  *
  */
 function setTagByUri(setTagByUriCb, oTags, sUri) {
-  console.log("Request handler 'Q_setTagByUri' was called.");
-  // To-Do: Save this line for Rewriting
-  // tagsHandle.setTagByUri(setTagByUriCb, oTags, sUri);
-  tagsHandle.Q_setTagByUri(oTags,sUri)
-  .done(function(results) {
+  console.log("Request handler 'setTagByUri' was called.");
+  tagsHandle.setTagByUri(oTags,sUri)
+    .then(function(results) {
       setTagByUriCb(null,results);
-    },function(err) {
+    })
+    .fail(function(err) {
       setTagByUriCb(err);
-    });
+    })
+    .done();
 }
 exports.setTagByUri = setTagByUri;
 
@@ -756,15 +761,15 @@ exports.setTagByUri = setTagByUri;
  *
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
-  console.log("Request handler 'Q_getFilesByTags' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
-  tagsHandle.Q_getFilesByTags(oTags)
-    .done(function(results) {
-        getFilesByTagsCb(null,results);
-      },function(err) {
-        getFilesByTagsCb(err);
-      });
+  console.log("Request handler 'getFilesByTags' was called.");
+  tagsHandle.getFilesByTags(oTags)
+    .then(function(results) {
+      getFilesByTagsCb(null,results);
+    })
+    .fail(function(err) {
+      getFilesByTagsCb(err);
+    })
+    .done();
 }
 exports.getFilesByTags = getFilesByTags;
 
@@ -784,14 +789,14 @@ exports.getFilesByTags = getFilesByTags;
  */
 function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
   console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
-  tagsHandle.Q_getFilesByTagsInCategory(category,oTags)
-    .done(function(results) {
+  tagsHandle.getFilesByTagsInCategory(category,oTags)
+    .then(function(results) {
       getFilesByTagsInCategoryCb(null,results);
-    },function(err) {
+    })
+    .fail(function(err) {
       getFilesByTagsInCategoryCb(err);
-    });
+    })
+    .done();
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
@@ -812,14 +817,14 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  */
 function rmTagAll(rmTagAllCb, oTags, category) {
   console.log("Request handler 'rmTagAll' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.rmTagAll(rmTagAllCb, oTags, category);
-  tagsHandle.Q_rmTagAll(oTags, category)
-  .done(function(results) {
-      rmTagAllCb(null,results);
-    },function(err) {
-      rmTagAllCb(err);
-    });
+  tagsHandle.rmTagAll(oTags, category)
+  .then(function(results) {
+    rmTagAllCb(null,results);
+  })
+  .fail(function(err) {
+    rmTagAllCb(err);
+  })
+  .done();
 }
 exports.rmTagAll = rmTagAll;
 
@@ -839,15 +844,15 @@ exports.rmTagAll = rmTagAll;
  *
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
-  console.log("Request handler 'Q_rmTagsByUri' was called.");
-  //To-Do: Save this line for Rewriting
-  // tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
-  tagsHandle.Q_rmTagsByUri(sTag,oUri)
-  .done(function(results) {
+  console.log("Request handler 'rmTagsByUri' was called.");
+  tagsHandle.rmTagsByUri(sTag,oUri)
+    .then(function(results) {
       rmTagsByUriCb(null,results);
-    },function(err) {
+    })
+    .fail(function(err) {
       rmTagsByUriCb(err);
-    });
+    })
+    .done();
 }
 exports.rmTagsByUri = rmTagsByUri;
 
@@ -1416,32 +1421,32 @@ exports.getGitLog = getGitLog;
  *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
  *
  **/
-function repoReset(repoResetCb, category, commitID) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoReset(commitID, function(err, result) {
-    if (err) {
-      var _err = {
-        'data': err
-      }
-      console.log(_err);
-      repoResetCb(_err, null);
-    } else {
-      commonHandle.updateDB(category, function(err, result) {
-        if (err) {
-          var _err = {
-            'data': err
-          }
-          console.log(_err, null);
-        } else {
-          console.log('reset ' + category + ' repo success!');
-          repoResetCb(null, result);
-        }
-      })
-    }
-  });
-}
-exports.repoReset = repoReset;
+// function repoReset(repoResetCb, category, commitID) {
+//   console.log("Request handler 'getGitLog' was called.");
+//   var cate = utils.getCategoryObject(category);
+//   cate.repoReset(commitID, function(err, result) {
+//     if (err) {
+//       var _err = {
+//         'data': err
+//       }
+//       console.log(_err);
+//       repoResetCb(_err, null);
+//     } else {
+//       commonHandle.updateDB(category, function(err, result) {
+//         if (err) {
+//           var _err = {
+//             'data': err
+//           }
+//           console.log(_err, null);
+//         } else {
+//           console.log('reset ' + category + ' repo success!');
+//           repoResetCb(null, result);
+//         }
+//       })
+//     }
+//   });
+// }
+// exports.repoReset = repoReset;
 
 /** 
  * @Method: repoResetFile
