@@ -224,25 +224,40 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *    string, a specific uri
  *
  */
-
 function setTagByUri(tags, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
     predicate: DEFINED_PROP["base"]["URI"],
     object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: _db.v('category'),
   }];
   var queryTripleMaker = function(result){
     if(result == ""){
       throw Error("NOT FOUND IN DATABASE!");
     }
     var _subject = result[0].subject;
-    var _query_add = []
+    var _category = result[0].category;
+    var _query_add = [];
     for (var i = 0, l = tags.length; i < l; i++) {
+      var _tag_url = 'http://example.org/tags#' + tags[i];
+      _query_add.push({
+        subject: _tag_url,
+        predicate: DEFINED_VOC.rdf._type,
+        object: DEFINED_PROP["base"]["tags"]
+      });
+      _query_add.push({
+        subject: _tag_url,
+        predicate: DEFINED_VOC.rdf._domain,
+        object: DEFINED_VOC.category[_category]
+      });
       _query_add.push({
         subject: _subject,
         predicate: DEFINED_PROP["base"]["tags"],
-        object: 'http://example.org/tags#' + tags[i]
+        object: _tag_url
       });
     }
     return _query_add;
