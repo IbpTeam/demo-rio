@@ -100,17 +100,13 @@ function getTagsFromString(str) {
 }
 
 function readId3FromMp3(path, callback) {
-  console.log(path);
   var cp = require('child_process');
   var cmd = 'mutagen-inspect ' + '"'+path+'"';
-  console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
     if(error){
-      console.log(error);
       callback(error);
     }
     else{
-      //console.log(stdout);
       callback(error,getTagsFromString(stdout));
     }
   });

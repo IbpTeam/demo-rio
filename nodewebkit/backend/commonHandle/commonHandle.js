@@ -92,6 +92,9 @@ function Q_copy(filePath, newPath) {
     //drop into reject only when error is not "ENOENT"
     if (err && err[0].code !== "ENOENT") {
       deferred.reject(new Error(err));
+    } else if (err && err[0].code === "ENOENT") {
+      //when file exists, consider it should be resolved  
+      deferred.resolve("ENOENT");
     } else {
       deferred.resolve();
     }
@@ -141,16 +144,21 @@ function dataStore(items, extraCallback, callback) {
         var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
         _base.path = _newPath;
         return Q_copy(item, _newPath)
-          .then(function() {
-            return extraCallback(item)
-              .then(function(result) {
-                var item_info = {
-                  subject: _base.URI,
-                  base: _base,
-                  extra: result
-                }
-                return item_info;
-              })
+          .then(function(result) {
+            if (result === "ENOENT") {
+              //return null when file exists
+              return null;
+            } else {
+              return extraCallback(item)
+                .then(function(result) {
+                  var item_info = {
+                    subject: _base.URI,
+                    base: _base,
+                    extra: result
+                  }
+                  return item_info;
+                })
+            }
           })
       })
   }
