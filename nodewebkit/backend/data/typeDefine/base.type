@@ -1,0 +1,15 @@
+{
+  "URI": 'http://example.org/property/base#URI',
+  "filename": 'http://example.org/property/base#filename',
+  "postfix": 'http://example.org/property/base#postfix',
+  "category": 'http://example.org/property/base#category',
+  "size": 'http://example.org/property/base#size',
+  "path": 'http://example.org/property/base#path',
+  "tags": 'http://example.org/property/base#tags',
+  "createTime": 'http://example.org/property/base#createTime',
+  "lastModifyTime": 'http://example.org/property/base#lastModifyTime',
+  "lastAccessTime": 'http://example.org/property/base#lastAccessTime',
+  "createDev": 'http://example.org/property/base#createDev',
+  "lastModifyDev": 'http://example.org/property/base#lastModifyDev',
+  "lastAccessDev": 'http://example.org/property/base#lastAccessDev'
+}
