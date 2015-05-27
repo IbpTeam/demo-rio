@@ -229,13 +229,15 @@ function Q_dbDelete(db, triples) {
   if (typeof triples !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
     deferred.reject(_err);
+  } else {
+    db.del(triples, function(err) {
+      if (err) {
+        deferred.reject(err);
+      } else {
+        deferred.resolve();
+      }
+    })
   }
-  db.del(triples, function(err) {
-    if (err)
-      deferred.reject(err);
-    else
-      deferred.resolve();
-  })
   return deferred.promise;
 }
 exports.Q_dbDelete = Q_dbDelete;
@@ -290,15 +292,16 @@ function Q_dbSearch(db, query) {
   if (typeof query !== 'object') {
     var _err = new Error("INPUT TYPE ERROR!");
     deferred.reject(new Error(_err));
+  } else {
+    db.search(query, function(err, results) {
+      if (err) {
+        console.log(err);
+        deferred.reject(new Error(err));
+      } else {
+        deferred.resolve(results);
+      }
+    });
   }
-  db.search(query, function(err, results) {
-    if (err) {
-      console.log(err);
-      deferred.reject(new Error(err));
-    } else
-      deferred.resolve(results);
-  });
-
   return deferred.promise;
 }
 exports.Q_dbSearch = Q_dbSearch;
@@ -410,7 +413,7 @@ function tripleGenerator(info, callback) {
 }
 exports.tripleGenerator = tripleGenerator;
 
-function Q_tripleGenerator(info, callback) {
+function Q_tripleGenerator(info) {
   var _triples = [];
   var deferred = Q.defer();
   try {
@@ -461,20 +464,15 @@ function Q_tripleGenerator(info, callback) {
     }
 
     var _extra = info.extra;
-    if (_extra == {}) {
-      deferred.resolve();
-    } else {
-      for (var entry in _extra) {
-        var _triple_extra = {
-          subject: _subject,
-          predicate: DEFINED_PROP[_base.category][entry],
-          object: _extra[entry]
-        };
-        _triples.push(_triple_extra);
-      }
-      deferred.resolve(_triples);
+    for (var entry in _extra) {
+      var _triple_extra = {
+        subject: _subject,
+        predicate: DEFINED_PROP[_base.category][entry],
+        object: _extra[entry]
+      };
+      _triples.push(_triple_extra);
     }
-
+    deferred.resolve(_triples);
   } catch (err) {
     deferred.reject(new Error(err));
   }

@@ -275,7 +275,7 @@ function getAllDataByCate(cate) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"][cate],
+    predicate: DEFINED_PROP["base"]["category"],
     object: cate
   }, {
     subject: _db.v('subject'),
@@ -355,7 +355,6 @@ exports.getAllDataByCate = getAllDataByCate;
   return rdfHandle.Q_dbSearch(_db, _query)
     .then(rdfHandle.Q_decodeTripeles)
     .then(itemsMaker)
-    .then(rdfHandle.Q_dbClose);
 }
 
 function updateTriples(_db, originTriples, newTriples) {
