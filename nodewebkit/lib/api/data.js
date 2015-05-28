@@ -650,17 +650,22 @@ exports.getTagsByUri = getTagsByUri;
 function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
   var _tmp_result = [];
-  for (var i = 0, l = oUris.length; i < l; i++) {
-    tagsHandle.getTagsByUri(oUris[i])
-      .then(function(res){
-        _tmp_result.push(res);
-      })
-      .fail(function(err){
-        getTagsByUrisCb(err);
-      })
-      .done();
-  }
-  getTagsByUrisCb(null,results);
+  Q.all(oUris.map(tagsHandle.getTagsByUri))
+    .then(function(result_) {
+      var _tags = {};
+      for (var i = 0, l = result_.length; i < l; i++) {
+        for (var j = 0, m = result_[i].length; j < m; j++) {
+          _tags[result_[i][j]] = true;
+        }
+      }
+      var _tags_result = [];
+      for (var tag_ in _tags) {
+        _tags_result.push(tag_);
+      }
+      getTagsByUrisCb(null, _tags_result);
+    })
+    .fail(getTagsByUrisCb)
+    .done()
 }
 exports.getTagsByUris = getTagsByUris;
 

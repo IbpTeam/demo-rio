@@ -16,10 +16,10 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio11983rio#3a0d2db47d5c36711996";
-  var test_uri1 = "rio25216rio#b509dd897da10d9161eb#contact";
-  var test_uri2 = "rio18926rio#4fd885e2fe4ce3974275#document";
-  var test_uri3 = "32a365a5ee8e6e27eeb342ae1837b665#104250bc84de4cbab0c7#picture";
+  var test_uri = "rio11983rio#0073cedb727d8a1c232a";
+  var test_uri1 = "rio11983rio#33ae93afe4428296f4b3";
+  var test_uri2 = "rio11983rio#a08b3f172605bbfb663e";
+  var test_uri3 = "rio11983rio#cb31f46f97efa52a7978";
 
   function print(win,something){
     if(typeof something == "object"){
@@ -82,6 +82,13 @@
   function test_getTagsByUri(getTagsByUriCb){
     WDC.requireAPI(['data'], function(data){
       data.getTagsByUri(getTagsByUriCb,test_uri);
+    });   
+  }
+
+  var _uris = [test_uri,test_uri2,test_uri3];
+  function test_getTagsByUris(getTagsByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getTagsByUris(getTagsByUriCb,_uris);
     });   
   }
 
@@ -251,6 +258,17 @@
 </div>
 </div>
 
+<h2 onclick="show('getTagsByUris')">getTagsByUris(getTagsByUriCb,sUri)<span><a class="mark" href="#test_getTagsByUris" id="test_getTagsByUris" onclick="test_getTagsByUris(getTagsByUriCb)">test</a></span></h2>
+<div id="getTagsByUris" style="display:none;">
+<div style="color:#930000">
+  <pre>
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+  </pre>
+</div>
+</div>
 
 <h2 onclick="show('setTagByUri')">setTagByUri(setTagByUriCb,oTags,oUri)<span><a class="mark" href="#test_setTagByUri" id="test_setTagByUri" onclick="test_setTagByUri(setTagByUriCb)">test</a></span></h2>
 <div id="setTagByUri" style="display:none;">
