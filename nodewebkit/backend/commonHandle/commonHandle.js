@@ -102,7 +102,7 @@ function Q_copy(filePath, newPath) {
   return deferred.promise;
 }
 
-function baseInfo(itemPath, callback) {
+function baseInfo(itemPath) {
   var Q_fsStat = Q.nfbind(fs.stat);
   var Q_uriMaker = function(stat){
     var _mtime = stat.mtime;
@@ -136,9 +136,9 @@ function baseInfo(itemPath, callback) {
 }
 exports.baseInfo = baseInfo;
 
-function dataStore(items, extraCallback, callback) {
+function dataStore(items, extraCallback) {
 
-  function doCreate(item, callback) {
+  function doCreate(item) {
     return baseInfo(item)
       .then(function(_base) {
         var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
@@ -256,7 +256,7 @@ exports.removeItemByProperty = function(options) {
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
 }
 
-
+/*TODO: rewrite*/
 exports.getAllCate = function(getAllCateCb) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
