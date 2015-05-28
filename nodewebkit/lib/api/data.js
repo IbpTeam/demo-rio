@@ -665,7 +665,7 @@ function getTagsByUris(getTagsByUrisCb, oUris) {
       getTagsByUrisCb(null, _tags_result);
     })
     .fail(getTagsByUrisCb)
-    .done()
+    .done();
 }
 exports.getTagsByUris = getTagsByUris;
 
