@@ -271,14 +271,3 @@ function getOpenInfo(item) {
 }
 exports.getOpenInfo = getOpenInfo;
 
-
-/*TODO: rewrite */
-function rename(sUri, sNewName, callback) {
-  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  })
-}
-exports.rename = rename;
