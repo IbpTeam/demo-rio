@@ -418,60 +418,8 @@ function doDeleteTags(oAllFiles, oTags) {
  *
  */
 function setRelativeTagByPath(sFilePath, sTags, callback) {
-  var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
-  if (!reg_desktop.test(sTags)) {
-    var _err = 'Bad Input Tag! Not a Desktop System Tags!';
-    return callback(_err, null);
-  }
-  var category = utils.getCategoryByPath(sFilePath).category;
-  var sCondition = ["path = '" + sFilePath + "'"];
-  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    } else if (result == '' || result == []) {
-      var _err = 'Not Found in DB!';
-      return callback(_err, null);
-    }
-    var item = result[0];
-    var sOriginTag = item.others;
-    if (!reg_desktop.test(sOriginTag) || sOriginTag == '' || sOriginTag == null) {
-      var _err = 'Not a File on Desktop!';
-      return callback(_err, null);
-    }
-    var oTags = sOriginTag.split(',');
-    for (var i = 0; i < oTags.length; i++) {
-      if (reg_desktop.test(oTags[i])) {
-        oTags[i] = sTags;
-      }
-    }
-    UpdateItem = {
-      URI: item.URI,
-      path: item.path,
-      others: oTags.join(','),
-      category: category
-    };
-    var re = new RegExp('/' + category + '/', "i");
-    var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
-    dataDes.updateItem(desFilePath, UpdateItem, function(result) {
-      if (result !== "success") {
-        return console.log("error in update des file!");
-      }
-      commonDAO.updateItem(UpdateItem, function(err) {
-        if (err) {
-          return callback(err, null);
-        }
-        var chPath = utils.getDesRepoDir(category);
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function(result) {
-          if (result !== 'success') {
-            var _err = 'git ch commit error!';
-            return callback(_err, null);
-          }
-          console.log('set tags des git committed!');
-          callback(null, 'success');
-        });
-      });
-    });
-  });
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
@@ -494,28 +442,8 @@ exports.setRelativeTagByPath = setRelativeTagByPath;
  *
  */
 function rmInTAGS(oTags, sUri, callback) {
-  var sCondition = ["file_URI='" + sUri + "'"];
-  if (oTags) {
-    var tmpCondition = [];
-    for (var tag in oTags) {
-      var str = "tag='" + oTags[tag] + "'";
-      tmpCondition.push(str);
-    }
-    tmpCondition[0] = "(" + tmpCondition[0];
-    tmpCondition[tmpCondition.length - 1] = tmpCondition[tmpCondition.length - 1] + ")";
-    sCondition.push(tmpCondition.join('or'));
-  }
-  var oItem = {
-    category: 'tags',
-    conditions: sCondition
-  }
-  commonDAO.deleteItem(oItem, function(result) {
-    if (result === "rollback") {
-      var _err = 'create item in data base rollback ...';
-      return callback(_err);
-    }
-    callback(null);
-  })
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.rmInTAGS = rmInTAGS;
 
@@ -537,24 +465,7 @@ exports.rmInTAGS = rmInTAGS;
  *
  */
 function addInTAGS(oTags, sUri, callback) {
-  if (oTags == '' || oTags == null) {
-    return callback(null);
-  }
-  var oItems = [];
-  for (var tag in oTags) {
-    var oItem = {
-      category: 'tags',
-      tag: oTags[tag],
-      file_URI: sUri
-    }
-    oItems.push(oItem);
-  }
-  commonDAO.createItems(oItems, function(result) {
-    if (result === "rollback") {
-      var _err = 'create item in data base rollback ...';
-      return callback(_err);
-    }
-    callback(null);
-  })
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.addInTAGS = addInTAGS;

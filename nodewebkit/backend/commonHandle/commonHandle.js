@@ -19,9 +19,7 @@ var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
-var commonDAO = require("./CommonDAO");
 var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
@@ -424,7 +422,7 @@ function updatePropertyValue(property) {
     _property: "URI",
     _value: property._uri
   }
-  var doUpdateTriples = function(result){
+  var doUpdate = function(result){
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
@@ -440,7 +438,7 @@ function updatePropertyValue(property) {
     return updateTriples(_db, _origin_triples, _new_triples);
   }
   return getTriplesByProperty(_options)
-    .then(doUpdateTriples);
+    .then(doUpdate);
 }
 exports.updatePropertyValue = updatePropertyValue;
 
@@ -462,77 +460,6 @@ exports.openData = function(uri) {
 
 /*TODO: rewrite */
 function renameDataByUri(category, sUri, sNewName, callback) {
-  var sCondition = "URI = '" + sUri + "'";
-  commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == '' || result == null) {
-      var _err = 'not found in database ...';
-      return callback(_err, null);
-    }
-    var item = result[0];
-    var sOriginPath = item.path;
-    var sOriginName = path.basename(sOriginPath);
-    var sNewPath = path.dirname(sOriginPath) + '/' + sNewName;
-    if (sNewName === sOriginName) {
-      return callback(null, 'success');
-    }
-    utils.isNameExists(sNewPath, function(err, result) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      if (result) {
-        var _err = 'new file name ' + sNewName + ' exists...';
-        console.log(_err);
-        return callback(_err, null);
-      }
-      fs_extra.move(sOriginPath, sNewPath, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        var reg_path = new RegExp('/' + category + '/');
-        var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
-        var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
-        fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var currentTime = (new Date());
-          console.log(item);
-          var sUri = item.URI;
-          var oUpdataInfo = {
-            URI: sUri,
-            category: category,
-            filename: utils.getFileNameByPathShort(sNewPath),
-            postfix: utils.getPostfixByPathShort(sNewPath),
-            lastModifyTime: currentTime,
-            lastAccessTime: currentTime,
-            lastModifyDev: config.uniqueID,
-            lastAccessDev: config.uniqueID,
-            path: sNewPath
-          }
-          commonDAO.updateItem(oUpdataInfo, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
-              if (result === "success") {
-                var sRepoPath = utils.getRepoDir(category);
-                var sRepoDesPath = utils.getDesRepoDir(category);
-                repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
-                  callback(null, result);
-                })
-              }
-            })
-          })
-        })
-      })
-    })
-  })
+  return callback();
 }
 exports.renameDataByUri = renameDataByUri;

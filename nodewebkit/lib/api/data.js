@@ -1,4 +1,3 @@
-var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
@@ -61,57 +60,8 @@ exports.sendIMMsg = sendIMMsg;
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  var itemFullname = path.basename(sFilePath);
-  var sPos = path.extname(itemFullname);
-  if (sPos === '') {
-    sPos = 'none';
-  } else if (sPos[0] === '.') {
-    sPos = sPos.substring(1, sPos.length);
-  } else {
-    sPos = 'other';
-    console.log('some wrong with the postfix ...');
-  }
-  if (sPos == 'csv' || sPos == 'CSV') {
-    var cate = utils.getCategoryObject('contact');
-    cate.initContacts(function(err) {
-      if (err) {
-        return loadFileCb(err, null);
-      }
-      loadFileCb(null, 'success');
-    }, sFilePath);
-  } else {
-    var category = utils.getCategoryByPath(sFilePath).category;
-    var cate = utils.getCategoryObject(category);
-    cate.createData(sFilePath, function(err, resultFilePath) {
-      function findItemsCb(err, result) {
-        if (err) {
-          return loadFileCb(err, null);
-        } else if (result == '') {
-          var _err = 'Not found in database ...';
-          return loadFileCb(_err, null);
-        }
-
-        if (err) {
-          console.log(err);
-          return loadFileCb(err, null);
-        } else if (result == '') {
-          var _err = 'Not found in database ...';
-          return loadFileCb(_err, null);
-        }
-        var result_ = {
-          'uri': result[0]['URI'],
-          'filepath': resultFilePath,
-          'tags': []
-        };
-        if(result[0]['others'] !== ''){
-          result_.tags = result[0]['others'].split(',');
-        }
-        loadFileCb(null, result_);
-      }
-      var sCondition = ["path ='" + resultFilePath + "'"];
-      commonDAO.findItems(['uri', 'path','others'], category, sCondition, null, findItemsCb);
-    })
-  }
+  /*TODO: rewrite*/
+  return loadFileCb();
 }
 exports.loadFile = loadFile;
 
