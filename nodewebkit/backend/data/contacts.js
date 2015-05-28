@@ -9,8 +9,6 @@
  *
  * @version:0.3.0
  **/
-
-var commonDAO = require("../commonHandle/CommonDAO");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var rdfHandle = require("../commonHandle/rdfHandle");
@@ -21,7 +19,6 @@ var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
-var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var Q = require('q');

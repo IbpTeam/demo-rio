@@ -19,16 +19,12 @@ var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
 var events = require('events');
-var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 var Q = require('q');
 
 //@const
