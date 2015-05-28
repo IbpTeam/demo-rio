@@ -27,11 +27,9 @@ var Q = require('q');
  *   ition triples into database, including base properties.
  *
  */
-
 function dbInitial() {
   var db = dbOpen();
   var allTriples = [];
-  var deferred = Q.defer();
 
   for (var i in DEFINED_TYPE) {
     if (DEFINED_TYPE.hasOwnProperty(i)) {
@@ -40,16 +38,9 @@ function dbInitial() {
   }
   db.put(allTriples, function(err) {
     if (err) {
-      deferred.reject(new Error(err));
+      throw err;
     };
-    db.close(function(err) {
-      if (err) {
-        deferred.reject(new Error(err));
-      }
-      deferred.resolve();
-    });
   });
-  return deferred.promise;
 }
 exports.dbInitial = dbInitial;
 
