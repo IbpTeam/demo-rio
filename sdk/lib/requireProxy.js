@@ -36,7 +36,7 @@ exports.requireProxy = function() {
     var apiArr = new Array(arguments[0].length);
     if (debug === true) {
       for (i = 0; i < arguments[0].length; i += 1) {
-        apiArr[i] = require('../../service/' + arguments[0][i] + '/interface/' + arguments[0][i] + 'Proxy').getProxy();
+        apiArr[i] = require('../../../../service/' + arguments[0][i] + '/interface/' + arguments[0][i] + 'Proxy').getProxy();
       }
     } else {
       for (i = 0; i < arguments[0].length; i += 1) {
@@ -66,7 +66,7 @@ exports.requireProxy = function() {
     var apiArr = new Array(arguments[0].length);
     if (debug === true) {
       for (i = 0; i < arguments[0].length; i += 1) {
-        apiArr[i] = require('../../service/' + arguments[0][i] + '/interface/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
+        apiArr[i] = require('../../../../service/' + arguments[0][i] + '/interface/' + arguments[0][i] + 'ProxyRemote').getProxy(arguments[1]);
       }
     } else {
       for (i = 0; i < arguments[0].length; i += 1) {
