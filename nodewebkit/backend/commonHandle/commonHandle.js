@@ -27,7 +27,7 @@ var tagsHandle = require("./tagsHandle");
 var utils = require("../utils")
 var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
-var chokidar = require('chokidar'); 
+var chokidar = require('chokidar');
 var rdfHandle = require("./rdfHandle");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var Q = require('q');
@@ -75,11 +75,13 @@ function writeTriples(fileInfo) {
   return Q.all(fileInfo.map(rdfHandle.tripleGenerator))
     .then(function(triples_) {
       for (var i = 0, l = triples_.length; i < l; i++) {
-        _triples_result = _triples_result.concat(triples_[i]);
+        if (triples_[i] !== null) {
+          _triples_result = _triples_result.concat(triples_[i]);
+        }
       }
       var _db = rdfHandle.dbOpen();
       return rdfHandle.dbPut(_db, _triples_result);
-    })
+    });
 }
 exports.writeTriples = writeTriples;
 
@@ -101,7 +103,7 @@ function Q_copy(filePath, newPath) {
 
 function baseInfo(itemPath) {
   var Q_fsStat = Q.nfbind(fs.stat);
-  var Q_uriMaker = function(stat){
+  var Q_uriMaker = function(stat) {
     var _mtime = stat.mtime;
     var _ctime = stat.ctime;
     var _size = stat.size;
@@ -110,7 +112,7 @@ function baseInfo(itemPath) {
     var _filename = _cate.filename;
     var _postfix = _cate.postfix;
     var _tags = tagsHandle.getTagsByPath(itemPath);
-    return uniqueID.Q_getFileUid().then(function(_uri){
+    return uniqueID.Q_getFileUid().then(function(_uri) {
       var _base = {
         URI: _uri,
         filename: _filename,
@@ -169,7 +171,9 @@ function dataStore(items, extraCallback) {
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
-          _file_info.push(result[i]);
+          //if (result[i] !== "") {
+            _file_info.push(result[i]);
+          //}
         }
         return writeTriples(_file_info);
       });
@@ -194,7 +198,7 @@ function getTriplesByProperty(options) {
 
 
 exports.getItemByProperty = function(options) {
-  var itemsMaker = function(info){
+  var itemsMaker = function(info) {
     var items = [];
     for (var item in info) {
       if (info.hasOwnProperty(item)) {
@@ -209,7 +213,7 @@ exports.getItemByProperty = function(options) {
 }
 
 function getTriples(options) {
-  var TriplesMaker = function(result){
+  var TriplesMaker = function(result) {
     var _info = {
       triples: result
     };
@@ -230,10 +234,9 @@ function getTriples(options) {
 
 exports.removeItemByProperty = function(options) {
   var _db = rdfHandle.dbOpen();
-  var FilesRemove = function(result){
+  var FilesRemove = function(result) {
     //if no path or category found, them the file should not exist in by now.
-    if (result.category === undefined && result.path === undefined) {
-    }
+    if (result.category === undefined && result.path === undefined) {}
     //if type is contact, then it is done for now.
     if (result.category === "contact") {
       //_db.close(function() {
@@ -245,7 +248,7 @@ exports.removeItemByProperty = function(options) {
     }
     return result;
   }
-  var TriplesRemove = function(result){
+  var TriplesRemove = function(result) {
     //delete all realted triples in leveldb
     rdfHandle.dbDelete(_db, result.triples);
     return result;
@@ -330,7 +333,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *    integer, number of file you want to get
  *
  **/
- exports.getRecentAccessData = function(category, num) {
+exports.getRecentAccessData = function(category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -342,7 +345,7 @@ exports.getAllDataByCate = getAllDataByCate;
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  var itemsMaker = function(info){
+  var itemsMaker = function(info) {
     var items = [];
     for (var item in info) {
       if (info.hasOwnProperty(item)) {
@@ -421,11 +424,11 @@ function updatePropertyValue(property) {
     _property: "URI",
     _value: property._uri
   }
-  var doUpdate = function(result){
+  var doUpdate = function(result) {
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
-      for(var j=0,k=property._changes.length;j<k;j++){
+      for (var j = 0, k = property._changes.length; j < k; j++) {
         var _resolved = resolveTriples(property._changes[j], result[i]);
         if (_resolved) {
           _origin_triples.push(_resolved._origin);
