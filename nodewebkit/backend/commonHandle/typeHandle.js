@@ -2,7 +2,38 @@ var fs = require('fs');
 var BACKENDPATH = require('../config').BACKENDPATH;
 var pathModule = require('path');
 var config = require('../config.js');
+var rdfHandle = require('./rdfHandle');
 var Q = require('q');
+
+/**
+ * @method dbInitial
+ *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
+ *   ition triples into database, including base properties.
+ *
+ */
+function dbInitial() {
+  var db = rdfHandle.dbOpen();
+  var allTriples = [];
+  var _dir_type_define = pathModule.join(BACKENDPATH, '/data/typeDefine');
+  typeHandle.getDefinedTypeProperty(_dir_type_define)
+    .then(function(result) {
+      console.log(result);
+    })
+    .fail(function(err) {
+      throw err;
+    })
+    .done();
+
+  // for (var i in DEFINED_TYPE) {
+  //   if (DEFINED_TYPE.hasOwnProperty(i)) {
+  //     allTriples = allTriples.concat(DEFINED_TYPE[i]);
+  //   }
+  // }
+
+  // db.put(allTriples);
+}
+exports.dbInitial = dbInitial;
+
 
 function getDefinedTypeProperty(dir) {
   var Q_read_dir = Q.nfbind(fs.readdir);
