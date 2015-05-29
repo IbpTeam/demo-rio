@@ -183,7 +183,7 @@ function baseInfo(itemPath) {
 exports.baseInfo = baseInfo;
 
 
-exports.getDataByUri = function(uri) {
+function getDataByUri(uri) {
   var _options = {
     _type: "base",
     _property: "URI",
@@ -207,7 +207,7 @@ exports.getDataByUri = function(uri) {
  *
  **/
 
-exports.getItemByProperty = function(options) {
+function getItemByProperty (options) {
   var itemsMaker = function(info) {
     var items = [];
     for (var item in info) {
@@ -221,6 +221,7 @@ exports.getItemByProperty = function(options) {
     .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
 }
+exports.getItemByProperty = getItemByProperty;
 
 function getTriplesByProperty(options) {
   var _db = rdfHandle.dbOpen();
@@ -478,13 +479,34 @@ exports.openData = function(uri) {
  *
  *
  **/
-function renameDataByUri(category, sUri, sNewName) {
-  var getOlderName = function(items){
-    var getName = function (info){
-      return info.filename;
-    } 
-    return getDataByUri(items).then(getName);
-  }
+
+ for (var i = 0, l = result.length; i < l; i++) {
+      for (var j = 0, k = property._changes.length; j < k; j++) {
+        var _resolved = resolveTriples(property._changes[j], result[i]);
+        if (_resolved) {
+          _origin_triples.push(_resolved._origin);
+          _new_triples.push(_resolved._new);
+        }
+      }
+    }
+
+function renameDataByUri(sUri, sNewName) {
+  // var fileFileName
+  var getName = function (result){
+    var name;
+    for (var i = 0, l = result.length; i < l; i++) {
+      var _predicate = triple.predicate;
+      var _reg_property = new RegExp("#" + filename);
+      var _new_triple = {
+        subject: triple.subject,
+        predicate: triple.predicate,
+        object: triple.object
+      }
+      name=result[i].filename;
+    }
+    console.log(name);
+    return name;
+  } 
   var reName = function(sPreName){
     var _item = {
       _uri:sUri,
@@ -499,8 +521,8 @@ function renameDataByUri(category, sUri, sNewName) {
     return Q_fsRaname(sPreName,sNewName)
               .then(updatePropertyValue(_item));
   }
-  return getDataByUri(uri)
-          .then(getOlderName)
+  return getDataByUri(sUri)
+          .then(getName)
           .then(reName);
 }
 exports.renameDataByUri = renameDataByUri;

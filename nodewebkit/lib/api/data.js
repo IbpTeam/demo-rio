@@ -1440,3 +1440,20 @@ function test_baseinfo(callback) {
   callback(element);
 }
 exports.test_baseinfo = test_baseinfo;
+
+
+
+function renameDataByUri(sUri, sNewName, renameDataByUriCb){
+  console.log("Request handler 'renameDataByUri' was called.");
+  commonHandle.renameDataByUri(sUri, sNewName)
+    .then(getDataByUri(sUri))
+    .then(function(result){
+      renameDataByUriCb(null,result);
+    })
+    // .fail(function(err){
+    //   renameDataByUriCb(err);
+    // })
+    .done();
+}
+exports.renameDataByUri = renameDataByUri;
+

@@ -48,6 +48,32 @@
     }
   }
 
+  function createFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API createFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+
+  function test_createFile(createFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var dataInfo = {
+        name:'hahahahahahah',
+        phone:'110',
+        email:'hahah@163.com',
+        sex:'phd',
+        others:'good,bad,or,the,queen'
+      };
+      data.createFile(createFileCb, dataInfo, 'contact');
+    });
+  }
+
   function loadFileCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -157,20 +183,6 @@
     });
   }
 
-  function rmDataCb(result){
-    var win = window.open(''); 
-    win.document.write("test API rmDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");  
-    print(win,result); 
-  }
-  function test_rmDataByUri(rmDataCb){
-    WDC.requireAPI(['data'], function(data){
-      data.rmDataByUri(rmDataCb, test_uri);
-    });
-  }
-
   function getDataByUriCb(err, result){
     if(err){
       throw err;
@@ -185,6 +197,25 @@
   function test_getDataByUri(getDataByUriCb){
     WDC.requireAPI(['data'], function(data){
       data.getDataByUri(getDataByUriCb,test_uri);
+    });
+  }
+
+  function renameDataByUriCb(err, result){
+    if(err){
+      throw err;
+    }
+    var win = window.open(''); 
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_renameDataByUri(renameDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var test_thisNewName = "ddd";
+      var test_thisUri = "rio6724rio#05203effbb5f5eb507be";
+      data.renameDataByUri(test_thisUri,test_thisNewName,renameDataByUriCb);
     });
   }
 
@@ -348,34 +379,50 @@
     });
   }
 
-  function createFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API createFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-    }
+  function rmDataCb(result){
+    var win = window.open(''); 
+    win.document.write("test API rmDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");  
+    print(win,result); 
   }
-
-  function test_createFile(createFileCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var dataInfo = {
-        name:'hahahahahahah',
-        phone:'110',
-        email:'hahah@163.com',
-        sex:'phd',
-        others:'good,bad,or,the,queen'
-      };
-      data.createFile(createFileCb, dataInfo, 'contact');
+  function test_rmDataByUri(rmDataCb){
+    WDC.requireAPI(['data'], function(data){
+      data.rmDataByUri(rmDataCb, test_uri);
     });
   }
 
   </script>
 
+<h2 onclick="show('loadResources')">renameDataByUri(sUri, sNewName, renameDataByUriCb)<span><a class="mark" href="#test_renameDataByUri" id="test_renameDataByUri" onclick="test_renameDataByUri(renameDataByUriCb)">test</a></span></h2>
+<div id="renameDataByUri" style="display:none;">
+<div style="color:#930000">
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function renameDataByUriCb(err, result){
+    if(err){
+      throw err;
+    }
+    var win = window.open(''); 
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_renameDataByUri(renameDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var test_thisNewName = "ddd";
+      var test_thisUri = "rio6724rio#05203effbb5f5eb507be";
+      data.renameDataByUri(test_thisUri,test_thisNewName,renameDataByUriCb);
+    });
+  }   
+</pre>
+</div>
+</div>
 
 <h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
 <div id="loadResources" style="display:none;">
