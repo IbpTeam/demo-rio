@@ -480,16 +480,6 @@ exports.openData = function(uri) {
  *
  **/
 
- for (var i = 0, l = result.length; i < l; i++) {
-      for (var j = 0, k = property._changes.length; j < k; j++) {
-        var _resolved = resolveTriples(property._changes[j], result[i]);
-        if (_resolved) {
-          _origin_triples.push(_resolved._origin);
-          _new_triples.push(_resolved._new);
-        }
-      }
-    }
-
 function renameDataByUri(sUri, sNewName) {
   // var fileFileName
   var getName = function (result){
