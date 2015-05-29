@@ -25,7 +25,9 @@ var Q = require('q');
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
  *   ition triples into database, including base properties.
- *
+ * @return
+ *      Promise, event state，which resolves with no values if sucess;
+ *               otherwise, return reject with Error object 
  */
 
 function dbInitial() {
@@ -60,6 +62,9 @@ exports.dbInitial = dbInitial;
  * @param1 callback
  *   @err
  *      error，return 'null' if sucess;otherwise return err
+ * @return
+ *      Promise, event state，which resolves with no values if sucess;
+ *               otherwise, return reject with Error object
  *
  */
 
@@ -78,6 +83,8 @@ exports.dbClear = dbClear;
 /**
  * @method dbOpen
  *   open the levegraph database; would return a database object
+ * @return
+ *      Ojbject, levelgraph DataBase;
  *
  */
 function dbOpen() {
@@ -92,7 +99,11 @@ exports.dbOpen = dbOpen;
 /**
  * @method dbClose
  *   close the levegraph database
- *
+ * @param1 db
+ *      object，represent an writable DataBase
+ * @return
+ *      Promise, event state，which resolves with no values if sucess;
+ *               otherwise, return reject with Error object
  */
 function dbClose(db) {
   var deferred = Q.defer;
@@ -131,10 +142,9 @@ exports.dbClose = dbClose;
  *        object: '"' + currentTime + '"'
  *    }]
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
- *
+ * @return
+ *      Promise , an event state，which is a query jason of information from Triplese if sucess;
+ *                otherwise, return reject with Error object
  */
 
 function dbPut(db, triples) {
@@ -200,10 +210,10 @@ exports.dbDelete = dbDelete;
  *        object: "davide"
  *      }]
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
- *
+ * @return
+ *   @promise
+ *      Promise , an event state，which is a query jason of information from Triplese if sucess;
+ *               otherwise, return reject with Error object
  */
 
 function dbSearch(db, query) {
@@ -256,9 +266,9 @@ exports.dbSearch = dbSearch;
  *      }
  *    }
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
+ * @return
+ *    Promise, an event state，which is an arry of triple if sucess;
+ *             otherwise, return reject with Error object;    
  *
  */
 
@@ -341,9 +351,9 @@ exports.tripleGenerator = tripleGenerator;
  * @param1 triples
  *      object, the seach result of leveldb.
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
+ * @return
+ *    Promise, an event state，which is a stack of information from Triplese if sucess;
+ *             otherwise, return reject with Error object
  *
  */
 function decodeTripeles(triples) {

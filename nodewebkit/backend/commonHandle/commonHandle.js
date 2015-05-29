@@ -65,11 +65,58 @@ var DATA_PATH = "data";
  *                lastAccessDev: config.uniqueID
  *              }
  *
- * @param2: callback
- *    @result
- *    string, retrieve 'success' when success
+ * @return
+ *      Promise, event state，which resolves with no values if sucess;
+ *               otherwise, return reject with Error object 
  *
  */
+
+function dataStore(items, extraCallback) {
+
+  function doCreate(item) {
+    return baseInfo(item)
+      .then(function(_base) {
+        var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+        _base.path = _newPath;
+        return Q_copy(item, _newPath)
+          .then(function(result) {
+            if (result === "ENOENT") {
+              //return null when file exists
+              return null;
+            } else {
+              return extraCallback(item)
+                .then(function(result) {
+                  var item_info = {
+                    subject: _base.URI,
+                    base: _base,
+                    extra: result
+                  }
+                  return item_info;
+                })
+            }
+          })
+      })
+  }
+
+  if (items == "") {
+    return Q.fcall(function() {
+      return null;
+    })
+  } else {
+    var _file_info = [];
+    return Q.all(items.map(doCreate))
+      .then(function(result) {
+        for (var i = 0, l = result.length; i < l; i++) {
+          //if (result[i] !== "") {
+            _file_info.push(result[i]);
+          //}
+        }
+        return writeTriples(_file_info);
+      });
+  }
+}
+exports.dataStore = dataStore;
+
 function writeTriples(fileInfo) {
   var _triples_result = [];
   return Q.all(fileInfo.map(rdfHandle.tripleGenerator))
@@ -135,53 +182,22 @@ function baseInfo(itemPath) {
 }
 exports.baseInfo = baseInfo;
 
-function dataStore(items, extraCallback) {
-
-  function doCreate(item) {
-    return baseInfo(item)
-      .then(function(_base) {
-        var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
-        _base.path = _newPath;
-        return Q_copy(item, _newPath)
-          .then(function(result) {
-            if (result === "ENOENT") {
-              //return null when file exists
-              return null;
-            } else {
-              return extraCallback(item)
-                .then(function(result) {
-                  var item_info = {
-                    subject: _base.URI,
-                    base: _base,
-                    extra: result
-                  }
-                  return item_info;
-                })
-            }
-          })
-      })
-  }
-
-  if (items == "") {
-    return Q.fcall(function() {
-      return null;
-    })
-  } else {
-    var _file_info = [];
-    return Q.all(items.map(doCreate))
-      .then(function(result) {
-        for (var i = 0, l = result.length; i < l; i++) {
-          //if (result[i] !== "") {
-            _file_info.push(result[i]);
-          //}
-        }
-        return writeTriples(_file_info);
-      });
-  }
-}
-exports.dataStore = dataStore;
 
 
+/** 
+ * @Method: getTriplesByProperty
+ *    To get an Triple by property.
+ *       @At first, make query from any property
+ *       @Secondly, search from dataBase
+ *
+ * @param1: options
+ *    string, a property name, as 'author'
+ *
+ * @return
+ *    Promise, event state，which resolves with an array of sorted file infomation if sucess;
+ *             otherwise, return reject with Error object 
+ *
+ **/
 function getTriplesByProperty(options) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -212,26 +228,21 @@ exports.getItemByProperty = function(options) {
     .then(itemsMaker);
 }
 
-function getTriples(options) {
-  var TriplesMaker = function(result) {
-    var _info = {
-      triples: result
-    };
-    //get path and category from triples
-    for (var i = 0, l = result.length; i < l; i++) {
-      if (result[i].predicate === DEFINED_PROP["base"]["category"]) {
-        _info.category = result[i].object;
-      }
-      if (result[i].predicate === DEFINED_PROP["base"]["path"]) {
-        _info.path = result[i].object;
-      }
-    }
-    return _info;
-  }
-  return getTriplesByProperty(options)
-    .then(TriplesMaker);
-}
 
+/** 
+ * @Method: removeItemByProperty
+ *    To remove an Item by recent accessed data.
+ *
+ * @param1: options
+ *    string, a property name, as 'author'
+ *
+ * @param2: num
+ *    integer, number of file you want to get
+ * @return
+ *    Promise, event state，which resolves with an array of sorted file infomation if sucess;
+ *             otherwise, return reject with Error object 
+ *
+ **/
 exports.removeItemByProperty = function(options) {
   var _db = rdfHandle.dbOpen();
   var FilesRemove = function(result) {
@@ -256,6 +267,26 @@ exports.removeItemByProperty = function(options) {
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
 }
 
+function getTriples(options) {
+  var TriplesMaker = function(result) {
+    var _info = {
+      triples: result
+    };
+    //get path and category from triples
+    for (var i = 0, l = result.length; i < l; i++) {
+      if (result[i].predicate === DEFINED_PROP["base"]["category"]) {
+        _info.category = result[i].object;
+      }
+      if (result[i].predicate === DEFINED_PROP["base"]["path"]) {
+        _info.path = result[i].object;
+      }
+    }
+    return _info;
+  }
+  return getTriplesByProperty(options)
+    .then(TriplesMaker);
+}
+
 /*TODO: rewrite*/
 exports.getAllCate = function(getAllCateCb) {
   var _db = rdfHandle.dbOpen();
@@ -278,6 +309,21 @@ exports.getAllCate = function(getAllCateCb) {
   });
 }
 
+/** 
+ * @Method: getAllDataByCate
+ *    To get data by categry.
+ *       @At first, make query from any property
+ *       @Secondly, search from dataBase by query, and got the Triples
+ *       @Thirdly, decode Tripeles to informations
+ *       @Finnally, push information in a stack
+ * @param1: cate
+ *    string, a category name, as 'doucument'
+ *
+ * @return
+ *    Promise, event state，which resolves with a stack of data infomation if sucess;
+ *             otherwise, return reject with Error object 
+ *
+ **/
 function getAllDataByCate(cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   var _db = rdfHandle.dbOpen();
@@ -317,20 +363,14 @@ exports.getAllDataByCate = getAllDataByCate;
  * @Method: getRecentAccessData
  *    To get recent accessed data.
  *
- * @param2: category
+ * @param1: category
  *    string, a category name, as 'document'
  *
- * @param1: getRecentAccessDataCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        array, of file info object, by nember num
- *
- * @param3: num
+ * @param2: num
  *    integer, number of file you want to get
+ * @return
+ *    Promise, event state，which resolves with an array of sorted file infomation if sucess;
+ *             otherwise, return reject with Error object 
  *
  **/
 exports.getRecentAccessData = function(category, num) {
@@ -365,35 +405,13 @@ exports.getRecentAccessData = function(category, num) {
     .then(itemsMaker);
 }
 
-function updateTriples(_db, originTriples, newTriples) {
-  return rdfHandle.dbDelete(_db, originTriples)
-    .then(rdfHandle.dbPut(_db, newTriples));
-}
 
-function resolveTriples(chenges, triple) {
-  var _predicate = triple.predicate;
-  var _reg_property = new RegExp("#" + chenges._property);
-  if (_reg_property.test(_predicate)) {
-    var _new_triple = {
-      subject: triple.subject,
-      predicate: triple.predicate,
-      object: triple.object
-    }
-    _new_triple["object"] = chenges._value;
-
-    return {
-      _origin: triple,
-      _new: _new_triple
-    }
-  }
-  return null;
-}
 
 /** 
  * @Method: updatePropertyValue
  *    To update data property value.
  *
- * @param2: property
+ * @param1: property
  *    object, contain modification info as below,
  *
  *        var property = {
@@ -410,12 +428,10 @@ function resolveTriples(chenges, triple) {
  *                            ]
  *        }
  *
- * @param1: updatePropertyValueCb
- *    @result, (_err,result)
  *
- *    @param1: _err,
- *        string, contain specific error
- *
+ * @return
+ *    Promise, event state, repesent onfulfilled state with no values if sucess;
+ *             otherwise, return reject with Error object
  *
  **/
 function updatePropertyValue(property) {
@@ -444,6 +460,42 @@ function updatePropertyValue(property) {
 }
 exports.updatePropertyValue = updatePropertyValue;
 
+function resolveTriples(chenges, triple) {
+  var _predicate = triple.predicate;
+  var _reg_property = new RegExp("#" + chenges._property);
+  if (_reg_property.test(_predicate)) {
+    var _new_triple = {
+      subject: triple.subject,
+      predicate: triple.predicate,
+      object: triple.object
+    }
+    _new_triple["object"] = chenges._value;
+
+    return {
+      _origin: triple,
+      _new: _new_triple
+    }
+  }
+  return null;
+}
+
+function updateTriples(_db, originTriples, newTriples) {
+  return rdfHandle.dbDelete(_db, originTriples)
+    .then(rdfHandle.dbPut(_db, newTriples));
+}
+
+/** 
+ * @Method: openData
+ *    To find data by uri, an application of Method updatePropertyValue
+ *
+ * @param1: uri
+ *
+ * @return
+ *    Promise, event state，which resolves with an array of sorted file infomation if sucess;
+ *             otherwise, return reject with Error object 
+ *
+ *
+ **/
 exports.openData = function(uri) {
   var currentTime = (new Date());
   var property = {
