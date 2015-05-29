@@ -1,7 +1,7 @@
 /**
  * @Copyright:
  *
- * @Description: Functions dealing wit RDF are presented here.
+ * @Description: Functions dealing with RDF are presented here.
  *
  * @author: Xiquan
  *
@@ -9,17 +9,20 @@
  *
  * @version:0.0.1
  **/
-
 var fs_extra = require('fs-extra');
 var fs = require('fs');
+var pathModule = require('path');
 var config = require('../config');
 var levelgraph = require('levelgraph');
 var utils = require('../utils');
+var typeHandle = require('./typeHandle');
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
 var __db = levelgraph(config.LEVELDBPATH);
 var Q = require('q');
+
+var BACKENDPATH = require('../config').BACKENDPATH;
 
 /**
  * @method dbInitial
@@ -30,19 +33,26 @@ var Q = require('q');
 function dbInitial() {
   var db = dbOpen();
   var allTriples = [];
+  var _dir_type_define = pathModule.join(BACKENDPATH, '/data/typeDefine');
+  typeHandle.getDefinedTypeProperty(_dir_type_define)
+    .then(function(result) {
+      console.log(result);
+    })
+    .fail(function(err) {
+      throw err;
+    })
+    .done();
 
   for (var i in DEFINED_TYPE) {
     if (DEFINED_TYPE.hasOwnProperty(i)) {
       allTriples = allTriples.concat(DEFINED_TYPE[i]);
     }
   }
-  db.put(allTriples, function(err) {
-    if (err) {
-      throw err;
-    };
-  });
+
+  db.put(allTriples);
 }
 exports.dbInitial = dbInitial;
+
 
 /**
  * @method dbClear
@@ -334,7 +344,7 @@ exports.tripleGenerator = tripleGenerator;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
- function decodeTripeles(triples) {
+function decodeTripeles(triples) {
   var info = {};
   var deferred = Q.defer();
   try {
