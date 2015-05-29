@@ -267,62 +267,65 @@ function tripleGenerator(info) {
   var _triples = [];
   var deferred = Q.defer();
   try {
-    var _base = info.base;
-    var _subject = 'http://example.org/category#' + info.subject;
-    var _object_defined = DEFINED_VOC.category[_base.category];
-    _triples.push({
-      subject: _subject,
-      predicate: DEFINED_VOC.rdf._type,
-      object: _object_defined
-    });
-    for (var entry in _base) {
-      //tags needs specific process 
-      if (entry === "tags") {
-        var _tags = _base[entry];
-        for (var i = 0, l = _tags.length; i < l; i++) {
-          var _subject_tag = 'http://example.org/tags#' + _tags[i];
-          //define tags for getAllTags()
-          var _tag_triple_define = {
-            subject: _subject_tag,
-            predicate: DEFINED_VOC.rdf._type,
-            object: DEFINED_PROP["base"]["tags"]
-          };
-          //define domain for getTagsInCatedory()
-          var _tag_triple_domain = {
-            subject: _subject_tag,
-            predicate: DEFINED_VOC.rdf._domain,
-            object: _object_defined
-          };
-          //define triples for tag searching
-          var _tag_triple = {
-            subject: _subject,
-            predicate: DEFINED_PROP["base"]["tags"],
-            object: _subject_tag
-          };
-          _triples.push(_tag_triple_define);
-          _triples.push(_tag_triple_domain);
-          _triples.push(_tag_triple);
-        }
-      } else {
-        var _triple_base = {
-          subject: _subject,
-          predicate: DEFINED_PROP["base"][entry],
-          object: _base[entry]
-        };
-        _triples.push(_triple_base);
-      }
-    }
-
-    var _extra = info.extra;
-    for (var entry in _extra) {
-      var _triple_extra = {
+    if (info === null) {
+      deferred.resolve(null);
+    } else {
+      var _base = info.base;
+      var _subject = 'http://example.org/category#' + info.subject;
+      var _object_defined = DEFINED_VOC.category[_base.category];
+      _triples.push({
         subject: _subject,
-        predicate: DEFINED_PROP[_base.category][entry],
-        object: _extra[entry]
-      };
-      _triples.push(_triple_extra);
+        predicate: DEFINED_VOC.rdf._type,
+        object: _object_defined
+      });
+      for (var entry in _base) {
+        //tags needs specific process 
+        if (entry === "tags") {
+          var _tags = _base[entry];
+          for (var i = 0, l = _tags.length; i < l; i++) {
+            var _subject_tag = 'http://example.org/tags#' + _tags[i];
+            //define tags for getAllTags()
+            var _tag_triple_define = {
+              subject: _subject_tag,
+              predicate: DEFINED_VOC.rdf._type,
+              object: DEFINED_PROP["base"]["tags"]
+            };
+            //define domain for getTagsInCatedory()
+            var _tag_triple_domain = {
+              subject: _subject_tag,
+              predicate: DEFINED_VOC.rdf._domain,
+              object: _object_defined
+            };
+            //define triples for tag searching
+            var _tag_triple = {
+              subject: _subject,
+              predicate: DEFINED_PROP["base"]["tags"],
+              object: _subject_tag
+            };
+            _triples.push(_tag_triple_define);
+            _triples.push(_tag_triple_domain);
+            _triples.push(_tag_triple);
+          }
+        } else {
+          var _triple_base = {
+            subject: _subject,
+            predicate: DEFINED_PROP["base"][entry],
+            object: _base[entry]
+          };
+          _triples.push(_triple_base);
+        }
+      }
+      var _extra = info.extra;
+      for (var entry in _extra) {
+        var _triple_extra = {
+          subject: _subject,
+          predicate: DEFINED_PROP[_base.category][entry],
+          object: _extra[entry]
+        };
+        _triples.push(_triple_extra);
+      }
+      deferred.resolve(_triples);
     }
-    deferred.resolve(_triples);
   } catch (err) {
     deferred.reject(new Error(err));
   }
@@ -343,7 +346,7 @@ exports.tripleGenerator = tripleGenerator;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
- function decodeTripeles(triples) {
+function decodeTripeles(triples) {
   var info = {};
   var deferred = Q.defer();
   try {

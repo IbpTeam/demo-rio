@@ -9,17 +9,13 @@
  *
  * @version:0.3.2
  **/
-
 var pathModule = require('path');
 var fs = require('fs');
 var config = require("../config");
-var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
 
 //@const

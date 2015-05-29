@@ -9,8 +9,6 @@
  *
  * @version:0.3.0
  **/
-
-var commonDAO = require("../commonHandle/CommonDAO");
 var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var rdfHandle = require("../commonHandle/rdfHandle");
@@ -21,7 +19,6 @@ var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var util = require('util');
-var repo = require("../commonHandle/repo");
 var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var Q = require('q');
@@ -32,72 +29,8 @@ var CATEGORY_NAME = "contact";
 
 /*TODO: rewrite */
 function createData(item, callback) {
-
-  console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++createData");
-
-  if (item == [] || item == '') {
-    console.log('no contact info ...');
-    return callback('no contact info ...', null);
-  }
-  var condition = ["name = '" + item.name + "'"];
-  commonDAO.findItems(null, CATEGORY_NAME, condition, null, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    } else if (result != '' && result != null) {
-      var _err = 'contact exists: ' + item.name + ' ...';
-      return callback(_err, null)
-    }
-    uniqueID.getFileUid(function(uri) {
-      var currentTime = (new Date());
-      var oNewItem = {
-        URI: uri + "#" + CATEGORY_NAME,
-        category: CATEGORY_NAME,
-        name: item.name || '',
-        phone: item.phone || '',
-        phone2: item.phone2 || '',
-        phone3: item.phone3 || '',
-        phone4: item.phone4 || '',
-        phone5: item.phone5 || '',
-        sex: item.sex || '',
-        age: item.age || '',
-        email: item.email || '',
-        email2: item.email2 || '',
-        id: "",
-        photoPath: item.photoPath || '',
-        createTime: currentTime,
-        lastModifyTime: currentTime,
-        lastAccessTime: currentTime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID,
-        others: item.others || ''
-      }
-      dataDes.createItem(oNewItem, DES_DIR, function() {
-        commonDAO.createItem(oNewItem, function(err) {
-          if (err) {
-            return callback(err, null);
-          }
-          var sDesFilePath = pathModule.join(DES_DIR, oNewItem.name + '.md');
-          repo.repoCommit(DES_REPO_DIR, [sDesFilePath], null, 'add', function(err) {
-            if (err) {
-              return callback(err, null);
-            }
-            if (item.others != '' && item.others != null) {
-              var oTags = item.others.split(',');
-              tagsHandle.addInTAGS(oTags, uri, function(err) {
-                if (err) {
-                  return callback(err, null);
-                }
-                callback(null, 'success');
-              })
-            } else {
-              callback(null, 'success');
-            }
-          })
-        })
-      });
-    })
-  })
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.createData = createData;
 

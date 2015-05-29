@@ -1,4 +1,3 @@
-var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
@@ -15,7 +14,6 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var repo = require('../../backend/commonHandle/repo');
 var Q = require('q');
 
 /*
@@ -62,57 +60,8 @@ exports.sendIMMsg = sendIMMsg;
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  var itemFullname = path.basename(sFilePath);
-  var sPos = path.extname(itemFullname);
-  if (sPos === '') {
-    sPos = 'none';
-  } else if (sPos[0] === '.') {
-    sPos = sPos.substring(1, sPos.length);
-  } else {
-    sPos = 'other';
-    console.log('some wrong with the postfix ...');
-  }
-  if (sPos == 'csv' || sPos == 'CSV') {
-    var cate = utils.getCategoryObject('contact');
-    cate.initContacts(function(err) {
-      if (err) {
-        return loadFileCb(err, null);
-      }
-      loadFileCb(null, 'success');
-    }, sFilePath);
-  } else {
-    var category = utils.getCategoryByPath(sFilePath).category;
-    var cate = utils.getCategoryObject(category);
-    cate.createData(sFilePath, function(err, resultFilePath) {
-      function findItemsCb(err, result) {
-        if (err) {
-          return loadFileCb(err, null);
-        } else if (result == '') {
-          var _err = 'Not found in database ...';
-          return loadFileCb(_err, null);
-        }
-
-        if (err) {
-          console.log(err);
-          return loadFileCb(err, null);
-        } else if (result == '') {
-          var _err = 'Not found in database ...';
-          return loadFileCb(_err, null);
-        }
-        var result_ = {
-          'uri': result[0]['URI'],
-          'filepath': resultFilePath,
-          'tags': []
-        };
-        if(result[0]['others'] !== ''){
-          result_.tags = result[0]['others'].split(',');
-        }
-        loadFileCb(null, result_);
-      }
-      var sCondition = ["path ='" + resultFilePath + "'"];
-      commonDAO.findItems(['uri', 'path','others'], category, sCondition, null, findItemsCb);
-    })
-  }
+  /*TODO: rewrite*/
+  return loadFileCb();
 }
 exports.loadFile = loadFile;
 
@@ -701,17 +650,22 @@ exports.getTagsByUri = getTagsByUri;
 function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
   var _tmp_result = [];
-  for (var i = 0, l = oUris.length; i < l; i++) {
-    tagsHandle.getTagsByUri(oUris[i])
-      .then(function(res){
-        _tmp_result.push(res);
-      })
-      .fail(function(err){
-        getTagsByUrisCb(err);
-      })
-      .done();
-  }
-  getTagsByUrisCb(null,results);
+  Q.all(oUris.map(tagsHandle.getTagsByUri))
+    .then(function(result_) {
+      var _tags = {};
+      for (var i = 0, l = result_.length; i < l; i++) {
+        for (var j = 0, m = result_[i].length; j < m; j++) {
+          _tags[result_[i][j]] = true;
+        }
+      }
+      var _tags_result = [];
+      for (var tag_ in _tags) {
+        _tags_result.push(tag_);
+      }
+      getTagsByUrisCb(null, _tags_result);
+    })
+    .fail(getTagsByUrisCb)
+    .done();
 }
 exports.getTagsByUris = getTagsByUris;
 
@@ -1337,168 +1291,6 @@ function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
-function pullFromOtherRepoTest() {
-  repo.pullFromOtherRepoTest();
-}
-exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: getGitLogCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        object, result of git log; the preoperty would be commit id
- *
- *        example:
- *        {
- *            "8fa016846720fe5182113a1880b6623f9e9bec68": {
- *                "commitID": "8fa016846720fe5182113a1880b6623f9e9bec68",
- *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
- *                "Date": "   Fri Oct 31 13:42:43 2014 +0800",
- *                "content": {
- *                    "relateCommit": "acd5c16b0650dbfbfd20e36a53799a4f9cd40eaf",
- *                    "device": "ace6f9045d75a83682e76288f79dd824",
- *                    "op": "rm",
- *                    "file": [
- *                        "testfile.txt"
- *                    ]
- *                }
- *            },
- *            "dda06b7b042a8256aac6a37843539bd2e7a98821": {
- *                "commitID": "dda06b7b042a8256aac6a37843539bd2e7a98821",
- *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
- *                "Date": "   Fri Oct 31 11:19:49 2014 +0800",
- *                "content": {
- *                    "relateCommit": "0a14c542fabc48104673c7fbc631bf1e7a3128f6",
- *                    "device": "ace6f9045d75a83682e76288f79dd824",
- *                    "op": "add",
- *                    "file": [
- *                        "/home/xiquan/.resources/document/data/Release_note_0.7.txt",
- *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0RC.txt",
- *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0alpha.txt",
- *                    ]
- *                }
- *            }
- *        }
- *
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- **/
-function getGitLog(getGitLogCb, category) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getGitLog(getGitLogCb);
-}
-exports.getGitLog = getGitLog;
-
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-// function repoReset(repoResetCb, category, commitID) {
-//   console.log("Request handler 'getGitLog' was called.");
-//   var cate = utils.getCategoryObject(category);
-//   cate.repoReset(commitID, function(err, result) {
-//     if (err) {
-//       var _err = {
-//         'data': err
-//       }
-//       console.log(_err);
-//       repoResetCb(_err, null);
-//     } else {
-//       commonHandle.updateDB(category, function(err, result) {
-//         if (err) {
-//           var _err = {
-//             'data': err
-//           }
-//           console.log(_err, null);
-//         } else {
-//           console.log('reset ' + category + ' repo success!');
-//           repoResetCb(null, result);
-//         }
-//       })
-//     }
-//   });
-// }
-// exports.repoReset = repoReset;
-
-/** 
- * @Method: repoResetFile
- *    To reset a single file to a history commit version. This action would also
- *    reset des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- * @param4: file
- *    string, a file full path, as '/home/xiquan/document/test.txt'
- *
- **/
-function repoResetFile(repoResetFileCb, category, commitID, file) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoResetFile(commitID, function(err, result) {
-    if (err) {
-      var _err = {
-        'data': err
-      }
-      console.log(_err);
-      repoResetFileCb(_err, null);
-    } else {
-      commonHandle.updateDB(category, function(err, result) {
-        if (err) {
-          var _err = {
-            'data': err
-          }
-          console.log(_err, null);
-        } else {
-          console.log('reset ' + category + ' repo success!');
-          repoResetFileCb(null, result);
-        }
-      })
-    }
-  });
-}
-exports.repoResetFile = repoResetFile;
-
 
 /** 
  * @Method: renameDataByUri
@@ -1623,35 +1415,6 @@ exports.getVideoThumbnail = getVideoThumbnail;
 
 
 /** 
- * @Method: repoSearch
- *    search key matches in git log
- *
- * @param: repoSearchCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        object, result in object, as example in getGitLog() above
- *
- *  @param2: category
- *    string, category name.
- *
- *  @param2: sKey
- *    string, a piece of specific string.
- *
- *
- **/
-function repoSearch(repoSearchCb, category, sKey) {
-  console.log("Request handler 'repoSearch' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoSearch(repoSearchCb, sKey);
-}
-exports.repoSearch = repoSearch;
-
-
-/** 
  * @Method: test_rdfHandle
  *    just for testing rdfHandle
  *
@@ -1665,7 +1428,7 @@ exports.test_rdfHandle = test_rdfHandle;
 
 /** 
  * @Method: test_baseinfo
- *    just for testing rdfHandle
+ *    just for testing api
  *
  **/
 function test_baseinfo(callback) {

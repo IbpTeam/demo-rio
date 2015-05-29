@@ -19,8 +19,6 @@ var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
 var events = require('events');
@@ -29,7 +27,6 @@ var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var rdfHandle = require('../commonHandle/rdfHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 var Q = require('q');
 
 //@const
@@ -100,17 +97,13 @@ function getTagsFromString(str) {
 }
 
 function readId3FromMp3(path, callback) {
-  console.log(path);
   var cp = require('child_process');
   var cmd = 'mutagen-inspect ' + '"'+path+'"';
-  console.log(cmd);
   cp.exec(cmd, function(error, stdout, stderr) {
     if(error){
-      console.log(error);
       callback(error);
     }
     else{
-      //console.log(stdout);
       callback(error,getTagsFromString(stdout));
     }
   });
@@ -239,18 +232,6 @@ function getOpenInfo(item) {
   return source;
 }
 exports.getOpenInfo = getOpenInfo;
-
-
-/*TODO: rewrite */
-function rename(sUri, sNewName, callback) {
-  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  })
-}
-exports.rename = rename;
 
 
 function getMusicPicData(filePath, callback) {

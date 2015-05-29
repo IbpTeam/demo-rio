@@ -9,7 +9,6 @@
  *
  * @version:0.3.0
  **/
-
 var http = require("http");
 var url = require("url");
 var sys = require('sys');
@@ -19,9 +18,7 @@ var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
-var commonDAO = require("./CommonDAO");
 var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
@@ -30,7 +27,7 @@ var tagsHandle = require("./tagsHandle");
 var utils = require("../utils")
 var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
-var chokidar = require('chokidar'); 
+var chokidar = require('chokidar');
 var rdfHandle = require("./rdfHandle");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var Q = require('q');
@@ -78,11 +75,13 @@ function writeTriples(fileInfo) {
   return Q.all(fileInfo.map(rdfHandle.tripleGenerator))
     .then(function(triples_) {
       for (var i = 0, l = triples_.length; i < l; i++) {
-        _triples_result = _triples_result.concat(triples_[i]);
+        if (triples_[i] !== null) {
+          _triples_result = _triples_result.concat(triples_[i]);
+        }
       }
       var _db = rdfHandle.dbOpen();
       return rdfHandle.dbPut(_db, _triples_result);
-    })
+    });
 }
 exports.writeTriples = writeTriples;
 
@@ -92,6 +91,9 @@ function Q_copy(filePath, newPath) {
     //drop into reject only when error is not "ENOENT"
     if (err && err[0].code !== "ENOENT") {
       deferred.reject(new Error(err));
+    } else if (err && err[0].code === "ENOENT") {
+      //when file exists, consider it should be resolved  
+      deferred.resolve("ENOENT");
     } else {
       deferred.resolve();
     }
@@ -99,9 +101,9 @@ function Q_copy(filePath, newPath) {
   return deferred.promise;
 }
 
-function baseInfo(itemPath, callback) {
+function baseInfo(itemPath) {
   var Q_fsStat = Q.nfbind(fs.stat);
-  var Q_uriMaker = function(stat){
+  var Q_uriMaker = function(stat) {
     var _mtime = stat.mtime;
     var _ctime = stat.ctime;
     var _size = stat.size;
@@ -110,7 +112,7 @@ function baseInfo(itemPath, callback) {
     var _filename = _cate.filename;
     var _postfix = _cate.postfix;
     var _tags = tagsHandle.getTagsByPath(itemPath);
-    return uniqueID.Q_getFileUid().then(function(_uri){
+    return uniqueID.Q_getFileUid().then(function(_uri) {
       var _base = {
         URI: _uri,
         filename: _filename,
@@ -133,24 +135,29 @@ function baseInfo(itemPath, callback) {
 }
 exports.baseInfo = baseInfo;
 
-function dataStore(items, extraCallback, callback) {
+function dataStore(items, extraCallback) {
 
-  function doCreate(item, callback) {
+  function doCreate(item) {
     return baseInfo(item)
       .then(function(_base) {
         var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
         _base.path = _newPath;
         return Q_copy(item, _newPath)
-          .then(function() {
-            return extraCallback(item)
-              .then(function(result) {
-                var item_info = {
-                  subject: _base.URI,
-                  base: _base,
-                  extra: result
-                }
-                return item_info;
-              })
+          .then(function(result) {
+            if (result === "ENOENT") {
+              //return null when file exists
+              return null;
+            } else {
+              return extraCallback(item)
+                .then(function(result) {
+                  var item_info = {
+                    subject: _base.URI,
+                    base: _base,
+                    extra: result
+                  }
+                  return item_info;
+                })
+            }
           })
       })
   }
@@ -164,7 +171,9 @@ function dataStore(items, extraCallback, callback) {
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
-          _file_info.push(result[i]);
+          //if (result[i] !== "") {
+            _file_info.push(result[i]);
+          //}
         }
         return writeTriples(_file_info);
       });
@@ -189,7 +198,7 @@ function getTriplesByProperty(options) {
 
 
 exports.getItemByProperty = function(options) {
-  var itemsMaker = function(info){
+  var itemsMaker = function(info) {
     var items = [];
     for (var item in info) {
       if (info.hasOwnProperty(item)) {
@@ -204,7 +213,7 @@ exports.getItemByProperty = function(options) {
 }
 
 function getTriples(options) {
-  var TriplesMaker = function(result){
+  var TriplesMaker = function(result) {
     var _info = {
       triples: result
     };
@@ -225,10 +234,9 @@ function getTriples(options) {
 
 exports.removeItemByProperty = function(options) {
   var _db = rdfHandle.dbOpen();
-  var FilesRemove = function(result){
+  var FilesRemove = function(result) {
     //if no path or category found, them the file should not exist in by now.
-    if (result.category === undefined && result.path === undefined) {
-    }
+    if (result.category === undefined && result.path === undefined) {}
     //if type is contact, then it is done for now.
     if (result.category === "contact") {
       //_db.close(function() {
@@ -240,7 +248,7 @@ exports.removeItemByProperty = function(options) {
     }
     return result;
   }
-  var TriplesRemove = function(result){
+  var TriplesRemove = function(result) {
     //delete all realted triples in leveldb
     rdfHandle.dbDelete(_db, result.triples);
     return result;
@@ -248,7 +256,7 @@ exports.removeItemByProperty = function(options) {
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
 }
 
-
+/*TODO: rewrite*/
 exports.getAllCate = function(getAllCateCb) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -325,7 +333,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *    integer, number of file you want to get
  *
  **/
- exports.getRecentAccessData = function(category, num) {
+exports.getRecentAccessData = function(category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -337,7 +345,7 @@ exports.getAllDataByCate = getAllDataByCate;
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-  var itemsMaker = function(info){
+  var itemsMaker = function(info) {
     var items = [];
     for (var item in info) {
       if (info.hasOwnProperty(item)) {
@@ -416,11 +424,11 @@ function updatePropertyValue(property) {
     _property: "URI",
     _value: property._uri
   }
-  var update4RtTripples = function(result){
+  var doUpdate = function(result) {
     var _new_triples = [];
     var _origin_triples = [];
     for (var i = 0, l = result.length; i < l; i++) {
-      for(var j=0,k=property._changes.length;j<k;j++){
+      for (var j = 0, k = property._changes.length; j < k; j++) {
         var _resolved = resolveTriples(property._changes[j], result[i]);
         if (_resolved) {
           _origin_triples.push(_resolved._origin);
@@ -432,7 +440,7 @@ function updatePropertyValue(property) {
     return updateTriples(_db, _origin_triples, _new_triples);
   }
   return getTriplesByProperty(_options)
-    .then(update4RtTripples);
+    .then(doUpdate);
 }
 exports.updatePropertyValue = updatePropertyValue;
 
@@ -454,77 +462,6 @@ exports.openData = function(uri) {
 
 /*TODO: rewrite */
 function renameDataByUri(category, sUri, sNewName, callback) {
-  var sCondition = "URI = '" + sUri + "'";
-  commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == '' || result == null) {
-      var _err = 'not found in database ...';
-      return callback(_err, null);
-    }
-    var item = result[0];
-    var sOriginPath = item.path;
-    var sOriginName = path.basename(sOriginPath);
-    var sNewPath = path.dirname(sOriginPath) + '/' + sNewName;
-    if (sNewName === sOriginName) {
-      return callback(null, 'success');
-    }
-    utils.isNameExists(sNewPath, function(err, result) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      if (result) {
-        var _err = 'new file name ' + sNewName + ' exists...';
-        console.log(_err);
-        return callback(_err, null);
-      }
-      fs_extra.move(sOriginPath, sNewPath, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        var reg_path = new RegExp('/' + category + '/');
-        var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
-        var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
-        fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var currentTime = (new Date());
-          console.log(item);
-          var sUri = item.URI;
-          var oUpdataInfo = {
-            URI: sUri,
-            category: category,
-            filename: utils.getFileNameByPathShort(sNewPath),
-            postfix: utils.getPostfixByPathShort(sNewPath),
-            lastModifyTime: currentTime,
-            lastAccessTime: currentTime,
-            lastModifyDev: config.uniqueID,
-            lastAccessDev: config.uniqueID,
-            path: sNewPath
-          }
-          commonDAO.updateItem(oUpdataInfo, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
-              if (result === "success") {
-                var sRepoPath = utils.getRepoDir(category);
-                var sRepoDesPath = utils.getDesRepoDir(category);
-                repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
-                  callback(null, result);
-                })
-              }
-            })
-          })
-        })
-      })
-    })
-  })
+  return callback();
 }
 exports.renameDataByUri = renameDataByUri;
