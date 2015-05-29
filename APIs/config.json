@@ -1,0 +1,7 @@
+{
+  "hardResource": {
+    "type":"hardResource",
+    "name": "hardResMgr",
+    "desc":"input( mouse, keyboard, camera ), output( VGA, audio, video, Ethernet, Network );disk(diskinfo)"
+  }
+}

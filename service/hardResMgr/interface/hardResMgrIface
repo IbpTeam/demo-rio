@@ -1,0 +1,18 @@
+{
+  "remote": "true",
+  "service": "hardResMgr",
+  "interfaces": [
+    {
+      "name": "getResourceList",
+      "in": ["Object"]
+    },
+    {
+      "name": "applyResource",
+      "in": ["Object"]
+    },
+    {
+      "name": "releaseResource",
+      "in": ["Object"]
+    }
+  ]
+}

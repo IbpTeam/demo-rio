@@ -1,0 +1,16 @@
+{
+  "author": "fangyafen",
+  "name": "hardResMgr",
+  "description": "for local resource hard resource manager",
+  "version": "0.1.0",
+  "repository": {
+    "url": ""
+  },
+  "main": "implements/hardResMgr.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": ">= 0.8.0"
+  }
+}
