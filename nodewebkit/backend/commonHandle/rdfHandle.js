@@ -145,7 +145,7 @@ exports.dbClose = dbClose;
  *    }]
  *
  * @return
- *      Promise , an event state，which is a query jason of information from Triplese if sucess;
+ *      Promise , an event state，which present onfulfilled with no returns if sucess;
  *                otherwise, return reject with Error object
  */
 function dbPut(db, triples) {
