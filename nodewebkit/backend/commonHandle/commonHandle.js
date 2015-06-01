@@ -183,14 +183,6 @@ function baseInfo(itemPath) {
 exports.baseInfo = baseInfo;
 
 
-function getDataByUri(uri) {
-  var _options = {
-    _type: "base",
-    _property: "URI",
-    _value: uri
-  }
-  return getItemByProperty(_options);
-}
 
 /** 
  * @Method: getItemByProperty
@@ -482,37 +474,59 @@ exports.openData = function(uri) {
 
 function renameDataByUri(sUri, sNewName) {
   // var fileFileName
-  var getName = function (result){
-    var name;
-    for (var i = 0, l = result.length; i < l; i++) {
-      var _predicate = triple.predicate;
-      var _reg_property = new RegExp("#" + filename);
-      var _new_triple = {
-        subject: triple.subject,
-        predicate: triple.predicate,
-        object: triple.object
-      }
-      name=result[i].filename;
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: sUri
+  }
+  var reName = function(Item){
+    var arr = Item[0];
+    console.log(arr);
+    var filepath,type;
+    if(arr == [])    
+      throw new Error("NOResult");
+    if(arr.hasOwnProperty("path"))
+      filepath = arr.path;
+    else
+      throw new Error("NOPath");
+    if(arr.hasOwnProperty("path"))
+      type = arr.postfix;
+    else
+      throw new Error("NOPostfix");
+    console.log(filepath);
+    
+    var ele = filepath.split("/");
+    var newPath = "";
+    var type;
+    for(var i = 0 ; i < ele.length-1; i++){
+      newPath += ele[i]+"/";
     }
-    console.log(name);
-    return name;
-  } 
-  var reName = function(sPreName){
-    var _item = {
+    console.log(newPath);
+    newPath += sNewName;
+    newPath += "." + type;
+
+    var _changeItem = {
       _uri:sUri,
       _changes:[
         {
           _property:"filename",
           _value:sNewName
-        }
+        },
+        {
+          _property:"path",
+          _value:newPath
+        },
+        // {
+        //   _property:"lastModifyTime",
+        //   _value:"Time"
+        // }
       ]
     }
     var Q_fsRaname = Q.nfbind(fs.rename);
-    return Q_fsRaname(sPreName,sNewName)
-              .then(updatePropertyValue(_item));
+    return Q_fsRaname(filepath,newPath)
+              .then(updatePropertyValue(_changeItem));
   }
-  return getDataByUri(sUri)
-          .then(getName)
+  return getItemByProperty(_options)
           .then(reName);
 }
 exports.renameDataByUri = renameDataByUri;

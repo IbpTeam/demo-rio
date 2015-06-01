@@ -1445,13 +1445,12 @@ exports.test_baseinfo = test_baseinfo;
 
 function renameDataByUri(sUri, sNewName, renameDataByUriCb){
   console.log("Request handler 'renameDataByUri' was called.");
-  commonHandle.renameDataByUri(sUri, sNewName)
-    .then(getDataByUri(sUri))
+  commonHandle.renameDataByUri( sUri, sNewName)
     .then(function(result){
       renameDataByUriCb(null,result);
     })
     // .fail(function(err){
-    //   renameDataByUriCb(err);
+    //   callback(err);
     // })
     .done();
 }
