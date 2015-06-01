@@ -21,6 +21,7 @@ var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
 var __db = levelgraph(config.LEVELDBPATH);
 var Q = require('q');
 
+
 /**
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
@@ -29,7 +30,6 @@ var Q = require('q');
  *      Promise, event state，which resolves with no values if sucess;
  *               otherwise, return reject with Error object 
  */
-
 function dbInitial() {
   var db = dbOpen();
   var allTriples = [];
@@ -55,6 +55,7 @@ function dbInitial() {
 }
 exports.dbInitial = dbInitial;
 
+
 /**
  * @method dbClear
  *   delete the whole database
@@ -62,13 +63,11 @@ exports.dbInitial = dbInitial;
  * @param1 callback
  *   @err
  *      error，return 'null' if sucess;otherwise return err
- * @return
- *      Promise, event state，which resolves with no values if sucess;
- *               otherwise, return reject with Error object
+ * @return Promise
+ *      event state，which resolves with no values if sucess;
+ *      otherwise, return reject with Error object
  *
  */
-
-
 function dbClear() {
   var deferred = Q.defer();
   fs_extra.remove(config.LEVELDBPATH, function(err) {
@@ -80,6 +79,8 @@ function dbClear() {
   return deferred.promise;
 }
 exports.dbClear = dbClear;
+
+
 /**
  * @method dbOpen
  *   open the levegraph database; would return a database object
@@ -96,14 +97,15 @@ function dbOpen() {
 }
 exports.dbOpen = dbOpen;
 
+
 /**
  * @method dbClose
  *   close the levegraph database
  * @param1 db
  *      object，represent an writable DataBase
- * @return
- *      Promise, event state，which resolves with no values if sucess;
- *               otherwise, return reject with Error object
+ * @return Promise
+ *      event state，which resolves with no values if sucess;
+ *      otherwise, return reject with Error object
  */
 function dbClose(db) {
   var deferred = Q.defer;
@@ -146,7 +148,6 @@ exports.dbClose = dbClose;
  *      Promise , an event state，which is a query jason of information from Triplese if sucess;
  *                otherwise, return reject with Error object
  */
-
 function dbPut(db, triples) {
   var deferred = Q.defer();
   if (typeof triples !== 'object') {
@@ -185,6 +186,7 @@ function dbDelete(db, triples) {
 }
 exports.dbDelete = dbDelete;
 
+
 /**
  * @method dbSearch
  *   put triples into database
@@ -210,12 +212,10 @@ exports.dbDelete = dbDelete;
  *        object: "davide"
  *      }]
  *
- * @return
- *   @promise
- *      Promise , an event state，which is a query jason of information from Triplese if sucess;
- *               otherwise, return reject with Error object
+ * @return Promise
+ *      an event state，which is a query jason of information from Triplese if sucess;
+ *      otherwise, return reject with Error object
  */
-
 function dbSearch(db, query) {
   var deferred = Q.defer();
   if (typeof query !== 'object') {
@@ -234,6 +234,7 @@ function dbSearch(db, query) {
   return deferred.promise;
 }
 exports.dbSearch = dbSearch;
+
 
 /**
  * @method TripleGenerator
@@ -266,13 +267,11 @@ exports.dbSearch = dbSearch;
  *      }
  *    }
  *
- * @return
- *    Promise, an event state，which is an arry of triple if sucess;
- *             otherwise, return reject with Error object;    
+ * @return Promise
+ *    an event state，which is an arry of triple if sucess;
+ *    otherwise, return reject with Error object;    
  *
  */
-
-
 function tripleGenerator(info) {
   var _triples = [];
   var deferred = Q.defer();
@@ -343,6 +342,7 @@ function tripleGenerator(info) {
 }
 exports.tripleGenerator = tripleGenerator;
 
+
 /**
  * @method decodeTripeles
  *   translate triples into info object,just a backward process of methond tripleGener-
@@ -351,9 +351,9 @@ exports.tripleGenerator = tripleGenerator;
  * @param1 triples
  *      object, the seach result of leveldb.
  *
- * @return
- *    Promise, an event state，which is a stack of information from Triplese if sucess;
- *             otherwise, return reject with Error object
+ * @return Promise
+ *    an event state，which is a stack of information from Triplese if sucess;
+ *    otherwise, return reject with Error object
  *
  */
 function decodeTripeles(triples) {

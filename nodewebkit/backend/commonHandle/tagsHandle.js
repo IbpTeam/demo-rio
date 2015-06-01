@@ -13,6 +13,8 @@ var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
 var Q = require('q');
+
+
 /**
  * @method getTagsByPath
  *   get tags from a path
@@ -20,8 +22,8 @@ var Q = require('q');
  *
  * @param path
  *   string, the target path of data
- * @return
- *      Stack , represent every tag of a file 
+ * @return Stack
+ *   represent every tag of a file 
  *
  */
 function getTagsByPath(path) {
@@ -42,9 +44,9 @@ exports.getTagsByPath = getTagsByPath;
  * @param1 category
  *    string, a spcific category we want
  *
- * @return
- *    Promise, event state，which resolves with an array of Tag Name if sucess;
- *             otherwise, return reject with Error object 
+ * @return Promise
+ *    event state，which resolves with an array of Tag Name if sucess;
+ *    otherwise, return reject with Error object 
  *
  *    all result in array
  *     example:
@@ -67,7 +69,6 @@ exports.getTagsByPath = getTagsByPath;
  *      }
  *
  */
-
 function getAllTagsByCategory(category) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -103,13 +104,11 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  *
  * @param2 sUri
  *    string, uri
-* @return
- *    Promise, event state，which resolves with an array of Tags' Name if sucess;
- *             otherwise, return reject with Error object 
+* @return Promise
+ *    event state，which resolves with an array of Tags' Name if sucess;
+ *    otherwise, return reject with Error object 
  *
  */
- 
-
 function getTagsByUri(uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -143,13 +142,12 @@ exports.getTagsByUri = getTagsByUri;
  * @param1 oTags
  *    array, an array of tags
  *
- * @return
- *    Promise, event state，which resolves with an array of choosen files if sucess;
- *             otherwise, return reject with Error object 
+ * @return Promise 
+ *    event state，which resolves with an array of choosen files if sucess;
+ *    otherwise, return reject with Error object 
  *
  *
  */
-
 function getFilesByTags(oTags) {
   var _db = rdfHandle.dbOpen();
   var _query = [];
@@ -198,7 +196,6 @@ function getFilesByTagsInCategory(category, oTags) {
       object: 'http://example.org/tags#' + oTags[i]
     });
   }
-
   _query.push({
     subject: _db.v('subject'),
     predicate: _db.v('predicate'),
@@ -219,6 +216,7 @@ function getFilesByTagsInCategory(category, oTags) {
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
+
 /**
  * @method setTagByUri
  *    set tags to a file by uri
@@ -229,9 +227,9 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *
  * @param2 sUri
  *    string, a specific uri
- * @return
- *    Promise, event state，which represents onFulfilled state with no value  if sucess;
- *             otherwise, return reject with Error object 
+ * @return Promise
+ *    event state，which represents onFulfilled state with no value  if sucess;
+ *    otherwise, return reject with Error object 
  *
  *
  */
@@ -281,6 +279,8 @@ function setTagByUri(tags, uri) {
     });
 }
 exports.setTagByUri = setTagByUri;
+
+
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri
@@ -291,12 +291,11 @@ exports.setTagByUri = setTagByUri;
  * @param2 uri
  *    uri string
  *
- * @return
- *    Promise, event state，which represents onFulfilled state with no value  if sucess;
- *             otherwise, return reject with Error object
+ * @return Promise
+ *    event state，which represents onFulfilled state with no value  if sucess;
+ *    otherwise, return reject with Error object
  *
  */
-
 function rmTagsByUri(tag, uri) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -338,11 +337,10 @@ exports.rmTagsByUri = rmTagsByUri;
  * @param2 category
  *    string, such as "document"
  *
- * @return
- *    Promise, event state，which represents onFulfilled state with no value  if sucess;
- *             otherwise, return reject with Error object
+ * @return Promise
+ *    event state，which represents onFulfilled state with no value  if sucess;
+ *    otherwise, return reject with Error object
  */
-
 function rmTagAll(tag, category) {
   var _db = rdfHandle.dbOpen();
   var _object = 'http://example.org/tags#' + tag;
@@ -373,6 +371,7 @@ function rmTagAll(tag, category) {
 }
 exports.rmTagAll = rmTagAll;
 
+
 //build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles, result) {
   if (result.length > 0) {
@@ -393,6 +392,7 @@ function buildDeleteItems(allFiles, result) {
     }
   }
 }
+
 
 //remove those tags we want to delete
 function doDeleteTags(oAllFiles, oTags) {
@@ -417,6 +417,7 @@ function doDeleteTags(oAllFiles, oTags) {
   }
   return oAllFiles;
 }
+
 
 /**
  * @method setRelativeTag
@@ -463,6 +464,7 @@ function rmInTAGS(oTags, sUri, callback) {
   return callback();
 }
 exports.rmInTAGS = rmInTAGS;
+
 
 /**
  * @method addInTAGS
