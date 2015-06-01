@@ -1,5 +1,5 @@
 var fs = require('fs');
-var BACKENDPATH = require('../config').BACKENDPATH;
+var TYPEDEFINEDIR = require('../config').TYPEDEFINEDIR;
 var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
@@ -14,8 +14,7 @@ var Q = require('q');
 function dbInitial() {
   var db = rdfHandle.dbOpen();
   var allTriples = [];
-  var _dir_type_define = pathModule.join(BACKENDPATH, '/data/typeDefine');
-  typeHandle.getDefinedTypeProperty(_dir_type_define)
+  typeHandle.getDefinedTypeProperty(TYPEDEFINEDIR)
     .then(function(result) {
       console.log(result);
     })

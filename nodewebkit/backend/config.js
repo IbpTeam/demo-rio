@@ -36,8 +36,8 @@ var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.LEVELDBPATH = LEVELDBPATH;
 
 //data type definition position
-var BACKENDPATH = __dirname;
-exports.BACKENDPATH = BACKENDPATH;
+var TYPEDEFINEDIR =pathModule.join(__dirname, '/data/typeDefine'); ;
+exports.TYPEDEFINEDIR = TYPEDEFINEDIR;
 
 /**
  * APP Path
