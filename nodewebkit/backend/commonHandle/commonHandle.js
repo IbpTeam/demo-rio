@@ -490,9 +490,9 @@ function renameDataByUri(sUri, sNewName) {
   }
   var reName = function(Item){
     if(Item === null || Item === [])
-      throw new Error("Item does not exists!");
+      throw new Error("Items do not exists!");
     if(Item.length === 0)
-      throw new Error("Item Empty by this Uri!");
+      throw new Error("Items are empty by this Uri!");
     var arr = Item[0];
     var filepath,postfix;
     if(arr.hasOwnProperty("path"))
