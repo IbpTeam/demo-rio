@@ -1,5 +1,7 @@
 var fs = require('fs');
-var TYPEDEFINEDIR = require('../config').TYPEDEFINEDIR;
+var config = require('../config');
+var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
+var TYPECONFPATH = config.TYPECONFPATH;
 var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
@@ -45,13 +47,13 @@ function getDefinedTypeProperty(dir) {
       var _name = pathModule.basename(fileList[i], '.type');
       var _file_path = pathModule.join(dir, fileList[i]);
       var _raw_content = fs.readFileSync(_file_path, 'utf8');
-      var _content = JSON.stringify(_raw_content);
-      _property[_name] = JSON.parse(_content);
+      var _content = JSON.parse(_raw_content/*JSON.stringify(_raw_content)*/);
+      _property[_name] = _content;//JSON.parse(_content);
+      _property[_name]["subject"] = "'http://example.org/category#" + _name;
       _category[_name] = _file_path;
     }
-    var _path_type_define = pathModule.join(BACKENDPATH, '/data/default/typeDefine.conf');
     var _content_type_define = JSON.stringify(_category, null, 4);
-    fs.writeFileSync(_path_type_define, _content_type_define);
+    fs.writeFileSync(TYPECONFPATH, _content_type_define);
     return _property;
   }
   return Q_read_dir(dir)

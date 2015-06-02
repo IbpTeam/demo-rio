@@ -1,6 +1,6 @@
 {
   "format": 'http://example.org/property/music#format',
-  "bit_rate": 'http://example.org/property/music#bit_rate',`
+  "bit_rate": 'http://example.org/property/music#bit_rate',
   "frequency": 'http://example.org/property/music#frequency',
   "track": 'http://example.org/property/music#track',
   "TDRC": 'http://example.org/property/music#TDRC',

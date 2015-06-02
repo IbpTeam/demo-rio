@@ -19,11 +19,18 @@ var typeHandle = require('./typeHandle');
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
+var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
 var __db = levelgraph(config.LEVELDBPATH);
 var Q = require('q');
 
-var BACKENDPATH = require('../config').BACKENDPATH;
-
+var _rdf = {
+  _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+  _domain: 'http://www.w3.org/2000/01/rdf-schema#domain',
+  _property: 'http://www.w3.org/2000/01/rdf-schema#Property',
+  _subClaseOf: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
+  _Class: 'http://www.w3.org/2000/01/rdf-schema#Class'
+}
+exports.RDFVOC = _rdf;
 /**
  * @method dbInitial
  *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
@@ -33,8 +40,8 @@ var BACKENDPATH = require('../config').BACKENDPATH;
 function dbInitial() {
   var db = dbOpen();
   var allTriples = [];
-  var _dir_type_define = pathModule.join(BACKENDPATH, '/data/typeDefine');
-  typeHandle.getDefinedTypeProperty(_dir_type_define)
+  typeHandle.getDefinedTypeProperty(TYPEDEFINEDIR)
+    .then(defTripleGenerator)
     .then(function(result) {
       console.log(result);
     })
@@ -42,12 +49,6 @@ function dbInitial() {
       throw err;
     })
     .done();
-
-  for (var i in DEFINED_TYPE) {
-    if (DEFINED_TYPE.hasOwnProperty(i)) {
-      allTriples = allTriples.concat(DEFINED_TYPE[i]);
-    }
-  }
 
   db.put(allTriples);
 }
@@ -63,8 +64,6 @@ exports.dbInitial = dbInitial;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-
-
 function dbClear() {
   var deferred = Q.defer();
   fs_extra.remove(config.LEVELDBPATH, function(err) {
@@ -76,6 +75,8 @@ function dbClear() {
   return deferred.promise;
 }
 exports.dbClear = dbClear;
+
+
 /**
  * @method dbOpen
  *   open the levegraph database; would return a database object
@@ -89,6 +90,7 @@ function dbOpen() {
   return __db
 }
 exports.dbOpen = dbOpen;
+
 
 /**
  * @method dbClose
@@ -137,7 +139,6 @@ exports.dbClose = dbClose;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-
 function dbPut(db, triples) {
   var deferred = Q.defer();
   if (typeof triples !== 'object') {
@@ -176,6 +177,7 @@ function dbDelete(db, triples) {
 }
 exports.dbDelete = dbDelete;
 
+
 /**
  * @method dbSearch
  *   put triples into database
@@ -206,7 +208,6 @@ exports.dbDelete = dbDelete;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-
 function dbSearch(db, query) {
   var deferred = Q.defer();
   if (typeof query !== 'object') {
@@ -225,6 +226,7 @@ function dbSearch(db, query) {
   return deferred.promise;
 }
 exports.dbSearch = dbSearch;
+
 
 /**
  * @method TripleGenerator
@@ -262,8 +264,6 @@ exports.dbSearch = dbSearch;
  *      error，return 'null' if sucess;otherwise return err
  *
  */
-
-
 function tripleGenerator(info) {
   var _triples = [];
   var deferred = Q.defer();
@@ -331,6 +331,7 @@ function tripleGenerator(info) {
 }
 exports.tripleGenerator = tripleGenerator;
 
+
 /**
  * @method decodeTripeles
  *   translate triples into info object,just a backward process of methond tripleGener-
@@ -385,3 +386,30 @@ function decodeTripeles(triples) {
   return deferred.promise;
 }
 exports.decodeTripeles = decodeTripeles;
+
+
+function defTripleGenerator(info) {
+  var _triples = [];
+  for (var item in info) {
+    var _type_item = info[item];
+    _triples.push({
+      subject: _type_item.subject,
+      predicate: _rdf._type,
+      object: _rdf._Class
+    });
+    for (var _property in _type_item) {
+      _triples.push({
+        subject: _type_item[_property],
+        predicate: _rdf._type,
+        object: _rdf._property
+      });
+      _triples.push({
+        subject: _type_item[_property],
+        predicate: _rdf._domain,
+        object: _type_item.subject
+      });
+    }
+  }
+  return _triples;
+}
+exports.defTripleGenerator = defTripleGenerator;
