@@ -16,7 +16,7 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "rio30486rio#0197b149d0ffc748fd64";
+  var test_uri = "rio20968rio#0881e7f2d9d9d314a927";
   var Q = require('q');
 
   function print(win,something){
@@ -162,23 +162,27 @@
     WDC.requireAPI(['data'], function(data){
       data.test_baseinfo(function(baseinfo) {
         var _item = {
-          _uri:"rio29114rio#87ef8e8f6e008c78587c",
+          _uri:test_uri,
           _changes:[
           {
             _property:"filename",
             _value:"asdasdasdasd"
           },
-          {
-            _property:"path",
-            _value:"aaaa/bbbb/cccc"
-          },
+          // {
+          //   _property:"path",
+          //   _value:"aaaa/bbbb/cccc"
+          // },
           {
             _property:"postfix",
-            _value:"testest"
+            _value:"stestest"
+          },
+          {
+            _property:"lastAccessTime",
+            _value:(new Date()).toString()
           }
           ]
         }
-        data.updateDataValue(updateDataValueCb,_item);
+        data.updateDataValue(updateDataValueCb,_item,test_uri);
       }); 
     });
   }
@@ -213,7 +217,7 @@
   }
   function test_renameDataByUri(renameDataByUriCb){
     WDC.requireAPI(['data'], function(data){
-      var test_thisNewName = "ddd";
+      var test_thisNewName = "test_renameDataByUri";
       var test_thisUri = test_uri;
       data.renameDataByUri(test_thisUri,test_thisNewName,renameDataByUriCb);
     });
@@ -880,33 +884,6 @@
 </div>
 </div>
 
-<h2 onclick="show('renameDataByUri')">renameDataByUri(sUri, sNewName,renameDataByUriCb)<span><a class="mark" href="#test_renameDataByUri" id="test_renameDataByUri" onclick="test_renameDataByUri(renameDataByUriCb)">test</a></span></h2>
-<div id="renameDataByUri" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function renameDataByUriCb(result){
-    var win = window.open('');
-    win.document.write("test API renameDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  function test_renameDataByUri(renameDataByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var sUri = test_uri;
-      var sNewName = 'test_rename.txt';
-      data.renameDataByUri(sUri, sNewName,renameDataByUriCb);
-    });        
-  }
-  </pre>
-</div>
-</div>
 
 <h2 onclick="show('getMusicPicData')">getMusicPicData(getMusicPicDataCb,path)<span><a class="mark" href="#test_getMusicPicData" id="test_getMusicPicData" onclick="test_getMusicPicData(getMusicPicDataCb)">test</a></span></h2>
 <div id="getMusicPicData" style="display:none;">

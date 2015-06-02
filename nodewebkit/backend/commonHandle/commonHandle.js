@@ -154,8 +154,8 @@ function Q_copy(filePath, newPath) {
 function baseInfo(itemPath) {
   var Q_fsStat = Q.nfbind(fs.stat);
   var Q_uriMaker = function(stat) {
-    var _mtime = stat.mtime;
-    var _ctime = stat.ctime;
+    var _mtime = (stat.mtime).toString();
+    var _ctime = (stat.ctime).toString();
     var _size = stat.size;
     var _cate = utils.getCategoryByPath(itemPath);
     var _category = _cate.category;
@@ -447,7 +447,7 @@ function updateTriples(_db, originTriples, newTriples) {
  *
  **/
 exports.openData = function(uri) {
-  var currentTime = (new Date());
+  var currentTime = (new Date()).toString();
   var property = {
     _uri: uri,
     _changes: [{
@@ -490,7 +490,6 @@ function renameDataByUri(sUri, sNewName) {
   }
   var reName = function(Item){
     var arr = Item[0];
-    console.log(arr);
     var filepath,type;
     if(arr == [])    
       throw new Error("NOResult");
@@ -502,18 +501,8 @@ function renameDataByUri(sUri, sNewName) {
       type = arr.postfix;
     else
       throw new Error("NOPostfix");
-    console.log(filepath);
-    
-    var ele = filepath.split("/");
-    var newPath = "";
-    var type;
-    for(var i = 0 ; i < ele.length-1; i++){
-      newPath += ele[i]+"/";
-    }
-    console.log(newPath);
-    newPath += sNewName;
-    newPath += "." + type;
-
+    var newPath = filepath.substr(0,filepath.lastIndexOf('/')) 
+                    +'/'+ sNewName + "." + type;
     var _changeItem = {
       _uri:sUri,
       _changes:[
@@ -525,18 +514,24 @@ function renameDataByUri(sUri, sNewName) {
           _property:"path",
           _value:newPath
         },
-        // {
-        //   _property:"lastModifyTime",
-        //   _value:"Time"
-        // }
+        {
+          _property:"lastModifyTime",
+          _value:(new Date()).toString()
+        }
       ]
     }
     var Q_fsRaname = Q.nfbind(fs.rename);
     return Q_fsRaname(filepath,newPath)
-              .then(updatePropertyValue(_changeItem));
+              .then(updatePropertyValue(_changeItem))
+              .fail(function(Error){
+                throw Error;
+              });
   }
   return getItemByProperty(_options)
-          .then(reName);
+          .then(reName)
+          .fail(function(Error){
+                throw Error;
+            });
 }
 exports.renameDataByUri = renameDataByUri;
 
