@@ -31,28 +31,6 @@ var _rdf = {
   _Class: 'http://www.w3.org/2000/01/rdf-schema#Class'
 }
 exports.RDFVOC = _rdf;
-/**
- * @method dbInitial
- *   Initalize the levelgraph database. This step would put the RDF Schema of type defin-
- *   ition triples into database, including base properties.
- *
- */
-function dbInitial() {
-  var db = dbOpen();
-  var allTriples = [];
-  typeHandle.getDefinedTypeProperty(TYPEDEFINEDIR)
-    .then(defTripleGenerator)
-    .then(function(result) {
-      console.log(result);
-    })
-    .fail(function(err) {
-      throw err;
-    })
-    .done();
-
-  db.put(allTriples);
-}
-exports.dbInitial = dbInitial;
 
 
 /**
