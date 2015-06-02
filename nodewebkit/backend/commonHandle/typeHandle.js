@@ -47,8 +47,8 @@ function getDefinedTypeProperty(dir) {
       var _name = pathModule.basename(fileList[i], '.type');
       var _file_path = pathModule.join(dir, fileList[i]);
       var _raw_content = fs.readFileSync(_file_path, 'utf8');
-      var _content = JSON.parse(_raw_content/*JSON.stringify(_raw_content)*/);
-      _property[_name] = _content;//JSON.parse(_content);
+      var _content = JSON.parse(_raw_content);
+      _property[_name] = _content;
       _property[_name]["subject"] = "'http://example.org/category#" + _name;
       _category[_name] = _file_path;
     }

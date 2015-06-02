@@ -1,4 +1,4 @@
 {
-  "project": 'http://example.org/property/document#project',
-  "location": 'http://example.org/property/picture#location'
+  "project": "http://example.org/property/document#project",
+  "location": "http://example.org/property/picture#location"
 }
