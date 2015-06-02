@@ -1418,7 +1418,7 @@ function renameDataByUri(sUri, sNewName, renameDataByUriCb){
     .then(function(result){
       renameDataByUriCb(null,result);
     })
-    .fail(function(err){
+    .fail(function (err){
       renameDataByUriCb(err);
     })
     .done();
