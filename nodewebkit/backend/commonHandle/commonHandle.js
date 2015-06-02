@@ -489,20 +489,24 @@ function renameDataByUri(sUri, sNewName) {
     _value: sUri
   }
   var reName = function(Item){
-    if(Item === null || Item === [])
+    if(Item === null){
       throw new Error("Items do not exists!");
-    if(Item.length === 0)
+    }
+    if(Item.length === 0){
       throw new Error("Items are empty by this Uri!");
+    }
     var arr = Item[0];
-    var filepath,postfix;
-    if(arr.hasOwnProperty("path"))
-      filepath = arr.path;
+    if(arr.hasOwnProperty("path")){
+      var filepath = arr.path;
+    }
     else
       throw new Error("NOPath");
-    if(arr.hasOwnProperty("path"))
-      postfix = arr.postfix;
-    else
+    if(arr.hasOwnProperty("path")){
+      var postfix = arr.postfix;
+    }
+    else{
       throw new Error("NOPostfix");
+    }
     var newPath = filepath.substr(0,filepath.lastIndexOf('/')) 
                     +'/'+ sNewName + "." + postfix;
     var _changeItem = {
