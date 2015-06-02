@@ -489,20 +489,22 @@ function renameDataByUri(sUri, sNewName) {
     _value: sUri
   }
   var reName = function(Item){
+    if(Item === null || Item === [])
+      throw new Error("Item does not exists!");
+    if(Item.length === 0)
+      throw new Error("Item Empty by this Uri!");
     var arr = Item[0];
-    var filepath,type;
-    if(arr == [])    
-      throw new Error("NOResult");
+    var filepath,postfix;
     if(arr.hasOwnProperty("path"))
       filepath = arr.path;
     else
       throw new Error("NOPath");
     if(arr.hasOwnProperty("path"))
-      type = arr.postfix;
+      postfix = arr.postfix;
     else
       throw new Error("NOPostfix");
     var newPath = filepath.substr(0,filepath.lastIndexOf('/')) 
-                    +'/'+ sNewName + "." + type;
+                    +'/'+ sNewName + "." + postfix;
     var _changeItem = {
       _uri:sUri,
       _changes:[
@@ -522,16 +524,10 @@ function renameDataByUri(sUri, sNewName) {
     }
     var Q_fsRaname = Q.nfbind(fs.rename);
     return Q_fsRaname(filepath,newPath)
-              .then(updatePropertyValue(_changeItem))
-              .fail(function(Error){
-                throw Error;
-              });
+              .then(updatePropertyValue(_changeItem));
   }
   return getItemByProperty(_options)
-          .then(reName)
-          .fail(function(Error){
-                throw Error;
-            });
+          .then(reName);
 }
 exports.renameDataByUri = renameDataByUri;
 
