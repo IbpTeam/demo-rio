@@ -482,7 +482,6 @@ exports.openData = function(uri) {
  *
  **/
 function renameDataByUri(sUri, sNewName) {
-  // var fileFileName
   var _options = {
     _type: "base",
     _property: "URI",
