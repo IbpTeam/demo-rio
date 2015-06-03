@@ -90,16 +90,6 @@ var _video_property = {
   compatible_brands: 'http://example.org/property/video#compatible_brands'
 }
 
-
-exports.vocabulary = {
-  base: _base,
-  contact: _contact,
-  document: _document,
-  picture: _picture,
-  music: _music,
-  video: _video
-};
-
 exports.property = {
   base: _base_property,
   contact: _contact_property,

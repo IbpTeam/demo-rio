@@ -16,21 +16,22 @@ var Q = require('q');
  */
 function initTypeDef() {
   var allTriples = [];
-  getDefinedTypeProperty(TYPEDEFINEDIR)
+  getDefinedTypeProperty()
     .then(rdfHandle.defTripleGenerator)
     .then(function(triples_) {
       var _db = rdfHandle.dbOpen();
       rdfHandle.dbPut(_db, triples_);
     })
     .fail(function(err) {
-      throw err
+      throw err;
     })
     .done();
 }
 exports.initTypeDef = initTypeDef;
 
 
-function getDefinedTypeProperty(dir) {
+
+function getDefinedTypeProperty() {
   var Q_read_dir = Q.nbind(fs.readdir);
 
   function resolveProperty(fileList) {
@@ -38,7 +39,7 @@ function getDefinedTypeProperty(dir) {
     var _category = {};
     for (var i = 0, l = fileList.length; i < l; i++) {
       var _name = pathModule.basename(fileList[i], '.type');
-      var _file_path = pathModule.join(dir, fileList[i]);
+      var _file_path = pathModule.join(TYPEDEFINEDIR, fileList[i]);
       var _raw_content = fs.readFileSync(_file_path, 'utf8');
       var _content = JSON.parse(_raw_content);
       _property[_name] = _content;
@@ -49,7 +50,7 @@ function getDefinedTypeProperty(dir) {
     fs.writeFileSync(TYPECONFPATH, _content_type_define);
     return _property;
   }
-  return Q_read_dir(dir)
+  return Q_read_dir(TYPEDEFINEDIR)
     .then(resolveProperty);
 }
 exports.getDefinedTypeProperty = getDefinedTypeProperty;
