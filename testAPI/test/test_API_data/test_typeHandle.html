@@ -87,7 +87,6 @@
         ];
         Q.allSettled(combination_)
           .then(function(result) {
-            console.log(result)
             cb(null, result);
           })
           .fail(function(err) {
