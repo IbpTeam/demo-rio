@@ -7,6 +7,10 @@ var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
 var Q = require('q');
 
+//some promised method
+var Q_read_dir = Q.nbind(fs.readdir);
+var Q_read_file = Q.nbind(fs.readFile);
+
 
 /**
  * @method dbInitial
@@ -16,23 +20,19 @@ var Q = require('q');
  */
 function initTypeDef() {
   var allTriples = [];
-  getDefinedTypeProperty()
+  return getDefinedTypeProperty()
     .then(rdfHandle.defTripleGenerator)
     .then(function(triples_) {
       var _db = rdfHandle.dbOpen();
       rdfHandle.dbPut(_db, triples_);
-    })
-    .fail(function(err) {
-      throw err;
-    })
-    .done();
+      return triples_;
+    });
 }
 exports.initTypeDef = initTypeDef;
 
 
 
 function getDefinedTypeProperty() {
-  var Q_read_dir = Q.nbind(fs.readdir);
 
   function resolveProperty(fileList) {
     var _property = {};
@@ -54,3 +54,57 @@ function getDefinedTypeProperty() {
     .then(resolveProperty);
 }
 exports.getDefinedTypeProperty = getDefinedTypeProperty;
+
+
+/**
+ * @method getProperty
+ *   get property info object of obne kind of category
+ *
+ * @param1 category
+ *   @string
+ *      a type category name
+ *
+ */
+function getProperty(category) {
+  return readConfFile()
+    .then(function(_type_conf) {
+      if (_type_conf[category]) {
+        return readTypeFile(_type_conf[category])
+      } else {
+        throw new Error("TYPE NOT REGISTERED");
+      }
+    });
+}
+exports.getProperty = getProperty;
+
+
+/**
+ * @method readTypeFile
+ *   read the content of typeDefine.conf
+ *   return the result of string
+ *
+ * @param1 path
+ *   @string
+ *      a full path string of *.type file
+ *
+ */
+function readTypeFile(path) {
+  return Q_read_file(path)
+    .then(function(content_) {
+      return content_.toString();
+    });
+}
+
+
+/**
+ * @method readConfFile
+ *   read the content of typeDefine.conf
+ *   return the result of string
+ *
+ */
+function readConfFile() {
+  return Q_read_file(TYPECONFPATH)
+    .then(function(content_) {
+      return JSON.parse(content_);
+    });
+}

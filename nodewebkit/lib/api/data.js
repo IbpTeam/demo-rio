@@ -1677,3 +1677,14 @@ function test_baseinfo(callback) {
   callback(element);
 }
 exports.test_baseinfo = test_baseinfo;
+
+/** 
+ * @Method: test_typeHandle
+ *    just for testing typeHandle
+ *
+ **/
+function test_typeHandle(callback) {
+  var typeHandle = require("../../backend/commonHandle/typeHandle");
+  callback(typeHandle);
+}
+exports.test_typeHandle = test_typeHandle;
