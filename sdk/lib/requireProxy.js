@@ -1,6 +1,7 @@
 var util = require('util');
 var net = require('net');
 var fs = require('fs');
+var path = require('path');
 var config = require('../../config');
 // RPC API lib.
 console.log("head of requireProxy.js.");
@@ -89,9 +90,15 @@ exports.requireProxy = function() {
 
 exports.requireProxySync = function(proxy, addr) {
   if(typeof proxy === 'undefined') throw 'Not enough parameter';
-  var userPath = USERPATH + '/' + proxy + '/' + proxy,
-      localPath = LOCALPATH + '/' + proxy + '/' + proxy,
-      proxyIns = null;
+  if(debug) {
+    var userPath = path.resolve(__dirname, '../../../../service/' + proxy + '/interface/' + proxy),
+        localPath = LOCALPATH + '/' + proxy + '/' + proxy,
+        proxyIns = null;
+  } else {
+    var userPath = USERPATH + '/' + proxy + '/' + proxy,
+        localPath = LOCALPATH + '/' + proxy + '/' + proxy,
+        proxyIns = null;
+  }
   if(typeof addr === 'undefined') {
     userPath += 'Proxy.js';
     localPath += 'Proxy.js';
@@ -99,6 +106,7 @@ exports.requireProxySync = function(proxy, addr) {
     userPath += 'ProxyRemote.js';
     localPath += 'ProxyRemote.js';
   }
+  console.log(userPath);
   if(fs.existsSync(userPath)) {
     proxyIns = require(userPath).getProxy(addr);
   } else if (fs.existsSync(localPath)) {
