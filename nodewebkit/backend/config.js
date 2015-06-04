@@ -36,8 +36,8 @@ var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.LEVELDBPATH = LEVELDBPATH;
 
 //data type definition position
-var TYPEDEFINEDIR = path.join(__dirname, '/data/typeDefine');
-exports.TYPEDEFINEDIR = TYPEDEFINEDIR;
+var TYPEFILEDIR = path.join(__dirname, '/data/typeDefine');
+exports.TYPEFILEDIR = TYPEFILEDIR;
 
 //data/default/typeDefine.conf
 var TYPECONFPATH = path.join(__dirname, '/data/default/typeDefine.conf');

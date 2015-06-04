@@ -49,7 +49,7 @@
   function cb(err, result) {
     var win = window.open('');
     if (err) {
-      win.document.write("test_dbInitial error: \n")
+      win.document.write("test error: \n")
       win.document.write("<br/>");
       print(win, err.toString());
     } else {
@@ -71,7 +71,6 @@
       });
     });
   }
-
 
   function test_getProperty(cb) {
     var Q = require('q');
@@ -97,12 +96,28 @@
     });
   }
 
+  function test_refreshConf(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.refreshConf()
+          .then(cb)
+          .fail(function(err) {
+            cb(err);
+            throw err;
+          })
+          .done();
+      });
+    });
+  }
+
 
   </script>
 
 <h2>initTypeDef(cb)<span><a class="mark" href="#test_initTypeDef" id="test_initTypeDef" onclick="test_initTypeDef(cb)">test</a></span></h2>
 
 <h2>getProperty(cb)<span><a class="mark" href="#test_getProperty" id="test_getProperty" onclick="test_getProperty(cb)">test</a></span></h2>
+
+<h2>refreshConf(cb)<span><a class="mark" href="#test_refreshConf" id="test_refreshConf" onclick="test_refreshConf(cb)">test</a></span></h2>
 
 </body>
 </html>

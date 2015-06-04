@@ -1,6 +1,6 @@
 var fs = require('fs');
 var config = require('../config');
-var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
+var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
 var pathModule = require('path');
 var config = require('../config.js');
@@ -10,6 +10,7 @@ var Q = require('q');
 //some promised method
 var Q_read_dir = Q.nbind(fs.readdir);
 var Q_read_file = Q.nbind(fs.readFile);
+var Q_write_file = Q.nbind(fs.writeFile);
 
 
 /**
@@ -36,21 +37,32 @@ function getDefinedTypeProperty() {
 
   function resolveProperty(fileList) {
     var _property = {};
+    var _postfix = {};
     var _category = {};
     for (var i = 0, l = fileList.length; i < l; i++) {
       var _name = pathModule.basename(fileList[i], '.type');
-      var _file_path = pathModule.join(TYPEDEFINEDIR, fileList[i]);
+      var _file_path = pathModule.join(TYPEFILEDIR, fileList[i]);
       var _raw_content = fs.readFileSync(_file_path, 'utf8');
       var _content = JSON.parse(_raw_content);
-      _property[_name] = _content;
+      //info for type define triples
+      _property[_name] = _content.property;
       _property[_name]["subject"] = "'http://example.org/category#" + _name;
+      //info for typeDefine.conf of property
       _category[_name] = _file_path;
+      //info for typeDefine.conf of postfix
+      for (var item_ in _content.postfix) {
+        _postfix[item_] = _content.postfix[item_];
+      }
     }
-    var _content_type_define = JSON.stringify(_category, null, 4);
+    var _type_info = {
+      property: _category,
+      postfix: _postfix
+    }
+    var _content_type_define = JSON.stringify(_type_info, null, 4);
     fs.writeFileSync(TYPECONFPATH, _content_type_define);
     return _property;
   }
-  return Q_read_dir(TYPEDEFINEDIR)
+  return Q_read_dir(TYPEFILEDIR)
     .then(resolveProperty);
 }
 exports.getDefinedTypeProperty = getDefinedTypeProperty;
@@ -68,8 +80,8 @@ exports.getDefinedTypeProperty = getDefinedTypeProperty;
 function getProperty(category) {
   return readConfFile()
     .then(function(_type_conf) {
-      if (_type_conf[category]) {
-        return readTypeFile(_type_conf[category])
+      if (_type_conf["property"][category]) {
+        return readTypeFile(_type_conf["property"][category])
       } else {
         throw new Error("TYPE NOT REGISTERED");
       }
@@ -83,6 +95,12 @@ exports.getProperty = getProperty;
  *   read the content of typeDefine.conf
  *   return the result of string
  *
+ *   a *.type file would contain an object as below:
+ *   {
+ *      "property":{},
+ *      "postfix":{}
+ *    }
+ *
  * @param1 path
  *   @string
  *      a full path string of *.type file
@@ -91,7 +109,7 @@ exports.getProperty = getProperty;
 function readTypeFile(path) {
   return Q_read_file(path)
     .then(function(content_) {
-      return content_.toString();
+      return JSON.parse(content_);
     });
 }
 
@@ -108,3 +126,32 @@ function readConfFile() {
       return JSON.parse(content_);
     });
 }
+
+function refreshConf() {
+  var _combination = [];
+  var _property = {};
+  return Q_read_dir(TYPEFILEDIR)
+    .then(function(file_list_) {
+      for (var i = 0, l = file_list_.length; i < l; i++) {
+        var _file_path = pathModule.join(TYPEFILEDIR, file_list_[i]);
+        var _name = pathModule.basename(file_list_[i], '.type');
+        _property[_name] = _file_path;
+        _combination.push(readTypeFile(_file_path));
+      }
+      return Q.all(_combination)
+        .then(function(result) {
+          var _postfix = {}
+          for (var j = 0, m = result.length; j < m; j++) {
+            for (var item_ in result[j]["postfix"]) {
+              _postfix[item_] = result[j]["postfix"][item_];
+            }
+          }
+          var _type_info = {
+            property: _property,
+            postfix: _postfix
+          }
+          return Q_write_file(TYPECONFPATH, JSON.stringify(_type_info, null, 4));
+        })
+    })
+}
+exports.refreshConf = refreshConf;
