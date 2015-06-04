@@ -110,6 +110,44 @@
     });
   }
 
+  function test_getPostfixList(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.getPostfixList()
+          .then(function(result) {
+            cb(null, result);
+          })
+          .fail(cb)
+          .done();
+      });
+    });
+  }
+
+  function test_getTypeNameByPostfix(cb) {
+    var Q = require('q');
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        var combination_ = [
+          typeHandle.getTypeNameByPostfix("mp4"),
+          typeHandle.getTypeNameByPostfix("ogg"),
+          typeHandle.getTypeNameByPostfix("doc"),
+          typeHandle.getTypeNameByPostfix("xxx"),
+          typeHandle.getTypeNameByPostfix("mp3"),
+          typeHandle.getTypeNameByPostfix("jpg")
+        ];
+        Q.allSettled(combination_)
+          .then(function(result) {
+            cb(null, result);
+          })
+          .fail(function(err) {
+            cb(err);
+          })
+          .done();
+      });
+    });
+  }
+
+
 
   </script>
 
@@ -118,6 +156,10 @@
 <h2>getProperty(cb)<span><a class="mark" href="#test_getProperty" id="test_getProperty" onclick="test_getProperty(cb)">test</a></span></h2>
 
 <h2>refreshConfFile(cb)<span><a class="mark" href="#test_refreshConfFile" id="test_refreshConfFile" onclick="test_refreshConfFile(cb)">test</a></span></h2>
+
+<h2>getPostfixList(cb)<span><a class="mark" href="#test_getPostfixList" id="test_getPostfixList" onclick="test_getPostfixList(cb)">test</a></span></h2>
+
+<h2>getTypeNameByPostfix(cb)<span><a class="mark" href="#test_getTypeNameByPostfix" id="test_getTypeNameByPostfix" onclick="test_getTypeNameByPostfix(cb)">test</a></span></h2>
 
 </body>
 </html>

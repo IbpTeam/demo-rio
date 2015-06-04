@@ -32,7 +32,6 @@ function initTypeDef() {
 exports.initTypeDef = initTypeDef;
 
 
-
 function getDefinedTypeProperty() {
 
   function resolveProperty(fileList) {
@@ -76,6 +75,50 @@ function getProperty(category) {
     });
 }
 exports.getProperty = getProperty;
+
+
+/**
+ * @method getPostfixList
+ *   get regestered postfix list from typeDefeine.conf
+ *
+ */
+function getPostfixList() {
+  return readConfFile()
+    .then(function(_type_conf) {
+      if (_type_conf["postfix"]) {
+        return _type_conf["postfix"];
+      } else {
+        throw new Error("POSTFIX NOT REGISTERED");
+      }
+    });
+}
+exports.getPostfixList = getPostfixList;
+
+
+/**
+ * @method getTypeNameByPostfix
+ *   get type/category name by postfix
+ *   return type/category name in string
+ *
+ * @param1 postfix
+ *   @string
+ *      postfix, as "mp4" or "doc"
+ *
+ */
+function getTypeNameByPostfix(postfix) {
+  if (postfix[0] === ".") {
+    postfix = postfix.substr(1);
+  }
+  return getPostfixList()
+    .then(function(postfix_list_) {
+      if (postfix_list_[postfix]) {
+        return postfix_list_[postfix];
+      } else {
+        return "other";
+      }
+    })
+}
+exports.getTypeNameByPostfix = getTypeNameByPostfix;
 
 
 /**

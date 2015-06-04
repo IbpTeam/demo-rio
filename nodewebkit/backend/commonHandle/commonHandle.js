@@ -32,6 +32,7 @@ var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar'); 
 var rdfHandle = require("./rdfHandle");
+var typeHandle = require("./typeHandle");
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var Q = require('q');
 
@@ -101,37 +102,47 @@ function Q_copy(filePath, newPath) {
 
 function baseInfo(itemPath, callback) {
   var Q_fsStat = Q.nfbind(fs.stat);
-  var Q_uriMaker = function(stat){
+  var Q_uriMaker = function(stat) {
     var _mtime = stat.mtime;
     var _ctime = stat.ctime;
     var _size = stat.size;
-    var _cate = utils.getCategoryByPath(itemPath);
-    var _category = _cate.category;
-    var _filename = _cate.filename;
-    var _postfix = _cate.postfix;
+    var _postfix = path.extname(itemPath);
+    var _filename = path.basename(itemPath, _postfix);
+    if (_postfix[0] === ".") {
+      _postfix = _postfix.substr(1);
+    }
     var _tags = tagsHandle.getTagsByPath(itemPath);
-    return uniqueID.Q_getFileUid().then(function(_uri){
-      var _base = {
-        URI: _uri,
-        filename: _filename,
-        postfix: _postfix,
-        category: _category,
-        size: _size,
-        path: itemPath,
-        tags: _tags,
-        createTime: _ctime,
-        lastModifyTime: _mtime,
-        lastAccessTime: _ctime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      }
-      return _base;
-    })
+    var _base = {
+      URI: null,
+      filename: _filename,
+      postfix: _postfix,
+      category: null,
+      size: _size,
+      path: itemPath,
+      tags: _tags,
+      createTime: _ctime,
+      lastModifyTime: _mtime,
+      lastAccessTime: _ctime,
+      createDev: config.uniqueID,
+      lastModifyDev: config.uniqueID,
+      lastAccessDev: config.uniqueID
+    }
+    return uniqueID.Q_getFileUid()
+      .then(function(_uri) {
+        _base.URI = _uri
+      })
+      .then(function() {
+        return typeHandle.getTypeNameByPostfix(_postfix)
+          .then(function(category_) {
+            _base.category = category_;
+            return _base;
+          })
+      })
   }
   return Q_fsStat(itemPath).then(Q_uriMaker);
 }
 exports.baseInfo = baseInfo;
+
 
 function dataStore(items, extraCallback, callback) {
 
