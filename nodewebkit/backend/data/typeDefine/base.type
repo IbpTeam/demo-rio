@@ -14,8 +14,5 @@
     "lastModifyDev": "http://example.org/property/base#lastModifyDev",
     "lastAccessDev": "http://example.org/property/base#lastAccessDev"
   },
-  "postfix": {
-    "mp3": "music",
-    "MP3": "music"
-  }
+  "postfix":{}
 }
