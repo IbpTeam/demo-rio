@@ -47,10 +47,16 @@ function getDefinedTypeProperty() {
       _property[_name] = _content.property;
       _property[_name]["subject"] = "'http://example.org/category#" + _name;
     }
-    return refreshConfFile();
+    return _property;
   }
   return Q_read_dir(TYPEFILEDIR)
-    .then(resolveProperty);
+    .then(function(file_list_) {
+      return refreshConfFile()
+        .then(function() {
+          return resolveProperty(file_list_);
+        });
+    })
+
 }
 exports.getDefinedTypeProperty = getDefinedTypeProperty;
 
