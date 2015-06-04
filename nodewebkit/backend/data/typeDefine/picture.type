@@ -1,0 +1,12 @@
+{
+  "property": {
+    "project": "http://example.org/property/document#project",
+    "location": "http://example.org/property/picture#location"
+  },
+  "postfix": {
+    "jpg": "picture",
+    "JPG": "picture",
+    "png": "picture",
+    "PNG": "picture"
+  }
+}

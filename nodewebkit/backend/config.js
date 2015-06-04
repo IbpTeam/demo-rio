@@ -35,6 +35,14 @@ var DATABASENAME = "custard_rdf";
 var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.LEVELDBPATH = LEVELDBPATH;
 
+//data type definition position
+var TYPEFILEDIR = path.join(__dirname, '/data/typeDefine');
+exports.TYPEFILEDIR = TYPEFILEDIR;
+
+//data/default/typeDefine.conf
+var TYPECONFPATH = path.join(__dirname, '/data/default/typeDefine.conf');
+exports.TYPECONFPATH = TYPECONFPATH;
+
 /**
  * APP Path
  * Default APP Base path is repo/app dir，we use __dirname to locate it
