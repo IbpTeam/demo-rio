@@ -55,8 +55,7 @@ function getDefinedTypeProperty() {
         .then(function() {
           return resolveProperty(file_list_);
         });
-    })
-
+    });
 }
 exports.getDefinedTypeProperty = getDefinedTypeProperty;
 
@@ -122,7 +121,7 @@ function getTypeNameByPostfix(postfix) {
       } else {
         return "other";
       }
-    })
+    });
 }
 exports.getTypeNameByPostfix = getTypeNameByPostfix;
 
@@ -193,7 +192,7 @@ function refreshConfFile() {
             postfix: _postfix
           }
           return Q_write_file(TYPECONFPATH, JSON.stringify(_type_info, null, 2));
-        })
-    })
+        });
+    });
 }
 exports.refreshConfFile = refreshConfFile;
