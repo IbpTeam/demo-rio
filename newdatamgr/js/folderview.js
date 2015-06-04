@@ -722,10 +722,12 @@ var ShowFiles = Class.extend({
         'height': 25,
         'oldtext': file['filename'],
         'callback': function(newtext){
-          DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], 
-            file['URI'], newtext+'.'+file['postfix'], 
+          DataAPI.renameDataByUri(file['URI'], newtext, 
             function(err, result){
-              if(result == 'success'){
+              if(err){
+                window.alert("Rename failed!");
+              }
+              else{
                 $('#'+modifyURI+'div').children('p').html(newtext);
                 if(_globalSelf._index ==3){
                   $('#'+modifyURI+'tr').children('th').eq(0).children('p').html(newtext);
@@ -740,9 +742,7 @@ var ShowFiles = Class.extend({
                   }
                 }
               }
-              else{
-                window.alert("Rename failed!");
-              }
+              
           });
         }
       }
