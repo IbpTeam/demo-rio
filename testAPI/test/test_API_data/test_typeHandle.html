@@ -96,10 +96,10 @@
     });
   }
 
-  function test_refreshConf(cb) {
+  function test_refreshConfFile(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_typeHandle(function(typeHandle) {
-        typeHandle.refreshConf()
+        typeHandle.refreshConfFile()
           .then(cb)
           .fail(function(err) {
             cb(err);
@@ -117,7 +117,7 @@
 
 <h2>getProperty(cb)<span><a class="mark" href="#test_getProperty" id="test_getProperty" onclick="test_getProperty(cb)">test</a></span></h2>
 
-<h2>refreshConf(cb)<span><a class="mark" href="#test_refreshConf" id="test_refreshConf" onclick="test_refreshConf(cb)">test</a></span></h2>
+<h2>refreshConfFile(cb)<span><a class="mark" href="#test_refreshConfFile" id="test_refreshConfFile" onclick="test_refreshConfFile(cb)">test</a></span></h2>
 
 </body>
 </html>

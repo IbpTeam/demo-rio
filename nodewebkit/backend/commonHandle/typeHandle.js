@@ -47,20 +47,8 @@ function getDefinedTypeProperty() {
       //info for type define triples
       _property[_name] = _content.property;
       _property[_name]["subject"] = "'http://example.org/category#" + _name;
-      //info for typeDefine.conf of property
-      _category[_name] = _file_path;
-      //info for typeDefine.conf of postfix
-      for (var item_ in _content.postfix) {
-        _postfix[item_] = _content.postfix[item_];
-      }
     }
-    var _type_info = {
-      property: _category,
-      postfix: _postfix
-    }
-    var _content_type_define = JSON.stringify(_type_info, null, 4);
-    fs.writeFileSync(TYPECONFPATH, _content_type_define);
-    return _property;
+    return refreshConfFile();
   }
   return Q_read_dir(TYPEFILEDIR)
     .then(resolveProperty);
@@ -127,7 +115,12 @@ function readConfFile() {
     });
 }
 
-function refreshConf() {
+/**
+ * @method readConfFile
+ *   rewrite the typeDefine.conf based on current *.type file
+ *
+ */
+function refreshConfFile() {
   var _combination = [];
   var _property = {};
   return Q_read_dir(TYPEFILEDIR)
@@ -150,8 +143,8 @@ function refreshConf() {
             property: _property,
             postfix: _postfix
           }
-          return Q_write_file(TYPECONFPATH, JSON.stringify(_type_info, null, 4));
+          return Q_write_file(TYPECONFPATH, JSON.stringify(_type_info, null, 2));
         })
     })
 }
-exports.refreshConf = refreshConf;
+exports.refreshConfFile = refreshConfFile;
