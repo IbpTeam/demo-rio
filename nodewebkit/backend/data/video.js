@@ -14,13 +14,10 @@ var pathModule = require('path');
 var fs = require('fs');
 var fs_extra = require('fs-extra');
 var config = require("../config");
-var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 var uniqueID = require("../uniqueID");
 var exec = require('child_process').exec;
 var Q = require('q');
@@ -271,14 +268,3 @@ function getOpenInfo(item) {
 }
 exports.getOpenInfo = getOpenInfo;
 
-
-/*TODO: rewrite */
-function rename(sUri, sNewName, callback) {
-  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  })
-}
-exports.rename = rename;

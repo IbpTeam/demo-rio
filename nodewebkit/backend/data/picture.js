@@ -19,8 +19,6 @@ var fs = require('fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
 var util = require('util');
 var utils = require('../utils');
 var events = require('events');
@@ -28,7 +26,6 @@ var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
-var dataDes = require('../commonHandle/desFilesHandle');
 var Q = require('q');
 
 //@const
@@ -124,43 +121,3 @@ function getOpenInfo(item) {
   return source;
 }
 exports.getOpenInfo = getOpenInfo;
-
-
-/*TODO: rewrite */
-function rename(sUri, sNewName, callback) {
-  commonHandle.renameDataByUri(CATEGORY_NAME, sUri, sNewName, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  })
-}
-exports.rename = rename;
-
-/** 
- * @Method: getFilesByTag
- *    To get files with specific tag.
- *
- * @param2: sTag
- *    string, a tag name, as 'document'.
- *
- * @param1: callback
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, file info object in array
- *
- **/
-function getFilesByTag(sTag, callback) {
-  function getFilesCb(err, result) {
-    if (err) {
-      return callback(err, null);
-    }
-    callback(null, result);
-  }
-  tagsHandle.getFilesByTagsInCategory(getFilesCb, CATEGORY_NAME, sTag);
-}
-exports.getFilesByTag = getFilesByTag;

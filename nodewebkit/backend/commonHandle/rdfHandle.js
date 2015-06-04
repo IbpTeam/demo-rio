@@ -23,6 +23,7 @@ var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
 var __db = levelgraph(config.LEVELDBPATH);
 var Q = require('q');
 
+
 var _rdf = {
   _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
   _domain: 'http://www.w3.org/2000/01/rdf-schema#domain',
@@ -33,6 +34,7 @@ var _rdf = {
 exports.RDFVOC = _rdf;
 
 
+
 /**
  * @method dbClear
  *   delete the whole database
@@ -40,6 +42,9 @@ exports.RDFVOC = _rdf;
  * @param1 callback
  *   @err
  *      error，return 'null' if sucess;otherwise return err
+ * @return Promise
+ *      event state，which resolves with no values if sucess;
+ *      otherwise, return reject with Error object
  *
  */
 function dbClear() {
@@ -58,6 +63,8 @@ exports.dbClear = dbClear;
 /**
  * @method dbOpen
  *   open the levegraph database; would return a database object
+ * @return
+ *      Ojbject, levelgraph DataBase;
  *
  */
 function dbOpen() {
@@ -73,7 +80,11 @@ exports.dbOpen = dbOpen;
 /**
  * @method dbClose
  *   close the levegraph database
- *
+ * @param1 db
+ *      object，represent an writable DataBase
+ * @return Promise
+ *      event state，which resolves with no values if sucess;
+ *      otherwise, return reject with Error object
  */
 function dbClose(db) {
   var deferred = Q.defer;
@@ -112,10 +123,9 @@ exports.dbClose = dbClose;
  *        object: '"' + currentTime + '"'
  *    }]
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
- *
+ * @return
+ *      Promise , an event state，which present onfulfilled with no returns if sucess;
+ *                otherwise, return reject with Error object
  */
 function dbPut(db, triples) {
   var deferred = Q.defer();
@@ -181,10 +191,9 @@ exports.dbDelete = dbDelete;
  *        object: "davide"
  *      }]
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
- *
+ * @return Promise
+ *      an event state，which is a query jason of information from Triplese if sucess;
+ *      otherwise, return reject with Error object
  */
 function dbSearch(db, query) {
   var deferred = Q.defer();
@@ -237,71 +246,74 @@ exports.dbSearch = dbSearch;
  *      }
  *    }
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
+ * @return Promise
+ *    an event state，which is an arry of triple if sucess;
+ *    otherwise, return reject with Error object;    
  *
  */
 function tripleGenerator(info) {
   var _triples = [];
   var deferred = Q.defer();
   try {
-    var _base = info.base;
-    var _subject = 'http://example.org/category#' + info.subject;
-    var _object_defined = DEFINED_VOC.category[_base.category];
-    _triples.push({
-      subject: _subject,
-      predicate: DEFINED_VOC.rdf._type,
-      object: _object_defined
-    });
-    for (var entry in _base) {
-      //tags needs specific process 
-      if (entry === "tags") {
-        var _tags = _base[entry];
-        for (var i = 0, l = _tags.length; i < l; i++) {
-          var _subject_tag = 'http://example.org/tags#' + _tags[i];
-          //define tags for getAllTags()
-          var _tag_triple_define = {
-            subject: _subject_tag,
-            predicate: DEFINED_VOC.rdf._type,
-            object: DEFINED_PROP["base"]["tags"]
-          };
-          //define domain for getTagsInCatedory()
-          var _tag_triple_domain = {
-            subject: _subject_tag,
-            predicate: DEFINED_VOC.rdf._domain,
-            object: _object_defined
-          };
-          //define triples for tag searching
-          var _tag_triple = {
-            subject: _subject,
-            predicate: DEFINED_PROP["base"]["tags"],
-            object: _subject_tag
-          };
-          _triples.push(_tag_triple_define);
-          _triples.push(_tag_triple_domain);
-          _triples.push(_tag_triple);
-        }
-      } else {
-        var _triple_base = {
-          subject: _subject,
-          predicate: DEFINED_PROP["base"][entry],
-          object: _base[entry]
-        };
-        _triples.push(_triple_base);
-      }
-    }
-
-    var _extra = info.extra;
-    for (var entry in _extra) {
-      var _triple_extra = {
+    if (info === null) {
+      deferred.resolve(null);
+    } else {
+      var _base = info.base;
+      var _subject = 'http://example.org/category#' + info.subject;
+      var _object_defined = DEFINED_VOC.category[_base.category];
+      _triples.push({
         subject: _subject,
-        predicate: DEFINED_PROP[_base.category][entry],
-        object: _extra[entry]
-      };
-      _triples.push(_triple_extra);
+        predicate: DEFINED_VOC.rdf._type,
+        object: _object_defined
+      });
+      for (var entry in _base) {
+        //tags needs specific process 
+        if (entry === "tags") {
+          var _tags = _base[entry];
+          for (var i = 0, l = _tags.length; i < l; i++) {
+            var _subject_tag = 'http://example.org/tags#' + _tags[i];
+            //define tags for getAllTags()
+            var _tag_triple_define = {
+              subject: _subject_tag,
+              predicate: DEFINED_VOC.rdf._type,
+              object: DEFINED_PROP["base"]["tags"]
+            };
+            //define domain for getTagsInCatedory()
+            var _tag_triple_domain = {
+              subject: _subject_tag,
+              predicate: DEFINED_VOC.rdf._domain,
+              object: _object_defined
+            };
+            //define triples for tag searching
+            var _tag_triple = {
+              subject: _subject,
+              predicate: DEFINED_PROP["base"]["tags"],
+              object: _subject_tag
+            };
+            _triples.push(_tag_triple_define);
+            _triples.push(_tag_triple_domain);
+            _triples.push(_tag_triple);
+          }
+        } else {
+          var _triple_base = {
+            subject: _subject,
+            predicate: DEFINED_PROP["base"][entry],
+            object: _base[entry]
+          };
+          _triples.push(_triple_base);
+        }
+      }
+      var _extra = info.extra;
+      for (var entry in _extra) {
+        var _triple_extra = {
+          subject: _subject,
+          predicate: DEFINED_PROP[_base.category][entry],
+          object: _extra[entry]
+        };
+        _triples.push(_triple_extra);
+      }
+      deferred.resolve(_triples);
     }
-    deferred.resolve(_triples);
   } catch (err) {
     deferred.reject(new Error(err));
   }
@@ -318,9 +330,9 @@ exports.tripleGenerator = tripleGenerator;
  * @param1 triples
  *      object, the seach result of leveldb.
  *
- * @param1 callback
- *   @err
- *      error，return 'null' if sucess;otherwise return err
+ * @return Promise
+ *    an event state，which is a stack of information from Triplese if sucess;
+ *    otherwise, return reject with Error object
  *
  */
 function decodeTripeles(triples) {
@@ -391,3 +403,4 @@ function defTripleGenerator(info) {
   return _triples;
 }
 exports.defTripleGenerator = defTripleGenerator;
+
