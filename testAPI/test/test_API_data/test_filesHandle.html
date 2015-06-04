@@ -6,7 +6,7 @@
   a {
     font-size: 25px;
     font-family: sans-serif;
-    line-height: 2;
+    line-height: 2
   }
   </style>
   <script src="../../lib/require.js"></script>
@@ -16,7 +16,8 @@
 <body>
   <script language=javascript>  
 
-  var test_uri = "32a365a5ee8e6e27eeb342ae1837b665#7fd0182cc6ae55d049f4#document";
+  var test_uri = "rio20968rio#0881e7f2d9d9d314a927";
+  var Q = require('q');
 
   function print(win,something){
     if(typeof something == "object"){
@@ -47,272 +48,6 @@
     }
   }
 
-  function loadFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API loadFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-    }
-  }
-  function test_loadFile(loadFileCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var path = "/home/xiquan/testFile/music/咖啡.mp3";
-      //var path = "/home/xiquan/resources/contacts/contacts.CSV";
-      data.loadFile(loadFileCb, path);
-    });
-  }
-
-  function loadResourcesCb(result){
-    var win = window.open('');
-    win.document.write("test API loadResources()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
-  }
-  function test_loadResources(loadResourcesCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = "/home/xiquan/resources";
-      data.loadResources(loadResourcesCb,path);
-    });
-  }
-
-  function getAllCateCb(result){
-    var win = window.open('');    
-    win.document.write("test API getAllCateCb()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result);
-  }
-  function test_getAllCate(getAllCateCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getAllCate(getAllCateCb);
-    });
-  }
-
-  function getAllDataByCateCb(text){
-    var win = window.open(''); 
-    win.document.write("test API getAllDataByCate()");
-    win.document.write("<br/>");
-    var result=JSON.stringify(text);
-    print(win,result);
-    win.document.write("<br/>");
-  }
-  function test_getAllDataByCate() {
-    WDC.requireAPI(['data'], function(data){
-      data.getAllDataByCate(getAllDataByCateCb,['document']);
-    });
-  }
-
-  function updateDataValueCb(result){
-    var win = window.open(''); 
-    win.document.write("test API updateDataValue()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");  
-    print(win,result);      
-  }
-  function test_updateDataValue(updateDataValueCb){
-    WDC.requireAPI(['data'], function(data){
-      var item=[{
-        id:"",
-        URI:test_uri,
-        category:"document",
-        others:null,
-        filename:"testFile",
-        path:"/home/xiquan/resources/documents/Teaching/11/章节介绍.txt",
-        postfix:"txt",
-        size:1204,
-        project:'上海专项',
-        createTime:1111,
-        lastModifyTime:1111,
-        lastAccessTime:1111,
-      }];
-      data.updateDataValue(updateDataValueCb,item);
-    });
-  }
-
-  function rmDataCb(result){
-    var win = window.open(''); 
-    win.document.write("test API rmDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");  
-    print(win,result); 
-  }
-  function test_rmDataByUri(rmDataCb){
-    WDC.requireAPI(['data'], function(data){
-      data.rmDataByUri(rmDataCb, test_uri);
-    });
-  }
-
-  function getDataByUriCb(result){
-    var win = window.open(''); 
-    win.document.write("test API getDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");   
-    print(win,result);
-  }
-  function test_getDataByUri(getDataByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getDataByUri(getDataByUriCb,test_uri);
-    });
-  }
-
-  function getDataByPathCb(result){
-    var win = window.open(''); 
-    win.document.write("test API getDataByPath()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");   
-    print(win,result);
-  }
-  function test_getDataByPath(getDataByPathCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/.resources/document/data/ReleaseNoteFor基础版1.0.txt';
-      data.getDataByPath(getDataByPathCb,path);
-    });
-  }
-
-  function openDataByUriCb(result){
-    var win = window.open(''); 
-    win.document.write("test API getDataSourceByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  function test_openDataByUri(getDataSourceCb){
-    WDC.requireAPI(['data'], function(data){
-      data.openDataByUri(openDataByUriCb, test_uri);
-    });        
-  }
-
-  function getRecentAccessDataCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getRecentAccessData()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-    }
-  }
-  function test_getRecentAccessData(getRecentAccessDataCb){
-    WDC.requireAPI(['data'], function(data){
-      var num = 10;
-      data.getRecentAccessData(getRecentAccessDataCb,'video',num);
-    });        
-  }
-
-  function pasteFileCb(result){
-    var win = window.open(''); 
-    win.document.write("test API pasteFile()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    if(result){
-      win.document.write("success<br/>");
-      print(win,result);
-    }else{
-      win.document.write("fail<br/>");
-    }
-  }
-  function test_pasteFile(pasteFileCb){
-    WDC.requireAPI(['data'], function(data){
-      var sourcePath = "/home/xiquan/resources/documents/testfile.txt";
-      var desPath = "/home/xiquan/resources/.des/documents/testfile.txt.md";
-      data.pasteFile(pasteFileCb, sourcePath, desPath);
-    });        
-  }  
-
-  function getResourceDataDirCb(result){
-    var win = window.open('');
-    win.document.write("test API getResourceDataDir()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  function test_getResourceDataDir(getResourceDataDirCb){
-    WDC.requireAPI(['data'], function(data){
-      data.getResourceDataDir(getResourceDataDirCb);
-    });        
-  }
-
-  function renameDataByUriCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getMusicPicData()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-    }
-  }
-  function test_renameDataByUri(renameDataByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var sUri = test_uri;
-      var sNewName = 'test_rename_hahahahahah.txt';
-      var category = 'document';
-      data.renameDataByUri(category,sUri, sNewName,renameDataByUriCb);
-    });        
-  }
-
-  function getMusicPicDataCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getMusicPicData()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-      var img = document.getElementById("test_img");
-      img.src = 'data:image/jpeg;base64,' + result;
-    }
-  }
-
-  function test_getMusicPicData(getMusicPicDataCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var path = '/home/xiquan/testFile/music/咖啡.mp3';
-      data.getMusicPicData(getMusicPicDataCb, path);
-    });
-  }
-
-  function getVideoThumbnailCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getVideoThumbnail()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result);
-      var img = document.getElementById("test_video_img");
-      img.src = 'data:image/jpeg;base64,' + result;
-    }
-  }
-  function test_getVideoThumbnail(getVideoThumbnailCb) {
-    WDC.requireAPI(['data'], function(data) {
-      var path = '/home/v1/dde/resources/video/movie.ogg';
-      data.getVideoThumbnail(getVideoThumbnailCb, path);
-    });
-  }
-
   function createFileCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -339,7 +74,366 @@
     });
   }
 
+  function loadFileCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API loadFile()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_loadFile(loadFileCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + "/testFile/music/咖啡.mp3";;
+        data.loadFile(loadFileCb, path);
+      });      
+    });
+  }
+
+  function loadResourcesCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      throw err;
+      return print(win, err);
+    }
+    win.document.write("test API loadResources()");
+    win.document.write("<br/>");
+    win.document.write("callback result: success");
+    win.document.write("<br/>");
+    print(win, result);
+  }
+  
+
+  function test_loadResources(loadResourcesCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.RESOURCEFOLDER;
+        data.loadResources(loadResourcesCb, path);
+      });
+    });
+  }
+
+  function getAllCateCb(result){
+    var win = window.open('');    
+    win.document.write("test API getAllCateCb()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_getAllCate(getAllCateCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getAllCate(getAllCateCb);
+    });
+  }
+
+  function getAllDataByCateCb(err,text){
+    var win = window.open(''); 
+    if(err){
+      throw err
+    }
+    win.document.write("test API getAllDataByCate()");
+    win.document.write("<br/>");
+    var result=JSON.stringify(text);
+    print(win,result);
+    win.document.write("<br/>");
+  }
+  function test_getAllDataByCate() {
+    WDC.requireAPI(['data'], function(data){
+      data.getAllDataByCate(getAllDataByCateCb,'document');
+    });
+  }
+
+  function updateDataValueCb(result){
+    var win = window.open(''); 
+    win.document.write("test API updateDataValue()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");  
+    print(win,result);      
+  }
+  function test_updateDataValue(updateDataValueCb){
+
+    WDC.requireAPI(['data'], function(data){
+      data.test_baseinfo(function(baseinfo) {
+        var _item = {
+          _uri:test_uri,
+          _changes:[
+          {
+            _property:"filename",
+            _value:"asdasdasdasd"
+          },
+          // {
+          //   _property:"path",
+          //   _value:"aaaa/bbbb/cccc"
+          // },
+          {
+            _property:"postfix",
+            _value:"stestest"
+          },
+          {
+            _property:"lastAccessTime",
+            _value:(new Date()).toString()
+          }
+          ]
+        }
+        data.updateDataValue(updateDataValueCb,_item,test_uri);
+      }); 
+    });
+  }
+
+  function getDataByUriCb(err, result){
+    if(err){
+      throw err;
+    }
+    var win = window.open(''); 
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_getDataByUri(getDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getDataByUri(getDataByUriCb,test_uri);
+    });
+  }
+
+  function renameDataByUriCb(err, result){
+    if(err){
+      throw err;
+    }
+    var win = window.open(''); 
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_renameDataByUri(renameDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var test_thisNewName = "test_renameDataByUri";
+      var test_thisUri = test_uri;
+      data.renameDataByUri(test_thisUri,test_thisNewName,renameDataByUriCb);
+    });
+  }
+
+  function getDataByPathCb(err, result){
+    if(err){
+      throw err
+    }
+    var win = window.open(''); 
+    win.document.write("test API getDataByPath()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_getDataByPath(getDataByPathCb){
+    WDC.requireAPI(['data'], function(data){
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.RESOURCEFOLDER + 'aaaa/bbbb/cccc';
+        data.getDataByPath(getDataByPathCb,path);
+      });
+      
+    });
+  }
+
+  function openDataByUriCb(result){
+    var win = window.open(''); 
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_openDataByUri(getDataSourceCb){
+    WDC.requireAPI(['data'], function(data){
+      data.openDataByUri(getDataSourceCb, test_uri);
+    });        
+  }
+
+  function getRecentAccessDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getRecentAccessData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+  function test_getRecentAccessData(getRecentAccessDataCb){
+    WDC.requireAPI(['data'], function(data){
+      var num = 10;
+      data.getRecentAccessData(getRecentAccessDataCb,'document',num);
+    });        
+  }
+
+  function pasteFileCb(result){
+    var win = window.open(''); 
+    win.document.write("test API pasteFile()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    if(result){
+      win.document.write("success<br/>");
+      print(win,result);
+    }else{
+      win.document.write("fail<br/>");
+    }
+  }
+  function test_pasteFile(pasteFileCb){
+    WDC.requireAPI(['data'], function(data){
+      data.test_baseinfo(function(baseinfo) {
+        var resources = baseinfo.RESOURCEFOLDER;
+        var sourcePath = resources + "/documents/testfile.txt";
+        var desPath = resources + ".des/documents/testfile.txt.md";
+        data.pasteFile(pasteFileCb, sourcePath, desPath);
+      });
+      
+    });        
+  }  
+
+  function getResourceDataDirCb(result){
+    var win = window.open('');
+    win.document.write("test API getResourceDataDir()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>"); 
+    print(win,result);
+  }
+  function test_getResourceDataDir(getResourceDataDirCb){
+    WDC.requireAPI(['data'], function(data){
+      data.getResourceDataDir(getResourceDataDirCb);
+    });        
+  }
+
+  function getMusicPicDataCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getMusicPicData()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+      var img = document.getElementById("test_img");
+      img.src = 'data:image/jpeg;base64,' + result;
+    }
+  }
+
+  function test_getMusicPicData(getMusicPicDataCb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+         var path = baseinfo.HOMEFOLDER + '/testFile/music/咖啡.mp3';
+         data.getMusicPicData(getMusicPicDataCb, path);
+      });
+    });
+  }
+
+  function getVideoThumbnailCb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("test API getVideoThumbnail()");
+      win.document.write("<br/>");
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+      var img = document.getElementById("test_video_img");
+      img.src = 'data:image/jpeg;base64,' + result;
+    }
+  }
+
+  function test_getVideoThumbnail(getVideoThumbnailCb) {
+    WDC.requireAPI(['data'], function(data) {
+      var path = '/home/v1/dde/resources/video/movie.ogg';
+      data.getVideoThumbnail(getVideoThumbnailCb, path);
+    });
+  }
+
+  function rmDataCb(result){
+    var win = window.open(''); 
+    win.document.write("test API rmDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");  
+    print(win,result); 
+  }
+  function test_rmDataByUri(rmDataCb){
+    WDC.requireAPI(['data'], function(data){
+      data.rmDataByUri(rmDataCb, test_uri);
+    });
+  }
+
   </script>
+
+<h2 onclick="show('renameDataByUri')">renameDataByUri(sUri, sNewName, renameDataByUriCb)<span><a class="mark" href="#test_renameDataByUri" id="test_renameDataByUri" onclick="test_renameDataByUri(renameDataByUriCb)">test</a></span></h2>
+<div id="renameDataByUri" style="display:none;">
+<div style="color:#930000">
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function renameDataByUriCb(err, result){
+    if(err){
+      throw err;
+    }
+    var win = window.open(''); 
+    win.document.write("test API getDataByUri()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");   
+    print(win,result);
+  }
+  function test_renameDataByUri(renameDataByUriCb){
+    WDC.requireAPI(['data'], function(data){
+      var test_thisNewName = "test_renameDataByUri";
+      var test_thisUri = test_uri;
+      data.renameDataByUri(test_thisUri,test_thisNewName,renameDataByUriCb);
+    });
+  }
+</pre>
+</div>
+</div>
+
+<h2 onclick="show('loadResources')">loadResources(loadResourcesCb,path)<span><a class="mark" href="#test_loadResources" id="test_loadResources" onclick="test_loadResources(loadResourcesCb)">test</a></span></h2>
+<div id="loadResources" style="display:none;">
+<div style="color:#930000">
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function loadResourcesCb(result){
+    var win = window.open('');
+    win.document.write("test API loadResources()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_loadResources(loadResourcesCb){
+    WDC.requireAPI(['data'], function(data){
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.RESOURCEFOLDER + "/test.txt";
+        data.loadResources(loadResourcesCb,path);
+      });
+      
+    });
+  }       
+</pre>
+</div>
+</div>
 
 <h2 onclick="show('loadFile')">loadFile(loadFileCb,path)<span><a class="mark" href="#test_loadFile" id="test_loadFile" onclick="test_loadFile(loadFileCb)">test</a></span></h2>
 <div id="loadFile" style="display:none;">
@@ -358,7 +452,7 @@
   }
   function test_loadFile(loadFileCb){
     WDC.requireAPI(['data'], function(data){
-      var path = "/home/xiquan/resources/test.txt";
+      var path = baseinfo.RESOURCEFOLDER + "/test.txt";
       data.loadFile(loadFileCb,path);
     });
   }       
@@ -366,8 +460,8 @@
 </div>
 </div>
 
-<h2 onclick="show('getAllCate')">getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
-<div id="getAllCate" style="display:none;">
+<h2 onclick="show('getAllCate2')">getAllCate(getAllCateCb)<span><a class="mark" href="#test_getAllCate" id="test_getAllCate2" onclick="test_getAllCate(getAllCateCb)">test</a></span></h2>
+<div id="getAllCate2" style="display:none;">
 <div style="color:#930000">
   <pre>
     @method : getAllCate 查询所有基本分类
@@ -504,23 +598,25 @@
 
     function test_updateDataValue(updateDataValueCb){
       WDC.requireAPI(['data'], function(data){
-        var item=[{
-          id:"",
-          URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
-          category:"Documents",
-          commit_id: null,
-          version:null,
-          others:null,
-          filename:"testFile",
-          postfix:"txt",
-          size:1204,
-          path:"/home/xiquan/testFile",
-          project:'上海专项',
-          createTime:1111,
-          lastModifyTime:1111,
-          lastAccessTime:1111,
-        }];
-        data.updateDataValue(updateDataValueCb,item);
+        data.test_baseinfo(function(baseinfo) {
+          var item=[{
+            id:"",
+            URI:"ace6f9045d75a83682e76288f79dd824#59d956b5b245800de3d4#Documents",
+            category:"Documents",
+            commit_id: null,
+            version:null,
+            others:null,
+            filename:"testFile",
+            postfix:"txt",
+            size:1204,
+            path: baseinfo.HOMEFOLDER + "/testFile",
+            project:'上海专项',
+            createTime:1111,
+            lastModifyTime:1111,
+            lastAccessTime:1111,
+          }];
+          data.updateDataValue(updateDataValueCb,item);
+        });
       });
     }
   </pre>
@@ -786,39 +882,12 @@
 </div>
 </div>
 
-<h2 onclick="show('renameDataByUri')">renameDataByUri(sUri, sNewName,renameDataByUriCb)<span><a class="mark" href="#test_renameDataByUri" id="test_renameDataByUri" onclick="test_renameDataByUri(renameDataByUriCb)">test</a></span></h2>
-<div id="renameDataByUri" style="display:none;">
-<div style="color:#930000">
-  <pre>
-  </pre>
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function renameDataByUriCb(result){
-    var win = window.open('');
-    win.document.write("test API renameDataByUri()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>"); 
-    print(win,result);
-  }
-  function test_renameDataByUri(renameDataByUriCb){
-    WDC.requireAPI(['data'], function(data){
-      var sUri = test_uri;
-      var sNewName = 'test_rename.txt';
-      data.renameDataByUri(sUri, sNewName,renameDataByUriCb);
-    });        
-  }
-  </pre>
-</div>
-</div>
 
 <h2 onclick="show('getMusicPicData')">getMusicPicData(getMusicPicDataCb,path)<span><a class="mark" href="#test_getMusicPicData" id="test_getMusicPicData" onclick="test_getMusicPicData(getMusicPicDataCb)">test</a></span></h2>
 <div id="getMusicPicData" style="display:none;">
 <div style="color:#930000">
-  <canvas id="test_id3" width="100" height="100"></canvas>
-  <img id="test_img"  />
+  <canvas id="test_id4" width="100" height="100"></canvas>
+  <img id="test_img3"  />
 </div>
 <div style="color:#004B97">
   <pre>
@@ -836,10 +905,12 @@
     }
   }
   function test_getMusicPicData(getMusicPicDataCb){
-    WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/testFile/music/打错了.mp3';
-      data.getMusicPicData(getMusicPicDataCb,path);
-    });        
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + + '/testFile/music/打错了.mp3';
+        data.getMusicPicData(getMusicPicDataCb,path);
+      });      
+    });     
   }
   </pre>
 </div>
@@ -848,7 +919,7 @@
 <h2 onclick="show('getVideoThumbnail')">getVideoThumbnail(getVideoThumbnailCb,path)<span><a class="mark" href="#test_getVideoThumbnail" id="test_getVideoThumbnail" onclick="test_getVideoThumbnail(getVideoThumbnailCb)">test</a></span></h2>
 <div id="getVideoThumbnail" style="display:none;">
 <div style="color:#930000">
-  <canvas id="test_id3" width="100" height="100"></canvas>
+  <canvas id="test_id2" width="100" height="100"></canvas>
   <img id="test_video_img"  />
 </div>
 <div style="color:#004B97">
@@ -866,10 +937,16 @@
       print(win, result);
     }
   }
+
   function test_getVideoThumbnail(getVideoThumbnailCb){
+    WDC.requireAPI(['data'], function(data) {
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.HOMEFOLDER + 'testFile/music/打错了.mp4';
+        data.getVideoThumbnail(getVideoThumbnailCb,path);
+      });      
+    });     
     WDC.requireAPI(['data'], function(data){
-      var path = '/home/xiquan/testFile/music/打错了.mp4';
-      data.getVideoThumbnail(getVideoThumbnailCb,path);
+      
     });        
   }
   </pre>
@@ -914,3 +991,4 @@
 
 </body>
 </html>
+S

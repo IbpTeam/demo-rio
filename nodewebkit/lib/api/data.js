@@ -1,4 +1,3 @@
-var commonDAO = require("../../backend/commonHandle/CommonDAO");
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
@@ -15,7 +14,7 @@ var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
-var repo = require('../../backend/commonHandle/repo');
+var Q = require('q');
 
 /*
  *getLocalData
@@ -61,57 +60,8 @@ exports.sendIMMsg = sendIMMsg;
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  var itemFullname = path.basename(sFilePath);
-  var sPos = path.extname(itemFullname);
-  if (sPos === '') {
-    sPos = 'none';
-  } else if (sPos[0] === '.') {
-    sPos = sPos.substring(1, sPos.length);
-  } else {
-    sPos = 'other';
-    console.log('some wrong with the postfix ...');
-  }
-  if (sPos == 'csv' || sPos == 'CSV') {
-    var cate = utils.getCategoryObject('contact');
-    cate.initContacts(function(err) {
-      if (err) {
-        return loadFileCb(err, null);
-      }
-      loadFileCb(null, 'success');
-    }, sFilePath);
-  } else {
-    var category = utils.getCategoryByPath(sFilePath).category;
-    var cate = utils.getCategoryObject(category);
-    cate.createData(sFilePath, function(err, resultFilePath) {
-      function findItemsCb(err, result) {
-        if (err) {
-          return loadFileCb(err, null);
-        } else if (result == '') {
-          var _err = 'Not found in database ...';
-          return loadFileCb(_err, null);
-        }
-
-        if (err) {
-          console.log(err);
-          return loadFileCb(err, null);
-        } else if (result == '') {
-          var _err = 'Not found in database ...';
-          return loadFileCb(_err, null);
-        }
-        var result_ = {
-          'uri': result[0]['URI'],
-          'filepath': resultFilePath,
-          'tags': []
-        };
-        if(result[0]['others'] !== ''){
-          result_.tags = result[0]['others'].split(',');
-        }
-        loadFileCb(null, result_);
-      }
-      var sCondition = ["path ='" + resultFilePath + "'"];
-      commonDAO.findItems(['uri', 'path','others'], category, sCondition, null, findItemsCb);
-    })
-  }
+  /*TODO: rewrite*/
+  return loadFileCb();
 }
 exports.loadFile = loadFile;
 
@@ -191,54 +141,22 @@ function loadResources(loadResourcesCb, path) {
     });
   }
   walk(path);
-
-  documents.createData(DocList, function(err, result) {
-    if (err) {
-      console.log(err);
-      return loadResourcesCb(err, null);
-    }
-    if (result != '' && result != null && typeof result === 'object') {
-      existFile = existFile.concat(result);
-    }
-    pictures.createData(PicList, function(err, result) {
-      if (err) {
-        console.log(err);
-        return loadResourcesCb(err, null);
-      }
-      if (result != '' && result != null && typeof result === 'object') {
-        existFile = existFile.concat(result);
-      }
-      music.createData(MusList, function(err, result) {
-        if (err) {
-          console.log(err);
-          return loadResourcesCb(err, null);
-        }
-        if (result != '' && result != null && typeof result === 'object') {
-          existFile = existFile.concat(result);
-        }
-        video.createData(VidList, function(err, result) {
-          if (err) {
-            console.log(err);
-            return loadResourcesCb(err, null);
-          }
-          if (result != '' && result != null && typeof result === 'object') {
-            existFile = existFile.concat(result);
-          }
-          other.createData(OtherList, function(err, result) {
-            if (err) {
-              console.log(err);
-              return loadResourcesCb(err, null);
-            }
-            if (result != '' && result != null && typeof result === 'object') {
-              existFile = existFile.concat(result);
-            }
-            console.log("load resources success!", existFile);
-            loadResourcesCb(null, existFile);
-          });
-        });
-      });
-    });
-  });
+  documents.createData(DocList)
+    .then(function() {
+      return pictures.createData(PicList);
+    })
+    .then(function() {
+      return music.createData(MusList);
+    })
+    .then(function() {
+      return video.createData(VidList);
+    })
+    .then(function() {
+      return other.createData(OtherList);
+    })
+    .then(loadResourcesCb)
+    .fail(loadResourcesCb)
+    .done();
 }
 exports.loadResources = loadResources;
 
@@ -256,7 +174,10 @@ exports.loadResources = loadResources;
  */
 function loadContacts(loadContactCb, path) {
   console.log("Request handler 'loadContacts' was called.");
-  contacts.initContacts(loadContactCb, path);
+  contacts.initContacts(path)
+    .then(loadContactCb)
+    .fail(loadContactCb)
+    .done();
 }
 exports.loadContacts = loadContacts;
 
@@ -304,16 +225,30 @@ exports.getAllCate = getAllCate;
  *           path;
  *        }
  */
+
 function getAllDataByCate(getAllDataByCateCb, cate) {
   console.log("Request handler 'getAllDataByCate' was called.");
   if (cate == 'Contact' || cate == 'contact') {
-    contacts.getAllContacts(getAllDataByCateCb);
+    contacts.getAllContacts()
+      .then(function(result) {
+        getAllDataByCateCb(null, result);
+      })
+      .fail(function(err) {
+        getAllDataByCateCb(err);
+      })
+      .done();
   } else {
-    commonHandle.getAllDataByCate(getAllDataByCateCb, cate)
+    commonHandle.getAllDataByCate(cate)
+      .then(function(result) {
+        getAllDataByCateCb(null, result);
+      })
+      .fail(function(err) {
+        getAllDataByCateCb(err);
+      })
+      .done();
   }
 }
 exports.getAllDataByCate = getAllDataByCate;
-
 /**
  * @method getAllContacts
  *   获得所有联系人数组
@@ -332,7 +267,14 @@ exports.getAllDataByCate = getAllDataByCate;
  */
 function getAllContacts(getAllContactsCb) {
   console.log("Request handler 'getAllContacts' was called.");
-  contacts.getAllContacts(getAllContactsCb);
+  contacts.getAllContacts()
+    .then(function(result) {
+      getAllContactsCb(null, result);
+    })
+    .fail(function(err) {
+      getAllContactsCb(err);
+    })
+    .done();
 }
 exports.getAllContacts = getAllContacts;
 
@@ -342,9 +284,19 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataByUri' was called.");
-  var cate = utils.getCategoryObjectByUri(uri);
-  console.log("Request handler 'rmDataByUri' was called. ====" + cate);
-  cate.removeByUri(uri, rmDataByUriCb);
+    var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: uri
+  }
+  commonHandle.removeItemByProperty(_options)
+    .then(function(result){
+      rmDataByUriCb(null,result);
+    })
+    .fail(function(err){
+      rmDataByUriCb(err);
+    })
+    .done();
 }
 exports.rmDataByUri = rmDataByUri;
 
@@ -352,8 +304,19 @@ exports.rmDataByUri = rmDataByUri;
 //返回具体数据类型对象
 function getDataByUri(getDataByUriCb, uri) {
   console.log("Request handler 'getDataByUri' was called.");
-  var cate = utils.getCategoryObjectByUri(uri);
-  cate.getByUri(uri, getDataByUriCb);
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: uri
+  }
+  commonHandle.getItemByProperty(_options)
+    .then(function(result){
+      getDataByUriCb(null, result);
+    })
+    .fail(function(err){
+      getDataByUriCb(err);
+    })
+    .done();
 }
 exports.getDataByUri = getDataByUri;
 
@@ -361,26 +324,59 @@ exports.getDataByUri = getDataByUri;
 //返回具体数据类型对象
 function getDataByPath(getDataByPathCb, sPath) {
   console.log("Request handler 'getDataByPath' was called.");
-  if(sPath.substr(sPath.length-3,sPath.length-1) === '.md'){
-    sPath = sPath.substr(0,sPath.length-3);
+  var _options = {
+    _type: "base",
+    _property: "path",
+    _value: sPath
   }
-  var cate = utils.getCategoryByPath(sPath);
-  var category = cate.category;
-  var filename = cate.filename;
-  var postfix = cate.postfix;
-  var sCondition = ["postfix='" + postfix + "'", "filename='" + filename + "'"];
-  commonDAO.findItems(null, category, sCondition, null, function(err, result) {
-    if (err) {
-      return getDataByPathCb(err, null);
-    } else if (result == '' || result === null) {
-      return getDataByPathCb(sPath + ': not found in database ...', null);
-    }
-    var uri = result[0].URI;
-    var cateObject = utils.getCategoryObject(category);
-    cateObject.getByUri(uri, getDataByPathCb);
-  })
+  commonHandle.getItemByProperty(_options)
+    .then(function(result){
+      getDataByPathCb(null, result);
+    })
+    .fail(function(err){
+      getDataByPathCb(err);
+    })
+    .done();
 }
 exports.getDataByPath = getDataByPath;
+
+
+/**
+ * @method openDataByUri
+ *   打开URI对应的数据
+ *
+ * @param1 getDataByUriCb
+ *   回调函数
+ *   @err
+ *    return error message
+ *
+ *   @result
+ *     array: 显示数据或结果
+ *
+ * @param2 options
+ *   object, including specific infomation for searhcing data
+ *
+ *    example:
+ *    var options = {
+ *                              _type: "base",  
+ *                              _property: "URI",
+ *                              _value: "ajsdawjdjiajwdj"
+ *                              }
+ *
+ */
+function getDataByProperty(getDataByUriCb, options) {
+  console.log("Request handler 'getDataByUri' was called.");
+  commonHandle.getItemByProperty(options)
+    .then(function(items){
+      getDataByUriCb(null,items);
+    })
+    .fail(function(err){
+      getDataByUriCb(err);
+    })
+    .done();
+
+}
+exports.getDataByUri = getDataByUri;
 
 /**
  * @method openDataByUri
@@ -413,84 +409,50 @@ exports.getDataByPath = getDataByPath;
  */
 function openDataByUri(openDataByUriCb, uri) {
   console.log("Request handler 'openDataByUri' was called.");
-  var cate = utils.getCategoryObjectByUri(uri);
-  cate.openDataByUri(function(result) {
-    if (result.format === "html5ppt") {
-      console.log("open html5ppt:" + result.content);
-      window.open(result.content);
-
-      result.content = "成功打开文件" + result.content;
-      setTimeout(openDataByUriCb(result), 0);
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: uri
+  }
+  var dataMaker = function(result){
+    var cate = utils.getCategoryObject(result[0].category);
+    var _source = cate.getOpenInfo(result[0]);
+    if (_source.format === "html5ppt") {
+      console.log("open html5ppt:" + _source.content);
+      window.open(_source.content);
+      _source.content = "成功打开文件" + _source.content;
+      setTimeout(openDataByUriCb(_source), 0);
     } else {
-      setTimeout(openDataByUriCb(result), 0);
+      setTimeout(openDataByUriCb(_source), 0);
     }
-  }, uri);
+  }
+  return commonHandle.getItemByProperty(_options)
+    .then(dataMaker)
+    .then(function(){
+      commonHandle.openData(_options, uri);
+    })
+    .fail(function(err){
+        openDataByUriCb(err);
+      })
+    .done();
 }
 exports.openDataByUri = openDataByUri;
 
-/**
- * @method openDataByPath
- *   打开path对应的数据
- *
- * @param1: sPath
- *   string，要打开数据的FullPath
- *
- * @param2: callback
- *   回调函数
- *   @result
- *     object: 显示数据或结果
- *        结构如下：
- *        {
- *            openmethod: 'html',
- *            format:     'audio',
- *            title:      '文件浏览',
- *            content:    item.path
- *        }
- *        其中具体说明如下：
- *        openmethod: 打开方式，支持 html, alert两种
- *          如果是alert，则只有content属性，为alert需要输出的结果
- *          如果是html则具有format, title, content三种属性
- *        title: 是返回结果的标题，如果显示则可以用这个为标题
- *        format和content: 分别表示结果的格式和内容。
- *          format:audio 音频格式，content是具体的音频引用路径
- *          format:div   表示结果是一个div封装的字符串，可以直接显示在界面中
- *          format:txtfile 表示结果是一个txt文件，可以通过load进行加载
- *          format:other  其他结果都默认是一个div或html格式的字符串，可直接显示
- *
- */
-function openDataByPath(openDataByPathCb, sPath) {
-  console.log("Request handler 'openDataByPath' was called.");
-  var category = utils.getCategoryByPath(sPath).category;
-  var cate = utils.getCategoryObject(category);
-  var sCondition = ["path = '" + sPath + "'"];
-  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return openDataByPathCb(err, null);
-    } else if (result == [] || result == '') {
-      var _err = 'file ' + sPath + ' not found in db!';
-      console.log(_err);
-      return openDataByPathCb(_err, null);
-    }
-    var sUri = result[0].URI;
-    var sFullName = result[0].filename + result[0].postfix;
-
-    function openDataByUriCb(result) {
-      openDataByPathCb(null, result);
-    }
-    cate.openDataByUri(openDataByUriCb, sUri);
-  })
-}
-exports.openDataByPath = openDataByPath;
 
 //API updateItemValue:修改数据某一个属性
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb, item) {
+function updateDataValue(updateDataValueCb, item, uri) {
   console.log("Request handler 'updateDataValue' was called.");
-  var cate = utils.getCategoryObject(item[0].category);
-  cate.updateDataValue(item[0], updateDataValueCb);
+  commonHandle.updatePropertyValue(item)
+    .then(function(result){
+      updateDataValueCb(null, result);
+    })
+    .fail(function(err){
+      updateDataValueCb(err);
+    })
+    .done();
 }
 exports.updateDataValue = updateDataValue;
 
@@ -499,14 +461,15 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getRecentAccessData(num, function(err, result) {
-    if (err) {
+  commonHandle.getRecentAccessData(category,num)
+    .then(function(result){
+      getRecentAccessDataCb(null, result);
+    })
+    .fail(function(err){
       console.log(err);
-      return getRecentAccessDataCb(err, null);
-    }
-    getRecentAccessDataCb(null, result);
-  })
+      getRecentAccessDataCb(err);
+    })
+    .done();
 }
 exports.getRecentAccessData = getRecentAccessData;
 
@@ -637,7 +600,14 @@ exports.getResourceDataDir = getResourceDataDir;
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getAllTagsByCategory(getAllTagsByCategoryCb, category);
+  tagsHandle.getAllTagsByCategory(category)
+      .then(function(results) {
+        getAllTagsByCategoryCb(null,results);
+      })
+      .fail(function(err) {
+        getAllTagsByCategoryCb(err);
+      })
+      .done();
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
@@ -653,10 +623,18 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  *
  */
 function getTagsByUri(getTagsByUriCb, sUri) {
-  console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getTagsByUri(getTagsByUriCb, sUri);
+  console.log("Request handler 'getTagsByUri' was called.");
+  tagsHandle.getTagsByUri(sUri)
+      .then(function(results) {
+        getTagsByUriCb(null,results);
+      })
+      .fail(function(err) {
+        getTagsByUriCb(err);
+      })
+      .done();
 }
 exports.getTagsByUri = getTagsByUri;
+
 
 /**
  * @method getTagsByUris
@@ -671,7 +649,23 @@ exports.getTagsByUri = getTagsByUri;
  */
 function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
-  tagsHandle.getTagsByUris(getTagsByUrisCb, oUris);
+  var _tmp_result = [];
+  Q.all(oUris.map(tagsHandle.getTagsByUri))
+    .then(function(result_) {
+      var _tags = {};
+      for (var i = 0, l = result_.length; i < l; i++) {
+        for (var j = 0, m = result_[i].length; j < m; j++) {
+          _tags[result_[i][j]] = true;
+        }
+      }
+      var _tags_result = [];
+      for (var tag_ in _tags) {
+        _tags_result.push(tag_);
+      }
+      getTagsByUrisCb(null, _tags_result);
+    })
+    .fail(getTagsByUrisCb)
+    .done();
 }
 exports.getTagsByUris = getTagsByUris;
 
@@ -686,44 +680,25 @@ exports.getTagsByUris = getTagsByUris;
  *    oTags example:
  *    var oTags = ['documents','music','picture']
  *
- * @param3 : oUri, array
+ * @param3 : sUri, string
  *
- *    oUri example:
- *    var oUri = ['some_uri_1','some_uri_2','some_uri_2']
+ *    sUri example:
+ *    var sUri = 'some_uri_1'
  *
  *
  */
-function setTagByUri(setTagByUriCb, oTags, oUri) {
+function setTagByUri(setTagByUriCb, oTags, sUri) {
   console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.setTagByUri(setTagByUriCb, oTags, oUri);
+  tagsHandle.setTagByUri(oTags,sUri)
+    .then(function(results) {
+      setTagByUriCb(null,results);
+    })
+    .fail(function(err) {
+      setTagByUriCb(err);
+    })
+    .done();
 }
 exports.setTagByUri = setTagByUri;
-
-/**
- * @method setTagByUriMulti
- *   set tags to multiple files by uri
- *
- * @param1 callback
- *    @result, (_err,result)
- *
- *    @param: _err,
- *        string, return specific error info
- *
- *    @param: result,
- *        string, retieve 'success' when success
- *
- * @param2 oTags
- *    array, an array of tags to be set
- *
- * @param3 oUri
- *    array, an array of uri
- *
- */
-function setTagByUriMulti(setTagByUriMultiCb, oTags, oUri) {
-  console.log("Request handler 'setTagByUriMulti' was called.");
-  tagsHandle.setTagByUriMulti(setTagByUriMultiCb, oTags, oUri);
-}
-exports.setTagByUriMulti = setTagByUriMulti;
 
 /**
  * @method getFilesByTag
@@ -741,7 +716,14 @@ exports.setTagByUriMulti = setTagByUriMulti;
  */
 function getFilesByTags(getFilesByTagsCb, oTags) {
   console.log("Request handler 'getFilesByTags' was called.");
-  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+  tagsHandle.getFilesByTags(oTags)
+    .then(function(results) {
+      getFilesByTagsCb(null,results);
+    })
+    .fail(function(err) {
+      getFilesByTagsCb(err);
+    })
+    .done();
 }
 exports.getFilesByTags = getFilesByTags;
 
@@ -761,10 +743,16 @@ exports.getFilesByTags = getFilesByTags;
  */
 function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
   console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags);
+  tagsHandle.getFilesByTagsInCategory(category,oTags)
+    .then(function(results) {
+      getFilesByTagsInCategoryCb(null,results);
+    })
+    .fail(function(err) {
+      getFilesByTagsInCategoryCb(err);
+    })
+    .done();
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
 
 /**
  * @method rmTagsAll
@@ -781,11 +769,18 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *    var oTags = ['documents','music','picture']
  *
  */
-function rmTagsAll(rmTagsAllCb, oTags) {
-  console.log("Request handler 'rmTagsAll' was called.");
-  tagsHandle.rmTagsAll(rmTagsAllCb, oTags);
+function rmTagAll(rmTagAllCb, oTags, category) {
+  console.log("Request handler 'rmTagAll' was called.");
+  tagsHandle.rmTagAll(oTags, category)
+  .then(function(results) {
+    rmTagAllCb(null,results);
+  })
+  .fail(function(err) {
+    rmTagAllCb(err);
+  })
+  .done();
 }
-exports.rmTagsAll = rmTagsAll;
+exports.rmTagAll = rmTagAll;
 
 /**
  * @method rmTagsByUri
@@ -804,16 +799,23 @@ exports.rmTagsAll = rmTagsAll;
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
   console.log("Request handler 'rmTagsByUri' was called.");
-  tagsHandle.rmTagsByUri(rmTagsByUriCb, sTag, oUri);
+  tagsHandle.rmTagsByUri(sTag,oUri)
+    .then(function(results) {
+      rmTagsByUriCb(null,results);
+    })
+    .fail(function(err) {
+      rmTagsByUriCb(err);
+    })
+    .done();
 }
 exports.rmTagsByUri = rmTagsByUri;
-
 
 function initDesktop(initDesktopCb) {
   console.log("Request handler 'initDesktop' was called.");
   desktopConf.initDesktop(initDesktopCb);
 }
 exports.initDesktop = initDesktop;
+
 
 
 /** 
@@ -1289,199 +1291,6 @@ function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
-function pullFromOtherRepoTest() {
-  repo.pullFromOtherRepoTest();
-}
-exports.pullFromOtherRepoTest = pullFromOtherRepoTest;
-
-/** 
- * @Method: getGitLog
- *    To get git log in a specific git repo
- *
- * @param1: getGitLogCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        object, result of git log; the preoperty would be commit id
- *
- *        example:
- *        {
- *            "8fa016846720fe5182113a1880b6623f9e9bec68": {
- *                "commitID": "8fa016846720fe5182113a1880b6623f9e9bec68",
- *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
- *                "Date": "   Fri Oct 31 13:42:43 2014 +0800",
- *                "content": {
- *                    "relateCommit": "acd5c16b0650dbfbfd20e36a53799a4f9cd40eaf",
- *                    "device": "ace6f9045d75a83682e76288f79dd824",
- *                    "op": "rm",
- *                    "file": [
- *                        "testfile.txt"
- *                    ]
- *                }
- *            },
- *            "dda06b7b042a8256aac6a37843539bd2e7a98821": {
- *                "commitID": "dda06b7b042a8256aac6a37843539bd2e7a98821",
- *                "Author": " “shuanzi” <“daixiquan@gmail.com”>",
- *                "Date": "   Fri Oct 31 11:19:49 2014 +0800",
- *                "content": {
- *                    "relateCommit": "0a14c542fabc48104673c7fbc631bf1e7a3128f6",
- *                    "device": "ace6f9045d75a83682e76288f79dd824",
- *                    "op": "add",
- *                    "file": [
- *                        "/home/xiquan/.resources/document/data/Release_note_0.7.txt",
- *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0RC.txt",
- *                        "/home/xiquan/.resources/document/data/ReleaseNoteForCDOS1.0alpha.txt",
- *                    ]
- *                }
- *            }
- *        }
- *
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- **/
-function getGitLog(getGitLogCb, category) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.getGitLog(getGitLogCb);
-}
-exports.getGitLog = getGitLog;
-
-
-/** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- **/
-function repoReset(repoResetCb, category, commitID) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoReset(commitID, function(err, result) {
-    if (err) {
-      var _err = {
-        'data': err
-      }
-      console.log(_err);
-      repoResetCb(_err, null);
-    } else {
-      commonHandle.updateDB(category, function(err, result) {
-        if (err) {
-          var _err = {
-            'data': err
-          }
-          console.log(_err, null);
-        } else {
-          console.log('reset ' + category + ' repo success!');
-          repoResetCb(null, result);
-        }
-      })
-    }
-  });
-}
-exports.repoReset = repoReset;
-
-/** 
- * @Method: repoResetFile
- *    To reset a single file to a history commit version. This action would also
- *    reset des file repo
- *
- * @param1: repoResetCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
- *
- * @param4: file
- *    string, a file full path, as '/home/xiquan/document/test.txt'
- *
- **/
-function repoResetFile(repoResetFileCb, category, commitID, file) {
-  console.log("Request handler 'getGitLog' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoResetFile(commitID, function(err, result) {
-    if (err) {
-      var _err = {
-        'data': err
-      }
-      console.log(_err);
-      repoResetFileCb(_err, null);
-    } else {
-      commonHandle.updateDB(category, function(err, result) {
-        if (err) {
-          var _err = {
-            'data': err
-          }
-          console.log(_err, null);
-        } else {
-          console.log('reset ' + category + ' repo success!');
-          repoResetFileCb(null, result);
-        }
-      })
-    }
-  });
-}
-exports.repoResetFile = repoResetFile;
-
-
-/** 
- * @Method: renameDataByUri
- *    rename a file
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: sUri
- *    string, a specific uri, as '9a67fd92557d84e2f657122e54c190b83cc6e#document'
- *
- * @param4: sNewName
- *    string, a file name, as 'test_rename.txt'
- *
- * @param1: renameDataByUriCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- 
- *        string, retieve 'success' when success
- *
- **/
-function renameDataByUri(category, sUri, sNewName, renameDataByUriCb) {
-  console.log("Request handler 'renameDataByUri' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.rename(sUri, sNewName, renameDataByUriCb);
-}
-exports.renameDataByUri = renameDataByUri;
 
 /** 
  * @Method: deviceInfo
@@ -1575,29 +1384,44 @@ exports.getVideoThumbnail = getVideoThumbnail;
 
 
 /** 
- * @Method: repoSearch
- *    search key matches in git log
- *
- * @param: repoSearchCb
- *    @result, (_err,result)
- *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        object, result in object, as example in getGitLog() above
- *
- *  @param2: category
- *    string, category name.
- *
- *  @param2: sKey
- *    string, a piece of specific string.
- *
+ * @Method: test_rdfHandle
+ *    just for testing rdfHandle
  *
  **/
-function repoSearch(repoSearchCb, category, sKey) {
-  console.log("Request handler 'repoSearch' was called.");
-  var cate = utils.getCategoryObject(category);
-  cate.repoSearch(repoSearchCb, sKey);
+function test_rdfHandle(callback) {
+  var rdfHandle = require("../../backend/commonHandle/rdfHandle");
+  callback(rdfHandle);
 }
-exports.repoSearch = repoSearch;
+exports.test_rdfHandle = test_rdfHandle;
+
+
+/** 
+ * @Method: test_baseinfo
+ *    just for testing api
+ *
+ **/
+function test_baseinfo(callback) {
+  var config = require("../../backend/config");
+  var element = {
+    HOMEFOLDER : path.join(config.HOME),
+    RESOURCEFOLDER : path.join(config.HOME, "resources")
+  }
+  callback(element);
+}
+exports.test_baseinfo = test_baseinfo;
+
+
+
+function renameDataByUri(sUri, sNewName, renameDataByUriCb){
+  console.log("Request handler 'renameDataByUri' was called.");
+  commonHandle.renameDataByUri( sUri, sNewName)
+    .then(function(result){
+      renameDataByUriCb(null,result);
+    })
+    .fail(function (err){
+      renameDataByUriCb(err);
+    })
+    .done();
+}
+exports.renameDataByUri = renameDataByUri;
+

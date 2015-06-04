@@ -47,7 +47,10 @@ var MainVideoView = Class.extend({
       for(var i = 0; i < video_json_.length; i ++){
         if(video_json_[i].hasOwnProperty('filename') && video_json_[i].hasOwnProperty('URI')){
           _this.addVideo(video_json_[i]);
-          DataAPI.getTagsByUri(function(result_){
+          DataAPI.getTagsByUri(function(err, result_){
+            if(err){
+              throw err;
+            }
             _this._tags.push(result_);
             _count ++;
             if(_count == video_json_.length){

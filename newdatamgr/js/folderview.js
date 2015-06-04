@@ -598,7 +598,10 @@ var ShowFiles = Class.extend({
 
 
   //回调函数，用来获得数据库中的所有的数据，获得的是json的格式，从而对json进行操作。
-  getCallBackData:function(files){
+  getCallBackData:function(err, files){
+    if(err){
+      throw err;
+    }
     _globalSelf._getFiles[_globalSelf._index] = files;
     _globalSelf._imgReady = files.length;
     var returnContent = _globalSelf.showFilesNormal(files);
@@ -719,10 +722,12 @@ var ShowFiles = Class.extend({
         'height': 25,
         'oldtext': file['filename'],
         'callback': function(newtext){
-          DataAPI.renameDataByUri(_globalSelf._currentCategory[_globalSelf._index], 
-            file['URI'], newtext+'.'+file['postfix'], 
+          DataAPI.renameDataByUri(file['URI'], newtext, 
             function(err, result){
-              if(result == 'success'){
+              if(err){
+                window.alert("Rename failed!");
+              }
+              else{
                 $('#'+modifyURI+'div').children('p').html(newtext);
                 if(_globalSelf._index ==3){
                   $('#'+modifyURI+'tr').children('th').eq(0).children('p').html(newtext);
@@ -737,9 +742,7 @@ var ShowFiles = Class.extend({
                   }
                 }
               }
-              else{
-                window.alert("Rename failed!");
-              }
+              
           });
         }
       }
@@ -755,22 +758,21 @@ var ShowFiles = Class.extend({
       window.alert('the file is not found');
     }
     else{
-      DataAPI.rmDataByUri(function(err,result){
-        if(result == 'success'){
-          for(var i =0;i<_globalSelf._getFiles[_globalSelf._index].length;i++){
-            if(_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']){
-              _globalSelf._getFiles[_globalSelf._index].splice(i,1);
+      DataAPI.rmDataByUri(function(err){
+        if (err) {
+          window.alert('Delete file failed');
+        } else {
+          for (var i = 0; i < _globalSelf._getFiles[_globalSelf._index].length; i++) {
+            if (_globalSelf._getFiles[_globalSelf._index][i]['URI'] == file['URI']) {
+              _globalSelf._getFiles[_globalSelf._index].splice(i, 1);
               break;
             }
           }
-          $("#"+modifyURI_+'div').remove();
-          $("#"+modifyURI_+'tr').remove();
-          if(_globalSelf._index ==1 && _globalSelf._showNormal[1] ==0){
+          $("#" + modifyURI_ + 'div').remove();
+          $("#" + modifyURI_ + 'tr').remove();
+          if (_globalSelf._index == 1 && _globalSelf._showNormal[1] == 0) {
             //查看是否瀑布流删除之后进行操作，待定？
           }
-        }
-        else{
-          window.alert('Delete file failed');
         }
       },file['URI']);
     }
@@ -1040,7 +1042,7 @@ var ShowFiles = Class.extend({
             max:3
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1076,7 +1078,7 @@ var ShowFiles = Class.extend({
             max:3
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1103,7 +1105,7 @@ var ShowFiles = Class.extend({
             max:0
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.bindDrag(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
@@ -1144,7 +1146,7 @@ var ShowFiles = Class.extend({
             max:3
           });
           _tagView.setParent(tagHolder,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(tagHolder[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1172,7 +1174,7 @@ var ShowFiles = Class.extend({
             max:0
           });
           _tagView.setParent(Container,file['URI']);
-          _tagView.addTags(file['others'].split(','));
+          _tagView.addTags(file['tags']);
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;

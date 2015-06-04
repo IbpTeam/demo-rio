@@ -273,23 +273,23 @@ var Basic = Class.extend({
     $('#add-tag-button').on('click', function(){
       var _newTag = document.getElementById('new-tag').value;
       DataAPI.setTagByUri(function(err){
-        if(err === null){
-          if(category_ === 'contact'){
+        if (err) {
+          window.alert("Add tags failed!");
+        } else {
+          if (category_ === 'contact') {
             this_._tagView.addTag(_newTag);
             infoList.setContent();
-          }else{
-            try{
+          } else {
+            try {
               basic._uri = uri_;
               basic._tag = _newTag;
-              infoList.fixTagNum(_newTag,1);
+              infoList.fixTagNum(_newTag, 1);
               _this._tagDragged.addPreTag(_newTag);
-            }catch(e){
+            } catch (e) {
               console.log(e);
             }
           }
           $('#popupDialog').remove();
-        }else{
-          window.alert("Add tags failed!");
         }
       }, [_newTag], uri_);
     });
@@ -297,7 +297,10 @@ var Basic = Class.extend({
 //显示删除标签界面
   removeTagView:function(this_,uri_,category_){
     var _this = this;
-    DataAPI.getTagsByUri(function(tags_){
+    DataAPI.getTagsByUri(function(err, tags_){
+      if(err){
+        throw err;
+      }
       if(tags_ != null && tags_.length > 0 && tags_[0] != ""){
         var _deleteTagForm = $('<form>', {
           'id': 'delete-tag-form'
@@ -344,8 +347,8 @@ var Basic = Class.extend({
     var _uri = uri_;
     var _category = category_;
     if(_tags && _uri){
-      DataAPI.rmTagsByUri(function(result){
-        if (result === 'commit') {
+      DataAPI.rmTagsByUri(function(err){
+        if (err !== null) {
           if(basic._tagDragged){
             basic._tagDragged.removeTagByText(_tags);
             basic._tagDragged = undefined;
@@ -355,7 +358,7 @@ var Basic = Class.extend({
               infoList.fixTagNum(_tags[i],-1);
             };
             if (_category === 'contact') {
-              var _tagsArr = contact._contacts[contact._selectId]['others'].split(',');
+              var _tagsArr = contact._contacts[contact._selectId]['tags'];
               var _others = '';
               for (var j = 0; j < _tagsArr.length; j++) {
                 if (_tagsArr[j] == _tags[i]) continue;
@@ -365,7 +368,7 @@ var Basic = Class.extend({
                   _others += ','+_tagsArr[j];
                 }
               };
-              contact._contacts[contact._selectId]['others'] = _others;
+              contact._contacts[contact._selectId]['tags'] = _others;
             };
           }
         }else{
@@ -375,7 +378,7 @@ var Basic = Class.extend({
     }else if(_uri && !_tags){  //drag file to remove
       if (_category === 'mainDoc') {
         DataAPI.rmDataByUri(function(err_){
-          if(err_ !== null){
+          if(err_ ){
             console.log('Delect file failed:' + err_);
             return 0;
           }
