@@ -1,0 +1,241 @@
+
+<html>
+<head>
+  <title>test_rdfHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+  var Q = require('q');
+
+  function print(win, something) {
+    if (typeof something == "object") {
+      win.document.write("{");
+      for (var k in something) {
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win, something[k]);
+        win.document.write(", ");
+        win.document.write("<br/>");
+      }
+      win.document.write("}");
+      win.document.write("<br/>");
+    } else {
+      win.document.write(something);
+    }
+  }
+
+  function show(id) {
+    var id_style = document.getElementById(id).style.cssText;
+    if (id_style == "display: inline;") {
+      document.getElementById(id).style.cssText = "display: none;";
+    } else if (id_style == "display: none;") {
+      document.getElementById(id).style.cssText = "display: inline;";
+    } else {
+      var win = window.open('');
+      win.document.write("div " + id + " display wrong!");
+    }
+  }
+
+  function cb(err, result) {
+    var win = window.open('');
+    if (err) {
+      throw err;
+    }
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win, result);
+  }
+
+  function test_dbInitial(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbInitial()
+        .done(function() {
+          cb(null,"initial leveldb sucess!");
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
+  function test_dbClear(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        rdfhandle.dbClear()
+        .done(function() {
+          cb(null,"initial leveldb sucess!");
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
+  var fullNameUrl = 'http://example.org/category/contact#xiquan';
+  var currentTime = (new Date());
+  var _metadata =
+    [{
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#createTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastModifyTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastAccessTime',
+      object: '"' + currentTime + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#createDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastModifyDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/base#lastAccessDev',
+      object: '"' + "gameboy" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#lastname',
+      object: '"' + "dai" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#firstname',
+      object: '"' + "xiquan" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#sex',
+      object: '"' + "male" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#email',
+      object: '"' + "xiquan@iscas.ac.cn" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/contact#phone',
+      object: '"' + "13911164063" + '"'
+    }, {
+      subject: fullNameUrl,
+      predicate: 'http://example.org/property/Base#lastAccessDev',
+      object: '"' + "10086" + '"'
+    }]
+
+  var info = {
+    subject: "xiquan",
+    base: {
+      URI: "exapmle",
+      createTime: "exapmle",
+      lastModifyTime: "exapmle",
+      lastAccessTime: "exapmle",
+      createDev: "exapmle",
+      lastModifyDev: "exapmle",
+      lastAccessDev: "exapmle",
+      createDev: "exapmle",
+      filename: "exapmle",
+      postfix: "exapmle",
+      category: "document",
+      size: "exapmle",
+      path: "exapmle",
+      tags: "exapmle"
+    },
+    extra: {
+      project: '上海专项'
+    }
+  }
+
+  function test_dbPut(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.dbPut(db,_metadata)
+        .done(function() {
+          cb(null,"dbPut sucess!");
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
+  function test_dbSearch(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var _db = rdfhandle.dbOpen();
+        var _query_get_all = [{
+          subject: _db.v('subject'),
+          predicate: "http://example.org/property/base#URI",
+          object: "rio30302rio#0ca6bcf54dc8ff7d7d58",
+        }, {
+          subject: _db.v('subject'),
+          predicate: _db.v('predicate'),
+          object: _db.v('object')
+        }];
+
+        rdfhandle.dbSearch(_db, _query_get_all) 
+        .done(function(results) {
+          cb(null,results);
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
+  function test_tripleGenerator(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.tripleGenerator(info)
+        .done(function(_triples) {
+          cb(null,_triples);
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
+
+
+
+  </script>
+
+<h2 onclick="show('dbInitial')">dbInitial(cb)<span><a class="mark" href="#test_dbInitial" id="test_dbInitial" onclick="test_dbInitial(cb)">test</a></span></h2>
+<div id="dbInitial" style="display:none;">
+</div>
+
+<h2 onclick="show('dbPut')">dbPut(cb)<span><a class="mark" href="#test_dbPut" id="test_dbPut" onclick="test_dbPut(cb)">test</a></span></h2>
+<div id="dbPut" style="display:none;">
+</div>
+
+<h2 onclick="show('dbClear')">dbClear(cb)<span><a class="mark" href="#test_dbClear" id="test_dbClear" onclick="test_dbClear(cb)">test</a></span></h2>
+<div id="dbClear" style="display:none;">
+</div>
+
+<h2 onclick="show('dbSearch')">dbSearch(cb)<span><a class="mark" href="#test_dbSearch" id="test_dbSearch" onclick="test_dbSearch(cb)">test</a></span></h2>
+<div id="dbSearch" style="display:none;">
+</div>
+
+<h2 onclick="show('tripleGenerator')">tripleGenerator(cb)<span><a class="mark" href="#test_tripleGenerator" id="test_tripleGenerator" onclick="test_tripleGenerator(cb)">test</a></span></h2>
+<div id="tripleGenerator" style="display:none;">
+</div>
+
+</body>
+</html>

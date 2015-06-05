@@ -380,8 +380,13 @@
   }
   function test_moveToDesktopSingle(moveToDesktopSingleCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
-      data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
+      WDC.requireAPI(['data'], function(data){
+        data.test_baseinfo(function(baseinfo) {
+          var sFilePath = baseinfo.HOMEFOLDER +  '/testFile/testJSON.txt';
+          data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
+        });  
+      });
+      
     });
   }
 
@@ -399,12 +404,16 @@
   }
   function test_moveToDesktop(moveToDesktopCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = ['/home/xiquan/testFile/small_image.jpg',
-                       '/home/xiquan/testFile/testJSON.txt',
-                       '/home/xiquan/testFile/testJSON1.txt',
-                       '/home/xiquan/testFile/test_1.mp3'
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+          var sFilePath = [ homefolder +'/testFile/small_image.jpg',
+                       homefolder +'/testFile/testJSON.txt',
+                       homefolder +'/testFile/testJSON1.txt',
+                       homefolder +'/testFile/test_1.mp3'
                        ];
       data.moveToDesktop(moveToDesktopCb,sFilePath);
+      });  
+    
     });
   }
 
@@ -422,8 +431,11 @@
   }
   function test_removeFileFromDB(removeFileFromDBCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/document/data/testJSON.txt';
-      data.removeFileFromDB(removeFileFromDBCb,sFilePath);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
+        data.removeFileFromDB(removeFileFromDBCb,sFilePath);
+      });
     });
   }
 
@@ -441,8 +453,11 @@
   }
   function test_removeFileFromDesk(removeFileFromDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/document/data/testJSON.txt';
-      data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
+        data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+      });
     });
   }
 
@@ -537,9 +552,12 @@
   }
   function test_setRelativeTagByPath(setRelativeTagByPathCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/document/data/testJSON.txt';
-      var sTags = '$desktop$aa$bb$';
-      data.setRelativeTagByPath(setRelativeTagByPathCb,sFilePath, sTags);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
+        var sTags = '$desktop$aa$bb$';
+        data.setRelativeTagByPath(setRelativeTagByPathCb,sFilePath, sTags);
+      });
     });
   }
 
@@ -1047,8 +1065,11 @@
   }
   function test_moveToDesktopSingle(moveToDesktopSingleCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
-      data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/testFile/testJSON.txt';
+        data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
+      });
     });
   }
 </pre>
@@ -1078,8 +1099,11 @@
   }
   function test_moveToDesktop(moveToDesktopCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/testFile/testJSON.txt';
-      data.moveToDesktop(moveToDesktopCb,sFilePath);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/testFile/testJSON.txt';
+        data.moveToDesktop(moveToDesktopCb,sFilePath);
+      });
     });
   }
 </pre>
@@ -1109,8 +1133,11 @@
   }
   function test_removeFileFromDB(removeFileFromDBCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/testFile/small_image.jpg';
-      data.removeFileFromDB(removeFileFromDBCb,sFilePath);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/testFile/small_image.jpg';
+        data.removeFileFromDB(removeFileFromDBCb,sFilePath);
+      });
     });
   }
 </pre>
@@ -1140,8 +1167,11 @@
   }
   function test_removeFileFromDesk(removeFileFromDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/picture/data/small_image.jpg';
-      data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/.resources/picture/data/small_image.jpg';
+        data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
+      });
     });
   }
 </pre>
@@ -1293,9 +1323,12 @@
   }
   function test_setRelativeTagByPath(setRelativeTagByPathCb) {
     WDC.requireAPI(['data'], function(data) {
-      var sFilePath = '/home/xiquan/.resources/document/testJSON.txt';
-      var sTags = '$desktop$aa$bb$';
-      data.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+      data.test_baseinfo(function(baseinfo) {
+        var homefolder = baseinfo.HOMEFOLDER;
+        var sFilePath = homefolder + '/.resources/document/testJSON.txt';
+        var sTags = '$desktop$aa$bb$';
+        data.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+      });
     });
   }
 </pre>

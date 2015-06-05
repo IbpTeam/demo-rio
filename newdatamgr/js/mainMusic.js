@@ -54,7 +54,10 @@ var MainMusicView = Class.extend({
       for(var i = 0; i < music_json_.length; i ++){
         if(music_json_[i].hasOwnProperty('filename') && music_json_[i].hasOwnProperty('URI')){
           _this.addMusic(music_json_[i]);
-          DataAPI.getTagsByUri(function(result_){
+          DataAPI.getTagsByUri(function(err, result_){
+            if(err){
+              throw err;
+            }
             _this._tags.push(result_);
             _count ++;
             if(_count == music_json_.length){
