@@ -1,0 +1,9 @@
+{
+  "lastname": "http://example.org/property/contact#lastname",
+  "firstname": "http://example.org/property/contact#firstname",
+  "email": "http://example.org/property/contact#email",
+  "phone": "http://example.org/property/contact#phone",
+  "sex": "http://example.org/property/contact#sex",
+  "age": "http://example.org/property/contact#age",
+  "photoPath": "http://example.org/property/contact#photoPath"
+}

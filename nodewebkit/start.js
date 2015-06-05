@@ -25,6 +25,7 @@ var cp = require('child_process');
 var path = require('path');
 var cryptoApp= require('./backend/crypto_app');
 var appManager = require('./backend/app/appManager');
+var typeHandle = require("./backend/commonHandle/typeHandle");
 //var process = require('process');
 
 var handle = {}
@@ -128,13 +129,8 @@ function initializeApp(sFullPath) {
         }
       });*/
 
-      /* TODO: put init in a script */
-      // initLevelDB.dbInitial(function(err) {
-      //   if (err) {
-      //     throw err;
-      //     //return console.log(err);
-      //   }
-      // });
+      //init defined type's tiples
+      typeHandle.initTypeDef();
     });
   });
   device = require("./backend/data/device");

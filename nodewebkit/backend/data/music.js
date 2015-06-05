@@ -137,27 +137,37 @@ exports.createData = createData;
 
 function extraInfo(item) {
   var deferred = Q.defer();
-  readId3FromMp3(item, function(err, tags) {
+  getExtraInfo(item, function(err, result) {
     if (err) {
       deferred.reject(new Error(err));
     } else {
       var _extra = {
-        format: tags.format,
-        bit_rate: tags.bit_rate,
-        frequency: tags.frequency,
-        track: tags.track,
-        TDRC: tags.TDRC,
-        APIC: tags.APIC,
-        TALB: tags.TALB,
-        TPE1: tags.TPE1,
-        TIT2: tags.TIT2,
-        TXXX: tags.TXXX,
-        COMM: tags.COMM
+        format: result.format,
+        bit_rate: result.bit_rate,
+        frequency: result.frequency,
+        track: result.track,
+        TDRC: result.TDRC,
+        APIC: result.APIC,
+        TALB: result.TALB,
+        TPE1: result.TPE1,
+        TIT2: result.TIT2,
+        TXXX: result.TXXX,
+        COMM: result.COMM
       }
       deferred.resolve(_extra);
     }
   });
   return deferred.promise;
+}
+
+function getExtraInfo(item, callback) {
+  readId3FromMp3(item, function(err, result) {
+    if (err) {
+      return callback(err);
+    } else {
+      return callback(null, result);
+    }
+  });
 }
 
 function getOpenInfo(item) {
