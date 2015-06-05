@@ -9,7 +9,6 @@
  *
  * @version:0.3.0
  **/
-
 var http = require("http");
 var url = require("url");
 var sys = require('sys');
@@ -19,47 +18,25 @@ var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("./desFilesHandle");
 var desktopConf = require("../data/desktop");
-var commonDAO = require("./CommonDAO");
 var util = require('util');
 var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
-var tagsHandles = require("./tagsHandle");
+var tagsHandle = require("./tagsHandle");
 var utils = require("../utils")
 var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
-var chokidar = require('chokidar'); 
+var chokidar = require('chokidar');
+var rdfHandle = require("./rdfHandle");
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var Q = require('q');
 
-var writeDbNum = 0;
-var dataPath;
-
-
+//let Q trace long stack
+Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
-
-function watcherStart(category,callback){
-  var dataPath=utils.getRealDir(category);
-  var cateModule=utils.getCategoryObject(category);
-  console.log("monitor "+dataPath);
-  cateModule.watcher = chokidar.watch(dataPath, {ignoreInitial: true});
-  cateModule.watcher.on('all', function(event, path) {
-    //console.log('Raw event info:', event, path);
-    callback(path,event);
-  });
-}
-exports.watcherStart = watcherStart;
-
-function watcherStop(category,callback){
-  var cateModule=utils.getCategoryObject(category);
-  cateModule.watcher.close();
-  callback();
-}
-exports.watcherStop = watcherStop;
-
-
 
 
 /**
@@ -88,558 +65,531 @@ exports.watcherStop = watcherStop;
  *                lastAccessDev: config.uniqueID
  *              }
  *
- * @param2: callback
- *    @result
- *    string, retrieve 'success' when success
+ * @return Promise
+ *    event state，which resolves with no values if sucess;
+ *    otherwise, return reject with Error object 
  *
  */
-function createData(item, callback) {
-  var sOriginPath = item.path;
-  var sFileName = utils.renameExists([item.filename + '.' + item.postfix])[0];
-  var category = item.category;
-  var sRealRepoDir = utils.getRepoDir(category);
-  var sDesRepoDir = utils.getDesRepoDir(category);
-  var sRealDir = utils.getRealDir(category);
-  var sDesDir = utils.getDesDir(category);
-  var sFilePath = path.join(sRealDir, sFileName);
-  var sDesFilePath = path.join(sDesDir, sFileName + '.md');
-  item.path = sFilePath;
-  utils.copyFileSync(sOriginPath, sFilePath, function(err) {
-    if (err) {
-      console.log(err);
-      return callback(err);
-    }
-    dataDes.createItem(item, sDesDir, function() {
-      commonDAO.createItem(item, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err);
-        }
-        repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, [sFilePath], [sDesFilePath], function(err, result) {
-          if (err) {
-            console.log(result);
-            return callback(null);
-          }
-          if (item.others != '') {
-            var oTags = item.others.split(',');
-            tagsHandles.addInTAGS(oTags, item.URI, function(err) {
-              if (err) {
-                console.log(err);
-                return callback(err, null);
-              }
-              callback('success', sFilePath);
-            })
-          } else {
-            callback('success', sFilePath);
-          }
-        })
-      })
-    });
-  });
-}
-exports.createData = createData;
 
+function dataStore(items, extraCallback) {
 
-/**
- * @method createDataAll
- *    To create des file, dataBase resocrd and git commit for all data input. T-
- *    -his is only for array data input.
- *
- * @param1: items
- *    object, inlcudes all info about the input data
- *    examplt:
- *    var items = [itemInfo_1,itemInfo_2,itemInfo_3];
- *    var itemInfo = {
- *               id: "",
- *               URI: uri + "#" + category,
- *               category: category,
- *                others: someTags.join(","),
- *                filename: itemFilename,
- *                postfix: itemPostfix,
- *                size: size,
- *                path: itemPath,
- *                project: '上海专项',
- *                createTime: ctime,
- *                lastModifyTime: mtime,
- *                lastAccessTime: ctime,
- *                createDev: config.uniqueID,
- *                lastModifyDev: config.uniqueID,
- *                lastAccessDev: config.uniqueID
- *              }
- *
- * @param2: callback
- *    @result
- *    string, retrieve 'success' when success
- *
- */
-function createDataAll(items, callback) {
-  if (typeof items !== 'object') {
-    console.log('input error: items should be an object!');
-    return;
-  }
-  var count = 0;
-  var lens = items.length;
-  var allItems = [];
-  var allItemPath = [];
-  var allDesPath = [];
-  var allTagsInfo = [];
-  var existsFils = [];
-  var itemsRename = utils.renameExists(items);
-
-  function doCreate(_item) {
-    utils.isNameExists(_item.path, function(err, result) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      if (result) {
-        var data = new Date();
-        var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
-        _item.filename = surfix + _item.filename;
-        console.log('file ' + result + ' exists ...');
-        existsFils.push({
-          origin_path: _item.path,
-          old_name: result,
-          re_name: surfix + _item.filename + '.' + _item.postfix
-        })
-      }
-      var sOriginPath = _item.path;
-      var sFileName = (_item.postfix === 'none') ? _item.filename : _item.filename + '.' + _item.postfix;
-      var category = _item.category;
-      var sRealRepoDir = utils.getRepoDir(category);
-      var sDesRepoDir = utils.getDesRepoDir(category);
-      var sDesDir = utils.getDesDir(category);
-      var sRealDir = utils.getRealDir(category);
-      var sFilePath = path.join(sRealDir, sFileName);
-      var sDesFilePath = path.join(sDesDir, sFileName + '.md');
-      _item.path = sFilePath;
-      utils.copyFileSync(sOriginPath, sFilePath, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err);
-        }
-        dataDes.createItem(_item, sDesDir, function() {
-          allItems.push(_item);
-          allItemPath.push(sFilePath);
-          allDesPath.push(sDesFilePath);
-          if (_item.others) {
-            var oTags = _item.others.split(',');
-            for (var i = 0; i < oTags.length; i++) {
-              var oItem = {
-                category: 'tags',
-                tag: oTags[i],
-                file_URI: _item.URI
-              }
-              allItems.push(oItem);
+  function doCreate(item) {
+    return baseInfo(item)
+      .then(function(_base) {
+        var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+        _base.path = _newPath;
+        return Q_copy(item, _newPath)
+          .then(function(result) {
+            if (result === "ENOENT") {
+              //return null when file exists
+              return null;
+            } else {
+              return extraCallback(item)
+                .then(function(result) {
+                  var item_info = {
+                    subject: _base.URI,
+                    base: _base,
+                    extra: result
+                  }
+                  return item_info;
+                })
             }
-          }
-          var isEnd = (count === lens - 1);
-          if (isEnd) {
-            commonDAO.createItems(allItems, function(result) {
-              if (result === "rollback") {
-                var _err = 'create tags info in data base rollback ...';
-                return callback(_err, null);
-              }
-              repo.repoCommitBoth('add', sRealRepoDir, sDesRepoDir, allItemPath, allDesPath, function(err, result) {
-                if (err) {
-                  console.log(err);
-                  return callback(err, null);
-                }
-                callback(null, existsFils);
-              })
-            })
-          }
-          count++;
-        });
+          })
+      })
+  }
+
+  if (items == "") {
+    return Q.fcall(function() {
+      return null;
+    })
+  } else {
+    var _file_info = [];
+    return Q.all(items.map(doCreate))
+      .then(function(result) {
+        for (var i = 0, l = result.length; i < l; i++) {
+          //if (result[i] !== "") {
+            _file_info.push(result[i]);
+          //}
+        }
+        return writeTriples(_file_info);
       });
+  }
+}
+exports.dataStore = dataStore;
+
+
+function writeTriples(fileInfo) {
+  var _triples_result = [];
+  return Q.all(fileInfo.map(rdfHandle.tripleGenerator))
+    .then(function(triples_) {
+      for (var i = 0, l = triples_.length; i < l; i++) {
+        if (triples_[i] !== null) {
+          _triples_result = _triples_result.concat(triples_[i]);
+        }
+      }
+      var _db = rdfHandle.dbOpen();
+      return rdfHandle.dbPut(_db, _triples_result);
+    });
+}
+exports.writeTriples = writeTriples;
+
+
+function Q_copy(filePath, newPath) {
+  var deferred = Q.defer();
+  fs_extra.copy(filePath, newPath, function(err) {
+    //drop into reject only when error is not "ENOENT"
+    if (err && err[0].code !== "ENOENT") {
+      deferred.reject(new Error(err));
+    } else if (err && err[0].code === "ENOENT") {
+      //when file exists, consider it should be resolved  
+      deferred.resolve("ENOENT");
+    } else {
+      deferred.resolve();
+    }
+  });
+  return deferred.promise;
+}
+
+
+function baseInfo(itemPath) {
+  var Q_fsStat = Q.nfbind(fs.stat);
+  var Q_uriMaker = function(stat) {
+    var _mtime = (stat.mtime).toString();
+    var _ctime = (stat.ctime).toString();
+    var _size = stat.size;
+    var _cate = utils.getCategoryByPath(itemPath);
+    var _category = _cate.category;
+    var _filename = _cate.filename;
+    var _postfix = _cate.postfix;
+    var _tags = tagsHandle.getTagsByPath(itemPath);
+    return uniqueID.Q_getFileUid().then(function(_uri) {
+      var _base = {
+        URI: _uri,
+        filename: _filename,
+        postfix: _postfix,
+        category: _category,
+        size: _size,
+        path: itemPath,
+        tags: _tags,
+        createTime: _ctime,
+        lastModifyTime: _mtime,
+        lastAccessTime: _ctime,
+        createDev: config.uniqueID,
+        lastModifyDev: config.uniqueID,
+        lastAccessDev: config.uniqueID
+      }
+      return _base;
     })
   }
-  for (var i = 0; i < itemsRename.length; i++) {
-    var item = itemsRename[i];
-    doCreate(item);
-  }
+  return Q_fsStat(itemPath).then(Q_uriMaker);
 }
-exports.createDataAll = createDataAll;
+exports.baseInfo = baseInfo;
 
-exports.getItemByUri = function(category, uri, callback) {
-  var conditions = ["URI = " + "'" + uri + "'"];
-  commonDAO.findItems(null, category, conditions, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return;
-    } else {
-      callback(result);
-    }
-  });
-}
-
-function deleteItemByUri(category, uri, callback) {
-  var aConditions = ["URI = " + "'" + uri + "'"];
-  var oItem = {
-    category: category,
-    conditions: aConditions
-  };
-  commonDAO.deleteItem(oItem, callback);
-}
-exports.deleteItemByUri = deleteItemByUri;
-
-exports.removeFile = function(category, item, callback) {
-  //TODO delete desFile
-  var sFullName = path.basename(item.path);
-  var sDesFullName = sFullName + ".md";
-  var sDesPath = utils.getDesPath(category, sFullName);
-  fs.unlink(sDesPath, function(err) {
-    if (err)
-      console.log(err);
-    //TODO delete data from db
-    deleteItemByUri(category, item.URI, function(isSuccess) {
-      if (isSuccess == "rollback") {
-        callback("error");
-        return;
-      }
-      repo.repoCommitBoth('rm',
-        utils.getRepoDir(category),
-        utils.getDesRepoDir(category), [path.join(utils.getRealDir(category), sFullName)], [path.join(utils.getDesDir(category), sDesFullName)],
-        callback);
-    });
-  });
-};
-
-exports.getAllCate = function(getAllCateCb) {
-  function getCategoriesCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var cates = new Array();
-    items.forEach(function(each) {
-      cates.push({
-        URI: each.id,
-        version: each.version,
-        type: each.type,
-        path: each.logoPath,
-        desc: each.desc
-      });
-    });
-    getAllCateCb(cates);
-  }
-  commonDAO.findItems(null, "category", null, null, getCategoriesCb);
-}
-
-exports.getAllDataByCate = function(getAllDataByCateCb, cate) {
-  console.log("Request handler 'getAllDataByCate' was called.");
-
-  function getAllByCaterotyCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var cates = new Array();
-    items.forEach(function(each) {
-      cates.push({
-        URI: each.URI,
-        version: each.version,
-        filename: each.filename,
-        postfix: each.postfix,
-        path: each.path
-      });
-    });
-    getAllDataByCateCb(cates);
-  }
-
-  function getAllDevicesCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    getAllDataByCateCb(items);
-  }
-  commonDAO.findItems(null, cate, null, null, getAllDevicesCb);
-}
 
 /** 
- * @Method: repoReset
- *    To reset git repo to a history commit version. This action would also res-
- *    -des file repo
+ * @Method: getItemByProperty
+ *    To get an Item by property.
+ *       @At first, make query from any property
+ *       @Secondly, search from dataBase
  *
- * @param1: repoResetCb
- *    @result, (_err,result)
+ * @param1: options
+ *    string, a property name, as 'author'
  *
- *    @param1: _err,
- *        string, contain specific error
- *
- *    @param2: result,
- *        string, retieve 'success' when success
- *
- * @param2: category
- *    string, a category name, as 'document'
- *
- * @param3: commitID
- *    string, a history commit id, as '9a67fd92557d84e2f657122e54c190b83cc6e185'
+ * @return Promise
+ *    event state，which resolves with an array of sorted file infomation if sucess;
+ *    otherwise, return reject with Error object 
  *
  **/
-exports.getRecentAccessData = function(category, getRecentAccessDataCb, num) {
-  function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return getRecentAccessDataCb(err, null);
-    }
-    var DataByNum = utils.getRecent(items, num);
-    getRecentAccessDataCb(null, DataByNum);
-  }
-  var sCondition = " order by date(lastAccessTime) desc,  time(lastAccessTime) desc ";
-  commonDAO.findItems(null, category, null, [sCondition], findItemsCb);
-}
-
-exports.updateDB = function(category, updateDBCb) {
-  var desRepoDir = utils.getDesDir(category);
-  fs.readdir(desRepoDir, function(err, files) {
-    if (err) {
-      console.log(err);
-      updateDBCb({
-        'commonHandle': err
-      }, null);
-    } else {
-      var allFileInfo = [];
-      var count = 0;
-      var lens = files.length;
-      for (var i = 0; i < lens; i++) {
-        var fileItem = path.join(utils.getDesDir(category), files[i]);
-        var isEnd = (count === lens - 1);
-        (function(_fileItem, _isEnd) {
-          fs.readFile(_fileItem, 'utf8', function(err, data) {
-            try {
-              var oFileInfo = JSON.parse(data);
-            } catch (e) {
-              console.log(data)
-              throw e;
-            }
-            allFileInfo.push(oFileInfo);
-            if (_isEnd) {
-              var items = [{
-                category: category
-              }];
-              commonDAO.deleteItems(items, function(result) {
-                if (result == 'commit') {
-                  commonDAO.createItems(allFileInfo, function(result) {
-                    if (result == 'commit') {
-                      updateDBCb(null, 'success');
-                    } else {
-                      var _err = {
-                        'commonHandle': 'create items error!'
-                      }
-                      updateDBCb(_err, null);
-                    }
-                  })
-                } else {
-                  var _err = {
-                    'commonHandle': 'delete items error!'
-                  }
-                  updateDBCb(_err, null);
-                }
-              })
-            }
-          })
-          count++;
-        })(fileItem, isEnd)
+function getItemByProperty (options) {
+  var itemsMaker = function(info) {
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push(info[item]);
       }
     }
-  })
+    return items;
+  }
+  return getTriplesByProperty(options)
+    .then(rdfHandle.decodeTripeles)
+    .then(itemsMaker);
+}
+exports.getItemByProperty = getItemByProperty;
+
+
+function getTriplesByProperty(options) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP[options._type][options._property],
+    object: options._value
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  return rdfHandle.dbSearch(_db, _query);
 }
 
-/**
- * @method pullRequest
- *    Fetch from remote and merge.
- * @param category
- *    Category.
- * @param deviceId
- *    Remote device id.
- * @param deviceIp
- *    Remote device ip.
- * @param deviceAccount
- *    Remote device account.
- * @param repoPath
- *    Repository path.
- * @param desRepoPath
- *    Des repository path.
- * @param callback
- *    Callback.
- */
-function pullRequest(category, deviceId, address, account, repoPath, desRepoPath, callback) {
-  //First pull real file
-  //Second pull des file
-  //console.log("==============================" + repoPath);
-  //console.log("==============================" + desRepoPath);
-  repo.haveBranch(repoPath, deviceId, function(result) {
-    if (result == false) {
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% no branch " + deviceId);
-      repo.addBranch(deviceId, address, account, repoPath, function(branchName) {
-        if (branchName != deviceId) {
-          console.log("addBranch error");
-        } else {
-          repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
-            repo.haveBranch(desRepoPath, deviceId, function(result) {
-              if (result == false) {
-                repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
-                  if (branchName != deviceId) {
-                    console.log("addBranch error");
-                  } else {
-                    repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                      var aFilePaths = new Array();
-                      var sDesPath = utils.getDesRepoDir(category);
-                      desFileNames.forEach(function(desFileName) {
-                        aFilePaths.push(path.join(sDesPath, desFileName));
-                      });
-                      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                      //TODO base on files, modify data in db
-                      dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                        dataDes.writeDesObjs2Db(desObjs, function(status) {
-                          callback(deviceId, address, account);
-                        });
-                      });
-                    });
-                  }
-                });
-              } else {
-                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                  var aFilePaths = new Array();
-                  var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName) {
-                    aFilePaths.push(path.join(sDesPath, desFileName));
-                  });
-                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                  //TODO base on files, modify data in db
-                  dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                    dataDes.writeDesObjs2Db(desObjs, function(status) {
-                      callback(deviceId, address, account);
-                    });
-                  });
-                });
-              }
-            });
-          });
-        }
-      });
-    } else {
-      //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% have branch " + deviceId);
-      repo.pullFromOtherRepo(repoPath, deviceId, function(realFileNames) {
-        repo.haveBranch(desRepoPath, deviceId, function(result) {
-          if (result == false) {
-            repo.addBranch(deviceId, address, account, desRepoPath, function(branchName) {
-              if (branchName != deviceId) {
-                console.log("addBranch error");
-              } else {
-                repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-                  var aFilePaths = new Array();
-                  var sDesPath = utils.getDesRepoDir(category);
-                  desFileNames.forEach(function(desFileName) {
-                    aFilePaths.push(path.join(sDesPath, desFileName));
-                  });
-                  //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-                  //TODO base on files, modify data in db
-                  dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                    dataDes.writeDesObjs2Db(desObjs, function(status) {
-                      callback(deviceId, address, account);
-                    });
-                  });
-                });
-              }
-            });
-          } else {
-            repo.pullFromOtherRepo(desRepoPath, deviceId, function(desFileNames) {
-              var aFilePaths = new Array();
-              var sDesPath = utils.getDesRepoDir(category);
-              desFileNames.forEach(function(desFileName) {
-                aFilePaths.push(path.join(sDesPath, desFileName));
-              });
-              //console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% des file paths: " + aFilePaths);
-              //TODO base on files, modify data in db
-              dataDes.readDesFiles(category, aFilePaths, function(desObjs) {
-                dataDes.writeDesObjs2Db(desObjs, function(status) {
-                  callback(deviceId, address, account);
-                });
-              });
-            });
-          }
-        });
-      });
+
+/*TODO: rewrite*/
+exports.getAllCate = function(getAllCateCb) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+    object: 'http://example.org/category#base'
+  }, {
+    subject: _db.v('filename'),
+    predicate: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+    object: _db.v('subject')
+  }];
+  rdfHandle.dbSearch(_db, _query, function(err, result) {
+    if (err) {
+      throw err;
     }
+    rdfHandle.dbClose(_db, function() {
+      getAllCateCb(result);
+    })
   });
 }
-exports.pullRequest = pullRequest;
 
-function renameDataByUri(category, sUri, sNewName, callback) {
-  var sCondition = "URI = '" + sUri + "'";
-  commonDAO.findItems(null, [category], [sCondition], null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == '' || result == null) {
-      var _err = 'not found in database ...';
-      return callback(_err, null);
-    }
-    var item = result[0];
-    var sOriginPath = item.path;
-    var sOriginName = path.basename(sOriginPath);
-    var sNewPath = path.dirname(sOriginPath) + '/' + sNewName;
-    if (sNewName === sOriginName) {
-      return callback(null, 'success');
-    }
-    utils.isNameExists(sNewPath, function(err, result) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      if (result) {
-        var _err = 'new file name ' + sNewName + ' exists...';
-        console.log(_err);
-        return callback(_err, null);
-      }
-      fs_extra.move(sOriginPath, sNewPath, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        var reg_path = new RegExp('/' + category + '/');
-        var sOriginDesPath = sOriginPath.replace(reg_path, '/' + category + 'Des/') + '.md';
-        var sNewDesPath = path.dirname(sOriginDesPath) + '/' + sNewName + '.md';
-        fs_extra.move(sOriginDesPath, sNewDesPath, function(err) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var currentTime = (new Date());
-          console.log(item);
-          var sUri = item.URI;
-          var oUpdataInfo = {
-            URI: sUri,
-            category: category,
-            filename: utils.getFileNameByPathShort(sNewPath),
-            postfix: utils.getPostfixByPathShort(sNewPath),
-            lastModifyTime: currentTime,
-            lastAccessTime: currentTime,
-            lastModifyDev: config.uniqueID,
-            lastAccessDev: config.uniqueID,
-            path: sNewPath
-          }
-          commonDAO.updateItem(oUpdataInfo, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            dataDes.updateItem(sNewDesPath, oUpdataInfo, function(result) {
-              if (result === "success") {
-                var sRepoPath = utils.getRepoDir(category);
-                var sRepoDesPath = utils.getDesRepoDir(category);
-                repo.repoRenameCommit(sOriginPath, sNewPath, sRepoPath, sRepoDesPath, function() {
-                  callback(null, result);
-                })
-              }
-            })
-          })
+
+/** 
+ * @Method: getAllDataByCate
+ *    To get data by categry.
+ *       @At first, make query from any property
+ *       @Secondly, search from dataBase by query, and got the Triples
+ *       @Thirdly, decode Tripeles to informations
+ *       @Finnally, push information in a stack
+ * @param1: cate
+ *    string, a category name, as 'doucument'
+ *
+ * @return Promise
+ *    event state，which resolves with a stack of data infomation if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function getAllDataByCate(cate) {
+  console.log("Request handler 'getAllDataByCate' was called.");
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: cate
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  var dataMaker = function(info) {
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push({
+          URI: info[item].URI,
+          version: "",
+          filename: info[item].filename,
+          postfix: info[item].postfix,
+          path: info[item].path,
+          tags: info[item].tags
         })
-      })
-    })
-  })
+      }
+    }
+    return items;
+  };
+
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
+    .then(dataMaker);
+}
+exports.getAllDataByCate = getAllDataByCate;
+
+
+/** 
+ * @Method: getRecentAccessData
+ *    To get recent accessed data.
+ *
+ * @param1: category
+ *    string, a category name, as 'document'
+ *
+ * @param2: num
+ *    integer, number of file you want to get
+ * @return Promise
+ *    event state，which resolves with an array of sorted file infomation if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+exports.getRecentAccessData = function(category, num) {
+  console.log("Request handler 'getRecentAccessData' was called.");
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"][category],
+    object: category
+  }, {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }];
+  var itemsMaker = function(info) {
+    var items = [];
+    for (var item in info) {
+      if (info.hasOwnProperty(item)) {
+        items.push(info[item]);
+      }
+    }
+    items = items.sort(function(a, b) {
+      var _a = new Date(a.lastAccessTime);
+      var _b = new Date(b.lastAccessTime);
+      return _b - _a;
+    });
+    var _result = (items.length > num) ? items.slice(0, num - 1) : items;
+    return _result;
+  }
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
+    .then(itemsMaker);
+}
+
+
+
+/** 
+ * @Method: updatePropertyValue
+ *    To update data property value.
+ *
+ * @param1: property
+ *    object, contain modification info as below,
+ *
+ *        var property = {
+ *          _uri: "",
+ *          _changes:[
+ *                              {
+ *                                _property:"filename",
+ *                                _value:"aaa"
+ *                              },
+ *                              {
+ *                                _property:"postfix",
+ *                                _value:"txt"
+ *                              },
+ *                            ]
+ *        }
+ *
+ *
+ * @return Promise
+ *    event state, repesent onfulfilled state with no values if sucess;
+ *    otherwise, return reject with Error object
+ *
+ **/
+function updatePropertyValue(property) {
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: property._uri
+  }
+  var doUpdate = function(result) {
+    var _new_triples = [];
+    var _origin_triples = [];
+    for (var i = 0, l = result.length; i < l; i++) {
+      for (var j = 0, k = property._changes.length; j < k; j++) {
+        var _resolved = resolveTriples(property._changes[j], result[i]);
+        if (_resolved) {
+          _origin_triples.push(_resolved._origin);
+          _new_triples.push(_resolved._new);
+        }
+      }
+    }
+    var _db = rdfHandle.dbOpen();
+    return updateTriples(_db, _origin_triples, _new_triples);
+  }
+  return getTriplesByProperty(_options)
+    .then(doUpdate);
+}
+exports.updatePropertyValue = updatePropertyValue;
+
+
+function resolveTriples(chenges, triple) {
+  var _predicate = triple.predicate;
+  var _reg_property = new RegExp("#" + chenges._property);
+  if (_reg_property.test(_predicate)) {
+    var _new_triple = {
+      subject: triple.subject,
+      predicate: triple.predicate,
+      object: triple.object
+    }
+    _new_triple["object"] = chenges._value;
+
+    return {
+      _origin: triple,
+      _new: _new_triple
+    }
+  }
+  return null;
+}
+
+
+function updateTriples(_db, originTriples, newTriples) {
+  return rdfHandle.dbDelete(_db, originTriples)
+    .then(rdfHandle.dbPut(_db, newTriples));
+}
+
+
+/** 
+ * @Method: openData
+ *    To find data by uri, an application of Method updatePropertyValue
+ *
+ * @param1: uri
+ *
+ * @return
+ *    Promise, event state，which resolves with an array of sorted file infomation if sucess;
+ *             otherwise, return reject with Error object 
+ *
+ *
+ **/
+exports.openData = function(uri) {
+  var currentTime = (new Date()).toString();
+  var property = {
+    _uri: uri,
+    _changes: [{
+      _property: "lastAccessTime",
+      _value: currentTime
+    }, {
+      _property: "lastAccessDev",
+      _value: config.uniqueID
+    }]
+  }
+  return updatePropertyValue(property);
+}
+
+
+/*TODO: rewrite */
+/** 
+ * @Method: renameDataByUri
+ *    @ find FILE NAME Tripeles
+ *    @ updatePropertyValue()
+ *    @ file Copy Renamed
+ *
+ * @param1: uri
+ *
+ * @param1: sUri
+ *
+ * @param1: sNewName
+ *
+ * @return Promise
+ *    event state，which resolves with an array of sorted file infomation if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ *
+ **/
+function renameDataByUri(sUri, sNewName) {
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: sUri
+  }
+  var reName = function(Item){
+    if(Item === null){
+      throw new Error("Items do not exists!");
+    }
+    if(Item.length === 0){
+      throw new Error("Items are empty by this Uri!");
+    }
+    var arr = Item[0];
+    if(arr.hasOwnProperty("path")){
+      var filepath = arr.path;
+    }
+    else
+      throw new Error("NOPath");
+    if(arr.hasOwnProperty("path")){
+      var postfix = arr.postfix;
+    }
+    else{
+      throw new Error("NOPostfix");
+    }
+    var newPath = filepath.substr(0,filepath.lastIndexOf('/')) 
+                    +'/'+ sNewName + "." + postfix;
+    var _changeItem = {
+      _uri:sUri,
+      _changes:[
+        {
+          _property:"filename",
+          _value:sNewName
+        },
+        {
+          _property:"path",
+          _value:newPath
+        },
+        {
+          _property:"lastModifyTime",
+          _value:(new Date()).toString()
+        }
+      ]
+    }
+    var Q_fsRaname = Q.nfbind(fs.rename);
+    return Q_fsRaname(filepath,newPath)
+              .then(updatePropertyValue(_changeItem));
+  }
+  return getItemByProperty(_options)
+          .then(reName);
 }
 exports.renameDataByUri = renameDataByUri;
+
+
+/** 
+ * @Method: removeItemByProperty
+ *    To remove an Item by recent accessed data.
+ *
+ * @param1: options
+ *    string, a property name, as 'author'
+ *
+ * @param2: num
+ *    integer, number of file you want to get
+ * @return Promise
+ *    event state，which resolves with an array of sorted file infomation if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+exports.removeItemByProperty = function(options) {
+  var _db = rdfHandle.dbOpen();
+  var FilesRemove = function(result) {
+    //if no path or category found, them the file should not exist in by now.
+    if (result.category === undefined && result.path === undefined) {}
+    //if type is contact, then it is done for now.
+    if (result.category === "contact") {
+      //_db.close(function() {
+      //});
+    } else {
+      //delete file itself
+      var Q_unlink = Q.nfbind(fs.unlink);
+      Q_unlink(result.path);
+    }
+    return result;
+  }
+  var TriplesRemove = function(result) {
+    //delete all realted triples in leveldb
+    rdfHandle.dbDelete(_db, result.triples);
+    return result;
+  }
+  return getTriples(options).then(TriplesRemove).then(FilesRemove);
+}
+
+function getTriples(options) {
+  var TriplesMaker = function(result) {
+    var _info = {
+      triples: result
+    };
+    //get path and category from triples
+    for (var i = 0, l = result.length; i < l; i++) {
+      if (result[i].predicate === DEFINED_PROP["base"]["category"]) {
+        _info.category = result[i].object;
+      }
+      if (result[i].predicate === DEFINED_PROP["base"]["path"]) {
+        _info.path = result[i].object;
+      }
+    }
+    return _info;
+  }
+  return getTriplesByProperty(options)
+    .then(TriplesMaker);
+}
+

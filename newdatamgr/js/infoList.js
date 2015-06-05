@@ -212,10 +212,10 @@ var InfoList = Class.extend({
     this.removeTags();
     this._info = tags_;
     var _tagTextList = [];
-    if(this._info['tags'].length > 0){
-      for(var key = 0; key < this._info['tags'].length; key ++){
-        _tagTextList.push(this._info['tags'][key]);
-        this.addTag(this._info['tags'][key],this._info['tagFiles'][this._info['tags'][key]].length);
+    if(this._info.length > 0){
+      for(var key = 0; key < this._info.length; key ++){
+        _tagTextList.push(this._info[key]);
+        this.addTag(this._info[key],this._info.length);
       }
       search.bindSuggestion(_tagTextList);
     }
@@ -224,7 +224,10 @@ var InfoList = Class.extend({
 
   setContent:function(){
 	var _this = this;
-    DataAPI.getAllTagsByCategory(function(result_){
+    DataAPI.getAllTagsByCategory(function(err, result_){
+      if(err){
+        throw err;
+      }
       _this.showTags(result_);
       _this.loadData();
     }, _this.getCategoryName(_this._index));

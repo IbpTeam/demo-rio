@@ -2,7 +2,10 @@
 */
 
 // get all ppt files in the Datamgr
-function cb_get_ppt_data(data_json){
+function cb_get_ppt_data(err, data_json){
+    if(err){
+        throw err;
+    }
     var i=0;
     var pl = $('#pptlist');
     for(i=0;i<data_json.length;i++)

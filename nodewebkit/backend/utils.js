@@ -663,3 +663,16 @@ function copyFileSync(source, target, cb) {
   }
 }
 exports.copyFileSync = copyFileSync;
+
+//get the tile from a rdf description string
+// like  'http://example.org/property/base#lastModifyTime' trans into 'lastModifyTime'
+function getTitle(str) {
+  try {
+    var pos = str.lastIndexOf("#");
+    var title = str.slice(pos + 1, str.length);
+  } catch (err) {
+    throw err;
+  }
+  return title;
+}
+exports.getTitle = getTitle;

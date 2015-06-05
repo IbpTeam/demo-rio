@@ -5,8 +5,14 @@ var fs = require('fs');
 var config = require("../config");
 var dataDes = require("./desFilesHandle");
 var commonDAO = require("./CommonDAO");
+var commonHandle = require("./commonHandle");
+var rdfHandle = require("./rdfHandle");
 var repo = require("./repo");
 var utils = require("../utils");
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
+var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
+var Q = require('q');
 
 
 /**
@@ -16,6 +22,8 @@ var utils = require("../utils");
  *
  * @param path
  *   string, the target path of data
+ * @return Stack
+ *   represent every tag of a file 
  *
  */
 function getTagsByPath(path) {
@@ -36,7 +44,10 @@ exports.getTagsByPath = getTagsByPath;
  * @param1 category
  *    string, a spcific category we want
  *
- * @param2 callback
+ * @return Promise
+ *    event state，which resolves with an array of Tag Name if sucess;
+ *    otherwise, return reject with Error object 
+ *
  *    all result in array
  *     example:
  *     TagFile =
@@ -58,79 +69,31 @@ exports.getTagsByPath = getTagsByPath;
  *      }
  *
  */
-function getAllTagsByCategory(callback, category) {
-  var TagFile = {
-    tags: [],
-    tagFiles: {}
+function getAllTagsByCategory(category) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('tag'),
+    predicate: DEFINED_VOC.rdf._type,
+    object: DEFINED_PROP["base"]["tags"]
+  }, {
+    subject: _db.v('tag'),
+    predicate: DEFINED_VOC.rdf._domain,
+    object: DEFINED_VOC.category[category]
+  }]
+
+  var tagMaker = function(results){
+    var _tags = [];
+    for (var i = 0, l = results.length; i < l; i++) {
+      _tags.push(utils.getTitle(results[i].tag));
+    }
+    return _tags;
   };
 
-  function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    for (var k in items) {
-      items[k].others = (items[k].others).split(",");
-      var oItem = items[k];
-      for (var j in oItem.others) {
-        var sTag = oItem.others[j];
-        var sUri = oItem.URI;
-        var sFilename = oItem.filename;
-        var sPostfix = oItem.postfix;
-        var sPath = oItem.path;
-        if (sTag != null && sTag != "") {
-          if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push([sUri, sFilename, sPostfix, sPath]);
-          } else {
-            TagFile.tagFiles[sTag] = [
-              [sUri, sFilename, sPostfix, sPath]
-            ];
-            TagFile.tags.push(sTag);
-          }
-        }
-      }
-    }
-    callback(TagFile);
-  }
-  var fields = (category === 'contact') ? ['others', 'name', 'uri'] : ['others', 'filename', 'uri', 'postfix', 'path'];
-  commonDAO.findItems(fields, category, null, null, findItemsCb);
+  return rdfHandle.dbSearch(_db, _query)
+  .then(tagMaker);
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
-
-/**
- * @method getAllTags
- *   get all tags in db
- *
- * @param callback
- *    all result in array
- *    example:
- *    TagFile = {
- *                tag1:[file_uri1,file_uri3]
- *                tag2:[file_uri2]
- *              }
- *
- */
-function getAllTags(callback) {
-  var TagFile = {};
-
-  function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    for (var k in items) {
-      if (TagFile.hasOwnProperty(items[k].tag)) {
-        TagFile[items[k].tag].push(items[k].file_URI);
-      } else {
-        TagFile[items[k].tag] = [items[k].file_URI];
-      }
-      callback(TagFile);
-    }
-  }
-  commonDAO.findItems(null, ['tags'], null, null, findItemsCb);
-}
-exports.getAllTags = getAllTags;
 
 /**
  * @method getTagsByUri
@@ -141,446 +104,224 @@ exports.getAllTags = getAllTags;
  *
  * @param2 sUri
  *    string, uri
+* @return Promise
+ *    event state，which resolves with an array of Tags' Name if sucess;
+ *    otherwise, return reject with Error object 
  *
  */
-function getTagsByUri(callback, sUri) {
-  var sTableName = utils.getCategoryByUri(sUri);
-  var condition = ["uri = '" + sUri + "'"];
-  var column = ["others"];
-
-  function findItemsCb(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(null);
-    }else if(result == '' || result == null){
-      return callback(null);
+function getTagsByUri(uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["tags"],
+    object: _db.v('tag')
+  }];
+  var tagMaker = function(result){
+    var _tags = [];
+    for (var i = 0, l = result.length; i < l; i++) {
+      _tags.push(utils.getTitle(result[i].tag));
     }
-    var tags = result[0].others;
-    tags = tags.split(",");
-    callback(tags);
-  }
-  commonDAO.findItems(null, sTableName, condition, null, findItemsCb);
+    return _tags;
+  } 
+  return rdfHandle
+  .dbSearch(_db, _query)
+  .fail(function(err){throw new Error(err);})
+  .then(tagMaker);
 }
 exports.getTagsByUri = getTagsByUri;
-
-/**
- * @method getTagsByUris
- *   get tags with specifc uris
- *
- * @param1 callback
- *    all result in array
- *
- * @param2 oUris
- *    array, an array of uris, uris should in the same category
- *
- */
-function getTagsByUris(callback, oUris) {
-  if (oUris.length == 0 || oUris[0] == "") {
-    callback("error");
-  }
-  var sTableName = utils.getCategoryByUri(oUris[0]);
-  var condition = 'uri in (';
-  for (var i = 0; i < oUris.length - 1; i++) {
-    condition += '"' + oUris[i] + '", ';
-  }
-  condition += '"' + oUris[oUris.length - 1] + '")';
-  var column = ["distinct others"];
-
-  var TagFile = {
-    tags: [],
-    tagFiles: {}
-  };
-
-  function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    for (var k in items) {
-      items[k].others = (items[k].others).split(",");
-      var oItem = items[k];
-      for (var j in oItem.others) {
-        var sTag = oItem.others[j];
-        var sUri = oItem.URI;
-        var sFilename = oItem.filename || oItem.name;
-        var sPostfix = oItem.postfix;
-        var sPath = oItem.path || oItem.photopath;
-        if (sTag != null && sTag != "") {
-          var oContent = (sTableName === 'contact') ? [sUri, sFilename, sPath] : [sUri, sFilename, sPostfix, sPath];
-          if (TagFile.tagFiles.hasOwnProperty(sTag)) {
-            TagFile.tagFiles[sTag].push(oContent);
-          } else {
-            TagFile.tagFiles[sTag] = [
-              oContent
-            ];
-            TagFile.tags.push(sTag);
-          }
-        }
-      }
-    }
-    callback(TagFile);
-  }
-  var column = (sTableName === 'contact') ? ['others', 'name', 'uri', 'photopath'] : ['others', 'filename', 'uri', 'postfix', 'path'];
-  commonDAO.findItems(column, sTableName, [condition], null, findItemsCb);
-}
-exports.getTagsByUris = getTagsByUris;
 
 
 /**
  * @method getFilesByTags
  *   get all files with specific tags
  *
- * @param1 callback
- *    all result in array
- *
- * @param2 oTags
+ * @param1 oTags
  *    array, an array of tags
  *
+ * @return Promise 
+ *    event state，which resolves with an array of choosen files if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ *
  */
-function getFilesByTags(callback, oTags) {
-  var allFiles = [];
-  var condition = [];
-  for (var k in oTags) {
-    condition.push("others like '%" + oTags[k] + "%'");
-  }
-  var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    }
-    allFiles = allFiles.concat(resultDoc);
-    commonDAO.findItems(null, ['music'], sCondition, null, function(err, resultMusic) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      allFiles = allFiles.concat(resultMusic);
-      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        allFiles = allFiles.concat(resultPic);
-        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          commonDAO.findItems(null, ['contact'], sCondition, null, function(err, resultContact) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            allFiles = allFiles.concat(resultContact);
-            callback(null, allFiles);
-          })
-        })
-      })
+function getFilesByTags(oTags) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + oTags[i]
     })
-  });
+  }
+
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  })
+  
+  var resultMaker = function(result){
+      var _result = [];
+      for (var file in result) {
+        _result.push(result[file]);
+      }
+      return _result;
+    }
+  return rdfHandle.dbSearch(_db, _query)
+    .then(rdfHandle.decodeTripeles)
+    .then(resultMaker);
 }
 exports.getFilesByTags = getFilesByTags;
 
-/*
-TODO: this is a much quiker way to get files by tag, but not precisely enough. 
-May improve it in futre.
-*/
-// function getFilesByTagsInCategory(callback, category, sTag) {
-//   var condition = ["others like '%" + sTag + "%'"];
-//   commonDAO.findItems(null, category, condition, null, function(err, result) {
-//     if (err) {
-//       console.log(err);
-//       return callback(err, null);
-//     } else if (result == undefined) {
-//       var _err = 'not found in data base ...';
-//       return callback(_err, null);
-//     }
-//     callback(null, result);
-//   })
-// }
-// exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 
-function getFilesByTagsInCategory(callback, category, oTags) {
-  var condition = [];
-  if (oTags == "" || oTags == null) {
-    var _err = 'no input tags ...';
-    return callback(_err, null);
-  } else if (typeof oTags === "string") {
-    condition = ["tag='" + oTags + "'"];
-  } else {
-    for (var i = 0; i < oTags.length; i++) {
-      if (oTags[i] != null && oTags[i] != "") {
-        condition.push("tag='" + oTags[i] + "'");
-      }
-    }
-    condition = [condition.join(' or ')];
+function getFilesByTagsInCategory(category, oTags) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [];
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: category
+  })
+
+  for (var i = 0, l = oTags.length; i < l; i++) {
+    _query.push({
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + oTags[i]
+    });
   }
-  commonDAO.findItems(null, 'tags', condition, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == '' || result == null) {
-      var _err = 'not found in data base ...';
-      return callback(_err, null);
-    }
-    var oUris = [];
-    for (var tmp in result) {
-      if (result[tmp].file_URI != '' && result[tmp].file_URI != null) {
-        oUris.push(result[tmp].file_URI);
-      }
-    }
-    var oCondition = [];
-    for (var j = 0; j < oUris.length; j++) {
-      var pos = oUris[j].lastIndexOf('#');
-      var _category = oUris[j].substr(pos + 1);
-      if (_category === category) {
-        var tmpCondition = "uri='" + oUris[j] + "'";
-        oCondition.push(tmpCondition);
-      }
-    }
-    if (oCondition == "") {
-      var _err = 'no matched items ...';
-      return callback(_err, null);
-    }
-    var sCondition = oCondition.join(' or ');
-    commonDAO.findItems(null, category, [sCondition], null, function(err, result) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      } else if (result == undefined) {
-        var _err = 'not found in data base ...';
-        return callback(_err, null);
-      }
-      //filter files to pick out those contains tag in oTags by walking 'result' 
-      //and comparing the tags. 
-      var _result = [];
-      for (var k in result) {
-        var NotMatch = false;
-        var oTagsAll = result[k].others.split(',');
-        for (var l in oTags) {
-          //break if item doesn't have target tag
-          if (!utils.isExist(oTags[l], oTagsAll)) {
-            NotMatch = true;
-            break;
-          }
-        }
-        //if all tags match 
-        if (!NotMatch) {
-          _result.push(result[k]);
-        }
-      }
-      callback(null, _result);
-    })
+  _query.push({
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
   });
+
+  var resultMaker = function(result){
+    var _result = [];
+    for (var file in result) {
+      _result.push(result[file]);
+    }
+    return _result;
+  };
+  return rdfHandle.dbSearch(_db, _query) 
+    .then(rdfHandle.decodeTripeles)
+    .then(resultMaker);
+
 }
 exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
-
 
 
 /**
  * @method setTagByUri
  *    set tags to a file by uri
  *
- * @param1 callback
- *    @result, (result)
- *    @param: result,
- *        string, retieve 'commit' when success
  *
- * @param2 oTags
+ * @param1 tags
  *    array, an array of tags to be set
  *
- * @param3 sUri
+ * @param2 sUri
  *    string, a specific uri
+ * @return Promise
+ *    event state，which represents onFulfilled state with no value  if sucess;
+ *    otherwise, return reject with Error object 
+ *
  *
  */
-function setTagByUri(callback, oTags, sUri) {
-  var category = utils.getCategoryByUri(sUri);
-
-  function findItemsCb(err, items) {
-    if (err) {
-      console.log(err);
-      return callback(err);
+function setTagByUri(tags, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: _db.v('category'),
+  }];
+  var queryTripleMaker = function(result){
+    if(result == ""){
+      throw Error("NOT FOUND IN DATABASE!");
     }
-    var UpdateItem = [];
-    var item = items[0];
-    console.log(item)
-    if (oTags == '' || oTags == null) {
-      return callback(null);
-    }
-    if (item.others == '' || item.others == null) { //item has no tags 
-      var newTags = oTags.sort().join(",");
-      var oldTags = [];
-    } else { //item has tag(s)
-      var oldTags = item.others.split(',');
-      var lens = oldTags.length;
-      for (var tag in oTags) {
-        if (!utils.isExist(oTags[tag], oldTags)) {
-          oldTags.push(oTags[tag]);
-        }
-      }
-      var newTags = oldTags.sort().join(',');
-    }
-    if (oldTags.length == lens) {
-      return callback(null);//no more new tags added return
-    }
-    UpdateItem = {
-      URI: item.URI,
-      path: item.path,
-      others: newTags,
-      category: category
-    };
-    var re = new RegExp('/' + category + '/', "i");
-    if (category == 'contact') {
-      var desFilePath = pathModule.join(utils.getDesDir(category), item.name + '.md');
-    } else {
-      var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
-    }
-    dataDes.updateItem(desFilePath, UpdateItem, function(result) {
-      if (result !== "success") {
-        console.log("error in update des file!");
-        return callback("error in update des file!");
-      }
-      if (category == 'contact') {
-        delete UpdateItem.path;
-      }
-      commonDAO.updateItem(UpdateItem, function(err) {
-        if (err) {
-          console.log(err);
-          return callback(err);
-        }
-        var chPath = config.RESOURCEPATH + '/' + category + 'Des';
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function(err) {
-          if(err){
-            return callback(err);
-          }
-          addInTAGS(oTags, sUri, function(err) {
-            if (err) {
-              return callback(err);
-            }
-            console.log('set tags des git committed!');
-            callback(null);
-          })
-        });
+    var _subject = result[0].subject;
+    var _category = result[0].category;
+    var _query_add = [];
+    for (var i = 0, l = tags.length; i < l; i++) {
+      var _tag_url = 'http://example.org/tags#' + tags[i];
+      _query_add.push({
+        subject: _tag_url,
+        predicate: DEFINED_VOC.rdf._type,
+        object: DEFINED_PROP["base"]["tags"]
       });
-    });
+      _query_add.push({
+        subject: _tag_url,
+        predicate: DEFINED_VOC.rdf._domain,
+        object: DEFINED_VOC.category[_category]
+      });
+      _query_add.push({
+        subject: _subject,
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: _tag_url
+      });
+    }
+    return _query_add;
   }
-  var condition = ["URI = " + "'" + sUri + "'"];
-  commonDAO.findItems(null, [category], condition, null, findItemsCb);
+  
+  return rdfHandle.dbSearch(_db, _query)
+  .then(queryTripleMaker)
+  .then(function(result){
+      return rdfHandle.dbPut(_db, result);
+    });
 }
 exports.setTagByUri = setTagByUri;
 
-/**
- * @method setTagByUriMulti
- *   set tags to multiple files by uri
- *
- * @param1 callback
- *    @result, (_err,result)
- *
- *    @param: _err,
- *        string, return specific error info
- *
- *    @param: result,
- *        string, retieve 'success' when success
- *
- * @param2 oTags
- *    array, an array of tags to be set
- *
- * @param3 oUri
- *    array, an array of uri
- *
- */
-function setTagByUriMulti(callback, oTags, oUri) {
-  if (oTags == []) {
-    console.log('Tags are not changed!')
-    return callback(null, 'success')
-  } else if (oUri == []) {
-    var _err = 'Error: empty URI input!';
-    console.log(_err);
-    return callback(_err, null)
-  }
-  var count = 0;
-  var lens = oUri.length;
-  for (var i = 0; i < lens; i++) {
-    var sUri = oUri[i];
-    (function(_sUri, _oTags) {
-      function setTagByUriCb(err) {
-        if (err) {
-          console.log(err, 'set tags error!');
-          return callback(err, null);
-        }
-        var isEnd = (count === lens - 1);
-        if (isEnd) {
-          callback(null, 'success');
-        }
-        count++;
-      }
-      setTagByUri(setTagByUriCb, _oTags, _sUri);
-    })(sUri, oTags);
-  }
-}
-exports.setTagByUriMulti = setTagByUriMulti;
 
 /**
  * @method rmTagsByUri
  *   remove a tag from some files with specific uri
  *
- * @param1 callback
- *    return commit if successed
+ * @param1 sTags
+ *    string
  *
- * @param2 oTags
- *    array, an array of tags to be removed
+ * @param2 uri
+ *    uri string
  *
+ * @return Promise
+ *    event state，which represents onFulfilled state with no value  if sucess;
+ *    otherwise, return reject with Error object
  *
  */
-function rmTagsByUri(callback, oTags, sUri) {
-  var allFiles = [];
-  var condition = [];
-  var deleteTags = [];
-  var sCondition = ["uri = '" + sUri + "'"];
-  var category = utils.getCategoryByUri(sUri);
-  commonDAO.findItems(null, [category], sCondition, null, function(err, result_find) {
-    if (err) {
-      console.log(err);
-      return;
+function rmTagsByUri(tag, uri) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: uri
+  }];
+
+  var queryTripleMaker = function(result){
+    if(result == ""){
+      throw Error("NOT FOUND IN DATABASE!");
     }
-    buildDeleteItems(allFiles, result_find);
-    var resultItems = doDeleteTags(allFiles, oTags);
-    console.log(resultItems);
-    dataDes.updateItems(resultItems, function(result) {
-      console.log("my update result: ", result);
-      if (result === "success") {
-        var files = [];
-        if (category === "contact") {
-          var desFilePath = config.RESOURCEPATH + '/contactDes/data/' + allFiles[0].name + '.md';
-        } else {
-          var filePath = allFiles[0].path;
-          var re = new RegExp('/' + category + '/', "i");
-          var desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
-        }
-        files.push(desFilePath);
-        commonDAO.updateItems(resultItems, function(result) {
-          if (result === 'rollback') {
-            console.log(result);
-            return callback(result);
-          }
-          var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-          repo.repoCommit(desPath, files, null, "ch", function() {
-            rmInTAGS(oTags, sUri, function(err) {
-              if (err) {
-                return callback(err);
-              }
-              console.log("rm tags: ", oTags, " success!");
-              callback(result);
-            })
-          });
-        })
-      } else {
-        console.log("error in update des files");
-        return;
-      }
-    })
-  });
+    var _subject = result[0].subject;
+    var _query_delete = [{
+      subject: _subject,
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: "http://example.org/tags#" + tag
+    }]
+    return _query_delete;
+  }
+  
+  return rdfHandle.dbSearch(_db, _query)
+  .then(queryTripleMaker)
+  .then(function(result){
+      rdfHandle.dbDelete(_db, result)
+    });
 }
 exports.rmTagsByUri = rmTagsByUri;
 
@@ -589,77 +330,47 @@ exports.rmTagsByUri = rmTagsByUri;
  * @method rmTagsAll
  *   remove tags from all data base and des files
  *
- * @param1 callback
- *    return commit if successed
  *
- * @param2 oTags
+ * @param1 oTags
  *    array, an array of tags to be removed
  *
+ * @param2 category
+ *    string, such as "document"
  *
+ * @return Promise
+ *    event state，which represents onFulfilled state with no value  if sucess;
+ *    otherwise, return reject with Error object
  */
-function rmTagsAll(callback, oTags) {
-  var allFiles = [];
-  var condition = [];
-  var deleteTags = [];
-  for (var k in oTags) {
-    condition.push("others like '%" + oTags[k] + "%'");
-  }
-  var sCondition = [condition.join(' or ')];
-  commonDAO.findItems(null, ['document'], sCondition, null, function(err, resultDoc) {
-    if (err) {
-      console.log(err);
-      return;
+function rmTagAll(tag, category) {
+  var _db = rdfHandle.dbOpen();
+  var _object = 'http://example.org/tags#' + tag;
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _object
+  }];
+  var tagTriMaker = function(result){
+    for (var i = 0, l = result.length; i < l; i++) {
+      result[i].object = _object;
     }
-    buildDeleteItems(allFiles, resultDoc)
-    commonDAO.findItems(null, ['music'], sCondition, null, function(err, resultMusic) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      buildDeleteItems(allFiles, resultMusic)
-      commonDAO.findItems(null, ['picture'], sCondition, null, function(err, resultPic) {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        buildDeleteItems(allFiles, resultPic)
-        commonDAO.findItems(null, ['video'], sCondition, null, function(err, resultVideo) {
-          if (err) {
-            console.log(err);
-            return;
-          }
-          buildDeleteItems(allFiles, resultVideo);
-          var resultItems = doDeleteTags(allFiles, oTags);
-          dataDes.updateItems(resultItems, function(result) {
-            if (result === "success") {
-              var files = [];
-              for (var k in allFiles) {
-                var desFilePath;
-                var category = allFiles[k].category;
-                if (category === "contact") {
-                  desFilePath = config.RESOURCEPATH + '/contactDes/data/' + allFiles[k].name + '.md';
-                } else {
-                  var filePath = allFiles[k].path;
-                  var re = new RegExp('/' + category + '/', "i");
-                  desFilePath = (filePath.replace(re, '/' + category + 'Des/')) + '.md';
-                }
-                files.push(desFilePath);
-              }
-              var desPath = config.RESOURCEPATH + '/' + category + 'Des';
-              repo.repoCommit(desPath, files, null, "ch", function() {
-                callback(result);
-              });
-            } else {
-              console.log("error in update des files");
-              return;
-            }
-          })
-        })
-      })
+
+    //tag triple for catedory search
+    result.push({
+      subject: _object,
+      predicate: DEFINED_VOC.rdf._domain,
+      object: DEFINED_VOC.category[category]
     })
+    return result;
+  }
+
+  return rdfHandle.dbSearch(_db, _query)
+  .then(tagTriMaker)
+  .then(function(result){
+    rdfHandle.dbDelete(_db, result);
   });
 }
-exports.rmTagsAll = rmTagsAll;
+exports.rmTagAll = rmTagAll;
+
 
 //build the object items for update in both DB and desfile 
 function buildDeleteItems(allFiles, result) {
@@ -681,6 +392,7 @@ function buildDeleteItems(allFiles, result) {
     }
   }
 }
+
 
 //remove those tags we want to delete
 function doDeleteTags(oAllFiles, oTags) {
@@ -706,6 +418,7 @@ function doDeleteTags(oAllFiles, oTags) {
   return oAllFiles;
 }
 
+
 /**
  * @method setRelativeTag
  *   To set a relative tag for a file in order to keep relative relationship of
@@ -723,60 +436,8 @@ function doDeleteTags(oAllFiles, oTags) {
  *
  */
 function setRelativeTagByPath(sFilePath, sTags, callback) {
-  var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
-  if (!reg_desktop.test(sTags)) {
-    var _err = 'Bad Input Tag! Not a Desktop System Tags!';
-    return callback(_err, null);
-  }
-  var category = utils.getCategoryByPath(sFilePath).category;
-  var sCondition = ["path = '" + sFilePath + "'"];
-  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    } else if (result == '' || result == []) {
-      var _err = 'Not Found in DB!';
-      return callback(_err, null);
-    }
-    var item = result[0];
-    var sOriginTag = item.others;
-    if (!reg_desktop.test(sOriginTag) || sOriginTag == '' || sOriginTag == null) {
-      var _err = 'Not a File on Desktop!';
-      return callback(_err, null);
-    }
-    var oTags = sOriginTag.split(',');
-    for (var i = 0; i < oTags.length; i++) {
-      if (reg_desktop.test(oTags[i])) {
-        oTags[i] = sTags;
-      }
-    }
-    UpdateItem = {
-      URI: item.URI,
-      path: item.path,
-      others: oTags.join(','),
-      category: category
-    };
-    var re = new RegExp('/' + category + '/', "i");
-    var desFilePath = ((item.path).replace(re, '/' + category + 'Des/')) + '.md';
-    dataDes.updateItem(desFilePath, UpdateItem, function(result) {
-      if (result !== "success") {
-        return console.log("error in update des file!");
-      }
-      commonDAO.updateItem(UpdateItem, function(err) {
-        if (err) {
-          return callback(err, null);
-        }
-        var chPath = utils.getDesRepoDir(category);
-        repo.repoCommit(chPath, [desFilePath], null, "ch", function(result) {
-          if (result !== 'success') {
-            var _err = 'git ch commit error!';
-            return callback(_err, null);
-          }
-          console.log('set tags des git committed!');
-          callback(null, 'success');
-        });
-      });
-    });
-  });
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
@@ -799,30 +460,11 @@ exports.setRelativeTagByPath = setRelativeTagByPath;
  *
  */
 function rmInTAGS(oTags, sUri, callback) {
-  var sCondition = ["file_URI='" + sUri + "'"];
-  if (oTags) {
-    var tmpCondition = [];
-    for (var tag in oTags) {
-      var str = "tag='" + oTags[tag] + "'";
-      tmpCondition.push(str);
-    }
-    tmpCondition[0] = "(" + tmpCondition[0];
-    tmpCondition[tmpCondition.length - 1] = tmpCondition[tmpCondition.length - 1] + ")";
-    sCondition.push(tmpCondition.join('or'));
-  }
-  var oItem = {
-    category: 'tags',
-    conditions: sCondition
-  }
-  commonDAO.deleteItem(oItem, function(result) {
-    if (result === "rollback") {
-      var _err = 'create item in data base rollback ...';
-      return callback(_err);
-    }
-    callback(null);
-  })
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.rmInTAGS = rmInTAGS;
+
 
 /**
  * @method addInTAGS
@@ -842,24 +484,7 @@ exports.rmInTAGS = rmInTAGS;
  *
  */
 function addInTAGS(oTags, sUri, callback) {
-  if (oTags == '' || oTags == null) {
-    return callback(null);
-  }
-  var oItems = [];
-  for (var tag in oTags) {
-    var oItem = {
-      category: 'tags',
-      tag: oTags[tag],
-      file_URI: sUri
-    }
-    oItems.push(oItem);
-  }
-  commonDAO.createItems(oItems, function(result) {
-    if (result === "rollback") {
-      var _err = 'create item in data base rollback ...';
-      return callback(_err);
-    }
-    callback(null);
-  })
+  /*TODO: rewrite*/
+  return callback();
 }
 exports.addInTAGS = addInTAGS;

@@ -5,7 +5,10 @@ var path = require("path");
 /*
  * Config Path
  * */
-var BASEPATH = path.join(process.env["HOME"],".custard");
+var HOME = process.env["HOME"];
+exports.HOME = HOME;
+
+var BASEPATH = path.join(HOME, ".custard");
 exports.BASEPATH = BASEPATH;
 
 var RESOURCEPATH = path.join(BASEPATH, "resource");
@@ -26,6 +29,19 @@ exports.UNIQUEID_JS = UNIQUEID_JS;
 
 var NETLINKSTATUSPATH;
 exports.NETLINKSTATUSPATH = NETLINKSTATUSPATH;
+
+//levelgraph database info
+var DATABASENAME = "custard_rdf";
+var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
+exports.LEVELDBPATH = LEVELDBPATH;
+
+//data type definition position
+var TYPEDEFINEDIR = path.join(__dirname, '/data/typeDefine');
+exports.TYPEDEFINEDIR = TYPEDEFINEDIR;
+
+//data/default/typeDefine.conf
+var TYPECONFPATH = path.join(__dirname, '/data/default/typeDefine.conf');
+exports.TYPECONFPATH = TYPECONFPATH;
 
 /**
  * APP Path

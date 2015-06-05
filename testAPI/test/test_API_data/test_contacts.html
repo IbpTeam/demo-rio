@@ -55,13 +55,18 @@
   }
   function test_loadContacts(loadContactCb){
     WDC.requireAPI(['data'], function(data){
-      var path = "/home/xwh/WORK_DIRECOTRY/resources/contacts/contacts.CSV";
-      data.loadContacts(loadContactCb,path);
+      data.test_baseinfo(function(baseinfo) {
+        var path = baseinfo.RESOURCEFOLDER + "/contacts/contacts.CSV";
+        data.loadContacts(loadContactCb,path);
+      });
     });
   }
 
-  function getAllContactsCb(result){
+  function getAllContactsCb(err, result){
     var win = window.open('');
+    if(err){
+      throw err;
+    }
     win.document.write("test API getAllContacts()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
@@ -98,8 +103,10 @@
 
     function test_loadResources(loadContactCb){
       WDC.requireAPI(['data'], function(data){
-        var path = "/home/xiquan/resources";
-        data.loadResources(loadContactCb,path);
+        data.test_baseinfo(function(baseinfo) {
+          var path = baseinfo.RESOURCEFOLDER;
+          data.loadResources(loadContactCb,path);
+        });  
       });
     }        
 </pre>
