@@ -17,6 +17,7 @@ var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var typeHandle = require('../commonHandle/typeHandle');
 var uniqueID = require("../uniqueID");
+var Q = require('q');
 
 //@const
 var CATEGORY_NAME = "other";
