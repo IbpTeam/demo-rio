@@ -1,1 +1,0 @@
-var stub = require('./interface/imStub').getStub(__dirname+'/interface/imProxy');

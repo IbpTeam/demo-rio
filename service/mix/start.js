@@ -1,1 +1,0 @@
-var stub = require('./interface/mixStub').getStub(__dirname+'/interface/mixProxy');
