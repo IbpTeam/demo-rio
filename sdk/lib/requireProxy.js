@@ -2,16 +2,19 @@ var util = require('util');
 var net = require('net');
 var fs = require('fs');
 var path = require('path');
-var config = require('../../config');
+// TODO: temporary
+// var config = require('systemconfig');
 // RPC API lib.
 console.log("head of requireProxy.js.");
 
 var debug = true;
 
-var LOCALPATH = config.proxyLocalPath;
-var USERPATH = config.proxyUerPath;
+// TODO: temporary
+// var LOCALPATH = config.proxyLocalPath;
+// var USERPATH = config.proxyUerPath;
 
-/* requireProxy takes 2 or 3 parameters, if you want to call a local service ,
+/* example
+ * requireProxy takes 2 or 3 parameters, if you want to call a local service ,
     take 2 parameters as follows:
  requireProxy(['mix',function(mix){
     mix.getHello(function(res){
