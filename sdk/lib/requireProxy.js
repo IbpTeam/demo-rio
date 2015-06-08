@@ -95,7 +95,6 @@ exports.requireProxySync = function(proxy, addr) {
   if(typeof proxy === 'undefined') throw 'Not enough parameter';
   if(debug) {
     var userPath = path.resolve(__dirname, '../../../../service/' + proxy + '/interface/' + proxy),
-        localPath = LOCALPATH + '/' + proxy + '/' + proxy,
         proxyIns = null;
   } else {
     var userPath = USERPATH + '/' + proxy + '/' + proxy,
