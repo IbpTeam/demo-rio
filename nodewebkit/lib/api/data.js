@@ -154,8 +154,12 @@ function loadResources(loadResourcesCb, path) {
     .then(function() {
       return other.createData(OtherList);
     })
-    .then(loadResourcesCb)
-    .fail(loadResourcesCb)
+    .then(function(result) {
+      loadResourcesCb(null, result);
+    })
+    .fail(function(err) {
+      loadResourcesCb(err);
+    })
     .done();
 }
 exports.loadResources = loadResources;

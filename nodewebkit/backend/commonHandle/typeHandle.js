@@ -70,10 +70,13 @@ exports.getDefinedTypeProperty = getDefinedTypeProperty;
  *
  */
 function getProperty(category) {
-  return readConfFile()
+  return readFile(TYPECONFPATH)
     .then(function(_type_conf) {
       if (_type_conf["property"][category]) {
-        return readTypeFile(_type_conf["property"][category])
+        return readFile(_type_conf["property"][category])
+          .then(function(result) {
+            return result["property"];
+          })
       } else {
         throw new Error("TYPE NOT REGISTERED");
       }
@@ -88,7 +91,7 @@ exports.getProperty = getProperty;
  *
  */
 function getPostfixList() {
-  return readConfFile()
+  return readFile(TYPECONFPATH)
     .then(function(_type_conf) {
       if (_type_conf["postfix"]) {
         return _type_conf["postfix"];
@@ -127,37 +130,17 @@ exports.getTypeNameByPostfix = getTypeNameByPostfix;
 
 
 /**
- * @method readTypeFile
+ * @method readFile
  *   read the content of typeDefine.conf
- *   return the result of string
- *
- *   a *.type file would contain an object as below:
- *   {
- *      "property":{},
- *      "postfix":{}
- *    }
+ *   return the result of object
  *
  * @param1 path
  *   @string
- *      a full path string of *.type file
+ *      a full path string of file
  *
  */
-function readTypeFile(path) {
+function readFile(path) {
   return Q_read_file(path)
-    .then(function(content_) {
-      return JSON.parse(content_);
-    });
-}
-
-
-/**
- * @method readConfFile
- *   read the content of typeDefine.conf
- *   return the result of string
- *
- */
-function readConfFile() {
-  return Q_read_file(TYPECONFPATH)
     .then(function(content_) {
       return JSON.parse(content_);
     });
@@ -177,7 +160,7 @@ function refreshConfFile() {
         var _file_path = pathModule.join(TYPEFILEDIR, file_list_[i]);
         var _name = pathModule.basename(file_list_[i], '.type');
         _property[_name] = _file_path;
-        _combination.push(readTypeFile(_file_path));
+        _combination.push(readFile(_file_path));
       }
       return Q.all(_combination)
         .then(function(result) {

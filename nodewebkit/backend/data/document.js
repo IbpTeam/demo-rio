@@ -10,21 +10,15 @@
  * @version:0.3.0
  **/
 
-var http = require("http");
-var url = require("url");
-var sys = require('sys');
 var pathModule = require('path');
-var git = require("nodegit");
 var fs = require('fs');
 var fs_extra = require('fs-extra');
-var os = require('os');
 var config = require("../config");
-var util = require('util');
 var utils = require('../utils');
-var events = require('events');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
+var typeHandle = require('../commonHandle/typeHandle');
 var Q = require('q');
 
 //@const
@@ -65,12 +59,37 @@ function createData(items) {
 }
 exports.createData = createData;
 
-function extraInfo(category) {
-  var _extra = {
-    project: '上海专项'
-  }
-  return Q.fcall(function() {
-    return _extra;
+
+function extraInfo(item) {
+  return getExtraInfo(item)
+    .then(function(info_) {
+      return typeHandle.getProperty(CATEGORY_NAME)
+        .then(function(property_list_) {
+          for (var _property in property_list_) {
+            property_list_[_property] = info_[_property] || "undefined";
+          }
+          return property_list_;
+        });
+    });
+}
+
+
+function getExtraInfo(item, callback) {
+  var deferred = Q.defer();
+  getPropertyInfo(item, function(err, result) {
+    if (err) {
+      deferred.reject(new Error(err));
+    } else {
+      deferred.resolve(result);
+    }
+  });
+  return deferred.promise;
+}
+
+
+function getPropertyInfo(param, callback) {
+  return callback(null, {
+    project: "shanghai project"
   })
 }
 

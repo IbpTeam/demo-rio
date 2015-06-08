@@ -9,18 +9,12 @@
  *
  * @version:0.3.0
  **/
-var http = require("http");
-var url = require("url");
-var sys = require('sys');
 var path = require('path');
-var git = require("nodegit");
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
-var os = require('os');
 var config = require("../config");
 var desktopConf = require("../data/desktop");
 var util = require('util');
-var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require("./tagsHandle");
@@ -30,7 +24,6 @@ var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar');
 var rdfHandle = require("./rdfHandle");
 var typeHandle = require("./typeHandle");
-var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var Q = require('q');
 
 //let Q trace long stack
@@ -38,6 +31,7 @@ Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 
 
 /**
@@ -93,10 +87,10 @@ function dataStore(items, extraCallback) {
                     extra: result
                   }
                   return item_info;
-                })
+                });
             }
-          })
-      })
+          });
+      });
   }
 
   if (items == "") {
