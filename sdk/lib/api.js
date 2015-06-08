@@ -3,9 +3,6 @@ console.log("head of api.js.");
 var WDC={};
 
 try {
-  // TODO: replace to requireProxy
-  // WDC=require('demo-rio');
-  // WDC.startServer();
   WDC.requireAPI = function(apilist, callback) {
     util.log("requireAPI:" + apilist);
     if(startonce === false){
