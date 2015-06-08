@@ -160,6 +160,7 @@ function refreshConfFile() {
         var _file_path = pathModule.join(TYPEFILEDIR, file_list_[i]);
         var _name = pathModule.basename(file_list_[i], '.type');
         _property[_name] = _file_path;
+        console.log(_file_path);
         _combination.push(readFile(_file_path));
       }
       return Q.all(_combination)
