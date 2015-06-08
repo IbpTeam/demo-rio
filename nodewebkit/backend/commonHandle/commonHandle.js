@@ -93,7 +93,7 @@ function dataStore(items, extraCallback) {
       });
   }
 
-  if (items == "") {
+  if (!items) {
     return Q.fcall(function() {
       return null;
     })
@@ -102,9 +102,7 @@ function dataStore(items, extraCallback) {
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
-          //if (result[i] !== "") {
             _file_info.push(result[i]);
-          //}
         }
         return writeTriples(_file_info);
       });

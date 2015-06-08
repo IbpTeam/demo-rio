@@ -9,6 +9,7 @@ var music = require("../../backend/data/music");
 var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
+var typeHandle = require("../../backend/commonHandle/typeHandle");
 var imChat = require("../../backend/IM/IMChatNoRSA");
 var fs = require('fs');
 var config = require('../../backend/config');
@@ -93,13 +94,8 @@ exports.loadFile = loadFile;
  */
 function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
-  var DocList = [];
-  var MusList = [];
-  var VidList = [];
-  var PicList = [];
-  var DskList = [];
-  var OtherList = [];
-  var existFile = [];
+  var _postfix_list = null;
+  var _file_list = {}
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -121,38 +117,47 @@ function loadResources(loadResourcesCb, path) {
       } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
-        var category = utils.getCategoryByPath(item).category;
-        if (category !== 'contact') {
-          if (category === 'document') {
-            DocList.push(path + '/' + item);
-          } else if (category === 'picture') {
-            PicList.push(path + '/' + item);
-          } else if (category === 'music') {
-            MusList.push(path + '/' + item);
-          } else if (category === 'video') {
-            VidList.push(path + '/' + item);
-          } else {
-            OtherList.push(path + '/' + item);
-          }
+        var category = _postfix_list[sPos];
+        //if postfix is not registered, make it other
+        if (!category) {
+          category = "other";
+        }
+        //push it into _file_list by category
+        if (_file_list[category]) {
+          _file_list[category].push(path + '/' + item);
+        } else {
+          _file_list[category] = [path + '/' + item];
         }
       } else {
         console.log("can't detect type ...");
       }
     });
   }
-  walk(path);
-  documents.createData(DocList)
-    .then(function() {
-      return pictures.createData(PicList);
+
+  return typeHandle.getPostfixList()
+    .then(function(postfix_list_) {
+      //resign postfix list to _postfix_list
+      _postfix_list = postfix_list_;
+      //walk dir and distribute file list by postfix
+      walk(path);
+      //do createData()
     })
-    .then(function() {
-      return music.createData(MusList);
+    .then(function(){
+      //get the object of *.js, would read typeDefine.conf for current registered type 
+      return typeHandle.getTypeMethod();
     })
-    .then(function() {
-      return video.createData(VidList);
+    .then(function(_all_type_object){
+      //push all createData() method with parameter into _combination;
+      var _combination = [];
+      for(var type_object_ in  _all_type_object){
+        var item = _all_type_object[type_object_].createData(_file_list[type_object_]);
+        _combination.push(item);
+      }
+      return _combination;
     })
-    .then(function() {
-      return other.createData(OtherList);
+    .then(function(combination_){
+      //run all createData() method
+      return Q.all(combination_);
     })
     .then(function(result) {
       loadResourcesCb(null, result);
@@ -163,6 +168,7 @@ function loadResources(loadResourcesCb, path) {
     .done();
 }
 exports.loadResources = loadResources;
+
 
 /**
  * @method loadContacts

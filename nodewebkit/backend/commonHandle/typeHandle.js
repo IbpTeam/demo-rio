@@ -1,11 +1,13 @@
 var fs = require('fs');
 var config = require('../config');
-var TYPEFILEDIR = config.TYPEFILEDIR;
-var TYPECONFPATH = config.TYPECONFPATH;
 var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
 var Q = require('q');
+
+//const
+var TYPEFILEDIR = config.TYPEFILEDIR;
+var TYPECONFPATH = config.TYPECONFPATH;
 
 //some promised method
 var Q_read_dir = Q.nbind(fs.readdir);
@@ -180,3 +182,25 @@ function refreshConfFile() {
     });
 }
 exports.refreshConfFile = refreshConfFile;
+
+
+/**
+ * @method getTypeMethod
+ *   return all *.js object
+ *
+ */
+function getTypeMethod() {
+  return readFile(TYPECONFPATH)
+    .then(function(conf_) {
+      var all_type_object_ = {};
+      var _types = conf_["property"];
+      delete _types.base;
+      delete _types.contact;
+      for (var _type in _types) {
+        var type_object_ = require("../data/" + _type + ".js");
+        all_type_object_[_type] = type_object_;
+      }
+      return all_type_object_;
+    })
+}
+exports.getTypeMethod = getTypeMethod;
