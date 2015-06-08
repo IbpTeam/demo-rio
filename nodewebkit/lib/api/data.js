@@ -117,11 +117,8 @@ function loadResources(loadResourcesCb, path) {
       } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
-        var category = _postfix_list[sPos];
         //if postfix is not registered, make it other
-        if (!category) {
-          category = "other";
-        }
+        var category = _postfix_list[sPos] || "other";
         //push it into _file_list by category
         if (_file_list[category]) {
           _file_list[category].push(path + '/' + item);
@@ -143,11 +140,11 @@ function loadResources(loadResourcesCb, path) {
       //do createData()
     })
     .then(function(){
-      //get the object of *.js, would read typeDefine.conf for current registered type 
+      //get the object of *.js, based on typeDefine.conf 
       return typeHandle.getTypeMethod();
     })
     .then(function(_all_type_object){
-      //push all createData() method with parameter into _combination;
+      //push all createData() method with parameter into _combination[];
       var _combination = [];
       for(var type_object_ in  _all_type_object){
         var item = _all_type_object[type_object_].createData(_file_list[type_object_]);
