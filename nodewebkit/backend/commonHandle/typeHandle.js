@@ -84,6 +84,27 @@ function getProperty(category) {
 }
 exports.getProperty = getProperty;
 
+function test_getProperty(cb) {
+  var combination_ = [
+    getProperty("base"),
+    getProperty("document"),
+    getProperty("picture"),
+    getProperty("contact"),
+    getProperty("video"),
+    getProperty("music")
+  ];
+  Q.allSettled(combination_)
+    .then(function(result) {
+      cb(null, result);
+    })
+    .fail(function(err) {
+      cb(err);
+    })
+    .done();
+}
+exports.test_getProperty = test_getProperty;
+
+
 
 /**
  * @method getPostfixList
@@ -127,6 +148,26 @@ function getTypeNameByPostfix(postfix) {
     });
 }
 exports.getTypeNameByPostfix = getTypeNameByPostfix;
+
+function test_getTypeNameByPostfix(cb) {
+  var combination_ = [
+    getTypeNameByPostfix("mp4"),
+    getTypeNameByPostfix("ogg"),
+    getTypeNameByPostfix("doc"),
+    getTypeNameByPostfix("xxx"),
+    getTypeNameByPostfix("mp3"),
+    getTypeNameByPostfix("jpg")
+  ];
+  Q.allSettled(combination_)
+    .then(function(result) {
+      cb(null, result);
+    })
+    .fail(function(err) {
+      cb(err);
+    })
+    .done();
+}
+exports.test_getTypeNameByPostfix = test_getTypeNameByPostfix;
 
 
 /**

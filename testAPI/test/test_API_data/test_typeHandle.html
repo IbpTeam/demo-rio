@@ -66,7 +66,7 @@
           .then(function(result) {
             cb(null, result);
           })
-          .fail(function(err){
+          .fail(function(err) {
             cb(err);
             throw err;
           })
@@ -76,25 +76,9 @@
   }
 
   function test_getProperty(cb) {
-    var Q = require('q');
     WDC.requireAPI(['data'], function(data) {
       data.test_typeHandle(function(typeHandle) {
-        var combination_ = [
-          typeHandle.getProperty("base"),
-          typeHandle.getProperty("document"),
-          typeHandle.getProperty("picture"),
-          typeHandle.getProperty("contact"),
-          typeHandle.getProperty("video"),
-          typeHandle.getProperty("music")
-        ];
-        Q.allSettled(combination_)
-          .then(function(result) {
-            cb(null, result);
-          })
-          .fail(function(err) {
-            cb(err);
-          })
-          .done();
+        typeHandle.test_getProperty(cb);
       });
     });
   }
@@ -126,25 +110,9 @@
   }
 
   function test_getTypeNameByPostfix(cb) {
-    var Q = require('q');
     WDC.requireAPI(['data'], function(data) {
       data.test_typeHandle(function(typeHandle) {
-        var combination_ = [
-          typeHandle.getTypeNameByPostfix("mp4"),
-          typeHandle.getTypeNameByPostfix("ogg"),
-          typeHandle.getTypeNameByPostfix("doc"),
-          typeHandle.getTypeNameByPostfix("xxx"),
-          typeHandle.getTypeNameByPostfix("mp3"),
-          typeHandle.getTypeNameByPostfix("jpg")
-        ];
-        Q.allSettled(combination_)
-          .then(function(result) {
-            cb(null, result);
-          })
-          .fail(function(err) {
-            cb(err);
-          })
-          .done();
+        typeHandle.test_getTypeNameByPostfix(cb);
       });
     });
   }
