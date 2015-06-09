@@ -8,20 +8,20 @@ var DATAJSDIR = config.DATAJSDIR;
 
 function generator(type_name, func_content) {
   var _type_name = type_name;
-  var _js_file_path = pathModule.join(DATAJSDIR, _type_name + "js");
+  var _js_file_path = pathModule.join(DATAJSDIR, _type_name + ".js");
   var _func_content = func_content;
   var prototype =
     "/**\n"
   + " * @Copyright:\n"
   + " *\n"
-  + " * @Description: Documents Handle.\n"
+  + " * @Description: " + _type_name + " type's methods.\n"
   + " *\n"
-  + " * @author: Wangfeng Xiquan Yuanzhed\n"
+  + " * @author: Xiquan \n"
   + " *\n"
-  + " * @Data:2014.10.28\n"
+  + " * @Data:" + (new Date()).toString() + "\n"
   + " *\n"
-  + " * @version:0.3.0\n"
-  + " **/\n";
+  + " * @version:0.1.0\n"
+  + " **/\n"
   + "var pathModule = require('path');\n"
   + "var fs = require('fs');\n"
   + "var fs_extra = require('fs-extra');\n"
@@ -33,7 +33,7 @@ function generator(type_name, func_content) {
   + "var typeHandle = require('../commonHandle/typeHandle');\n"
   + "var Q = require('q');\n"
   + "\n"
-  "//@const"
+  +"//@const"
   + "var CATEGORY_NAME = " + _type_name + ";\n"
   + "\n"
   + "function createData(items) {\n"
@@ -68,10 +68,10 @@ function generator(type_name, func_content) {
   + "\n"
   + "function getOpenInfo(item) {\n"
   + "  if (item == null) {\n"
-  + "    config.riolog('read data : '' + item);\n"
+  + "    config.riolog('read data : ' + item);\n"
   + "    return undefined;\n"
   + "  }\n"
-  + "  config.riolog('read data : '' + item.path);\n"
+  + "  config.riolog('read data : ' + item.path);\n"
   + "  var source;\n"
   + "  if (item.postfix == null) {\n"
   + "    source = {\n"
@@ -97,6 +97,6 @@ function generator(type_name, func_content) {
   + "  return callback()\n"
   + "}\n"
 
-  return Q.nfcall(fs.writeFile, prototype, _js_file_path);
+  return Q.nfcall(fs.writeFile, _js_file_path, prototype);
 }
 exports.generator = generator;

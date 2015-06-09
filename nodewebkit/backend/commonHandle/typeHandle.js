@@ -206,6 +206,19 @@ function getTypeMethod() {
 }
 exports.getTypeMethod = getTypeMethod;
 
-function methodGenerator(info){
-  return typejsGenerator.generator(info.type_name, info.func_content);
+function methodGenerator(info) {
+  var _type_name = info.type_name;
+  var _func_content = info.func_content || "";
+  return typejsGenerator.generator(_type_name, _func_content);
 }
+exports.methodGenerator = methodGenerator;
+
+function typeRegister(){
+  /*TODO: to be continue*/
+  //property reg
+  //type file re-write
+  //triple write
+  //typeDefine.conf rewrite
+  //type js generate
+}
+exports.typeRegister = typeRegister;
