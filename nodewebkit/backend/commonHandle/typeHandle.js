@@ -3,6 +3,7 @@ var config = require('../config');
 var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
+var typejsGenerator = require('./typejsGenerator');
 var Q = require('q');
 
 //const
@@ -204,3 +205,7 @@ function getTypeMethod() {
     })
 }
 exports.getTypeMethod = getTypeMethod;
+
+function methodGenerator(info){
+  return typejsGenerator.generator(info.type_name, info.func_content);
+}
