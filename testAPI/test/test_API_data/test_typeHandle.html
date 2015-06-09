@@ -154,7 +154,9 @@
       data.test_typeHandle(function(typeHandle) {
         var _info = {
           type_name : "testtype",
-            func_content : ""
+            func_content : function getPropertyInfo(param, callback){
+              console.log("hello, tester!");
+            }
         }
         typeHandle.methodGenerator(_info)
           .then(function(result) {

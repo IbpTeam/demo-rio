@@ -91,11 +91,7 @@ function generator(type_name, func_content) {
   + "}\n"
   + "exports.getOpenInfo = getOpenInfo;\n"
   + "\n"
-  + "function getPropertyInfo(param, callback) {\n"
-  + "  //to do\n"
   +_func_content.toString() + "\n"
-  + "  return callback()\n"
-  + "}\n"
 
   return Q.nfcall(fs.writeFile, _js_file_path, prototype);
 }
