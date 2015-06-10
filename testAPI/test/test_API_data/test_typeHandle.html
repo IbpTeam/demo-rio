@@ -1,0 +1,135 @@
+
+<html>
+<head>
+  <title>test_typeHandle_API</title>
+  <meta charset="UTF-8">
+  <style type="text/css">
+  a {
+    font-size: 25px;
+    font-family: sans-serif;
+    line-height: 2;
+  }
+  </style>
+  <script src="../../lib/require.js"></script>
+  <script src="../../lib/jquery.js"></script>
+  <script src="../../lib/api.js"></script>
+</head>
+<body>
+  <script language=javascript>  
+
+  function print(win, something) {
+    if (typeof something == "object") {
+      win.document.write("{");
+      for (var k in something) {
+        win.document.write(k);
+        win.document.write(" : ");
+        print(win, something[k]);
+        win.document.write(", ");
+        win.document.write("<br/>");
+      }
+      win.document.write("}");
+      win.document.write("<br/>");
+    } else {
+      win.document.write(something);
+    }
+  }
+
+  function show(id) {
+    var id_style = document.getElementById(id).style.cssText;
+    if (id_style == "display: inline;") {
+      document.getElementById(id).style.cssText = "display: none;";
+    } else if (id_style == "display: none;") {
+      document.getElementById(id).style.cssText = "display: inline;";
+    } else {
+      var win = window.open('');
+      win.document.write("div " + id + " display wrong!");
+    }
+  }
+
+  function cb(err, result) {
+    var win = window.open('');
+    if (err) {
+      win.document.write("test error: \n")
+      win.document.write("<br/>");
+      print(win, err.toString());
+    } else {
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result);
+    }
+  }
+
+  function test_initTypeDef(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.initTypeDef()
+          .then(function(result) {
+            cb(null, result);
+          })
+          .fail(function(err) {
+            cb(err);
+            throw err;
+          })
+          .done();
+      });
+    });
+  }
+
+  function test_getProperty(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.test_getProperty(cb);
+      });
+    });
+  }
+
+  function test_refreshConfFile(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.refreshConfFile()
+          .then(cb)
+          .fail(function(err) {
+            cb(err);
+          })
+          .done();
+      });
+    });
+  }
+
+  function test_getPostfixList(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.getPostfixList()
+          .then(function(result) {
+            cb(null, result);
+          })
+          .fail(cb)
+          .done();
+      });
+    });
+  }
+
+  function test_getTypeNameByPostfix(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        typeHandle.test_getTypeNameByPostfix(cb);
+      });
+    });
+  }
+
+
+
+  </script>
+
+<h2>initTypeDef(cb)<span><a class="mark" href="#test_initTypeDef" id="test_initTypeDef" onclick="test_initTypeDef(cb)">test</a></span></h2>
+
+<h2>getProperty(cb)<span><a class="mark" href="#test_getProperty" id="test_getProperty" onclick="test_getProperty(cb)">test</a></span></h2>
+
+<h2>refreshConfFile(cb)<span><a class="mark" href="#test_refreshConfFile" id="test_refreshConfFile" onclick="test_refreshConfFile(cb)">test</a></span></h2>
+
+<h2>getPostfixList(cb)<span><a class="mark" href="#test_getPostfixList" id="test_getPostfixList" onclick="test_getPostfixList(cb)">test</a></span></h2>
+
+<h2>getTypeNameByPostfix(cb)<span><a class="mark" href="#test_getTypeNameByPostfix" id="test_getTypeNameByPostfix" onclick="test_getTypeNameByPostfix(cb)">test</a></span></h2>
+
+</body>
+</html>

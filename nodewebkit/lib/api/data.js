@@ -154,8 +154,12 @@ function loadResources(loadResourcesCb, path) {
     .then(function() {
       return other.createData(OtherList);
     })
-    .then(loadResourcesCb)
-    .fail(loadResourcesCb)
+    .then(function(result) {
+      loadResourcesCb(null, result);
+    })
+    .fail(function(err) {
+      loadResourcesCb(err);
+    })
     .done();
 }
 exports.loadResources = loadResources;
@@ -1411,7 +1415,6 @@ function test_baseinfo(callback) {
 exports.test_baseinfo = test_baseinfo;
 
 
-
 function renameDataByUri(sUri, sNewName, renameDataByUriCb){
   console.log("Request handler 'renameDataByUri' was called.");
   commonHandle.renameDataByUri( sUri, sNewName)
@@ -1424,4 +1427,16 @@ function renameDataByUri(sUri, sNewName, renameDataByUriCb){
     .done();
 }
 exports.renameDataByUri = renameDataByUri;
+
+
+/** 
+ * @Method: test_typeHandle
+ *    just for testing typeHandle
+ *
+ **/
+function test_typeHandle(callback) {
+  var typeHandle = require("../../backend/commonHandle/typeHandle");
+  callback(typeHandle);
+}
+exports.test_typeHandle = test_typeHandle;
 

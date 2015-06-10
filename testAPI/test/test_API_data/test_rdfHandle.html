@@ -180,20 +180,16 @@
         var _db = rdfhandle.dbOpen();
         var _query_get_all = [{
           subject: _db.v('subject'),
-          predicate: "http://example.org/property/base#URI",
-          object: "rio30302rio#0ca6bcf54dc8ff7d7d58",
-        }, {
-          subject: _db.v('subject'),
           predicate: _db.v('predicate'),
           object: _db.v('object')
         }];
 
-        rdfhandle.dbSearch(_db, _query_get_all) 
-        .done(function(results) {
-          cb(null,results);
-        },function(err) {
-          cb(err);
-        });
+        rdfhandle.dbSearch(_db, _query_get_all)
+          .done(function(results) {
+            cb(null, results);
+          }, function(err) {
+            cb(err);
+          });
       })
     });
   }

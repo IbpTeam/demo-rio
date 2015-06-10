@@ -12,10 +12,10 @@
 var pathModule = require('path');
 var fs = require('fs');
 var config = require("../config");
-var util = require('util');
 var utils = require('../utils');
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
+var typeHandle = require('../commonHandle/typeHandle');
 var uniqueID = require("../uniqueID");
 
 //@const
@@ -51,17 +51,43 @@ var CATEGORY_NAME = "other";
  *        string, retrieve 'success' when success
  *
  */
-function createData(items, callback) {
+function createData(items) {
   return commonHandle.dataStore(items, extraInfo);
 }
 exports.createData = createData;
 
-function extraInfo(category, callback) {
-  var _extra = {}
-  return Q.fcall(function() {
-    return _extra;
-  })
+
+function extraInfo(item) {
+  return getExtraInfo(item)
+    .then(function(info_) {
+      return typeHandle.getProperty(CATEGORY_NAME)
+        .then(function(property_list_) {
+          for (var _property in property_list_) {
+            property_list_[_property] = info_[_property] || "undefined";
+          }
+          return property_list_;
+        });
+    });
 }
+
+
+function getExtraInfo(item, callback) {
+  var deferred = Q.defer();
+  getPropertyInfo(item, function(err, result) {
+    if (err) {
+      deferred.reject(new Error(err));
+    } else {
+      deferred.resolve(result);
+    }
+  });
+  return deferred.promise;
+}
+
+
+function getPropertyInfo(param, callback) {
+  return callback(null, {})
+}
+
 
 function getOpenInfo(item) {
   if (item == null) {
