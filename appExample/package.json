@@ -3,7 +3,19 @@
   "main": "index.html",
   "description": "Rio APP example.",
   "version": "0.0.2",
+  "nodejs": true,
+  "window": {
+    "icon": "icons/datamgr.png",
+    "title": "test",
+    "toolbar": true,
+    "show_in_taskbar": true,
+    "as_desktop": false,
+    "frame": true,
+    "width": 811,
+    "height": 550
+  },
   "dependencies": {
-    "demo-rio": "~0.0.1"
+    "demo-rio": "~0.0.1",
+    "api": "~0.1.0"
   }
 }

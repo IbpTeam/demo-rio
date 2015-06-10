@@ -1,11 +1,21 @@
 // API lib.
 console.log("head of api.js.");
-var WDC={};
+var WDC={},
+    util = require('util'),
+    api = require('api');
 
 try {
-  WDC=require('demo-rio');
-  WDC.startServer();
-}catch (e){
+  WDC.requireAPI = function(apilist, callback) {
+    util.log("requireAPI:" + apilist);
+    var i;
+    var apiArr = new Array(apilist.length);
+    for(i = 0; i < apilist.length; i += 1) {
+      // TODO: modify path
+      apiArr[i] = api[apilist[i]]();
+    }
+    setTimeout(function(){callback.apply(null, apiArr)}, 0);
+  }
+} catch (e) {
   console.log("Error happened when require demo-rio:" + e.stack);
   console.log("Error: Can not load nodewebkit modules, so we can not use the WDC api.");
 }
