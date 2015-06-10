@@ -1,21 +1,17 @@
 // API lib.
 console.log("head of api.js.");
-var WDC={};
+var WDC={},
+    util = require('util'),
+    api = require('api');
 
 try {
-  // TODO: replace to requireProxy
-  // WDC=require('demo-rio');
-  // WDC.startServer();
   WDC.requireAPI = function(apilist, callback) {
     util.log("requireAPI:" + apilist);
-    if(startonce === false){
-       startApp();
-    }
     var i;
     var apiArr = new Array(apilist.length);
     for(i = 0; i < apilist.length; i += 1) {
       // TODO: modify path
-      apiArr[i] = require('./lib/api/' + apilist[i]);
+      apiArr[i] = api[apilist[i]]();
     }
     setTimeout(function(){callback.apply(null, apiArr)}, 0);
   }

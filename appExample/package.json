@@ -15,6 +15,7 @@
     "height": 550
   },
   "dependencies": {
-    "demo-rio": "~0.0.1"
+    "demo-rio": "~0.0.1",
+    "api": "~0.1.0"
   }
 }

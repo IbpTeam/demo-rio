@@ -130,7 +130,10 @@ function initializeApp(sFullPath) {
       });*/
 
       //init defined type's tiples
-      typeHandle.initTypeDef();
+      typeHandle.initTypeDef()
+        .fail(function(err){
+          throw err;
+        });
     });
   });
   device = require("./backend/data/device");

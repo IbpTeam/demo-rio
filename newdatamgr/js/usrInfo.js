@@ -168,7 +168,10 @@ var UsrInfoView = Class.extend({
             _this._isLoadedResources = true;
           },resourcePath);
         }else if ($('#dataCheckBox')[0].checked) {
-          DataAPI.loadResources(function(result){
+          DataAPI.loadResources(function(err, result){
+            if(err){
+              throw err;
+            }
             document.body.style.cursor = "default";
             _modalBoxObj.forbidClose(false);
             _this._isLoadedResources = true;
