@@ -117,6 +117,25 @@
     });
   }
 
+  function test_methodGenerator(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        var _info = {
+          type_name : "testtype",
+            func_content : function getPropertyInfo(param, callback){
+              console.log("hello, tester!");
+            }
+        }
+        typeHandle.methodGenerator(_info)
+          .then(function(result) {
+            cb(null, result);
+          })
+          .fail(cb)
+          .done();
+      });
+    });
+  }
+
 
 
   </script>
@@ -130,6 +149,8 @@
 <h2>getPostfixList(cb)<span><a class="mark" href="#test_getPostfixList" id="test_getPostfixList" onclick="test_getPostfixList(cb)">test</a></span></h2>
 
 <h2>getTypeNameByPostfix(cb)<span><a class="mark" href="#test_getTypeNameByPostfix" id="test_getTypeNameByPostfix" onclick="test_getTypeNameByPostfix(cb)">test</a></span></h2>
+
+<h2>methodGenerator(cb)<span><a class="mark" href="#test_methodGenerator" id="test_methodGenerator" onclick="test_methodGenerator(cb)">test</a></span></h2>
 
 </body>
 </html>

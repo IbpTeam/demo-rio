@@ -3,6 +3,7 @@ var config = require('../config');
 var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
+var typejsGenerator = require('./typejsGenerator');
 var Q = require('q');
 
 //const
@@ -245,3 +246,34 @@ function getTypeMethod() {
     })
 }
 exports.getTypeMethod = getTypeMethod;
+
+
+/**
+ * @method getTypeMethod
+ *   generate all *.js file
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",         //value is a string piece
+ *         func_content:function(){}  //value should be a function object
+ *     }
+ *
+ */
+function methodGenerator(info) {
+  var _type_name = info.type_name;
+  var _func_content = info.func_content || "";
+  return typejsGenerator.generator(_type_name, _func_content);
+}
+exports.methodGenerator = methodGenerator;
+
+
+function typeRegister(){
+  /*TODO: to be continue*/
+  //property reg
+  //type file re-write
+  //triple write
+  //typeDefine.conf rewrite
+  //type js generate
+}
+exports.typeRegister = typeRegister;
