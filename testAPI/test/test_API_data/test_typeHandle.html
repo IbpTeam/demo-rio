@@ -136,6 +136,21 @@
     });
   }
 
+  function test_postfixRegister(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        var test_info = {
+          type_name: "music",
+          postfix: ["acc", "ACC", "test_post"]
+        }
+        typeHandle.postfixRegister(test_info)
+          .then(cb)
+          .fail(cb)
+          .done();
+      });
+    });
+  }
+
 
 
   </script>
@@ -151,6 +166,8 @@
 <h2>getTypeNameByPostfix(cb)<span><a class="mark" href="#test_getTypeNameByPostfix" id="test_getTypeNameByPostfix" onclick="test_getTypeNameByPostfix(cb)">test</a></span></h2>
 
 <h2>methodGenerator(cb)<span><a class="mark" href="#test_methodGenerator" id="test_methodGenerator" onclick="test_methodGenerator(cb)">test</a></span></h2>
+
+<h2>postfixRegister(cb)<span><a class="mark" href="#test_postfixRegister" id="test_postfixRegister" onclick="test_postfixRegister(cb)">test</a></span></h2>
 
 </body>
 </html>

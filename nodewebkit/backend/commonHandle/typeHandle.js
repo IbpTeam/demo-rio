@@ -267,11 +267,6 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
-function typeFileGenerator(info) {
-  /*TODO: to be continue*/
-}
-
-
 /**
  * @method typeRegister
  *   regist a user defined data type
@@ -282,17 +277,88 @@ function typeFileGenerator(info) {
  *         type_name:"document",          //value is a string piece
  *         func_content:function(){},  //value should be a function object
  *          property: [xxx,aaa,bbb]       //array of kinds if properties
+ *          postfix: [xa,xf,xaq]              //array of postfix for this kind of data type
  *    }
  *
  */
 function typeRegister(info) {
-  return methodGenerator(info)
-    .then(function() {
-      return typeFileGenerator(info);
-    })
-    .then(function() {
-      return refreshConfFile();
-    });
+  /*TODO: to be continue*/
+  // return methodGenerator(info)
+  //   .then(function() {
+  //     return typeFileGenerator(info);
+  //   })
+  //   .then(function() {
+  //     return refreshConfFile();
+  //   });
 }
 exports.typeRegister = typeRegister;
 
+
+/**
+ * @method propertyAdder
+ *   add user defined property on a specific data type
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",          //value is a string piece
+ *          property: [xxx,aaa,bbb]       //array of kinds if properties
+ *    }
+ *
+ */
+function propertyAdder(info) {
+  /*TODO: to be continue*/
+}
+
+
+/*TODO: needs more consideration*/
+// function propertyRemover() {
+
+// }
+
+// function propertyRegiser(op, info) {
+//   if (op === "add") {
+//     return propertyAdder(info);
+//   } else if (op === "remove") {
+//     return propertyRemover(info);
+//   } else {
+//     var _err = new Error("NOT A VLID OP STR...");
+//     throw _err;
+//   }
+// }
+
+
+/**
+ * @method postfixRegister
+ *   to regist a postfix to specific data type
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",          //value is a string piece
+ *          postfix: [xxx,aaa,bbb]       //array of kinds if postfix
+ *    }
+ *
+ */
+function postfixRegister(info) {
+  var _type_name = info.type_name;
+  var _postfix_list = info.postfix;
+  //get type file path from typeDefine.con
+  return readFile(TYPECONFPATH)
+    .then(function(config_info_) {
+      var _type_file_path = config_info_["property"][_type_name];
+      //read current type file content
+      return readFile(_type_file_path)
+        .then(function(type_info_) {
+          for (var i = 0, l = _postfix_list.length; i < l; i++) {
+            type_info_.postfix[_postfix_list[i]] = _type_name;
+          }
+          var type_info_str_ = JSON.stringify(type_info_, null, 4);
+          //re-write the type file
+          return Q_write_file(_type_file_path, type_info_str_);
+        });
+    })
+    //refresh typeDefine.conf
+    .then(refreshConfFile());
+}
+exports.postfixRegister = postfixRegister;
