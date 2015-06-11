@@ -295,3 +295,4 @@ function typeRegister(info) {
     });
 }
 exports.typeRegister = typeRegister;
+
