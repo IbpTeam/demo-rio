@@ -9,40 +9,12 @@ var music = require("../../backend/data/music");
 var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
-var typeHandle = require("../../backend/commonHandle/typeHandle");
-var imChat = require("../../backend/IM/IMChatNoRSA");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
 var path = require('path');
 var Q = require('q');
 
-/*
- *getLocalData
- */
-function getLocalData(getLocalDataCb) {
-  var localJson = {};
-  localJson['account'] = imChat.LOCALACCOUNT;
-  localJson['UID'] = imChat.LOCALUUID;
-
-  getLocalDataCb(localJson);
-}
-exports.getLocalData = getLocalData;
-
-/*
- *IMChat
- */
-function startIMChatServer(startIMChatServerCb) {
-  imChat.initIMServerNoRSA(6986, function(msgobj) {
-    startIMChatServerCb(msgobj);
-  });
-}
-exports.startIMChatServer = startIMChatServer;
-
-function sendIMMsg(sendIMMsgCb, ipset, toAccount, msg) {
-  imChat.sendMSGbyUIDNoRSA(ipset, toAccount, msg, 6986, sendIMMsgCb);
-}
-exports.sendIMMsg = sendIMMsg;
 
 /**
  * @method loadFile
