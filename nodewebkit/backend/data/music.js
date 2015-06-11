@@ -9,24 +9,17 @@
  *
  * @version:0.3.0
  **/
-
-var http = require("http");
-var url = require("url");
-var sys = require('sys');
 var pathModule = require('path');
-var git = require("nodegit");
 var fs = require('fs');
 var fs_extra = require('fs-extra');
-var os = require('os');
 var config = require("../config");
-var util = require('util');
 var utils = require('../utils');
-var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
 var rdfHandle = require('../commonHandle/rdfHandle');
+var typeHandle = require('../commonHandle/typeHandle');
 var Q = require('q');
 
 //@const
@@ -96,7 +89,7 @@ function getTagsFromString(str) {
   return tags;
 }
 
-function readId3FromMp3(path, callback) {
+function getPropertyInfo(path, callback) {
   var cp = require('child_process');
   var cmd = 'mutagen-inspect ' + '"'+path+'"';
   cp.exec(cmd, function(error, stdout, stderr) {
@@ -108,7 +101,7 @@ function readId3FromMp3(path, callback) {
     }
   });
 }
-exports.readId3FromMp3 = readId3FromMp3;
+
 
 /**
  * @method createData
@@ -135,40 +128,33 @@ function createData(items) {
 }
 exports.createData = createData;
 
+
 function extraInfo(item) {
+  return getExtraInfo(item)
+    .then(function(info_) {
+      return typeHandle.getProperty(CATEGORY_NAME)
+        .then(function(property_list_) {
+          for (var _property in property_list_) {
+            property_list_[_property] = info_[_property] || "undefined";
+          }
+          return property_list_;
+        });
+    });
+}
+
+
+function getExtraInfo(item) {
   var deferred = Q.defer();
-  getExtraInfo(item, function(err, result) {
+  getPropertyInfo(item, function(err, result) {
     if (err) {
       deferred.reject(new Error(err));
     } else {
-      var _extra = {
-        format: result.format,
-        bit_rate: result.bit_rate,
-        frequency: result.frequency,
-        track: result.track,
-        TDRC: result.TDRC,
-        APIC: result.APIC,
-        TALB: result.TALB,
-        TPE1: result.TPE1,
-        TIT2: result.TIT2,
-        TXXX: result.TXXX,
-        COMM: result.COMM
-      }
-      deferred.resolve(_extra);
+      deferred.resolve(result);
     }
   });
   return deferred.promise;
 }
 
-function getExtraInfo(item, callback) {
-  readId3FromMp3(item, function(err, result) {
-    if (err) {
-      return callback(err);
-    } else {
-      return callback(null, result);
-    }
-  });
-}
 
 function getOpenInfo(item) {
   if (item == null) {

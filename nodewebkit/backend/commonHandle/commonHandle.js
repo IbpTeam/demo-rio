@@ -9,18 +9,12 @@
  *
  * @version:0.3.0
  **/
-var http = require("http");
-var url = require("url");
-var sys = require('sys');
 var path = require('path');
-var git = require("nodegit");
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
-var os = require('os');
 var config = require("../config");
 var desktopConf = require("../data/desktop");
 var util = require('util');
-var events = require('events');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require("./tagsHandle");
@@ -29,7 +23,7 @@ var repo = require("./repo");
 var transfer = require('../Transfer/msgTransfer');
 var chokidar = require('chokidar');
 var rdfHandle = require("./rdfHandle");
-var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var typeHandle = require("./typeHandle");
 var Q = require('q');
 
 //let Q trace long stack
@@ -37,6 +31,7 @@ Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
+var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 
 
 /**
@@ -92,13 +87,13 @@ function dataStore(items, extraCallback) {
                     extra: result
                   }
                   return item_info;
-                })
+                });
             }
-          })
-      })
+          });
+      });
   }
 
-  if (items == "") {
+  if (!items) {
     return Q.fcall(function() {
       return null;
     })
@@ -107,9 +102,7 @@ function dataStore(items, extraCallback) {
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
-          //if (result[i] !== "") {
             _file_info.push(result[i]);
-          //}
         }
         return writeTriples(_file_info);
       });
@@ -157,29 +150,38 @@ function baseInfo(itemPath) {
     var _mtime = (stat.mtime).toString();
     var _ctime = (stat.ctime).toString();
     var _size = stat.size;
-    var _cate = utils.getCategoryByPath(itemPath);
-    var _category = _cate.category;
-    var _filename = _cate.filename;
-    var _postfix = _cate.postfix;
+    var _postfix = path.extname(itemPath);
+    var _filename = path.basename(itemPath, _postfix);
+    if (_postfix[0] === ".") {
+      _postfix = _postfix.substr(1);
+    }
     var _tags = tagsHandle.getTagsByPath(itemPath);
-    return uniqueID.Q_getFileUid().then(function(_uri) {
-      var _base = {
-        URI: _uri,
-        filename: _filename,
-        postfix: _postfix,
-        category: _category,
-        size: _size,
-        path: itemPath,
-        tags: _tags,
-        createTime: _ctime,
-        lastModifyTime: _mtime,
-        lastAccessTime: _ctime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      }
-      return _base;
-    })
+    var _base = {
+      URI: null,
+      filename: _filename,
+      postfix: _postfix,
+      category: null,
+      size: _size,
+      path: itemPath,
+      tags: _tags,
+      createTime: _ctime,
+      lastModifyTime: _mtime,
+      lastAccessTime: _ctime,
+      createDev: config.uniqueID,
+      lastModifyDev: config.uniqueID,
+      lastAccessDev: config.uniqueID
+    }
+    return uniqueID.Q_getFileUid()
+      .then(function(_uri) {
+        _base.URI = _uri
+      })
+      .then(function() {
+        return typeHandle.getTypeNameByPostfix(_postfix)
+          .then(function(category_) {
+            _base.category = category_;
+            return _base;
+          })
+      })
   }
   return Q_fsStat(itemPath).then(Q_uriMaker);
 }

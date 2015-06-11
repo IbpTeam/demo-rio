@@ -9,15 +9,14 @@
  *
  * @version:0.3.0
  **/
-
 var pathModule = require('path');
 var fs = require('fs');
 var fs_extra = require('fs-extra');
 var config = require("../config");
-var util = require('util');
 var utils = require('../utils');
 var tagsHandle = require('../commonHandle/tagsHandle');
 var commonHandle = require('../commonHandle/commonHandle');
+var typeHandle = require('../commonHandle/typeHandle');
 var uniqueID = require("../uniqueID");
 var exec = require('child_process').exec;
 var Q = require('q');
@@ -87,7 +86,7 @@ function readVideoMetadata(sPath, callback) {
         }
       }
     } catch (err) {
-      console.log('just ignore: ',err);
+      console.log('just ignore: ', err);
     } finally {
       return callback(null, oMetadata);
     }
@@ -109,7 +108,7 @@ function readVideoThumbnail(sPath, callback) {
       return callback(null, buffer_base64);
     })
   }
-  fs.open(sPath, 'r', function(err,fd) {
+  fs.open(sPath, 'r', function(err, fd) {
     if (err) {
       return callback(err, null);
     }
@@ -170,27 +169,41 @@ function createData(items) {
 }
 exports.createData = createData;
 
-function extraInfo(item, callback) {
+
+function extraInfo(item) {
+  return getExtraInfo(item)
+    .then(function(info_) {
+      return typeHandle.getProperty(CATEGORY_NAME)
+        .then(function(property_list_) {
+          for (var _property in property_list_) {
+            property_list_[_property] = info_[_property] || "undefined";
+          }
+          return property_list_;
+        });
+    });
+}
+
+
+function getExtraInfo(item) {
   var deferred = Q.defer();
-  readVideoMetadata(item, function(err, metadata) {
+  getPropertyInfo(item, function(err, result) {
     if (err) {
       deferred.reject(new Error(err));
     } else {
-      var _extra = {
-        format_long_name: metadata.format_long_name,
-        width: metadata.width,
-        height: metadata.height,
-        display_aspect_ratio: metadata.display_aspect_ratio,
-        pix_fmt: metadata.pix_fmt,
-        duration: metadata.duration,
-        major_brand: metadata.major_brand,
-        minor_version: metadata.minor_version,
-        compatible_brands: metadata.compatible_brands
-      }
-      deferred.resolve(_extra);
+      deferred.resolve(result);
     }
   });
   return deferred.promise;
+}
+
+
+function getPropertyInfo(param, callback) {
+  readVideoMetadata(param, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    return callback(null, result);
+  });
 }
 
 
@@ -267,4 +280,3 @@ function getOpenInfo(item) {
   return source;
 }
 exports.getOpenInfo = getOpenInfo;
-
