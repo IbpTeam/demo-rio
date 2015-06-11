@@ -268,6 +268,62 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
+/**
+ * @method typeFileGenerator
+ *   generate typeFile and output to typeDefine folder
+ *
+ * @param typeName
+ * Name of Type
+ * @propertyArr
+ *
+ * @profixArr
+ * var Q_read_dir = Q.nbind(fs.readdir);
+ var Q_read_file = Q.nbind(fs.readFile);
+ var Q_write_file = Q.nbind(fs.writeFile);
+ *
+ */
+function typeFileGenerator(typeName, propertyArr, profixArr){
+  var _type_name = typeName.toString();
+  if(propertyArr.length == 0 || propertyArr === null)
+    throw new Error("[typeFileGenerator]No Property!");
+  if(profixArr.length == 0 || profixArr === null)
+    throw new Error("[typeFileGenerator]No profix!");
+  var tab = "  ";
+  var sProPropertyArr = "\"URI\": \"http: //example.org/property/" + _type_name + "#";
+  var sPostPropertyArr = + "\"";
+  arrModify(sProPropertyArr, propertyArr, sPostPropertyArr);
+  var sProProfixArr = "\"";
+  var sProstProfixArr = "\": \"+ _type_name +\",";
+  arrModify(sProProfixArr, profixArr, sProstProfixArr);
+  var propertyHead = tab + "\"property\": { \n";
+  var propertyTail = tab + "}";
+  var propertyOutputString = stringmaker(propertyHead,propertyArr,propertyTail);
+  var profixHead = tab + "\"postfix\": {";
+  var profixTail = tab + "}";
+  var profixOutputString = stringmaker(profixHead, profixArr, profixTail);
+  var outputString = "{\n" + propertyOutputString +"\n" + profixOutputString+ "}";
+
+  function arrModify(arr, pro, post) {
+    for (var i = 0; i < arr.length; i++) {
+      var temp = arr[i];
+      temp =pro + temp + post;
+      arr[i] = temp;
+    }
+  }
+
+  function stringmaker(head,arr,tail) {
+    var tmpString = head;
+    for (var i = 0; i < arr.length; i++) {
+      tmpString += tab + tab + arr[i] + "\n";
+    }
+    tmpString += tail;
+    return tmpString;
+  }
+  Q_write_file(TYPEFILEDIR, outputString);
+}
+exports.typeFileGenerator = typeFileGenerator;
+
+
 function typeRegister(){
   /*TODO: to be continue*/
   //property reg
