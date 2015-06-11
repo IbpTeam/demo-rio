@@ -204,7 +204,6 @@ function refreshConfFile() {
         var _file_path = pathModule.join(TYPEFILEDIR, file_list_[i]);
         var _name = pathModule.basename(file_list_[i], '.type');
         _property[_name] = _file_path;
-        console.log(_file_path);
         _combination.push(readFile(_file_path));
       }
       return Q.all(_combination)
@@ -268,12 +267,32 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
-function typeRegister(){
+function typeFileGenerator(info) {
   /*TODO: to be continue*/
-  //property reg
-  //type file re-write
-  //triple write
-  //typeDefine.conf rewrite
-  //type js generate
+}
+
+
+/**
+ * @method typeRegister
+ *   regist a user defined data type
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",          //value is a string piece
+ *         func_content:function(){},  //value should be a function object
+ *          property: [xxx,aaa,bbb]       //array of kinds if properties
+ *    }
+ *
+ */
+function typeRegister(info) {
+  return methodGenerator(info)
+    .then(function() {
+      return typeFileGenerator(info);
+    })
+    .then(function() {
+      return refreshConfFile();
+    });
 }
 exports.typeRegister = typeRegister;
+

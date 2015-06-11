@@ -725,7 +725,7 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
   console.log("Request handler 'getFilesByTags' was called.");
   tagsHandle.getFilesByTags(oTags)
     .then(function(results) {
-      getFilesByTagsCb(null,results);
+      getFilesByTagsCb(null, results);
     })
     .fail(function(err) {
       getFilesByTagsCb(err);
