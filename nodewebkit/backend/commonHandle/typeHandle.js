@@ -275,12 +275,15 @@ exports.methodGenerator = methodGenerator;
  *
  * @param typeName
  * Name of Type
+ *
  * @propertyArr
+ * String Array , property of data, 1..n
  *
  * @profixArr
- * var Q_read_dir = Q.nbind(fs.readdir);
- var Q_read_file = Q.nbind(fs.readFile);
- var Q_write_file = Q.nbind(fs.writeFile);
+ * String Array , profix of the type, 1..n
+ *
+ * @profixArr
+ *
  *
  */
 function typeFileGenerator(typeName, propertyArr, profixArr){
