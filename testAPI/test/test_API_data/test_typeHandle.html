@@ -151,6 +151,48 @@
     });
   }
 
+  function test_typeFileGenerator(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        var test_info = {
+          type_name: "code",
+          property: ["language", "maintainer", "producer"],
+          postfix: ["js", "c", "cpp", "java"]
+        }
+        typeHandle.typeFileGenerator(test_info.type_name, test_info.property, test_info.postfix)
+          .then(cb)
+          .fail(cb)
+          .done();
+      });
+    });
+  }
+
+  function test_typeRegister(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        var test_info = {
+          type_name: "code",
+          property: ["language", "maintainer", "producer"],
+          postfix: ["js", "c", "cpp", "java"],
+          func_content: function getPropertyInfo(param, callback) {
+            var _retult = {
+              language: "program language",
+              maintainer: "xiquan",
+              producer: "xiquan"
+            }
+            return callback(null, _retult);
+          }
+        }
+        typeHandle.typeRegister(test_info)
+          .then(cb)
+          .fail(function(err){
+            throw err;
+
+          })
+          .done();
+      });
+    });
+  }
 
 
   </script>
@@ -168,6 +210,10 @@
 <h2>methodGenerator(cb)<span><a class="mark" href="#test_methodGenerator" id="test_methodGenerator" onclick="test_methodGenerator(cb)">test</a></span></h2>
 
 <h2>postfixRegister(cb)<span><a class="mark" href="#test_postfixRegister" id="test_postfixRegister" onclick="test_postfixRegister(cb)">test</a></span></h2>
+
+<h2>typeFileGenerator(cb)<span><a class="mark" href="#test_typeFileGenerator" id="test_typeFileGenerator" onclick="test_typeFileGenerator(cb)">test</a></span></h2>
+
+<h2>typeRegister(cb)<span><a class="mark" href="#test_typeRegister" id="test_typeRegister" onclick="test_typeRegister(cb)">test</a></span></h2>
 
 </body>
 </html>

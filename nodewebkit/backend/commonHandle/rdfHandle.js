@@ -16,22 +16,31 @@ var config = require('../config');
 var levelgraph = require('levelgraph');
 var utils = require('../utils');
 var typeHandle = require('./typeHandle');
-var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
-var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
-var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
-var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
-var __db = levelgraph(config.LEVELDBPATH);
 var Q = require('q');
 
-
-var _rdf = {
-  _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-  _domain: 'http://www.w3.org/2000/01/rdf-schema#domain',
-  _property: 'http://www.w3.org/2000/01/rdf-schema#Property',
-  _subClaseOf: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-  _Class: 'http://www.w3.org/2000/01/rdf-schema#Class'
+//const
+var __db = levelgraph(config.LEVELDBPATH);
+var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
+var TYPECONFPATH = config.TYPECONFPATH;
+var DEFINED_PROP = getAllProperty();
+var DEFINED_VOC = {
+  rdf: {
+    _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+    _domain: 'http://www.w3.org/2000/01/rdf-schema#domain',
+    _property: 'http://www.w3.org/2000/01/rdf-schema#Property',
+    _subClaseOf: 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
+    _Class: 'http://www.w3.org/2000/01/rdf-schema#Class'
+  },
+  namespace: {
+    _category: "http://example.org/category#",
+    _property: "http://example.org/property/" // _property + "categoryname" + "#" +"propertyname"
+  }
 }
-exports.RDFVOC = _rdf;
+var DEFINED_TYPE = getDefinedTypeInfo();
+
+exports.DEFINED_PROP = DEFINED_PROP;
+exports.DEFINED_VOC = DEFINED_VOC;
+exports.DEFINED_TYPE = DEFINED_TYPE;
 
 
 
@@ -259,8 +268,8 @@ function tripleGenerator(info) {
       deferred.resolve(null);
     } else {
       var _base = info.base;
-      var _subject = 'http://example.org/category#' + info.subject;
-      var _object_defined = DEFINED_VOC.category[_base.category];
+      var _subject = DEFINED_VOC.namespace._category + info.subject;
+      var _object_defined = DEFINED_TYPE[_base.category];
       _triples.push({
         subject: _subject,
         predicate: DEFINED_VOC.rdf._type,
@@ -384,18 +393,18 @@ function defTripleGenerator(info) {
     var _type_item = info[item];
     _triples.push({
       subject: _type_item.subject,
-      predicate: _rdf._type,
-      object: _rdf._Class
+      predicate: DEFINED_VOC.rdf._type,
+      object: DEFINED_VOC.rdf._Class
     });
     for (var _property in _type_item) {
       _triples.push({
         subject: _type_item[_property],
-        predicate: _rdf._type,
-        object: _rdf._property
+        predicate: DEFINED_VOC.rdf._type,
+        object: DEFINED_VOC.rdf._property
       });
       _triples.push({
         subject: _type_item[_property],
-        predicate: _rdf._domain,
+        predicate: DEFINED_VOC.rdf._domain,
         object: _type_item.subject
       });
     }
@@ -404,3 +413,33 @@ function defTripleGenerator(info) {
 }
 exports.defTripleGenerator = defTripleGenerator;
 
+
+function getDefinedTypeInfo() {
+  try {
+    var _result = {}
+    var _type_conf = JSON.parse(fs.readFileSync(TYPECONFPATH))["property"];
+    for (var item in _type_conf) {
+      _result[item] = DEFINED_VOC.namespace._category + item;
+    }
+    return _result;
+  } catch (err) {
+    throw err;
+  }
+}
+exports.definedType = getDefinedTypeInfo();
+
+
+function getAllProperty() {
+  try {
+    var _result = {};
+    var _property_info = JSON.parse(fs.readFileSync(TYPECONFPATH))["property"];
+    for (var item in _property_info) {
+      var _property = JSON.parse(fs.readFileSync(_property_info[item]))["property"];
+      _result[item] = _property;
+    }
+    return _result;
+  } catch (err) {
+    throw err;
+  }
+}
+exports.property = getAllProperty();

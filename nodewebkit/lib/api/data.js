@@ -1,11 +1,6 @@
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
-var documents = require("../../backend/data/document");
-var other = require("../../backend/data/other");
-var pictures = require("../../backend/data/picture");
-var video = require("../../backend/data/video");
-var music = require("../../backend/data/music");
 var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
@@ -1442,4 +1437,3 @@ function test_typeHandle(callback) {
   callback(typeHandle);
 }
 exports.test_typeHandle = test_typeHandle;
-

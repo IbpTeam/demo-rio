@@ -10,6 +10,9 @@ var Q = require('q');
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
 
+
+
+
 //some promised method
 var Q_read_dir = Q.nbind(fs.readdir);
 var Q_read_file = Q.nbind(fs.readFile);
@@ -24,13 +27,18 @@ var Q_write_file = Q.nbind(fs.writeFile);
  */
 function initTypeDef() {
   var allTriples = [];
-  return getDefinedTypeProperty()
-    .then(rdfHandle.defTripleGenerator)
-    .then(function(triples_) {
-      var _db = rdfHandle.dbOpen();
-      rdfHandle.dbPut(_db, triples_);
-      return triples_;
-    });
+  return refreshConfFile()
+    .then(function() {
+      return getDefinedTypeProperty()
+        .then(rdfHandle.defTripleGenerator)
+        .then(function(triples_) {
+          var _db = rdfHandle.dbOpen();
+          return rdfHandle.dbPut(_db, triples_)
+            .then(function() {
+              return triples_;
+            })
+        })
+    })
 }
 exports.initTypeDef = initTypeDef;
 
@@ -48,7 +56,7 @@ function getDefinedTypeProperty() {
       var _content = JSON.parse(_raw_content);
       //info for type define triples
       _property[_name] = _content.property;
-      _property[_name]["subject"] = "'http://example.org/category#" + _name;
+      _property[_name]["subject"] = "http://example.org/category#" + _name;
     }
     return _property;
   }
@@ -96,6 +104,7 @@ function test_getProperty(cb) {
     getProperty("video"),
     getProperty("music")
   ];
+  getAllProperty();
   Q.allSettled(combination_)
     .then(function(result) {
       cb(null, result);
@@ -106,7 +115,6 @@ function test_getProperty(cb) {
     .done();
 }
 exports.test_getProperty = test_getProperty;
-
 
 
 /**
@@ -267,6 +275,27 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
+function typeFileGenerator(typeName, typeProperty, typePostfix) {
+  var _info_result = {
+    property: {},
+    postfix: {}
+  }
+  for (var i = 0, l = typeProperty.length; i < l; i++) {
+    var _url_str = "http://example.org/property/" + typeName + "#" + typeProperty[i];
+    _info_result.property[typeProperty[i]] = _url_str;
+  }
+  for (var i = 0, l = typePostfix.length; i < l; i++) {
+    _info_result.postfix[typePostfix[i]] = typeName;
+  }
+  var _type_file_path = pathModule.join(TYPEFILEDIR, typeName + ".type");
+  return Q_write_file(_type_file_path, JSON.stringify(_info_result, null, 4))
+    .then(function() {
+      return refreshConfFile();
+    })
+}
+exports.typeFileGenerator = typeFileGenerator;
+
+
 /**
  * @method typeRegister
  *   regist a user defined data type
@@ -283,13 +312,13 @@ exports.methodGenerator = methodGenerator;
  */
 function typeRegister(info) {
   /*TODO: to be continue*/
-  // return methodGenerator(info)
-  //   .then(function() {
-  //     return typeFileGenerator(info);
-  //   })
-  //   .then(function() {
-  //     return refreshConfFile();
-  //   });
+  return methodGenerator(info)
+    .then(function() {
+      return typeFileGenerator(info.type_name, info.property, info.postfix);
+    })
+    .then(function() {
+      return refreshConfFile();
+    });
 }
 exports.typeRegister = typeRegister;
 
