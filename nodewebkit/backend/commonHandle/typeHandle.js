@@ -4,6 +4,7 @@ var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
 var typejsGenerator = require('./typejsGenerator');
+var path = require("path");
 var Q = require('q');
 
 //const
