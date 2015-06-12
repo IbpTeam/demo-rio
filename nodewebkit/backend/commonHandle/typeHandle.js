@@ -282,8 +282,6 @@ exports.methodGenerator = methodGenerator;
  * @profixArr
  * String Array , profix of the type, 1..n
  *
- * @profixArr
- *
  *
  */
 function typeFileGenerator(typeName, propertyArr, profixArr){
