@@ -324,7 +324,6 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     tmpString += tail;
     return tmpString;
   }
-  console.log(_file_name);
   return Q_write_file(_file_name, outputString);
 }
 exports.typeFileGenerator = typeFileGenerator;
