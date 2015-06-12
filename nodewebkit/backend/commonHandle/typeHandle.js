@@ -290,19 +290,23 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
   if(profixArr.length == 0 || profixArr === null)
     throw new Error("[typeFileGenerator]No profix!");
   var tab = "  ";
+  var newLine ="\n";
   var sProPropertyArr = "\"URI\": \"http: //example.org/property/" + _type_name + "#";
   var sPostPropertyArr = + "\"";
   arrModify(sProPropertyArr, propertyArr, sPostPropertyArr);
   var sProProfixArr = "\"";
   var sProstProfixArr = "\": \"+ _type_name +\",";
   arrModify(sProProfixArr, profixArr, sProstProfixArr);
-  var propertyHead = tab + "\"property\": { \n";
+  var propertyHead = tab + "\"property\": {" + newLine;
   var propertyTail = tab + "}";
   var propertyOutputString = stringmaker(propertyHead,propertyArr,propertyTail);
   var profixHead = tab + "\"postfix\": {";
   var profixTail = tab + "}";
   var profixOutputString = stringmaker(profixHead, profixArr, profixTail);
-  var outputString = "{\n" + propertyOutputString +",\n" + profixOutputString+"\n" + "}";
+  var outputString = "{" + newLine 
+                     + propertyOutputString +"," + newLine 
+                     + profixOutputString+ newLine 
+                     + "}";
   var _file_name = path.join(TYPEFILEDIR,typeName+".type");
   function arrModify(arr, pro, post) {
     for (var i = 0; i < arr.length; i++) {
