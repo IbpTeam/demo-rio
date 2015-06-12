@@ -301,8 +301,8 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
   var profixHead = tab + "\"postfix\": {";
   var profixTail = tab + "}";
   var profixOutputString = stringmaker(profixHead, profixArr, profixTail);
-  var outputString = "{\n" + propertyOutputString +"\n" + profixOutputString+ "}";
-
+  var outputString = "{\n" + propertyOutputString +",\n" + profixOutputString+"\n" + "}";
+  var _file_name = path.join(TYPEFILEDIR,typeName+".type");
   function arrModify(arr, pro, post) {
     for (var i = 0; i < arr.length; i++) {
       var temp = arr[i];
@@ -310,7 +310,6 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
       arr[i] = temp;
     }
   }
-
   function stringmaker(head,arr,tail) {
     var tmpString = head;
     for (var i = 0; i < arr.length; i++) {
@@ -319,7 +318,8 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     tmpString += tail;
     return tmpString;
   }
-  Q_write_file(TYPEFILEDIR, outputString);
+  console.log(_file_name);
+  return Q_write_file(_file_name, outputString);
 }
 exports.typeFileGenerator = typeFileGenerator;
 
