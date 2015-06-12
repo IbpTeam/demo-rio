@@ -99,12 +99,15 @@
   function test_typeFileGenerator(cb){
     WDC.requireAPI(['data'], function(data) {
       data.test_typeHandle(function(typeHandle) {
-        typeHandle.typeFileGenerator()
-                .then(cb)
-                .fail(function(err) {
-                  cb(err);
-                })
-                .done();
+        var typeName ="Xtype";
+        var propertyArr=new Array("AA","BB");
+        var profixArr =new Array("XX");
+        typeHandle.typeFileGenerator(typeName, propertyArr, profixArr)
+          .then(cb)
+          .fail(function(err) {
+            cb(err);
+          })
+          .done();
       });
     });
   }
