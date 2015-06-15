@@ -27,62 +27,51 @@ var CATEGORY_NAME = "music";
 
 
 function getTagsFromString(str) {
-  var tags={
-    format:null,
-    bit_rate:null,
-    frequency:null,
-    track:null,
-    TDRC:null,
-    APIC:null,
-    TALB:null,
-    TPE1:null,
-    TIT2:null,
-    TXXX:null,
-    COMM:null
+  var tags = {
+    format: null,
+    bit_rate: null,
+    frequency: null,
+    track: null,
+    TDRC: null,
+    APIC: null,
+    TALB: null,
+    TPE1: null,
+    TIT2: null,
+    TXXX: null,
+    COMM: null
   };
   var line1 = str.split("\n");
   for (var index1 in line1) {
     if (line1[index1] == "") {
       line1.pop(line1[index1]);
-    }
-    else{
-      if(line1[index1].lastIndexOf("- ")>=0){
+    } else {
+      if (line1[index1].lastIndexOf("- ") >= 0) {
         var line2 = str.split(",");
         for (var index2 in line2) {
-          if(line2[index2].lastIndexOf("MPEG")>=0){
-            tags.format=(line2[index2].substring(line2[index2].lastIndexOf("MPEG"),line2[index2].length)).replace(/(^\s*)|(\s*$)/g,'');
-          }
-          else if(line2[index2].lastIndexOf("bps")>=0){
-            tags.bit_rate=(line2[index2].substring(0,line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g,'');
-          }
-          else if(line2[index2].lastIndexOf("Hz")>=0){
-            tags.frequency=(line2[index2].substring(0,line2[index2].lastIndexOf("Hz"))).replace(/(^\s*)|(\s*$)/g,'');
-          }
-          else if(line2[index2].lastIndexOf("seconds")>=0){
-            tags.track=(line2[index2].substring(0,line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g,'');
+          if (line2[index2].lastIndexOf("MPEG") >= 0) {
+            tags.format = (line2[index2].substring(line2[index2].lastIndexOf("MPEG"), line2[index2].length)).replace(/(^\s*)|(\s*$)/g, '');
+          } else if (line2[index2].lastIndexOf("bps") >= 0) {
+            tags.bit_rate = (line2[index2].substring(0, line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g, '');
+          } else if (line2[index2].lastIndexOf("Hz") >= 0) {
+            tags.frequency = (line2[index2].substring(0, line2[index2].lastIndexOf("Hz"))).replace(/(^\s*)|(\s*$)/g, '');
+          } else if (line2[index2].lastIndexOf("seconds") >= 0) {
+            tags.track = (line2[index2].substring(0, line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g, '');
           }
         }
-      }
-      else if(line1[index1].indexOf("TDRC=")>=0){
-        tags.TDRC=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("APIC=")>=0){
-        tags.APIC=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("TALB=")>=0){
-        tags.TALB=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("TPE1=")>=0){
-        tags.TPE1=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("TIT2=")>=0){
-        tags.TIT2=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("TXXX=")>=0){
-        tags.TXXX=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
-      }
-      else if(line1[index1].indexOf("COMM=")>=0){
-        tags.COMM=(line1[index1].substring(line1[index1].indexOf("=")+1,line1[index1].length)).replace(/(^\s*)|(\s*$)/g,'');
+      } else if (line1[index1].indexOf("TDRC=") >= 0) {
+        tags.TDRC = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+      } else if (line1[index1].indexOf("APIC=") >= 0) {
+        tags.APIC = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+      } else if (line1[index1].indexOf("TALB=") >= 0) {
+        tags.TALB = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+      } else if (line1[index1].indexOf("TPE1=") >= 0) {
+        tags.TPE1 = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+      } else if (line1[index1].indexOf("TIT2=") >= 0) {
+        tags.TIT2 = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+      } else if (line1[index1].indexOf("TXXX=") >= 0) {
+        tags.TXXX = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+      } else if (line1[index1].indexOf("COMM=") >= 0) {
+        tags.COMM = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
       }
     }
   }
@@ -91,69 +80,16 @@ function getTagsFromString(str) {
 
 function getPropertyInfo(path, callback) {
   var cp = require('child_process');
-  var cmd = 'mutagen-inspect ' + '"'+path+'"';
+  var cmd = 'mutagen-inspect ' + '"' + path + '"';
   cp.exec(cmd, function(error, stdout, stderr) {
-    if(error){
+    if (error) {
       callback(error);
-    }
-    else{
-      callback(error,getTagsFromString(stdout));
-    }
-  });
-}
-
-
-/**
- * @method createData
- *    To create des file, dataBase resocrd and git commit for all data input. T-
- *    -his is only for array or string data input. The proccess would be copy f-
- *    -rst, then create the des file, after all des file done, then write into
- *    data base, final step is commit git.
- *
- * @param1: items
- *    object, an array or string of data full path.
- *    examplt:
- *    var items = '/home/xiquan/resource/documents/test.txt', or
- *    var items = ['/home/xiquan/resource/documents/test1.txt',
- *                 '/home/xiquan/resource/documents/test2.txt'
- *                 '/home/xiquan/resource/documents/test3.txt'].
- *
- * @param2: callback
- *    @result
- *    string, retrieve 'success' when success
- *
- */
-function createData(items) {
-  return commonHandle.dataStore(items, extraInfo);
-}
-exports.createData = createData;
-
-
-function extraInfo(item) {
-  return getExtraInfo(item)
-    .then(function(info_) {
-      return typeHandle.getProperty(CATEGORY_NAME)
-        .then(function(property_list_) {
-          for (var _property in property_list_) {
-            property_list_[_property] = info_[_property] || "undefined";
-          }
-          return property_list_;
-        });
-    });
-}
-
-
-function getExtraInfo(item) {
-  var deferred = Q.defer();
-  getPropertyInfo(item, function(err, result) {
-    if (err) {
-      deferred.reject(new Error(err));
     } else {
-      deferred.resolve(result);
+      callback(error, getTagsFromString(stdout));
     }
   });
-  return deferred.promise;
 }
+exports.getPropertyInfo = getPropertyInfo;
 
 
 function getOpenInfo(item) {
@@ -260,7 +196,7 @@ function getMusicPicData(filePath, callback) {
   stream.on('close', function() {
     if (picData) {
       return callback(null, picData);
-    }else{
+    } else {
       //if no music thumbnail found, then read a backup icon in local.
       return backupIcon(callback);
     }

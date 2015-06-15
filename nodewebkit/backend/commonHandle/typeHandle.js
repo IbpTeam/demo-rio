@@ -9,6 +9,7 @@ var Q = require('q');
 //const
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
+var DATAJSDIR = config.DATAJSDIR;
 
 //some promised method
 var Q_read_dir = Q.nbind(fs.readdir);
@@ -231,18 +232,21 @@ exports.refreshConfFile = refreshConfFile;
  *   return all *.js object
  *
  */
-function getTypeMethod() {
+function getTypeMethod(typeName) {
   return readFile(TYPECONFPATH)
     .then(function(conf_) {
       var all_type_object_ = {};
       var _types = conf_["property"];
       delete _types.base;
       delete _types.contact;
-      for (var _type in _types) {
-        var type_object_ = require("../data/" + _type + ".js");
-        all_type_object_[_type] = type_object_;
+      if (_types[typeName]) {
+        var _path = pathModule.join(DATAJSDIR, typeName + ".js");
+        var type_object_ = require(_path);
+        return type_object_;
+      } else {
+        var _err = new Error("TYPE NOT REGISTERED...");
+        throw _err;
       }
-      return all_type_object_;
     })
 }
 exports.getTypeMethod = getTypeMethod;
@@ -268,7 +272,7 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
-function typeRegister(){
+function typeRegister() {
   /*TODO: to be continue*/
   //property reg
   //type file re-write

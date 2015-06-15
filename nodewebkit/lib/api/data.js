@@ -9,6 +9,7 @@ var music = require("../../backend/data/music");
 var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
+var typeHandle = require("../../backend/commonHandle/typeHandle");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
@@ -67,7 +68,7 @@ exports.loadFile = loadFile;
 function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
   var _postfix_list = null;
-  var _file_list = {}
+  var _file_list_mix = [];
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -89,14 +90,8 @@ function loadResources(loadResourcesCb, path) {
       } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
-        //if postfix is not registered, make it other
-        var category = _postfix_list[sPos] || "other";
-        //push it into _file_list by category
-        if (_file_list[category]) {
-          _file_list[category].push(path + '/' + item);
-        } else {
-          _file_list[category] = [path + '/' + item];
-        }
+        //push it into _file_list_mix 
+        _file_list_mix.push(path + '/' + item);
       } else {
         console.log("can't detect type ...");
       }
@@ -112,21 +107,7 @@ function loadResources(loadResourcesCb, path) {
       //do createData()
     })
     .then(function(){
-      //get the object of *.js, based on typeDefine.conf 
-      return typeHandle.getTypeMethod();
-    })
-    .then(function(_all_type_object){
-      //push all createData() method with parameter into _combination[];
-      var _combination = [];
-      for(var type_object_ in  _all_type_object){
-        var item = _all_type_object[type_object_].createData(_file_list[type_object_]);
-        _combination.push(item);
-      }
-      return _combination;
-    })
-    .then(function(combination_){
-      //run all createData() method
-      return Q.all(combination_);
+      return commonHandle.createData(_file_list_mix);
     })
     .then(function(result) {
       loadResourcesCb(null, result);
