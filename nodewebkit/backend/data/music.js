@@ -78,14 +78,64 @@ function getTagsFromString(str) {
   return tags;
 }
 
-function getPropertyInfo(path, callback) {
+function getPropertyInfo(param, callback) {
   var cp = require('child_process');
-  var cmd = 'mutagen-inspect ' + '"' + path + '"';
+  var cmd = 'mutagen-inspect ' + '"' + param + '"';
   cp.exec(cmd, function(error, stdout, stderr) {
     if (error) {
       callback(error);
     } else {
-      callback(error, getTagsFromString(stdout));
+      callback(error, function() {
+        var tags = {
+          format: null,
+          bit_rate: null,
+          frequency: null,
+          track: null,
+          TDRC: null,
+          APIC: null,
+          TALB: null,
+          TPE1: null,
+          TIT2: null,
+          TXXX: null,
+          COMM: null
+        };
+        var line1 = str.split("\n");
+        for (var index1 in line1) {
+          if (line1[index1] == "") {
+            line1.pop(line1[index1]);
+          } else {
+            if (line1[index1].lastIndexOf("- ") >= 0) {
+              var line2 = str.split(",");
+              for (var index2 in line2) {
+                if (line2[index2].lastIndexOf("MPEG") >= 0) {
+                  tags.format = (line2[index2].substring(line2[index2].lastIndexOf("MPEG"), line2[index2].length)).replace(/(^\s*)|(\s*$)/g, '');
+                } else if (line2[index2].lastIndexOf("bps") >= 0) {
+                  tags.bit_rate = (line2[index2].substring(0, line2[index2].lastIndexOf("bps"))).replace(/(^\s*)|(\s*$)/g, '');
+                } else if (line2[index2].lastIndexOf("Hz") >= 0) {
+                  tags.frequency = (line2[index2].substring(0, line2[index2].lastIndexOf("Hz"))).replace(/(^\s*)|(\s*$)/g, '');
+                } else if (line2[index2].lastIndexOf("seconds") >= 0) {
+                  tags.track = (line2[index2].substring(0, line2[index2].lastIndexOf("seconds"))).replace(/(^\s*)|(\s*$)/g, '');
+                }
+              }
+            } else if (line1[index1].indexOf("TDRC=") >= 0) {
+              tags.TDRC = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            } else if (line1[index1].indexOf("APIC=") >= 0) {
+              tags.APIC = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            } else if (line1[index1].indexOf("TALB=") >= 0) {
+              tags.TALB = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            } else if (line1[index1].indexOf("TPE1=") >= 0) {
+              tags.TPE1 = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            } else if (line1[index1].indexOf("TIT2=") >= 0) {
+              tags.TIT2 = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            } else if (line1[index1].indexOf("TXXX=") >= 0) {
+              tags.TXXX = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            } else if (line1[index1].indexOf("COMM=") >= 0) {
+              tags.COMM = (line1[index1].substring(line1[index1].indexOf("=") + 1, line1[index1].length)).replace(/(^\s*)|(\s*$)/g, '');
+            }
+          }
+        }
+        return tags;
+      });
     }
   });
 }

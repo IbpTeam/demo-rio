@@ -24,8 +24,6 @@ function generator(type_name, func_content) {
   + " **/\n"
   + "var pathModule = require('path');\n"
   + "var fs = require('fs');\n"
-  + "var fs_extra = require('fs-extra');\n"
-  + "var config = require('../config');\n"
   + "\n"
   +"//@const\n"
   + 'var CATEGORY_NAME = "' + _type_name + '";\n'
@@ -54,7 +52,31 @@ function generator(type_name, func_content) {
   + "exports.getOpenInfo = getOpenInfo;\n"
   + "\n"
   +_func_content.toString() + "\n"
+  + "exports.getPropertyInfo = getPropertyInfo;\n"
 
   return Q.nfcall(fs.writeFile, _js_file_path, prototype);
 }
 exports.generator = generator;
+
+
+function generateDefaultTypeFiles() {
+  var _music = require('../data/music');
+  var _document = require('../data/document');
+  var _video = require('../data/video');
+  var _picture = require('../data/picture');
+  var _other = require('../data/other');
+  return generator("music", _music.getPropertyInfo)
+    .then(function() {
+      return generator("document", _document.getPropertyInfo)
+    })
+    .then(function() {
+      return generator("video", _video.getPropertyInfo)
+    })
+    .then(function() {
+      return generator("picture", _picture.getPropertyInfo)
+    })
+    .then(function() {
+      return generator("other", _other.getPropertyInfo)
+    })
+}
+exports.generateDefaultTypeFiles = generateDefaultTypeFiles;

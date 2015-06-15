@@ -313,15 +313,19 @@ function tripleGenerator(info) {
         }
       }
       var _extra = info.extra;
-      for (var entry in _extra) {
-        var _triple_extra = {
-          subject: _subject,
-          predicate: DEFINED_PROP[_base.category][entry],
-          object: _extra[entry]
-        };
-        _triples.push(_triple_extra);
+      if (_extra === null || _extra === {}) {
+        deferred.resolve(_triples);
+      } else {
+        for (var entry in _extra) {
+          var _triple_extra = {
+            subject: _subject,
+            predicate: DEFINED_PROP[_base.category][entry],
+            object: _extra[entry]
+          };
+          _triples.push(_triple_extra);
+        }
+        deferred.resolve(_triples);
       }
-      deferred.resolve(_triples);
     }
   } catch (err) {
     deferred.reject(new Error(err));
@@ -437,7 +441,7 @@ function getAllProperty() {
     for (var i = 0, l = _type_list.length; i < l; i++) {
       var _file_path = pathModule.join(TYPEFILEDIR, _type_list[i]);
       var _property = JSON.parse(fs.readFileSync(_file_path))["property"];
-      _result[_type_list[i]] = _property;
+      _result[pathModule.basename(_type_list[i], '.type')] = _property;
     }
     return _result;
   } catch (err) {
