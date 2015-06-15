@@ -23,7 +23,7 @@ var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var Q = require('q');
 
-var DEFINED_PROP =  require('../data/default/rdfTypeDefine').property;
+var DEFINED_PROP =  rdfHandle.DEFINED_PROP;
 var CATEGORY_NAME = "contact";
 
 

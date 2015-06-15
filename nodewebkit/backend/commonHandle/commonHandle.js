@@ -31,7 +31,7 @@ Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
-var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var DEFINED_PROP = rdfHandle.DEFINED_PROP
 
 function createData(items) {
   return dataStore(items);

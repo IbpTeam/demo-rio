@@ -36,15 +36,15 @@ var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.LEVELDBPATH = LEVELDBPATH;
 
 //data type definition position
-var DATAJSDIR = path.join(__dirname, '/data');
+var DATAJSDIR = path.join(USERCONFIGPATH, '/custard_type');
 exports.DATAJSDIR = DATAJSDIR;
 
 //data type definition position
-var TYPEFILEDIR = path.join(__dirname, '/data/typeDefine');
+var TYPEFILEDIR = path.join(USERCONFIGPATH, '/custard_type/typeDefine');
 exports.TYPEFILEDIR = TYPEFILEDIR;
 
 //data/default/typeDefine.conf
-var TYPECONFPATH = path.join(__dirname, '/data/default/typeDefine.conf');
+var TYPECONFPATH = path.join(USERCONFIGPATH, '/custard_type/typeDefine.conf');
 exports.TYPECONFPATH = TYPECONFPATH;
 
 

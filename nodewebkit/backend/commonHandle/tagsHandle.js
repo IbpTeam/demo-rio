@@ -9,9 +9,9 @@ var commonHandle = require("./commonHandle");
 var rdfHandle = require("./rdfHandle");
 var repo = require("./repo");
 var utils = require("../utils");
-var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
-var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
-var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
+var DEFINED_PROP = rdfHandle.DEFINED_PROP;
+var DEFINED_TYPE = rdfHandle.DEFINED_TYPE;
+var DEFINED_VOC = rdfHandle.DEFINED_VOC;
 var Q = require('q');
 
 
@@ -78,7 +78,7 @@ function getAllTagsByCategory(category) {
   }, {
     subject: _db.v('tag'),
     predicate: DEFINED_VOC.rdf._domain,
-    object: DEFINED_VOC.category[category]
+    object: DEFINED_TYPE[category]
   }]
 
   var tagMaker = function(results){
@@ -261,7 +261,7 @@ function setTagByUri(tags, uri) {
       _query_add.push({
         subject: _tag_url,
         predicate: DEFINED_VOC.rdf._domain,
-        object: DEFINED_VOC.category[_category]
+        object: DEFINED_TYPE[_category]
       });
       _query_add.push({
         subject: _subject,
@@ -358,7 +358,7 @@ function rmTagAll(tag, category) {
     result.push({
       subject: _object,
       predicate: DEFINED_VOC.rdf._domain,
-      object: DEFINED_VOC.category[category]
+      object: DEFINED_TYPE[category]
     })
     return result;
   }
