@@ -1,4 +1,5 @@
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var config = require('../config');
 var pathModule = require('path');
 var config = require('../config.js');
@@ -9,7 +10,7 @@ var Q = require('q');
 //const
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
-
+var DATAJSDIR = config.DATAJSDIR;
 
 
 
@@ -30,7 +31,9 @@ function initTypeDef() {
   return refreshConfFile()
     .then(function() {
       return getDefinedTypeProperty()
-        .then(rdfHandle.defTripleGenerator)
+        .then(function(info_) {
+          return rdfHandle.defTripleGenerator(info_);
+        })
         .then(function(triples_) {
           var _db = rdfHandle.dbOpen();
           return rdfHandle.dbPut(_db, triples_)
@@ -104,7 +107,6 @@ function test_getProperty(cb) {
     getProperty("video"),
     getProperty("music")
   ];
-  getAllProperty();
   Q.allSettled(combination_)
     .then(function(result) {
       cb(null, result);
@@ -246,7 +248,8 @@ function getTypeMethod() {
       delete _types.base;
       delete _types.contact;
       for (var _type in _types) {
-        var type_object_ = require("../data/" + _type + ".js");
+        var _path = pathModule.join(DATAJSDIR, _type + ".js");
+        var type_object_ = require(_path);
         all_type_object_[_type] = type_object_;
       }
       return all_type_object_;

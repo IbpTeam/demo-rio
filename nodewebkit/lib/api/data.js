@@ -4,6 +4,7 @@ var contacts = require("../../backend/data/contacts");
 var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
+var typeHandle = require("../../backend/commonHandle/typeHandle");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');

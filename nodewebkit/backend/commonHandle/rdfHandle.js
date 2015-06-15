@@ -20,7 +20,7 @@ var Q = require('q');
 
 //const
 var __db = levelgraph(config.LEVELDBPATH);
-var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
+var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
 var DEFINED_PROP = getAllProperty();
 var DEFINED_VOC = {
@@ -417,9 +417,10 @@ exports.defTripleGenerator = defTripleGenerator;
 function getDefinedTypeInfo() {
   try {
     var _result = {}
-    var _type_conf = JSON.parse(fs.readFileSync(TYPECONFPATH))["property"];
-    for (var item in _type_conf) {
-      _result[item] = DEFINED_VOC.namespace._category + item;
+    var _type_list = fs.readdirSync(TYPEFILEDIR);
+    for (var i = 0, l = _type_list.length; i < l; i++) {
+      var _type_name = pathModule.basename(_type_list[i], ".type");
+      _result[_type_name] = DEFINED_VOC.namespace._category + _type_name;
     }
     return _result;
   } catch (err) {
@@ -432,10 +433,11 @@ exports.definedType = getDefinedTypeInfo();
 function getAllProperty() {
   try {
     var _result = {};
-    var _property_info = JSON.parse(fs.readFileSync(TYPECONFPATH))["property"];
-    for (var item in _property_info) {
-      var _property = JSON.parse(fs.readFileSync(_property_info[item]))["property"];
-      _result[item] = _property;
+    var _type_list = fs.readdirSync(TYPEFILEDIR);
+    for (var i = 0, l = _type_list.length; i < l; i++) {
+      var _file_path = pathModule.join(TYPEFILEDIR, _type_list[i]);
+      var _property = JSON.parse(fs.readFileSync(_file_path))["property"];
+      _result[_type_list[i]] = _property;
     }
     return _result;
   } catch (err) {
