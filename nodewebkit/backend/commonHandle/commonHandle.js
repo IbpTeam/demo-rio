@@ -86,7 +86,7 @@ function dataStore(items, extraCallback) {
       });
   }
 }
-exports.dataStore = dataStore;
+
 
 function doCreate(item) {
   return baseInfo(item)
