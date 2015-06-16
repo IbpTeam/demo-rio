@@ -22,7 +22,6 @@ var Q = require('q');
 var __db = levelgraph(config.LEVELDBPATH);
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
-var DEFINED_PROP = getAllProperty();
 var DEFINED_VOC = {
   rdf: {
     _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
@@ -36,6 +35,7 @@ var DEFINED_VOC = {
     _property: "http://example.org/property/" // _property + "categoryname" + "#" +"propertyname"
   }
 }
+var DEFINED_PROP = getAllProperty();
 var DEFINED_TYPE = getDefinedTypeInfo();
 
 exports.DEFINED_PROP = DEFINED_PROP;
@@ -391,6 +391,18 @@ function decodeTripeles(triples) {
 exports.decodeTripeles = decodeTripeles;
 
 
+/**
+ * @method defTripleGenerator
+ *   generate type definition triples 
+ *    ator
+ *
+ * @param1 info
+ *      object, definition information
+ *
+ * @return 
+ *    _triples，array of all valid triples
+ *
+ */
 function defTripleGenerator(info) {
   var _triples = [];
   for (var item in info) {
@@ -418,6 +430,15 @@ function defTripleGenerator(info) {
 exports.defTripleGenerator = defTripleGenerator;
 
 
+/**
+ * @method getDefinedTypeInfo
+ *   get registered type info 
+ *
+ *
+ * @return 
+ *    _result, string of info as below:
+ *     "http://example.org/category#music"
+ */
 function getDefinedTypeInfo() {
   try {
     var _result = {}
@@ -434,6 +455,27 @@ function getDefinedTypeInfo() {
 exports.definedType = getDefinedTypeInfo();
 
 
+/**
+ * @method defTripleGenerator
+ *   generate type definition triples 
+ *    ator
+ *
+ * @param1 info
+ *      object, definition information
+ *
+ * @return 
+ *    _result, object of info as below:
+ *
+ * {
+ *    "format": "http://example.org/property/music#format",
+ *    "bit_rate": "http://example.org/property/music#bit_rate",
+ *    "frequency": "http://example.org/property/music#frequency",
+ *    "track": "http://example.org/property/music#track",
+ *    "TDRC": "http://example.org/property/music#TDRC",
+ *    "APIC": "http://example.org/property/music#APIC",
+ *  }
+ *
+ */
 function getAllProperty() {
   try {
     var _result = {};
@@ -449,3 +491,15 @@ function getAllProperty() {
   }
 }
 exports.property = getAllProperty();
+
+
+/**
+ * @method refreshTypeInfo
+ *   refresh current const of rdf define, DEFINED_PROP & DEFINED_TYPE
+ *
+ */
+function refreshTypeInfo() {
+  DEFINED_PROP = getAllProperty();
+  DEFINED_TYPE = getDefinedTypeInfo();
+}
+exports.refreshTypeInfo = refreshTypeInfo;

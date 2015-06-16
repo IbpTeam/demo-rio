@@ -318,13 +318,15 @@ exports.typeFileGenerator = typeFileGenerator;
  *
  */
 function typeRegister(info) {
-  /*TODO: to be continue*/
   return methodGenerator(info)
     .then(function() {
       return typeFileGenerator(info.type_name, info.property, info.postfix);
     })
     .then(function() {
       return refreshConfFile();
+    })
+    .then(function(){
+      rdfHandle.refreshTypeInfo();
     });
 }
 exports.typeRegister = typeRegister;
