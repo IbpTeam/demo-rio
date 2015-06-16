@@ -292,16 +292,13 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     throw new Error("[typeFileGenerator]No profix!");
   var tab = "  ";
   var newLine ="\n";
-  var sProPropertyArr = "\"URI\": \"http: //example.org/property/" + _type_name + "#";
-  var sPostPropertyArr = + "\"";
-  arrModify(sProPropertyArr, propertyArr, sPostPropertyArr);
-  var sProProfixArr = "\"";
-  var sProstProfixArr = "\": \"+ _type_name +\",";
-  arrModify(sProProfixArr, profixArr, sProstProfixArr);
+  var tmpArr = new Array();
+  propertyArr = proertyModify(propertyArr);
+  profixArr = profixModify(profixArr);
   var propertyHead = tab + "\"property\": {" + newLine;
   var propertyTail = tab + "}";
   var propertyOutputString = stringmaker(propertyHead,propertyArr,propertyTail);
-  var profixHead = tab + "\"postfix\": {";
+  var profixHead = tab + "\"postfix\": {" + newLine;
   var profixTail = tab + "}";
   var profixOutputString = stringmaker(profixHead, profixArr, profixTail);
   var outputString = "{" + newLine 
@@ -309,17 +306,28 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
                      + profixOutputString+ newLine 
                      + "}";
   var _file_name = path.join(TYPEFILEDIR,typeName+".type");
-  function arrModify(arr, pro, post) {
-    for (var i = 0; i < arr.length; i++) {
-      var temp = arr[i];
-      temp =pro + temp + post;
-      arr[i] = temp;
+  function proertyModify(arr) {
+    var tmpArr = new Array();
+    for (var i in arr) {
+      var ele = arr[i];
+      var tmp = "\"" + ele + "\": \"http: //example.org/property/" + _type_name + "#" + ele + "\"";
+      tmpArr.push(tmp);
     }
+    return tmpArr;
+  }
+  function profixModify(arr) {
+    var tmpArr = new Array();
+    for (var i in arr) {
+      var ele = arr[i];
+      tmpArr.push("\"" + ele + "\": \"+ _type_name +\",");
+    }
+    return tmpArr;
   }
   function stringmaker(head,arr,tail) {
     var tmpString = head;
-    for (var i = 0; i < arr.length; i++) {
-      tmpString += tab + tab + arr[i] + "\n";
+    for (var key in arr) {
+      var ele = arr[key];
+      tmpString += tab + tab + ele + "\n";
     }
     tmpString += tail;
     return tmpString;
