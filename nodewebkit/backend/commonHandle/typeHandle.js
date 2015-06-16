@@ -311,6 +311,8 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     for (var i in arr) {
       var ele = arr[i];
       var tmp = "\"" + ele + "\": \"http: //example.org/property/" + _type_name + "#" + ele + "\"";
+      if(i != arr.length -1)
+        tmp +=",";
       tmpArr.push(tmp);
     }
     return tmpArr;
@@ -319,7 +321,11 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     var tmpArr = new Array();
     for (var i in arr) {
       var ele = arr[i];
-      tmpArr.push("\"" + ele + "\": \""+ _type_name +"\",");
+      var tmp = "\"" + ele + "\": \""+ _type_name +"\"";
+      if(i != arr.length -1)
+        tmp +=",";
+      tmpArr.push(tmp);
+
     }
     return tmpArr;
   }
