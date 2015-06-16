@@ -319,7 +319,7 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     var tmpArr = new Array();
     for (var i in arr) {
       var ele = arr[i];
-      tmpArr.push("\"" + ele + "\": \"+ _type_name +\",");
+      tmpArr.push("\"" + ele + "\": \""+ _type_name +"\",");
     }
     return tmpArr;
   }
