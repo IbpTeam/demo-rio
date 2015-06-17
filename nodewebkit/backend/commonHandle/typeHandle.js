@@ -4,6 +4,7 @@ var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
 var typejsGenerator = require('./typejsGenerator');
+var path = require("path");
 var Q = require('q');
 
 //const
@@ -266,6 +267,80 @@ function methodGenerator(info) {
   return typejsGenerator.generator(_type_name, _func_content);
 }
 exports.methodGenerator = methodGenerator;
+
+
+/**
+ * @method typeFileGenerator
+ *   generate typeFile and output to typeDefine folder
+ *
+ * @param typeName
+ * Name of Type
+ *
+ * @propertyArr
+ * String Array , property of data, 1..n
+ *
+ * @profixArr
+ * String Array , profix of the type, 1..n
+ *
+ *
+ */
+function typeFileGenerator(typeName, propertyArr, profixArr){
+  var _type_name = typeName.toString();
+  if(propertyArr.length == 0 || propertyArr === null)
+    throw new Error("[typeFileGenerator]No Property!");
+  if(profixArr.length == 0 || profixArr === null)
+    throw new Error("[typeFileGenerator]No profix!");
+  var tab = "  ";
+  var newLine ="\n";
+  var tmpArr = new Array();
+  propertyArr = proertyModify(propertyArr);
+  profixArr = profixModify(profixArr);
+  var propertyHead = tab + "\"property\": {" + newLine;
+  var propertyTail = tab + "}";
+  var propertyOutputString = stringmaker(propertyHead,propertyArr,propertyTail);
+  var profixHead = tab + "\"postfix\": {" + newLine;
+  var profixTail = tab + "}";
+  var profixOutputString = stringmaker(profixHead, profixArr, profixTail);
+  var outputString = "{" + newLine 
+                     + propertyOutputString +"," + newLine 
+                     + profixOutputString+ newLine 
+                     + "}";
+  var _file_name = path.join(TYPEFILEDIR,typeName+".type");
+  function proertyModify(arr) {
+    var tmpArr = new Array();
+    for (var i in arr) {
+      var ele = arr[i];
+      var tmp = "\"" + ele + "\": \"http: //example.org/property/" + _type_name + "#" + ele + "\"";
+      if(i != arr.length -1)
+        tmp +=",";
+      tmpArr.push(tmp);
+    }
+    return tmpArr;
+  }
+  function profixModify(arr) {
+    var tmpArr = new Array();
+    for (var i in arr) {
+      var ele = arr[i];
+      var tmp = "\"" + ele + "\": \""+ _type_name +"\"";
+      if(i != arr.length -1)
+        tmp +=",";
+      tmpArr.push(tmp);
+
+    }
+    return tmpArr;
+  }
+  function stringmaker(head,arr,tail) {
+    var tmpString = head;
+    for (var key in arr) {
+      var ele = arr[key];
+      tmpString += tab + tab + ele + "\n";
+    }
+    tmpString += tail;
+    return tmpString;
+  }
+  return Q_write_file(_file_name, outputString);
+}
+exports.typeFileGenerator = typeFileGenerator;
 
 
 function typeRegister(){
