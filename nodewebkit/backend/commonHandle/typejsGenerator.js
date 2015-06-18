@@ -24,54 +24,16 @@ function generator(type_name, func_content) {
   + " **/\n"
   + "var pathModule = require('path');\n"
   + "var fs = require('fs');\n"
-  + "var fs_extra = require('fs-extra');\n"
-  + "var config = require('../config');\n"
-  + "var utils = require('../utils');\n"
-  + "var uniqueID = require('../uniqueID');\n"
-  + "var tagsHandle = require('../commonHandle/tagsHandle');\n"
-  + "var commonHandle = require('../commonHandle/commonHandle');\n"
-  + "var typeHandle = require('../commonHandle/typeHandle');\n"
-  + "var Q = require('q');\n"
   + "\n"
-  +"//@const"
-  + "var CATEGORY_NAME = " + _type_name + ";\n"
-  + "\n"
-  + "function createData(items) {\n"
-  + "  return commonHandle.dataStore(items, extraInfo);\n"
-  + "}\n"
-  + "exports.createData = createData;\n"
-  + "\n"
-  + "function extraInfo(item) {\n"
-  + "  return getExtraInfo(item)\n"
-  + "    .then(function(info_) {\n"
-  + "      return typeHandle.getProperty(CATEGORY_NAME)\n"
-  + "        .then(function(property_list_) {\n"
-  + "          for (var _property in property_list_) {\n"
-  + "            property_list_[_property] = info_[_property] || 'undefined';\n"
-  + "          }\n"
-  + "          return property_list_;\n"
-  + "        });\n"
-  + "    });\n"
-  + "}\n"
-  + "\n"
-  + "function getExtraInfo(item, callback) {\n"
-  + "  var deferred = Q.defer();\n"
-  + "  getPropertyInfo(item, function(err, result) {\n"
-  + "    if (err) {\n"
-  + "      deferred.reject(new Error(err));\n"
-  + "    } else {\n"
-  + "      deferred.resolve(result);\n"
-  + "    }\n"
-  + "  });\n"
-  + "  return deferred.promise;\n"
-  + "}\n"
+  +"//@const\n"
+  + 'var CATEGORY_NAME = "' + _type_name + '";\n'
   + "\n"
   + "function getOpenInfo(item) {\n"
   + "  if (item == null) {\n"
-  + "    config.riolog('read data : ' + item);\n"
+  + "    console.log('read data : ' + item);\n"
   + "    return undefined;\n"
   + "  }\n"
-  + "  config.riolog('read data : ' + item.path);\n"
+  + "  console.log('read data : ' + item.path);\n"
   + "  var source;\n"
   + "  if (item.postfix == null) {\n"
   + "    source = {\n"
@@ -84,15 +46,37 @@ function generator(type_name, func_content) {
   + "    if (supportedKeySent === true) {\n"
   + "      source.windowname = s_windowname;\n"
   + "    }\n"
-  + "    break;\n"
   + "  }\n"
-  + "}\n"
-  + "return source;\n"
+  + "  return source;\n"
   + "}\n"
   + "exports.getOpenInfo = getOpenInfo;\n"
   + "\n"
   +_func_content.toString() + "\n"
+  + "exports.getPropertyInfo = getPropertyInfo;\n"
 
   return Q.nfcall(fs.writeFile, _js_file_path, prototype);
 }
 exports.generator = generator;
+
+
+function generateDefaultTypeFiles() {
+  var _music = require('../data/music');
+  var _document = require('../data/document');
+  var _video = require('../data/video');
+  var _picture = require('../data/picture');
+  var _other = require('../data/other');
+  return generator("music", _music.getPropertyInfo)
+    .then(function() {
+      return generator("document", _document.getPropertyInfo)
+    })
+    .then(function() {
+      return generator("video", _video.getPropertyInfo)
+    })
+    .then(function() {
+      return generator("picture", _picture.getPropertyInfo)
+    })
+    .then(function() {
+      return generator("other", _other.getPropertyInfo)
+    })
+}
+exports.generateDefaultTypeFiles = generateDefaultTypeFiles;

@@ -71,8 +71,8 @@ function startApp(){
     initializeApp(sFullPath);
   });
   // MSG transfer server initialize
-  msgTransfer.initServer();
-  server.start(router.route, handle);
+  // msgTransfer.initServer();
+  // server.start(router.route, handle);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
@@ -174,5 +174,6 @@ exports.startServer=function(){
 
 exports.requireDataHandle = function(){
   var api = require('./lib/api/data.js');
+  startApp();//temperory solution for init config
   return api;
 }

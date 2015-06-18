@@ -2,6 +2,8 @@ var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
 var devices = require("../../backend/data/device");
+var music = require("../../backend/data/music");
+var video = require("../../backend/data/video");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
 var typeHandle = require("../../backend/commonHandle/typeHandle");
@@ -63,7 +65,7 @@ exports.loadFile = loadFile;
 function loadResources(loadResourcesCb, path) {
   console.log("Request handler 'loadResources' was called.");
   var _postfix_list = null;
-  var _file_list = {}
+  var _file_list_mix = [];
 
   function walk(path) {
     var dirList = fs.readdirSync(path);
@@ -85,14 +87,8 @@ function loadResources(loadResourcesCb, path) {
       } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
         var sPosIndex = (item).lastIndexOf(".");
         var sPos = item.slice(sPosIndex + 1, item.length);
-        //if postfix is not registered, make it other
-        var category = _postfix_list[sPos] || "other";
-        //push it into _file_list by category
-        if (_file_list[category]) {
-          _file_list[category].push(path + '/' + item);
-        } else {
-          _file_list[category] = [path + '/' + item];
-        }
+        //push it into _file_list_mix 
+        _file_list_mix.push(path + '/' + item);
       } else {
         console.log("can't detect type ...");
       }
@@ -108,21 +104,7 @@ function loadResources(loadResourcesCb, path) {
       //do createData()
     })
     .then(function(){
-      //get the object of *.js, based on typeDefine.conf 
-      return typeHandle.getTypeMethod();
-    })
-    .then(function(_all_type_object){
-      //push all createData() method with parameter into _combination[];
-      var _combination = [];
-      for(var type_object_ in  _all_type_object){
-        var item = _all_type_object[type_object_].createData(_file_list[type_object_]);
-        _combination.push(item);
-      }
-      return _combination;
-    })
-    .then(function(combination_){
-      //run all createData() method
-      return Q.all(combination_);
+      return commonHandle.createData(_file_list_mix);
     })
     .then(function(result) {
       loadResourcesCb(null, result);
@@ -693,7 +675,7 @@ function getFilesByTags(getFilesByTagsCb, oTags) {
   console.log("Request handler 'getFilesByTags' was called.");
   tagsHandle.getFilesByTags(oTags)
     .then(function(results) {
-      getFilesByTagsCb(null,results);
+      getFilesByTagsCb(null, results);
     })
     .fail(function(err) {
       getFilesByTagsCb(err);
@@ -1412,4 +1394,3 @@ function test_typeHandle(callback) {
   callback(typeHandle);
 }
 exports.test_typeHandle = test_typeHandle;
-
