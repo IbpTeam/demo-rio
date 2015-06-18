@@ -4,15 +4,12 @@ var fixed_fs = require('./fixed_fs');
 var exec = require('child_process').exec;
 var events = require('events');
 var util = require('util');
-var desktopConf = require("./data/desktop");
 var contacts = require("./data/contacts");
 var documents = require("./data/document");
 var pictures = require("./data/picture");
 var video = require("./data/video");
 var music = require("./data/music");
-var music = require("./data/music");
 var other = require('./data/other')
-var commonDAO = require("./commonHandle/CommonDAO");
 var config =  require('./config');
 //@const
 var DATA_DIR = "data";
@@ -323,22 +320,7 @@ exports.renameExists = function(allFiles) {
 }
 
 exports.isNameExists = function(sFilePath, callback) {
-  var category = getCategoryByPath(sFilePath).category;
-  var sFileName = getCategoryByPath(sFilePath).filename;
-  var sPostfix = getCategoryByPath(sFilePath).postfix;
-  var columns = ['filename', 'postfix'];
-  var tables = [category];
-  var conditions = ["postfix = '" + sPostfix + "'", "filename = '" + sFileName + "'"];
-  commonDAO.findItems(columns, tables, conditions, null, function(err, result) {
-    if (err) {//something wrong
-      console.log('find ' + sFilePath + ' error!');
-      return callback(err, null);
-    } else if (result == [] || result == '' || !result) {//target name not exists
-      return callback(null, null);
-    }
-    var sName = result[0].filename + '.' + result[0].postfix;//target name exists
-    callback(null, sName);
-  })
+/*TODO:rewrite*/
 }
 
 exports.getRecent = function(items, num) {

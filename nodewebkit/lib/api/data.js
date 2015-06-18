@@ -1,14 +1,10 @@
 var utils = require("../../backend/utils");
 var desktopConf = require("../../backend/data/desktop");
 var contacts = require("../../backend/data/contacts");
-var documents = require("../../backend/data/document");
-var other = require("../../backend/data/other");
-var pictures = require("../../backend/data/picture");
-var video = require("../../backend/data/video");
-var music = require("../../backend/data/music");
 var devices = require("../../backend/data/device");
 var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
+var typeHandle = require("../../backend/commonHandle/typeHandle");
 var fs = require('fs');
 var config = require('../../backend/config');
 var cp = require('child_process');
@@ -1329,6 +1325,7 @@ exports.deviceInfo = deviceInfo;
  **/
 function getMusicPicData(getMusicPicDataCb, filePath) {
   console.log("Request handler 'getMusicPicData' was called.");
+  var music = require("../../backend/data/music");
   music.getMusicPicData(filePath, getMusicPicDataCb);
 }
 exports.getMusicPicData = getMusicPicData;
@@ -1357,6 +1354,7 @@ exports.getMusicPicData = getMusicPicData;
  **/
 function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   console.log("Request handler 'getVideoThumbnail' was called.");
+  var video = require("../../backend/data/video");
   video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;

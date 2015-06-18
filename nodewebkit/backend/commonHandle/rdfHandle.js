@@ -16,12 +16,15 @@ var config = require('../config');
 var levelgraph = require('levelgraph');
 var utils = require('../utils');
 var typeHandle = require('./typeHandle');
+var Q = require('q');
+
+//const
 var DEFINED_TYPE = require('../data/default/rdfTypeDefine').vocabulary;
 var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
 var DEFINED_VOC = require('../data/default/rdfTypeDefine').definition;
 var TYPEDEFINEDIR = config.TYPEDEFINEDIR;
 var __db = levelgraph(config.LEVELDBPATH);
-var Q = require('q');
+
 
 
 var _rdf = {
