@@ -11,81 +11,14 @@
  **/
 var pathModule = require('path');
 var fs = require('fs');
+var fs_extra =require('fs-extra');
 var config = require("../config");
+var utils = require("../utils")
+var exec = require('child_process').exec;
 
 //@const
 var CATEGORY_NAME = "video";
 
-
-function readVideoMetadata(sPath, callback) {
-  var exec = require('child_process').exec;
-  var oMetadata = {
-    filename: '',
-    format_long_name: '',
-    width: '',
-    height: '',
-    display_aspect_ratio: '',
-    pix_fmt: '',
-    duration: '',
-    major_brand: '',
-    minor_version: '',
-    compatible_brands: ''
-  }
-  var sCommand = 'avprobe ' + sPath;
-  exec(sCommand, function(err, stdout, stderr) {
-    var tmpFullname = pathModule.basename(sPath);
-    oMetadata.format_long_name = pathModule.extname(tmpFullname);
-    oMetadata.filename = pathModule.basename(sPath, oMetadata.pix_fmt);
-    if (err) {
-      return callback(null, oMetadata);
-    }
-    try {
-      var allContent = stderr.split('\n');
-      var reg_major_brand = /major_brand/gi;
-      var reg_minor_version = /minor_version/gi;
-      var reg_compatible_brands = /compatible_brands/gi;
-      var reg_duration = /Duration/gi;
-      var reg_Stream = /Stream*Video/gi;
-      var reg_creation_time = /creation_time/gi;
-      for (var i = 0; i < allContent.length; i++) {
-        var item = allContent[i];
-        if (reg_major_brand.test(item)) {
-          item = item.split(':');
-          oMetadata.major_brand = item[1];
-        } else if (reg_minor_version.test(item)) {
-          item = item.split(':');
-          oMetadata.minor_version = item[1];
-        } else if (reg_compatible_brands.test(item)) {
-          item = item.split(':');
-          oMetadata.compatible_brands = item[1];
-        } else if (reg_duration.test(item)) {
-          item = item.split('Duration:');
-          var tmp = item[1].split(',');
-          oMetadata.duration = tmp[0];
-        } else if (reg_Stream.test(item)) {
-          var tmp = item.split('Video:');
-          var content = tmp[1];
-          content = content.split(',');
-          oMetadata.pix_fmt = content[0];
-          for (var n in content) {
-            if ((/x/g).test(content[n])) {
-              var tmp = content[n].split(' ');
-              var ratio = tmp[0];
-              oMetadata.width = ratio[0];
-              oMetadata.height = ratio[1];
-              oMetadata.display_aspect_ratio = content[n];
-            }
-          }
-        }
-      }
-    } catch (err) {
-      console.log('just ignore: ', err);
-    } finally {
-      return callback(null, oMetadata);
-    }
-    return callback(null, oMetadata);
-  })
-}
 
 function readVideoThumbnail(sPath, callback) {
   function backupIcon(callback) {
@@ -139,12 +72,73 @@ exports.readVideoThumbnail = readVideoThumbnail;
 
 
 function getPropertyInfo(param, callback) {
-  readVideoMetadata(param, function(err, result) {
+  var exec = require('child_process').exec;
+  var oMetadata = {
+    filename: '',
+    format_long_name: '',
+    width: '',
+    height: '',
+    display_aspect_ratio: '',
+    pix_fmt: '',
+    duration: '',
+    major_brand: '',
+    minor_version: '',
+    compatible_brands: ''
+  }
+  var sCommand = 'avprobe ' + param;
+  exec(sCommand, function(err, stdout, stderr) {
+    var tmpFullname = pathModule.basename(param);
+    oMetadata.format_long_name = pathModule.extname(tmpFullname);
+    oMetadata.filename = pathModule.basename(param, oMetadata.pix_fmt);
     if (err) {
-      return callback(err);
+      return callback(null, oMetadata);
     }
-    return callback(null, result);
-  });
+    try {
+      var allContent = stderr.split('\n');
+      var reg_major_brand = /major_brand/gi;
+      var reg_minor_version = /minor_version/gi;
+      var reg_compatible_brands = /compatible_brands/gi;
+      var reg_duration = /Duration/gi;
+      var reg_Stream = /Stream*Video/gi;
+      var reg_creation_time = /creation_time/gi;
+      for (var i = 0; i < allContent.length; i++) {
+        var item = allContent[i];
+        if (reg_major_brand.test(item)) {
+          item = item.split(':');
+          oMetadata.major_brand = item[1];
+        } else if (reg_minor_version.test(item)) {
+          item = item.split(':');
+          oMetadata.minor_version = item[1];
+        } else if (reg_compatible_brands.test(item)) {
+          item = item.split(':');
+          oMetadata.compatible_brands = item[1];
+        } else if (reg_duration.test(item)) {
+          item = item.split('Duration:');
+          var tmp = item[1].split(',');
+          oMetadata.duration = tmp[0];
+        } else if (reg_Stream.test(item)) {
+          var tmp = item.split('Video:');
+          var content = tmp[1];
+          content = content.split(',');
+          oMetadata.pix_fmt = content[0];
+          for (var n in content) {
+            if ((/x/g).test(content[n])) {
+              var tmp = content[n].split(' ');
+              var ratio = tmp[0];
+              oMetadata.width = ratio[0];
+              oMetadata.height = ratio[1];
+              oMetadata.display_aspect_ratio = content[n];
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.log('just ignore: ', err);
+    } finally {
+      return callback(null, oMetadata);
+    }
+    return callback(null, oMetadata);
+  })
 }
 exports.getPropertyInfo = getPropertyInfo;
 

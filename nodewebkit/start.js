@@ -174,5 +174,6 @@ exports.startServer=function(){
 
 exports.requireDataHandle = function(){
   var api = require('./lib/api/data.js');
+  startApp();//temperory solution for init config
   return api;
 }
