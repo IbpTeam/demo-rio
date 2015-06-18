@@ -283,6 +283,21 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
+/**
+ * @method typeFileGenerator
+ *   generate typeFile and output to typeDefine folder
+ *
+ * @param typeName
+ * Name of Type
+ *
+ * @propertyArr
+ * String Array , property of data, 1..n
+ *
+ * @profixArr
+ * String Array , profix of the type, 1..n
+ *
+ *
+ */
 function typeFileGenerator(typeName, propertyArr, profixArr){
   var _type_name = typeName.toString();
   if(propertyArr.length == 0 || propertyArr === null)
