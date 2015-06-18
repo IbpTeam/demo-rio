@@ -31,7 +31,12 @@ Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
-var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
+var DEFINED_PROP = rdfHandle.DEFINED_PROP
+
+function createData(items) {
+  return dataStore(items);
+}
+exports.createData = createData;
 
 
 /**
@@ -65,34 +70,7 @@ var DEFINED_PROP = require('../data/default/rdfTypeDefine').property;
  *    otherwise, return reject with Error object 
  *
  */
-
 function dataStore(items, extraCallback) {
-
-  function doCreate(item) {
-    return baseInfo(item)
-      .then(function(_base) {
-        var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
-        _base.path = _newPath;
-        return Q_copy(item, _newPath)
-          .then(function(result) {
-            if (result === "ENOENT") {
-              //return null when file exists
-              return null;
-            } else {
-              return extraCallback(item)
-                .then(function(result) {
-                  var item_info = {
-                    subject: _base.URI,
-                    base: _base,
-                    extra: result
-                  }
-                  return item_info;
-                });
-            }
-          });
-      });
-  }
-
   if (!items) {
     return Q.fcall(function() {
       return null;
@@ -102,13 +80,38 @@ function dataStore(items, extraCallback) {
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
-            _file_info.push(result[i]);
+          _file_info.push(result[i]);
         }
         return writeTriples(_file_info);
       });
   }
 }
-exports.dataStore = dataStore;
+
+
+function doCreate(item) {
+  return baseInfo(item)
+    .then(function(_base) {
+      var _newPath = path.join(config.RESOURCEPATH, _base.category, 'data', _base.filename) + '.' + _base.postfix;
+      _base.path = _newPath;
+      return Q_copy(item, _newPath)
+        .then(function(result) {
+          if (result === "ENOENT") {
+            //return null when file exists
+            return null;
+          } else {
+            return extraInfo(item, _base.category)
+              .then(function(result) {
+                var item_info = {
+                  subject: _base.URI,
+                  base: _base,
+                  extra: result
+                }
+                return item_info;
+              });
+          }
+        });
+    });
+}
 
 
 function writeTriples(fileInfo) {
@@ -188,6 +191,23 @@ function baseInfo(itemPath) {
 exports.baseInfo = baseInfo;
 
 
+function extraInfo(item, category) {
+  return typeHandle.getTypeMethod(category)
+    .then(function(type_object_) {
+      return Q.nfcall(type_object_.getPropertyInfo, item);
+    })
+    .then(function(result_) {
+      return typeHandle.getProperty(category)
+        .then(function(property_list_) {
+          for (var _property in property_list_) {
+            property_list_[_property] = result_[_property] || "undefined";
+          }
+          return property_list_;
+        });
+    })
+}
+
+
 /** 
  * @Method: getItemByProperty
  *    To get an Item by property.
@@ -202,7 +222,7 @@ exports.baseInfo = baseInfo;
  *    otherwise, return reject with Error object 
  *
  **/
-function getItemByProperty (options) {
+function getItemByProperty(options) {
   var itemsMaker = function(info) {
     var items = [];
     for (var item in info) {
@@ -489,50 +509,43 @@ function renameDataByUri(sUri, sNewName) {
     _property: "URI",
     _value: sUri
   }
-  var reName = function(Item){
-    if(Item === null){
+  var reName = function(Item) {
+    if (Item === null) {
       throw new Error("Items do not exists!");
     }
-    if(Item.length === 0){
+    if (Item.length === 0) {
       throw new Error("Items are empty by this Uri!");
     }
     var arr = Item[0];
-    if(arr.hasOwnProperty("path")){
+    if (arr.hasOwnProperty("path")) {
       var filepath = arr.path;
-    }
-    else
+    } else
       throw new Error("NOPath");
-    if(arr.hasOwnProperty("path")){
+    if (arr.hasOwnProperty("path")) {
       var postfix = arr.postfix;
-    }
-    else{
+    } else {
       throw new Error("NOPostfix");
     }
-    var newPath = filepath.substr(0,filepath.lastIndexOf('/')) 
-                    +'/'+ sNewName + "." + postfix;
+    var newPath = filepath.substr(0, filepath.lastIndexOf('/')) + '/' + sNewName + "." + postfix;
     var _changeItem = {
-      _uri:sUri,
-      _changes:[
-        {
-          _property:"filename",
-          _value:sNewName
-        },
-        {
-          _property:"path",
-          _value:newPath
-        },
-        {
-          _property:"lastModifyTime",
-          _value:(new Date()).toString()
-        }
-      ]
+      _uri: sUri,
+      _changes: [{
+        _property: "filename",
+        _value: sNewName
+      }, {
+        _property: "path",
+        _value: newPath
+      }, {
+        _property: "lastModifyTime",
+        _value: (new Date()).toString()
+      }]
     }
     var Q_fsRaname = Q.nfbind(fs.rename);
-    return Q_fsRaname(filepath,newPath)
-              .then(updatePropertyValue(_changeItem));
+    return Q_fsRaname(filepath, newPath)
+      .then(updatePropertyValue(_changeItem));
   }
   return getItemByProperty(_options)
-          .then(reName);
+    .then(reName);
 }
 exports.renameDataByUri = renameDataByUri;
 
@@ -594,4 +607,3 @@ function getTriples(options) {
   return getTriplesByProperty(options)
     .then(TriplesMaker);
 }
-

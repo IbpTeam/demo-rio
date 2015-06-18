@@ -1,4 +1,5 @@
 var fs = require('fs');
+var fs_extra = require('fs-extra');
 var config = require('../config');
 var pathModule = require('path');
 var config = require('../config.js');
@@ -10,6 +11,8 @@ var Q = require('q');
 //const
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
+var DATAJSDIR = config.DATAJSDIR;
+
 
 //some promised method
 var Q_read_dir = Q.nbind(fs.readdir);
@@ -25,13 +28,23 @@ var Q_write_file = Q.nbind(fs.writeFile);
  */
 function initTypeDef() {
   var allTriples = [];
-  return getDefinedTypeProperty()
-    .then(rdfHandle.defTripleGenerator)
-    .then(function(triples_) {
-      var _db = rdfHandle.dbOpen();
-      rdfHandle.dbPut(_db, triples_);
-      return triples_;
-    });
+  return refreshConfFile()
+    .then(function() {
+      return typejsGenerator.generateDefaultTypeFiles();
+    })
+    .then(function() {
+      return getDefinedTypeProperty()
+        .then(function(info_) {
+          return rdfHandle.defTripleGenerator(info_);
+        })
+        .then(function(triples_) {
+          var _db = rdfHandle.dbOpen();
+          return rdfHandle.dbPut(_db, triples_)
+            .then(function() {
+              return triples_;
+            })
+        })
+    })
 }
 exports.initTypeDef = initTypeDef;
 
@@ -49,7 +62,7 @@ function getDefinedTypeProperty() {
       var _content = JSON.parse(_raw_content);
       //info for type define triples
       _property[_name] = _content.property;
-      _property[_name]["subject"] = "'http://example.org/category#" + _name;
+      _property[_name]["subject"] = "http://example.org/category#" + _name;
     }
     return _property;
   }
@@ -107,7 +120,6 @@ function test_getProperty(cb) {
     .done();
 }
 exports.test_getProperty = test_getProperty;
-
 
 
 /**
@@ -205,7 +217,6 @@ function refreshConfFile() {
         var _file_path = pathModule.join(TYPEFILEDIR, file_list_[i]);
         var _name = pathModule.basename(file_list_[i], '.type');
         _property[_name] = _file_path;
-        console.log(_file_path);
         _combination.push(readFile(_file_path));
       }
       return Q.all(_combination)
@@ -232,18 +243,21 @@ exports.refreshConfFile = refreshConfFile;
  *   return all *.js object
  *
  */
-function getTypeMethod() {
+function getTypeMethod(typeName) {
   return readFile(TYPECONFPATH)
     .then(function(conf_) {
       var all_type_object_ = {};
       var _types = conf_["property"];
       delete _types.base;
       delete _types.contact;
-      for (var _type in _types) {
-        var type_object_ = require("../data/" + _type + ".js");
-        all_type_object_[_type] = type_object_;
+      if (_types[typeName]) {
+        var _path = pathModule.join(DATAJSDIR, typeName + ".js");
+        var type_object_ = require(_path);
+        return type_object_;
+      } else {
+        var _err = new Error("TYPE NOT REGISTERED...");
+        throw _err;
       }
-      return all_type_object_;
     })
 }
 exports.getTypeMethod = getTypeMethod;
@@ -269,21 +283,6 @@ function methodGenerator(info) {
 exports.methodGenerator = methodGenerator;
 
 
-/**
- * @method typeFileGenerator
- *   generate typeFile and output to typeDefine folder
- *
- * @param typeName
- * Name of Type
- *
- * @propertyArr
- * String Array , property of data, 1..n
- *
- * @profixArr
- * String Array , profix of the type, 1..n
- *
- *
- */
 function typeFileGenerator(typeName, propertyArr, profixArr){
   var _type_name = typeName.toString();
   if(propertyArr.length == 0 || propertyArr === null)
@@ -343,12 +342,100 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
 exports.typeFileGenerator = typeFileGenerator;
 
 
-function typeRegister(){
-  /*TODO: to be continue*/
-  //property reg
-  //type file re-write
-  //triple write
-  //typeDefine.conf rewrite
-  //type js generate
+/**
+ * @method typeRegister
+ *   regist a user defined data type
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",          //value is a string piece
+ *         func_content:function(){},  //value should be a function object
+ *          property: [xxx,aaa,bbb]       //array of kinds if properties
+ *          postfix: [xa,xf,xaq]              //array of postfix for this kind of data type
+ *    }
+ *
+ */
+function typeRegister(info) {
+  return methodGenerator(info)
+    .then(function() {
+      return typeFileGenerator(info.type_name, info.property, info.postfix);
+    })
+    .then(function() {
+      return refreshConfFile();
+    })
+    .then(function(){
+      rdfHandle.refreshTypeInfo();
+    });
 }
 exports.typeRegister = typeRegister;
+
+
+/**
+ * @method propertyAdder
+ *   add user defined property on a specific data type
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",          //value is a string piece
+ *          property: [xxx,aaa,bbb]       //array of kinds if properties
+ *    }
+ *
+ */
+function propertyAdder(info) {
+  /*TODO: to be continue*/
+}
+
+
+/*TODO: needs more consideration*/
+// function propertyRemover() {
+
+// }
+
+// function propertyRegiser(op, info) {
+//   if (op === "add") {
+//     return propertyAdder(info);
+//   } else if (op === "remove") {
+//     return propertyRemover(info);
+//   } else {
+//     var _err = new Error("NOT A VLID OP STR...");
+//     throw _err;
+//   }
+// }
+
+
+/**
+ * @method postfixRegister
+ *   to regist a postfix to specific data type
+ *
+ * @param info
+ *  object,format as below:
+ *   {
+ *         type_name:"document",          //value is a string piece
+ *          postfix: [xxx,aaa,bbb]       //array of kinds if postfix
+ *    }
+ *
+ */
+function postfixRegister(info) {
+  var _type_name = info.type_name;
+  var _postfix_list = info.postfix;
+  //get type file path from typeDefine.con
+  return readFile(TYPECONFPATH)
+    .then(function(config_info_) {
+      var _type_file_path = config_info_["property"][_type_name];
+      //read current type file content
+      return readFile(_type_file_path)
+        .then(function(type_info_) {
+          for (var i = 0, l = _postfix_list.length; i < l; i++) {
+            type_info_.postfix[_postfix_list[i]] = _type_name;
+          }
+          var type_info_str_ = JSON.stringify(type_info_, null, 4);
+          //re-write the type file
+          return Q_write_file(_type_file_path, type_info_str_);
+        });
+    })
+    //refresh typeDefine.conf
+    .then(refreshConfFile());
+}
+exports.postfixRegister = postfixRegister;
