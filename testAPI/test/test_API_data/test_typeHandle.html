@@ -96,6 +96,22 @@
     });
   }
 
+  function test_typeFileGenerator(cb){
+    WDC.requireAPI(['data'], function(data) {
+      data.test_typeHandle(function(typeHandle) {
+        var typeName ="Xtype";
+        var propertyArr=new Array("AA","BB","CCCCC");
+        var profixArr =new Array("XX");
+        typeHandle.typeFileGenerator(typeName, propertyArr, profixArr)
+          .then(cb)
+          .fail(function(err) {
+            cb(err);
+          })
+          .done();
+      });
+    });
+  }
+
   function test_getPostfixList(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_typeHandle(function(typeHandle) {
@@ -140,17 +156,18 @@
 
   </script>
 
-<h2>initTypeDef(cb)<span><a class="mark" href="#test_initTypeDef" id="test_initTypeDef" onclick="test_initTypeDef(cb)">test</a></span></h2>
+  <h2>initTypeDef(cb)<span><a class="mark" href="#test_initTypeDef" id="test_initTypeDef" onclick="test_initTypeDef(cb)">test</a></span></h2>
 
-<h2>getProperty(cb)<span><a class="mark" href="#test_getProperty" id="test_getProperty" onclick="test_getProperty(cb)">test</a></span></h2>
+  <h2>getProperty(cb)<span><a class="mark" href="#test_getProperty" id="test_getProperty" onclick="test_getProperty(cb)">test</a></span></h2>
 
-<h2>refreshConfFile(cb)<span><a class="mark" href="#test_refreshConfFile" id="test_refreshConfFile" onclick="test_refreshConfFile(cb)">test</a></span></h2>
+  <h2>refreshConfFile(cb)<span><a class="mark" href="#test_refreshConfFile" id="test_refreshConfFile" onclick="test_refreshConfFile(cb)">test</a></span></h2>
 
-<h2>getPostfixList(cb)<span><a class="mark" href="#test_getPostfixList" id="test_getPostfixList" onclick="test_getPostfixList(cb)">test</a></span></h2>
+  <h2>getPostfixList(cb)<span><a class="mark" href="#test_getPostfixList" id="test_getPostfixList" onclick="test_getPostfixList(cb)">test</a></span></h2>
 
-<h2>getTypeNameByPostfix(cb)<span><a class="mark" href="#test_getTypeNameByPostfix" id="test_getTypeNameByPostfix" onclick="test_getTypeNameByPostfix(cb)">test</a></span></h2>
+  <h2>getTypeNameByPostfix(cb)<span><a class="mark" href="#test_getTypeNameByPostfix" id="test_getTypeNameByPostfix" onclick="test_getTypeNameByPostfix(cb)">test</a></span></h2>
 
-<h2>methodGenerator(cb)<span><a class="mark" href="#test_methodGenerator" id="test_methodGenerator" onclick="test_methodGenerator(cb)">test</a></span></h2>
+  <h2>methodGenerator(cb)<span><a class="mark" href="#test_methodGenerator" id="test_methodGenerator" onclick="test_methodGenerator(cb)">test</a></span></h2>
 
+  <h2>typeFileGenerator(cb)<span><a class="mark" href="#test_typeFileGenerator" id="test_typeFileGenerator" onclick="test_typeFileGenerator(cb)">test</a></span></h2>
 </body>
 </html>
