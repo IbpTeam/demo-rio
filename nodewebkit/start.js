@@ -71,8 +71,8 @@ function startApp(){
     initializeApp(sFullPath);
   });
   // MSG transfer server initialize
-  msgTransfer.initServer();
-  server.start(router.route, handle);
+  // msgTransfer.initServer();
+  // server.start(router.route, handle);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
