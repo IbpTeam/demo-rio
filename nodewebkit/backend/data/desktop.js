@@ -290,6 +290,7 @@ function initDesktop() {
       return promised.open(config.LANG[0]);
     })
     .then(function(fd_) {
+      fs.closeSync(fd_);
       return buildDesktopInfo();
     })
     .fail(function() {
