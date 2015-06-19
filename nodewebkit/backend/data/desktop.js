@@ -20,6 +20,7 @@ var commonDAO = require("../commonHandle/CommonDAO");
 var resourceRepo = require("../commonHandle/repo");
 var desFilesHandle = require("../commonHandle/desFilesHandle");
 var tagsHandle = require("../commonHandle/tagsHandle");
+var promised = require('../commonHandle/promisedFunc');
 var utils = require('../utils');
 var util = require('util');
 var events = require('events');
@@ -222,26 +223,14 @@ function initDesktop(callback) {
             var pathWidget = path + "/Widget.conf";
             var sItemTheme = JSON.stringify(tmpThemw, null, 4);
             var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-            var sThemeDesDir = pathModule.join(DES_DIR, 'Theme.conf.md');
-            var sWidgetDesDir = pathModule.join(DES_DIR, 'Widget.conf.md');
             var sRealDir = [];
             var sDesDir = [];
             fs.open(pathTheme, 'r', function(err, fd) {
               if (err) {
                 fs_extra.outputFileSync(pathTheme, sItemTheme);
                 fs_extra.outputFileSync(pathWidget, sItemWidget);
-                buildDesFile('Theme', 'conf', pathTheme, function() {
-                  buildDesFile('Widget', 'conf', pathWidget, function() {
-                    resourceRepo.repoCommitBoth('add', REAL_REPO_DIR, DES_REPO_DIR, [pathTheme, pathWidget], [sThemeDesDir, sWidgetDesDir], function(err, result) {
-                      if (err) {
-                        console.log(err)
-                        return callback(err, null);
-                      }
-                    })
-                  })
-                })
               }
-              if(fd) fs.closeSync(fd);
+              if (fd) fs.closeSync(fd);
               buildLocalDesktopFile(function() {
                 buildAppMethodInfo('defaults.list', function(err, result) {
                   if (err) {
@@ -266,11 +255,11 @@ function initDesktop(callback) {
     });
     // create the user local app dir
     fs_extra.ensureDir(config.APP_DATA_PATH[0], function(err_) {
-      if(err_) console.log(err_);
+      if (err_) console.log(err_);
     });
     // create the user local language dir
     fs_extra.ensureDir(config.LANG[0], function(err_) {
-      if(err_) console.log(err_);
+      if (err_) console.log(err_);
     });
   } else {
     console.log("Not a linux system! Not supported now!");
@@ -730,9 +719,9 @@ function parseDesktopFile(callback, sPath) {
           console.log(err_outer.name, sPath);
           return callback(err_outer, null)
         }
-        if(oAllDesktop == undefined){
+        if (oAllDesktop == undefined) {
           var _err = "empty desktop content ...";
-          return callback(_err,null);
+          return callback(_err, null);
         }
         callback(null, oAllDesktop);
       }
@@ -1142,49 +1131,42 @@ function updateDesFile(sOp, sFilePath, callback) {
  *        ]
  *
  **/
-function findAllDesktopFiles(callback) {
-  if (typeof callback !== 'function')
-    throw 'Bad type for callback';
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    var oFileList = [];
-    var reg_desktop = /\.desktop$/;
-    var path_local_share = '/usr/local/share/applications';
-    var path_share = '/usr/share/applications';
-    try {
-      var oList_local_share = fs.readdirSync(path_local_share);
-    } catch (err) {
-      oList_local_share = null;
-      console.log(err, 'readdir ' + oList_local_share + ' ...');
-    }
-    try {
-      var oList_share = fs.readdirSync(path_share);
-    } catch (err) {
-      oList_share = null;
-      console.log(err, 'readdir ' + path_share + ' ...');
-      return callback(err, null);
-    }
-    if (oList_local_share) {
-      for (var k = 0; k < oList_local_share.length; k++) {
-        if (reg_desktop.test(oList_local_share[k])) {
-          oFileList.push(pathModule.join(path_local_share, oList_local_share[k]));
-        }
+function findAllDesktopFiles() {
+  var _filelist = [];
+  var _reg_desktop = /\.desktop$/;
+  var _path_local_share = '/usr/local/share/applications';
+  var _path_share = '/usr/share/applications';
+  return nextSearch(_path_local_share)
+    .then(function(local_share_list_) {
+      _filelist = _filelist.concat(local_share_list_);
+      return nextSearch(_path_share)
+        .then(function(share_list_) {
+          _filelist = _filelist.concat(share_list_);
+        })
+    })
+    .fail(function() {
+      return nextSearch(_path_share)
+        .then(function(share_list_) {
+          _filelist = _filelist.concat(share_list_);
+          return _filelist;
+        });
+    })
+
+  function nextSearch(_path) {
+    return promised.read_dir(_path)
+      .then(function(file_list_) {
+        return resolveDesktopFile(_path, file_list_);
+      });
+  }
+
+  function resolveDesktopFile(pre_dir_, file_list_) {
+    var _result = [];
+    for (var i = 0, l = file_list_.length; i < l; i++) {
+      if (_reg_desktop.test(file_list_[i])) {
+        _result.push(pathModule.join(pre_dir_, file_list_[i]));
       }
     }
-    if (oList_share) {
-      for (var k = 0; k < oList_share.length; k++) {
-        if (reg_desktop.test(oList_share[k])) {
-          oFileList.push(pathModule.join(path_share, oList_share[k]));
-        }
-      }
-    }
-    if (oFileList == '') {
-      var _err = 'no desktop file found ...';
-      return callback(_err, null);
-    }
-    callback(null, oFileList);
-  } else {
-    console.log("Not a linux system! Not supported now!")
+    return _result;
   }
 }
 exports.findAllDesktopFiles = findAllDesktopFiles;

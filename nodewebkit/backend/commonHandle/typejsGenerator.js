@@ -2,6 +2,7 @@ var fs = require('fs');
 var pathModule = require('path');
 var Q = require('q');
 var config = require('../config.js');
+var promised = require('./promisedFunc');
 
 //const
 var DATAJSDIR = config.DATAJSDIR;
@@ -54,7 +55,7 @@ function generator(type_name, func_content) {
   +_func_content.toString() + "\n"
   + "exports.getPropertyInfo = getPropertyInfo;\n"
 
-  return Q.nfcall(fs.writeFile, _js_file_path, prototype);
+  return promised.write_file(_js_file_path, prototype);
 }
 exports.generator = generator;
 

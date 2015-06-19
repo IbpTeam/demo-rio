@@ -1392,3 +1392,14 @@ function test_typeHandle(callback) {
   callback(typeHandle);
 }
 exports.test_typeHandle = test_typeHandle;
+
+/** 
+ * @Method: test_typeHandle
+ *    just for testing typeHandle
+ *
+ **/
+function test_desktop(callback) {
+  var desktop = require("../../backend/data/desktop");
+  callback(desktop);
+}
+exports.test_desktop = test_desktop;

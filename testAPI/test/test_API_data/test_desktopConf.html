@@ -579,6 +579,27 @@
     });
   }
 
+  function cb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+  function test_findAllDesktopFiles(){
+        WDC.requireAPI(['data'], function(data) {
+      data.test_desktop(function(desktop){
+        desktop.findAllDesktopFiles()
+        .then(cb)
+        .fail(cb)
+        .done();
+      })
+    });
+  }
+
   </script>
 
 <h2 onclick="show('initDesktop')">initDesktop(initDesktopCb)<span><a class="mark" href="#test_initDesktop" id="test_initDesktop" onclick="test_initDesktop(initDesktopCb)">test</a></span></h2>
@@ -1363,6 +1384,10 @@
   }
 </pre>
 </div>
+</div>
+
+<h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(cb)">test</a></span></h2>
+<div id="findAllDesktopFiles" style="display:none;">
 </div>
 
 </body>
