@@ -45,6 +45,17 @@
     }
   }
 
+  function cb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+
   function initDesktopCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -579,16 +590,6 @@
     });
   }
 
-  function cb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
   function test_findAllDesktopFiles(){
         WDC.requireAPI(['data'], function(data) {
       data.test_desktop(function(desktop){
