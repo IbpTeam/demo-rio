@@ -15,3 +15,4 @@ exports.close = Q.nbind(fs.close);
 //fs-extra
 exports.ensure_dir = Q.nbind(fs_extra.ensureDir);
 exports.output_file = Q.nbind(fs_extra.outputFile);
+exports.cpoy = Q.nbind(fs_extra.copy);

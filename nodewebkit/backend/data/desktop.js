@@ -1171,55 +1171,15 @@ function findAllDesktopFiles() {
 }
 exports.findAllDesktopFiles = findAllDesktopFiles;
 
-function buildLocalDesktopFile(callback) {
-  if (typeof callback !== 'function')
-    throw 'Bad type for callback';
-  findAllDesktopFiles(function(err, result) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var oFiles = result;
-    var count = 0;
-    var lens = oFiles.length;
-    var oRealFiles = [];
-    var oDesFiles = [];
-
-    function doBuild(_sFileOriginPath, _isEnd) {
-      var sFileName = pathModule.basename(_sFileOriginPath, '.desktop');
-      var newPath = pathModule.join(REAL_APP_DIR, sFileName + '.desktop');
-      fs.stat(_sFileOriginPath, function(err, stat) {
-        if (err || stat.size == 0) {
-          console.log('pass desktop file...', _sFileOriginPath)
-          if (_isEnd) {
-            callback();
-          }
-        } else {
-          utils.copyFile(_sFileOriginPath, newPath, function(err) {
-            if (err) {
-              console.log('pass desktop file...', sFileName);
-              if (_isEnd) {
-                callback();
-              }
-            } else {
-              oRealFiles.push(newPath);
-              oDesFiles.push(newPath.replace(/\/desktop\//, '/desktopDes/') + '.md');
-              buildDesFile(sFileName, 'desktop', newPath, function() {
-                if (_isEnd) {
-                  callback();
-                }
-              })
-            }
-          })
-        }
-      })
-    }
-    for (var i = 0; i < lens; i++) {
-      var sFileOriginPath = oFiles[i];
-      var isEnd = (i == lens - 1);
-      doBuild(sFileOriginPath, isEnd);
-    }
-  })
+function buildLocalDesktopFile() {
+  return findAllDesktopFiles()
+    .then(function(file_list_) {
+      for (var i = 0, l = file_list_.length; i < l; i++) {
+        var _filenanme = pathModule.basename(file_list_, '.desktop');
+        var _new_path = pathModule.join(REAL_DIR, _filenanme);
+        fs_extra.copySync(_filenanme, _new_path);
+      }
+    })
 }
 
 /** 
