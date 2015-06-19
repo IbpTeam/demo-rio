@@ -187,85 +187,137 @@ function getnit(initType) {
  *            string, retrieve 'success' when success
  *
  **/
-function initDesktop(callback) {
+// function initDesktop(callback) {
+//   var systemType = os.type();
+//   if (systemType === "Linux") {
+//     var path = REAL_DIR;
+//     var pathDesk = path + "/desktop";
+//     var pathDock = path + "/dock";
+//     var pathApp = path + "/applications";
+//     fs_extra.ensureDir(path, function(err) {
+//       if (err) {
+//         console.log(err);
+//         return callback(err, null);
+//       }
+//       fs_extra.ensureDir(pathDesk, function(err) {
+//         if (err) {
+//           console.log("init desktop Dir error!");
+//           console.log(err);
+//           return callback(err, null);
+//         }
+//         fs_extra.ensureDir(pathDock, function(err) {
+//           if (err) {
+//             console.log("init dock Dir error!");
+//             console.log(err);
+//             return callback(err, null);
+//           }
+//           fs_extra.ensureDir(pathApp, function(err) {
+//             if (err) {
+//               console.log("init applications Dir error!");
+//               console.log(err);
+//               return callback(err, null);
+//             }
+//             var tmpThemw = getnit("theme");
+//             var tmpWidget = getnit("widget");
+//             var pathTheme = path + "/Theme.conf";
+//             var pathWidget = path + "/Widget.conf";
+//             var sItemTheme = JSON.stringify(tmpThemw, null, 4);
+//             var sItemWidget = JSON.stringify(tmpWidget, null, 4);
+//             var sRealDir = [];
+//             var sDesDir = [];
+//             fs.open(pathTheme, 'r', function(err, fd) {
+//               if (err) {
+//                 fs_extra.outputFileSync(pathTheme, sItemTheme);
+//                 fs_extra.outputFileSync(pathWidget, sItemWidget);
+//               }
+//               if (fd) fs.closeSync(fd);
+//               buildLocalDesktopFile(function() {
+//                 buildAppMethodInfo('defaults.list', function(err, result) {
+//                   if (err) {
+//                     console.log(err);
+//                     return;
+//                   }
+//                   buildAppMethodInfo('mimeinfo.cache', function(err, result) {
+//                     if (err) {
+//                       console.log(err);
+//                       return;
+//                     }
+//                     console.log(result);
+//                     console.log('build local desktop file success');
+//                     callback(null, "success");
+//                   })
+//                 })
+//               })
+//             })
+//           })
+//         })
+//       })
+//     });
+//     // create the user local app dir
+//     fs_extra.ensureDir(config.APP_DATA_PATH[0], function(err_) {
+//       if (err_) console.log(err_);
+//     });
+//     // create the user local language dir
+//     fs_extra.ensureDir(config.LANG[0], function(err_) {
+//       if (err_) console.log(err_);
+//     });
+//   } else {
+//     console.log("Not a linux system! Not supported now!");
+//   }
+// }
+// exports.initDesktop = initDesktop;
+
+function initDesktop() {
   var systemType = os.type();
-  if (systemType === "Linux") {
-    var path = REAL_DIR;
-    var pathDesk = path + "/desktop";
-    var pathDock = path + "/dock";
-    var pathApp = path + "/applications";
-    fs_extra.ensureDir(path, function(err) {
-      if (err) {
-        console.log(err);
-        return callback(err, null);
-      }
-      fs_extra.ensureDir(pathDesk, function(err) {
-        if (err) {
-          console.log("init desktop Dir error!");
-          console.log(err);
-          return callback(err, null);
-        }
-        fs_extra.ensureDir(pathDock, function(err) {
-          if (err) {
-            console.log("init dock Dir error!");
-            console.log(err);
-            return callback(err, null);
-          }
-          fs_extra.ensureDir(pathApp, function(err) {
-            if (err) {
-              console.log("init applications Dir error!");
-              console.log(err);
-              return callback(err, null);
-            }
-            var tmpThemw = getnit("theme");
-            var tmpWidget = getnit("widget");
-            var pathTheme = path + "/Theme.conf";
-            var pathWidget = path + "/Widget.conf";
-            var sItemTheme = JSON.stringify(tmpThemw, null, 4);
-            var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-            var sRealDir = [];
-            var sDesDir = [];
-            fs.open(pathTheme, 'r', function(err, fd) {
-              if (err) {
-                fs_extra.outputFileSync(pathTheme, sItemTheme);
-                fs_extra.outputFileSync(pathWidget, sItemWidget);
-              }
-              if (fd) fs.closeSync(fd);
-              buildLocalDesktopFile(function() {
-                buildAppMethodInfo('defaults.list', function(err, result) {
-                  if (err) {
-                    console.log(err);
-                    return;
-                  }
-                  buildAppMethodInfo('mimeinfo.cache', function(err, result) {
-                    if (err) {
-                      console.log(err);
-                      return;
-                    }
-                    console.log(result);
-                    console.log('build local desktop file success');
-                    callback(null, "success");
-                  })
-                })
-              })
-            })
-          })
+  var path = REAL_DIR;
+  var pathDesk = path + "/desktop";
+  var pathDock = path + "/dock";
+  var pathApp = path + "/applications";
+  return promised.ensure_dir(path)
+    .then(function() {
+      return promised.ensure_dir(pathDesk);
+    })
+    .then(function() {
+      return promised.ensure_dir(pathDock);
+    })
+    .then(function() {
+      return promised.ensure_dir(pathApp);
+    })
+    .then(function() {
+      return promised.ensure_dir(config.APP_DATA_PATH[0]);
+    })
+    .then(function() {
+      return promised.open(config.LANG[0]);
+    })
+    .then(function(fd_) {
+      return buildDesktopInfo();
+    })
+    .fail(function() {
+      return buildConfFile()
+        .then(function() {
+          return buildDesktopInfo();
         })
-      })
-    });
-    // create the user local app dir
-    fs_extra.ensureDir(config.APP_DATA_PATH[0], function(err_) {
-      if (err_) console.log(err_);
-    });
-    // create the user local language dir
-    fs_extra.ensureDir(config.LANG[0], function(err_) {
-      if (err_) console.log(err_);
-    });
-  } else {
-    console.log("Not a linux system! Not supported now!");
-  }
+    })
 }
 exports.initDesktop = initDesktop;
+
+function buildConfFile() {
+  var tmpThemw = getnit("theme");
+  var tmpWidget = getnit("widget");
+  var pathTheme = pathModule.join(REAL_DIR, "Theme.conf");
+  var pathWidget = pathModule.join(REAL_DIR, "Widget.conf");
+  var sItemTheme = JSON.stringify(tmpThemw, null, 4);
+  var sItemWidget = JSON.stringify(tmpWidget, null, 4);
+  return promised.output_file(pathTheme, sItemTheme)
+    .then(function() {
+      return promised.output_file(pathWidget, sItemWidget);
+    });
+}
+
+function buildDesktopInfo() {
+  return buildLocalDesktopFile()
+    .then()
+}
 
 
 /** 
@@ -864,18 +916,14 @@ function findDesktopFile(callback, filename) {
  *    callback without return anything
  *
  **/
-function deParseListFile(output, filepath, callback) {
-  fs.readFile(filepath, function(err, data) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    data = data.toString();
-    var data_ = data.split('\n');
-    data_.shift();
-    for (var i = 0; i < data_.length; i++) {
-      var item = data_[i];
-      try {
+function deParseListFile(output, filepath) {
+  return promised.read_file(filepath)
+    .then(function(data) {
+      data = data.toString();
+      var data_ = data.split('\n');
+      data_.shift();
+      for (var i = 0; i < data_.length; i++) {
+        var item = data_[i];
         if (item !== '') {
           try {
             item = item.split('/');
@@ -934,12 +982,9 @@ function deParseListFile(output, filepath, callback) {
             }
           }
         }
-      } catch (err_outer) {
-        return callback(err_outer);
       }
-    }
-    callback();
-  })
+      callback();
+    })
 }
 
 /** 
@@ -985,8 +1030,56 @@ function deParseListFile(output, filepath, callback) {
  *    Callback would return err if err occurs;otherwise return null.
  *
  **/
+// function buildAppMethodInfo(targetFile, callback) {
+//   var list = ['/usr/local/share/applications/' + targetFile, '/usr/share/applications/' + targetFile];
+//   var lens = list.length;
+//   var count = 0;
+//   var listContent_ = {};
+
+//   function done(listContent_, callback_) {
+//     var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
+//     var sListContent = JSON.stringify(listContent_, null, 4);
+//     fs.writeFile(outPutPath, sListContent, function(err) {
+//       if (err) {
+//         console.log(err);
+//         return callback_(err, null);
+//       }
+//       return callback_(null, 'success');
+//     })
+//   }
+
+//   function dobuild(listContent, filepath, _isEnd) {
+//     fs.stat(filepath, function(err, stats) {
+//       if (err || stats.size == 0) {
+//         console.log('pass .list or .cache file ...', filepath);
+//         if (_isEnd) {
+//           return done(listContent, callback);
+//         }
+//       } else {
+//         deParseListFile(listContent, filepath, function(err) {
+//           if (err) {
+//             return callback(err, null);
+//           }
+//           if (_isEnd) {
+//             return done(listContent, callback);
+//           }
+//         })
+//       }
+//     })
+//   }
+//   for (var i = 0; i < lens; i++) {
+//     var item = list[i];
+//     var isEnd = (i == lens - 1);
+//     dobuild(listContent_, item, isEnd);
+//   }
+// }
+
 function buildAppMethodInfo(targetFile, callback) {
-  var list = ['/usr/local/share/applications/' + targetFile, '/usr/share/applications/' + targetFile];
+  var list = ['/usr/local/share/applications/defaults.list',
+    '/usr/share/applications/defaults.list',
+    '/usr/local/share/applications/mimeinfo.cache',
+    '/usr/share/applications/mimeinfo.cache'
+  ];
   var lens = list.length;
   var count = 0;
   var listContent_ = {};
@@ -1021,11 +1114,6 @@ function buildAppMethodInfo(targetFile, callback) {
         })
       }
     })
-  }
-  for (var i = 0; i < lens; i++) {
-    var item = list[i];
-    var isEnd = (i == lens - 1);
-    dobuild(listContent_, item, isEnd);
   }
 }
 
