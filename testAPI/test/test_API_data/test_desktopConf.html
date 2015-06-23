@@ -281,21 +281,9 @@
     });
   }
 
-  function getAllDesktopFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getAllDesktopFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_getAllDesktopFile(getAllDesktopFileCb) {
+  function test_getAllDesktopFile() {
     WDC.requireAPI(['data'], function(data) {
-      data.getAllDesktopFile(getAllDesktopFileCb);
+      data.getAllDesktopFile(cb);
     });
   }
 
@@ -909,7 +897,7 @@
 </div>
 </div>
 
-<h2 onclick="show('getAllDesktopFile')">getAllDesktopFile(getAllDesktopFileCb)<span><a class="mark" href="#test_getAllDesktopFile" id="test_getAllDesktopFile" onclick="test_getAllDesktopFile(getAllDesktopFileCb)">test</a></span></h2>
+<h2 onclick="show('getAllDesktopFile')">getAllDesktopFile()<span><a class="mark" href="#test_getAllDesktopFile" id="test_getAllDesktopFile" onclick="test_getAllDesktopFile()">test</a></span></h2>
 <div id="getAllDesktopFile" style="display:none;">
 <div style="color:#930000">
   <pre>

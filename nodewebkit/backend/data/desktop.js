@@ -1185,103 +1185,32 @@ function writeDesktopFile(callback, sFileName, oEntries) {
  *        ]
  *
  **/
-// function getAllDesktopFile(callback) {
-//   if (typeof callback !== 'function')
-//     throw 'Bad type for callback';
-//   var systemType = os.type();
-//   if (systemType === "Linux") {
-//     var xdgDataDir = [];
-//     var sAllDesktop = "";
-//     var sTarget = pathModule.join(RESOURCEPATH, "desktop", "data", "applications");
-//     var sBoundary = '.desktop';
-//     var sLimits = ' | grep ' + sBoundary;
-//     var sCommand = 'ls ' + sTarget + sLimits;
-//     exec(sCommand, function(err, stdout, stderr) {
-//       if (err) {
-//         console.log(stderr);
-//         console.log(err, stdout, stderr);
-//         return callback(err, null);
-//       }
-//       stdout = stdout.split('\n')
-//       var result = {};
-//       var count = 0;
-//       var lens = stdout.length;
-//       for (var i = 0; i < lens; i++) {
-//         var item = stdout[i];
-//         if (item !== '') {
-//           (function(_item) {
-//             var _dir = pathModule.join(REAL_APP_DIR, _item);
-//             fs.stat(_dir, function(err, stat) {
-//               if (err) {
-//                 console.log(err);
-//                 return callback(err, null);
-//               }
-//               result[_item] = stat.ino;
-//               var isEnd = (count === lens - 1);
-//               if (isEnd) {
-//                 callback(null, result);
-//               }
-//               count++;
-//             })
-//           })(item);
-//         } else {
-//           count++;
-//         }
-//       }
-//     })
-//   } else {
-//     console.log("Not a linux system! Not supported now!")
-//   }
-// }
-// exports.getAllDesktopFile = getAllDesktopFile;
+function getAllDesktopFile() {
+  var sTarget = pathModule.join(RESOURCEPATH, "desktop", "data", "applications");
 
-function getAllDesktopFile(callback) {
-  if (typeof callback !== 'function')
-    throw 'Bad type for callback';
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    var xdgDataDir = [];
-    var sAllDesktop = "";
-    var sTarget = pathModule.join(RESOURCEPATH, "desktop", "data", "applications");
-    var sBoundary = '.desktop';
-    var sLimits = ' | grep ' + sBoundary;
-    var sCommand = 'ls ' + sTarget + sLimits;
-    exec(sCommand, function(err, stdout, stderr) {
-      if (err) {
-        console.log(stderr);
-        console.log(err, stdout, stderr);
-        return callback(err, null);
-      }
-      stdout = stdout.split('\n')
-      var result = {};
-      var count = 0;
-      var lens = stdout.length;
-      for (var i = 0; i < lens; i++) {
-        var item = stdout[i];
-        if (item !== '') {
-          (function(_item) {
-            var _dir = pathModule.join(REAL_APP_DIR, _item);
-            fs.stat(_dir, function(err, stat) {
-              if (err) {
-                console.log(err);
-                return callback(err, null);
-              }
-              result[_item] = stat.ino;
-              var isEnd = (count === lens - 1);
-              if (isEnd) {
-                callback(null, result);
-              }
-              count++;
-            })
-          })(item);
-        } else {
-          count++;
-        }
-      }
-    })
-  } else {
-    console.log("Not a linux system! Not supported now!")
+  function getInode(file_name_) {
+    var _file_path = pathModule.join(sTarget, file_name_);
+    return promised.stat(_file_path)
+      .then(function(inode_) {
+        return [file_name_, inode_.ino];
+      });
   }
+
+  function resolveInodeList(file_list_) {
+    var _inode_list = {};
+    for (var i = 0, l = file_list_.length; i < l; i++) {
+      _inode_list[file_list_[i][0]] = file_list_[i][1];
+    }
+    return _inode_list;
+  }
+
+  return promised.read_dir(sTarget)
+    .then(function(name_list_) {
+      return Q.all(name_list_.map(getInode));
+    })
+    .then(function(result_) {
+      return resolveInodeList(result_);
+    });
 }
 exports.getAllDesktopFile = getAllDesktopFile;
 

@@ -10,6 +10,7 @@ exports.read_file = Q.nbind(fs.readFile);
 exports.write_file = Q.nbind(fs.writeFile);
 exports.open = Q.nbind(fs.open);
 exports.close = Q.nbind(fs.close);
+exports.stat = Q.nbind(fs.stat);
 
 
 //fs-extra

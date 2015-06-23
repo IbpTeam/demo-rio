@@ -803,7 +803,13 @@ exports.initDesktop = initDesktop;
  **/
 function getAllDesktopFile(getAllDesktopFileCb) {
   console.log("Request handler 'getAllDesktopFile' was called.");
-  desktopConf.getAllDesktopFile(getAllDesktopFileCb);
+  desktopConf.getAllDesktopFile()
+    .then(function(result_) {
+      getAllDesktopFileCb(result_);
+    })
+    .fail(function(err) {
+      getAllDesktopFileCb(null, err);
+    });
 }
 exports.getAllDesktopFile = getAllDesktopFile;
 
