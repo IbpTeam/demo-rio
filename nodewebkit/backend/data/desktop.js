@@ -517,32 +517,55 @@ function readAppMethod(callback, sFileName) {
  *    example: var sFileName = 'cinnamon.desktop';
  *
  **/
-function readDesktopFile(callback, sFileName) {
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    function findDesktopFileCb(err, result) {
-      if (err) {
-        console.log("find desktop file error!", err);
-        var _err = "readDesktopFile : find desktop file error!";
-        return callback(_err, null);
-      }
+// function readDesktopFile(callback, sFileName) {
+//   var systemType = os.type();
+//   if (systemType === "Linux") {
+//     function findDesktopFileCb(err, result) {
+//       if (err) {
+//         console.log("find desktop file error!", err);
+//         var _err = "readDesktopFile : find desktop file error!";
+//         return callback(_err, null);
+//       }
 
-      function parseDesktopFileCb(err, attr) {
-        if (err) {
-          console.log(err);
-          var _err = "readDesktopFile : parse desktop file error!";
-          return callback(err, null);
-        }
-        callback(null, attr);
-      }
-      var sPath = result;
-      parseDesktopFile(parseDesktopFileCb, sPath);
+//       function parseDesktopFileCb(err, attr) {
+//         if (err) {
+//           console.log(err);
+//           var _err = "readDesktopFile : parse desktop file error!";
+//           return callback(err, null);
+//         }
+//         callback(null, attr);
+//       }
+//       var sPath = result;
+//       parseDesktopFile(parseDesktopFileCb, sPath);
+//     }
+//     findDesktopFile(findDesktopFileCb, sFileName);
+//   } else {
+//     console.log("Not a linux system! Not supported now!");
+//   }
+// }
+
+function readDesktopFile(callback, sFileName) {
+  function findDesktopFileCb(err, result) {
+    if (err) {
+      console.log("find desktop file error!", err);
+      var _err = "readDesktopFile : find desktop file error!";
+      return callback(_err, null);
     }
-    findDesktopFile(findDesktopFileCb, sFileName);
-  } else {
-    console.log("Not a linux system! Not supported now!");
+
+    function parseDesktopFileCb(err, attr) {
+      if (err) {
+        console.log(err);
+        var _err = "readDesktopFile : parse desktop file error!";
+        return callback(err, null);
+      }
+      callback(null, attr);
+    }
+    var sPath = result;
+    parseDesktopFile(parseDesktopFileCb, sPath);
   }
+  findDesktopFile(findDesktopFileCb, sFileName);
 }
+
 
 /** 
  * @Method: parseDesktopFile
@@ -588,107 +611,97 @@ function readDesktopFile(callback, sFileName) {
  *
  **/
 function parseDesktopFile(callback, sPath) {
-  if (typeof callback !== 'function')
-    throw 'Bad type of callback!!';
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    fs.readFile(sPath, 'utf-8', function(err, data) {
-      if (err) {
-        console.log("read desktop file error", sPath);
-        console.log(err);
-        var _err = "parseDesktopFile : read desktop file error";
-        callback(_err, null);
-      } else {
-        var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
-        var re_rn = /\n|\r|\r\n/g
-        var re_comment = new RegExp('#');
-        var re_letter = /\w/i;
-        var re_eq = new RegExp('=');
-        var desktopHeads = [];
-        var oAllDesktop = {};
-        try {
+  var deferred = Q.defer();
+  fs.readFile(sPath, 'utf-8', function(err, data) {
+    if (err) {
+      console.log("read desktop file error", sPath);
+      console.log(err);
+      var _err = new Error("parseDesktopFile : read desktop file error");
+      deferred.reject(_err);
+    } else {
+      var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
+      var re_rn = /\n|\r|\r\n/g
+      var re_comment = new RegExp('#');
+      var re_letter = /\w/i;
+      var re_eq = new RegExp('=');
+      var desktopHeads = [];
+      var oAllDesktop = {};
+      try {
+        data = data.replace(re_head, function() {
+          var headEntry = (RegExp.lastMatch).toString();
+          headEntry = headEntry.replace(re_rn, "");
+          desktopHeads.push(headEntry); //once get a match, strore it
+          return "$";
+        })
+        data = data.split('$');
+        if (re_comment.test(data[0]) || !re_letter.test(data[0])) {
+          data.shift(); //the first element is a "" or has #, remove it
+        }
+      } catch (err_inner) {
+        console.log(err_inner);
+        var _err = new Error();
+        _err.name = 'headEntry';
+        _err.message = headEntry;
+        deferred.reject(_err);
+      }
+      if (desktopHeads.length === data.length) {
+        for (var i = 0; i < data.length; i++) {
+          if (!re_letter.test(data[i])) {
+            continue;
+          }
           try {
-            data = data.replace(re_head, function() {
-              var headEntry = (RegExp.lastMatch).toString();
-              headEntry = headEntry.replace(re_rn, "");
-              desktopHeads.push(headEntry); //once get a match, strore it
-              return "$";
-            })
-            data = data.split('$');
-            if (re_comment.test(data[0]) || !re_letter.test(data[0])) {
-              data.shift(); //the first element is a "" or has #, remove it
-            }
+            var lines = data[i].split('\n');
           } catch (err_inner) {
             console.log(err_inner);
             var _err = new Error();
-            _err.name = 'headEntry';
-            _err.message = headEntry;
-            throw _err;
+            _err.name = 'headContent';
+            _err.message = data[i];
+            deferred.reject(_err);
           }
-          if (desktopHeads.length === data.length) {
-            for (var i = 0; i < data.length; i++) {
-              if (!re_letter.test(data[i])) {
-                continue;
-              }
+          var attr = {};
+          for (var j = 0; j < lines.length; ++j) {
+            if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
+              continue;
+            } else {
               try {
-                var lines = data[i].split('\n');
+                var tmp = lines[j].split('=');
+                attr[tmp[0]] = tmp[1].replace(re_rn, "");
               } catch (err_inner) {
                 console.log(err_inner);
                 var _err = new Error();
-                _err.name = 'headContent';
-                _err.message = data[i];
-                throw _err;
+                _err.name = 'contentSplit';
+                _err.message = tmp;
+                console.log(test)
+                deferred.reject(_err);
               }
-              var attr = {};
-              for (var j = 0; j < lines.length; ++j) {
-                if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
-                  continue;
-                } else {
-                  try {
-                    var tmp = lines[j].split('=');
-                    attr[tmp[0]] = tmp[1].replace(re_rn, "");
-                  } catch (err_inner) {
-                    console.log(err_inner);
-                    var _err = new Error();
-                    _err.name = 'contentSplit';
-                    _err.message = tmp;
-                    console.log(test)
-                    throw _err;
-                  }
-                  for (var k = 2; k < tmp.length; k++) {
-                    try {
-                      attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
-                    } catch (err_inner) {
-                      console.log(err_inner);
-                      var _err = new Error();
-                      _err.name = 'contentAddition';
-                      _err.message = tmp;
-                      throw _err;
-                    }
-                  }
+              for (var k = 2; k < tmp.length; k++) {
+                try {
+                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
+                } catch (err_inner) {
+                  console.log(err_inner);
+                  var _err = new Error();
+                  _err.name = 'contentAddition';
+                  _err.message = tmp;
+                  deferred.reject(_err);
                 }
               }
-              oAllDesktop[desktopHeads[i]] = attr;
             }
-          } else {
-            console.log(sPath, "desktop file entries not match!");
-            var _err = "parseDesktopFile : desktop file entries not match!";
-            callback(_err, null);
           }
-        } catch (err_outer) {
-          console.log(err_outer.name, sPath);
-          return callback(err_outer, null)
+          oAllDesktop[desktopHeads[i]] = attr;
         }
         if (oAllDesktop == undefined) {
-          var _err = "empty desktop content ...";
-          return callback(_err, null);
+          var _err = new Error("empty desktop content ...");
+          deferred.reject(_err);
+        } else {
+          deferred.resolve(oAllDesktop);
         }
-        callback(null, oAllDesktop);
+      } else {
+        console.log(sPath, "desktop file entries not match!");
+        var _err = new Error("parseDesktopFile : desktop file entries not match!");
+        deferred.reject(_err);
       }
-    });
-  } else {
-    console.log("Not a linux system! Not supported now!");
-  }
+    }
+  });
 }
 
 
