@@ -251,22 +251,29 @@ function buildDesktopInfo() {
  *
  *
  **/
-function readJSONFile(filePath, desFilePath, callback) {
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    fs.readFile(filePath, 'utf8', function(err, data) {
-      if (err) {
-        console.log("read config file error!");
-        console.log(err);
-        var _err = "readThemeConf : read config file error!";
-        return callback(_err, null);
-      }
-      var json = JSON.parse(data);
-      callback(null, json);
-    });
-  } else {
-    console.log("Not a linux system! Not supported now!");
-  }
+// function readJSONFile(filePath, desFilePath, callback) {
+//   var systemType = os.type();
+//   if (systemType === "Linux") {
+//     fs.readFile(filePath, 'utf8', function(err, data) {
+//       if (err) {
+//         console.log("read config file error!");
+//         console.log(err);
+//         var _err = "readThemeConf : read config file error!";
+//         return callback(_err, null);
+//       }
+//       var json = JSON.parse(data);
+//       callback(null, json);
+//     });
+//   } else {
+//     console.log("Not a linux system! Not supported now!");
+//   }
+// }
+
+function readJSONFile(filePath) {
+  return promised.read_file(filePath, 'utf8')
+    .then(function(file_content_) {
+      return JSON.parse(file_content_);
+    })
 }
 
 /** 
@@ -373,29 +380,15 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
  *
  *
  **/
-function readConf(callback, sFileName) {
+function readConf(callback, filename) {
   var systemType = os.type();
-  if (systemType === "Linux") {
-    if (sFileName === 'Theme.conf') {
-      var sFileDir = THEME_PATH;
-      var sDesFileDir = THEME_DES_PATH;
-    } else if (sFileName === 'Widget.conf') {
-      var sFileDir = WIGDET_PATH;
-      var sDesFileDir = WIGDET_DES_PATH;
-    } else if (sFileName === 'Default.conf') {
-      var sFileDir = config.BEFORELOGIN;
-      var sDesFileDir = null;
-    } else {
-      var _err = 'Error: Not a .conf file!';
-      console.log(_err)
-      return callback(_err, null);
-    }
-    readJSONFile(sFileDir, sDesFileDir, function(err, result) {
-      callback(err, result);
-    })
-  } else {
-    console.log("Not a linux system! Not supported now!")
+  var _list = {
+    'Theme.conf': THEME_PATH,
+    'Widget.conf': WIGDET_PATH,
+    'Default.conf': config.BEFORELOGIN
   }
+  var _file_path = _list[filename];
+  return readJSONFile(_file_path);
 }
 
 /** 
@@ -1159,7 +1152,7 @@ function buildLocalDesktopFile() {
   return findAllDesktopFiles()
     .then(function(file_list_) {
       for (var i = 0, l = file_list_.length; i < l; i++) {
-        var _filenanme = pathModule.basename(file_list_[i], '.desktop');
+        var _filenanme = pathModule.basename(file_list_[i]);
         var _new_path = pathModule.join(REAL_APP_DIR, _filenanme);
         fs_extra.copySync(file_list_[i], _new_path);
       }
@@ -1316,6 +1309,56 @@ function writeDesktopFile(callback, sFileName, oEntries) {
  *        ]
  *
  **/
+// function getAllDesktopFile(callback) {
+//   if (typeof callback !== 'function')
+//     throw 'Bad type for callback';
+//   var systemType = os.type();
+//   if (systemType === "Linux") {
+//     var xdgDataDir = [];
+//     var sAllDesktop = "";
+//     var sTarget = pathModule.join(RESOURCEPATH, "desktop", "data", "applications");
+//     var sBoundary = '.desktop';
+//     var sLimits = ' | grep ' + sBoundary;
+//     var sCommand = 'ls ' + sTarget + sLimits;
+//     exec(sCommand, function(err, stdout, stderr) {
+//       if (err) {
+//         console.log(stderr);
+//         console.log(err, stdout, stderr);
+//         return callback(err, null);
+//       }
+//       stdout = stdout.split('\n')
+//       var result = {};
+//       var count = 0;
+//       var lens = stdout.length;
+//       for (var i = 0; i < lens; i++) {
+//         var item = stdout[i];
+//         if (item !== '') {
+//           (function(_item) {
+//             var _dir = pathModule.join(REAL_APP_DIR, _item);
+//             fs.stat(_dir, function(err, stat) {
+//               if (err) {
+//                 console.log(err);
+//                 return callback(err, null);
+//               }
+//               result[_item] = stat.ino;
+//               var isEnd = (count === lens - 1);
+//               if (isEnd) {
+//                 callback(null, result);
+//               }
+//               count++;
+//             })
+//           })(item);
+//         } else {
+//           count++;
+//         }
+//       }
+//     })
+//   } else {
+//     console.log("Not a linux system! Not supported now!")
+//   }
+// }
+// exports.getAllDesktopFile = getAllDesktopFile;
+
 function getAllDesktopFile(callback) {
   if (typeof callback !== 'function')
     throw 'Bad type for callback';
@@ -1365,6 +1408,7 @@ function getAllDesktopFile(callback) {
   }
 }
 exports.getAllDesktopFile = getAllDesktopFile;
+
 
 
 /** 
