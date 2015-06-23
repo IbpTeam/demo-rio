@@ -94,8 +94,8 @@ function loadResources(loadResourcesCb, path) {
       }
     });
   }
-
-  return typeHandle.getPostfixList()
+  return typeHandle.initTypeDef()
+    .then(typeHandle.getPostfixList)
     .then(function(postfix_list_) {
       //resign postfix list to _postfix_list
       _postfix_list = postfix_list_;
