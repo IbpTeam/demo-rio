@@ -166,23 +166,10 @@
     });
   }
 
-  function readDesktopFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API readDesktopFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-
-  function test_readDesktopFile(readDesktopFileCb) {
+  function test_readDesktopFile() {
     WDC.requireAPI(['data'], function(data) {
       var sFileName = 'tomboy.desktop';
-      data.readDesktopConfig(readDesktopFileCb, sFileName);
+      data.readDesktopConfig(cb, sFileName);
     });
   }
 
@@ -775,7 +762,7 @@
 </div>
 </div>
 
-<h2 onclick="show('readDesktopFile')">readDesktopFile(readDesktopFileCb)<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile(readDesktopFileCb)">test</a></span></h2>
+<h2 onclick="show('readDesktopFile')">readDesktopFile()<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile()">test</a></span></h2>
 <div id="readDesktopFile" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -784,29 +771,6 @@
  
   @param: callback
      result as a json object
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function readDesktopFileCb(err,result){
-    if(err){
-      print(err);
-    }else{
-    var win = window.open('');
-    win.document.write("test API readDesktopFile()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result)
-  };
-  }
-  function test_readDesktopFile(readDesktopFileCb){
-    WDC.requireAPI(['data'], function(data){
-      var fileName = 'cinnamon.desktop';
-      data.readDesktopFile(readDesktopFileCb,fileName);
-    });
-  }    
-</pre>
 </div>
 </div>
 

@@ -251,30 +251,13 @@ function buildDesktopInfo() {
  *
  *
  **/
-// function readJSONFile(filePath, desFilePath, callback) {
-//   var systemType = os.type();
-//   if (systemType === "Linux") {
-//     fs.readFile(filePath, 'utf8', function(err, data) {
-//       if (err) {
-//         console.log("read config file error!");
-//         console.log(err);
-//         var _err = "readThemeConf : read config file error!";
-//         return callback(_err, null);
-//       }
-//       var json = JSON.parse(data);
-//       callback(null, json);
-//     });
-//   } else {
-//     console.log("Not a linux system! Not supported now!");
-//   }
-// }
-
 function readJSONFile(filePath) {
   return promised.read_file(filePath, 'utf8')
     .then(function(file_content_) {
       return JSON.parse(file_content_);
     })
 }
+
 
 /** 
  * @Method: readThemeConf
@@ -380,8 +363,7 @@ function writeJSONFile(filePath, desFilePath, oTheme, callback) {
  *
  *
  **/
-function readConf(callback, filename) {
-  var systemType = os.type();
+function readConf(filename) {
   var _list = {
     'Theme.conf': THEME_PATH,
     'Widget.conf': WIGDET_PATH,
@@ -466,11 +448,9 @@ function writeConf(callback, sFileName, oContent) {
  *
  *
  **/
-function readAppMethod(callback, sFileName) {
+function readAppMethod(sFileName) {
   var sFilePath = pathModule.join(REAL_APP_DIR, sFileName);
-  readJSONFile(sFilePath, null, function(err, result) {
-    callback(err, result);
-  })
+  return readJSONFile(sFilePath);
 }
 
 /** 
@@ -517,53 +497,11 @@ function readAppMethod(callback, sFileName) {
  *    example: var sFileName = 'cinnamon.desktop';
  *
  **/
-// function readDesktopFile(callback, sFileName) {
-//   var systemType = os.type();
-//   if (systemType === "Linux") {
-//     function findDesktopFileCb(err, result) {
-//       if (err) {
-//         console.log("find desktop file error!", err);
-//         var _err = "readDesktopFile : find desktop file error!";
-//         return callback(_err, null);
-//       }
-
-//       function parseDesktopFileCb(err, attr) {
-//         if (err) {
-//           console.log(err);
-//           var _err = "readDesktopFile : parse desktop file error!";
-//           return callback(err, null);
-//         }
-//         callback(null, attr);
-//       }
-//       var sPath = result;
-//       parseDesktopFile(parseDesktopFileCb, sPath);
-//     }
-//     findDesktopFile(findDesktopFileCb, sFileName);
-//   } else {
-//     console.log("Not a linux system! Not supported now!");
-//   }
-// }
-
-function readDesktopFile(callback, sFileName) {
-  function findDesktopFileCb(err, result) {
-    if (err) {
-      console.log("find desktop file error!", err);
-      var _err = "readDesktopFile : find desktop file error!";
-      return callback(_err, null);
-    }
-
-    function parseDesktopFileCb(err, attr) {
-      if (err) {
-        console.log(err);
-        var _err = "readDesktopFile : parse desktop file error!";
-        return callback(err, null);
-      }
-      callback(null, attr);
-    }
-    var sPath = result;
-    parseDesktopFile(parseDesktopFileCb, sPath);
-  }
-  findDesktopFile(findDesktopFileCb, sFileName);
+function readDesktopFile(sFileName) {
+  return findDesktopFile(sFileName)
+    .then(function(file_content_) {
+      return parseDesktopFile(file_content_);
+    });
 }
 
 
@@ -610,98 +548,88 @@ function readDesktopFile(callback, sFileName) {
  *
  *
  **/
-function parseDesktopFile(callback, sPath) {
-  var deferred = Q.defer();
-  fs.readFile(sPath, 'utf-8', function(err, data) {
-    if (err) {
-      console.log("read desktop file error", sPath);
-      console.log(err);
-      var _err = new Error("parseDesktopFile : read desktop file error");
-      deferred.reject(_err);
-    } else {
-      var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
-      var re_rn = /\n|\r|\r\n/g
-      var re_comment = new RegExp('#');
-      var re_letter = /\w/i;
-      var re_eq = new RegExp('=');
-      var desktopHeads = [];
-      var oAllDesktop = {};
+function parseDesktopFile(file_content_) {
+  var re_head = /\[{1}[a-z,\s,A-Z,\d,\-]*\]{1}[\r,\n, ]{1}/g; //match all string like [***]
+  var re_rn = /\n|\r|\r\n/g
+  var re_comment = new RegExp('#');
+  var re_letter = /\w/i;
+  var re_eq = new RegExp('=');
+  var desktopHeads = [];
+  var oAllDesktop = {};
+  try {
+    file_content_ = file_content_.replace(re_head, function() {
+      var headEntry = (RegExp.lastMatch).toString();
+      headEntry = headEntry.replace(re_rn, "");
+      desktopHeads.push(headEntry); //once get a match, strore it
+      return "$";
+    })
+    file_content_ = file_content_.split('$');
+    if (re_comment.test(file_content_[0]) || !re_letter.test(file_content_[0])) {
+      file_content_.shift(); //the first element is a "" or has #, remove it
+    }
+  } catch (err_inner) {
+    console.log(err_inner);
+    var _err = new Error();
+    _err.name = 'headEntry';
+    _err.message = headEntry;
+    throw _err;
+  }
+  if (desktopHeads.length === file_content_.length) {
+    for (var i = 0; i < file_content_.length; i++) {
+      if (!re_letter.test(file_content_[i])) {
+        continue;
+      }
       try {
-        data = data.replace(re_head, function() {
-          var headEntry = (RegExp.lastMatch).toString();
-          headEntry = headEntry.replace(re_rn, "");
-          desktopHeads.push(headEntry); //once get a match, strore it
-          return "$";
-        })
-        data = data.split('$');
-        if (re_comment.test(data[0]) || !re_letter.test(data[0])) {
-          data.shift(); //the first element is a "" or has #, remove it
-        }
+        var lines = file_content_[i].split('\n');
       } catch (err_inner) {
         console.log(err_inner);
         var _err = new Error();
-        _err.name = 'headEntry';
-        _err.message = headEntry;
-        deferred.reject(_err);
+        _err.name = 'headContent';
+        _err.message = file_content_[i];
+        throw _err;
       }
-      if (desktopHeads.length === data.length) {
-        for (var i = 0; i < data.length; i++) {
-          if (!re_letter.test(data[i])) {
-            continue;
-          }
+      var attr = {};
+      for (var j = 0; j < lines.length; ++j) {
+        if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
+          continue;
+        } else {
           try {
-            var lines = data[i].split('\n');
+            var tmp = lines[j].split('=');
+            attr[tmp[0]] = tmp[1].replace(re_rn, "");
           } catch (err_inner) {
             console.log(err_inner);
             var _err = new Error();
-            _err.name = 'headContent';
-            _err.message = data[i];
-            deferred.reject(_err);
+            _err.name = 'contentSplit';
+            _err.message = tmp;
+            console.log(test)
+            throw _err;
           }
-          var attr = {};
-          for (var j = 0; j < lines.length; ++j) {
-            if (re_comment.test(lines[j]) || !re_eq.test(lines[j])) {
-              continue;
-            } else {
-              try {
-                var tmp = lines[j].split('=');
-                attr[tmp[0]] = tmp[1].replace(re_rn, "");
-              } catch (err_inner) {
-                console.log(err_inner);
-                var _err = new Error();
-                _err.name = 'contentSplit';
-                _err.message = tmp;
-                console.log(test)
-                deferred.reject(_err);
-              }
-              for (var k = 2; k < tmp.length; k++) {
-                try {
-                  attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
-                } catch (err_inner) {
-                  console.log(err_inner);
-                  var _err = new Error();
-                  _err.name = 'contentAddition';
-                  _err.message = tmp;
-                  deferred.reject(_err);
-                }
-              }
+          for (var k = 2; k < tmp.length; k++) {
+            try {
+              attr[tmp[0]] += '=' + tmp[k].replace(re_rn, "");
+            } catch (err_inner) {
+              console.log(err_inner);
+              var _err = new Error();
+              _err.name = 'contentAddition';
+              _err.message = tmp;
+              throw _err;
             }
           }
-          oAllDesktop[desktopHeads[i]] = attr;
         }
-        if (oAllDesktop == undefined) {
-          var _err = new Error("empty desktop content ...");
-          deferred.reject(_err);
-        } else {
-          deferred.resolve(oAllDesktop);
-        }
-      } else {
-        console.log(sPath, "desktop file entries not match!");
-        var _err = new Error("parseDesktopFile : desktop file entries not match!");
-        deferred.reject(_err);
       }
+      oAllDesktop[desktopHeads[i]] = attr;
     }
-  });
+    if (oAllDesktop == undefined) {
+      var _err = new Error("empty desktop content ...");
+      throw _err;
+    } else {
+      return oAllDesktop;
+    }
+  } else {
+    console.log(sPath, "desktop file entries not match!");
+    var _err = new Error("parseDesktopFile : desktop file entries not match!");
+    throw _err;
+  }
 }
 
 
@@ -796,30 +724,12 @@ function deParseDesktopFile(callback, oDesktop) {
  *    exmple: var sFileName = 'cinnamon.desktop';
  *
  **/
-function findDesktopFile(callback, filename) {
-  if (typeof callback !== 'function')
-    throw 'Bad type for callback';
-  var systemType = os.type();
-  if (systemType === "Linux") {
-    var sFileName = filename;
-    var xdgDataDir = [];
-    var sAppPath = pathModule.join(REAL_DIR, 'applications', sFileName);
-    fs.open(sAppPath, 'r', function(err, fd) {
-      if (err) {
-        var _err = sFileName + ' not found ...';
-        return callback(_err, null);
-      }
-      if (fd) {
-        fs.closeSync(fd);
-      }
-      return callback(null, sAppPath);
-    })
-  } else {
-    var _err = "Not a linux system! Not supported now!";
-    console.log(_err);
-    callback(_err);
-  }
+function findDesktopFile(filename) {
+  var xdgDataDir = [];
+  var sAppPath = pathModule.join(REAL_DIR, 'applications', filename);
+  return promised.read_file(sAppPath, 'utf-8');
 }
+
 
 /** 
  * @Method: deParseListFile
@@ -945,53 +855,6 @@ function deParseListFile(file_content_) {
  *    Callback would return err if err occurs;otherwise return null.
  *
  **/
-// function buildAppMethodInfo(targetFile, callback) {
-//   var deferred = Q.defer();
-//   var list = ['/usr/share/applications/' + targetFile, '/usr/local/share/applications/' + targetFile];
-//   var lens = list.length;
-//   var count = 0;
-//   var listContent_ = {};
-
-//   function done(listContent_) {
-//     var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
-//     var sListContent = JSON.stringify(listContent_, null, 4);
-//     fs.writeFile(outPutPath, sListContent, function(err) {
-//       if (err) {
-//         console.log(err);
-//         deferred.reject(new Error(err));
-//       } else {
-//         deferred.resolve();
-//       }
-//     })
-//   }
-
-//   function dobuild(listContent, filepath, _isEnd) {
-//     fs.stat(filepath, function(err, stats) {
-//       if (err || stats.size == 0) {
-//         console.log('pass .list or .cache file ...', filepath);
-//         if (_isEnd) {
-//           return done(listContent);
-//         }
-//       } else {
-//         deParseListFile(listContent, filepath, function(err) {
-//           if (err) {
-//             deferred.reject(new Error(err));
-//           } else {
-//             if (_isEnd) {
-//               return done(listContent, callback);
-//             }
-//           }
-//         })
-//       }
-//     })
-//   }
-//   for (var i = 0; i < lens; i++) {
-//     var item = list[i];
-//     var isEnd = (i == lens - 1);
-//     dobuild(listContent_, item, isEnd);
-//   }
-// }
-
 function buildAppMethodInfo(targetFile) {
   var _list = ['/usr/share/applications/' + targetFile,
     '/usr/local/share/applications/' + targetFile
@@ -1442,35 +1305,37 @@ exports.getAllDesktopFile = getAllDesktopFile;
  *                ent.
  *
  **/
-function readDesktopConfig(sFileName, callback) {
+function readDesktopConfig(sFileName) {
   var postfix = pathModule.extname(sFileName);
+  var _option = null;
   switch (postfix) {
     case ".conf":
       {
-        return readConf(callback, sFileName);
+        _option = readConf;
       }
       break;
     case ".desktop":
       {
-        return readDesktopFile(callback, sFileName);
+        _option = readDesktopFile;
       }
       break;
     case ".list":
       {
-        return readAppMethod(callback, sFileName);
+        _option = readAppMethod;
       }
       break;
     case ".cache":
       {
-        return readAppMethod(callback, sFileName);
+        _option = readAppMethod;
       }
       break;
     default:
       {
         var _err = 'Error: bad file name or type not supported! ' + sFileName;
-        return callback(_err, null);
+        throw _err;
       }
   }
+  return _option(sFileName);
 }
 exports.readDesktopConfig = readDesktopConfig;
 
