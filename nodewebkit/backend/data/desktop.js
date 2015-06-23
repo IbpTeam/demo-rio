@@ -12,6 +12,7 @@
 var pathModule = require('path');
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
+var Q = require('q');
 var os = require('os');
 var config = require("../config");
 var dataDes = require("../commonHandle/desFilesHandle");
@@ -177,96 +178,6 @@ function getnit(initType) {
 }
 
 
-/** 
- * @Method: initDesktop
- *    init desktop config dir & files. Those files are all maintained in /.desktop
- *    including Theme.comf, Widget.conf, and all .desktop files.
- *
- * @param: callback
- *        @result
- *            string, retrieve 'success' when success
- *
- **/
-// function initDesktop(callback) {
-//   var systemType = os.type();
-//   if (systemType === "Linux") {
-//     var path = REAL_DIR;
-//     var pathDesk = path + "/desktop";
-//     var pathDock = path + "/dock";
-//     var pathApp = path + "/applications";
-//     fs_extra.ensureDir(path, function(err) {
-//       if (err) {
-//         console.log(err);
-//         return callback(err, null);
-//       }
-//       fs_extra.ensureDir(pathDesk, function(err) {
-//         if (err) {
-//           console.log("init desktop Dir error!");
-//           console.log(err);
-//           return callback(err, null);
-//         }
-//         fs_extra.ensureDir(pathDock, function(err) {
-//           if (err) {
-//             console.log("init dock Dir error!");
-//             console.log(err);
-//             return callback(err, null);
-//           }
-//           fs_extra.ensureDir(pathApp, function(err) {
-//             if (err) {
-//               console.log("init applications Dir error!");
-//               console.log(err);
-//               return callback(err, null);
-//             }
-//             var tmpThemw = getnit("theme");
-//             var tmpWidget = getnit("widget");
-//             var pathTheme = path + "/Theme.conf";
-//             var pathWidget = path + "/Widget.conf";
-//             var sItemTheme = JSON.stringify(tmpThemw, null, 4);
-//             var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-//             var sRealDir = [];
-//             var sDesDir = [];
-//             fs.open(pathTheme, 'r', function(err, fd) {
-//               if (err) {
-//                 fs_extra.outputFileSync(pathTheme, sItemTheme);
-//                 fs_extra.outputFileSync(pathWidget, sItemWidget);
-//               }
-//               if (fd) fs.closeSync(fd);
-//               buildLocalDesktopFile(function() {
-//                 buildAppMethodInfo('defaults.list', function(err, result) {
-//                   if (err) {
-//                     console.log(err);
-//                     return;
-//                   }
-//                   buildAppMethodInfo('mimeinfo.cache', function(err, result) {
-//                     if (err) {
-//                       console.log(err);
-//                       return;
-//                     }
-//                     console.log(result);
-//                     console.log('build local desktop file success');
-//                     callback(null, "success");
-//                   })
-//                 })
-//               })
-//             })
-//           })
-//         })
-//       })
-//     });
-//     // create the user local app dir
-//     fs_extra.ensureDir(config.APP_DATA_PATH[0], function(err_) {
-//       if (err_) console.log(err_);
-//     });
-//     // create the user local language dir
-//     fs_extra.ensureDir(config.LANG[0], function(err_) {
-//       if (err_) console.log(err_);
-//     });
-//   } else {
-//     console.log("Not a linux system! Not supported now!");
-//   }
-// }
-// exports.initDesktop = initDesktop;
-
 function initDesktop() {
   var systemType = os.type();
   var path = REAL_DIR;
@@ -287,17 +198,10 @@ function initDesktop() {
       return promised.ensure_dir(config.APP_DATA_PATH[0]);
     })
     .then(function() {
-      return promised.open(config.LANG[0]);
+      return buildConfFile();
     })
-    .then(function(fd_) {
-      fs.closeSync(fd_);
+    .then(function() {
       return buildDesktopInfo();
-    })
-    .fail(function() {
-      return buildConfFile()
-        .then(function() {
-          return buildDesktopInfo();
-        })
     })
 }
 exports.initDesktop = initDesktop;
@@ -309,15 +213,25 @@ function buildConfFile() {
   var pathWidget = pathModule.join(REAL_DIR, "Widget.conf");
   var sItemTheme = JSON.stringify(tmpThemw, null, 4);
   var sItemWidget = JSON.stringify(tmpWidget, null, 4);
-  return promised.output_file(pathTheme, sItemTheme)
-    .then(function() {
-      return promised.output_file(pathWidget, sItemWidget);
+  return promised.open(pathTheme, 'r')
+    .then(function(fd_) {
+      return promised.close(fd_);
+    }, function(err) {
+      return promised.output_file(pathTheme, sItemTheme)
+        .then(function() {
+          return promised.output_file(pathWidget, sItemWidget);
+        });
     });
 }
 
 function buildDesktopInfo() {
   return buildLocalDesktopFile()
-    .then()
+    .then(function() {
+      return buildAppMethodInfo('defaults.list');
+    })
+    .then(function() {
+      return buildAppMethodInfo('mimeinfo.cache');
+    })
 }
 
 
@@ -917,75 +831,69 @@ function findDesktopFile(callback, filename) {
  *    callback without return anything
  *
  **/
-function deParseListFile(output, filepath) {
-  return promised.read_file(filepath)
-    .then(function(data) {
-      data = data.toString();
-      var data_ = data.split('\n');
-      data_.shift();
-      for (var i = 0; i < data_.length; i++) {
-        var item = data_[i];
-        if (item !== '') {
-          try {
-            item = item.split('/');
-          } catch (err_inner) {
-            var _err = new Error();
-            _err.name = 'dataEntry';
-            _err.message = item;
-            _err.description = filepath;
-            throw _err;
-          }
-          var entry_fir = item[0];
-          var content_fir = item[1];
-          try {
-            content_fir = content_fir.split('=');
-          } catch (_err) {
-            var _err = new Error();
-            _err.name = 'content_fir';
-            _err.message = content_fir;
-            _err.description = filepath;
-            console.log(_err)
-            throw _err;
-          }
-          var entry_sec = content_fir[0];
-          var content_sec = content_fir[1];
-          try {
-            content_sec = content_sec.split(';');
-          } catch (_err) {
-            var _err = new Error();
-            _err.name = 'content_sec';
-            _err.message = content_sec;
-            _err.description = filepath;
-            throw _err;
-          }
-          try {
-            if (content_sec[content_sec.length - 1] == '') {
-              content_sec.pop();
-            }
-          } catch (_err) {
-            var _err = new Error();
-            _err.name = 'content_sec'
-            _err.message = content_sec;
-            _err.description = filepath;
-            throw _err;
-          }
-          if (!output[entry_fir]) {
-            output[entry_fir] = {};
-            output[entry_fir][entry_sec] = content_sec;
-          } else if (!output[entry_fir][entry_sec]) {
-            output[entry_fir][entry_sec] = content_sec;
-          } else {
-            for (var j = 0; j < content_sec.length; j++) {
-              var content_sec_ = content_sec[j];
-              if (!utils.isExist(content_sec_, output[entry_fir][entry_sec])) {
-                output[entry_fir][entry_sec].push(content_sec_);
-              }
-            }
+function deParseListFile(file_content_) {
+  var _result = {};
+  file_content_ = file_content_.toString();
+  var data_ = file_content_.split('\n');
+  data_.shift();
+  for (var i = 0; i < data_.length; i++) {
+    var item = data_[i];
+    if (item !== '') {
+      try {
+        item = item.split('/');
+      } catch (err_inner) {
+        var _err = new Error();
+        _err.name = 'dataEntry';
+        _err.message = item;
+        throw _err;
+      }
+      var entry_fir = item[0];
+      var content_fir = item[1];
+      try {
+        content_fir = content_fir.split('=');
+      } catch (_err) {
+        var _err = new Error();
+        _err.name = 'content_fir';
+        _err.message = content_fir;
+        console.log(_err)
+        throw _err;
+      }
+      var entry_sec = content_fir[0];
+      var content_sec = content_fir[1];
+      try {
+        content_sec = content_sec.split(';');
+      } catch (_err) {
+        var _err = new Error();
+        _err.name = 'content_sec';
+        _err.message = content_sec;
+        throw _err;
+      }
+      try {
+        if (content_sec[content_sec.length - 1] == '') {
+          content_sec.pop();
+        }
+      } catch (_err) {
+        var _err = new Error();
+        _err.name = 'content_sec'
+        _err.message = content_sec;
+        throw _err;
+      }
+      if (!_result[entry_fir]) {
+        _result[entry_fir] = {};
+        _result[entry_fir][entry_sec] = content_sec;
+      } else if (!_result[entry_fir][entry_sec]) {
+        _result[entry_fir][entry_sec] = content_sec;
+      } else {
+        for (var j = 0; j < content_sec.length; j++) {
+          var content_sec_ = content_sec[j];
+          if (!utils.isExist(content_sec_, _result[entry_fir][entry_sec])) {
+            _result[entry_fir][entry_sec].push(content_sec_);
           }
         }
       }
-      callback();
-    })
+    }
+  }
+  return _result;
 }
 
 /** 
@@ -1032,20 +940,22 @@ function deParseListFile(output, filepath) {
  *
  **/
 // function buildAppMethodInfo(targetFile, callback) {
-//   var list = ['/usr/local/share/applications/' + targetFile, '/usr/share/applications/' + targetFile];
+//   var deferred = Q.defer();
+//   var list = ['/usr/share/applications/' + targetFile, '/usr/local/share/applications/' + targetFile];
 //   var lens = list.length;
 //   var count = 0;
 //   var listContent_ = {};
 
-//   function done(listContent_, callback_) {
+//   function done(listContent_) {
 //     var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
 //     var sListContent = JSON.stringify(listContent_, null, 4);
 //     fs.writeFile(outPutPath, sListContent, function(err) {
 //       if (err) {
 //         console.log(err);
-//         return callback_(err, null);
+//         deferred.reject(new Error(err));
+//       } else {
+//         deferred.resolve();
 //       }
-//       return callback_(null, 'success');
 //     })
 //   }
 
@@ -1054,15 +964,16 @@ function deParseListFile(output, filepath) {
 //       if (err || stats.size == 0) {
 //         console.log('pass .list or .cache file ...', filepath);
 //         if (_isEnd) {
-//           return done(listContent, callback);
+//           return done(listContent);
 //         }
 //       } else {
 //         deParseListFile(listContent, filepath, function(err) {
 //           if (err) {
-//             return callback(err, null);
-//           }
-//           if (_isEnd) {
-//             return done(listContent, callback);
+//             deferred.reject(new Error(err));
+//           } else {
+//             if (_isEnd) {
+//               return done(listContent, callback);
+//             }
 //           }
 //         })
 //       }
@@ -1075,48 +986,32 @@ function deParseListFile(output, filepath) {
 //   }
 // }
 
-function buildAppMethodInfo(targetFile, callback) {
-  var list = ['/usr/local/share/applications/defaults.list',
-    '/usr/share/applications/defaults.list',
-    '/usr/local/share/applications/mimeinfo.cache',
-    '/usr/share/applications/mimeinfo.cache'
+function buildAppMethodInfo(targetFile) {
+  var _list = ['/usr/share/applications/' + targetFile,
+    '/usr/local/share/applications/' + targetFile
   ];
-  var lens = list.length;
-  var count = 0;
-  var listContent_ = {};
-
-  function done(listContent_, callback_) {
-    var outPutPath = pathModule.join(REAL_APP_DIR, targetFile);
-    var sListContent = JSON.stringify(listContent_, null, 4);
-    fs.writeFile(outPutPath, sListContent, function(err) {
-      if (err) {
-        console.log(err);
-        return callback_(err, null);
-      }
-      return callback_(null, 'success');
-    })
-  }
-
-  function dobuild(listContent, filepath, _isEnd) {
-    fs.stat(filepath, function(err, stats) {
-      if (err || stats.size == 0) {
-        console.log('pass .list or .cache file ...', filepath);
-        if (_isEnd) {
-          return done(listContent, callback);
-        }
-      } else {
-        deParseListFile(listContent, filepath, function(err) {
-          if (err) {
-            return callback(err, null);
-          }
-          if (_isEnd) {
-            return done(listContent, callback);
-          }
+  return promised.read_file(_list[0])
+    .then(function(file_content_) {
+      return doBuildAppMethodInfo(targetFile, file_content_);
+    }, function(err) {
+      return promised.read_file(_list[1])
+        .then(function(file_content_) {
+          return doBuildAppMethodInfo(targetFile, file_content_);
         })
-      }
-    })
-  }
+    });
 }
+
+function doBuildAppMethodInfo(target_file_, file_content_) {
+  return Q.fcall(function() {
+      return deParseListFile(file_content_);
+    })
+    .then(function(resolve_content_) {
+      var _out_path = pathModule.join(REAL_APP_DIR, target_file_);
+      var _str_content = JSON.stringify(resolve_content_, null, 4);
+      return promised.write_file(_out_path, _str_content)
+    })
+}
+
 
 /** 
  * @Method: buildDesFile
@@ -1264,9 +1159,9 @@ function buildLocalDesktopFile() {
   return findAllDesktopFiles()
     .then(function(file_list_) {
       for (var i = 0, l = file_list_.length; i < l; i++) {
-        var _filenanme = pathModule.basename(file_list_, '.desktop');
-        var _new_path = pathModule.join(REAL_DIR, _filenanme);
-        fs_extra.copySync(_filenanme, _new_path);
+        var _filenanme = pathModule.basename(file_list_[i], '.desktop');
+        var _new_path = pathModule.join(REAL_APP_DIR, _filenanme);
+        fs_extra.copySync(file_list_[i], _new_path);
       }
     })
 }
