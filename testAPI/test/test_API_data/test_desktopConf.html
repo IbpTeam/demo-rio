@@ -74,22 +74,9 @@
     });
   }
 
-  function readThemeConfCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-
-      win.document.write("test API readThemeConf()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_readThemeConf(readThemeConfCb) {
+  function test_readThemeConf() {
     WDC.requireAPI(['data'], function(data) {
-      data.readDesktopConfig(readThemeConfCb,'Theme.conf');
+      data.readDesktopConfig(cb,'Theme.conf');
     });
   }
 
@@ -120,22 +107,9 @@
     });
   }
 
-  function readWidgetConfCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      
-      win.document.write("test API readWidgetConf()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_readWidgetConf(readWidgetConfCb) {
+  function test_readWidgetConf() {
     WDC.requireAPI(['data'], function(data) {
-    data.readDesktopConfig(readWidgetConfCb,"Widget.conf");
+    data.readDesktopConfig(cb,"Widget.conf");
     });
   }
 
@@ -625,7 +599,7 @@
 </div>
 </div>
 
-<h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
+<h2 onclick="show('readThemeCon')">readThemeCon()<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf()">test</a></span></h2>
 <div id="readThemeCon" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -694,7 +668,7 @@
 </div>
 
 
-<h2 onclick="show('readWidgetConf')">readWidgetConf(readWidgetConfCb)<span><a class="mark" href="#test_readWidgetConf" id="test_readWidgetConf" onclick="test_readWidgetConf(readWidgetConfCb)">test</a></span></h2>
+<h2 onclick="show('readWidgetConf')">readWidgetConf()<span><a class="mark" href="#test_readWidgetConf" id="test_readWidgetConf" onclick="test_readWidgetConf()">test</a></span></h2>
 <div id="readWidgetConf" style="display:none;">
 <div style="color:#930000">
   <pre>

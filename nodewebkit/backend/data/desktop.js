@@ -1307,35 +1307,13 @@ exports.getAllDesktopFile = getAllDesktopFile;
  **/
 function readDesktopConfig(sFileName) {
   var postfix = pathModule.extname(sFileName);
-  var _option = null;
-  switch (postfix) {
-    case ".conf":
-      {
-        _option = readConf;
-      }
-      break;
-    case ".desktop":
-      {
-        _option = readDesktopFile;
-      }
-      break;
-    case ".list":
-      {
-        _option = readAppMethod;
-      }
-      break;
-    case ".cache":
-      {
-        _option = readAppMethod;
-      }
-      break;
-    default:
-      {
-        var _err = 'Error: bad file name or type not supported! ' + sFileName;
-        throw _err;
-      }
-  }
-  return _option(sFileName);
+  var _options = {
+    ".conf": readConf,
+    ".desktop": readDesktopFile,
+    ".list": readAppMethod,
+    ".cache": readAppMethod
+  };
+  return _options[postfix](sFileName);
 }
 exports.readDesktopConfig = readDesktopConfig;
 
