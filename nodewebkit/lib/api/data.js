@@ -997,7 +997,13 @@ exports.renameDesktopFile = renameDesktopFile;
  **/
 function linkAppToDesktop(linkAppToDesktopCb, sApp, sType) {
   console.log("Request handler 'linkAppToDesktop' was called.");
-  desktopConf.linkAppToDesktop(sApp, sType, linkAppToDesktopCb);
+  desktopConf.linkAppToDesktop(sApp, sType)
+    .then(function() {
+      linkAppToDesktopCb();
+    })
+    .fail(function(err) {
+      linkAppToDesktopCb(err);
+    })
 }
 exports.linkAppToDesktop = linkAppToDesktop;
 
@@ -1021,7 +1027,13 @@ exports.linkAppToDesktop = linkAppToDesktop;
  **/
 function unlinkApp(unlinkAppCb, sDir) {
   console.log("Request handler 'unlinkApp' was called.");
-  desktopConf.unlinkApp(sDir, unlinkAppCb);
+  desktopConf.unlinkApp(sDir)
+    .then(function() {
+      unlinkAppCb();
+    })
+    .fail(function(err) {
+      unlinkAppCb(err);
+    })
 }
 exports.unlinkApp = unlinkApp;
 

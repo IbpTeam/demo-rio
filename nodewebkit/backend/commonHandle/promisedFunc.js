@@ -11,6 +11,8 @@ exports.write_file = Q.nbind(fs.writeFile);
 exports.open = Q.nbind(fs.open);
 exports.close = Q.nbind(fs.close);
 exports.stat = Q.nbind(fs.stat);
+exports.symlink = Q.nbind(fs.symlink);
+exports.unlink = Q.nbind(fs.unlink);
 
 
 //fs-extra

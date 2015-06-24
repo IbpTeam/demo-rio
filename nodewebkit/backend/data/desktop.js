@@ -1326,20 +1326,14 @@ exports.openDataByRawPath = openDataByRawPath;
  *        string, retrieve success when success.
  *
  **/
-function linkAppToDesktop(sApp, sType, callback) {
+function linkAppToDesktop(sApp, sType) {
   if (sType !== 'desktop' && sType !== 'dock') {
     var _err = "Error: bad dir type!";
-    return callback(_err, null);
+    throw new Error(_err);
   }
   var sSrc = pathModule.join(REAL_APP_DIR, sApp);
   var sDes = pathModule.join(REAL_DIR, sType, sApp);
-  fs.symlink(sSrc, sDes, function(err) {
-    if (err) {
-      console.log(err, sSrc, sDes)
-      return callback(err, null);
-    }
-    callback(null, 'success');
-  })
+  return promised.symlink(sSrc, sDes);
 }
 exports.linkAppToDesktop = linkAppToDesktop;
 
@@ -1361,15 +1355,9 @@ exports.linkAppToDesktop = linkAppToDesktop;
  *        string, retrieve success when success.
  *
  **/
-function unlinkApp(sDir, callback) {
+function unlinkApp(sDir) {
   var sTarget = pathModule.join(REAL_DIR, sDir);
-  fs.unlink(sTarget, function(err) {
-    if (err) {
-      console.log(err, sTarget)
-      return callback(err, null);
-    }
-    callback(null, 'success');
-  })
+  return promised.unlink(sTarget);
 }
 exports.unlinkApp = unlinkApp;
 
