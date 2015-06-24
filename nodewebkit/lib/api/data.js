@@ -378,9 +378,9 @@ function openDataByUri(openDataByUriCb, uri) {
       console.log("open html5ppt:" + _source.content);
       window.open(_source.content);
       _source.content = "成功打开文件" + _source.content;
-      setTimeout(openDataByUriCb(_source), 0);
+      setTimeout(openDataByUriCb(null, _source), 0);
     } else {
-      setTimeout(openDataByUriCb(_source), 0);
+      setTimeout(openDataByUriCb(null, _source), 0);
     }
   }
   return commonHandle.getItemByProperty(_options)

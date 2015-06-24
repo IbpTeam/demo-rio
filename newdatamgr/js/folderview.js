@@ -57,8 +57,7 @@ var ShowFiles = Class.extend({
       {header: 'data menu'},
       {text:'Open',action:function(){
         var divId = _globalSelf._contextMenuDivID;
-        var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
-        var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+        var modifyURI = divId.substr(0,_globalSelf._getFiles[_globalSelf._index][0]['URI'].length);
         var file = basic.findFileByURI(modifyURI,_globalSelf._getFiles[_globalSelf._index]);
         basic.openFile(file);
       }},
@@ -631,8 +630,8 @@ var ShowFiles = Class.extend({
   //此函数用来通过一个div的URI信息找到具体的文件，方便以后打开时或者加标签等使用
   findURIByDiv:function(div){
     var divId = div.attr('id');
-    var URILength = _globalSelf._getFiles[_globalSelf._index][0]['URI'].length;
-    var modifyURI = divId.substr(divId.indexOf('rio'),URILength);
+    var _uri = _globalSelf._getFiles[_globalSelf._index][0]['URI'];
+    var modifyURI = divId.substr(0,_uri.length);
     return modifyURI;
   },
 
