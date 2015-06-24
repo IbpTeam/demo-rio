@@ -1307,6 +1307,7 @@ exports.deviceInfo = deviceInfo;
  **/
 function getMusicPicData(getMusicPicDataCb, filePath) {
   console.log("Request handler 'getMusicPicData' was called.");
+  var music = require("../../backend/data/music");
   music.getMusicPicData(filePath, getMusicPicDataCb);
 }
 exports.getMusicPicData = getMusicPicData;
@@ -1335,6 +1336,7 @@ exports.getMusicPicData = getMusicPicData;
  **/
 function getVideoThumbnail(getVideoThumbnailCb, sPath) {
   console.log("Request handler 'getVideoThumbnail' was called.");
+  var video = require("../../backend/data/video");
   video.readVideoThumbnail(sPath, getVideoThumbnailCb);
 }
 exports.getVideoThumbnail = getVideoThumbnail;

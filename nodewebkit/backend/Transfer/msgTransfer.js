@@ -12,7 +12,7 @@
 
 var im = require("../../lib/api/IM.js");
 var config = require("../config");
-var repo = require("../commonHandle/repo");
+var repo = null;
 var fs = require("fs");
 var cp = require("child_process");
 var path = require("path");
@@ -20,7 +20,7 @@ var documents = require("../data/document");
 var pictures = require("../data/picture");
 var commonHandle = require('../commonHandle/commonHandle');
 var utils = require('../utils');
-var dataDes = require('../commonHandle/desFilesHandle');
+var dataDes = null;
 var device = require("../data/device");
 
 
