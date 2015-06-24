@@ -80,21 +80,7 @@
     });
   }
 
-  function writeThemeConfCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      
-      win.document.write("test API writeThemeConf()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-
-  function test_writeThemeConf(writeThemeConfCb) {
+  function test_writeThemeConf() {
     WDC.requireAPI(['data'], function(data) {
       var oTheme = {
         tast: "good",
@@ -103,7 +89,7 @@
         test: "object_tesdast",
         modify: 1
       }
-      data.writeDesktopConfig(writeThemeConfCb,'Theme.conf',oTheme);
+      data.writeDesktopConfig(cb, 'Theme.conf',oTheme);
     });
   }
 
@@ -142,7 +128,7 @@
 
   function test_readDesktopFile() {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'tomboy.desktop';
+      var sFileName = 'totem.desktop';
       data.readDesktopConfig(cb, sFileName);
     });
   }
@@ -621,7 +607,7 @@
 </div>
 </div>
 
-<h2 onclick="show('writeThemeConf')">writeThemeConf(writeThemeConfCb)<span><a class="mark" href="#test_writeThemeConf" id="test_writeThemeConf" onclick="test_writeThemeConf(writeThemeConfCb)">test</a></span></h2>
+<h2 onclick="show('writeThemeConf')">writeThemeConf()<span><a class="mark" href="#test_writeThemeConf" id="test_writeThemeConf" onclick="test_writeThemeConf()">test</a></span></h2>
 <div id="writeThemeConf" style="display:none;">
 <div style="color:#930000">
   <pre>

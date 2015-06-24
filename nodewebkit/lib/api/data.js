@@ -868,7 +868,13 @@ exports.readDesktopConfig = readDesktopConfig;
  **/
 function writeDesktopConfig(writeDesktopConfigCb, sFileName, oContent) {
   console.log("Request handler 'writeDesktopConfig' was called.");
-  desktopConf.writeDesktopConfig(sFileName, oContent, writeDesktopConfigCb);
+  desktopConf.writeDesktopConfig(sFileName, oContent)
+    .then(function(){
+      writeDesktopConfigCb();
+    })
+    .fail(function(err){
+      writeDesktopConfigCb(err);
+    })
 }
 exports.writeDesktopConfig = writeDesktopConfig;
 
