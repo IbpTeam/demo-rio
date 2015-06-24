@@ -31,11 +31,15 @@ var Q = require('q');
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  /*TODO: rewrite*/
-  return loadFileCb();
+  commonHandle.createData([sFilePath])
+    .then(function() {
+      loadFileCb();
+    })
+    .fail(function(err) {
+      loadFileCb(err);
+    })
 }
 exports.loadFile = loadFile;
-
 
 /**
  * @method loadResources
