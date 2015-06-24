@@ -773,12 +773,12 @@ exports.rmTagsByUri = rmTagsByUri;
 
 function initDesktop(initDesktopCb) {
   console.log("Request handler 'initDesktop' was called.");
-  desktopConf.initDesktop(initDesktopCb)
+  desktopConf.initDesktop()
     .then(function() {
       initDesktopCb();
     })
     .fail(function(err) {
-      initDesktopCb(null, err);
+      initDesktopCb(err);
     })
 }
 exports.initDesktop = initDesktop;

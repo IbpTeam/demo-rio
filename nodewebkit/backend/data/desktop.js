@@ -930,15 +930,16 @@ function findAllDesktopFiles() {
       return nextSearch(_path_share)
         .then(function(share_list_) {
           _filelist = _filelist.concat(share_list_);
+          return _filelist;
         })
-    })
-    .fail(function() {
+    }, function() {
       return nextSearch(_path_share)
         .then(function(share_list_) {
           _filelist = _filelist.concat(share_list_);
           return _filelist;
         });
     })
+
 
   function nextSearch(_path) {
     return promised.read_dir(_path)
