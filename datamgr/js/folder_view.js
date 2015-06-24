@@ -421,22 +421,22 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(function(err, result){
-                    if(result == "success"){
+                  DataAPI.rmDataByUri(function(err){
+                    if(err){
+                      window.alert("Delete file failed!");                      
+                    }else{
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
-                    }else{
-                      window.alert("Delete file failed!");
                     }
                   },file_json['URI']);
                 break;
                 case 'contact':
-                  DataAPI.rmDataByUri(function(err, result){
-                    if(result == "success"){
+                  DataAPI.rmDataByUri(function(err){
+                    if(err){
+                      window.alert("Delete file failed!");                      
+                    }else{
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
-                    }else{
-                      window.alert("Delete file failed!");
                     }
                   },file_json['URI']);
                 break;
