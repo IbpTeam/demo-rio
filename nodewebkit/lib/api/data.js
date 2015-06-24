@@ -966,7 +966,13 @@ exports.moveFile = moveFile;
  **/
 function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
   console.log("Request handler 'renameDesktopFile' was called.");
-  desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+  desktopConf.renameDesktopFile(oldName, newName)
+    .then(function() {
+      renameDesktopFileCb();
+    })
+    .fail(function(err) {
+      renameDesktopFileCb(err);
+    })
 }
 exports.renameDesktopFile = renameDesktopFile;
 

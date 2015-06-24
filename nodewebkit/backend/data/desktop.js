@@ -275,56 +275,6 @@ function readJSONFile(filePath) {
  *
  *
  **/
-// function writeJSONFile(filePath, desFilePath, oTheme, callback) {
-//   var systemType = os.type();
-//   if (systemType === "Linux") {
-//     fs.readFile(filePath, 'utf-8', function(err, data) {
-//       if (err) {
-//         console.log(err);
-//         var _err = "write config file error!";
-//         callback(_err, null);
-//       }
-//       var oData = JSON.parse(data);
-//       var isModify = false;
-//       for (var k in oTheme) {
-//         if (oData[k] !== oTheme[k]) {
-//           isModify = true;
-//         }
-//         oData[k] = oTheme[k];
-//       }
-//       if (!isModify) {
-//         var _result = "Data Not Change!";
-//         return callback(null, _result);
-//       }
-//       var sThemeModified = JSON.stringify(oData, null, 4);
-//       fs.writeFile(filePath, sThemeModified, function(err) {
-//         if (err) {
-//           console.log("write config file error!");
-//           console.log(err);
-//           callback(err, null);
-//         } else {
-//           var op = 'modify';
-//           updateDesFile(op, desFilePath, function(err, result) {
-//             if (err) {
-//               console.log('update theme des file error!\n', err);
-//               callback(err, null);
-//             } else {
-//               resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [filePath], [desFilePath], function(err, result) {
-//                 if (err) {
-//                   return callback(err, null);
-//                 }
-//                 callback(null, 'success');
-//               })
-//             }
-//           });
-//         }
-//       });
-//     });
-//   } else {
-//     console.log("Not a linux system! Not supported now!")
-//   }
-// }
-
 function writeJSONFile(filePath, newContent) {
   var _str_content = JSON.stringify(newContent);
   return promised.write_file(filePath, _str_content);
@@ -1076,83 +1026,6 @@ function buildLocalDesktopFile() {
  *    }
  *
  **/
-// function writeDesktopFile(callback, sFileName, oEntries) {
-//   var systemType = os.type();
-//   if (systemType === "Linux") {
-//     function findDesktopFileCb(err, result_find) {
-//       if (err) {
-//         console.log("find desktop file err!", err);
-//         return callback(err, null);
-//       }
-//       var sPath = result_find;
-
-//       function parseDesktopFileCb(err, attr) {
-//         if (err) {
-//           console.log(err);
-//           var _err = "writeDesktopFile : parse desktop file error!";
-//           return callback(_err, null);
-//         }
-//         var isModify = false;
-//         for (var entry in oEntries) {
-//           if (oEntries[entry]) {
-//             for (var element in oEntries[entry]) {
-//               if (attr[entry][element] !== oEntries[entry][element]) {
-//                 isModify = true;
-//               }
-//               attr[entry][element] = oEntries[entry][element];
-//             }
-//           } else {
-//             console.log("entry content empty!");
-//             var _err = "writeDesktopFile : entry content empty!";
-//             return callback(_err, null);
-//           }
-//         }
-//         if (!isModify) {
-//           var _result = "Data Not Change!";
-//           return callback(null, _result);
-//         }
-
-//         function deParseDesktopFileCb(err, result_deparse) {
-//           if (err) {
-//             console.log(err);
-//             var _err = "writeDesktopFile : deparse desktop file error!";
-//             return callback(err, null);
-//           }
-//           var sWritePath = result_find;
-//           console.log(sWritePath);
-//           fs.writeFile(sWritePath, result_deparse, function(err) {
-//             if (err) {
-//               console.log(err);
-//               var _err = "writeDesktopFile : write desktop file error!";
-//               return callback(err, null);
-//             }
-//             var op = 'modify';
-//             var re = new RegExp('/desktop/');
-//             var desFilePath = sWritePath.replace(re, '/desktopDes/') + '.md';
-//             updateDesFile(op, desFilePath, function() {
-//               if (err) {
-//                 console.log('update ' + sFileName + ' des file error!\n', err);
-//                 return callback(err, null);
-//               }
-//               resourceRepo.repoCommitBoth('ch', REAL_REPO_DIR, DES_REPO_DIR, [sWritePath], [desFilePath], function(err, result) {
-//                 if (err) {
-//                   return callback(err, null);
-//                 }
-//                 callback(null, "success");
-//               })
-//             });
-//           });
-//         }
-//         deParseDesktopFile(deParseDesktopFileCb, attr);
-//       }
-//       parseDesktopFile(parseDesktopFileCb, sPath);
-//     }
-//     findDesktopFile(findDesktopFileCb, sFileName)
-//   } else {
-//     console.log("Not a linux system! Not supported now!");
-//   }
-// }
-
 function writeDesktopFile(sFileName, oEntries) {
   var _file_path = pathModule.join(REAL_DIR, 'applications', sFileName);
 
@@ -1408,40 +1281,52 @@ exports.moveFile = moveFile;
  *    example: var newName = 'newName'
  *
  **/
+// function renameDesktopFile(callback, oldName, newName) {
+//   var sFilename = oldName + '.desktop';
+//   var sDesFilePath = pathModule.join(DES_APP_DIR, oldName + '.desktop.md');
+//   var sNewDesFilePath = pathModule.join(DES_APP_DIR, newName + '.desktop.md');
+//   var oEntries = {
+//     '[Desktop Entry]': {
+//       'Name': newName,
+//       'Name[zh_CN]': newName
+//     }
+//   }
+//   var oDesEntries = {
+//     filename: newName
+//   }
+
+//   function writeDesktopFileCb(err, result) {
+//     if (err) {
+//       console.log(err);
+//       var _err = 'renameDesktopFile: ' + err;
+//       callback(_err);
+//     } else {
+//       desFilesHandle.updateItem(sDesFilePath, oDesEntries, function(result) {
+//         if (result === "success") {
+//           fs_extra.move(sDesFilePath, sNewDesFilePath, function(err) {
+//             if (err) {
+//               console.log(err);
+//               return callback(err, null);
+//             }
+//             callback(null, result);
+//           })
+//         }
+//       })
+//     }
+//   }
+//   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
+// }
+// exports.renameDesktopFile = renameDesktopFile;
+
 function renameDesktopFile(callback, oldName, newName) {
   var sFilename = oldName + '.desktop';
-  var sDesFilePath = pathModule.join(DES_APP_DIR, oldName + '.desktop.md');
-  var sNewDesFilePath = pathModule.join(DES_APP_DIR, newName + '.desktop.md');
   var oEntries = {
     '[Desktop Entry]': {
       'Name': newName,
       'Name[zh_CN]': newName
     }
   }
-  var oDesEntries = {
-    filename: newName
-  }
-
-  function writeDesktopFileCb(err, result) {
-    if (err) {
-      console.log(err);
-      var _err = 'renameDesktopFile: ' + err;
-      callback(_err);
-    } else {
-      desFilesHandle.updateItem(sDesFilePath, oDesEntries, function(result) {
-        if (result === "success") {
-          fs_extra.move(sDesFilePath, sNewDesFilePath, function(err) {
-            if (err) {
-              console.log(err);
-              return callback(err, null);
-            }
-            callback(null, result);
-          })
-        }
-      })
-    }
-  }
-  writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
+  return writeDesktopFile(sFilename, oEntries);
 }
 exports.renameDesktopFile = renameDesktopFile;
 
