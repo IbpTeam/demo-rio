@@ -1278,44 +1278,7 @@ exports.moveFile = moveFile;
  *    example: var newName = 'newName'
  *
  **/
-// function renameDesktopFile(callback, oldName, newName) {
-//   var sFilename = oldName + '.desktop';
-//   var sDesFilePath = pathModule.join(DES_APP_DIR, oldName + '.desktop.md');
-//   var sNewDesFilePath = pathModule.join(DES_APP_DIR, newName + '.desktop.md');
-//   var oEntries = {
-//     '[Desktop Entry]': {
-//       'Name': newName,
-//       'Name[zh_CN]': newName
-//     }
-//   }
-//   var oDesEntries = {
-//     filename: newName
-//   }
-
-//   function writeDesktopFileCb(err, result) {
-//     if (err) {
-//       console.log(err);
-//       var _err = 'renameDesktopFile: ' + err;
-//       callback(_err);
-//     } else {
-//       desFilesHandle.updateItem(sDesFilePath, oDesEntries, function(result) {
-//         if (result === "success") {
-//           fs_extra.move(sDesFilePath, sNewDesFilePath, function(err) {
-//             if (err) {
-//               console.log(err);
-//               return callback(err, null);
-//             }
-//             callback(null, result);
-//           })
-//         }
-//       })
-//     }
-//   }
-//   writeDesktopFile(writeDesktopFileCb, sFilename, oEntries);
-// }
-// exports.renameDesktopFile = renameDesktopFile;
-
-function renameDesktopFile(callback, oldName, newName) {
+function renameDesktopFile(oldName, newName) {
   var sFilename = oldName + '.desktop';
   var oEntries = {
     '[Desktop Entry]': {
