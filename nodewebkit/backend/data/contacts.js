@@ -9,7 +9,6 @@
  *
  * @version:0.3.0
  **/
-var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
 var rdfHandle = require("../commonHandle/rdfHandle");
 var pathModule = require('path');
@@ -18,8 +17,6 @@ var fs_extra = require('fs-extra');
 var config = require('../config');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
-var util = require('util');
-var utils = require("../utils");
 var tagsHandle = require('../commonHandle/tagsHandle');
 var Q = require('q');
 

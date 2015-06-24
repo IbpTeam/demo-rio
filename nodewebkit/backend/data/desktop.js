@@ -15,18 +15,15 @@ var fs_extra = require('fs-extra');
 var Q = require('q');
 var os = require('os');
 var config = require("../config");
-var dataDes = require("../commonHandle/desFilesHandle");
 var commonHandle = require("../commonHandle/commonHandle");
-var commonDAO = require("../commonHandle/CommonDAO");
-var resourceRepo = require("../commonHandle/repo");
-var desFilesHandle = require("../commonHandle/desFilesHandle");
+/*TODO: some old depenent should be rewrite in future*/
+var commonDAO = null;
+var resourceRepo = null;
+var desFilesHandle = null;
 var tagsHandle = require("../commonHandle/tagsHandle");
 var promised = require('../commonHandle/promisedFunc');
 var utils = require('../utils');
-var util = require('util');
-var events = require('events');
 var uniqueID = require("../uniqueID");
-var chokidar = require('chokidar');
 var exec = require('child_process').exec;
 
 var CATEGORY_NAME = "desktop";

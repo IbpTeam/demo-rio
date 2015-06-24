@@ -1,4 +1,3 @@
-var commonDAO = require("../commonHandle/CommonDAO");
 var msgTransfer = require("../Transfer/msgTransfer");
 var config = require("../config");
 var ds = require("../../lib/api/device_service");
@@ -49,9 +48,6 @@ function addDevice(device){
       changeAttr.conditions=["device_id='"+device.device_id+"'"];
       changeAttr.category="devices";
       console.log(changeAttr);
-      commonDAO.updateItem(changeAttr,function(result){
-        console.log(result);
-      });
     }
     /*console.log("OLD device");
     console.log("----------------------devicesList:-----------------------");
@@ -63,16 +59,14 @@ function addDevice(device){
   else{
     console.log("NEW device");
     device.category = "devices";
-    commonDAO.createItem(device,function(result){
-      device.online=true;
-      device.sync=false;
-      devicesList[device.device_id]=device;
+    device.online=true;
+    device.sync=false;
+    devicesList[device.device_id]=device;
       /*console.log("----------------------devicesList:-----------------------");
       for (var i in devicesList) {  
         console.log(devicesList[i]);
       }  
       console.log("**********************************************************");*/
-    });
   }
 }
 exports.addDevice = addDevice;
