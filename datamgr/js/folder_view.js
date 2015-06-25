@@ -111,9 +111,9 @@ function sendKeyToWindow(windowname, key){
   AppAPI.sendKeyToApp(function(){}, windowname, key);
 }
 
-function cb_get_data_source_file(data_json){
+function cb_get_data_source_file(err, data_json){
   console.log('get data source file', data_json);
-  if(!data_json['openmethod'] || !data_json['content']){
+  if(err || !data_json['openmethod'] || !data_json['content']){
     window.alert('openmethod or content not found.');
     return false;
   }
@@ -421,22 +421,22 @@ function Folder(jquery_element) {
                   window.alert('You can not delete the whole category.');
                 break;
                 case 'file':
-                  DataAPI.rmDataByUri(function(err, result){
-                    if(result == "success"){
+                  DataAPI.rmDataByUri(function(err){
+                    if(err){
+                      window.alert("Delete file failed!");                      
+                    }else{
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
-                    }else{
-                      window.alert("Delete file failed!");
                     }
                   },file_json['URI']);
                 break;
                 case 'contact':
-                  DataAPI.rmDataByUri(function(err, result){
-                    if(result == "success"){
+                  DataAPI.rmDataByUri(function(err){
+                    if(err){
+                      window.alert("Delete file failed!");                      
+                    }else{
                       var id = file_json['props'].name.replace(/\s+/g, '_').replace(/'/g, '');
                       $("#"+id).parent().remove();
-                    }else{
-                      window.alert("Delete file failed!");
                     }
                   },file_json['URI']);
                 break;

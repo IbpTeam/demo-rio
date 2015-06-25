@@ -68,9 +68,9 @@ var Basic = Class.extend({
   },
 
   //此函数用来通过json格式找到数据库中的源文件
-  cbGetDataSourceFile:function(file){
+  cbGetDataSourceFile:function(err, file){
     var _this = this;
-    if(!file['openmethod'] || !file['content']){
+    if(err || !file['openmethod'] || !file['content']){
       window.alert('openmethod or content not found.');
       return false;
     }
