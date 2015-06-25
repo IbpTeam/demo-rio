@@ -16,6 +16,7 @@ var Q = require('q');
 var os = require('os');
 var config = require("../config");
 var commonHandle = require("../commonHandle/commonHandle");
+var typeHandle = require("../commonHandle/typeHandle");
 /*TODO: some old depenent should be rewrite in future*/
 var commonDAO = null;
 var tagsHandle = require("../commonHandle/tagsHandle");
@@ -1299,10 +1300,24 @@ function moveToDesktopSingle(sFilePath) {
     console.log("exist in database");
     return setDesktopTag(sFilePath);
   }
-  return commonHandle.createData([sFilePath])
-    .then(function() {
-      return setDesktopTag(sFilePath);
-    });
+  return promised.open(config.TYPECONFPATH, 'r')
+    .then(function(fd_) {
+      return promised.close(fd_)
+        .then(function() {
+          return commonHandle.createData([sFilePath])
+        })
+        .then(function() {
+          return setDesktopTag(sFilePath);
+        });
+    }, function() {
+      return typeHandle.initTypeDef()
+        .then(function() {
+          return commonHandle.createData([sFilePath])
+        })
+        .then(function() {
+          return setDesktopTag(sFilePath);
+        });
+    })
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
