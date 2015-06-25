@@ -18,28 +18,22 @@ var config = require("../config");
 var commonHandle = require("../commonHandle/commonHandle");
 /*TODO: some old depenent should be rewrite in future*/
 var commonDAO = null;
-var resourceRepo = null;
-var desFilesHandle = null;
 var tagsHandle = require("../commonHandle/tagsHandle");
 var promised = require('../commonHandle/promisedFunc');
 var utils = require('../utils');
 var uniqueID = require("../uniqueID");
 var exec = require('child_process').exec;
 
+//@const
 var CATEGORY_NAME = "desktop";
-var DES_NAME = "desktopDes";
 var REAL_REPO_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME);
-var DES_REPO_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME);
 var REAL_DIR = pathModule.join(config.RESOURCEPATH, CATEGORY_NAME, 'data');
 var REAL_APP_DIR = pathModule.join(REAL_DIR, 'applications');
-var DES_DIR = pathModule.join(config.RESOURCEPATH, DES_NAME, 'data');
-var DES_APP_DIR = pathModule.join(DES_DIR, 'applications');
 var THEME_PATH = pathModule.join(REAL_DIR, 'Theme.conf');
-var THEME_DES_PATH = pathModule.join(DES_DIR, 'Theme.conf.md');
 var WIGDET_PATH = pathModule.join(REAL_DIR, 'Widget.conf');
-var WIGDET_DES_PATH = pathModule.join(DES_DIR, 'Widget.conf.md');
 var RESOURCEPATH = config.RESOURCEPATH;
 var CONFIG_PATH = pathModule.join(config.RESOURCEPATH, "desktop");
+var DESKTAG = "$desktop$"
 
 function getnit(initType) {
   if (initType === "theme") {
@@ -816,89 +810,6 @@ function doBuildAppMethodInfo(target_file_, file_content_) {
     })
 }
 
-
-/** 
- * @Method: buildDesFile
- *    This function is only for building des file for desktop file
- *
- **/
-function buildDesFile(fileName, postfix, newFilePath, callback) {
-  fs.stat(newFilePath, function(err, stat) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var mtime = stat.mtime;
-    var ctime = stat.ctime;
-    var size = stat.size;
-    uniqueID.getFileUid(function(uri) {
-      var itemInfo = {
-        URI: uri + "#" + CATEGORY_NAME,
-        category: CATEGORY_NAME,
-        postfix: postfix,
-        filename: fileName,
-        size: size,
-        path: newFilePath,
-        createTime: ctime,
-        lastModifyTime: mtime,
-        lastAccessTime: ctime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      }
-      var sDesDir = DES_DIR;
-      if (postfix == 'desktop') {
-        sDesDir = pathModule.join(DES_DIR, 'applications');
-      }
-      fs_extra.ensureDir(sDesDir, function() {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        desFilesHandle.createItem(itemInfo, sDesDir, function() {
-          callback();
-        });
-      })
-    });
-  });
-}
-
-function updateDesFile(sOp, sFilePath, callback) {
-  fs.stat(sFilePath, function(err, stat) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    var currentTime = (new Date());
-    var size = stat.size;
-    if (sOp == 'modify') {
-      var itemInfo = {
-        size: size,
-        lastModifyTime: currentTime,
-        lastAccessTime: currentTime,
-        createDev: config.uniqueID,
-        lastModifyDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      };
-    } else if (sOp == 'access') {
-      var itemInfo = {
-        size: size,
-        lastAccessTime: currentTime,
-        createDev: config.uniqueID,
-        lastAccessDev: config.uniqueID
-      };
-    }
-    desFilesHandle.updateItem(sFilePath, itemInfo, function(result) {
-      if (result == 'success') {
-        return callback(null, 'success');
-      }
-      var _err = 'update des file error!';
-      return callback(_err, null);
-    })
-  })
-}
-
-
 /** 
  * @Method: findAllDesktopFiles
  *    To find all .desktop files from system. It would echo $XDG_DATA_DIRS
@@ -1403,7 +1314,7 @@ function setDesktopTag(filepath) {
     _property: "filename",
     _value: _name
   }
-  return tagsHandle.setTagByProperty(["&desktop&"], _option);
+  return tagsHandle.setTagByProperty([DESKTAG], _option);
 }
 
 /*TODO: sqlite bug, not complete*/
@@ -1481,30 +1392,14 @@ exports.removeFileFromDB = removeFileFromDB;
  *        string, retrieve 'success' when success.
  *
  **/
-function removeFileFromDesk(sFilePath, callback) {
-  var category = utils.getCategoryByPath(sFilePath).category;
-  var sCondition = ["path = '" + sFilePath + "'"];
-  commonDAO.findItems(['uri'], [category], sCondition, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == [] || result == '') {
-      var _err = 'file ' + sFilePath + ' not found in db!';
-      console.log(_err);
-      return callback(_err, null);
-    }
-    var sUri = result[0].URI;
+function removeFileFromDesk(sFilePath) {
+  var _option = {
+    _type: "base",
+    _property: "path",
+    _value: sFilePath
+  }
+  return tagsHandle.rmTagsByProperty(['$desktop$'], _option);
 
-    function rmTagsByUriCb(result) {
-      if (result !== 'commit') {
-        var _err = 'rmTagsByUri error!';
-        console.log(_err);
-        return callback(_err, null);
-      }
-      callback(null, 'success');
-    }
-    tagsHandle.rmTagsByUri(rmTagsByUriCb, ['$desktop$'], sUri)
-  })
 }
 exports.removeFileFromDesk = removeFileFromDesk;
 
@@ -1527,49 +1422,8 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *                   }]
  *
  **/
-function getFilesFromDesk(callback) {
-  function getFilesByTagsCb(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    }
-    var oInfo = [];
-    var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
-    var count = 0;
-    var lens = result.length;
-    for (var i = 0; i < lens; i++) {
-      var item = result[i];
-      (function(_item) {
-        var sPath = _item.path;
-        fs.stat(sPath, function(err, stat) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var oTags = item.others.split(',');
-          for (var j = 0; j < oTags.length; j++) {
-            if (reg_desktop.test(oTags[j])) {
-              var sTag = oTags[j];
-              break;
-            }
-          }
-          var tmpInfo = {
-            filepath: sPath,
-            inode: stat.ino,
-            tags: sTag
-          }
-          oInfo.push(tmpInfo);
-          var isEnd = (count === lens - 1);
-          if (isEnd) {
-            callback(null, oInfo);
-          }
-          count++;
-        })
-      })(item)
-    }
-  }
-  var oTags = ['$desktop$'];
-  tagsHandle.getFilesByTags(getFilesByTagsCb, oTags);
+function getFilesFromDesk() {
+  return tagsHandle.getFilesByTags([DESKTAG])
 }
 exports.getFilesFromDesk = getFilesFromDesk;
 
@@ -1588,38 +1442,8 @@ exports.getFilesFromDesk = getFilesFromDesk;
  *
  **/
 function getAllVideo(callback) {
-  commonDAO.findItems(null, ['video'], null, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == [] || result == '') {
-      var _err = 'no videos found in db!';
-      console.log(_err);
-      return callback(_err, null);
-    }
-    var oInfoResult = {};
-    var count = 0;
-    var lens = result.length;
-    for (var i = 0; i < lens; i++) {
-      var item = result[i];
-      (function(_item) {
-        var sPath = _item.path;
-        fs.stat(sPath, function(err, stat) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var sInode = stat.ino;
-          oInfoResult[sInode] = sPath;
-          var isEnd = (count == lens - 1);
-          if (isEnd) {
-            callback(null, oInfoResult);
-          }
-          count++;
-        })
-      })(item)
-    }
-  })
+  return commonHandle.getAllDataByCate("video")
+    .then(getInode);
 }
 exports.getAllVideo = getAllVideo;
 
@@ -1637,42 +1461,26 @@ exports.getAllVideo = getAllVideo;
  *        object, of all music file info as{inode:oFileInfo}.
  *                more detail in document.
  **/
-function getAllMusic(callback) {
-  commonDAO.findItems(null, ['Music'], null, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == [] || result == '') {
-      var _err = 'no Musics found in db!';
-      console.log(_err);
-      return callback(_err, null);
-    }
-    var oInfoResult = {};
-    var count = 0;
-    var lens = result.length;
-    for (var i = 0; i < lens; i++) {
-      var item = result[i];
-      (function(_item) {
-        var sPath = _item.path;
-        fs.stat(sPath, function(err, stat) {
-          if (err) {
-            console.log(err);
-            return callback(err, null);
-          }
-          var sInode = stat.ino;
-          oInfoResult[sInode] = _item;
-          var isEnd = (count == lens - 1);
-          if (isEnd) {
-            console.log(oInfoResult)
-            callback(null, oInfoResult);
-          }
-          count++;
-        })
-      })(item)
-    }
-  })
+function getAllMusic() {
+  return commonHandle.getAllDataByCate("music")
+    .then(getInode);
 }
 exports.getAllMusic = getAllMusic;
+
+function getInode(file_list) {
+  var _result = {};
+
+  function resolveInode(file_info) {
+    return promised.stat(file_info.path)
+      .then(function(stat_) {
+        _result[stat_.ino] = file_info;
+      })
+  }
+  return Q.all(file_list.map(resolveInode))
+    .then(function() {
+      return _result;
+    });
+}
 
 /*TODO: To be continue...*/
 /** 

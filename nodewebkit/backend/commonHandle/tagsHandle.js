@@ -339,6 +339,9 @@ exports.setTagByProperty = setTagByProperty;
  *
  */
 function rmTagsByUri(tag, uri) {
+  if(typeof tag === "string"){
+    tag = [tag];
+  }
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -351,11 +354,14 @@ function rmTagsByUri(tag, uri) {
       throw Error("NOT FOUND IN DATABASE!");
     }
     var _subject = result[0].subject;
-    var _query_delete = [{
-      subject: _subject,
-      predicate: DEFINED_PROP["base"]["tags"],
-      object: "http://example.org/tags#" + tag
-    }]
+    var _query_delete = [];
+    for (var i = 0, l = tag.length; i < l; i++) {
+      _query_delete.push({
+        subject: _subject,
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: "http://example.org/tags#" + tag[i]
+      })
+    }
     return _query_delete;
   }
   
@@ -366,6 +372,45 @@ function rmTagsByUri(tag, uri) {
     });
 }
 exports.rmTagsByUri = rmTagsByUri;
+
+function rmTagsByProperty(tag, option) {
+  if (typeof tag === "string") {
+    tag = [tag];
+  }
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP[option._type][option._property],
+    object: option._value
+  }];
+
+  var queryTripleMaker = function(result) {
+    if (result == "") {
+      throw Error("NOT FOUND IN DATABASE!");
+    }
+    var _subject = result[0].subject;
+    var _query_delete = [];
+    for (var i = 0, l = tag.length; i < l; i++) {
+      _query_delete.push({
+        subject: _subject,
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: "http://example.org/tags#" + tag[i]
+      })
+    }
+    return _query_delete;
+  }
+
+  function deleteWraper(triple) {
+    return rdfHandle.dbDelete(_db, triple);
+  }
+
+  return rdfHandle.dbSearch(_db, _query)
+    .then(queryTripleMaker)
+    .then(function(result) {
+      return Q.all(result.map(deleteWraper));
+    });
+}
+exports.rmTagsByProperty = rmTagsByProperty;
 
 
 /**
