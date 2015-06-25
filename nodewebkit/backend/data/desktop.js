@@ -1382,109 +1382,29 @@ exports.unlinkApp = unlinkApp;
  *        var fileInfo = [sFilePath, stats.ino];
  *
  **/
-function moveToDesktopSingle(sFilePath, callback) {
-  if (!sFilePath || sFilePath == '') {
-    var _err = 'Error: bad sFilePath!';
-    console.log(_err);
-    return callback(_err, null);
+function moveToDesktopSingle(sFilePath) {
+  var reg_isLocal = /\/[a-z]+\/[a-z]+\/\.custard\/\/resource\/[a-z]+\/data\//gi;
+  if (reg_isLocal.test(sFilePath)) {
+    console.log("exist in database");
+    return setDesktopTag(sFilePath);
   }
-  var reg_isLocal = /\/[a-z]+\/[a-z]+\/resource\/[a-z]+\/data\//gi;
-  var category = utils.getCategoryByPath(sFilePath).category;
-  if (reg_isLocal.test(sFilePath)) { //target file is from local
-    var sCondition = ["path = '" + sFilePath + "'"];
-    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-      if (err) {
-        var _err = "Error: find " + sFilePath + " in db error!"
-        return callback(_err, null);
-      }
-      var item = result[0];
-      var oTags = result.others.split(',');
-      if (utils.isExist('$desktop$', oTags)) {
-        console.log('Oh,Sorry, ' + sFilePath + ' Exists on desktop!');
-        return callback(null, 'exist');
-      }
-
-      function setTagsCb(err) {
-        if (err) {
-          var _err = 'Error: set tags error!';
-          console.log(_err);
-          return callback(err, null);
-        }
-        fs.stat(sFilePath, function(err, stats) {
-          if (err) {
-            console.log(sFilePath, err);
-            return callback(err, null);
-          }
-          var fileInfo = [sFilePath, stats.ino];
-          callback(null, fileInfo);
-        })
-      }
-      var sUri = item.URI;
-      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
-    })
-  } else { //target file is from out of our data frame
-    utils.isNameExists(sFilePath, function(err, result) {
-      if (err) {
-        console.log('isNameExists error!');
-        return callback(err, null);
-      }
-      if (result) { //target's name is aready exist in db
-        /*TODO: To be continue: when name exists, we need rename function */
-        // var _err = result + ': File Name Exists! Please Change it!';
-        // console.log(_err);
-        // return callback(_err, null);
-        console.log('target name is aready exist in db', result);
-        var data = new Date();
-        var surfix = 'duplicate_at_' + data.toLocaleString().replace(' ', '_') + '_';
-        var sNewName = surfix + result;
-        var sNewFilePath = pathModule.join(pathModule.dirname(sFilePath), sNewName);
-        utils.copyFile(sFilePath, sNewFilePath, function(err) {
-          if (err) {
-            console.log(err, 'copy file', sFilePath, ' error!');
-            return callback(err, null);
-          }
-          doCreateData(sNewFilePath, category, function(err, result) {
-            if (err) {
-              console.log(err, 'create data error!', sNewFilePath);
-              return callback(err, null);
-            }
-            exec('rm ' + sNewFilePath, function(err, stdout, stderr) {
-              if (err) {
-                console.log(err, stdout, stderr);
-                return callback(err, null);
-              }
-              fs.stat(result, function(err, stats) {
-                if (err) {
-                  console.log(sFilePath, err);
-                  return callback(err, null);
-                }
-                var fileInfo = [result, stats.ino];
-                callback(null, fileInfo);
-              })
-            })
-          });
-        })
-      } else { //target's name is unique
-        console.log('target name is unique');
-        doCreateData(sFilePath, category, function(err, result) {
-          if (err) {
-            console.log(err, 'create data error!', sFilePath);
-            return callback(err, null);
-          }
-          fs.stat(sFilePath, function(err, stats) {
-            if (err) {
-              console.log(sFilePath, err);
-              return callback(err, null);
-            }
-            var fileInfo = [result, stats.ino];
-            callback(null, fileInfo);
-          })
-        })
-      }
-    })
-  }
+  return commonHandle.createData([sFilePath])
+    .then(function() {
+      return setDesktopTag(sFilePath);
+    });
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
+
+function setDesktopTag(filepath) {
+  var _full_name = pathModule.basename(filepath);
+  var _name = _full_name.substring(0, _full_name.lastIndexOf('.'));
+  var _option = {
+    _type: "base",
+    _property: "filename",
+    _value: _name
+  }
+  return tagsHandle.setTagByProperty(["&desktop&"], _option);
+}
 
 /*TODO: sqlite bug, not complete*/
 /** 
