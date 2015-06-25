@@ -1061,7 +1061,13 @@ exports.unlinkApp = unlinkApp;
  **/
 function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
   console.log("Request handler 'moveToDesktopSingle' was called.");
-  desktopConf.moveToDesktopSingle(sFilePath, moveToDesktopSingleCb);
+  desktopConf.moveToDesktopSingle(sFilePath)
+    .then(function() {
+      moveToDesktopSingleCb();
+    })
+    .fail(function(err) {
+      moveToDesktopSingleCb(err);
+    });
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
