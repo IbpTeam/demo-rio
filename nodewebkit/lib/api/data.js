@@ -1116,7 +1116,13 @@ exports.moveToDesktop = moveToDesktop;
  **/
 function removeFileFromDB(removeFileFromDBCb, sFilePath) {
   console.log("Request handler 'removeFileFromDB' was called.");
-  desktopConf.removeFileFromDB(sFilePath, removeFileFromDBCb);
+  desktopConf.removeFileFromDB(sFilePath)
+    .then(function() {
+      removeFileFromDBCb();
+    })
+    .fail(function(err) {
+      removeFileFromDBCb(err);
+    });
 }
 exports.removeFileFromDB = removeFileFromDB;
 

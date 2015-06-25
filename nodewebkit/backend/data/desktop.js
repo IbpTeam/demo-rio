@@ -1426,57 +1426,10 @@ function setDesktopTag(filepath) {
  *
  **/
 function moveToDesktop(oFilePath, callback) {
-  var count = 0;
-  var lens = oFilePath.length;
-  var resultFiles = [];
-  for (var i = 0; i < lens; i++) {
-    var item = oFilePath[i];
-    (function(_filePath) {
-      moveToDesktopSingle(_filePath, function(err, result) {
-        if (err) {
-          console.log(err);
-          return callback(err, null);
-        }
-        resultFiles.push(result);
-        var isEnd = (count === lens - 1);
-        if (isEnd) {
-          callback(null, resultFiles);
-        }
-        count++;
-      })
-    })(item);
-  };
+  /*TODO:rewrite*/
 }
 exports.moveToDesktop = moveToDesktop;
 
-function doCreateData(sFilePath, category, callback) {
-  var cate = utils.getCategoryObject(category);
-  cate.createData(sFilePath, function(err, resultFile) {
-    if (err) {
-      console.log(err, resultFile);
-      return callback(err, null);
-    }
-    var sCondition = ["path = '" + resultFile + "'"];
-    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-      if (err) {
-        var _err = "Error: find " + sFilePath + " in db error!";
-        return callback(_err, null);
-      }
-      var item = result[0];
-
-      function setTagsCb(err) {
-        if (err) {
-          var _err = 'Error: set tags error!';
-          console.log(_err);
-          return callback(err, null);
-        }
-        callback(null, resultFile);
-      }
-      var sUri = item.URI;
-      tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
-    })
-  });
-}
 
 /** 
  * @Method: removeFileFromDB
@@ -1497,48 +1450,15 @@ function doCreateData(sFilePath, category, callback) {
  *        string, retrieve 'success' when success.
  *
  **/
-function removeFileFromDB(sFilePath, callback) {
-  var category = utils.getCategoryByPath(sFilePath).category;
-  var cate = utils.getCategoryObject(category);
-  var sCondition = ["path = '" + sFilePath + "'"];
-  commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-    if (err) {
-      console.log(err);
-      return callback(err, null);
-    } else if (result == [] || result == '') {
-      var _err = 'file ' + sFilePath + ' not found in db!';
-      console.log(_err);
-      return callback(_err, null);
-    }
-    var sUri = result[0].URI;
-    var sFullName = result[0].filename + result[0].postfix;
-    cate.removeByUri(sUri, function(err, result) {
-      if (err) {
-        console.log('removeByUri error', err);
-        return callback(err, null);
-      }
-      tagsHandle.rmInTAGS(null, sUri, function(err) {
-        if (err) {
-          return callback(err, null);
-        }
-        var dataDir = utils.getRealDir(category);
-        var desDataDir = pathModule.join(utils.getDesDir(category), sFullName + '.md');
-        fs_extra.ensureDir(dataDir, function(err) {
-          if (err) {
-            console.log(err, 'ensureDir error!');
-            return callback(err, null);
-          }
-          fs_extra.ensureDir(desDataDir, function(err) {
-            if (err) {
-              console.log(err, 'ensureDir error!');
-              return callback(err, null);
-            }
-          })
-          callback(null, 'success');
-        })
-      })
-    })
-  })
+function removeFileFromDB(sFilePath) {
+  var _full_name = pathModule.basename(sFilePath);
+  var _name = _full_name.substring(0, _full_name.lastIndexOf('.'));
+  var _option = {
+    _type: "base",
+    _property: "filename",
+    _value: _name
+  }
+  return commonHandle.removeItemByProperty(_option);
 }
 exports.removeFileFromDB = removeFileFromDB;
 
