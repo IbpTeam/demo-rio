@@ -31,11 +31,15 @@ var Q = require('q');
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  /*TODO: rewrite*/
-  return loadFileCb();
+  commonHandle.createData([sFilePath])
+    .then(function() {
+      loadFileCb();
+    })
+    .fail(function(err) {
+      loadFileCb(err);
+    })
 }
 exports.loadFile = loadFile;
-
 
 /**
  * @method loadResources
@@ -103,7 +107,7 @@ function loadResources(loadResourcesCb, path) {
       walk(path);
       //do createData()
     })
-    .then(function(){
+    .then(function() {
       return commonHandle.createData(_file_list_mix);
     })
     .then(function(result) {
@@ -241,16 +245,16 @@ exports.getAllContacts = getAllContacts;
 //失败返回失败原因
 function rmDataByUri(rmDataByUriCb, uri) {
   console.log("Request handler 'rmDataByUri' was called.");
-    var _options = {
+  var _options = {
     _type: "base",
     _property: "URI",
     _value: uri
   }
   commonHandle.removeItemByProperty(_options)
-    .then(function(result){
-      rmDataByUriCb(null,result);
+    .then(function(result) {
+      rmDataByUriCb(null, result);
     })
-    .fail(function(err){
+    .fail(function(err) {
       rmDataByUriCb(err);
     })
     .done();
@@ -267,10 +271,10 @@ function getDataByUri(getDataByUriCb, uri) {
     _value: uri
   }
   commonHandle.getItemByProperty(_options)
-    .then(function(result){
+    .then(function(result) {
       getDataByUriCb(null, result);
     })
-    .fail(function(err){
+    .fail(function(err) {
       getDataByUriCb(err);
     })
     .done();
@@ -287,10 +291,10 @@ function getDataByPath(getDataByPathCb, sPath) {
     _value: sPath
   }
   commonHandle.getItemByProperty(_options)
-    .then(function(result){
+    .then(function(result) {
       getDataByPathCb(null, result);
     })
-    .fail(function(err){
+    .fail(function(err) {
       getDataByPathCb(err);
     })
     .done();
@@ -324,10 +328,10 @@ exports.getDataByPath = getDataByPath;
 function getDataByProperty(getDataByUriCb, options) {
   console.log("Request handler 'getDataByUri' was called.");
   commonHandle.getItemByProperty(options)
-    .then(function(items){
-      getDataByUriCb(null,items);
+    .then(function(items) {
+      getDataByUriCb(null, items);
     })
-    .fail(function(err){
+    .fail(function(err) {
       getDataByUriCb(err);
     })
     .done();
@@ -371,7 +375,7 @@ function openDataByUri(openDataByUriCb, uri) {
     _property: "URI",
     _value: uri
   }
-  var dataMaker = function(result){
+  var dataMaker = function(result) {
     var cate = utils.getCategoryObject(result[0].category);
     var _source = cate.getOpenInfo(result[0]);
     if (_source.format === "html5ppt") {
@@ -385,12 +389,12 @@ function openDataByUri(openDataByUriCb, uri) {
   }
   return commonHandle.getItemByProperty(_options)
     .then(dataMaker)
-    .then(function(){
+    .then(function() {
       commonHandle.openData(_options, uri);
     })
-    .fail(function(err){
-        openDataByUriCb(err);
-      })
+    .fail(function(err) {
+      openDataByUriCb(err);
+    })
     .done();
 }
 exports.openDataByUri = openDataByUri;
@@ -403,10 +407,10 @@ exports.openDataByUri = openDataByUri;
 function updateDataValue(updateDataValueCb, item, uri) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
-    .then(function(result){
+    .then(function(result) {
       updateDataValueCb(null, result);
     })
-    .fail(function(err){
+    .fail(function(err) {
       updateDataValueCb(err);
     })
     .done();
@@ -418,11 +422,11 @@ exports.updateDataValue = updateDataValue;
 //返回具体数据类型对象数组
 function getRecentAccessData(getRecentAccessDataCb, category, num) {
   console.log("Request handler 'getRecentAccessData' was called.");
-  commonHandle.getRecentAccessData(category,num)
-    .then(function(result){
+  commonHandle.getRecentAccessData(category, num)
+    .then(function(result) {
       getRecentAccessDataCb(null, result);
     })
-    .fail(function(err){
+    .fail(function(err) {
       console.log(err);
       getRecentAccessDataCb(err);
     })
@@ -558,13 +562,13 @@ exports.getResourceDataDir = getResourceDataDir;
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
   tagsHandle.getAllTagsByCategory(category)
-      .then(function(results) {
-        getAllTagsByCategoryCb(null,results);
-      })
-      .fail(function(err) {
-        getAllTagsByCategoryCb(err);
-      })
-      .done();
+    .then(function(results) {
+      getAllTagsByCategoryCb(null, results);
+    })
+    .fail(function(err) {
+      getAllTagsByCategoryCb(err);
+    })
+    .done();
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
@@ -582,13 +586,13 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
 function getTagsByUri(getTagsByUriCb, sUri) {
   console.log("Request handler 'getTagsByUri' was called.");
   tagsHandle.getTagsByUri(sUri)
-      .then(function(results) {
-        getTagsByUriCb(null,results);
-      })
-      .fail(function(err) {
-        getTagsByUriCb(err);
-      })
-      .done();
+    .then(function(results) {
+      getTagsByUriCb(null, results);
+    })
+    .fail(function(err) {
+      getTagsByUriCb(err);
+    })
+    .done();
 }
 exports.getTagsByUri = getTagsByUri;
 
@@ -646,9 +650,9 @@ exports.getTagsByUris = getTagsByUris;
  */
 function setTagByUri(setTagByUriCb, oTags, sUri) {
   console.log("Request handler 'setTagByUri' was called.");
-  tagsHandle.setTagByUri(oTags,sUri)
+  tagsHandle.setTagByUri(oTags, sUri)
     .then(function(results) {
-      setTagByUriCb(null,results);
+      setTagByUriCb(null, results);
     })
     .fail(function(err) {
       setTagByUriCb(err);
@@ -700,9 +704,9 @@ exports.getFilesByTags = getFilesByTags;
  */
 function getFilesByTagsInCategory(getFilesByTagsInCategoryCb, category, oTags) {
   console.log("Request handler 'getFilesByTagsInCategory' was called.");
-  tagsHandle.getFilesByTagsInCategory(category,oTags)
+  tagsHandle.getFilesByTagsInCategory(category, oTags)
     .then(function(results) {
-      getFilesByTagsInCategoryCb(null,results);
+      getFilesByTagsInCategoryCb(null, results);
     })
     .fail(function(err) {
       getFilesByTagsInCategoryCb(err);
@@ -729,13 +733,13 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
 function rmTagAll(rmTagAllCb, oTags, category) {
   console.log("Request handler 'rmTagAll' was called.");
   tagsHandle.rmTagAll(oTags, category)
-  .then(function(results) {
-    rmTagAllCb(null,results);
-  })
-  .fail(function(err) {
-    rmTagAllCb(err);
-  })
-  .done();
+    .then(function(results) {
+      rmTagAllCb(null, results);
+    })
+    .fail(function(err) {
+      rmTagAllCb(err);
+    })
+    .done();
 }
 exports.rmTagAll = rmTagAll;
 
@@ -756,9 +760,9 @@ exports.rmTagAll = rmTagAll;
  */
 function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
   console.log("Request handler 'rmTagsByUri' was called.");
-  tagsHandle.rmTagsByUri(sTag,oUri)
+  tagsHandle.rmTagsByUri(sTag, oUri)
     .then(function(results) {
-      rmTagsByUriCb(null,results);
+      rmTagsByUriCb(null, results);
     })
     .fail(function(err) {
       rmTagsByUriCb(err);
@@ -769,7 +773,13 @@ exports.rmTagsByUri = rmTagsByUri;
 
 function initDesktop(initDesktopCb) {
   console.log("Request handler 'initDesktop' was called.");
-  desktopConf.initDesktop(initDesktopCb);
+  desktopConf.initDesktop()
+    .then(function() {
+      initDesktopCb();
+    })
+    .fail(function(err) {
+      initDesktopCb(err);
+    })
 }
 exports.initDesktop = initDesktop;
 
@@ -797,7 +807,13 @@ exports.initDesktop = initDesktop;
  **/
 function getAllDesktopFile(getAllDesktopFileCb) {
   console.log("Request handler 'getAllDesktopFile' was called.");
-  desktopConf.getAllDesktopFile(getAllDesktopFileCb);
+  desktopConf.getAllDesktopFile()
+    .then(function(result_) {
+      getAllDesktopFileCb(result_);
+    })
+    .fail(function(err) {
+      getAllDesktopFileCb(null, err);
+    });
 }
 exports.getAllDesktopFile = getAllDesktopFile;
 
@@ -822,7 +838,13 @@ exports.getAllDesktopFile = getAllDesktopFile;
  **/
 function readDesktopConfig(readDesktopConfigCb, sFileName) {
   console.log("Request handler 'readDesktopConfig' was called.");
-  desktopConf.readDesktopConfig(sFileName, readDesktopConfigCb);
+  desktopConf.readDesktopConfig(sFileName)
+    .then(function(result) {
+      readDesktopConfigCb(result);
+    })
+    .fail(function(err) {
+      readDesktopConfigCb(null, err);
+    })
 }
 exports.readDesktopConfig = readDesktopConfig;
 
@@ -850,7 +872,13 @@ exports.readDesktopConfig = readDesktopConfig;
  **/
 function writeDesktopConfig(writeDesktopConfigCb, sFileName, oContent) {
   console.log("Request handler 'writeDesktopConfig' was called.");
-  desktopConf.writeDesktopConfig(sFileName, oContent, writeDesktopConfigCb);
+  desktopConf.writeDesktopConfig(sFileName, oContent)
+    .then(function(){
+      writeDesktopConfigCb();
+    })
+    .fail(function(err){
+      writeDesktopConfigCb(err);
+    })
 }
 exports.writeDesktopConfig = writeDesktopConfig;
 
@@ -942,7 +970,13 @@ exports.moveFile = moveFile;
  **/
 function renameDesktopFile(renameDesktopFileCb, oldName, newName) {
   console.log("Request handler 'renameDesktopFile' was called.");
-  desktopConf.renameDesktopFile(renameDesktopFileCb, oldName, newName);
+  desktopConf.renameDesktopFile(oldName, newName)
+    .then(function() {
+      renameDesktopFileCb();
+    })
+    .fail(function(err) {
+      renameDesktopFileCb(err);
+    })
 }
 exports.renameDesktopFile = renameDesktopFile;
 
@@ -967,7 +1001,13 @@ exports.renameDesktopFile = renameDesktopFile;
  **/
 function linkAppToDesktop(linkAppToDesktopCb, sApp, sType) {
   console.log("Request handler 'linkAppToDesktop' was called.");
-  desktopConf.linkAppToDesktop(sApp, sType, linkAppToDesktopCb);
+  desktopConf.linkAppToDesktop(sApp, sType)
+    .then(function() {
+      linkAppToDesktopCb();
+    })
+    .fail(function(err) {
+      linkAppToDesktopCb(err);
+    })
 }
 exports.linkAppToDesktop = linkAppToDesktop;
 
@@ -991,7 +1031,13 @@ exports.linkAppToDesktop = linkAppToDesktop;
  **/
 function unlinkApp(unlinkAppCb, sDir) {
   console.log("Request handler 'unlinkApp' was called.");
-  desktopConf.unlinkApp(sDir, unlinkAppCb);
+  desktopConf.unlinkApp(sDir)
+    .then(function() {
+      unlinkAppCb();
+    })
+    .fail(function(err) {
+      unlinkAppCb(err);
+    })
 }
 exports.unlinkApp = unlinkApp;
 
@@ -1362,21 +1408,21 @@ exports.test_rdfHandle = test_rdfHandle;
 function test_baseinfo(callback) {
   var config = require("../../backend/config");
   var element = {
-    HOMEFOLDER : path.join(config.HOME),
-    RESOURCEFOLDER : path.join(config.HOME, "resources")
+    HOMEFOLDER: path.join(config.HOME),
+    RESOURCEFOLDER: path.join(config.HOME, "resources")
   }
   callback(element);
 }
 exports.test_baseinfo = test_baseinfo;
 
 
-function renameDataByUri(sUri, sNewName, renameDataByUriCb){
+function renameDataByUri(sUri, sNewName, renameDataByUriCb) {
   console.log("Request handler 'renameDataByUri' was called.");
-  commonHandle.renameDataByUri( sUri, sNewName)
-    .then(function(result){
-      renameDataByUriCb(null,result);
+  commonHandle.renameDataByUri(sUri, sNewName)
+    .then(function(result) {
+      renameDataByUriCb(null, result);
     })
-    .fail(function (err){
+    .fail(function(err) {
       renameDataByUriCb(err);
     })
     .done();
@@ -1394,3 +1440,14 @@ function test_typeHandle(callback) {
   callback(typeHandle);
 }
 exports.test_typeHandle = test_typeHandle;
+
+/** 
+ * @Method: test_typeHandle
+ *    just for testing typeHandle
+ *
+ **/
+function test_desktop(callback) {
+  var desktop = require("../../backend/data/desktop");
+  callback(desktop);
+}
+exports.test_desktop = test_desktop;

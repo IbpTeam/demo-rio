@@ -5,6 +5,7 @@ var pathModule = require('path');
 var config = require('../config.js');
 var rdfHandle = require('./rdfHandle');
 var typejsGenerator = require('./typejsGenerator');
+var promised = require('./promisedFunc')
 var path = require("path");
 var Q = require('q');
 
@@ -12,12 +13,6 @@ var Q = require('q');
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
 var DATAJSDIR = config.DATAJSDIR;
-
-
-//some promised method
-var Q_read_dir = Q.nbind(fs.readdir);
-var Q_read_file = Q.nbind(fs.readFile);
-var Q_write_file = Q.nbind(fs.writeFile);
 
 
 /**
@@ -66,7 +61,7 @@ function getDefinedTypeProperty() {
     }
     return _property;
   }
-  return Q_read_dir(TYPEFILEDIR)
+  return promised.read_dir(TYPEFILEDIR)
     .then(function(file_list_) {
       return refreshConfFile()
         .then(function() {
@@ -197,7 +192,7 @@ exports.test_getTypeNameByPostfix = test_getTypeNameByPostfix;
  *
  */
 function readFile(path) {
-  return Q_read_file(path)
+  return promised.read_file(path)
     .then(function(content_) {
       return JSON.parse(content_);
     });
@@ -211,7 +206,7 @@ function readFile(path) {
 function refreshConfFile() {
   var _combination = [];
   var _property = {};
-  return Q_read_dir(TYPEFILEDIR)
+  return promised.read_dir(TYPEFILEDIR)
     .then(function(file_list_) {
       for (var i = 0, l = file_list_.length; i < l; i++) {
         var _file_path = pathModule.join(TYPEFILEDIR, file_list_[i]);
@@ -231,7 +226,7 @@ function refreshConfFile() {
             property: _property,
             postfix: _postfix
           }
-          return Q_write_file(TYPECONFPATH, JSON.stringify(_type_info, null, 2));
+          return promised.write_file(TYPECONFPATH, JSON.stringify(_type_info, null, 2));
         });
     });
 }
@@ -298,52 +293,52 @@ exports.methodGenerator = methodGenerator;
  *
  *
  */
-function typeFileGenerator(typeName, propertyArr, profixArr){
+function typeFileGenerator(typeName, propertyArr, profixArr) {
   var _type_name = typeName.toString();
-  if(propertyArr.length == 0 || propertyArr === null)
+  if (propertyArr.length == 0 || propertyArr === null)
     throw new Error("[typeFileGenerator]No Property!");
-  if(profixArr.length == 0 || profixArr === null)
+  if (profixArr.length == 0 || profixArr === null)
     throw new Error("[typeFileGenerator]No profix!");
   var tab = "  ";
-  var newLine ="\n";
+  var newLine = "\n";
   var tmpArr = new Array();
   propertyArr = proertyModify(propertyArr);
   profixArr = profixModify(profixArr);
   var propertyHead = tab + "\"property\": {" + newLine;
   var propertyTail = tab + "}";
-  var propertyOutputString = stringmaker(propertyHead,propertyArr,propertyTail);
+  var propertyOutputString = stringmaker(propertyHead, propertyArr, propertyTail);
   var profixHead = tab + "\"postfix\": {" + newLine;
   var profixTail = tab + "}";
   var profixOutputString = stringmaker(profixHead, profixArr, profixTail);
-  var outputString = "{" + newLine 
-                     + propertyOutputString +"," + newLine 
-                     + profixOutputString+ newLine 
-                     + "}";
-  var _file_name = path.join(TYPEFILEDIR,typeName+".type");
+  var outputString = "{" + newLine + propertyOutputString + "," + newLine + profixOutputString + newLine + "}";
+  var _file_name = path.join(TYPEFILEDIR, typeName + ".type");
+
   function proertyModify(arr) {
     var tmpArr = new Array();
     for (var i in arr) {
       var ele = arr[i];
       var tmp = "\"" + ele + "\": \"http: //example.org/property/" + _type_name + "#" + ele + "\"";
-      if(i != arr.length -1)
-        tmp +=",";
+      if (i != arr.length - 1)
+        tmp += ",";
       tmpArr.push(tmp);
     }
     return tmpArr;
   }
+
   function profixModify(arr) {
     var tmpArr = new Array();
     for (var i in arr) {
       var ele = arr[i];
-      var tmp = "\"" + ele + "\": \""+ _type_name +"\"";
-      if(i != arr.length -1)
-        tmp +=",";
+      var tmp = "\"" + ele + "\": \"" + _type_name + "\"";
+      if (i != arr.length - 1)
+        tmp += ",";
       tmpArr.push(tmp);
 
     }
     return tmpArr;
   }
-  function stringmaker(head,arr,tail) {
+
+  function stringmaker(head, arr, tail) {
     var tmpString = head;
     for (var key in arr) {
       var ele = arr[key];
@@ -352,7 +347,7 @@ function typeFileGenerator(typeName, propertyArr, profixArr){
     tmpString += tail;
     return tmpString;
   }
-  return Q_write_file(_file_name, outputString);
+  return promised.write_file(_file_name, outputString);
 }
 exports.typeFileGenerator = typeFileGenerator;
 
@@ -379,7 +374,7 @@ function typeRegister(info) {
     .then(function() {
       return refreshConfFile();
     })
-    .then(function(){
+    .then(function() {
       rdfHandle.refreshTypeInfo();
     });
 }
@@ -447,7 +442,7 @@ function postfixRegister(info) {
           }
           var type_info_str_ = JSON.stringify(type_info_, null, 4);
           //re-write the type file
-          return Q_write_file(_type_file_path, type_info_str_);
+          return promised.write_file(_type_file_path, type_info_str_);
         });
     })
     //refresh typeDefine.conf

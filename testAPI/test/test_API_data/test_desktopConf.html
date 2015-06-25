@@ -45,6 +45,17 @@
     }
   }
 
+  function cb(err, result) {
+    var win = window.open('');
+    if (err) {
+      print(win, err);
+    } else {
+      win.document.write("callback result: ");
+      win.document.write("<br/>");
+      print(win, result)
+    };
+  }
+
   function initDesktopCb(err, result) {
     var win = window.open('');
     if (err) {
@@ -63,40 +74,13 @@
     });
   }
 
-  function readThemeConfCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-
-      win.document.write("test API readThemeConf()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_readThemeConf(readThemeConfCb) {
+  function test_readThemeConf() {
     WDC.requireAPI(['data'], function(data) {
-      data.readDesktopConfig(readThemeConfCb,'Theme.conf');
+      data.readDesktopConfig(cb,'Theme.conf');
     });
   }
 
-  function writeThemeConfCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      
-      win.document.write("test API writeThemeConf()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-
-  function test_writeThemeConf(writeThemeConfCb) {
+  function test_writeThemeConf() {
     WDC.requireAPI(['data'], function(data) {
       var oTheme = {
         tast: "good",
@@ -105,26 +89,13 @@
         test: "object_tesdast",
         modify: 1
       }
-      data.writeDesktopConfig(writeThemeConfCb,'Theme.conf',oTheme);
+      data.writeDesktopConfig(cb, 'Theme.conf',oTheme);
     });
   }
 
-  function readWidgetConfCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      
-      win.document.write("test API readWidgetConf()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_readWidgetConf(readWidgetConfCb) {
+  function test_readWidgetConf() {
     WDC.requireAPI(['data'], function(data) {
-    data.readDesktopConfig(readWidgetConfCb,"Widget.conf");
+    data.readDesktopConfig(cb,"Widget.conf");
     });
   }
 
@@ -155,23 +126,10 @@
     });
   }
 
-  function readDesktopFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win,err);
-    } else {
-      win.document.write("test API readDesktopFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-
-  function test_readDesktopFile(readDesktopFileCb) {
+  function test_readDesktopFile() {
     WDC.requireAPI(['data'], function(data) {
-      var sFileName = 'tomboy.desktop';
-      data.readDesktopConfig(readDesktopFileCb, sFileName);
+      var sFileName = 'totem.desktop';
+      data.readDesktopConfig(cb, sFileName);
     });
   }
 
@@ -309,21 +267,9 @@
     });
   }
 
-  function getAllDesktopFileCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getAllDesktopFile()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_getAllDesktopFile(getAllDesktopFileCb) {
+  function test_getAllDesktopFile() {
     WDC.requireAPI(['data'], function(data) {
-      data.getAllDesktopFile(getAllDesktopFileCb);
+      data.getAllDesktopFile(cb);
     });
   }
 
@@ -579,6 +525,17 @@
     });
   }
 
+  function test_findAllDesktopFiles(){
+        WDC.requireAPI(['data'], function(data) {
+      data.test_desktop(function(desktop){
+        desktop.findAllDesktopFiles()
+        .then(cb)
+        .fail(cb)
+        .done();
+      })
+    });
+  }
+
   </script>
 
 <h2 onclick="show('initDesktop')">initDesktop(initDesktopCb)<span><a class="mark" href="#test_initDesktop" id="test_initDesktop" onclick="test_initDesktop(initDesktopCb)">test</a></span></h2>
@@ -616,7 +573,7 @@
 </div>
 </div>
 
-<h2 onclick="show('readThemeCon')">readThemeCon(readThemeConfCb)<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf(readThemeConfCb)">test</a></span></h2>
+<h2 onclick="show('readThemeCon')">readThemeCon()<span><a class="mark" href="#test_readThemeConf" id="test_readThemeConf" onclick="test_readThemeConf()">test</a></span></h2>
 <div id="readThemeCon" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -650,7 +607,7 @@
 </div>
 </div>
 
-<h2 onclick="show('writeThemeConf')">writeThemeConf(writeThemeConfCb)<span><a class="mark" href="#test_writeThemeConf" id="test_writeThemeConf" onclick="test_writeThemeConf(writeThemeConfCb)">test</a></span></h2>
+<h2 onclick="show('writeThemeConf')">writeThemeConf()<span><a class="mark" href="#test_writeThemeConf" id="test_writeThemeConf" onclick="test_writeThemeConf()">test</a></span></h2>
 <div id="writeThemeConf" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -685,7 +642,7 @@
 </div>
 
 
-<h2 onclick="show('readWidgetConf')">readWidgetConf(readWidgetConfCb)<span><a class="mark" href="#test_readWidgetConf" id="test_readWidgetConf" onclick="test_readWidgetConf(readWidgetConfCb)">test</a></span></h2>
+<h2 onclick="show('readWidgetConf')">readWidgetConf()<span><a class="mark" href="#test_readWidgetConf" id="test_readWidgetConf" onclick="test_readWidgetConf()">test</a></span></h2>
 <div id="readWidgetConf" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -753,7 +710,7 @@
 </div>
 </div>
 
-<h2 onclick="show('readDesktopFile')">readDesktopFile(readDesktopFileCb)<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile(readDesktopFileCb)">test</a></span></h2>
+<h2 onclick="show('readDesktopFile')">readDesktopFile()<span><a class="mark" href="#test_readDesktopFile" id="test_readDesktopFile" onclick="test_readDesktopFile()">test</a></span></h2>
 <div id="readDesktopFile" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -762,29 +719,6 @@
  
   @param: callback
      result as a json object
-</div>
-<div style="color:#004B97">
-  <pre>
-  具体实现：<br>
-  function readDesktopFileCb(err,result){
-    if(err){
-      print(err);
-    }else{
-    var win = window.open('');
-    win.document.write("test API readDesktopFile()");
-    win.document.write("<br/>");
-    win.document.write("callback result: ");
-    win.document.write("<br/>");
-    print(win,result)
-  };
-  }
-  function test_readDesktopFile(readDesktopFileCb){
-    WDC.requireAPI(['data'], function(data){
-      var fileName = 'cinnamon.desktop';
-      data.readDesktopFile(readDesktopFileCb,fileName);
-    });
-  }    
-</pre>
 </div>
 </div>
 
@@ -949,7 +883,7 @@
 </div>
 </div>
 
-<h2 onclick="show('getAllDesktopFile')">getAllDesktopFile(getAllDesktopFileCb)<span><a class="mark" href="#test_getAllDesktopFile" id="test_getAllDesktopFile" onclick="test_getAllDesktopFile(getAllDesktopFileCb)">test</a></span></h2>
+<h2 onclick="show('getAllDesktopFile')">getAllDesktopFile()<span><a class="mark" href="#test_getAllDesktopFile" id="test_getAllDesktopFile" onclick="test_getAllDesktopFile()">test</a></span></h2>
 <div id="getAllDesktopFile" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -1363,6 +1297,10 @@
   }
 </pre>
 </div>
+</div>
+
+<h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(cb)">test</a></span></h2>
+<div id="findAllDesktopFiles" style="display:none;">
 </div>
 
 </body>
