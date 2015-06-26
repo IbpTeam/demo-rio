@@ -19,3 +19,5 @@ exports.unlink = Q.nbind(fs.unlink);
 exports.ensure_dir = Q.nbind(fs_extra.ensureDir);
 exports.output_file = Q.nbind(fs_extra.outputFile);
 exports.copy = Q.nbind(fs_extra.copy);
+exports.ensureFile = Q.nbind(fs_extra.ensureFile);
+exports.remove = Q.nbind(fs_extra.remove);

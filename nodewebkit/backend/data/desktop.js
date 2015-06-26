@@ -1979,66 +1979,20 @@ function getIconPathWithTheme(iconName_, size_, themeName_, callback) {
  *        object, file info of the new file, as [filePath, stats.ino].
  *
  **/
-function createFile(sContent, callback) {
+function createFile(sContent) {
   var date = new Date();
   var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
-  exec("touch " + desPath, function(err, stdout, stderr) {
-    if (err) {
-      console.log(err, stdout, stderr);
-      return callback(err);
-    }
-    if (sContent == '' || sContent == null) {
-      sContent = '';
-    }
-    fs.writeFile(desPath, sContent, function(err) {
-      if (err) {
-        return callback(err);
-      }
-      var cate = utils.getCategoryObject('document');
-      cate.createData(desPath, function(err, resultFile) {
-        if (err) {
-          console.log(err, stdout, stderr);
-          return callback(err);
-        }
-        exec("rm " + desPath, function(err, stdout, stderr) {
-          if (err) {
-            console.log(err, stdout, stderr);
-            return callback(err);
-          }
-          console.log(resultFile);
-          var sCondition = ["path = '" + resultFile + "'"];
-          commonDAO.findItems(['uri'], ['document'], sCondition, null, function(err, result) {
-            if (err) {
-              var _err = "Error: find " + resultFile + " in db error!";
-              return callback(_err, null);
-            } else if (result == '' || result == []) {
-              var _err = "Error: not find " + resultFile + " in db!";
-              return callback(_err, null);
-            }
-
-            function setTagsCb(err) {
-              if (err) {
-                var _err = 'Error: set tags error!';
-                return callback(err, null);
-              }
-              fs.stat(resultFile, function(err, stats) {
-                if (err) {
-                  return callback(err, null);
-                }
-                var result = [resultFile, stats.ino];
-                callback(null, result);
-              })
-            }
-            var sUri = result[0].URI;
-            tagsHandle.setTagByUri(setTagsCb, ['$desktop$'], sUri);
-          });
-        });
-      });
+  return promised.write_file(desPath,sContent)
+    .then(function(){
+      return commonHandle.createData([desPath]);
+    })
+    .then(function(){
+      return promised.remove(desPath);
     });
-  });
 }
 exports.createFile = createFile;
+
 
 /** 
  * @Method: rename

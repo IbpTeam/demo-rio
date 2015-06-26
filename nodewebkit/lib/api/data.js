@@ -1218,7 +1218,13 @@ exports.getAllMusic = getAllMusic;
  **/
 function createFileOnDesk(createFileOnDeskCb, sContent) {
   console.log("Request handler 'createFileOnDesk' was called.");
-  desktopConf.createFile(sContent, createFileOnDeskCb);
+  desktopConf.createFile(sContent)
+    .then(function() {
+      createFileOnDeskCb();
+    })
+    .fail(function(err) {
+      createFileOnDeskCb(err);
+    });
 }
 exports.createFileOnDesk = createFileOnDesk;
 
