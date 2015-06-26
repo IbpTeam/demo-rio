@@ -452,23 +452,11 @@
     });
   }
 
-  function renameFileOnDeskCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API renameFileOnDesk()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
   function test_renameFileOnDesk(renameFileOnDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldName = 'testJSON.txt';
-      var newName = 'test_rename.txt';
-      data.renameFileOnDesk(renameFileOnDeskCb, oldName, newName);
+      var oldName = 'city5.jpg';
+      var newName = 'test_renamaaaaae.jpg';
+      data.renameFileOnDesk(cb, oldName, newName);
     });
   }
 
@@ -1190,7 +1178,7 @@
 </div>
 </div>
 
-<h2 onclick="show('renameFileOnDesk')">renameFileOnDesk(renameFileOnDeskCb, oldName, newName)<span><a class="mark" href="#test_renameFileOnDesk" id="test_renameFileOnDesk" onclick="test_renameFileOnDesk(renameFileOnDeskCb)">test</a></span></h2>
+<h2 onclick="show('renameFileOnDesk')">renameFileOnDesk(, oldName, newName)<span><a class="mark" href="#test_renameFileOnDesk" id="test_renameFileOnDesk" onclick="test_renameFileOnDesk()">test</a></span></h2>
 <div id="renameFileOnDesk" style="display:none;">
 <div style="color:#930000">
   <pre>

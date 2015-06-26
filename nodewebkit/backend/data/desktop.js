@@ -1983,11 +1983,11 @@ function createFile(sContent) {
   var date = new Date();
   var filename = 'newFile_' + date.toLocaleString().replace(' ', '_') + '.txt';
   var desPath = '/tmp/' + filename;
-  return promised.write_file(desPath,sContent)
-    .then(function(){
+  return promised.write_file(desPath, sContent)
+    .then(function() {
       return commonHandle.createData([desPath]);
     })
-    .then(function(){
+    .then(function() {
       return promised.remove(desPath);
     });
 }
@@ -2016,36 +2016,48 @@ exports.createFile = createFile;
  *                se, return 'success'.
  *
  **/
-function rename(oldName, newName, callback) {
+// function rename(oldName, newName, callback) {
+//   if (newName === oldName) {
+//     return callback(null, 'success');
+//   }
+//   var category = utils.getCategoryByPath('test/' + oldName).category;
+//   var oldPath = pathModule.join(utils.getRealDir(category), oldName);
+//   var newPath = pathModule.join(utils.getRealDir(category), newName);
+//   utils.isNameExists(newPath, function(err, result) {
+//     if (err) {
+//       return callback(err, null);
+//     } else if (result) {
+//       return callback(null, 'EXIST');
+//     }
+//     var sCondition = ["path = '" + oldPath + "'"];
+//     commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
+//       if (err) {
+//         var _err = "Error: find " + oldPath + " in db error!";
+//         return callback(_err, null);
+//       } else if (result == '' || result == []) {
+//         var _err = "Error: not find " + oldPath + " in db!";
+//         return callback(_err, null);
+//       }
+//       var sUri = result[0].URI;
+//       commonHandle.renameDataByUri(category, sUri, newName, function(err, result) {
+//         if (err) {
+//           return callback(err, null);
+//         }
+//         callback(null, result);
+//       });
+//     });
+//   });
+// }
+// exports.rename = rename;
+
+function rename(oldName, newName) {
   if (newName === oldName) {
     return callback(null, 'success');
   }
-  var category = utils.getCategoryByPath('test/' + oldName).category;
-  var oldPath = pathModule.join(utils.getRealDir(category), oldName);
-  var newPath = pathModule.join(utils.getRealDir(category), newName);
-  utils.isNameExists(newPath, function(err, result) {
-    if (err) {
-      return callback(err, null);
-    } else if (result) {
-      return callback(null, 'EXIST');
-    }
-    var sCondition = ["path = '" + oldPath + "'"];
-    commonDAO.findItems(null, [category], sCondition, null, function(err, result) {
-      if (err) {
-        var _err = "Error: find " + oldPath + " in db error!";
-        return callback(_err, null);
-      } else if (result == '' || result == []) {
-        var _err = "Error: not find " + oldPath + " in db!";
-        return callback(_err, null);
-      }
-      var sUri = result[0].URI;
-      commonHandle.renameDataByUri(category, sUri, newName, function(err, result) {
-        if (err) {
-          return callback(err, null);
-        }
-        callback(null, result);
-      });
-    });
-  });
+  /*TODO:need check exist name in database*/
+  return commonHandle.getItemByProperty(_option)
+    .then(function(file_info_) {
+      return commonHandle.renameDataByUri(file_info_.uri, newName);
+    })
 }
 exports.rename = rename;
