@@ -497,6 +497,19 @@ var Contact = Class.extend({
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
       _contactJson['category'] = 'contact';
+      var _info = {
+        _uri: contact._tagView._uri,
+        _changes: [{
+          _property: "photoPath",
+          _value: _path
+        }, {
+          _property: "lastModifyDev",
+          _value: (new Date()).toString()
+        }, {
+          _property: "lastAccessTime",
+          _value: (new Date()).toString()
+        }]
+      }
       DataAPI.updateDataValue(function(err){
         if(err){
           alert('Saved failed!');
@@ -505,7 +518,7 @@ var Contact = Class.extend({
           contact.removeHead();
           contact.setHead(_contactJson);
         }
-      },[_contactJson]);
+      },_info);
     }
   },
   dragover:function(ev){

@@ -12,11 +12,12 @@
 var path = require('path');
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
-var config = require("../config");
+var config = require('systemconfig');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require("./tagsHandle");
 var rdfHandle = require("./rdfHandle");
 var typeHandle = require("./typeHandle");
+var promised = require('./promisedFunc');
 var Q = require('q');
 
 //let Q trace long stack
@@ -497,11 +498,7 @@ exports.openData = function(uri) {
  *
  **/
 function renameDataByUri(sUri, sNewName) {
-  var _options = {
-    _type: "base",
-    _property: "URI",
-    _value: sUri
-  }
+
   var reName = function(Item) {
     if (Item === null) {
       throw new Error("Items do not exists!");
@@ -520,25 +517,38 @@ function renameDataByUri(sUri, sNewName) {
       throw new Error("NOPostfix");
     }
     var newPath = filepath.substr(0, filepath.lastIndexOf('/')) + '/' + sNewName + "." + postfix;
-    var _changeItem = {
-      _uri: sUri,
-      _changes: [{
-        _property: "filename",
-        _value: sNewName
-      }, {
-        _property: "path",
-        _value: newPath
-      }, {
-        _property: "lastModifyTime",
-        _value: (new Date()).toString()
-      }]
-    }
-    var Q_fsRaname = Q.nfbind(fs.rename);
-    return Q_fsRaname(filepath, newPath)
-      .then(updatePropertyValue(_changeItem));
+    return {
+      _newpath: newPath,
+      _oldpath: filepath
+    };
+  }
+
+  var _options = {
+    _type: "base",
+    _property: "URI",
+    _value: sUri
   }
   return getItemByProperty(_options)
-    .then(reName);
+    .then(reName)
+    .then(function(result_) {
+      var _changeItem = {
+        _uri: sUri,
+        _changes: [{
+          _property: "filename",
+          _value: sNewName
+        }, {
+          _property: "path",
+          _value: result_._newpath
+        }, {
+          _property: "lastModifyTime",
+          _value: (new Date()).toString()
+        }]
+      }
+      return updatePropertyValue(_changeItem)
+        .then(function() {
+          return promised.rename(result_._oldpath, result_._newpath);
+        });
+    })
 }
 exports.renameDataByUri = renameDataByUri;
 

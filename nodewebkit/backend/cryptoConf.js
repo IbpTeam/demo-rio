@@ -1,5 +1,5 @@
 var path = require('path');
-var config = require("./config");
+var config = require('systemconfig');
 /**
  * 产生公私钥的默认路径
  *  数据同步与即时通信共用私钥路径 prikeypath

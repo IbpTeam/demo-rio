@@ -3,7 +3,7 @@ var url = require("url");
 var sys = require('sys');
 var path = require('path');
 var fs = require('fs');
-var config = require('./config');
+var config = require('systemconfig');
 var appManager = require('./app/appManager');
 
 var mimeTypes = {

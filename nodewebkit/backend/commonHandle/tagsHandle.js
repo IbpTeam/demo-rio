@@ -1,6 +1,6 @@
 var pathModule = require('path');
 var fs = require('fs');
-var config = require("../config");
+var config = require('systemconfig');
 var commonHandle = require("./commonHandle");
 var rdfHandle = require("./rdfHandle");
 var utils = require("../utils");
@@ -302,53 +302,6 @@ function setTagByUri(tags, uri) {
 }
 exports.setTagByUri = setTagByUri;
 
-function setTagByProperty(tags, option) {
-  var _db = rdfHandle.dbOpen();
-  var _query = [{
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP[option._type][option._property],
-    object: option._value
-  }, {
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"]["category"],
-    object: _db.v('category'),
-  }];
-  var queryTripleMaker = function(result){
-    if(result == ""){
-      throw Error("NOT FOUND IN DATABASE!");
-    }
-    var _subject = result[0].subject;
-    var _category = result[0].category;
-    var _query_add = [];
-    for (var i = 0, l = tags.length; i < l; i++) {
-      var _tag_url = 'http://example.org/tags#' + tags[i];
-      _query_add.push({
-        subject: _tag_url,
-        predicate: DEFINED_VOC.rdf._type,
-        object: DEFINED_PROP["base"]["tags"]
-      });
-      _query_add.push({
-        subject: _tag_url,
-        predicate: DEFINED_VOC.rdf._domain,
-        object: DEFINED_TYPE[_category]
-      });
-      _query_add.push({
-        subject: _subject,
-        predicate: DEFINED_PROP["base"]["tags"],
-        object: _tag_url
-      });
-    }
-    return _query_add;
-  }
-  
-  return rdfHandle.dbSearch(_db, _query)
-  .then(queryTripleMaker)
-  .then(function(result){
-      return rdfHandle.dbPut(_db, result);
-    });
-}
-exports.setTagByProperty = setTagByProperty;
-
 
 /**
  * @method rmTagsByUri
@@ -366,9 +319,6 @@ exports.setTagByProperty = setTagByProperty;
  *
  */
 function rmTagsByUri(tag, uri) {
-  if(typeof tag === "string"){
-    tag = [tag];
-  }
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -381,14 +331,11 @@ function rmTagsByUri(tag, uri) {
       throw Error("NOT FOUND IN DATABASE!");
     }
     var _subject = result[0].subject;
-    var _query_delete = [];
-    for (var i = 0, l = tag.length; i < l; i++) {
-      _query_delete.push({
-        subject: _subject,
-        predicate: DEFINED_PROP["base"]["tags"],
-        object: "http://example.org/tags#" + tag[i]
-      })
-    }
+    var _query_delete = [{
+      subject: _subject,
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: "http://example.org/tags#" + tag
+    }]
     return _query_delete;
   }
   
@@ -399,45 +346,6 @@ function rmTagsByUri(tag, uri) {
     });
 }
 exports.rmTagsByUri = rmTagsByUri;
-
-function rmTagsByProperty(tag, option) {
-  if (typeof tag === "string") {
-    tag = [tag];
-  }
-  var _db = rdfHandle.dbOpen();
-  var _query = [{
-    subject: _db.v('subject'),
-    predicate: DEFINED_PROP[option._type][option._property],
-    object: option._value
-  }];
-
-  var queryTripleMaker = function(result) {
-    if (result == "") {
-      throw Error("NOT FOUND IN DATABASE!");
-    }
-    var _subject = result[0].subject;
-    var _query_delete = [];
-    for (var i = 0, l = tag.length; i < l; i++) {
-      _query_delete.push({
-        subject: _subject,
-        predicate: DEFINED_PROP["base"]["tags"],
-        object: "http://example.org/tags#" + tag[i]
-      })
-    }
-    return _query_delete;
-  }
-
-  function deleteWraper(triple) {
-    return rdfHandle.dbDelete(_db, triple);
-  }
-
-  return rdfHandle.dbSearch(_db, _query)
-    .then(queryTripleMaker)
-    .then(function(result) {
-      return Q.all(result.map(deleteWraper));
-    });
-}
-exports.rmTagsByProperty = rmTagsByProperty;
 
 
 /**
@@ -549,56 +457,30 @@ function doDeleteTags(oAllFiles, oTags) {
  *    string, the target path of data
  *
  */
-function setRelativeTagByPath(sFilePath, sTags, callback) {
-  /*TODO: rewrite*/
-  return callback();
+function setRelativeTagByPath(sFilePath, sTags) {
+  var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
+  var _option = {
+    _type: "base",
+    _property: "path",
+    _value: sFilePath
+  }
+  return commonHandle.getItemByProperty(_option)
+    .then(function(info_) {
+        var _uri = info_[0].URI;
+        if (_uri === null || _uri === undefined) {
+          throw new Error("NOT FOUND IN DATABASE...");
+        }
+        var _tags = info_[0].tags;
+        var _old_tag = null;
+        for (var i = 0; i < _tags.length; i++) {
+          if (reg_desktop.test(_tags[i])) {
+            _old_tag = _tags[i];
+        }
+      }
+      return rmTagsByUri(_old_tag, _uri)
+        .then(function() {
+          return setTagByUri([sTags], _uri)
+        })
+    })
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
-
-
-/**
- * @method rmInTAGS
- *   To remove tags in 'tags' list.
- *
- * @param1 oTags
- *    array, array of tags.
- *
- * @param2 sUri
- *    string, a valid uri.
- *
- * @param3 callback
- *    @result, (_err)
- *
- *    @param: _err,
- *        string, if err, return specific error; otherwise return null.
- *
- */
-function rmInTAGS(oTags, sUri, callback) {
-  /*TODO: rewrite*/
-  return callback();
-}
-exports.rmInTAGS = rmInTAGS;
-
-
-/**
- * @method addInTAGS
- *   To remove tags in 'tags' list.
- *
- * @param1 oTags
- *    array, array of tags.
- *
- * @param2 sUri
- *    string, a valid uri.
- *
- * @param3 callback
- *    @result, (_err)
- *
- *    @param: _err,
- *        string, if err, return specific error; otherwise return null.
- *
- */
-function addInTAGS(oTags, sUri, callback) {
-  /*TODO: rewrite*/
-  return callback();
-}
-exports.addInTAGS = addInTAGS;

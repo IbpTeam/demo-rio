@@ -1,5 +1,5 @@
 var msgTransfer = require("../Transfer/msgTransfer");
-var config = require("../config");
+var config = require('systemconfig');
 var ds = require("../../lib/api/device_service");
 
 var devicesList=new Array();

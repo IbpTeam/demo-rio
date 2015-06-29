@@ -1,4 +1,4 @@
-var config = require('../../backend/config');
+var config = require('systemconfig');
 // var appManager = require('../../backend/app/appManager');
 var path = require("path");
 
