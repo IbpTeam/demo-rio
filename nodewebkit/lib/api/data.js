@@ -1266,7 +1266,13 @@ exports.getAllMusic = getAllMusic;
  **/
 function createFileOnDesk(createFileOnDeskCb, sContent) {
   console.log("Request handler 'createFileOnDesk' was called.");
-  desktopConf.createFile(sContent, createFileOnDeskCb);
+  desktopConf.createFile(sContent)
+    .then(function() {
+      createFileOnDeskCb();
+    })
+    .fail(function(err) {
+      createFileOnDeskCb(err);
+    });
 }
 exports.createFileOnDesk = createFileOnDesk;
 
@@ -1288,7 +1294,13 @@ exports.createFileOnDesk = createFileOnDesk;
  **/
 function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
   console.log("Request handler 'renameFileOnDesk' was called.");
-  desktopConf.rename(oldName, newName, renameFileOnDeskCb);
+  desktopConf.rename(oldName, newName)
+    .then(function() {
+      renameFileOnDeskCb();
+    })
+    .fail(function(err) {
+      renameFileOnDeskCb(err);
+    });
 }
 exports.renameFileOnDesk = renameFileOnDesk;
 
@@ -1338,7 +1350,13 @@ exports.getIconPath = getIconPath;
  */
 function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
   console.log("Request handler 'setRelativeTagByPath' was called.");
-  tagsHandle.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+  tagsHandle.setRelativeTagByPath(sFilePath, sTags)
+    .then(function(result){
+      setRelativeTagByPathCb(null, result);
+    })
+    .fail(function(err){
+      setRelativeTagByPathCb(err);
+    });
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
