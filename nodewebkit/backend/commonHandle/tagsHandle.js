@@ -96,7 +96,7 @@ function getAllTagsByCategory(category) {
       object: 'http://example.org/tags#' + tag
     }, {
       subject: _db.v('subject'),
-      predicate: DEFINED_PROP["base"]["filename"],
+      predicate: DEFINED_PROP["base"]["URI"],
       object: _db.v('file')
     }];
     return rdfHandle.dbSearch(_db, _query)
