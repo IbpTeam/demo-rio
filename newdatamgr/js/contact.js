@@ -56,16 +56,19 @@ var Contact = Class.extend({
 
   loadContactsList:function(_index, showList){
     if(showList != null){
+      this._showList = [];
       for(var i = 0; i < showList.length; i ++)
           {
-            this._showList[i]['URI']=showList[i]['URI'];
-             this._showList[i]['name']=showList[i]['lastname']+showList[i]['firstname'];
-             this._showList[i]['sex']=showList[i]['sex'];
-             this._showList[i]['age']=showList[i]['age'];
-             this._showList[i]['photoPath']=showList[i]['photoPath'];
-             this._showList[i]['phone']=showList[i]['phone'];
-             this._showList[i]['email']=showList[i]['email'];
-             this._showList[i]['tags']=showList[i]['tags'];
+            var tmp = {};
+            tmp['URI']=showList[i]['URI'];
+            tmp['name']=showList[i]['lastname']+showList[i]['firstname'];
+            tmp['sex']=showList[i]['sex'];
+            tmp['age']=showList[i]['age'];
+            tmp['photoPath']=showList[i]['photoPath'];
+            tmp['phone']=showList[i]['phone'];
+            tmp['email']=showList[i]['email'];
+            tmp['tags']=showList[i]['tags'];
+            this._showList.push(tmp);
            }
     } else {
       this._showList = this._contacts;
