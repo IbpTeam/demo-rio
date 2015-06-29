@@ -2054,6 +2054,11 @@ function rename(oldName, newName) {
   if (newName === oldName) {
     return callback(null, 'success');
   }
+  var _option = {
+    _type: "base",
+    _property: "filename",
+    _value: oldName
+  }
   /*TODO:need check exist name in database*/
   return commonHandle.getItemByProperty(_option)
     .then(function(file_info_) {

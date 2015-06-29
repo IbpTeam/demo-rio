@@ -1246,7 +1246,13 @@ exports.createFileOnDesk = createFileOnDesk;
  **/
 function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
   console.log("Request handler 'renameFileOnDesk' was called.");
-  desktopConf.rename(oldName, newName, renameFileOnDeskCb);
+  desktopConf.rename(oldName, newName)
+    .then(function() {
+      renameFileOnDeskCb();
+    })
+    .fail(function(err) {
+      renameFileOnDeskCb(err);
+    })
 }
 exports.renameFileOnDesk = renameFileOnDesk;
 
