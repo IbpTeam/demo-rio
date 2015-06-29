@@ -214,8 +214,8 @@ var InfoList = Class.extend({
     var _tagTextList = [];
     if(this._info.length > 0){
       for(var key = 0; key < this._info.length; key ++){
-        _tagTextList.push(this._info[key]);
-        this.addTag(this._info[key],this._info.length);
+        _tagTextList.push(this._info[key][0]);
+        this.addTag(this._info[key][0],this._info[key][1]);
       }
       search.bindSuggestion(_tagTextList);
     }
