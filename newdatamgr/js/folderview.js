@@ -1264,17 +1264,25 @@ var ShowFiles = Class.extend({
           console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
           var _uri=basic.modifyUriToUri(file_.id.substring(0,ev.currentTarget.id.length-3));
           console.log("@@@@@@@@@uri="+_uri+"@@@@@@@@@@@@");
-       
+          var filePath;
           for (var i = 0; i < _globalSelf._getFiles[_globalSelf._index].length; i++) {
             if (_globalSelf._getFiles[_globalSelf._index][i]['URI'] == _uri) {
-              console.log(_globalSelf._getFiles[_globalSelf._index][i]['path']);
+              filePath=_globalSelf._getFiles[_globalSelf._index][i]['path'];
               break;
             }
           }
+           WDC.requireAPI(['clipboard'], function(clipboard){
+            console.log("clipboard:" +  clipboard );
+            clipboard.setFile(filePath,function(result){
+              console.log(result);
+            }) ;
+          });
         }
         else if(ev.keyCode == cKey && ctrlDown==false){
           console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
+
         }
+
     }
     file_.onkeyup=function(ev){
         if (ev.keyCode == ctrlKey) {

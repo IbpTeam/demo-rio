@@ -123,6 +123,12 @@ var main = function(params_){
         }
         else if(ev.keyCode == vKey && ctrlDown==true){
           console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
+          WDC.requireAPI(['clipboard'], function(clipboard){
+            console.log("clipboard:" +  clipboard );
+            clipboard.getFile("/home/v1/",function(result){
+              console.log(result);
+            }) ;
+          });
         }
         else if(ev.keyCode == vKey && ctrlDown==false){
           console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
