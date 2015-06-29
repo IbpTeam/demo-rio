@@ -22,7 +22,7 @@ var main = function(params_){
     //标签列表，最近打开列表
     infoList = InfoList.create();
     //版本恢复
-    gitLog = GitLog.create();
+    //gitLog = GitLog.create();
     infoList.attach($('#sidebar'));
     infoList.setTitle();
     infoList.hide();
@@ -30,8 +30,8 @@ var main = function(params_){
     content    = $('#contentDiv');
     search.attach($('#searchDiv'));
     homePage.attach(content);
-    gitLog.attach(container);
-    gitLog.hide();
+    //gitLog.attach(container);
+    //gitLog.hide();
     contact.attach($('#contentDiv'));
     contact.setContactsList();
     contact.hide();
@@ -46,7 +46,7 @@ var main = function(params_){
     var clickHandler = function(k) {
       return function() {
         $(this).addClass('active').siblings().removeClass('active');
-        gitLog.hide();
+        //gitLog.hide();
         $('#searchDiv').show();
         content.show();
         content.children('div').hide();
@@ -75,11 +75,11 @@ var main = function(params_){
 
     //bind gitLog button
     $('#tags__bottom').on('click',function(){
-      infoList.hide();
-      container.removeClass('move-right');
-      $('#tags__ul').children('li').removeClass('active');
-      container.children('div').hide();
-      gitLog.getLogShow();
+      //infoList.hide();
+      //container.removeClass('move-right');
+      //$('#tags__ul').children('li').removeClass('active');
+      //container.children('div').hide();
+      //gitLog.getLogShow();
     });
 
 
