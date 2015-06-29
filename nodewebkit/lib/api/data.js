@@ -504,15 +504,27 @@ exports.pasteFile = pasteFile;
 //返回类型：成功返回success;失败返回失败原因
 //if catefory is 'contact', then the input 'filename',should be an object that 
 //includes all contact info.
-function createFile(createFileCb, filename, category) {
+function createFile(createFileCb, input, category) {
   console.log("Request handler 'createFile' was called.");
   if (category === 'contact') {
-    if (typeof filename != 'object') {
+    if ( input.length == 0  || input === null) {
       var _err = 'bad contact input data ...';
-      return callback(_err, null);
+      config.log(_err);
+      return callback(_err);
     }
-    contacts.createData(filename, createFileCb);
+    else{
+      return contacts.ContactInfo(input)
+        .then(function(){
+          return createFileCb();
+        })
+        .fail(function(err){
+          return createFileCb(err);
+        })
+        .done();
+        //.notiefy
+    }
   } else {
+    //input = filename
     var desPath = '/tmp/' + filename;
     cp.exec("touch " + desPath, function(error, stdout, stderr) {
       if (error !== null) {

@@ -53,7 +53,7 @@ var MainContactView = Class.extend({
       _this._contacts = contact_json_;
       var names_json = {};
       for(var i = 0; i < _this._contacts.length; i ++){
-        var full_name = _this._contacts[i]['name'];
+        var full_name = _this._contacts[i]['lastname']+_this._contacts[i]['firstname'];
         var _email = _this._contacts[i]['email'];
         names_json[full_name] = _email;
       }
