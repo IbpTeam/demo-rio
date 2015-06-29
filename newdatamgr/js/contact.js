@@ -61,7 +61,8 @@ var Contact = Class.extend({
           {
             var tmp = {};
             tmp['URI']=showList[i]['URI'];
-            tmp['name']=showList[i]['lastname']+showList[i]['firstname'];
+            tmp['lastname']=showList[i]['lastname'];
+            tmp['firstname']=showList[i]['firstname'];
             tmp['sex']=showList[i]['sex'];
             tmp['age']=showList[i]['age'];
             tmp['photoPath']=showList[i]['photoPath'];
