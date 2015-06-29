@@ -114,5 +114,24 @@ var main = function(params_){
     $('#avatar').on('click',function(){
       usrInfo.showUsrInfo();
     });
+
+    var ctrlDown = false;
+    var ctrlKey = 17, vKey = 86;
+    document.onkeydown=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = true;
+        }
+        else if(ev.keyCode == vKey && ctrlDown==true){
+          console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
+        }
+        else if(ev.keyCode == vKey && ctrlDown==false){
+          console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
+        }
+    }
+    document.onkeyup=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = false;
+        }
+    }
 });
 }
