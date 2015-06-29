@@ -14,7 +14,7 @@ var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var Q = require('q');
 var os = require('os');
-var config = require("../config");
+var config = require('systemconfig');
 var commonHandle = require("../commonHandle/commonHandle");
 var typeHandle = require("../commonHandle/typeHandle");
 /*TODO: some old depenent should be rewrite in future*/

@@ -8,7 +8,7 @@ var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
 var typeHandle = require("../../backend/commonHandle/typeHandle");
 var fs = require('fs');
-var config = require('../../backend/config');
+var config = require('systemconfig');
 var cp = require('child_process');
 var path = require('path');
 var Q = require('q');
@@ -1454,7 +1454,6 @@ exports.test_rdfHandle = test_rdfHandle;
  *
  **/
 function test_baseinfo(callback) {
-  var config = require("../../backend/config");
   var element = {
     HOMEFOLDER: path.join(config.HOME),
     RESOURCEFOLDER: path.join(config.HOME, "resources")

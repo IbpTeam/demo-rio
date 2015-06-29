@@ -5,7 +5,7 @@ var fileTransfer = require('./fileTransfer');
 var request = require('request');
 var util = require('util');
 var HashTable = require('hashtable');
-var config = require('../../config');
+var config = require('systemconfig');
 var path = require('path');
 var cp = require("child_process");
 
