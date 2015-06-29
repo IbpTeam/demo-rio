@@ -492,7 +492,7 @@ var Contact = Class.extend({
       _contactJson['photoPath'] = _path;
       _contactJson['category'] = 'contact';
       var _info = {
-        _uri: _uri,
+        _uri: contact._tagView._uri,
         _changes: [{
           _property: "photoPath",
           _value: _path
