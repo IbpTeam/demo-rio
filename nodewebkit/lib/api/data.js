@@ -1061,7 +1061,13 @@ exports.unlinkApp = unlinkApp;
  **/
 function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
   console.log("Request handler 'moveToDesktopSingle' was called.");
-  desktopConf.moveToDesktopSingle(sFilePath, moveToDesktopSingleCb);
+  desktopConf.moveToDesktopSingle(sFilePath)
+    .then(function() {
+      moveToDesktopSingleCb();
+    })
+    .fail(function(err) {
+      moveToDesktopSingleCb(err);
+    });
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
@@ -1110,7 +1116,13 @@ exports.moveToDesktop = moveToDesktop;
  **/
 function removeFileFromDB(removeFileFromDBCb, sFilePath) {
   console.log("Request handler 'removeFileFromDB' was called.");
-  desktopConf.removeFileFromDB(sFilePath, removeFileFromDBCb);
+  desktopConf.removeFileFromDB(sFilePath)
+    .then(function() {
+      removeFileFromDBCb();
+    })
+    .fail(function(err) {
+      removeFileFromDBCb(err);
+    });
 }
 exports.removeFileFromDB = removeFileFromDB;
 
@@ -1135,7 +1147,13 @@ exports.removeFileFromDB = removeFileFromDB;
  **/
 function removeFileFromDesk(removeFileFromDeskCb, sFilePath) {
   console.log("Request handler 'removeFileFromDesk' was called.");
-  desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
+  desktopConf.removeFileFromDesk(sFilePath)
+    .then(function() {
+      removeFileFromDeskCb();
+    })
+    .fail(function(err) {
+      removeFileFromDeskCb(err);
+    });
 }
 exports.removeFileFromDesk = removeFileFromDesk;
 
@@ -1155,7 +1173,13 @@ exports.removeFileFromDesk = removeFileFromDesk;
  **/
 function getFilesFromDesk(getFilesFromDeskCb) {
   console.log("Request handler 'getFilesFromDesk' was called.");
-  desktopConf.getFilesFromDesk(getFilesFromDeskCb);
+  desktopConf.getFilesFromDesk()
+    .then(function(result_) {
+      getFilesFromDeskCb(null, result_);
+    })
+    .fail(function(err) {
+      getFilesFromDeskCb(err);
+    });
 }
 exports.getFilesFromDesk = getFilesFromDesk;
 
@@ -1175,7 +1199,13 @@ exports.getFilesFromDesk = getFilesFromDesk;
  **/
 function getAllVideo(getAllVideoCb) {
   console.log("Request handler 'getAllVideo' was called.");
-  desktopConf.getAllVideo(getAllVideoCb);
+  desktopConf.getAllVideo()
+    .then(function(result_) {
+      getAllVideoCb(null, result_);
+    })
+    .fail(function(err) {
+      getAllVideoCb(err);
+    });
 }
 exports.getAllVideo = getAllVideo;
 
@@ -1195,7 +1225,13 @@ exports.getAllVideo = getAllVideo;
  **/
 function getAllMusic(getAllMusicCb) {
   console.log("Request handler 'getAllMusic' was called.");
-  desktopConf.getAllMusic(getAllMusicCb);
+  desktopConf.getAllMusic()
+    .then(function(result_) {
+      getAllMusicCb(null, result_);
+    })
+    .fail(function(err) {
+      getAllMusicCb(err);
+    });
 }
 exports.getAllMusic = getAllMusic;
 
