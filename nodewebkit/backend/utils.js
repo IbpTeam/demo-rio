@@ -675,7 +675,7 @@ exports.copyFileSync = copyFileSync;
 function getTitle(str) {
   try {
     var pos = str.lastIndexOf("#");
-    var title = str.slice(pos + 1, str.length);
+    var title = str.substr(pos + 1, str.length);
   } catch (err) {
     throw err;
   }

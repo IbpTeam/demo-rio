@@ -76,7 +76,7 @@ function getAllTagsByCategory(category) {
     object: DEFINED_TYPE[category]
   }]
 
-  var tagMaker = function(results){
+  var tagMaker = function(results) {
     var _tags = [];
     for (var i = 0, l = results.length; i < l; i++) {
       _tags.push(utils.getTitle(results[i].tag));
@@ -84,8 +84,35 @@ function getAllTagsByCategory(category) {
     return _tags;
   };
 
+  function getTagFileNumber(tag) {
+    var _db = rdfHandle.dbOpen();
+    var _query = [{
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["category"],
+      object: category
+    }, {
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + tag
+    }, {
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["filename"],
+      object: _db.v('file')
+    }];
+    return rdfHandle.dbSearch(_db, _query)
+      .then(function(uri_list_) {
+        return [tag, uri_list_.length]
+      });
+  }
+
   return rdfHandle.dbSearch(_db, _query)
-  .then(tagMaker);
+    .then(tagMaker)
+    .then(function(result) {
+      return Q.all(result.map(getTagFileNumber));
+    })
+    .then(function(result){
+      return result;
+    })
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
