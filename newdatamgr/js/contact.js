@@ -82,14 +82,14 @@ var Contact = Class.extend({
 
 
         family_name_json[family_name].push({
-          name: this._showList[i]['lastname']+this._showList[i]['firstname']
+          name: this._showList[i]['lastname']+this._showList[i]['firstname'],
           id: i
         });
       } else {
 
 
         family_name_json[family_name] = [{
-          name: this._showList[i]['lastname']+this._showList[i]['firstname']
+          name: this._showList[i]['lastname']+this._showList[i]['firstname'],
           id: i
         }];
       }
@@ -191,7 +191,7 @@ var Contact = Class.extend({
     _photoDiv.append(_photo);
 
     var _uri = contact_? contact_['URI']:undefined;
-    var _tags = contact_.tags;
+    var _tags = contact_.tags ? contact_.tags : [];
     this._contactHead.append(_photoDiv);
 
     this._tagView.refresh();
@@ -264,7 +264,8 @@ var Contact = Class.extend({
   addContact: function(){
     var _this = this;
     _this.removeDetails();
-    var keys = ['lastname','firstname', 'phone', 'email', 'sex', 'age', 'others'];
+    _this.setHead({});
+    var keys = ['lastname','firstname', 'phone', 'email', 'sex', 'age'];
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
@@ -281,7 +282,7 @@ var Contact = Class.extend({
       });
       var _editInput = $('<input>', {
         'class' : 'input-value',
-        'id' : keys[i]
+        'id' : 'add'+keys[i]
       });
       _valueDiv.append(_editInput);
       _li.append(_keyDiv);
@@ -303,7 +304,7 @@ var Contact = Class.extend({
       var _newContact = {};
       var _isValid = true;
       for(var i = 0; i < keys.length; i ++){
-        var _newValue = document.getElementById(keys[i]).value;
+        var _newValue = document.getElementById('add'+keys[i]).value;
         _newContact[keys[i]] = _newValue;
       }
       if(_newContact['email'] != '' && _newContact['email'].indexOf('@') == -1){
@@ -320,12 +321,13 @@ var Contact = Class.extend({
       }
       if(_isValid == true){
         DataAPI.createFile(function(err_, result_){
-          if(err_ == undefined){
+          if(err_ ){
+            throw err_;
+            alert('Saved failed!');
+          }else{
             _this._contacts.push(_newContact);
             _this.loadContactsList(_this._contacts.length - 1);
-          } else {
-            alert('Saved failed!');
-          }
+          } 
         }, _newContact, 'contact');
       }
     });
@@ -472,7 +474,7 @@ var Contact = Class.extend({
     var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
       DataAPI.setTagByUri(function(err_){
-        if (err_ === undefined) {
+        if (err_ == undefined ||err_ == null) {
           if(!contact._tagView.addTag(_tag)){
             return 0;
           }
