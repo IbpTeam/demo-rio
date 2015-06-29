@@ -1302,7 +1302,13 @@ exports.getIconPath = getIconPath;
  */
 function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
   console.log("Request handler 'setRelativeTagByPath' was called.");
-  tagsHandle.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+  tagsHandle.setRelativeTagByPath(sFilePath, sTags)
+    .then(function(result){
+      setRelativeTagByPathCb(null, result);
+    })
+    .fail(function(err){
+      setRelativeTagByPathCb(err);
+    });
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 

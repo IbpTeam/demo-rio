@@ -430,8 +430,30 @@ function doDeleteTags(oAllFiles, oTags) {
  *    string, the target path of data
  *
  */
-function setRelativeTagByPath(sFilePath, sTags, callback) {
-  /*TODO: rewrite*/
-  return callback();
+function setRelativeTagByPath(sFilePath, sTags) {
+  var reg_desktop = /^[\$]{1}desktop[\$]{1}/;
+  var _option = {
+    _type: "base",
+    _property: "path",
+    _value: sFilePath
+  }
+  return commonHandle.getItemByProperty(_option)
+    .then(function(info_) {
+        var _uri = info_[0].URI;
+        if (_uri === null || _uri === undefined) {
+          throw new Error("NOT FOUND IN DATABASE...");
+        }
+        var _tags = info_[0].tags;
+        var _old_tag = null;
+        for (var i = 0; i < _tags.length; i++) {
+          if (reg_desktop.test(_tags[i])) {
+            _old_tag = _tags[i];
+        }
+      }
+      return rmTagsByUri(_old_tag, _uri)
+        .then(function() {
+          return setTagByUri([sTags], _uri)
+        })
+    })
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
