@@ -1252,7 +1252,7 @@ function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
     })
     .fail(function(err) {
       renameFileOnDeskCb(err);
-    })
+    });
 }
 exports.renameFileOnDesk = renameFileOnDesk;
 
