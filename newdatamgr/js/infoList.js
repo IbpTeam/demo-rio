@@ -239,12 +239,22 @@ var InfoList = Class.extend({
           for(var i = 0; i < _this._btmInfo.length; i ++){
             var _a = $('<a>',{
               'class':'bil__a',
-              'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename'],
+              'text': _this._index == 0 ? _this._btmInfo[i]['lastname']+_this._btmInfo[i]['firstname'] : _this._btmInfo[i]['filename'],
               'id':JSON.stringify(_this._btmInfo[i])
             });
             _a.click(function(ev){
               var file=JSON.parse(this.id);
-              basic.openFile(file);
+              if (_this._index) {
+                basic.openFile(file);
+              }else{
+                var _contacts = $('.li-name');
+                for (var i = 0; i < _contacts.length; i++) {
+                  if(_contacts[i].textContent === this.innerText){
+                    _contacts[i].click();
+                    break;
+                  }
+                }
+              }
             });
             _this._infoBottomNano.append(_a);
           }
