@@ -85,9 +85,31 @@ function getAllTagsByCategory(category) {
   };
 
   return rdfHandle.dbSearch(_db, _query)
-  .then(tagMaker);
+  .then(tagMaker)
+  .then(function(result){
+    getTagFileNumber("document", "resources");
+    return result;
+  })
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
+
+function getTagFileNumber(category, tag) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: category
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["tags"],
+    object: tag
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["uri"],
+    object: _db.v('uri')
+  }];
+  return rdfHandle.dbSearch(_db, _query);
+}
 
 
 /**
