@@ -278,7 +278,8 @@ var InfoList = Class.extend({
       } else if(this._index > 0 && this._index < 6){
         showfiles.showFileByTag(_dataUris);
       }
-      DataAPI.getTagsByUris(function(tags_){
+
+      DataAPI.getTagsByUris(function(error,tags_){
         if(tags_ != null){
           _this.showTags(tags_);
         }
@@ -317,7 +318,7 @@ var InfoList = Class.extend({
         }
       } else {
         showfiles.showFileByTag(_dataUris);
-        DataAPI.getTagsByUris(function(tags_){
+        DataAPI.getTagsByUris(function(error,tags_){
           _this.showTags(tags_);
         }, _dataUris);
       }

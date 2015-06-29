@@ -52,26 +52,42 @@ var Contact = Class.extend({
 
   loadContactsList:function(_index, showList){
     if(showList != null){
-      this._showList = showList;
+      for(var i = 0; i < showList.length; i ++)
+          {
+            this._showList[i]['URI']=showList[i]['URI'];
+             this._showList[i]['name']=showList[i]['lastname']+showList[i]['firstname'];
+             this._showList[i]['sex']=showList[i]['sex'];
+             this._showList[i]['age']=showList[i]['age'];
+             this._showList[i]['photoPath']=showList[i]['photoPath'];
+             this._showList[i]['phone']=showList[i]['phone'];
+             this._showList[i]['email']=showList[i]['email'];
+             this._showList[i]['tags']=showList[i]['tags'];
+           }
     } else {
       this._showList = this._contacts;
     }
     this.removeContactList();
+
     var family_name_json = {};
     for(var i = 0; i < this._showList.length; i ++){
       var family_name = this._showList[i]['name'][0];
       if(family_name_json.hasOwnProperty(family_name)){
+
+
         family_name_json[family_name].push({
           name: this._showList[i]['name'],
           id: i
         });
       } else {
+
+
         family_name_json[family_name] = [{
           name: this._showList[i]['name'],
           id: i
         }];
       }
     }
+
     for(var i in family_name_json){
       var _ul = $('<ul>', {
         'class':'ul-family'
@@ -97,6 +113,7 @@ var Contact = Class.extend({
     this.setDetails(this._showList[_index]);
     this.bindAction();
     this.refreshListScroll();
+
   },
 
   bindAction: function(){
