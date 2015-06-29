@@ -401,28 +401,15 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
+        var sFilePath = '/home/xiquan/.custard/resource/document/data/testJSON.txt'
         data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
       });
     });
   }
 
-
-  function getFilesFromDeskCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getFilesFromDesk()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_getFilesFromDesk(getFilesFromDeskCb) {
+  function test_getFilesFromDesk() {
     WDC.requireAPI(['data'], function(data) {
-      data.getFilesFromDesk(getFilesFromDeskCb);
+      data.getFilesFromDesk(cb);
     });
   }
 
@@ -1112,7 +1099,7 @@
 </div>
 </div>
 
-<h2 onclick="show('getFilesFromDesk')">getFilesFromDesk(getFilesFromDeskCb)<span><a class="mark" href="#test_getFilesFromDesk" id="test_getFilesFromDesk" onclick="test_getFilesFromDesk(getFilesFromDeskCb)">test</a></span></h2>
+<h2 onclick="show('getFilesFromDesk')">getFilesFromDesk()<span><a class="mark" href="#test_getFilesFromDesk" id="test_getFilesFromDesk" onclick="test_getFilesFromDesk()">test</a></span></h2>
 <div id="getFilesFromDesk" style="display:none;">
 <div style="color:#930000">
   <pre>
