@@ -30,7 +30,8 @@
     "node-notifier": "4.1.0",
     "protobufjs": "~4.0.0",
     "levelgraph":"0.10.4",
-    "q": "1.4.1"
+    "q": "1.4.1",
+    "systemconfig" : "~0.1.0"
   },
   "user-agent": "Nodejs %ver %nwver %webkit_ver %osinfo"
 }

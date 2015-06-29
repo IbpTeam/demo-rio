@@ -11,7 +11,7 @@
  **/
 
 var im = require("../../lib/api/IM.js");
-var config = require("../config");
+var config = require('systemconfig');
 var repo = null;
 var fs = require("fs");
 var cp = require("child_process");
