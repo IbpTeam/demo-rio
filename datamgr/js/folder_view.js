@@ -86,23 +86,47 @@ function gen_edit_dialog(data_json){
   gen_popup_dialog('Edit', file_propery);
   $('#save_button').on('click', function(){
     var new_json = {};
+    var _changes = [];
     for(var key in data_json){
       if(key == 'props' || key == 'URI'){
         continue;
       }
       var new_value = document.getElementById(key).value;
       new_json[key] = new_value;
+      _changes.push({
+        _property: key,
+        _value: new_value
+      })
     }
+    _changes.push({
+      _property: "photoPath",
+      _value: _path
+    })
+    _changes.push({
+      _property: "lastModifyDev",
+      _value: (new Date()).toString()
+    })
+    _changes.push({
+      _property: "lastAccessTime",
+      _value: (new Date()).toString()
+    })
     new_json['category'] = get_category();
     new_json['URI'] = data_json['URI'];
-    DataAPI.updateDataValue(function(result){
-      if(result == 'success'){
-        window.alert("Saved successfully!");
+    if (data_json['URI'] === null || data_json['URI'] === undefined) {
+      window.alert("Saved failed!");
+    } else {
+      var _info = {
+        _uri: data_json['URI'],
+        _changes: _changes
       }
-      else{
-        window.alert("Saved failed!");
-      }
-    }, [new_json]);
+      DataAPI.updateDataValue(function(err) {
+        if (err) {
+          window.alert("Saved failed!");
+        } else {
+          window.alert("Saved successfully!");
+        }
+      }, _info);
+    }
   });
 }
 

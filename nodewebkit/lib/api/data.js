@@ -404,7 +404,7 @@ exports.openDataByUri = openDataByUri;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb, item, uri) {
+function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
     .then(function(result) {
