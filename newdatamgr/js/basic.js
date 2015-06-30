@@ -49,7 +49,37 @@ var Basic = Class.extend({
     content.append(header);
     content.append(body);
     content.append(footer);
-  
+    
+
+    var ctrlDown = false;
+    var ctrlKey = 17, cKey = 67, vKey = 86;
+    document.onkeydown=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = true;
+        }
+        else if(ev.keyCode == cKey && ctrlDown==true){
+          console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
+          var text=window.getSelection().toString();
+          WDC.requireAPI(['clipboard'], function(clipboard){
+            console.log("clipboard:" +  clipboard );
+            clipboard.setText(text,function(result){
+              console.log(result);
+            }) ;
+          });
+        }
+        else if(ev.keyCode == cKey && ctrlDown==false){
+          console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
+        }
+
+    }
+    document.onkeyup=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = false;
+        }
+    }
+
+
+
     dialog = $('<div>',{
       'class':'modal-dialog'
     });

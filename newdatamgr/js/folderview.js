@@ -1252,5 +1252,42 @@ var ShowFiles = Class.extend({
       _tags.hide();
       _tags.show(10);
     }
+
+    var ctrlDown = false;
+    var ctrlKey = 17, cKey = 67;
+
+    file_.onkeydown=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = true;
+        }
+        else if(ev.keyCode == cKey && ctrlDown==true){
+          console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
+          var _uri=basic.modifyUriToUri(file_.id.substring(0,ev.currentTarget.id.length-3));
+          console.log("@@@@@@@@@uri="+_uri+"@@@@@@@@@@@@");
+          var filePath;
+          for (var i = 0; i < _globalSelf._getFiles[_globalSelf._index].length; i++) {
+            if (_globalSelf._getFiles[_globalSelf._index][i]['URI'] == _uri) {
+              filePath=_globalSelf._getFiles[_globalSelf._index][i]['path'];
+              break;
+            }
+          }
+           WDC.requireAPI(['clipboard'], function(clipboard){
+            console.log("clipboard:" +  clipboard );
+            clipboard.setFile(filePath,function(result){
+              console.log(result);
+            }) ;
+          });
+        }
+        else if(ev.keyCode == cKey && ctrlDown==false){
+          console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
+
+        }
+
+    }
+    file_.onkeyup=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = false;
+        }
+    }
   }
 })

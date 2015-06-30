@@ -31,13 +31,17 @@ var Q = require('q');
  */
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
-  commonHandle.createData([sFilePath])
+  typeHandle.initTypeDef()
+  .then(function(){
+    return commonHandle.createData([sFilePath])
     .then(function() {
       loadFileCb();
     })
     .fail(function(err) {
       loadFileCb(err);
     })
+  })
+
 }
 exports.loadFile = loadFile;
 
@@ -1516,3 +1520,34 @@ function test_desktop(callback) {
   callback(desktop);
 }
 exports.test_desktop = test_desktop;
+
+/** 
+ * @Method: getIconPath
+ *   To get icon path.
+ *
+ * @param1: iconName
+ *    string, a short icon path.
+ *
+ * @param2: size
+ *    num, size of icon
+ *
+ * @param3: getIconPathCb
+ *    @result, (_err,result)
+ *
+ *    @param: _err,
+ *        string, contain specific error info.
+ *
+ *    @param: result,
+ *        object, array of icon path.
+ *
+ **/
+function getTmpPath(getTmpPathCb) {
+  console.log("Request handler 'getTmpPath' was called.");
+  if(config.TMPPATH!=null){
+      getTmpPathCb(null,config.TMPPATH);
+    }
+    else{
+      getTmpPathCb(new Error("TMPPATH empty"),null);
+    }
+}
+exports.getTmpPath = getTmpPath;

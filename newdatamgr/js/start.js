@@ -1,10 +1,11 @@
 
 var main = function(params_){
     //basic = Basic.create();
-  WDC.requireAPI(['data', 'app'], function(data, app){
-    console.log("data:" +  data + " app:" + app);
+  WDC.requireAPI(['data', 'app','clipboard'], function(data, app, clipboard){
+    console.log("data:" +  data + " app:" + app + " clipboard:" + clipboard);
     DataAPI=data;
     AppAPI=app;
+    ClipboardAPI=clipboard;
     _params = undefined;
     if (params_) {
       _params = eval('(' + params_ + ')');   
@@ -114,5 +115,50 @@ var main = function(params_){
     $('#avatar').on('click',function(){
       usrInfo.showUsrInfo();
     });
+
+    var ctrlDown = false;
+    var ctrlKey = 17, vKey = 86;
+    document.onkeydown=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = true;
+        }
+        else if(ev.keyCode == vKey && ctrlDown==true){
+          console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
+            data.getTmpPath(function(err,res){
+              res=res+'/';
+              console.log("res="+res);
+              clipboard.getFile(res,function(result,filePath){
+                console.log(result);
+                console.log(filePath);
+                data.loadFile(function(err){
+                  console.log("load file "+filePath+" : "+err);
+                  var _window = undefined;
+                  if (window == top){
+                    var hrefLocal = window.location.href;
+                    hrefLocal = hrefLocal.substr(0,hrefLocal.indexOf("html")+4);
+                    hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'"+infoList.getCategoryName(infoList._index)+"'}";
+                    location.replace(hrefLocal);
+                  }else{
+                  try{
+                    _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+                    var _dataMgrIfm = _window._windowContent[0];
+                  _dataMgrIfm.src = _dataMgrIfm.src.substr(0,hrefLocal.indexOf("html")+4)+"?id=" + WDC.AppID + "&{category:'"+infoList.getCategoryName(infoList._index)+"'}";
+                  } catch(e){
+                  console.log(e);
+                }
+              }
+                },filePath);
+              }) ;
+            });
+        }
+        else if(ev.keyCode == vKey && ctrlDown==false){
+          console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
+        }
+    }
+    document.onkeyup=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = false;
+        }
+    }
 });
 }
