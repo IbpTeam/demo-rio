@@ -1,10 +1,11 @@
 
 var main = function(params_){
     //basic = Basic.create();
-  WDC.requireAPI(['data', 'app'], function(data, app){
-    console.log("data:" +  data + " app:" + app);
+  WDC.requireAPI(['data', 'app','clipboard'], function(data, app, clipboard){
+    console.log("data:" +  data + " app:" + app + " clipboard:" + clipboard);
     DataAPI=data;
     AppAPI=app;
+    ClipboardAPI=clipboard;
     _params = undefined;
     if (params_) {
       _params = eval('(' + params_ + ')');   
@@ -123,12 +124,12 @@ var main = function(params_){
         }
         else if(ev.keyCode == vKey && ctrlDown==true){
           console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
-          WDC.requireAPI(['clipboard'], function(clipboard){
-            console.log("clipboard:" +  clipboard );
-            clipboard.getFile("/home/v1/",function(result){
-              console.log(result);
-            }) ;
-          });
+            data.getTmpPath(function(err,res){
+              console.log("res="+res);
+              clipboard.getFile(res,function(result){
+                console.log(result);
+              }) ;
+            });
         }
         else if(ev.keyCode == vKey && ctrlDown==false){
           console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");

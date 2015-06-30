@@ -12,7 +12,7 @@
 var path = require('path');
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
-var config = require("../config");
+var config = require("systemconfig");
 var uniqueID = require("../uniqueID");
 var tagsHandle = require("./tagsHandle");
 var rdfHandle = require("./rdfHandle");
@@ -599,4 +599,9 @@ function getTriples(options) {
   }
   return getTriplesByProperty(options)
     .then(TriplesMaker);
+}
+
+exports.getTmpPath = function(getTmpPathCb) {
+  getTmpPath(config.TMPPATH);
+  
 }
