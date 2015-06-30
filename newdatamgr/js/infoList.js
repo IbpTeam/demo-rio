@@ -217,11 +217,11 @@ var InfoList = Class.extend({
     var _tagTextList = [];
     if(this._info.length > 0){
       for(var key = 0; key < this._info.length; key ++){
-        _tagTextList.push(this._info[key]);
+        _tagTextList.push(this._info[key][0]);
         if (_selectedTags && _selectedTags.indexOf(this._info[key]) > -1) {
-          this.addTag(this._info[key],this._info.length,true);
+          this.addTag(this._info[key][0],this._info[key][1],true);
         }else{
-          this.addTag(this._info[key],this._info.length);
+          this.addTag(this._info[key][0],this._info[key][1]);
         }
       }
       search.bindSuggestion(_tagTextList);

@@ -149,7 +149,7 @@ var MainDocView = Class.extend({
    * @return {[type]}      [description]
    */
   showFliterData:function(arr_){
-    var _files = this._docContent.children('.doc-icon');
+    var _files = this._docContent.find('.doc-icon');
     if(arr_.length === 3){
       _files.show();
     }else if(arr_.length === 0){
