@@ -1,7 +1,7 @@
 var fs = require('fs');
 var pathModule = require('path');
 var Q = require('q');
-var config = require('../config.js');
+var config = require('systemconfig');
 var promised = require('./promisedFunc');
 
 //const

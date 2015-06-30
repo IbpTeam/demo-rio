@@ -160,7 +160,7 @@ var InfoList = Class.extend({
     }
   },
 
-  addTag:function(tag_, num_){
+  addTag:function(tag_, num_, selected_){
     var _a = $('<a>',{
       'class':'il__a',
       'draggable':'true',
@@ -177,6 +177,9 @@ var InfoList = Class.extend({
     _a.append(_text);
     _a.append(_num);
     this._add.before(_a);
+    if (selected_) {
+      _a.addClass('selected');
+    };
     var _this = this;
     _a.click(function(e){
       if($(this).children('.il__num')[0].textContent > 0){
@@ -208,14 +211,18 @@ var InfoList = Class.extend({
     return -1;
   },
 
-  showTags:function(tags_){
+  showTags:function(tags_, _selectedTags){
     this.removeTags();
     this._info = tags_;
     var _tagTextList = [];
     if(this._info.length > 0){
       for(var key = 0; key < this._info.length; key ++){
         _tagTextList.push(this._info[key]);
-        this.addTag(this._info[key],this._info.length);
+        if (_selectedTags && _selectedTags.indexOf(this._info[key]) > -1) {
+          this.addTag(this._info[key],this._info.length,true);
+        }else{
+          this.addTag(this._info[key],this._info.length);
+        }
       }
       search.bindSuggestion(_tagTextList);
     }
@@ -239,12 +246,22 @@ var InfoList = Class.extend({
           for(var i = 0; i < _this._btmInfo.length; i ++){
             var _a = $('<a>',{
               'class':'bil__a',
-              'text': _this._index == 0 ? _this._btmInfo[i]['name'] : _this._btmInfo[i]['filename'],
+              'text': _this._index == 0 ? _this._btmInfo[i]['lastname']+_this._btmInfo[i]['firstname'] : _this._btmInfo[i]['filename'],
               'id':JSON.stringify(_this._btmInfo[i])
             });
             _a.click(function(ev){
               var file=JSON.parse(this.id);
-              basic.openFile(file);
+              if (_this._index) {
+                basic.openFile(file);
+              }else{
+                var _contacts = $('.li-name');
+                for (var i = 0; i < _contacts.length; i++) {
+                  if(_contacts[i].textContent === this.innerText){
+                    _contacts[i].click();
+                    break;
+                  }
+                }
+              }
             });
             _this._infoBottomNano.append(_a);
           }
@@ -254,7 +271,7 @@ var InfoList = Class.extend({
     }, _this.getCategoryName(_this._index), 10);
   },
 
-  loadFilterData:function(_dataJsons){
+  loadFilterData:function(_dataJsons, _selectedTags){
     var _this = this;
     if(_dataJsons == null || _dataJsons.length == 0){
       if(this._index == 0){
@@ -281,7 +298,7 @@ var InfoList = Class.extend({
 
       DataAPI.getTagsByUris(function(error,tags_){
         if(tags_ != null){
-          _this.showTags(tags_);
+          _this.showTags(tags_, _selectedTags);
         }
       }, _dataUris);
     }
@@ -332,7 +349,7 @@ var InfoList = Class.extend({
       if(files_ == null || files_.length == 0){
         files_ = [];
       }
-      _this.loadFilterData(files_);
+      _this.loadFilterData(files_, _tags);
     }, _this.getCategoryName(_this._index), _tags);
   },
 

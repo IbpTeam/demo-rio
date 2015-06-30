@@ -378,7 +378,7 @@ var Basic = Class.extend({
     var _category = category_;
     if(_tags && _uri){
       DataAPI.rmTagsByUri(function(err){
-        if (err !== null) {
+        if (err == null) {
           if(basic._tagDragged){
             basic._tagDragged.removeTagByText(_tags);
             basic._tagDragged = undefined;

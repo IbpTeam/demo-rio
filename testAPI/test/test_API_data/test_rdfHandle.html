@@ -160,6 +160,26 @@
     });
   }
 
+  var _query = {
+    subject: "http://example.org/category#undefined#0a31a39c3c1dfafc139e",
+    predicate: "http://example.org/property/base#tags",
+    object: "http://example.org/tags#&desktop&",
+  }
+
+  function test_dbDelete(cb) {
+    WDC.requireAPI(['data'], function(data) {
+      data.test_rdfHandle(function(rdfhandle) {
+        var db = rdfhandle.dbOpen();
+        rdfhandle.dbDelete(db,_query)
+        .done(function() {
+          cb(null,"dbPut sucess!");
+        },function(err) {
+          cb(err);
+        });
+      })
+    });
+  }
+
   function test_dbSearch(cb) {
     WDC.requireAPI(['data'], function(data) {
       data.test_rdfHandle(function(rdfhandle) {
@@ -167,7 +187,7 @@
         var _query_get_all = [{
           subject: _db.v('subject'),
           predicate: 'http://example.org/property/base#category',
-          object: "code"
+          object: "document"
         },{
           subject: _db.v('subject'),
           predicate: _db.v('predicate'),
@@ -205,6 +225,10 @@
 
 <h2 onclick="show('dbPut')">dbPut(cb)<span><a class="mark" href="#test_dbPut" id="test_dbPut" onclick="test_dbPut(cb)">test</a></span></h2>
 <div id="dbPut" style="display:none;">
+</div>
+
+<h2 onclick="show('dbDelete')">dbDelete(cb)<span><a class="mark" href="#test_dbDelete" id="test_dbDelete" onclick="test_dbDelete(cb)">test</a></span></h2>
+<div id="dbDelete" style="display:none;">
 </div>
 
 <h2 onclick="show('dbClear')">dbClear(cb)<span><a class="mark" href="#test_dbClear" id="test_dbClear" onclick="test_dbClear(cb)">test</a></span></h2>

@@ -41,6 +41,10 @@ var Contact = Class.extend({
   setContactsList:function(){
     var _this = this;
     DataAPI.getAllDataByCate(function(err, contact_json_){
+      if (err) {
+         throw err; 
+         return 0;
+      };
       _this._contacts = contact_json_;
       if(_this._contacts != null && _this._contacts.length > 0){
         _this.loadContactsList(0);
@@ -52,16 +56,20 @@ var Contact = Class.extend({
 
   loadContactsList:function(_index, showList){
     if(showList != null){
+      this._showList = [];
       for(var i = 0; i < showList.length; i ++)
           {
-            this._showList[i]['URI']=showList[i]['URI'];
-             this._showList[i]['name']=showList[i]['lastname']+showList[i]['firstname'];
-             this._showList[i]['sex']=showList[i]['sex'];
-             this._showList[i]['age']=showList[i]['age'];
-             this._showList[i]['photoPath']=showList[i]['photoPath'];
-             this._showList[i]['phone']=showList[i]['phone'];
-             this._showList[i]['email']=showList[i]['email'];
-             this._showList[i]['tags']=showList[i]['tags'];
+            var tmp = {};
+            tmp['URI']=showList[i]['URI'];
+            tmp['lastname']=showList[i]['lastname'];
+            tmp['firstname']=showList[i]['firstname'];
+            tmp['sex']=showList[i]['sex'];
+            tmp['age']=showList[i]['age'];
+            tmp['photoPath']=showList[i]['photoPath'];
+            tmp['phone']=showList[i]['phone'];
+            tmp['email']=showList[i]['email'];
+            tmp['tags']=showList[i]['tags'];
+            this._showList.push(tmp);
            }
     } else {
       this._showList = this._contacts;
@@ -70,19 +78,19 @@ var Contact = Class.extend({
 
     var family_name_json = {};
     for(var i = 0; i < this._showList.length; i ++){
-      var family_name = this._showList[i]['name'][0];
+      var family_name = this._showList[i]['lastname'][0];
       if(family_name_json.hasOwnProperty(family_name)){
 
 
         family_name_json[family_name].push({
-          name: this._showList[i]['name'],
+          name: this._showList[i]['lastname']+this._showList[i]['firstname'],
           id: i
         });
       } else {
 
 
         family_name_json[family_name] = [{
-          name: this._showList[i]['name'],
+          name: this._showList[i]['lastname']+this._showList[i]['firstname'],
           id: i
         }];
       }
@@ -184,11 +192,7 @@ var Contact = Class.extend({
     _photoDiv.append(_photo);
 
     var _uri = contact_? contact_['URI']:undefined;
-    var _tags = [];
-    var _tagStr = contact_ ? contact_['tags']:undefined;
-    if (typeof _tagStr === 'string' && _tagStr.length > 0) {
-      _tags = _tagStr.split(',');
-    };
+    var _tags = contact_.tags ? contact_.tags : [];
     this._contactHead.append(_photoDiv);
 
     this._tagView.refresh();
@@ -209,7 +213,7 @@ var Contact = Class.extend({
     var _this = this;
     var _nameDiv = $('<div>', {
       'class': 'div-name',
-      'text': (contact_ ? contact_['name'] : 'none')
+      'text': (contact_ ? contact_['lastname']+contact_['firstname'] : 'none')
     });
     var _ul = $('<ul>', {
       'class':'ul-details'
@@ -261,7 +265,8 @@ var Contact = Class.extend({
   addContact: function(){
     var _this = this;
     _this.removeDetails();
-    var keys = ['name', 'phone', 'email', 'sex', 'age', 'others'];
+    _this.setHead({});
+    var keys = ['lastname','firstname', 'phone', 'email', 'sex', 'age'];
     var _ul = $('<ul>', {
       'class':'ul-details'
     });
@@ -278,7 +283,7 @@ var Contact = Class.extend({
       });
       var _editInput = $('<input>', {
         'class' : 'input-value',
-        'id' : keys[i]
+        'id' : 'add'+keys[i]
       });
       _valueDiv.append(_editInput);
       _li.append(_keyDiv);
@@ -300,7 +305,7 @@ var Contact = Class.extend({
       var _newContact = {};
       var _isValid = true;
       for(var i = 0; i < keys.length; i ++){
-        var _newValue = document.getElementById(keys[i]).value;
+        var _newValue = document.getElementById('add'+keys[i]).value;
         _newContact[keys[i]] = _newValue;
       }
       if(_newContact['email'] != '' && _newContact['email'].indexOf('@') == -1){
@@ -311,18 +316,19 @@ var Contact = Class.extend({
         _isValid = false;
         alert("Invalid Phone Number!");
       }
-      if(_newContact['name'] == ''){
+      if(_newContact['lastname'] == '' &&_newContact['firstname'] == ''){
         _isValid = false;
         alert("Name can not be null!");
       }
       if(_isValid == true){
         DataAPI.createFile(function(err_, result_){
-          if(result_ == 'success'){
+          if(err_ ){
+            throw err_;
+            alert('Saved failed!');
+          }else{
             _this._contacts.push(_newContact);
             _this.loadContactsList(_this._contacts.length - 1);
-          } else {
-            alert('Saved failed!');
-          }
+          } 
         }, _newContact, 'contact');
       }
     });
@@ -469,11 +475,11 @@ var Contact = Class.extend({
     var _uri = ev.dataTransfer.getData('uri');
     if (typeof _tag === 'string' && _tag.length > 0) {
       DataAPI.setTagByUri(function(err_){
-        if (err_ === null) {
+        if (err_ == undefined ||err_ == null) {
           if(!contact._tagView.addTag(_tag)){
             return 0;
           }
-          contact._contacts[contact._selectId]['tags'] += ','+_tag;
+          contact._contacts[contact._selectId]['tags'].push(_tag);
           infoList.fixTagNum(_tag,1);
           var _tagedFile = [contact._contacts[contact._selectId]['URI']];
           if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
@@ -491,6 +497,19 @@ var Contact = Class.extend({
       var _contactJson = contact._contacts[contact._selectId];
       _contactJson['photoPath'] = _path;
       _contactJson['category'] = 'contact';
+      var _info = {
+        _uri: contact._tagView._uri,
+        _changes: [{
+          _property: "photoPath",
+          _value: _path
+        }, {
+          _property: "lastModifyDev",
+          _value: (new Date()).toString()
+        }, {
+          _property: "lastAccessTime",
+          _value: (new Date()).toString()
+        }]
+      }
       DataAPI.updateDataValue(function(err){
         if(err){
           alert('Saved failed!');
@@ -499,7 +518,7 @@ var Contact = Class.extend({
           contact.removeHead();
           contact.setHead(_contactJson);
         }
-      },[_contactJson]);
+      },_info);
     }
   },
   dragover:function(ev){

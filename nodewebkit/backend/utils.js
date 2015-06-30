@@ -11,6 +11,7 @@ var video = require("./data/video");
 var music = require("./data/music");
 var other = require('./data/other')
 var config =  require('./config');
+var rdfHandle = require('./commonHandle/rdfHandle');
 //@const
 var DATA_DIR = "data";
 
@@ -320,7 +321,30 @@ exports.renameExists = function(allFiles) {
 }
 
 exports.isNameExists = function(sFilePath, callback) {
-/*TODO:rewrite*/
+  var _full_name = path.basename(sFilePath);
+  var _name = _full_name.substring(0, _full_name.lastIndexOf('.'));
+  var _postfix = _full_name.substring(_full_name.lastIndexOf('.'), _full_name.length);
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: db.v("subject"),
+    predicate: rdfHandle.DEFINED_PROP["base"]["filename"],
+    object: _name
+  }, {
+    subject: db.v("subject"),
+    predicate: rdfHandle.DEFINED_PROP["base"]["postfix"],
+    object: _postfix
+  }, {
+    subject: db.v("subject"),
+    predicate: db.v("predicate"),
+    object: db.v("object")
+  }];
+  return rdfHandle.dbSearch(_db, _query)
+    .then(function(result_) {
+      if (result_ === [] || result_ === undefined || result_ === null) {
+        return false;
+      }
+      return true;
+    });
 }
 
 exports.getRecent = function(items, num) {
@@ -651,7 +675,7 @@ exports.copyFileSync = copyFileSync;
 function getTitle(str) {
   try {
     var pos = str.lastIndexOf("#");
-    var title = str.slice(pos + 1, str.length);
+    var title = str.substr(pos + 1, str.length);
   } catch (err) {
     throw err;
   }

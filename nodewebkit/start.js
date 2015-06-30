@@ -10,7 +10,7 @@
  * @version:0.2.1
  **/
 
-var config = require("./backend/config");
+var config = require("systemconfig");
 var initRio = require("./backend/initRio");
 var server = require("./backend/server");
 var router = require("./backend/router");

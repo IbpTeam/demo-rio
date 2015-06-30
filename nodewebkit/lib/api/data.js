@@ -8,7 +8,7 @@ var tagsHandle = require("../../backend/commonHandle/tagsHandle");
 var commonHandle = require("../../backend/commonHandle/commonHandle");
 var typeHandle = require("../../backend/commonHandle/typeHandle");
 var fs = require('fs');
-var config = require('../../backend/config');
+var config = require('systemconfig');
 var cp = require('child_process');
 var path = require('path');
 var Q = require('q');
@@ -408,7 +408,7 @@ exports.openDataByUri = openDataByUri;
 //返回类型：
 //成功返回success;
 //失败返回失败原因
-function updateDataValue(updateDataValueCb, item, uri) {
+function updateDataValue(updateDataValueCb, item) {
   console.log("Request handler 'updateDataValue' was called.");
   commonHandle.updatePropertyValue(item)
     .then(function(result) {
@@ -508,15 +508,27 @@ exports.pasteFile = pasteFile;
 //返回类型：成功返回success;失败返回失败原因
 //if catefory is 'contact', then the input 'filename',should be an object that 
 //includes all contact info.
-function createFile(createFileCb, filename, category) {
+function createFile(createFileCb, input, category) {
   console.log("Request handler 'createFile' was called.");
   if (category === 'contact') {
-    if (typeof filename != 'object') {
+    if ( input.length == 0  || input === null) {
       var _err = 'bad contact input data ...';
-      return callback(_err, null);
+      config.log(_err);
+      return callback(_err);
     }
-    contacts.createData(filename, createFileCb);
+    else{
+      return contacts.ContactInfo(input)
+        .then(function(){
+          return createFileCb();
+        })
+        .fail(function(err){
+          return createFileCb(err);
+        })
+        .done();
+        //.notiefy
+    }
   } else {
+    //input = filename
     var desPath = '/tmp/' + filename;
     cp.exec("touch " + desPath, function(error, stdout, stderr) {
       if (error !== null) {
@@ -1065,7 +1077,13 @@ exports.unlinkApp = unlinkApp;
  **/
 function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
   console.log("Request handler 'moveToDesktopSingle' was called.");
-  desktopConf.moveToDesktopSingle(sFilePath, moveToDesktopSingleCb);
+  desktopConf.moveToDesktopSingle(sFilePath)
+    .then(function() {
+      moveToDesktopSingleCb();
+    })
+    .fail(function(err) {
+      moveToDesktopSingleCb(err);
+    });
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
@@ -1114,7 +1132,13 @@ exports.moveToDesktop = moveToDesktop;
  **/
 function removeFileFromDB(removeFileFromDBCb, sFilePath) {
   console.log("Request handler 'removeFileFromDB' was called.");
-  desktopConf.removeFileFromDB(sFilePath, removeFileFromDBCb);
+  desktopConf.removeFileFromDB(sFilePath)
+    .then(function() {
+      removeFileFromDBCb();
+    })
+    .fail(function(err) {
+      removeFileFromDBCb(err);
+    });
 }
 exports.removeFileFromDB = removeFileFromDB;
 
@@ -1139,7 +1163,13 @@ exports.removeFileFromDB = removeFileFromDB;
  **/
 function removeFileFromDesk(removeFileFromDeskCb, sFilePath) {
   console.log("Request handler 'removeFileFromDesk' was called.");
-  desktopConf.removeFileFromDesk(sFilePath, removeFileFromDeskCb);
+  desktopConf.removeFileFromDesk(sFilePath)
+    .then(function() {
+      removeFileFromDeskCb();
+    })
+    .fail(function(err) {
+      removeFileFromDeskCb(err);
+    });
 }
 exports.removeFileFromDesk = removeFileFromDesk;
 
@@ -1159,7 +1189,13 @@ exports.removeFileFromDesk = removeFileFromDesk;
  **/
 function getFilesFromDesk(getFilesFromDeskCb) {
   console.log("Request handler 'getFilesFromDesk' was called.");
-  desktopConf.getFilesFromDesk(getFilesFromDeskCb);
+  desktopConf.getFilesFromDesk()
+    .then(function(result_) {
+      getFilesFromDeskCb(null, result_);
+    })
+    .fail(function(err) {
+      getFilesFromDeskCb(err);
+    });
 }
 exports.getFilesFromDesk = getFilesFromDesk;
 
@@ -1179,7 +1215,13 @@ exports.getFilesFromDesk = getFilesFromDesk;
  **/
 function getAllVideo(getAllVideoCb) {
   console.log("Request handler 'getAllVideo' was called.");
-  desktopConf.getAllVideo(getAllVideoCb);
+  desktopConf.getAllVideo()
+    .then(function(result_) {
+      getAllVideoCb(null, result_);
+    })
+    .fail(function(err) {
+      getAllVideoCb(err);
+    });
 }
 exports.getAllVideo = getAllVideo;
 
@@ -1199,7 +1241,13 @@ exports.getAllVideo = getAllVideo;
  **/
 function getAllMusic(getAllMusicCb) {
   console.log("Request handler 'getAllMusic' was called.");
-  desktopConf.getAllMusic(getAllMusicCb);
+  desktopConf.getAllMusic()
+    .then(function(result_) {
+      getAllMusicCb(null, result_);
+    })
+    .fail(function(err) {
+      getAllMusicCb(err);
+    });
 }
 exports.getAllMusic = getAllMusic;
 
@@ -1222,7 +1270,13 @@ exports.getAllMusic = getAllMusic;
  **/
 function createFileOnDesk(createFileOnDeskCb, sContent) {
   console.log("Request handler 'createFileOnDesk' was called.");
-  desktopConf.createFile(sContent, createFileOnDeskCb);
+  desktopConf.createFile(sContent)
+    .then(function() {
+      createFileOnDeskCb();
+    })
+    .fail(function(err) {
+      createFileOnDeskCb(err);
+    });
 }
 exports.createFileOnDesk = createFileOnDesk;
 
@@ -1244,7 +1298,13 @@ exports.createFileOnDesk = createFileOnDesk;
  **/
 function renameFileOnDesk(renameFileOnDeskCb, oldName, newName) {
   console.log("Request handler 'renameFileOnDesk' was called.");
-  desktopConf.rename(oldName, newName, renameFileOnDeskCb);
+  desktopConf.rename(oldName, newName)
+    .then(function() {
+      renameFileOnDeskCb();
+    })
+    .fail(function(err) {
+      renameFileOnDeskCb(err);
+    });
 }
 exports.renameFileOnDesk = renameFileOnDesk;
 
@@ -1294,7 +1354,13 @@ exports.getIconPath = getIconPath;
  */
 function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
   console.log("Request handler 'setRelativeTagByPath' was called.");
-  tagsHandle.setRelativeTagByPath(sFilePath, sTags, setRelativeTagByPathCb);
+  tagsHandle.setRelativeTagByPath(sFilePath, sTags)
+    .then(function(result){
+      setRelativeTagByPathCb(null, result);
+    })
+    .fail(function(err){
+      setRelativeTagByPathCb(err);
+    });
 }
 exports.setRelativeTagByPath = setRelativeTagByPath;
 
@@ -1410,7 +1476,6 @@ exports.test_rdfHandle = test_rdfHandle;
  *
  **/
 function test_baseinfo(callback) {
-  var config = require("../../backend/config");
   var element = {
     HOMEFOLDER: path.join(config.HOME),
     RESOURCEFOLDER: path.join(config.HOME, "resources")

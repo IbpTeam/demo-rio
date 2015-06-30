@@ -401,28 +401,15 @@
     WDC.requireAPI(['data'], function(data) {
       data.test_baseinfo(function(baseinfo) {
         var homefolder = baseinfo.HOMEFOLDER;
-        var sFilePath = homefolder + '/.resources/document/data/testJSON.txt';
+        var sFilePath = '/home/xiquan/.custard/resource/document/data/testJSON.txt'
         data.removeFileFromDesk(removeFileFromDeskCb,sFilePath);
       });
     });
   }
 
-
-  function getFilesFromDeskCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API getFilesFromDesk()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_getFilesFromDesk(getFilesFromDeskCb) {
+  function test_getFilesFromDesk() {
     WDC.requireAPI(['data'], function(data) {
-      data.getFilesFromDesk(getFilesFromDeskCb);
+      data.getFilesFromDesk(cb);
     });
   }
 
@@ -445,42 +432,18 @@
     });
   }
 
-  function createFileOnDeskCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API createFileOnDesk()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
-  function test_createFileOnDesk(createFileOnDeskCb) {
+  function test_createFileOnDesk() {
     WDC.requireAPI(['data'], function(data) {
       var sContent = 'testttttttttttttttttttttt';
-      data.createFileOnDesk(createFileOnDeskCb,sContent);
+      data.createFileOnDesk(cb, sContent);
     });
   }
 
-  function renameFileOnDeskCb(err, result) {
-    var win = window.open('');
-    if (err) {
-      print(win, err);
-    } else {
-      win.document.write("test API renameFileOnDesk()");
-      win.document.write("<br/>");
-      win.document.write("callback result: ");
-      win.document.write("<br/>");
-      print(win, result)
-    };
-  }
   function test_renameFileOnDesk(renameFileOnDeskCb) {
     WDC.requireAPI(['data'], function(data) {
-      var oldName = 'testJSON.txt';
-      var newName = 'test_rename.txt';
-      data.renameFileOnDesk(renameFileOnDeskCb, oldName, newName);
+      var oldName = 'city5.jpg';
+      var newName = 'test_renamaaaaae.jpg';
+      data.renameFileOnDesk(cb, oldName, newName);
     });
   }
 
@@ -1112,7 +1075,7 @@
 </div>
 </div>
 
-<h2 onclick="show('getFilesFromDesk')">getFilesFromDesk(getFilesFromDeskCb)<span><a class="mark" href="#test_getFilesFromDesk" id="test_getFilesFromDesk" onclick="test_getFilesFromDesk(getFilesFromDeskCb)">test</a></span></h2>
+<h2 onclick="show('getFilesFromDesk')">getFilesFromDesk()<span><a class="mark" href="#test_getFilesFromDesk" id="test_getFilesFromDesk" onclick="test_getFilesFromDesk()">test</a></span></h2>
 <div id="getFilesFromDesk" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -1172,7 +1135,7 @@
 </div>
 </div>
 
-<h2 onclick="show('createFileOnDesk')">createFileOnDesk(createFileOnDeskCb)<span><a class="mark" href="#test_createFileOnDesk" id="test_createFileOnDesk" onclick="test_createFileOnDesk(createFileOnDeskCb)">test</a></span></h2>
+<h2 onclick="show('createFileOnDesk')">createFileOnDesk()<span><a class="mark" href="#test_createFileOnDesk" id="test_createFileOnDesk" onclick="test_createFileOnDesk()">test</a></span></h2>
 <div id="createFileOnDesk" style="display:none;">
 <div style="color:#930000">
   <pre>
@@ -1202,7 +1165,7 @@
 </div>
 </div>
 
-<h2 onclick="show('renameFileOnDesk')">renameFileOnDesk(renameFileOnDeskCb, oldName, newName)<span><a class="mark" href="#test_renameFileOnDesk" id="test_renameFileOnDesk" onclick="test_renameFileOnDesk(renameFileOnDeskCb)">test</a></span></h2>
+<h2 onclick="show('renameFileOnDesk')">renameFileOnDesk(, oldName, newName)<span><a class="mark" href="#test_renameFileOnDesk" id="test_renameFileOnDesk" onclick="test_renameFileOnDesk()">test</a></span></h2>
 <div id="renameFileOnDesk" style="display:none;">
 <div style="color:#930000">
   <pre>
