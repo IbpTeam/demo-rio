@@ -239,7 +239,9 @@ var InfoList = Class.extend({
       _this.loadData();
     }, _this.getCategoryName(_this._index));
     DataAPI.getRecentAccessData(function(err_, result_){
-      if(result_ != null){
+      if(err_){
+      }
+      else{
         _this.removeRecent();
         _this._btmInfo = result_;
         if (_this._btmInfo) {

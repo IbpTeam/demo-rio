@@ -390,7 +390,7 @@ function openDataByUri(openDataByUriCb, uri) {
   return commonHandle.getItemByProperty(_options)
     .then(dataMaker)
     .then(function() {
-      commonHandle.openData(_options, uri);
+      commonHandle.openData(uri);
     })
     .fail(function(err) {
       openDataByUriCb(err);
