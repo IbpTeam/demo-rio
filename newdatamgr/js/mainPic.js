@@ -10,23 +10,28 @@ var MainPicView = Class.extend({
       background_color: 'rgb(110,204,188)'
     });
     DataAPI.getRecentAccessData(function(err_, picture_json_){
-      if(picture_json_.length === 0){
-        homePage._noneData++;
-        if (homePage._noneData === homePage._dataClasses) {
-          $('#avatar')[0].click();
-        };
+      if(err_){
+        throw err_;
       }
-      for(var i = 0; i < picture_json_.length; i++){
-        var _date = new Date(picture_json_[i]['createTime']);
-        _this._picData={
-          'path': picture_json_[i]['path'],
-          'text': picture_json_[i]['filename'],
-          'URI': picture_json_[i]['URI'],
-          'postfix':picture_json_[i]['postfix'],
-          'date': _date.toDateString(),
-          'tags': picture_json_[i]['tags']
+      else{
+        if(picture_json_.length === 0){
+          homePage._noneData++;
+          if (homePage._noneData === homePage._dataClasses) {
+            $('#avatar')[0].click();
+          };
         }
-        _this.setPicture(_this._picData);
+        for(var i = 0; i < picture_json_.length; i++){
+          var _date = new Date(picture_json_[i]['createTime']);
+          _this._picData={
+            'path': picture_json_[i]['path'],
+            'text': picture_json_[i]['filename'],
+            'URI': picture_json_[i]['URI'],
+            'postfix':picture_json_[i]['postfix'],
+            'date': _date.toDateString(),
+            'tags': picture_json_[i]['tags']
+          }
+          _this.setPicture(_this._picData);
+        }
       }
     }, 'picture', 1);
   },

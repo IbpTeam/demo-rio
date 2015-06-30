@@ -307,6 +307,9 @@ function getAllDataByCate(cate) {
           version: "",
           filename: info[item].filename,
           postfix: info[item].postfix,
+          size: info[item].size,
+          lastModifyTime: info[item].lastModifyTime,
+          createTime: info[item].createTime,
           path: info[item].path,
           tags: info[item].tags
         })
@@ -358,9 +361,10 @@ exports.getRecentAccessData = function(category, num) {
     items = items.sort(function(a, b) {
       var _a = new Date(a.lastAccessTime);
       var _b = new Date(b.lastAccessTime);
-      return _b - _a;
+      var res =  _b.getTime() - _a.getTime();
+      return res;
     });
-    var _result = (items.length > num) ? items.slice(0, num - 1) : items;
+    var _result = (items.length > num) ? items.slice(0, num ) : items;
     return _result;
   }
   return rdfHandle.dbSearch(_db, _query)
