@@ -132,10 +132,10 @@ exports.ContactInfo = ContactInfo;
 function infoMaker(oJson) {
   var deferred = Q.defer();
   try {
-    if(oJson.constructor != Array)
-      oJson = [oJson];
-    if(typeof oJson === 'string')
+    if(typeof(oJson) === 'string')
       oJson = JSON.parse(oJson); 
+    if(Object.prototype.toString.call(oJson) !== '[object Array]')
+      oJson = [oJson];
     var oContacts = [];
     for (var k in oJson) {
       if (oJson[k].hasOwnProperty("姓") || oJson[k].hasOwnProperty("lastname")) {
