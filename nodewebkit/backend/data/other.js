@@ -11,7 +11,7 @@
  **/
 var pathModule = require('path');
 var fs = require('fs');
-var config = require("../config");
+var config = require("systemconfig");
 
 //@const
 var CATEGORY_NAME = "other";
