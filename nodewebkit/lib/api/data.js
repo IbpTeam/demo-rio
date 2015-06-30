@@ -821,10 +821,10 @@ function getAllDesktopFile(getAllDesktopFileCb) {
   console.log("Request handler 'getAllDesktopFile' was called.");
   desktopConf.getAllDesktopFile()
     .then(function(result_) {
-      getAllDesktopFileCb(result_);
+      getAllDesktopFileCb(null, result_);
     })
     .fail(function(err) {
-      getAllDesktopFileCb(null, err);
+      getAllDesktopFileCb(err);
     });
 }
 exports.getAllDesktopFile = getAllDesktopFile;
@@ -852,10 +852,10 @@ function readDesktopConfig(readDesktopConfigCb, sFileName) {
   console.log("Request handler 'readDesktopConfig' was called.");
   desktopConf.readDesktopConfig(sFileName)
     .then(function(result) {
-      readDesktopConfigCb(result);
+      readDesktopConfigCb(null, result);
     })
     .fail(function(err) {
-      readDesktopConfigCb(null, err);
+      readDesktopConfigCb(err);
     })
 }
 exports.readDesktopConfig = readDesktopConfig;
