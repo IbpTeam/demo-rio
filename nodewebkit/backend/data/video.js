@@ -12,7 +12,7 @@
 var pathModule = require('path');
 var fs = require('fs');
 var fs_extra =require('fs-extra');
-var config = require("../config");
+var config = require("systemconfig");
 var utils = require("../utils")
 var exec = require('child_process').exec;
 
