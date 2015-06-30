@@ -1,6 +1,6 @@
 {
   "property": {
-    "URI": "http: //example.org/property/base#URI",
+    "URI": "http://example.org/property/base#URI",
     "filename": "http://example.org/property/base#filename",
     "postfix": "http://example.org/property/base#postfix",
     "category": "http://example.org/property/base#category",

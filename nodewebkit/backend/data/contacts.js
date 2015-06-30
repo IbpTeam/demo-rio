@@ -14,7 +14,7 @@ var rdfHandle = require("../commonHandle/rdfHandle");
 var pathModule = require('path');
 var fs = require('fs');
 var fs_extra = require('fs-extra');
-var config = require('../config');
+var config = require('systemconfig');
 var csvtojson = require('../csvTojson');
 var uniqueID = require("../uniqueID");
 var tagsHandle = require('../commonHandle/tagsHandle');
@@ -25,7 +25,7 @@ var CATEGORY_NAME = "contact";
 
 
 /*TODO: rewrite */
-function createData(item, callback) {
+function createData(item) {
   /*TODO: rewrite*/
   return callback();
 }
@@ -66,7 +66,8 @@ function getAllContacts() {
       for (var item in info_) {
         _items.push({
           URI: info_[item].URI || "",
-          name: info_[item].lastname + info_[item].firstname,
+          lastname: info_[item].lastname,
+          firstname: info_[item].firstname,
           sex: info_[item].sex || "",
           age: info_[item].age || "",
           photoPath: info_[item].photoPath || "",
@@ -96,42 +97,48 @@ function initContacts(sItemPath) {
 
   //convert csv to json
   return csvtojson.Q_csvTojson(sItemPath)
-    .then(function(result_) {
-      //get all contact info into object
-      return infoMaker(result_)
-        .then(function(info_) {
-          //reform the info object as {_base, _extra}
-          return Q.all(info_.map(dataInfo))
-            .then(function(result_) {
-              var _info_result = [];
-              for (var i = 0, l = result_.length; i < l; i++) {
-                _info_result = _info_result.concat(result_[i]);
+    .then(ContactInfo);
+}
+exports.initContacts = initContacts;
+
+function ContactInfo(info) {
+  //get all contact info into object
+  return infoMaker(info)
+    .then(function(info_) {
+      //reform the info object as {_base, _extra}
+      return Q.all(info_.map(dataInfo))
+        .then(function(json) {
+          var _info_result = [];
+          for (var i = 0, l = json.length; i < l; i++) {
+            _info_result = _info_result.concat(json[i]);
+          }
+          //make valid triples
+          return Q.all(_info_result.map(rdfHandle.tripleGenerator))
+            .then(function(triples_) {
+              var _triple_result = [];
+              for (var i = 0, l = triples_.length; i < l; i++) {
+                _triple_result = _triple_result.concat(triples_[i]);
               }
-              //make valid triples
-              return Q.all(_info_result.map(rdfHandle.tripleGenerator))
-                .then(function(triples_) {
-                  var _triple_result = [];
-                  for (var i = 0, l = triples_.length; i < l; i++) {
-                    _triple_result = _triple_result.concat(triples_[i]);
-                  }
-                  //put them in leveldb
-                  var _db = rdfHandle.dbOpen();
-                  return rdfHandle.dbPut(_db, _triple_result);
-                });
+              //put them in leveldb
+              var _db = rdfHandle.dbOpen();
+              return rdfHandle.dbPut(_db, _triple_result);
             });
         });
     });
 }
-exports.initContacts = initContacts;
+exports.ContactInfo = ContactInfo;
 
 
-function infoMaker(json) {
+function infoMaker(oJson) {
   var deferred = Q.defer();
   try {
-    var oJson = JSON.parse(json);
+    if(typeof(oJson) === 'string')
+      oJson = JSON.parse(oJson); 
+    if(Object.prototype.toString.call(oJson) !== '[object Array]')
+      oJson = [oJson];
     var oContacts = [];
     for (var k in oJson) {
-      if (oJson[k].hasOwnProperty("姓")) {
+      if (oJson[k].hasOwnProperty("姓") || oJson[k].hasOwnProperty("lastname")) {
         oContacts.push(oJson[k]);
       }
     }
@@ -144,7 +151,11 @@ function infoMaker(json) {
 
 
 function dataInfo(itemInfo) {
-  var fullName = itemInfo["姓"] + itemInfo["名"];
+  var fullName;
+  if(itemInfo["姓"] != null)
+   fullName = itemInfo["姓"] + itemInfo["名"];
+  else if(itemInfo["lastname"] != null)
+    fullName = itemInfo["lastname"] + itemInfo["firstname"];
   var fullNameUrl = 'http://example.org/category/contact#' + fullName;
   return uniqueID.Q_getFileUid()
     .then(function(uri_) {
@@ -163,15 +174,15 @@ function dataInfo(itemInfo) {
           tags: ""
         },
         extra: {
-          lastname: itemInfo["姓"] || "",
-          firstname: itemInfo["名"] || "",
-          sex: itemInfo["性别"] || "",
-          age: itemInfo["年龄"] || "",
-          email: itemInfo["电子邮件地址"] || "",
-          phone: itemInfo["移动电话"] || "",
+          lastname: itemInfo["姓"] || itemInfo["lastname"] ||"",
+          firstname: itemInfo["名"] ||itemInfo["firstname"] || "",
+          // name:itemInfo["姓"]+itemInfo["名"] || itemInfo["lastname"]+itemInfo["firstname"] ||"",
+          sex: itemInfo["性别"] || itemInfo["sex"] || "",
+          age: itemInfo["年龄"] || itemInfo["age"] || "",
+          email: itemInfo["电子邮件地址"] || itemInfo["email"] || "",
+          phone: itemInfo["移动电话"] || itemInfo["phone"]  || "",
           photoPath: ""
         }
       }
     });
 }
-

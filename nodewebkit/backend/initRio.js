@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var cp = require('child_process');
-var config = require('./config');
+var config = require('systemconfig');
 var fullPath = config.BASEPATH;
 
 if (!fs.existsSync(fullPath)) {
