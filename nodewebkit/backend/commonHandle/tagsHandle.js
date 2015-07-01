@@ -141,18 +141,58 @@ function getTagsByUri(uri) {
     subject: _db.v('subject'),
     predicate: DEFINED_PROP["base"]["tags"],
     object: _db.v('tag')
+  },
+  {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["category"],
+    object: _db.v('category')
   }];
+
+
   var tagMaker = function(result){
     var _tags = [];
     for (var i = 0, l = result.length; i < l; i++) {
-      _tags.push(utils.getTitle(result[i].tag));
+      _tags.push([utils.getTitle(result[i].tag),utils.getTitle(result[i].category)]);
     }
     return _tags;
   } 
+
+  function getTagFileNumber(tag) {
+      var _db = rdfHandle.dbOpen();
+      var _query = [{
+        subject: _db.v('subject'),
+        predicate: DEFINED_PROP["base"]["category"],
+        object: tag[1]
+      }, {
+        subject: _db.v('subject'),
+        predicate: DEFINED_PROP["base"]["tags"],
+        object: 'http://example.org/tags#' + tag[0]
+      }, {
+        subject: _db.v('subject'),
+        predicate: DEFINED_PROP["base"]["URI"],
+        object: _db.v('file')
+      }];
+      return rdfHandle.dbSearch(_db, _query)
+      .then(function(uri_list_) {
+        return [tag, uri_list_.length]
+      });
+  }
+
   return rdfHandle
   .dbSearch(_db, _query)
   .fail(function(err){throw new Error(err);})
-  .then(tagMaker);
+  .then(tagMaker)
+  .then(function(result) {
+      return Q.all(result.map(getTagFileNumber));
+   })
+   .then(function(_result){
+     var _tags=[];
+     for (var i = 0, l = _result.length; i < l; i++) {
+      _tags.push( [ utils.getTitle(_result[i][0][0]) , _result[i][1]  ]  );
+    }
+     return _tags;
+  });
+  
 }
 exports.getTagsByUri = getTagsByUri;
 

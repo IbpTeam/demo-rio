@@ -579,6 +579,7 @@ function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
   tagsHandle.getAllTagsByCategory(category)
     .then(function(results) {
+      console.log(results);
       getAllTagsByCategoryCb(null, results);
     })
     .fail(function(err) {
@@ -626,20 +627,30 @@ exports.getTagsByUri = getTagsByUri;
  */
 function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
-  var _tmp_result = [];
   Q.all(oUris.map(tagsHandle.getTagsByUri))
     .then(function(result_) {
-      var _tags = {};
+      var _tags =[];
       for (var i = 0, l = result_.length; i < l; i++) {
         for (var j = 0, m = result_[i].length; j < m; j++) {
-          _tags[result_[i][j]] = true;
+          var isInTags=false;
+          for (var k= 0, n = _tags.length; k < n; k++) {
+            if(result_[i][j][0] == _tags[k][0]){
+              isInTags=true;
+              break;
+            }
+          }
+          if(isInTags==false){
+            _tags.push(result_[i][j]);
+          }
         }
       }
-      var _tags_result = [];
-      for (var tag_ in _tags) {
-        _tags_result.push(tag_);
+      for (var i = 0, l = _tags.length; i < l; i++) {
+        
+        if(_tags[i][1]>oUris.length){
+          _tags[i][1]=oUris.length;
+        }
       }
-      getTagsByUrisCb(null, _tags_result);
+      getTagsByUrisCb(null, _tags);
     })
     .fail(getTagsByUrisCb)
     .done();
