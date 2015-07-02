@@ -226,7 +226,7 @@ function getMusicPicData(filePath, callback) {
     var option = {
       encoding: 'base64'
     }
-    var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/music_180_180.png');
+    var backup_icon = pathModule.join(config.PROJECTPATH, '/demo-rio/newdatamgr/icons/music_180_180.png');
     fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
         return callback_(err, null);
@@ -240,7 +240,7 @@ function getMusicPicData(filePath, callback) {
   });
   parser.on('data', function(tag) {
     if (tag.type == 'APIC') {
-      picData = (tag.value.data).toString('base64');
+      picData = "test"//(tag.value.data).toString('base64');
     }
   });
   stream.on('close', function() {
