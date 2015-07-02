@@ -320,6 +320,16 @@ function readConf(filename) {
   return readJSONFile(_file_path);
 }
 
+function readConf_node(callback, filename) {
+  return readConf(filename)
+    .then(function(result) {
+      callback(null, result);
+    })
+    .fail(function(err) {
+      callback(err);
+    });
+}
+
 /** 
  * @Method: writeConf
  *    modify a file .conf
@@ -1556,7 +1566,7 @@ function getIconPath(iconName_, size_, callback) {
       }
     });
   }
-  readConf(readConfCb, 'Theme.conf');
+  readConf_node(readConfCb, 'Theme.conf');
 }
 exports.getIconPath = getIconPath;
 
