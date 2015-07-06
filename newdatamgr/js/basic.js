@@ -339,11 +339,11 @@ var Basic = Class.extend({
           var _deleteTagInput = $('<input>', {
             'id':'delete-tag-input',
             'name':'tags',
-            'value': tags_[i],
+            'value': tags_[i][0],
             'type':'checkbox'
           });
           _deleteTagForm.append(_deleteTagInput);
-          _deleteTagForm.append(tags_[i]+'</br>');
+          _deleteTagForm.append(tags_[i][0]+'</br>');
         }
         _deleteTagForm.append('</br>');
         var _deleteTagButton = $('<input>', {
@@ -377,6 +377,7 @@ var Basic = Class.extend({
     var _uri = uri_;
     var _category = category_;
     if(_tags && _uri){
+      console.log(_tags)
       DataAPI.rmTagsByUri(function(err){
         if (err == null) {
           if(basic._tagDragged){
