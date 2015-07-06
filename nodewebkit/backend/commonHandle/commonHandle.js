@@ -287,7 +287,6 @@ exports.getAllCate = function(getAllCateCb) {
  *
  **/
 function getAllDataByCate(cate) {
-  console.log("Request handler 'getAllDataByCate' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
@@ -340,7 +339,6 @@ exports.getAllDataByCate = getAllDataByCate;
  *
  **/
 exports.getRecentAccessData = function(category, num) {
-  console.log("Request handler 'getRecentAccessData' was called.");
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),

@@ -491,13 +491,16 @@
   function test_findAllDesktopFiles(){
         WDC.requireAPI(['data'], function(data) {
       data.test_desktop(function(desktop){
-        desktop.findAllDesktopFiles()
-        .then(cb)
-        .fail(cb)
-        .done();
+        desktop.findAllDesktopFiles(cb)
       })
     });
   }
+
+    function test_getIconPath() {
+      WDC.requireAPI(['data'], function(data) {
+        data.getIconPath(cb, "computer", 48)
+      });
+    }
 
   </script>
 
@@ -1264,6 +1267,10 @@
 
 <h2 onclick="show('findAllDesktopFiles')">findAllDesktopFiles(findAllDesktopFilesCb)<span><a class="mark" href="#test_findAllDesktopFiles" id="test_findAllDesktopFiles" onclick="test_findAllDesktopFiles(cb)">test</a></span></h2>
 <div id="findAllDesktopFiles" style="display:none;">
+</div>
+
+<h2 onclick="show('getIconPath')">getIconPath(getIconPathCb)<span><a class="mark" href="#test_getIconPath" id="test_getIconPath" onclick="test_getIconPath(cb)">test</a></span></h2>
+<div id="getIconPath" style="display:none;">
 </div>
 
 </body>
