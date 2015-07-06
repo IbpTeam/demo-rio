@@ -326,15 +326,10 @@
   }
   function test_moveToDesktopSingle(moveToDesktopSingleCb) {
     WDC.requireAPI(['data'], function(data) {
-      WDC.requireAPI(['data'], function(data){
-        data.test_baseinfo(function(baseinfo) {
-          var sFilePath = baseinfo.HOMEFOLDER +  '/testFile/testJSON.txt';
-          data.moveToDesktopSingle(moveToDesktopSingleCb,sFilePath);
-        });  
-      });
-      
-    });
-  }
+        var sFilePath = '/home/xiquan/testFile/testJSON.txt';
+        data.moveToDesktopSingle(moveToDesktopSingleCb, sFilePath);
+      })
+    }
 
   function moveToDesktopCb(err, result) {
     var win = window.open('');
