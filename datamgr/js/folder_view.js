@@ -241,7 +241,7 @@ function gen_add_tags_dialog(data_uri){
 
 function gen_delete_tags_dialog(data_uri){
   console.log("gen_delete_tags_dialog!", data_uri);
-  DataAPI.getTagsByUri(function(tags){
+  DataAPI.getTagsByUri(function(err, tags){
     if(tags.length > 0 && tags[0] != ""){
       var file_propery='<form>';
       for(var i=0; i<tags.length; i++){
@@ -259,11 +259,11 @@ function gen_delete_tags_dialog(data_uri){
              tags_to_delete.push(webtags[i].value);
            }
          }
-         DataAPI.rmTagsByUri(function(result){
-           if(result == 'commit'){
-             window.alert("Delete tags successfully!");
+         DataAPI.rmTagsByUri(function(err){
+           if(err){
+             window.alert("Delete tags failed!");            
            }else{
-             window.alert("Delete tags failed!");
+             window.alert("Delete tags successfully!");
            }
          }, tags_to_delete, data_uri);
       });
