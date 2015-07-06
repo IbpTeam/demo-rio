@@ -919,7 +919,7 @@ Folder.prototype.show_folder_mode_view = function(fs_structure, data_json, datap
 }
 
 //wangyu: add this call back function for folder mode view.
-Folder.prototype.folder_view_mode_cb = function(data_json){
+Folder.prototype.folder_view_mode_cb = function(err, data_json){
   var fs_structure = global_self.build_fs_tree(data_json);
   global_self.show_folder_mode_view(fs_structure, data_json, '');
 }

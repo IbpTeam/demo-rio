@@ -511,47 +511,46 @@ exports.pasteFile = pasteFile;
 function createFile(createFileCb, input, category) {
   console.log("Request handler 'createFile' was called.");
   if (category === 'contact') {
-    if ( input.length == 0  || input === null) {
+    if (input.length == 0 || input === null) {
       var _err = 'bad contact input data ...';
       config.log(_err);
       return callback(_err);
-    }
-    else{
+    } else {
       return contacts.ContactInfo(input)
-        .then(function(){
+        .then(function() {
           return createFileCb();
         })
-        .fail(function(err){
+        .fail(function(err) {
           return createFileCb(err);
         })
         .done();
-        //.notiefy
+      //.notiefy
     }
   } else {
     //input = filename
-    var desPath = '/tmp/' + filename;
+    var desPath = '/tmp/' + input;
     cp.exec("touch " + desPath, function(error, stdout, stderr) {
       if (error !== null) {
         console.log('exec error: ' + error);
         creatFileCb(false);
       } else {
         if (category !== 'contact') {
-          var cate = utils.getCategoryObject(category);
-          cate.createData([desPath], function(err, result) {
-            if (err != null) {
-              createFileCb(false);
-            } else {
+          commonHandle.createData([desPath])
+            .then(function() {
               cp.exec("rm " + desPath, function(error, stdout, stderr) {
-                createFileCb(result);
+                createFileCb();
               });
-            }
-          });
+            })
+            .fail(function() {
+              createFileCb(err);
+            })
         }
       }
     });
   }
 }
 exports.createFile = createFile;
+
 
 //API getResourceDataDir:获得resource数据路径
 //返回类型：

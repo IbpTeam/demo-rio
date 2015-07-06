@@ -26,7 +26,7 @@ function readVideoThumbnail(sPath, callback) {
     var option = {
       encoding: 'base64'
     }
-    var backup_icon = pathModule.join(config.PROJECTPATH, '/app/demo-rio/newdatamgr/icons/video_320_180.png');
+    var backup_icon = pathModule.join(config.PROJECTPATH, '/demo-rio/newdatamgr/icons/video_320_180.png');
     fs.readFile(backup_icon, option, function(err, buffer_base64) {
       if (err) {
         return callback(err, null);
@@ -60,7 +60,7 @@ function readVideoThumbnail(sPath, callback) {
           } else {
             //remove tmp thumbnail file after scuccessfully get it.
             fs_extra.remove(tmpDir, function(err) {
-              return callback(null, buffer_base64);
+              return callback(null, "test"/*buffer_base64*/);
             })
           }
         })
