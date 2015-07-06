@@ -1,7 +1,7 @@
 
 var main = function(params_){
     //basic = Basic.create();
-  WDC.requireAPI(['data', 'app','clipboard'], function(data, app, clipboard){
+  WDC.requireAPI(['clipboard', 'data', 'app'], function(clipboard, data, app){
     console.log("data:" +  data + " app:" + app + " clipboard:" + clipboard);
     DataAPI=data;
     AppAPI=app;
@@ -118,47 +118,60 @@ var main = function(params_){
 
     var ctrlDown = false;
     var ctrlKey = 17, vKey = 86;
-    document.onkeydown=function(ev){
-        if (ev.keyCode == ctrlKey) {
-          ctrlDown = true;
+    var onPasted = function(filePath) {
+      data.loadFile(function(err){
+        console.log("load file "+filePath+" : "+err);
+        var _window = undefined;
+        if (window == top) {
+          var hrefLocal = window.location.href;
+          hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
+          hrefLocal = hrefLocal + "?id=" + WDC.AppID
+              + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+          location.replace(hrefLocal);
+        } else {
+          try{
+            _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+            var _dataMgrIfm = _window._windowContent[0];
+            _dataMgrIfm.src = _dataMgrIfm.src.substr(0,hrefLocal.indexOf("html") + 4)
+                + "?id=" + WDC.AppID
+                + "&{category:'"+ infoList.getCategoryName(infoList._index) + "'}";
+          } catch(e){
+            console.log(e);
+          }
         }
-        else if(ev.keyCode == vKey && ctrlDown==true){
-          console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
-            data.getTmpPath(function(err,res){
-              res=res+'/';
-              console.log("res="+res);
-              clipboard.getFile(res,function(result,filePath){
-                console.log(result);
-                console.log(filePath);
-                data.loadFile(function(err){
-                  console.log("load file "+filePath+" : "+err);
-                  var _window = undefined;
-                  if (window == top){
-                    var hrefLocal = window.location.href;
-                    hrefLocal = hrefLocal.substr(0,hrefLocal.indexOf("html")+4);
-                    hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'"+infoList.getCategoryName(infoList._index)+"'}";
-                    location.replace(hrefLocal);
-                  }else{
-                  try{
-                    _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
-                    var _dataMgrIfm = _window._windowContent[0];
-                  _dataMgrIfm.src = _dataMgrIfm.src.substr(0,hrefLocal.indexOf("html")+4)+"?id=" + WDC.AppID + "&{category:'"+infoList.getCategoryName(infoList._index)+"'}";
-                  } catch(e){
-                  console.log(e);
-                }
-              }
-                },filePath);
-              }) ;
+      }, filePath);
+    };
+
+    document.onkeydown = function(ev) {
+      if (ev.keyCode == ctrlKey) {
+        ctrlDown = true;
+      } else if(ev.keyCode == vKey && ctrlDown == true) {
+        console.log("@@@@@@@@@Ctrl+" + ev.keyCode + "@@@@@@@@@@@@");
+        data.getTmpPath(function(err, res) {
+          res = res + '/';
+          console.log("res=" + res);
+          clipboard.getFile(res, function(session, filePath) {
+            var id = session.id;
+            session.session.on('progress#' + id, function(percentage, msg) {
+              console.log('Progress:', percentage + '%', msg);
+            }).on('error#' + id, function(err) {
+              console.log('Error:', err);
+            }).on('end#' + id, function(err) {
+              if(err) return console.log(err);
+              console.log('Transmission OK!');
+              // console.log(filePath);
+              onPasted(filePath);
             });
-        }
-        else if(ev.keyCode == vKey && ctrlDown==false){
-          console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
-        }
+          });
+        });
+      } else if(ev.keyCode == vKey && ctrlDown == false) {
+        console.log("@@@@@@@@@" + ev.keyCode + "@@@@@@@@@@@@");
+      }
     }
-    document.onkeyup=function(ev){
-        if (ev.keyCode == ctrlKey) {
-          ctrlDown = false;
-        }
+    document.onkeyup = function(ev) {
+      if (ev.keyCode == ctrlKey) {
+        ctrlDown = false;
+      }
     }
 });
 }
