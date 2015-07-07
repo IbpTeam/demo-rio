@@ -151,6 +151,10 @@ var main = function(params_){
           res = res + '/';
           console.log("res=" + res);
           clipboard.getFile(res, function(session, filePath) {
+            if(session.err){
+              console.log(session.err);
+              return;
+            }
             var id = session.id;
             session.session.on('progress#' + id, function(percentage, msg) {
               console.log('Progress:', percentage + '%', msg);
