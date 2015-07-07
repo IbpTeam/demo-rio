@@ -1455,7 +1455,20 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *
  **/
 function getFilesFromDesk() {
+  function resolveIno(info) {
+    return promised.stat(info.path)
+      .then(function(stat_) {
+        return [info.path, stat_.ino];
+      })
+  }
   return tagsHandle.getFilesByTags([DESKTAG])
+    .then(function(result) {
+      var _combination = [];
+      for (var i = 0, l = result.length; i < l; i++) {
+        _combination.push(resolveIno(result[i]));
+      }
+      return Q.all(_combination);
+    })
 }
 exports.getFilesFromDesk = getFilesFromDesk;
 
