@@ -24,7 +24,6 @@ var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
 var cryptoApp= require('./backend/crypto_app');
-var appManager = require('./backend/app/appManager');
 var typeHandle = require("./backend/commonHandle/typeHandle");
 //var process = require('process');
 
@@ -70,9 +69,6 @@ function startApp(){
     }
     initializeApp(sFullPath);
   });
-  // MSG transfer server initialize
-  // msgTransfer.initServer();
-  // server.start(router.route, handle);
 
   cp.exec('./node_modules/netlink/netlink ./var/.netlinkStatus');
 }
@@ -137,8 +133,6 @@ function initializeApp(sFullPath) {
     });
   });
   device = require("./backend/data/device");
-  // init HTML5 app manager
-  appManager.loadAppList();
 }
 
 /** 
