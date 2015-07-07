@@ -1324,13 +1324,16 @@ function moveToDesktopSingle(sFilePath) {
         .then(function() {
           return commonHandle.createData([sFilePath])
         })
-        // .then(function(){
-        //   return promised.stat(sFilePath)
-        // })
         .then(function() {
           return setDesktopTag(sFilePath);
-        });
+        })
     })
+    .then(function(result_) {
+      return promised.stat(result_[0])
+        .then(function(stat_) {
+          return [result_[0], stat_.ino];
+        })
+    });
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
