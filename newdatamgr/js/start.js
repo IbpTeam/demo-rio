@@ -151,18 +151,51 @@ var main = function(params_){
           res = res + '/';
           console.log("res=" + res);
           clipboard.getFile(res, function(session, filePath) {
-            if(session.err){
-              console.log(session.err);
-              return;
+            var winW = 450,
+                winH = 150,
+                tipWin = Window.create('fileTrans', '粘贴文件', {
+                  min: true,
+                  max: false,
+                  hide: false,
+                  height: winH,
+                  width: winW,
+                  left: ($(window).width()- winW) / 2,
+                  top: ($(window).height() - winH) / 2
+                });
+            tipWin.show();
+            if(session.err) {
+              var err;
+              if(typeof session.err === 'string') {
+                err = session.err;
+              } else if(typeof session.err === 'object') {
+                err = session.err.code + ', ' + session.err.path;
+              }
+              return tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
             }
-            var id = session.id;
+            var id = session.id,
+                progBar = Gauge.create({
+                  width: winW - 20,
+                  height: 30,
+                  name: 'fileTransProg',
+                  limit: true,
+                  gradient: true,
+                  scale: 10,
+                  colors: ['#00ff00', '#0000ff'],
+                  values: [0, 100],
+                  noscale: true
+                });
+            tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>文件传输：<span id="progInfo"></span></p></div>'
+                + '<div id="progBar" style="width: 100%; padding: 10px"></div>');
+            progBar.add($('#progBar'));
+            var $progInfo = $('#progInfo');
             session.session.on('progress#' + id, function(percentage, msg) {
-              console.log('Progress:', percentage + '%', msg);
+              $progInfo.html(percentage + '%');
+              progBar.modify($('#fileTransProg')[0], {values: [parseInt(percentage), 100]});
             }).on('error#' + id, function(err) {
-              console.log('Error:', err);
+              $progInfo.html('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
             }).on('end#' + id, function(err) {
               if(err) return console.log(err);
-              console.log('Transmission OK!');
+              $progInfo.html('完成！正在导入数据管理器，请稍后...');
               // console.log(filePath);
               onPasted(filePath);
             });
