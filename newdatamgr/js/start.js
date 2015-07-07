@@ -152,7 +152,7 @@ var main = function(params_){
           console.log("res=" + res);
           clipboard.getFile(res, function(session, filePath) {
             var winW = 450,
-                winH = 100,
+                winH = 150,
                 tipWin = Window.create('fileTrans', '粘贴文件', {
                   min: true,
                   max: false,
@@ -170,11 +170,11 @@ var main = function(params_){
               } else if(typeof session.err === 'object') {
                 err = session.err.code + ', ' + session.err.path;
               }
-              return tipWin.append('<p>Error: ' + err + '</p>');
+              return tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
             }
             var id = session.id,
                 progBar = Gauge.create({
-                  width: winW,
+                  width: winW - 20,
                   height: 30,
                   name: 'fileTransProg',
                   limit: true,
@@ -184,14 +184,15 @@ var main = function(params_){
                   values: [0, 100],
                   noscale: true
                 });
-            progBar.add($('#' + tipWin.gitID()));
-            tipWin.append('<p>文件传输：<span id="progInfo"></span></p>');
+            tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>文件传输：<span id="progInfo"></span></p></div>'
+                + '<div id="progBar" style="width: 100%; padding: 10px"></div>');
+            progBar.add($('#progBar'));
             var $progInfo = $('#progInfo');
             session.session.on('progress#' + id, function(percentage, msg) {
               $progInfo.html(percentage + '%');
               progBar.modify($('#fileTransProg')[0], {values: [parseInt(percentage), 100]});
             }).on('error#' + id, function(err) {
-              console.log('Error:', err);
+              $progInfo.html('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
             }).on('end#' + id, function(err) {
               if(err) return console.log(err);
               $progInfo.html('完成！正在导入数据管理器，请稍后...');
