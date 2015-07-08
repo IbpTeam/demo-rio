@@ -86,7 +86,13 @@ var InfoList = Class.extend({
                 return 0;
               }
             };
-            _this.addTag(newtext_,0);
+            DataAPI.addPreTag(function(err) {
+              if (err) {
+                console.log(err);
+                return 0;
+              }
+              _this.addTag(newtext_, 0);
+            }, newtext_, _this.getCategoryName(_this._index));
           }
         }
       }
