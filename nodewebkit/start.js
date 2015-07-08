@@ -23,7 +23,7 @@ var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
-// var cryptoApp= require('./backend/crypto_app');
+var cryptoApp = require('./backend/crypto_app');
 var typeHandle = require("./backend/commonHandle/typeHandle");
 //var process = require('process');
 
@@ -43,18 +43,18 @@ function startApp(){
   if (startonce === true){
     return;
   }
-//  cryptoApp.generateKeypairCtn(function(done) {
-//    if (done)
-//      console.log('create rsa keypair success!');
-//    else
-//      console.log('create rsa keypair failed!!!');
-//  });
-//  cryptoApp.initServerPubKey(function(done) {
-//  if (done)
-//    console.log('init server pubkey success!');
-//  else
-//    console.log('init server pubkey failed!!!');
-// });
+  cryptoApp.generateKeypairCtn(function(done) {
+    if (done)
+      console.log('create rsa keypair success!');
+    else
+      console.log('create rsa keypair failed!!!');
+  });
+  cryptoApp.initServerPubKey(function(done) {
+    if (done)
+      console.log('init server pubkey success!');
+    else
+      console.log('init server pubkey failed!!!');
+  });
   startonce = true;
   config.SERVERNAME = os.hostname();
   var sFullPath = config.USERCONFIGPATH;
