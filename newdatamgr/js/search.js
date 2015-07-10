@@ -45,7 +45,7 @@ var Search = Class.extend({
     this._qrcode.click(function(ev) {
       if (_this._isQrc === false) {
         DataAPI.getServerAddress(function(serverAddr_){
-          var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/index.html#';
+          var _hostLink = 'http://' + serverAddr_.ip + ':' + serverAddr_.port + '/callapp/datamgr-app/index.html#';
           _this._qrcodeContainer.children('.qrcode-content') .qrcode({
             text: _hostLink,
             width:150,
