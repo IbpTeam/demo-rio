@@ -500,53 +500,6 @@ function rmTagAll(tag, category) {
 exports.rmTagAll = rmTagAll;
 
 
-//build the object items for update in both DB and desfile 
-function buildDeleteItems(allFiles, result) {
-  if (result.length > 0) {
-    var sUri = result[0].URI;
-    var category = utils.getCategoryByUri(sUri);
-    for (var k in result) {
-      var newItem = {
-        category: category,
-        URI: result[k].URI,
-        others: result[k].others
-      };
-      if (category == 'contact') {
-        newItem.name = result[k].name;
-      } else {
-        newItem.path = result[k].path;
-      }
-      allFiles.push(newItem);
-    }
-  }
-}
-
-
-//remove those tags we want to delete
-function doDeleteTags(oAllFiles, oTags) {
-  var resultFiles = [];
-  for (var j in oAllFiles) {
-    var tags = (oAllFiles[j].others).split(',');
-    var newTags = [];
-    if (tags) {
-      for (var i in tags) {
-        var isExist = false;
-        for (var k in oTags) {
-          if (tags[i] == oTags[k]) {
-            isExist = true;
-          }
-        }
-        if (!isExist) {
-          newTags.push(tags[i]);
-        }
-      }
-    }
-    (oAllFiles[j]).others = newTags.join(',');
-  }
-  return oAllFiles;
-}
-
-
 /**
  * @method setRelativeTag
  *   To set a relative tag for a file in order to keep relative relationship of

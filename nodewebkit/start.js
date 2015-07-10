@@ -10,22 +10,23 @@
  * @version:0.2.1
  **/
 
-var config = require("systemconfig");
-var initRio = require("./backend/initRio");
-var server = require("./backend/server");
-var router = require("./backend/router");
-var desktopConf = require("./backend/data/desktop");
-var uniqueID=require('./backend/uniqueID');
-var msgTransfer = require("./backend/Transfer/msgTransfer");
-var device;
 var util = require('util');
 var os = require('os');
 var fs = require('fs');
 var cp = require('child_process');
 var path = require('path');
-var cryptoApp= require('./backend/crypto_app');
-var typeHandle = require("./backend/commonHandle/typeHandle");
 //var process = require('process');
+
+var device;
+var config = require("systemconfig");
+var initRio = require("./backend/initRio");
+// var server = require("./backend/server");
+// var router = require("./backend/router");
+// var msgTransfer = require("./backend/Transfer/msgTransfer");
+// var desktopConf = require("./backend/data/desktop");
+var uniqueID=require('./backend/uniqueID');
+var cryptoApp = require('./backend/crypto_app');
+var typeHandle = require("./backend/commonHandle/typeHandle");
 
 var handle = {}
 
@@ -50,11 +51,11 @@ function startApp(){
       console.log('create rsa keypair failed!!!');
   });
   cryptoApp.initServerPubKey(function(done) {
-  if (done)
-    console.log('init server pubkey success!');
-  else
-    console.log('init server pubkey failed!!!');
- });
+    if (done)
+      console.log('init server pubkey success!');
+    else
+      console.log('init server pubkey failed!!!');
+  });
   startonce = true;
   config.SERVERNAME = os.hostname();
   var sFullPath = config.USERCONFIGPATH;
