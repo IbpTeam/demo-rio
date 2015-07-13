@@ -503,6 +503,11 @@ function pasteFile(pasteFileCb, filename, category) {
 }
 exports.pasteFile = pasteFile;
 
+exports.importDataBase = function(sourceDB, targetDB){
+   console.log("Request handler 'importDataBase' was called.");
+   return commonHandle.importDataBase(sourceDB,targetDB);
+}
+
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
 //返回类型：成功返回success;失败返回失败原因

@@ -50,6 +50,9 @@ exports.TYPEFILEDIR = TYPEFILEDIR;
 var TYPECONFPATH = path.join(USERCONFIGPATH, '/custard_type/typeDefine.conf');
 exports.TYPECONFPATH = TYPECONFPATH;
 
+var BACKUPFOLDERPATH = path.join(USERCONFIGPATH, '/backup/');
+exports.BACKUPFOLDERPATH = BACKUPFOLDERPATH;
+
 
 /**
  * APP Path

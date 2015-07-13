@@ -201,6 +201,22 @@ function extraInfo(item, category) {
     })
 }
 
+exports.exportData = function(isDeleteLastEdition, sOutputPath){
+  var bacFolder = config.BACKUPFOLDERPATH;
+  if(isDeleteLastEdition){
+    FileSystemObject.DeleteFolder(bacFolder);
+  }
+}
+
+exports.importDataBase = function(sourceDB, targetDB){
+  var _query = {
+    subject: _db.v('subject'),
+    predicate: _db.v('predicate'),
+    object: _db.v('object')
+  }
+  var tripples = rdfhandle.dbSearch(sourceDB, _query).done();
+  return rdfhandle.dbPut(targetDB, triples);
+}
 
 /** 
  * @Method: getItemByProperty
