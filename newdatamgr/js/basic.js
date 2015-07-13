@@ -44,41 +44,12 @@ var Basic = Class.extend({
     footer.append(footerButton);
   
     var content = $('<div>',{
+      'id': 'popup-content',
       'class':'modal-content'
     });
     content.append(header);
     content.append(body);
     content.append(footer);
-    
-
-    var ctrlDown = false;
-    var ctrlKey = 17, cKey = 67, vKey = 86;
-    document.onkeydown=function(ev){
-        if (ev.keyCode == ctrlKey) {
-          ctrlDown = true;
-        }
-        else if(ev.keyCode == cKey && ctrlDown==true){
-          console.log("@@@@@@@@@Ctrl+"+ev.keyCode+"@@@@@@@@@@@@");
-          var text=window.getSelection().toString();
-          WDC.requireAPI(['clipboard'], function(clipboard){
-            console.log("clipboard:" +  clipboard );
-            clipboard.setText(text,function(result){
-              console.log(result);
-            }) ;
-          });
-        }
-        else if(ev.keyCode == cKey && ctrlDown==false){
-          console.log("@@@@@@@@@"+ev.keyCode+"@@@@@@@@@@@@");
-        }
-
-    }
-    document.onkeyup=function(ev){
-        if (ev.keyCode == ctrlKey) {
-          ctrlDown = false;
-        }
-    }
-
-
 
     dialog = $('<div>',{
       'class':'modal-dialog'
@@ -95,6 +66,32 @@ var Basic = Class.extend({
     $('#popupDialog').on('hidden.bs.modal', function(){
       $(this).remove();
     });
+
+
+    var ctrlDown = false;
+    var ctrlKey = 17, cKey = 67, vKey = 86;
+    document.onkeydown=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = true;
+        }
+        else if(ev.keyCode == cKey && ctrlDown==true){
+          var text=window.getSelection().toString();
+          WDC.requireAPI(['clipboard'], function(clipboard){
+            console.log("call setText)))))))))))))))))))))))))))))))))))");
+            clipboard.setText(text,function(result){
+              console.log(result);
+            }) ;
+          });
+        }
+        else if(ev.keyCode == cKey && ctrlDown==false){
+        }
+
+    }
+    document.onkeyup=function(ev){
+        if (ev.keyCode == ctrlKey) {
+          ctrlDown = false;
+        }
+    }
   },
 
   //此函数用来通过json格式找到数据库中的源文件
@@ -339,11 +336,11 @@ var Basic = Class.extend({
           var _deleteTagInput = $('<input>', {
             'id':'delete-tag-input',
             'name':'tags',
-            'value': tags_[i],
+            'value': tags_[i][0],
             'type':'checkbox'
           });
           _deleteTagForm.append(_deleteTagInput);
-          _deleteTagForm.append(tags_[i]+'</br>');
+          _deleteTagForm.append(tags_[i][0]+'</br>');
         }
         _deleteTagForm.append('</br>');
         var _deleteTagButton = $('<input>', {
@@ -377,6 +374,7 @@ var Basic = Class.extend({
     var _uri = uri_;
     var _category = category_;
     if(_tags && _uri){
+      console.log(_tags)
       DataAPI.rmTagsByUri(function(err){
         if (err == null) {
           if(basic._tagDragged){
