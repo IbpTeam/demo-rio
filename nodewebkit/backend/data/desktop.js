@@ -1328,10 +1328,13 @@ function moveToDesktopSingle(sFilePath) {
           return setDesktopTag(sFilePath);
         })
     })
-    .then(function(result_) {
-      return promised.stat(result_[0])
-        .then(function(stat_) {
-          return [result_[0], stat_.ino];
+    .then(function(option_) {
+      return commonHandle.getItemByProperty(option_)
+        .then(function(info_) {
+          return promised.stat(info_[0].path)
+            .then(function(stat_) {
+              return [info_[0].path,stat_.ino];
+            })
         })
     });
 }
@@ -1346,7 +1349,10 @@ function setDesktopTag(filepath) {
     _property: "filename",
     _value: _name
   }
-  return tagsHandle.setTagByProperty([DESKTAG], _option);
+  return tagsHandle.setTagByProperty([DESKTAG], _option)
+    .then(function(){
+      return _option;
+    })
 }
 
 /*TODO: sqlite bug, not complete*/
