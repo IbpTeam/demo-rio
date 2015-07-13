@@ -1313,33 +1313,44 @@ function moveToDesktopSingle(sFilePath) {
   return promised.open(config.TYPECONFPATH, 'r')
     .then(function(fd_) {
       return promised.close(fd_)
-        .then(function() {
-          return commonHandle.createData([sFilePath])
-        })
-        .then(function() {
-          return setDesktopTag(sFilePath);
-        });
     }, function() {
       return typeHandle.initTypeDef()
-        .then(function() {
-          return commonHandle.createData([sFilePath])
-        })
-        .then(function() {
-          return setDesktopTag(sFilePath);
-        });
     })
+    .then(function() {
+      return commonHandle.createData([sFilePath])
+    })
+    .then(function() {
+      return setDesktopTag(sFilePath);
+    })
+    .then(function(option_) {
+      return commonHandle.getItemByProperty(option_)
+        .then(function(info_) {
+          return promised.stat(info_[0].path)
+            .then(function(stat_) {
+              return [info_[0].path, stat_.ino];
+            })
+        })
+    });
 }
 exports.moveToDesktopSingle = moveToDesktopSingle;
 
+
 function setDesktopTag(filepath) {
   var _full_name = pathModule.basename(filepath);
-  var _name = _full_name.substring(0, _full_name.lastIndexOf('.'));
+  if (_full_name.lastIndexOf('.') !== -1) {
+    var _name = _full_name.substring(0, _full_name.lastIndexOf('.'))
+  } else {
+    var _name = _full_name;
+  }
   var _option = {
     _type: "base",
     _property: "filename",
     _value: _name
   }
-  return tagsHandle.setTagByProperty([DESKTAG], _option);
+  return tagsHandle.setTagByProperty([DESKTAG], _option)
+    .then(function() {
+      return _option;
+    })
 }
 
 /*TODO: sqlite bug, not complete*/
@@ -1448,7 +1459,20 @@ exports.removeFileFromDesk = removeFileFromDesk;
  *
  **/
 function getFilesFromDesk() {
+  function resolveIno(info) {
+    return promised.stat(info.path)
+      .then(function(stat_) {
+        return [info.path, stat_.ino];
+      })
+  }
   return tagsHandle.getFilesByTags([DESKTAG])
+    .then(function(result) {
+      var _combination = [];
+      for (var i = 0, l = result.length; i < l; i++) {
+        _combination.push(resolveIno(result[i]));
+      }
+      return Q.all(_combination);
+    })
 }
 exports.getFilesFromDesk = getFilesFromDesk;
 
