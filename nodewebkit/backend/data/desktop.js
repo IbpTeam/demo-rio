@@ -1347,7 +1347,6 @@ function setDesktopTag(filepath) {
     _property: "filename",
     _value: _name
   }
-  console.log(_option)
   return tagsHandle.setTagByProperty([DESKTAG], _option)
     .then(function() {
       return _option;
