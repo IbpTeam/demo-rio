@@ -1313,27 +1313,21 @@ function moveToDesktopSingle(sFilePath) {
   return promised.open(config.TYPECONFPATH, 'r')
     .then(function(fd_) {
       return promised.close(fd_)
-        .then(function() {
-          return commonHandle.createData([sFilePath])
-        })
-        .then(function() {
-          return setDesktopTag(sFilePath);
-        });
     }, function() {
       return typeHandle.initTypeDef()
-        .then(function() {
-          return commonHandle.createData([sFilePath])
-        })
-        .then(function() {
-          return setDesktopTag(sFilePath);
-        })
+    })
+    .then(function() {
+      return commonHandle.createData([sFilePath])
+    })
+    .then(function() {
+      return setDesktopTag(sFilePath);
     })
     .then(function(option_) {
       return commonHandle.getItemByProperty(option_)
         .then(function(info_) {
           return promised.stat(info_[0].path)
             .then(function(stat_) {
-              return [info_[0].path,stat_.ino];
+              return [info_[0].path, stat_.ino];
             })
         })
     });
@@ -1343,14 +1337,19 @@ exports.moveToDesktopSingle = moveToDesktopSingle;
 
 function setDesktopTag(filepath) {
   var _full_name = pathModule.basename(filepath);
-  var _name = _full_name.substring(0, _full_name.lastIndexOf('.'));
+  if (_full_name.lastIndexOf('.') !== -1) {
+    var _name = _full_name.substring(0, _full_name.lastIndexOf('.'))
+  } else {
+    var _name = _full_name;
+  }
   var _option = {
     _type: "base",
     _property: "filename",
     _value: _name
   }
+  console.log(_option)
   return tagsHandle.setTagByProperty([DESKTAG], _option)
-    .then(function(){
+    .then(function() {
       return _option;
     })
 }
