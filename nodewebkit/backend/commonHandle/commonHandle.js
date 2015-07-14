@@ -71,12 +71,17 @@ function dataStore(items, extraCallback) {
     })
   } else {
     var _file_info = [];
+    var _file_path = [];
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
           _file_info.push(result[i]);
+          _file_path.push(result[i].path);
         }
-        return writeTriples(_file_info);
+        return writeTriples(_file_info)
+          .then(function() {
+            return _file_path;
+          })
       });
   }
 }

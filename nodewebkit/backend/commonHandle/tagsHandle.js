@@ -343,13 +343,12 @@ function setTagByUri(tags, uri) {
 exports.setTagByUri = setTagByUri;
 
 
-//shoud be base property
-function setTagByProperty(tags, property) {
+function setTagByProperty(tags, option) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
     subject: _db.v('subject'),
-    predicate: DEFINED_PROP["base"][property],
-    object: property
+    predicate: DEFINED_PROP[option._type][option._property],
+    object: option._value
   }, {
     subject: _db.v('subject'),
     predicate: DEFINED_PROP["base"]["category"],

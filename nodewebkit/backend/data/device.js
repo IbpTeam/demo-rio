@@ -126,6 +126,11 @@ function startDeviceDiscoveryService(){
     if (state === true) {
       console.log('start MDNS service successful!');
     };
+  ds.broadCastOnline(function(state){
+    if (state === true) {
+      console.log('device online.');
+    };
+  });
   });
 }
 exports.startDeviceDiscoveryService = startDeviceDiscoveryService;

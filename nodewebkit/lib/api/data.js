@@ -1088,8 +1088,8 @@ exports.unlinkApp = unlinkApp;
 function moveToDesktopSingle(moveToDesktopSingleCb, sFilePath) {
   console.log("Request handler 'moveToDesktopSingle' was called.");
   desktopConf.moveToDesktopSingle(sFilePath)
-    .then(function() {
-      moveToDesktopSingleCb();
+    .then(function(result) {
+      moveToDesktopSingleCb(null, result);
     })
     .fail(function(err) {
       moveToDesktopSingleCb(err);
