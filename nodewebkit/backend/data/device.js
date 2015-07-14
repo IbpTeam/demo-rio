@@ -3,6 +3,7 @@
 var config = require('systemconfig');
 // var ds = require("../../lib/api/device_service");
 var ds = require('api').devDetect();
+var innerlib = require('./device_detect/device_service.js');
 
 var devicesList=new Array();
 exports.devicesList = devicesList;
@@ -126,7 +127,7 @@ function startDeviceDiscoveryService(){
     if (state === true) {
       console.log('start MDNS service successful!');
     };
-  ds.broadCastOnline(function(state){
+  innerlib.broadCastOnline(function(state){
     if (state === true) {
       console.log('device online.');
     };
