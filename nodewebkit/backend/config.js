@@ -11,6 +11,9 @@ exports.HOME = HOME;
 var BASEPATH = path.join(HOME, ".custard");
 exports.BASEPATH = BASEPATH;
 
+var BACKUPFOLDERPATH = path.join(HOME, '.custardBac');
+exports.BACKUPFOLDERPATH = BACKUPFOLDERPATH;
+
 var RESOURCEPATH = path.join(BASEPATH, "resource");
 exports.RESOURCEPATH = RESOURCEPATH;
 
@@ -38,6 +41,11 @@ var DATABASENAME = "custard_rdf";
 var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.LEVELDBPATH = LEVELDBPATH;
 
+//levelgraph database backup
+var DATABASENAME = "custard_rdf";
+var BACKUPDBPATH = path.join(BACKUPFOLDERPATH, DATABASENAME);
+exports.BACKUPDBPATH = BACKUPDBPATH;
+
 //data type definition position
 var DATAJSDIR = path.join(USERCONFIGPATH, '/custard_type');
 exports.DATAJSDIR = DATAJSDIR;
@@ -50,8 +58,7 @@ exports.TYPEFILEDIR = TYPEFILEDIR;
 var TYPECONFPATH = path.join(USERCONFIGPATH, '/custard_type/typeDefine.conf');
 exports.TYPECONFPATH = TYPECONFPATH;
 
-var BACKUPFOLDERPATH = path.join(USERCONFIGPATH, '/backup/');
-exports.BACKUPFOLDERPATH = BACKUPFOLDERPATH;
+
 
 
 /**

@@ -20,6 +20,7 @@ var Q = require('q');
 
 //const
 var __db = levelgraph(config.LEVELDBPATH);
+
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
 var DEFINED_VOC = {
@@ -34,7 +35,7 @@ var DEFINED_VOC = {
     _category: "http://example.org/category#",
     _property: "http://example.org/property/" // _property + "categoryname" + "#" +"propertyname"
   }
-}
+};
 var DEFINED_PROP = getAllProperty();
 var DEFINED_TYPE = getDefinedTypeInfo();
 
@@ -86,6 +87,15 @@ function dbOpen() {
 exports.dbOpen = dbOpen;
 
 
+function backupDBOpen(bakcupDBPATH){
+  var _backDB;
+  if(typeof bakcupDBPATH != 'string')
+    _backDB = levelgraph(config.BACKUPDBPATH);
+  else
+    _backDB = levelgraph(bakcupDBPATH);
+  return _backDB;
+}
+exports.backupDBOpen = backupDBOpen;
 /**
  * @method dbClose
  *   close the levegraph database
@@ -96,8 +106,15 @@ exports.dbOpen = dbOpen;
  *      otherwise, return reject with Error object
  */
 function dbClose(db) {
-  var deferred = Q.defer;
-  return Q.fcall(function() {});
+  var deferred = Q.defer();
+  db.close(function(err){
+    if (err) {
+      deferred.reject(new Error(err));
+    } else {
+      deferred.resolve("db has been closed");
+    }
+  });
+  return deferred.promise;
 }
 exports.dbClose = dbClose;
 
@@ -441,7 +458,7 @@ exports.defTripleGenerator = defTripleGenerator;
  */
 function getDefinedTypeInfo() {
   try {
-    var _result = {}
+    var _result = {};
     var _type_list = fs.readdirSync(TYPEFILEDIR);
     for (var i = 0, l = _type_list.length; i < l; i++) {
       var _type_name = pathModule.basename(_type_list[i], ".type");

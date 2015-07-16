@@ -163,6 +163,7 @@ exports.loadContacts = loadContacts;
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
   commonHandle.getAllCate(getAllCateCb)
+
 }
 exports.getAllCate = getAllCate;
 
@@ -503,10 +504,10 @@ function pasteFile(pasteFileCb, filename, category) {
 }
 exports.pasteFile = pasteFile;
 
-exports.importDataBase = function(sourceDB, targetDB){
-   console.log("Request handler 'importDataBase' was called.");
-   return commonHandle.importDataBase(sourceDB,targetDB);
-}
+exports.importMetaData = function(sPath){
+   console.log("Request handler 'importMetaData' was called.");
+   return commonHandle.importMetaData(sPath);
+};
 
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径

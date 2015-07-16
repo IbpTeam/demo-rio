@@ -19,13 +19,14 @@ var rdfHandle = require("./rdfHandle");
 var typeHandle = require("./typeHandle");
 var promised = require('./promisedFunc');
 var Q = require('q');
+var levelgraph = require('levelgraph');
 
 //let Q trace long stack
 Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
-var DEFINED_PROP = rdfHandle.DEFINED_PROP
+var DEFINED_PROP = rdfHandle.DEFINED_PROP;
 
 function createData(items) {
   return dataStore(items);
@@ -99,7 +100,7 @@ function doCreate(item) {
                   subject: _base.URI,
                   base: _base,
                   extra: result
-                }
+                };
                 return item_info;
               });
           }
@@ -167,7 +168,7 @@ function baseInfo(itemPath) {
       createDev: config.uniqueID,
       lastModifyDev: config.uniqueID,
       lastAccessDev: config.uniqueID
-    }
+    };
     return uniqueID.Q_getFileUid()
       .then(function(_uri) {
         _base.URI = _uri
@@ -179,7 +180,7 @@ function baseInfo(itemPath) {
             return _base;
           })
       })
-  }
+  };
   return Q_fsStat(itemPath).then(Q_uriMaker);
 }
 exports.baseInfo = baseInfo;
@@ -200,23 +201,47 @@ function extraInfo(item, category) {
         });
     })
 }
+function exportDataBase(){
 
-exports.exportData = function(isDeleteLastEdition, sOutputPath){
-  var bacFolder = config.BACKUPFOLDERPATH;
-  if(isDeleteLastEdition){
-    FileSystemObject.DeleteFolder(bacFolder);
-  }
+}
+exports.importMetaData = importMetaData;
+
+var querySourceDataBase = function(sourceDB){
+  var _query = [{
+    subject: sourceDB.v('subject'),
+    predicate: sourceDB.v('predicate'),
+    object: sourceDB.v('object')
+  }];
+  return rdfHandle.dbSearch(sourceDB, _query);
+}
+var importTargetDataBase = function(sPath){
+  var targetDB = rdfHandle.dbOpen();
+  var sourceDB = rdfHandle.backupDBOpen(sPath);
+  return querySourceDataBase(sourceDB)
+      .then(function(triples){
+        console.log(triples);
+        return rdfHandle.dbPut(targetDB, triples);
+      });
 }
 
-exports.importDataBase = function(sourceDB, targetDB){
-  var _query = {
-    subject: _db.v('subject'),
-    predicate: _db.v('predicate'),
-    object: _db.v('object')
-  }
-  var tripples = rdfhandle.dbSearch(sourceDB, _query).done();
-  return rdfhandle.dbPut(targetDB, triples);
+
+// var importDataBase = function(sourceDB, targetDB){
+//   var _query = [{
+//     subject: sourceDB.v('subject'),
+//     predicate: sourceDB.v('predicate'),
+//     object: sourceDB.v('object')
+//   }];
+//   return rdfHandle.dbSearch(sourceDB, _query)
+//     .then(function(triples){
+//       console.log(triples);
+//       return rdfHandle.dbPut(targetDB, triples);
+//     });
+// };
+
+function importMetaData(sPath){
+  return importTargetDataBase(sPath);
 }
+exports.importMetaData = importMetaData;
 
 /** 
  * @Method: getItemByProperty
@@ -241,7 +266,7 @@ function getItemByProperty(options) {
       }
     }
     return items;
-  }
+  };
   return getTriplesByProperty(options)
     .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
@@ -284,7 +309,7 @@ exports.getAllCate = function(getAllCateCb) {
       getAllCateCb(result);
     })
   });
-}
+};
 
 
 /** 
@@ -313,6 +338,7 @@ function getAllDataByCate(cate) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
+
   var dataMaker = function(info) {
     var items = [];
     for (var item in info) {
@@ -375,16 +401,14 @@ exports.getRecentAccessData = function(category, num) {
     items = items.sort(function(a, b) {
       var _a = new Date(a.lastAccessTime);
       var _b = new Date(b.lastAccessTime);
-      var res =  _b.getTime() - _a.getTime();
-      return res;
+      return  _b.getTime() - _a.getTime();
     });
-    var _result = (items.length > num) ? items.slice(0, num ) : items;
-    return _result;
-  }
+    return (items.length > num) ? items.slice(0, num ) : items;
+  };
   return rdfHandle.dbSearch(_db, _query)
     .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
-}
+};
 
 
 
@@ -420,7 +444,7 @@ function updatePropertyValue(property) {
     _type: "base",
     _property: "URI",
     _value: property._uri
-  }
+  };
   var doUpdate = function(result) {
     var _new_triples = [];
     var _origin_triples = [];
@@ -435,7 +459,7 @@ function updatePropertyValue(property) {
     }
     var _db = rdfHandle.dbOpen();
     return updateTriples(_db, _origin_triples, _new_triples);
-  }
+  };
   return getTriplesByProperty(_options)
     .then(doUpdate);
 }
@@ -450,7 +474,7 @@ function resolveTriples(chenges, triple) {
       subject: triple.subject,
       predicate: triple.predicate,
       object: triple.object
-    }
+    };
     _new_triple["object"] = chenges._value;
 
     return {
