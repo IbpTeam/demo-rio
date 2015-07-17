@@ -386,61 +386,62 @@ function handleFile(src, des, floor) {
 }
 
 function exportData(sDes){
-
   var sSrc = "/home/xwh/.custard";
-  return delDirSync(sDes);
-  // return walk(sSrc, sDes,0,handleFile);
+  return walk(sSrc, sDes, 0, handleFile)
+    .then(folderPackage(sDes, sDes+".tar.gz"));
 }
 exports.exportData = exportData;
 
 
-function unZip(input){
+function folderExtractor(input){
   var deferred = Q.defer();
-  zlib.deflate(input, function(err, buffer) {
-    if (!err) {
-      console.log(buffer.toString('base64'));
-    }
-    else{
-      deferred.reject(new Error(err));
-    }
-  });
   var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
-  zlib.unzip(buffer, function(err, buffer) {
-    if (!err) {
-      console.log(buffer.toString());
-    }
-    else{
-      deferred.reject(new Error(err));
-    }
-  });
+  var input = fstream.Reader({    path: src   });
+  zlib.Deflate(input)
+    .pipe(zlib.Unzip(buffer)) /* Compress the .tar file */
+    .pipe(tar.Extract({path: des })); /* Convert the directory to a .tar file */
   deferred.resolve();
   return deferred.promise;
 }
-exports.unZip = unZip;
+exports.folderExtractor = folderExtractor;
 
 
-function zipFolder(sZipFolderPath,sBackupStoreFolder){
-  var gzip = zlib.createGzip();
-  var fs = require('fs');
-  var inp = fs.createReadStream(sZipFolderPath);
-  var out;
+// function packageFolder(sZipFolderPath,sBackupStoreFolder){
+//   var gzip = zlib.createGzip();
+//   var fs = require('fs');
+//   var inp = fs.createReadStream(sZipFolderPath);
+//   var out;
+//   var deferred = Q.defer();
+//   try{
+//     if(typeof sBackupStoreFolder === 'string'){
+//       fs.createWriteStream(sBackupStoreFolder);
+//       console.log("BackupPath:"+sBackupStoreFolder);
+//     }
+//     else
+//       fs.createWriteStream(config.BACKUPFOLDERPATH);
+//     inp.pipe(gzip).pipe(out);
+//     deferred.resolve();
+//   }
+//   catch(err){
+//     deferred.reject(new Error(err));
+//   }
+//   return deferred.promise;
+// }
+function folderPackage(src,des){{
   var deferred = Q.defer();
-  try{
-    if(typeof sBackupStoreFolder === 'string'){
-      fs.createWriteStream(sBackupStoreFolder);
-      console.log("BackupPath:"+sBackupStoreFolder);
-    }
-    else
-      fs.createWriteStream(config.BACKUPFOLDERPATH);
-    inp.pipe(gzip).pipe(out);
-    deferred.resolve();
-  }
-  catch(err){
-    deferred.reject(new Error(err));
-  }
+  fstream.Reader({
+    path: src,
+     type: 'Directory'
+    }) /* Read the source directory */
+    .pipe(tar.Pack()) /* Convert the directory to a .tar file */
+    .pipe(zlib.Gzip()) /* Compress the .tar file */
+    .pipe(fstream.Writer({
+      path: des
+    })); /* Give the output file name */
+  deferred.resolve();
   return deferred.promise;
 }
-exports.zipFolder = zipFolder;
+exports.folderPackage = folderPackage;
 
 
 /** 
