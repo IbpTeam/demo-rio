@@ -87,6 +87,19 @@ function dbOpen() {
 exports.dbOpen = dbOpen;
 
 
+/** 
+ * @Method: backupDBOpen
+ *    To open backup database from its path
+ *
+ * @param: Options
+ *    String, backup DataBase Path;
+ *    Without this param, the system will using its default path to open
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
 function backupDBOpen(bakcupDBPATH){
   var _backDB;
   if(typeof bakcupDBPATH != 'string')
@@ -96,6 +109,8 @@ function backupDBOpen(bakcupDBPATH){
   return _backDB;
 }
 exports.backupDBOpen = backupDBOpen;
+
+
 /**
  * @method dbClose
  *   close the levegraph database

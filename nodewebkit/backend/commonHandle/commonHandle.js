@@ -10,6 +10,7 @@
  * @version:0.3.0
  **/
 var path = require('path');
+var zlib = require('zlib');
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var config = require("systemconfig");
@@ -128,7 +129,7 @@ exports.writeTriples = writeTriples;
 function Q_copy(filePath, newPath) {
   var deferred = Q.defer();
   fs_extra.copy(filePath, newPath, function(err) {
-    //drop into reject only when error is not "ENOENT"
+    //drop into reject only when erro`r is not "ENOENT"
     if (err && err[0].code !== "ENOENT") {
       deferred.reject(new Error(err));
     } else if (err && err[0].code === "ENOENT") {
@@ -201,47 +202,246 @@ function extraInfo(item, category) {
         });
     })
 }
-function exportDataBase(){
 
-}
-exports.importMetaData = importMetaData;
-
-var querySourceDataBase = function(sourceDB){
+/** 
+ * @Method: importDataBase
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @At first, search all tripples from Source DataBase
+ *       @Secondly, put tripples into Target DataBase
+ *
+ * @param1: 
+ *    database, backup DataBase
+ *
+ * @param2: 
+ *    database, user's DataBase
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+var importDataBase = function(sourceDB, targetDB){
   var _query = [{
     subject: sourceDB.v('subject'),
     predicate: sourceDB.v('predicate'),
     object: sourceDB.v('object')
   }];
-  return rdfHandle.dbSearch(sourceDB, _query);
-}
-var importTargetDataBase = function(sPath){
+  return rdfHandle.dbSearch(sourceDB, _query)
+    .then(function(triples){
+      console.log(triples);
+      return rdfHandle.dbPut(targetDB, triples);
+    });
+};
+
+
+/** 
+ * @Method: importMetaData
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @linkto : importDataBase
+ *
+ * @param1: 
+ *    String, backup DataBase Path
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function importMetaData(sPath){
   var targetDB = rdfHandle.dbOpen();
   var sourceDB = rdfHandle.backupDBOpen(sPath);
-  return querySourceDataBase(sourceDB)
-      .then(function(triples){
-        console.log(triples);
-        return rdfHandle.dbPut(targetDB, triples);
-      });
-}
-
-
-// var importDataBase = function(sourceDB, targetDB){
-//   var _query = [{
-//     subject: sourceDB.v('subject'),
-//     predicate: sourceDB.v('predicate'),
-//     object: sourceDB.v('object')
-//   }];
-//   return rdfHandle.dbSearch(sourceDB, _query)
-//     .then(function(triples){
-//       console.log(triples);
-//       return rdfHandle.dbPut(targetDB, triples);
-//     });
-// };
-
-function importMetaData(sPath){
-  return importTargetDataBase(sPath);
+  return importDataBase(sourceDB, targetDB);
 }
 exports.importMetaData = importMetaData;
+
+
+function copy(src, dst){
+  // fs.createReadStream(scr)
+    // .pipe(fs.createWriteStream(dst));
+  var deferred = Q.defer();
+  var rs = fs.createReadStream(src);
+  var ws = fs.createWriteStream(dst);
+  rs.on('data', function(chunk){
+    if(ws.write(chunk) === false){
+      rs.pause;
+    }
+  });
+
+  rs.on('end',function(err){
+    if(err){
+      deferred.reject();
+    }
+    else{
+      ws.end();
+    }
+  });
+  rs.on('drain',function(err){
+    if(err){
+      deferred.reject();
+    }
+    else{
+      rs.resume();
+    }
+  });
+  deferred.resolve();
+  return deferred.promise;
+}
+
+function mkdirsSync(dirPath) { 
+  var deferred = Q.defer();
+  if (!fs.existsSync(dirPath)) {
+      var pathTmp;
+      dirPath.split(path.sep).forEach(function(dirName) {
+          if (pathTmp) {
+              pathTmp = path.join(pathTmp, dirName);
+          }
+          else {
+              pathTmp = dirName;
+          }
+          if (!fs.existsSync(pathTmp)) {
+              if (!fs.mkdirSync(pathTmp)) {
+                  deferred.reject();
+              }
+          }
+      });
+  }
+  deferred.resolve();
+  return deferred.promise; 
+}
+
+
+function delDirSync(sPath){
+  var deferred = Q.defer();
+  var folder_exists = fs.existsSync(sPath);
+  if(folder_exists === true)
+  {
+    var dirList = fs.readdirSync(sPath);
+    dirList.forEach(function(fileName)
+    {
+      fs.unlinkSync(sPath + fileName);
+    });
+  }
+  deferred.resolve();
+  return deferred.promise;
+}
+
+
+function walk(src, des, floor, handleFile) {
+  var deferred = Q.defer();
+  handleFile(src, des, floor);
+  floor++;
+  fs.readdir(src, function(err, files) {
+    if (err) {
+      deferred.reject();
+      console.log('read dir error');
+    } else {
+      files.forEach(function(item) {
+        var tmpSrc = src + '/' + item;
+        var tmpDes = des + '/' + item;
+        fs.stat(tmpSrc, function(err1, stats) {
+          if (err1) {
+            deferred.reject();
+            console.log('stat error');
+          } else {
+            if (stats.isDirectory()) {
+              walk(tmpSrc, tmpDes, floor, handleFile);
+            } else {
+              handleFile(tmpSrc, tmpDes, floor);
+            }
+          }
+        })
+      });
+
+    }
+  });
+  deferred.resolve();
+  return deferred.promise; 
+}
+
+
+function handleFile(src, des, floor) {
+  var deferred = Q.defer();
+  var blankStr = '';
+  for (var i = 0; i < floor; i++) {
+    blankStr += '    ';
+  }
+  fs.stat(src, function(err1, stats) {
+    if (err1) {
+      deferred.reject();
+      console.log('stat error');
+    } else {
+      if (stats.isDirectory()) {
+        console.log('+' + blankStr + src);
+        if (!fs.existsSync(des)) {
+          fs.mkdirSync(des);
+        }
+      } else {
+        console.log('-' + blankStr + src);
+        copy(src, des);
+      }
+    }
+  })
+  deferred.resolve();
+  return deferred.promise; 
+}
+
+function exportData(sDes){
+
+  var sSrc = "/home/xwh/.custard";
+  return delDirSync(sDes);
+  // return walk(sSrc, sDes,0,handleFile);
+}
+exports.exportData = exportData;
+
+
+function unZip(input){
+  var deferred = Q.defer();
+  zlib.deflate(input, function(err, buffer) {
+    if (!err) {
+      console.log(buffer.toString('base64'));
+    }
+    else{
+      deferred.reject(new Error(err));
+    }
+  });
+  var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
+  zlib.unzip(buffer, function(err, buffer) {
+    if (!err) {
+      console.log(buffer.toString());
+    }
+    else{
+      deferred.reject(new Error(err));
+    }
+  });
+  deferred.resolve();
+  return deferred.promise;
+}
+exports.unZip = unZip;
+
+
+function zipFolder(sZipFolderPath,sBackupStoreFolder){
+  var gzip = zlib.createGzip();
+  var fs = require('fs');
+  var inp = fs.createReadStream(sZipFolderPath);
+  var out;
+  var deferred = Q.defer();
+  try{
+    if(typeof sBackupStoreFolder === 'string'){
+      fs.createWriteStream(sBackupStoreFolder);
+      console.log("BackupPath:"+sBackupStoreFolder);
+    }
+    else
+      fs.createWriteStream(config.BACKUPFOLDERPATH);
+    inp.pipe(gzip).pipe(out);
+    deferred.resolve();
+  }
+  catch(err){
+    deferred.reject(new Error(err));
+  }
+  return deferred.promise;
+}
+exports.zipFolder = zipFolder;
+
 
 /** 
  * @Method: getItemByProperty
