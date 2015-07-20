@@ -206,56 +206,7 @@ function extraInfo(item, category) {
     })
 }
 
-/** 
- * @Method: importDataBase
- *    To import MetaData to Target DataBase from Source DataBase
- *       @At first, search all tripples from Source DataBase
- *       @Secondly, put tripples into Target DataBase
- *
- * @param1: 
- *    database, backup DataBase
- *
- * @param2: 
- *    database, user's DataBase
- *
- * @return Promise
- *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
- *
- **/
-var importDataBase = function(sourceDB, targetDB){
-  var _query = [{
-    subject: sourceDB.v('subject'),
-    predicate: sourceDB.v('predicate'),
-    object: sourceDB.v('object')
-  }];
-  return rdfHandle.dbSearch(sourceDB, _query)
-    .then(function(triples){
-      console.log(triples);
-      return rdfHandle.dbPut(targetDB, triples);
-    });
-};
 
-
-/** 
- * @Method: importMetaData
- *    To import MetaData to Target DataBase from Source DataBase
- *       @linkto : importDataBase
- *
- * @param1: 
- *    String, backup DataBase Path
- *
- * @return Promise
- *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
- *
- **/
-function importMetaData(sPath){
-  var targetDB = rdfHandle.dbOpen();
-  var sourceDB = rdfHandle.backupDBOpen(sPath);
-  return importDataBase(sourceDB, targetDB);
-}
-exports.importMetaData = importMetaData;
 
 
 
@@ -290,6 +241,30 @@ function copy(src, dst){
   deferred.resolve();
   return deferred.promise;
 }
+
+function exportData(sDes){
+  var sSrc = config.BASEPATH;
+  return folderPathWalk(sSrc, sDes, 0, handleFile)
+    .then(folderPackage(sDes, sDes+".tar.gz"));
+}
+exports.exportData = exportData;
+
+
+function folderPackage(src,des){
+  var deferred = Q.defer();
+  fstream.Reader({
+    path: src,
+     type: 'Directory'
+    }) /* Read the source directory */
+    .pipe(tar.Pack()) /* Convert the directory to a .tar file */
+    .pipe(zlib.Gzip()) /* Compress the .tar file */
+    .pipe(fstream.Writer({
+      path: des
+    })); /* Give the output file name */
+  deferred.resolve();
+  return deferred.promise;
+}
+
 
 function folderPathWalk(src, des, floor, handleFile) {
   var deferred = Q.defer();
@@ -342,13 +317,17 @@ function handleFile(src, des, floor) {
         }
       } else {
         console.log('-' + blankStr + src);
-        copy(src, des);
+        if (!fs.existsSync(des)) {
+          copy(src, des);
+        }
       }
     }
   });
   deferred.resolve();
   return deferred.promise; 
 }
+
+
 
 function folderExtractor(src, des){
   var deferred = Q.defer();
@@ -361,28 +340,85 @@ function folderExtractor(src, des){
   return deferred.promise;
 }
 
-function folderPackage(src,des){
-  var deferred = Q.defer();
-  fstream.Reader({
-    path: src,
-     type: 'Directory'
-    }) /* Read the source directory */
-    .pipe(tar.Pack()) /* Convert the directory to a .tar file */
-    .pipe(zlib.Gzip()) /* Compress the .tar file */
-    .pipe(fstream.Writer({
-      path: des
-    })); /* Give the output file name */
-  deferred.resolve();
-  return deferred.promise;
+
+/** 
+ * @Method: importDataBase
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @At first, search all tripples from Source DataBase
+ *       @Secondly, put tripples into Target DataBase
+ *
+ * @param1: 
+ *    database, backup DataBase
+ *
+ * @param2: 
+ *    database, user's DataBase
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+var importDataBase = function(sourceDB, targetDB){
+  var _query = [{
+    subject: sourceDB.v('subject'),
+    predicate: sourceDB.v('predicate'),
+    object: sourceDB.v('object')
+  }];
+  return rdfHandle.dbSearch(sourceDB, _query)
+    .then(function(triples){
+      console.log(triples);
+      return rdfHandle.dbPut(targetDB, triples);
+    });
+};
+
+
+/** 
+ * @Method: importMetaData
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @linkto : importDataBase
+ *
+ * @param1: 
+ *    String, backup DataBase Path
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function importMetaData(sPath){
+  var targetDB = rdfHandle.dbOpen();
+  var sourceDB = rdfHandle.backupDBOpen(sPath);
+  return importDataBase(sourceDB, targetDB);
+}
+exports.importMetaData = importMetaData;
+
+function mergeUserType(sSrc, sDes){
+  var dataFolder = "config/custard_type";
+  sSrc = path.join(sSrc, dataFolder);
+  sDes = path.join(sSrc, dataFolder);
+  return folderPathWalk(sSrc, sDes, 0, handleFile);
 }
 
 
-function exportData(sDes){
-  var sSrc = "/home/xwh/.custard";
-  return folderPathWalk(sSrc, sDes, 0, handleFile)
-    .then(folderPackage(sDes, sDes+".tar.gz"));
+function mergeUserData(sSrc, sDes){
+  var dataFolder = "resource";
+  sSrc = path.join(sSrc, dataFolder);
+  sDes = path.join(sSrc, dataFolder);
+  return folderPathWalk(sSrc, sDes, 0, handleFile);
 }
-exports.exportData = exportData;
+
+
+function importData(sSrc){
+  if(sSrc === null || typeof sSrc != 'string'){
+    sSrc = config.BACKUPFOLDERPATH;
+  }
+  var sDes = config.BASEPATH;
+  return folderExtractor(sSrc, sDes)
+    .then(mergeUserData(sSrc, sDes))
+    .then(mergeUserType(sSrc, sDes))
+    .then(importMetaData);
+}
+exports.importData = importData;
 
 
 /** 
