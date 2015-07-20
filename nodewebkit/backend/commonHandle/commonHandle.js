@@ -309,24 +309,24 @@ function mkdirsSync(dirPath) {
   return deferred.promise; 
 }
 
+//
+//function delDirSync(sPath){
+//  var deferred = Q.defer();
+//  var folder_exists = fs.existsSync(sPath);
+//  if(folder_exists === true)
+//  {
+//    var dirList = fs.readdirSync(sPath);
+//    dirList.forEach(function(fileName)
+//    {
+//      fs.unlinkSync(sPath + fileName);
+//    });
+//  }
+//  deferred.resolve();
+//  return deferred.promise;
+//}
 
-function delDirSync(sPath){
-  var deferred = Q.defer();
-  var folder_exists = fs.existsSync(sPath);
-  if(folder_exists === true)
-  {
-    var dirList = fs.readdirSync(sPath);
-    dirList.forEach(function(fileName)
-    {
-      fs.unlinkSync(sPath + fileName);
-    });
-  }
-  deferred.resolve();
-  return deferred.promise;
-}
 
-
-function walk(src, des, floor, handleFile) {
+function folderPathWalk(src, des, floor, handleFile) {
   var deferred = Q.defer();
   handleFile(src, des, floor);
   floor++;
@@ -344,7 +344,7 @@ function walk(src, des, floor, handleFile) {
             console.log('stat error');
           } else {
             if (stats.isDirectory()) {
-              walk(tmpSrc, tmpDes, floor, handleFile);
+              folderPathWalk(tmpSrc, tmpDes, floor, handleFile);
             } else {
               handleFile(tmpSrc, tmpDes, floor);
             }
@@ -380,20 +380,20 @@ function handleFile(src, des, floor) {
         copy(src, des);
       }
     }
-  })
+  });
   deferred.resolve();
   return deferred.promise; 
 }
 
 function exportData(sDes){
   var sSrc = "/home/xwh/.custard";
-  return walk(sSrc, sDes, 0, handleFile)
+  return folderPathWalk(sSrc, sDes, 0, handleFile)
     .then(folderPackage(sDes, sDes+".tar.gz"));
 }
 exports.exportData = exportData;
 
 
-function folderExtractor(input){
+function folderExtractor(src, des){
   var deferred = Q.defer();
   var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
   var input = fstream.Reader({    path: src   });
@@ -403,30 +403,7 @@ function folderExtractor(input){
   deferred.resolve();
   return deferred.promise;
 }
-exports.folderExtractor = folderExtractor;
 
-
-// function packageFolder(sZipFolderPath,sBackupStoreFolder){
-//   var gzip = zlib.createGzip();
-//   var fs = require('fs');
-//   var inp = fs.createReadStream(sZipFolderPath);
-//   var out;
-//   var deferred = Q.defer();
-//   try{
-//     if(typeof sBackupStoreFolder === 'string'){
-//       fs.createWriteStream(sBackupStoreFolder);
-//       console.log("BackupPath:"+sBackupStoreFolder);
-//     }
-//     else
-//       fs.createWriteStream(config.BACKUPFOLDERPATH);
-//     inp.pipe(gzip).pipe(out);
-//     deferred.resolve();
-//   }
-//   catch(err){
-//     deferred.reject(new Error(err));
-//   }
-//   return deferred.promise;
-// }
 function folderPackage(src,des){{
   var deferred = Q.defer();
   fstream.Reader({
@@ -441,7 +418,6 @@ function folderPackage(src,des){{
   deferred.resolve();
   return deferred.promise;
 }
-exports.folderPackage = folderPackage;
 
 
 /** 
@@ -716,9 +692,9 @@ exports.openData = function(uri) {
       _property: "lastAccessDev",
       _value: config.uniqueID
     }]
-  }
+  };
   return updatePropertyValue(property);
-}
+};
 
 
 /*TODO: rewrite */
@@ -764,13 +740,13 @@ function renameDataByUri(sUri, sNewName) {
       _newpath: newPath,
       _oldpath: filepath
     };
-  }
+  };
 
   var _options = {
     _type: "base",
     _property: "URI",
     _value: sUri
-  }
+  };
   return getItemByProperty(_options)
     .then(reName)
     .then(function(result_) {
@@ -786,7 +762,7 @@ function renameDataByUri(sUri, sNewName) {
           _property: "lastModifyTime",
           _value: (new Date()).toString()
         }]
-      }
+      };
       return updatePropertyValue(_changeItem)
         .then(function() {
           return promised.rename(result_._oldpath, result_._newpath);
@@ -825,14 +801,14 @@ exports.removeItemByProperty = function(options) {
       Q_unlink(result.path);
     }
     return result;
-  }
+  };
   var TriplesRemove = function(result) {
     //delete all realted triples in leveldb
     rdfHandle.dbDelete(_db, result.triples);
     return result;
-  }
+  };
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
-}
+};
 
 function getTriples(options) {
   var TriplesMaker = function(result) {
@@ -849,12 +825,11 @@ function getTriples(options) {
       }
     }
     return _info;
-  }
+  };
   return getTriplesByProperty(options)
     .then(TriplesMaker);
 }
 
 exports.getTmpPath = function(getTmpPathCb) {
   getTmpPath(config.TMPPATH);
-  
-}
+};
