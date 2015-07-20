@@ -377,44 +377,6 @@ function folderPackage(src,des){
 }
 
 
-function mkdirsSync(dirPath) { 
-  var deferred = Q.defer();
-  if (!fs.existsSync(dirPath)) {
-      var pathTmp;
-      dirPath.split(path.sep).forEach(function(dirName) {
-          if (pathTmp) {
-              pathTmp = path.join(pathTmp, dirName);
-          }
-          else {
-              pathTmp = dirName;
-          }
-          if (!fs.existsSync(pathTmp)) {
-              if (!fs.mkdirSync(pathTmp)) {
-                  deferred.reject();
-              }
-          }
-      });
-  }
-  deferred.resolve();
-  return deferred.promise; 
-}
-
-//
-//function delDirSync(sPath){
-//  var deferred = Q.defer();
-//  var folder_exists = fs.existsSync(sPath);
-//  if(folder_exists === true)
-//  {
-//    var dirList = fs.readdirSync(sPath);
-//    dirList.forEach(function(fileName)
-//    {
-//      fs.unlinkSync(sPath + fileName);
-//    });
-//  }
-//  deferred.resolve();
-//  return deferred.promise;
-//}
-
 function exportData(sDes){
   var sSrc = "/home/xwh/.custard";
   return folderPathWalk(sSrc, sDes, 0, handleFile)

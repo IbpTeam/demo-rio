@@ -31,6 +31,8 @@
     "protobufjs": "~4.0.0",
     "levelgraph":"0.10.4",
     "q": "1.4.1",
+    "fstream": "1.0.7",
+    "tar": "2.1.1",
     "systemconfig" : "~0.1.0",
     "api": "~0.1.0"
   },
