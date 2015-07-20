@@ -10,7 +10,6 @@
  * @version:0.3.0
  **/
 var path = require('path');
-var zlib = require('zlib');
 var fs = require('../fixed_fs');
 var fs_extra = require('fs-extra');
 var config = require("systemconfig");
@@ -20,14 +19,13 @@ var rdfHandle = require("./rdfHandle");
 var typeHandle = require("./typeHandle");
 var promised = require('./promisedFunc');
 var Q = require('q');
-var levelgraph = require('levelgraph');
 
 //let Q trace long stack
 Q.longStackSupport = true;
 
 // @const
 var DATA_PATH = "data";
-var DEFINED_PROP = rdfHandle.DEFINED_PROP;
+var DEFINED_PROP = rdfHandle.DEFINED_PROP
 
 function createData(items) {
   return dataStore(items);
@@ -73,12 +71,17 @@ function dataStore(items, extraCallback) {
     })
   } else {
     var _file_info = [];
+    var _file_path = [];
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
           _file_info.push(result[i]);
+          _file_path.push(result[i].path);
         }
-        return writeTriples(_file_info);
+        return writeTriples(_file_info)
+          .then(function() {
+            return _file_path;
+          })
       });
   }
 }
@@ -101,7 +104,7 @@ function doCreate(item) {
                   subject: _base.URI,
                   base: _base,
                   extra: result
-                };
+                }
                 return item_info;
               });
           }
@@ -129,7 +132,7 @@ exports.writeTriples = writeTriples;
 function Q_copy(filePath, newPath) {
   var deferred = Q.defer();
   fs_extra.copy(filePath, newPath, function(err) {
-    //drop into reject only when erro`r is not "ENOENT"
+    //drop into reject only when error is not "ENOENT"
     if (err && err[0].code !== "ENOENT") {
       deferred.reject(new Error(err));
     } else if (err && err[0].code === "ENOENT") {
@@ -169,7 +172,7 @@ function baseInfo(itemPath) {
       createDev: config.uniqueID,
       lastModifyDev: config.uniqueID,
       lastAccessDev: config.uniqueID
-    };
+    }
     return uniqueID.Q_getFileUid()
       .then(function(_uri) {
         _base.URI = _uri
@@ -181,7 +184,7 @@ function baseInfo(itemPath) {
             return _base;
           })
       })
-  };
+  }
   return Q_fsStat(itemPath).then(Q_uriMaker);
 }
 exports.baseInfo = baseInfo;
@@ -255,6 +258,7 @@ function importMetaData(sPath){
 exports.importMetaData = importMetaData;
 
 
+
 function copy(src, dst){
   // fs.createReadStream(scr)
     // .pipe(fs.createWriteStream(dst));
@@ -286,45 +290,6 @@ function copy(src, dst){
   deferred.resolve();
   return deferred.promise;
 }
-
-function mkdirsSync(dirPath) { 
-  var deferred = Q.defer();
-  if (!fs.existsSync(dirPath)) {
-      var pathTmp;
-      dirPath.split(path.sep).forEach(function(dirName) {
-          if (pathTmp) {
-              pathTmp = path.join(pathTmp, dirName);
-          }
-          else {
-              pathTmp = dirName;
-          }
-          if (!fs.existsSync(pathTmp)) {
-              if (!fs.mkdirSync(pathTmp)) {
-                  deferred.reject();
-              }
-          }
-      });
-  }
-  deferred.resolve();
-  return deferred.promise; 
-}
-
-//
-//function delDirSync(sPath){
-//  var deferred = Q.defer();
-//  var folder_exists = fs.existsSync(sPath);
-//  if(folder_exists === true)
-//  {
-//    var dirList = fs.readdirSync(sPath);
-//    dirList.forEach(function(fileName)
-//    {
-//      fs.unlinkSync(sPath + fileName);
-//    });
-//  }
-//  deferred.resolve();
-//  return deferred.promise;
-//}
-
 
 function folderPathWalk(src, des, floor, handleFile) {
   var deferred = Q.defer();
@@ -385,14 +350,6 @@ function handleFile(src, des, floor) {
   return deferred.promise; 
 }
 
-function exportData(sDes){
-  var sSrc = "/home/xwh/.custard";
-  return folderPathWalk(sSrc, sDes, 0, handleFile)
-    .then(folderPackage(sDes, sDes+".tar.gz"));
-}
-exports.exportData = exportData;
-
-
 function folderExtractor(src, des){
   var deferred = Q.defer();
   var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
@@ -404,7 +361,7 @@ function folderExtractor(src, des){
   return deferred.promise;
 }
 
-function folderPackage(src,des){{
+function folderPackage(src,des){
   var deferred = Q.defer();
   fstream.Reader({
     path: src,
@@ -418,6 +375,52 @@ function folderPackage(src,des){{
   deferred.resolve();
   return deferred.promise;
 }
+
+
+function mkdirsSync(dirPath) { 
+  var deferred = Q.defer();
+  if (!fs.existsSync(dirPath)) {
+      var pathTmp;
+      dirPath.split(path.sep).forEach(function(dirName) {
+          if (pathTmp) {
+              pathTmp = path.join(pathTmp, dirName);
+          }
+          else {
+              pathTmp = dirName;
+          }
+          if (!fs.existsSync(pathTmp)) {
+              if (!fs.mkdirSync(pathTmp)) {
+                  deferred.reject();
+              }
+          }
+      });
+  }
+  deferred.resolve();
+  return deferred.promise; 
+}
+
+//
+//function delDirSync(sPath){
+//  var deferred = Q.defer();
+//  var folder_exists = fs.existsSync(sPath);
+//  if(folder_exists === true)
+//  {
+//    var dirList = fs.readdirSync(sPath);
+//    dirList.forEach(function(fileName)
+//    {
+//      fs.unlinkSync(sPath + fileName);
+//    });
+//  }
+//  deferred.resolve();
+//  return deferred.promise;
+//}
+
+function exportData(sDes){
+  var sSrc = "/home/xwh/.custard";
+  return folderPathWalk(sSrc, sDes, 0, handleFile)
+    .then(folderPackage(sDes, sDes+".tar.gz"));
+}
+exports.exportData = exportData;
 
 
 /** 
@@ -443,7 +446,7 @@ function getItemByProperty(options) {
       }
     }
     return items;
-  };
+  }
   return getTriplesByProperty(options)
     .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
@@ -486,7 +489,7 @@ exports.getAllCate = function(getAllCateCb) {
       getAllCateCb(result);
     })
   });
-};
+}
 
 
 /** 
@@ -515,7 +518,6 @@ function getAllDataByCate(cate) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   }];
-
   var dataMaker = function(info) {
     var items = [];
     for (var item in info) {
@@ -578,14 +580,16 @@ exports.getRecentAccessData = function(category, num) {
     items = items.sort(function(a, b) {
       var _a = new Date(a.lastAccessTime);
       var _b = new Date(b.lastAccessTime);
-      return  _b.getTime() - _a.getTime();
+      var res =  _b.getTime() - _a.getTime();
+      return res;
     });
-    return (items.length > num) ? items.slice(0, num ) : items;
-  };
+    var _result = (items.length > num) ? items.slice(0, num ) : items;
+    return _result;
+  }
   return rdfHandle.dbSearch(_db, _query)
     .then(rdfHandle.decodeTripeles)
     .then(itemsMaker);
-};
+}
 
 
 
@@ -621,7 +625,7 @@ function updatePropertyValue(property) {
     _type: "base",
     _property: "URI",
     _value: property._uri
-  };
+  }
   var doUpdate = function(result) {
     var _new_triples = [];
     var _origin_triples = [];
@@ -636,7 +640,7 @@ function updatePropertyValue(property) {
     }
     var _db = rdfHandle.dbOpen();
     return updateTriples(_db, _origin_triples, _new_triples);
-  };
+  }
   return getTriplesByProperty(_options)
     .then(doUpdate);
 }
@@ -651,7 +655,7 @@ function resolveTriples(chenges, triple) {
       subject: triple.subject,
       predicate: triple.predicate,
       object: triple.object
-    };
+    }
     _new_triple["object"] = chenges._value;
 
     return {
@@ -692,9 +696,9 @@ exports.openData = function(uri) {
       _property: "lastAccessDev",
       _value: config.uniqueID
     }]
-  };
+  }
   return updatePropertyValue(property);
-};
+}
 
 
 /*TODO: rewrite */
@@ -740,13 +744,13 @@ function renameDataByUri(sUri, sNewName) {
       _newpath: newPath,
       _oldpath: filepath
     };
-  };
+  }
 
   var _options = {
     _type: "base",
     _property: "URI",
     _value: sUri
-  };
+  }
   return getItemByProperty(_options)
     .then(reName)
     .then(function(result_) {
@@ -762,7 +766,7 @@ function renameDataByUri(sUri, sNewName) {
           _property: "lastModifyTime",
           _value: (new Date()).toString()
         }]
-      };
+      }
       return updatePropertyValue(_changeItem)
         .then(function() {
           return promised.rename(result_._oldpath, result_._newpath);
@@ -801,14 +805,14 @@ exports.removeItemByProperty = function(options) {
       Q_unlink(result.path);
     }
     return result;
-  };
+  }
   var TriplesRemove = function(result) {
     //delete all realted triples in leveldb
     rdfHandle.dbDelete(_db, result.triples);
     return result;
-  };
+  }
   return getTriples(options).then(TriplesRemove).then(FilesRemove);
-};
+}
 
 function getTriples(options) {
   var TriplesMaker = function(result) {
@@ -825,11 +829,12 @@ function getTriples(options) {
       }
     }
     return _info;
-  };
+  }
   return getTriplesByProperty(options)
     .then(TriplesMaker);
 }
 
 exports.getTmpPath = function(getTmpPathCb) {
   getTmpPath(config.TMPPATH);
-};
+  
+}
