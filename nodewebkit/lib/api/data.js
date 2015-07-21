@@ -517,25 +517,6 @@ function importData(sPath){
 }
 exports.importData = importData;
 
-function importMetaData(sPath){
-   console.log("Request handler 'importMetaData' was called.");
-   return commonHandle.importMetaData(sPath);
-}
-exports.importMetaData = importMetaData;
-
-
-function unZip(folder){
-  console.log("Request handler 'unZip' was called.");
-  return commonHandle.unZip(folder);
-}
-exports.unZip = unZip;
-
-
-function zipFolder(sFolderPath,sBackupFolder){
-  console.log("Request handler 'zipFolder' was called.");
-  return commonHandle.zipFolder(sFolderPath,sBackupFolder);
-}
-exports.zipFolder = zipFolder;
 
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
