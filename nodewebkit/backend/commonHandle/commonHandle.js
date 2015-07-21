@@ -18,6 +18,9 @@ var tagsHandle = require("./tagsHandle");
 var rdfHandle = require("./rdfHandle");
 var typeHandle = require("./typeHandle");
 var promised = require('./promisedFunc');
+var fstream = require('fstream');
+var tar = require('tar');
+var zlib = require('zlib');
 var Q = require('q');
 
 //let Q trace long stack
@@ -207,62 +210,110 @@ function extraInfo(item, category) {
 }
 
 
+/** 
+ * @Method: exportData
+ *    To exprots MetaData to Target DataBase from Users DataBase
+ *       @At first, copy all files from Source DataBase, include database and files
+ *       @Secondly, conpress all the things in tar package with zlib algorithm
+ *
+ * @param1: sDes
+ *    string, Destination Path of exports
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+
 function exportData(sDes){
   var sSrc = config.BASEPATH;
-  return folderPathWalk(sSrc, sDes, 0, handleFile)
-    .then(folderPackage(sDes, sDes+".tar.gz"));
+  if(fs.existsSync(sDes+".tar.gz")){
+    return promised.unlink(sDes+".tar.gz")
+      .then(folderIterCopyThrowPath(sSrc, sDes, 0, handleFile))
+      .then(folderPackage(sDes, sDes+".tar.gz"));
+  }
+  else{
+    return folderIterCopyThrowPath(sSrc, sDes, 0, handleFile)
+      .then(folderPackage(sDes, sDes+".tar.gz"));
+  }
 }
 exports.exportData = exportData;
 
 
-function folderPackage(src,des){
+/** 
+ * @Method: folderPackage
+ *    To compress all the thing in one folders
+ *       @At first, 
+ *       @Secondly, conpress all the things in tar package with zlib algorithm
+ *
+ * @param1: sDes
+ *    string, Destination Path of exports
+ *
+  * @param2: sDes
+ *    string, Destination Path of exports
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function folderPackage(sSrc,sDes){
   var deferred = Q.defer();
   fstream.Reader({
-    path: src,
+    path: sSrc,
      type: 'Directory'
     }) /* Read the source directory */
     .pipe(tar.Pack()) /* Convert the directory to a .tar file */
     .pipe(zlib.Gzip()) /* Compress the .tar file */
     .pipe(fstream.Writer({
-      path: des
+      path: sDes
     })); /* Give the output file name */
   deferred.resolve();
   return deferred.promise;
 }
 
 
-function folderPathWalk(src, des, floor, handleFile) {
-  var deferred = Q.defer();
+/** 
+ * @Method: folderIterCopyThrowPath
+ *    To  copy all the thing in one folder Iteratively, through its path
+ *       @At first, 
+ *       @Secondly, conpress all the things in tar package with zlib algorithm
+ *
+ * @param1: sDes
+ *    string, Destination Path of exports
+ *
+  * @param2: sDes
+ *    string, Destination Path of exports
+ *
+  * @param3: floor
+ *    string, Destination Path of exports
+ *
+  * @param4: handleFile
+ *    function, Destination Path of exports
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function folderIterCopyThrowPath(src, des, floor, handleFile) {
   handleFile(src, des, floor);
   floor++;
-  fs.readdir(src, function(err, files) {
-    if (err) {
-      deferred.reject();
-      console.log('read dir error');
-      throw new Error("[CommonHandle]folderPathWalk: readdir Error.");
-    } else {
-      files.forEach(function(item) {
-        var tmpSrc = src + '/' + item;
-        var tmpDes = des + '/' + item;
-        fs.stat(tmpSrc, function(err1, stats) {
-          if (err1) {
-            deferred.reject();
-            console.log('stat error');
-            throw new Error("[CommonHandle]ffolderPathWalk: stat Error.");
+  return promised.readdir(src)
+  .then(function(files){
+    files.forEach(function(item) {
+      var tmpSrc = src + '/' + item;
+      var tmpDes = des + '/' + item;
+      return promised.stat(tmpSrc)
+        .then(function(stats){
+          if (stats.isDirectory()) {
+            folderIterCopyThrowPath(tmpSrc, tmpDes, floor, handleFile);
           } else {
-            if (stats.isDirectory()) {
-              folderPathWalk(tmpSrc, tmpDes, floor, handleFile);
-            } else {
-              handleFile(tmpSrc, tmpDes, floor);
-            }
+            handleFile(tmpSrc, tmpDes, floor);
           }
         })
-      });
-
-    }
-  });
-  deferred.resolve();
-  return deferred.promise; 
+    });
+  })
 }
 
 
@@ -289,15 +340,45 @@ function handleFile(src, des, floor) {
   .fail(function(err){ throw new Error(err);});
 }
 
+/** 
+ * @Method: importData
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @At first, search all tripples from Source DataBase
+ *       @Secondly, put tripples into Target DataBase
+ *
+ * @param1: sSrc
+ *    string, backup DataBase
+ *
+ * @param2: 
+ *    database, user's DataBase
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function importData(sSrc){
+  if(sSrc === null || typeof sSrc != 'string'){
+    sSrc = config.BACKUPFOLDERPATH;
+  }
+  var sDes = config.BASEPATH;
+  var test = "/home/xwh/.custardBac/test";
+  return folderExtractor(sSrc, test);
+    // .then(mergeUserData(sSrc, sDes))
+    // .then(mergeUserType(sSrc, sDes))
+    // .then(importMetaData(sSrc, sDes))
+    // .fail(function(err){ new Error("CommonHandle:importData");});
+}
+exports.importData = importData;
 
 
-function folderExtractor(src, des){
+function folderExtractor(sSrc, sDes){
   var deferred = Q.defer();
   var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
-  var input = fstream.Reader({    path: src   });
-  zlib.Deflate(input)
+  var input = fs.createReadStream(sSrc);
+  zlib.deflate(input)
     .pipe(zlib.Unzip(buffer)) /* Compress the .tar file */
-    .pipe(tar.Extract({path: des })); /* Convert the directory to a .tar file */
+    .pipe(tar.Extract({path: sDes })); /* Convert the directory to a .tar file */
   deferred.resolve();
   return deferred.promise;
 }
@@ -373,18 +454,7 @@ function mergeUserData(sSrc, sDes){
 }
 
 
-function importData(sSrc){
-  if(sSrc === null || typeof sSrc != 'string'){
-    sSrc = config.BACKUPFOLDERPATH;
-  }
-  var sDes = config.BASEPATH;
-  return folderExtractor(sSrc, sDes)
-    .then(mergeUserData(sSrc, sDes))
-    .then(mergeUserType(sSrc, sDes))
-    .then(importMetaData(sSrc, sDes))
-    .fail(function(err){ new Error("CommonHandle:importData");});
-}
-exports.importData = importData;
+
 
 
 /** 

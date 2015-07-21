@@ -511,6 +511,11 @@ function exportData(sPath){
 }
 exports.exportData = exportData;
 
+function importData(sPath){
+   console.log("Request handler 'importData' was called.");
+   return commonHandle.importData(sPath);
+}
+exports.importData = importData;
 
 function importMetaData(sPath){
    console.log("Request handler 'importMetaData' was called.");
