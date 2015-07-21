@@ -20,9 +20,9 @@ var Q = require('q');
 
 //const
 var __db = levelgraph(config.LEVELDBPATH);
-
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
+
 var DEFINED_VOC = {
   rdf: {
     _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
@@ -102,7 +102,7 @@ exports.dbOpen = dbOpen;
  **/
 function backupDBOpen(bakcupDBPATH){
   var _backDB;
-  if(typeof bakcupDBPATH != 'string')
+  if(typeof bakcupDBPATH != 'string' || bakcupDBPATH === null)
     _backDB = levelgraph(config.BACKUPDBPATH);
   else
     _backDB = levelgraph(bakcupDBPATH);
@@ -122,13 +122,14 @@ exports.backupDBOpen = backupDBOpen;
  */
 function dbClose(db) {
   var deferred = Q.defer();
-  db.close(function(err){
-    if (err) {
-      deferred.reject(new Error(err));
-    } else {
-      deferred.resolve("db has been closed");
-    }
-  });
+  // db.close(function(err){
+  //   if (err) {
+  //     deferred.reject(new Error(err));
+  //   } else {
+  //     deferred.resolve("db has been closed");
+  //   }
+  // });
+  deferred.resolve();
   return deferred.promise;
 }
 exports.dbClose = dbClose;

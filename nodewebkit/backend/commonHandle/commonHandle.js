@@ -207,41 +207,6 @@ function extraInfo(item, category) {
 }
 
 
-
-
-
-function copy(src, dst){
-  // fs.createReadStream(scr)
-    // .pipe(fs.createWriteStream(dst));
-  var deferred = Q.defer();
-  var rs = fs.createReadStream(src);
-  var ws = fs.createWriteStream(dst);
-  rs.on('data', function(chunk){
-    if(ws.write(chunk) === false){
-      rs.pause;
-    }
-  });
-
-  rs.on('end',function(err){
-    if(err){
-      deferred.reject();
-    }
-    else{
-      ws.end();
-    }
-  });
-  rs.on('drain',function(err){
-    if(err){
-      deferred.reject();
-    }
-    else{
-      rs.resume();
-    }
-  });
-  deferred.resolve();
-  return deferred.promise;
-}
-
 function exportData(sDes){
   var sSrc = config.BASEPATH;
   return folderPathWalk(sSrc, sDes, 0, handleFile)
@@ -274,6 +239,7 @@ function folderPathWalk(src, des, floor, handleFile) {
     if (err) {
       deferred.reject();
       console.log('read dir error');
+      throw new Error("[CommonHandle]folderPathWalk: readdir Error.");
     } else {
       files.forEach(function(item) {
         var tmpSrc = src + '/' + item;
@@ -282,6 +248,7 @@ function folderPathWalk(src, des, floor, handleFile) {
           if (err1) {
             deferred.reject();
             console.log('stat error');
+            throw new Error("[CommonHandle]ffolderPathWalk: stat Error.");
           } else {
             if (stats.isDirectory()) {
               folderPathWalk(tmpSrc, tmpDes, floor, handleFile);
@@ -305,26 +272,21 @@ function handleFile(src, des, floor) {
   for (var i = 0; i < floor; i++) {
     blankStr += '    ';
   }
-  fs.stat(src, function(err1, stats) {
-    if (err1) {
-      deferred.reject();
-      console.log('stat error');
+  return promised.stat(src)
+  .then(function(stats){
+    if (stats.isDirectory()) {
+      console.log('+' + blankStr + src);
+      if (!fs.existsSync(des)) {
+        return promised.mkdir(des);
+      }
     } else {
-      if (stats.isDirectory()) {
-        console.log('+' + blankStr + src);
-        if (!fs.existsSync(des)) {
-          fs.mkdirSync(des);
-        }
-      } else {
-        console.log('-' + blankStr + src);
-        if (!fs.existsSync(des)) {
-          copy(src, des);
-        }
+      console.log('-' + blankStr + src);
+      if (!fs.existsSync(des)) {
+        return promised.copy(src, des);
       }
     }
-  });
-  deferred.resolve();
-  return deferred.promise; 
+  })
+  .fail(function(err){ throw new Error(err);});
 }
 
 
@@ -368,7 +330,7 @@ var importDataBase = function(sourceDB, targetDB){
     .then(function(triples){
       console.log(triples);
       return rdfHandle.dbPut(targetDB, triples);
-    });
+    },function(err){ throw new Error("[CommonHandle]fimportDataBase:Error");});
 };
 
 
@@ -388,7 +350,8 @@ var importDataBase = function(sourceDB, targetDB){
 function importMetaData(sPath){
   var targetDB = rdfHandle.dbOpen();
   var sourceDB = rdfHandle.backupDBOpen(sPath);
-  return importDataBase(sourceDB, targetDB);
+  return importDataBase(sourceDB, targetDB)
+          .fail(function(err){ new Error("CommonHandle:importMetaData");});
 }
 exports.importMetaData = importMetaData;
 
@@ -396,7 +359,8 @@ function mergeUserType(sSrc, sDes){
   var dataFolder = "config/custard_type";
   sSrc = path.join(sSrc, dataFolder);
   sDes = path.join(sSrc, dataFolder);
-  return folderPathWalk(sSrc, sDes, 0, handleFile);
+  return folderPathWalk(sSrc, sDes, 0, handleFile)
+    .fail(function(err){ new Error("CommonHandle:mergeUserType");});
 }
 
 
@@ -404,7 +368,8 @@ function mergeUserData(sSrc, sDes){
   var dataFolder = "resource";
   sSrc = path.join(sSrc, dataFolder);
   sDes = path.join(sSrc, dataFolder);
-  return folderPathWalk(sSrc, sDes, 0, handleFile);
+  return folderPathWalk(sSrc, sDes, 0, handleFile)
+    .fail(function(err){ new Error("CommonHandle:mergeUserData");});
 }
 
 
@@ -416,7 +381,8 @@ function importData(sSrc){
   return folderExtractor(sSrc, sDes)
     .then(mergeUserData(sSrc, sDes))
     .then(mergeUserType(sSrc, sDes))
-    .then(importMetaData);
+    .then(importMetaData(sSrc, sDes))
+    .fail(function(err){ new Error("CommonHandle:importData");});
 }
 exports.importData = importData;
 

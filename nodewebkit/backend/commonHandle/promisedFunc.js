@@ -14,7 +14,7 @@ exports.stat = Q.nbind(fs.stat);
 exports.symlink = Q.nbind(fs.symlink);
 exports.unlink = Q.nbind(fs.unlink);
 exports.rename = Q.nfbind(fs.rename);
-
+exports.mkdir = Q.nfbind(fs.mkdir);
 
 //fs-extra
 exports.ensure_dir = Q.nbind(fs_extra.ensureDir);
