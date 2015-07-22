@@ -226,16 +226,17 @@ function extraInfo(item, category) {
  **/
 
 function exportData(sDes){
-  var sSrc = config.BASEPATH;
-  if(fs.existsSync(sDes+".tar.gz")){
-    return promised.unlink(sDes+".tar.gz")
-      .then(folderIterCopyThrowPath(sSrc, sDes, 0, handleFile))
-      .then(folderPackage(sDes, sDes+".tar.gz"));
+  if(typeof sDes != 'string'){
+    throw new Error("INPUT Error");
   }
-  else{
+  if(fs.existsSync(sDes+".tar.gz")){
+    promised.unlink(sDes+".tar.gz")
+      .done();
+  }
+  var sSrc = config.BASEPATH;
     return folderIterCopyThrowPath(sSrc, sDes, 0, handleFile)
       .then(folderPackage(sDes, sDes+".tar.gz"));
-  }
+  
 }
 exports.exportData = exportData;
 
@@ -268,7 +269,7 @@ function folderPackage(sSrc,sDes){
     .pipe(fstream.Writer({
       path: sDes
     })); /* Give the output file name */
-  deferred.resolve();
+  deferred.resolve("fodler Package is Done!");
   return deferred.promise;
 }
 
@@ -358,27 +359,30 @@ function handleFile(src, des, floor) {
  *
  **/
 function importData(sSrc){
-  if(sSrc === null || typeof sSrc != 'string'){
-    sSrc = config.BACKUPFOLDERPATH;
-  }
+  // if(sSrc === null || typeof sSrc != 'string'){
+  //   sSrc = config.BACKUPFOLDERPATH;
+  // }
   var sDes = config.BASEPATH;
-  var test = "/home/xwh/.custardBac/test";
-  return folderExtractor(sSrc, test);
-    // .then(mergeUserData(sSrc, sDes))
-    // .then(mergeUserType(sSrc, sDes))
-    // .then(importMetaData(sSrc, sDes))
-    // .fail(function(err){ new Error("CommonHandle:importData");});
+  var test = path.join(config.BACKUPFOLDERPATH, "test");
+  return testFunction();
+  // return folderExtractor(sSrc, sDes);
+  //    .then(mergeUserData(sSrc, sDes))
+  //    .then(mergeUserType(sSrc, sDes))
+  //    .then(importMetaData(sSrc, sDes))
+  //   .fail(function(err){ new Error("CommonHandle:importData");});
 }
 exports.importData = importData;
 
 
 function folderExtractor(sSrc, sDes){
   var deferred = Q.defer();
-  var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
-  var input = fs.createReadStream(sSrc);
-  zlib.deflate(input)
-    .pipe(zlib.Unzip(buffer)) /* Compress the .tar file */
-    .pipe(tar.Extract({path: sDes })); /* Convert the directory to a .tar file */
+  // var buffer = new Buffer('eJzT0yMAAGTvBe8=', 'base64');
+  fs.createReadStream(sSrc)
+    .pipe(zlib.Gunzip()) /* Compress the .tar file */
+    .pipe(tar.Extract({path: sDes })) /* Convert the directory to a .tar file */
+    .pipe(fstream.Writer({
+      path: sDes
+    })); /* Give the output file name */
   deferred.resolve();
   return deferred.promise;
 }
@@ -436,25 +440,64 @@ function importMetaData(sPath){
 }
 exports.importMetaData = importMetaData;
 
-function mergeUserType(sSrc, sDes){
-  var dataFolder = "config/custard_type";
-  sSrc = path.join(sSrc, dataFolder);
-  sDes = path.join(sSrc, dataFolder);
-  return folderPathWalk(sSrc, sDes, 0, handleFile)
-    .fail(function(err){ new Error("CommonHandle:mergeUserType");});
+function findSubFodlerPath(sSubString, sSrc){
+  var isFound = false;
+  var retString = promised.readdir(sSrc)
+  .then(function(files){
+    files.forEach(function(item) {
+      var tmpSrc = path.join(sSrc,item);
+      if(item === sSubString){
+        return tmpSrc;
+      }
+      else{
+        findSubFodlerPath(sSubString, tmpSrc);
+      }
+    });
+    if(!isFound){
+      return "NotFound";
+    }
+  });
 }
 
 
+function mergeData(sSubFolder, sSrc, sDes){
+  // if(findSubFodlerPath(sSubFolder, sSrc) === "NotFound"){
+  //   return new Error("[NotFound]User Data Folder");
+  // }
+  // else{
+  //     sSrc = findSubFodlerPath(sSubFolder, sSrc);
+  // }
+  // if(findSubFodlerPath(sSubFolder, sDes) === "NotFound"){
+  //   sDes = path.join(sDes, sSubFolder);
+  //   promised.mkdir(sDes).done();
+  // }
+  // else{
+  //   sDes = findSubFodlerPath(sSubFolder, sDes);
+  // }
+
+  sSrc = findSubFodlerPath(sSubFolder, sSrc);
+  sDes = findSubFodlerPath(sSubFolder, sDes);  
+  return folderIterCopyThrowPath(sSrc, sDes, 0, handleFile)
+    .fail(function(err){
+       new Error("CommonHandle:mergeUserType");
+    });
+}
+
+function mergeTypeData(sSrc, sDes){
+  var sSubFolder = "config";
+  return mergeData(sSubFolder, sSrc, sDes);
+}
 function mergeUserData(sSrc, sDes){
-  var dataFolder = "resource";
-  sSrc = path.join(sSrc, dataFolder);
-  sDes = path.join(sSrc, dataFolder);
-  return folderPathWalk(sSrc, sDes, 0, handleFile)
-    .fail(function(err){ new Error("CommonHandle:mergeUserData");});
+  var sSubFolder = "resource";
+  return mergeData(sSubFolder, sSrc, sDes);
 }
 
 
-
+function testFunction(){
+  var sSrc = "/home/xwh/.custardBac/src";
+  var sDes = "/home/xwh/.custardBac/des";
+  return mergeData("folderIterCopyThrowPath", sSrc, sDes);
+}
 
 
 /** 
