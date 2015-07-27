@@ -13,7 +13,14 @@ var cp = require('child_process');
 var path = require('path');
 var Q = require('q');
 
-
+function getLocalData(getLocalDataCb){
+  var localJson={};
+  localJson['account']=config.ACCOUNT;
+  localJson['UID']=config.uniqueID;
+  localJson['IP']=config.SERVERIP;
+  getLocalDataCb(localJson);
+}
+exports.getLocalData = getLocalData;
 /**
  * @method loadFile
  *    To load one single file into datamgr.
