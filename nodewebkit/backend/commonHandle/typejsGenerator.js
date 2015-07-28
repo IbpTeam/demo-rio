@@ -6,11 +6,13 @@ var promised = require('./promisedFunc');
 
 //const
 var DATAJSDIR = config.DATAJSDIR;
+var FORMATLIST = {"music":"audio","document":"txt"}
 
 function generator(type_name, func_content) {
   var _type_name = type_name;
   var _js_file_path = pathModule.join(DATAJSDIR, _type_name + ".js");
   var _func_content = func_content;
+  var _format = FORMATLIST[_type_name] || _type_name;
   var prototype =
     "/**\n"
   + " * @Copyright:\n"
@@ -28,6 +30,8 @@ function generator(type_name, func_content) {
   + "\n"
   +"//@const\n"
   + 'var CATEGORY_NAME = "' + _type_name + '";\n'
+  + "var _html_open = {mp4:true,MP4:true,mp3:true,MP3:true,ogg:true,OGG:true,ogv:true,OGV:true,txt:true,TXT:true}\n"
+  + "var supportedKeySent = false;\n"
   + "\n"
   + "function getOpenInfo(item) {\n"
   + "  if (item == null) {\n"
@@ -35,14 +39,28 @@ function generator(type_name, func_content) {
   + "    return undefined;\n"
   + "  }\n"
   + "  console.log('read data : ' + item.path);\n"
-  + "  var source;\n"
+  + "  var source = {\n"
+  + "      openmethod: 'html',\n"
+  + "      format: '" + _format + "',\n"
+  + "      title: '文件浏览',\n"
+  + "      content: item.path\n"
+  + "   };\n"
+  + "  if (item.postfix == \"txt\") {\n"
+  + "    source.format =  'txtfile';\n"
+  + "  }else if(item.postfix == \"ppt\" || item.postfix == \"pptx\"){\n"
+  + "    supportedKeySent = true;\n"
+  + "   } \n"
   + "  if (item.postfix == null) {\n"
-  + "    source = {\n"
-  + "      openmethod: 'alert',\n"
-  + "      content: item.path + ' self defined type.'\n"
-  + "    };\n"
+  + "    source.openmethod =  'alert',\n"
+  + "    source.content = item.path + ' self defined type.'\n"
+  + "  }else if(_html_open[item.postfix]){\n"
+  + "    if (supportedKeySent === true) {\n"
+  + "      source.windowname = s_windowname;\n"
+  + "    }\n"
   + "  } else {\n"
   + "    var _exec = require('child_process');\n"
+  + "    var s_command= \"xdg-open \\\"\" + item.path + \"\\\"\";\n"
+  + "    var supportedKeySent = false;\n"
   + "    _exec.exec(s_command, function() {});\n"
   + "    if (supportedKeySent === true) {\n"
   + "      source.windowname = s_windowname;\n"
