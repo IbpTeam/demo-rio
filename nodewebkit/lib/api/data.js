@@ -387,21 +387,25 @@ function openDataByUri(openDataByUriCb, uri) {
     _value: uri
   }
   var dataMaker = function(result) {
-    var cate = utils.getCategoryObject(result[0].category);
-    var _source = cate.getOpenInfo(result[0]);
-    if (_source.format === "html5ppt") {
-      console.log("open html5ppt:" + _source.content);
-      window.open(_source.content);
-      _source.content = "成功打开文件" + _source.content;
-      setTimeout(openDataByUriCb(null, _source), 0);
-    } else {
-      setTimeout(openDataByUriCb(null, _source), 0);
-    }
+    return typeHandle.getTypeMethod(result[0].category)
+      .then(function(_method) {
+        var _source = _method.getOpenInfo(result[0]);
+        if (_source.format === "html5ppt") {
+          console.log("open html5ppt:" + _source.content);
+          window.open(_source.content);
+          _source.content = "成功打开文件" + _source.content;
+          openDataByUriCb(null, _source);
+        } else {
+          openDataByUriCb(null, _source);
+        }
+      })
   }
-  return commonHandle.getItemByProperty(_options)
-    .then(dataMaker)
+  return commonHandle.openData(uri)
     .then(function() {
-      commonHandle.openData(uri);
+      return commonHandle.getItemByProperty(_options)
+    })
+    .then(function(result_) {
+      return dataMaker(result_);
     })
     .fail(function(err) {
       openDataByUriCb(err);

@@ -25,16 +25,6 @@ function parsePath(path) {
 }
 exports.parsePath = parsePath;
 
-//get the category from Des
-exports.getCategoryObjectByDes = function(sDesName) {
-}
-
-//example: ~/.resources/documentDes/data/$FILENAME
-exports.getDesPath = function(category, fullName) {
-  var sDirName = category + "Des";
-  var sDesName = fullName + ".md";
-  return path.join(config.RESOURCEPATH, sDirName, DATA_DIR, sDesName);
-}
 
 //example: ~/.resource/document/data/$FILENAME
 exports.getRealPath = function(category, fullName) {
@@ -44,24 +34,6 @@ exports.getRealPath = function(category, fullName) {
 //example: ~/.resource/document/data
 exports.getRealDir = function(category) {
   return path.join(config.RESOURCEPATH, category, DATA_DIR);
-}
-
-//example: ~/.resource/documentDes/data
-exports.getDesDir = function(category) {
-  var sDirName = category + "Des";
-  return path.join(config.RESOURCEPATH, sDirName, DATA_DIR);
-}
-
-//example: ~/.resource/document
-exports.getRepoDir = function(category) {
-  var sDirName = category;
-  return path.join(config.RESOURCEPATH, sDirName);
-}
-
-//example: ~/.resource/documentDes
-exports.getDesRepoDir = function(category) {
-  var sDirName = category + "Des";
-  return path.join(config.RESOURCEPATH, sDirName);
 }
 
 exports.getRealRepoDir = function(category) {
