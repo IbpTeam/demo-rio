@@ -512,9 +512,9 @@ function pasteFile(pasteFileCb, filename, category) {
 exports.pasteFile = pasteFile;
 
 
-function exportData(sPath){
+function exportData(sEdition, sPath){
    console.log("Request handler 'exportData' was called.");
-   return commonHandle.exportData(sPath);
+   return commonHandle.exportData(sEdition, sPath);
 }
 exports.exportData = exportData;
 

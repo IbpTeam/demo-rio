@@ -225,18 +225,23 @@ function extraInfo(item, category) {
  *
  **/
 
-function exportData(sDes){
-  if(typeof sDes != 'string'){
+function exportData(sEdition, sDes){
+  if(typeof sDes != 'string' || typeof sEdition !='string'){
     throw new Error("INPUT Error");
   }
-  if(fs.existsSync(sDes+".tar.gz")){
-    promised.unlink(sDes+".tar.gz")
-      .done();
-  }
+  var sDes = path.join(sDes,  sEdition);
   var sSrc = config.BASEPATH;
-    return folderIterCopyThrowPath(sSrc, sDes, 0, handleFile)
-      .then(folderPackage(sDes, sDes+".tar.gz"));
-  
+  var tarFile = sDes+".tar.gz";
+
+  // var Copy = folderIterCopyThrowPath(sSrc, sDes, 0, handleFile);
+  var Copy = promised.copy(sSrc,sDes);
+  var pack = folderPackage(sDes, sDes+".tar.gz");
+  var perpare = promised.remove(tarFile)
+     // .then(folderIterCopyThrowPath(sDes, "", 0, removeFileorDir))
+     .then(promised.ensure_dir(sDes));
+  return perpare
+  .then(Copy)
+  .then(pack);
 }
 exports.exportData = exportData;
 
@@ -258,18 +263,39 @@ exports.exportData = exportData;
  *    otherwise, return reject with Error object 
  *
  **/
-function folderPackage(sSrc,sDes){
-  var deferred = Q.defer();
+function folderPackage(sSrc, tarFilePath){
+  // var fstreamReader =  Q.nbind(fstream.Reader);
+  //   return fstreamReader({
+  //   path: sSrc,
+  //    type: 'Directory'
+  //   }) /* Read the source directory */
+  //   .then (tar.Pack())  Convert the directory to a .tar file 
+  //   .then(zlib.Gzip()) /* Compress the .tar file */
+  //   .then(fstream.Writer({
+  //     path: sDes
+  //   })); /* Give the output file name */
+var deferred = Q.defer();
+  function onError(err){
+    deferred.reject();
+    console.error('An err occurred', err);
+  }
+  function onEnd(){
+    deferred.resolve("fodler Package is Done!");
+    console.log('Packed');
+  }
+  var packer = tar.Pack({noProprietary : true})
+    .on('error', onError)
+    .on('end', onEnd);
+
   fstream.Reader({
     path: sSrc,
      type: 'Directory'
     }) /* Read the source directory */
-    .pipe(tar.Pack()) /* Convert the directory to a .tar file */
+    .pipe (packer)  //Convert the directory to a .tar file 
     .pipe(zlib.Gzip()) /* Compress the .tar file */
     .pipe(fstream.Writer({
-      path: sDes
+      path:tarFilePath
     })); /* Give the output file name */
-  deferred.resolve("fodler Package is Done!");
   return deferred.promise;
 }
 
@@ -297,27 +323,51 @@ function folderPackage(sSrc,sDes){
  *    otherwise, return reject with Error object 
  *
  **/
+
 function folderIterCopyThrowPath(src, des, floor, handleFile) {
   handleFile(src, des, floor);
   floor++;
-  return promised.readdir(src)
+  var p = Q();
+  p
+  .then(promised.readdir(src))
   .then(function(files){
     files.forEach(function(item) {
       var tmpSrc = src + '/' + item;
       var tmpDes = des + '/' + item;
-      return promised.stat(tmpSrc)
+       p = p
+       .then(promised.stat(tmpSrc))
         .then(function(stats){
           if (stats.isDirectory()) {
-            folderIterCopyThrowPath(tmpSrc, tmpDes, floor, handleFile);
+             folderIterCopyThrowPath(tmpSrc, tmpDes, floor, handleFile);
           } else {
             handleFile(tmpSrc, tmpDes, floor);
           }
-        })
+        });
     });
-  })
+  });
+  return p;
 }
 
-
+function removeFileorDir(src, des, floor){
+  var deferred = Q.defer();
+  var blankStr = ' ';
+  for (var i = 0; i < floor; i++) {
+    blankStr += '    ';
+  }
+  return promised.stat(src)
+  .then(function(stats){
+    if (stats.isDirectory()) {
+      console.log('+' + blankStr + src);
+      if (promise.emptyDir(src)) {
+        return promised.remove(src);
+      }
+    } else {
+      console.log('-' + blankStr + src);
+      return promised.remove(src);
+    }
+  })
+  .fail(function(err){ throw new Error(err);});
+}
 function handleFile(src, des, floor) {
   var deferred = Q.defer();
   var blankStr = '';
@@ -362,16 +412,54 @@ function importData(sSrc){
   // if(sSrc === null || typeof sSrc != 'string'){
   //   sSrc = config.BACKUPFOLDERPATH;
   // }
-  var sDes = config.BASEPATH;
-  var test = path.join(config.BACKUPFOLDERPATH, "test");
-  return testFunction();
-  // return folderExtractor(sSrc, sDes);
-  //    .then(mergeUserData(sSrc, sDes))
-  //    .then(mergeUserType(sSrc, sDes))
-  //    .then(importMetaData(sSrc, sDes))
+  var sEdition ="a";
+  var sDes = path.join(config.BACKUPFOLDERPATH,"extract");
+  var sEditionPath  = path.join(sDes,sEdition);
+  var sUserDataSrc=path.join(sEditionPath,"resource");
+  var sBackupConfig = path.join(sEditionPath,"config");
+  var sTypeSrc=path.join(sBackupConfig,"custard_type");
+  var sMataDataSrc=path.join(sBackupConfig,"custard_rdf");
+  var p = Q();
+  return p
+    .then(promised.ensure_dir(sDes))
+    .then(promised.emptyDir(sDes))
+    .then(folderExtractor(sSrc, sDes))
+      .then(mergeUserData(sUserDataSrc, config.RESOURCEPATH))
+      .then(mergeTypeData(sTypeSrc, config.DATAJSDIR))
+      .then(importMetaData(sMataDataSrc, config.LEVELDBPATH));
   //   .fail(function(err){ new Error("CommonHandle:importData");});
 }
 exports.importData = importData;
+
+
+function testFunction(testPath){
+  var sSrc = path.join(testPath, "src");
+  var sDes =  path.join(testPath, "des");
+  return mergeData("this", sSrc, sDes);
+}
+
+
+function mergeData(sSubFolder, sSrc, sDes){
+  // if(findSubFodlerPath(sSubFolder, sSrc) === "NotFound"){
+  //   return new Error("[NotFound]User Data Folder");
+  // }
+  // else{
+  //     sSrc = findSubFodlerPath(sSubFolder, sSrc);
+  // }
+  // if(findSubFodlerPath(sSubFolder, sDes) === "NotFound"){
+  //   sDes = path.join(sDes, sSubFolder);
+  //   promised.mkdir(sDes).done();
+  // }
+  // else{
+  //   sDes = findSubFodlerPath(sSubFolder, sDes);
+  // }
+
+  // sSrc = findSubFodlerPath(sSubFolder, sSrc);
+  // sDes = findSubFodlerPath(sSubFolder, sDes);  
+  sSrc = path.join(sSrc, sSubFolder);
+  sDes = path.join(sDes,sSubFolder);
+  return folderIterCopyThrowPath(sSrc, sDes, 0, handleFile);
+}
 
 
 function folderExtractor(sSrc, sDes){
@@ -383,7 +471,7 @@ function folderExtractor(sSrc, sDes){
     .pipe(fstream.Writer({
       path: sDes
     })); /* Give the output file name */
-  deferred.resolve();
+  deferred.resolve("folder Extractor done!");
   return deferred.promise;
 }
 
@@ -440,48 +528,41 @@ function importMetaData(sPath){
 }
 exports.importMetaData = importMetaData;
 
-function findSubFodlerPath(sSubString, sSrc){
-  var isFound = false;
-  var retString = promised.readdir(sSrc)
-  .then(function(files){
-    files.forEach(function(item) {
-      var tmpSrc = path.join(sSrc,item);
-      if(item === sSubString){
-        return tmpSrc;
-      }
-      else{
-        findSubFodlerPath(sSubString, tmpSrc);
-      }
-    });
-    if(!isFound){
-      return "NotFound";
-    }
-  });
-}
+// function findSubFodlerPath(sSubString, sPath){
+//   var isFound = false;
+//   var retString ;
+//   promised.readdir(sPath)
+//   .then(function(files){
+//     files.forEach(function(item) {
+//       if(item === sSubString){
+//        isFound = true;
+//        return tmpPath;
+//       }
+//       var tmpPath = path.join(sPath,item);
+//         return promised.stat(tmpPath)
+//         .then(function(stats){
+//           if (stats.isDirectory()) {
+//               findSubFodlerPath(sSubString, tmpPath);
+//             }
+//           } 
+//         });
+
+//       if(){
+       
+//       }
+//       else{
+//         findSubFodlerPath(sSubString, tmpPath);
+//       }
+//     });
+//     if(!isFound){
+//       return "NotFound";
+//     }
+//   });
+//   return retString;
+// }
 
 
-function mergeData(sSubFolder, sSrc, sDes){
-  // if(findSubFodlerPath(sSubFolder, sSrc) === "NotFound"){
-  //   return new Error("[NotFound]User Data Folder");
-  // }
-  // else{
-  //     sSrc = findSubFodlerPath(sSubFolder, sSrc);
-  // }
-  // if(findSubFodlerPath(sSubFolder, sDes) === "NotFound"){
-  //   sDes = path.join(sDes, sSubFolder);
-  //   promised.mkdir(sDes).done();
-  // }
-  // else{
-  //   sDes = findSubFodlerPath(sSubFolder, sDes);
-  // }
 
-  sSrc = findSubFodlerPath(sSubFolder, sSrc);
-  sDes = findSubFodlerPath(sSubFolder, sDes);  
-  return folderIterCopyThrowPath(sSrc, sDes, 0, handleFile)
-    .fail(function(err){
-       new Error("CommonHandle:mergeUserType");
-    });
-}
 
 function mergeTypeData(sSrc, sDes){
   var sSubFolder = "config";
@@ -493,11 +574,7 @@ function mergeUserData(sSrc, sDes){
 }
 
 
-function testFunction(){
-  var sSrc = "/home/xwh/.custardBac/src";
-  var sDes = "/home/xwh/.custardBac/des";
-  return mergeData("folderIterCopyThrowPath", sSrc, sDes);
-}
+
 
 
 /** 

@@ -42,7 +42,6 @@ var LEVELDBPATH = path.join(USERCONFIGPATH, DATABASENAME);
 exports.LEVELDBPATH = LEVELDBPATH;
 
 //levelgraph database backup
-var DATABASENAME = "custard_rdf";
 var BACKUPDBPATH = path.join(BACKUPFOLDERPATH, DATABASENAME);
 exports.BACKUPDBPATH = BACKUPDBPATH;
 
