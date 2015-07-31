@@ -16,7 +16,7 @@ exports.unlink = Q.nbind(fs.unlink);
 exports.rename = Q.nfbind(fs.rename);
 exports.mkdir = Q.nbind(fs.mkdir);
 exports.readdir = Q.nbind(fs.readdir);
-exports.existsSync = Q.nbind(fs.existsSync);
+exports.exists = Q.nbind(fs.exists);
 
 
 //fs-extra
