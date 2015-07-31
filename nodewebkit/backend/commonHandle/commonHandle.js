@@ -229,29 +229,32 @@ function exportData(sEdition, sDes) {
   if (typeof sDes != 'string' || typeof sEdition != 'string') {
     throw new Error("INPUT Error");
   }
-  var sDes = path.join(sDes, sEdition);
+  var sEditionPath = path.join(sDes, sEdition);
   var sSrc = config.BASEPATH;
-  var tarFile = sDes + ".tar.gz";
-  // var Copy = function(){
-  //   return iteratorTest(sSrc, sDes,  filesMaker);
-  // }
+  var tarFile = sEditionPath + ".tar.gz";
+  var p = Q();
   var Copy = function() {
-    return promised.copy(sSrc, sDes);
-  }
+    return promised.copy(sSrc, sEditionPath);
+  };
   var Pack = function() {
-    return folderPackage(sDes, sDes + ".tar.gz");
-  }
+
+    var tarFile = sEditionPath + ".tar.gz";
+    return packer(sEditionPath, tarFile);
+  };
   var perpare = promised.remove(tarFile)
     .then(function() {
-      return promised.ensure_dir(sDes);
+      return promised.ensure_dir(sEditionPath);
     });
-  return perpare.then(Copy).then(Pack);
+  return p
+    .then(perpare)
+    .then(Copy)
+    .then(Pack);
 }
 exports.exportData = exportData;
 
 
 /** 
- * @Method: folderPackage
+ * @Method: packer
  *    To compress all the thing in one folders
  *       @At first, 
  *       @Secondly, conpress all the things in tar package with zlib algorithm
@@ -267,17 +270,30 @@ exports.exportData = exportData;
  *    otherwise, return reject with Error object 
  *
  **/
-function folderPackage(sSrc, tarFilePath) {
-  var fstreamReader = Q.nbind(fstream.Reader);
-  return fstreamReader({
+function packer(sSrc, tarFilePath) {
+  var deferred = Q.defer();
+
+  function onError(err) {
+    deferred.reject(new Error(err));
+  }
+
+  function onEnd() {
+    deferred.resolve("Pack!");
+  }
+  fstream.Reader({
       path: sSrc,
       type: 'Directory'
     }) /* Read the source directory */
-    .then(tar.Pack()) Convert the directory to a.tar file
-    .then(zlib.Gzip()) /* Compress the .tar file */
-    .then(fstream.Writer({
-      path: sDes
-    })); /* Give the output file name */
+    .pipe(tar.Pack({
+      noProprietary: true
+    })) //Convert the directory to a.tar file
+    .pipe(zlib.Gzip()) /* Compress the .tar file */
+    .pipe(fstream.Writer({
+      path: tarFilePath
+    }))
+    .on('error', onError)
+    .on('end', onEnd);
+  return deferred.promised;
 }
 
 
@@ -299,35 +315,34 @@ function folderPackage(sSrc, tarFilePath) {
  *    otherwise, return reject with Error object 
  *
  **/
-function importData(sSrc) {
+function importData(sEdition, sSrc) {
   if (sSrc === null || typeof sSrc != 'string') {
     sSrc = config.BACKUPFOLDERPATH;
   }
-  var sEdition = "a";
+  var tarFile =  path.join(sSrc, sEdition)+".tar.gz";
   var sDes = path.join(config.BACKUPFOLDERPATH, "extract");
   var sEditionPath = path.join(sDes, sEdition);
   var sBackupConfig = path.join(sEditionPath, "config");
   var sMataDataSrc = path.join(sBackupConfig, "custard_rdf");
   var p = Q();
-  var folderExtractorPromised = Q.denodeify(folderExtractor);
   var Perpare = function() {
     return promised.ensure_dir(sDes)
       .then(function() {
         return promised.emptyDir(sDes);
       })
-  }
+  };
   var Extract = function() {
-    return folderExtractorPromised(sSrc, sDes);
-  }
+    return extracter(tarFile, sDes);
+  };
   var MergeData = function() {
     return mergeUserData(sEditionPath, config.BASEPATH)
       .then(function() {
         return mergeTypeData(sEditionPath, config.BASEPATH)
       })
-  }
+  };
   var DataBase = function() {
     return importMetaData(sMataDataSrc, config.LEVELDBPATH);
-  }
+  };
   return p
     .then(Perpare)
     .then(Extract)
@@ -340,31 +355,43 @@ function importData(sSrc) {
 exports.importData = importData;
 
 /** 
- * @Method: folderExtractor
+ * @Method: extractor
  *    To extractor ".tar.gz" file  to Target Folder   
  *       @At first,extract into Memory
  *       @Secondly, write things into Desination
  *
- * @param1: 
- *    database, backup DataBase
+ * @param1: tarFile
+ *    String, the path of tar.gz file
  *
  * @param2: 
- *    database, user's DataBase
+ *    String, the destination of extract files
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
  *    otherwise, return reject with Error object 
  *
  **/
-function folderExtractor(sSrc, sDes) {
-  fs.createReadStream(sSrc)
+function extracter(tarFile, sDes) {
+  var deferred = Q.defer();
+
+  function onError(err) {
+    deferred.reject(new Error(err));
+  }
+
+  function onEnd() {
+    deferred.resolve("Pack!");
+  }
+  fs.createReadStream(tarFile)
     .pipe(zlib.Gunzip()) /* Compress the .tar file */
     .pipe(tar.Extract({
       path: sDes
     })) /* Convert the directory to a .tar file */
     .pipe(fstream.Writer({
       path: sDes
-    })); /* Give the output file name */
+    }))
+    .on('error', onError)
+    .on('end', onEnd);
+  return deferred.promised;
 }
 
 

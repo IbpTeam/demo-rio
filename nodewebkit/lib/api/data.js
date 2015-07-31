@@ -516,15 +516,27 @@ function pasteFile(pasteFileCb, filename, category) {
 exports.pasteFile = pasteFile;
 
 
-function exportData(sEdition, sPath){
+function exportData(exportDataCb, sEdition, sPath){
    console.log("Request handler 'exportData' was called.");
-   return commonHandle.exportData(sEdition, sPath);
+   return commonHandle.exportData(sEdition, sPath)
+   .then(function() {
+      exportDataCb();
+    })
+    .fail(function(err) {
+      exportDataCb(err);
+    });
 }
 exports.exportData = exportData;
 
-function importData(sPath){
+function importData(importDataCb, sEdition, sPath){
    console.log("Request handler 'importData' was called.");
-   return commonHandle.importData(sPath);
+   return commonHandle.importData(sEdition, sPath)
+    .then(function() {
+      importDataCb();
+    })
+    .fail(function(err) {
+      importDataCb(err);
+    });
 }
 exports.importData = importData;
 

@@ -57,7 +57,7 @@
   function test_exportData(exportDataCb){
     WDC.requireAPI(['data'], function(data){
         var exportPath = "/home/xwh/.custardBac";
-        var edition = "a";
+        var edition = "aaaa";
         data.exportData(exportDataCb, edition, exportPath);
     });
   }
@@ -72,8 +72,9 @@
   }
   function test_importData(importDataCb){
     WDC.requireAPI(['data'], function(data){
-        var importPath = "/home/xwh/.custardBac/Pack.tar.gz";
-        data.importData(importDataCb, importPath);
+        var importPath = "/home/xwh/.custardBac/";
+        var edition = "aaaa";
+        data.importData(importDataCb, edition, importPath);
     });
   }
 

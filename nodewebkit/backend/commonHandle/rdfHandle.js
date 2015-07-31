@@ -121,13 +121,6 @@ exports.backupDBOpen = backupDBOpen;
  */
 function dbClose(db) {
   var deferred = Q.defer();
-  // db.close(function(err){
-  //   if (err) {
-  //     deferred.reject(new Error(err));
-  //   } else {
-  //     deferred.resolve("db has been closed");
-  //   }
-  // });
   deferred.resolve();
   return deferred.promise;
 }
