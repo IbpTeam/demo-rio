@@ -1,0 +1,185 @@
+<!-- ====== Version 0.6.0 Jul. 31th 10:22 ====== -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		logReader
+	</title>
+
+<style type="text/css">
+table{
+	border-collapse   :  collapse;
+}
+
+ td{
+	border            :  1px solid silver;
+}
+thead{
+	display           :  block;
+}
+tbody{
+	display           :  block;
+    height            :  100%;
+    overflow-y        :  auto;
+    overflow-x        :  auto;
+}
+.divcss1{
+	background-color  :  orange;
+	height            :  50px;
+	width             :  500px;
+}
+
+.divcss2{
+	display:inline-block;
+	width             :  500px;  
+	height            :  850px;
+	text-align        :  left;
+    vertical-align    :  top;
+	padding           :  0;
+	overflow-x        :  auto;
+	overflow-y        :  auto;
+}
+
+</style>
+</head>
+
+<body>
+<script>
+function createTable(files){
+	var table = document.createElement("table"); 
+	table.setAttribute("id","table"); 
+    var thead = document.createElement("thead"); 
+    thead.setAttribute("id","thead");
+    var tr = document.createElement("tr"); 
+       
+    for (var i = 0; i < files.length; i++) { 
+        var th = document.createElement("th"); 
+
+        th.setAttribute("id",i);
+        th.setAttribute("class","divcss1");
+        tr.appendChild(th); 
+    } 
+
+
+    thead.appendChild(tr); 
+    table.appendChild(thead); 
+    
+    var tbody = document.createElement("tbody"); 
+    for (var i = 0; i < 1; i++) { 
+        var tr = document.createElement("tr"); 
+        for (var j=0; j < files.length; j++) { 
+            var td = document.createElement("td");
+    		
+            td.setAttribute("id",files.length + j);
+            td.setAttribute("class","divcss2");
+            tr.appendChild(td);   
+        } 
+        tbody.appendChild(tr); 
+    }
+    table.appendChild(tbody); 
+    return table;
+}
+</script>
+
+<script type="text/javascript">
+function Br(content)  
+	{  
+    var string = content;  
+    	try{  
+       	 	string=string.replace(/\r\n/g,"<BR>")  
+      		string=string.replace(/\n/g,"<BR>");  
+    }catch(e){  
+        //alert(e.message);
+    }  
+    	return string;  
+}  
+</script>
+
+<script type="text/javascript">
+function printdoc(){
+	var fs = require('fs');
+	var path = process.env.HOME + '/.custard/servlog/';
+	var bpath = process.env.HOME + '/.custard/tmp/';
+
+	fs.readdir(path, function(err,files){ 
+		if(err){ 
+			document.write("error:\n"+err); 
+			return; 
+		}
+		var table = createTable(files); 
+       	document.body.appendChild(table);
+       	document.getElementById("table").width = files.length  * (500 + 2) + 'px' ;
+
+
+
+		function gencb(filename, id){		
+			var readstream = fs.createReadStream(path + filename);
+			fs.createReadStream(path + filename).pipe(fs.createWriteStream(bpath + '.' + filename));
+
+			readstream.on ('data',function(data){
+		    fs.stat(path + filename,function(err, stats){     
+		            document.getElementById(id).innerHTML = Br( "\n" + data) ;
+		        });
+		    });
+
+		    fs.watchFile(path + filename, function (curr, prev) {
+		    	if(prev.size > curr.size){
+		    		var readstream = fs.createReadStream(path + filename);
+			        readstream.on ('data',function(data1){
+			            fs.appendFile(bpath + '.' + filename, ("===== "  + curr.mtime + "=====" + '\n' + data1 + '\n'), function (err) {
+		  					if (err) throw err;
+						});
+					});
+		    	}
+		    	else{
+		        	var readstream = fs.createReadStream(path + filename,{ start : prev.size - 1 , end : curr.size });
+			        readstream.on ('data',function(data1){
+			            fs.appendFile(bpath + '.' + filename, ("===== "  + curr.mtime + "=====" + '\n' + data1 + '\n'), function (err) {
+		  					if (err) throw err;
+						});
+					});
+				}
+		    });
+
+		    fs.watchFile(bpath + '.' + filename, function (curr, prev) {
+				var readstream = fs.createReadStream(bpath + '.' + filename);
+		        readstream.on ('data',function(data){
+		        	document.getElementById(id).innerHTML = Br('\n' + data + '\n');
+		        });
+		   	});		    
+		};
+		for( var i = 0;i < files.length ; i++){
+			document.getElementById(i).innerHTML = files[i];
+		}
+		for( var i = 0;i < files.length  ;i++){
+			//console.log(path + files[i]);
+	    	gencb(files[i] , i + files.length);   	
+		}		
+	});
+	window.onunload = function (){
+		rmdoc();
+	}
+}
+
+function rmdoc(){
+	var fs = require('fs');
+	var bpath = process.env.HOME + '/.custard/tmp/';
+	fs.readdir(bpath, function(err,files){ 
+		if(err) throw err;
+		for( var i = 0;i < files.length  ;i++){
+			fs.unlink(bpath + files[i], function (err) {
+				if(err) throw err;
+			});
+		}
+	});	
+}
+
+
+window.onload = function() { 
+    printdoc();
+}
+
+
+</script>
+</body>
+</html>
