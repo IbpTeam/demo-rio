@@ -1,5 +1,4 @@
-<!-- ====== Version 0.5.2 Jul. 31th 09:04 ====== -->
-
+<!-- ====== Version 0.6.0 Jul. 31th 10:22 ====== -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,14 +6,12 @@
 		logReader
 	</title>
 
-<!-- =============== Table Style Design ================= -->
-
 <style type="text/css">
 table{
 	border-collapse   :  collapse;
 }
 
-table, td{
+ td{
 	border            :  1px solid silver;
 }
 thead{
@@ -22,7 +19,7 @@ thead{
 }
 tbody{
 	display           :  block;
-    height            :  880px;
+    height            :  100%;
     overflow-y        :  auto;
     overflow-x        :  auto;
 }
@@ -33,8 +30,9 @@ tbody{
 }
 
 .divcss2{
+	display:inline-block;
 	width             :  500px;  
-	height            :  880px;
+	height            :  850px;
 	text-align        :  left;
     vertical-align    :  top;
 	padding           :  0;
@@ -46,9 +44,6 @@ tbody{
 </head>
 
 <body>
-
-<!-- =============== function: createTable ================= -->
-
 <script>
 function createTable(files){
 	var table = document.createElement("table"); 
@@ -86,8 +81,6 @@ function createTable(files){
 }
 </script>
 
-<!-- =============== function: transfer \n to </br> ================= -->
-
 <script type="text/javascript">
 function Br(content)  
 	{  
@@ -102,9 +95,6 @@ function Br(content)
 }  
 </script>
 
-
-<!-- =============== main function ================= -->
-
 <script type="text/javascript">
 function printdoc(){
 	var fs = require('fs');
@@ -118,14 +108,13 @@ function printdoc(){
 		}
 		var table = createTable(files); 
        	document.body.appendChild(table);
-       	document.getElementById("table").width = files.length * 500 + 'px' ;
+       	document.getElementById("table").width = files.length  * (500 + 2) + 'px' ;
+
+
 
 		function gencb(filename, id){		
-
-			//initial the screen
-
 			var readstream = fs.createReadStream(path + filename);
-			fs.createReadStream(path + filename).pipe(fs.createWriteStream(bpath + '.' + filename)); 
+			fs.createReadStream(path + filename).pipe(fs.createWriteStream(bpath + '.' + filename));
 
 			readstream.on ('data',function(data){
 		    fs.stat(path + filename,function(err, stats){     
@@ -133,13 +122,11 @@ function printdoc(){
 		        });
 		    });
 
-			//copy the log file to tmp file as realtime
-
 		    fs.watchFile(path + filename, function (curr, prev) {
 		    	if(prev.size > curr.size){
 		    		var readstream = fs.createReadStream(path + filename);
 			        readstream.on ('data',function(data1){
-			            fs.appendFile(bpath + '.' + filename, ("===== "  + curr.mtime + "=====" + '\n' + data1 + '\n'), function (err) {   //if the log has been cleaned, reread it
+			            fs.appendFile(bpath + '.' + filename, ("===== "  + curr.mtime + "=====" + '\n' + data1 + '\n'), function (err) {
 		  					if (err) throw err;
 						});
 					});
@@ -147,14 +134,12 @@ function printdoc(){
 		    	else{
 		        	var readstream = fs.createReadStream(path + filename,{ start : prev.size - 1 , end : curr.size });
 			        readstream.on ('data',function(data1){
-			            fs.appendFile(bpath + '.' + filename, ("===== "  + curr.mtime + "=====" + '\n' + data1 + '\n'), function (err) {   //else append the new line to the tmp file
+			            fs.appendFile(bpath + '.' + filename, ("===== "  + curr.mtime + "=====" + '\n' + data1 + '\n'), function (err) {
 		  					if (err) throw err;
 						});
 					});
 				}
 		    });
-
-		    //print the tmp file onto the screen as realtime 
 
 		    fs.watchFile(bpath + '.' + filename, function (curr, prev) {
 				var readstream = fs.createReadStream(bpath + '.' + filename);
@@ -163,29 +148,18 @@ function printdoc(){
 		        });
 		   	});		    
 		};
-
-		//print the table head
-
 		for( var i = 0;i < files.length ; i++){
 			document.getElementById(i).innerHTML = files[i];
 		}
-
-		//execute the print module
-
 		for( var i = 0;i < files.length  ;i++){
 			//console.log(path + files[i]);
 	    	gencb(files[i] , i + files.length);   	
 		}		
 	});
-
-	//remove the tmp file when closing the browser
-	
 	window.onunload = function (){
 		rmdoc();
 	}
 }
-
-/* ================= function: remove the tmp file =================== */
 
 function rmdoc(){
 	var fs = require('fs');
