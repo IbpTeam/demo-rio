@@ -268,50 +268,25 @@ exports.exportData = exportData;
  *
  **/
 function folderPackage(sSrc, tarFilePath){
-  // var fstreamReader =  Q.nbind(fstream.Reader);
-  //   return fstreamReader({
-  //   path: sSrc,
-  //    type: 'Directory'
-  //   }) /* Read the source directory */
-  //   .then (tar.Pack())  Convert the directory to a .tar file 
-  //   .then(zlib.Gzip()) /* Compress the .tar file */
-  //   .then(fstream.Writer({
-  //     path: sDes
-  //   })); /* Give the output file name */
-var deferred = Q.defer();
-  function onError(err){
-    deferred.reject();
-    console.error('An err occurred', err);
-  }
-  function onEnd(){
-    deferred.resolve("fodler Package is Done!");
-    console.log('Packed');
-  }
-  var packer = tar.Pack({noProprietary : true})
-    .on('error', onError)
-    .on('end', onEnd);
-
-  fstream.Reader({
+  var fstreamReader =  Q.nbind(fstream.Reader);
+    return fstreamReader({
     path: sSrc,
      type: 'Directory'
     }) /* Read the source directory */
-    .pipe (packer)  //Convert the directory to a .tar file 
-    .pipe(zlib.Gzip()) /* Compress the .tar file */
-    .pipe(fstream.Writer({
-      path:tarFilePath
+    .then (tar.Pack())  Convert the directory to a .tar file 
+    .then(zlib.Gzip()) /* Compress the .tar file */
+    .then(fstream.Writer({
+      path: sDes
     })); /* Give the output file name */
-  return deferred.promise;
 }
-
-
-
 
 
 /** 
  * @Method: importData
  *    To import MetaData to Target DataBase from Source DataBase
- *       @At first, search all tripples from Source DataBase
- *       @Secondly, put tripples into Target DataBase
+ *       @At first, extract Data
+ *       @Secondly, merge user Data
+  *       @Thirdly, merge user Data
  *
  * @param1: sSrc
  *    string, backup DataBase
