@@ -1271,10 +1271,9 @@ var ShowFiles = Class.extend({
             }
           }
            WDC.requireAPI(['clipboard'], function(clipboard){
-            console.log("call setFile((((((((((((((((((((((((((((((((((((((((((((((");
-            clipboard.setFile(filePath,function(result){
+            clipboard.setFile(function(result){
               console.log(result);
-            }) ;
+            }, filePath) ;
           });
         }
         else if(ev.keyCode == cKey && ctrlDown==false){
