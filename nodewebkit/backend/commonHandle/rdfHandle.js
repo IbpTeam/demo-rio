@@ -22,7 +22,6 @@ var Q = require('q');
 var __db = levelgraph(config.LEVELDBPATH);
 var TYPEFILEDIR = config.TYPEFILEDIR;
 var TYPECONFPATH = config.TYPECONFPATH;
-
 var DEFINED_VOC = {
   rdf: {
     _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
