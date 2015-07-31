@@ -86,7 +86,13 @@ var InfoList = Class.extend({
                 return 0;
               }
             };
-            _this.addTag(newtext_,0);
+            DataAPI.addPreTag(function(err) {
+              if (err) {
+                console.log(err);
+                return 0;
+              }
+              _this.addTag(newtext_, 0);
+            }, newtext_, _this.getCategoryName(_this._index));
           }
         }
       }
@@ -191,6 +197,7 @@ var InfoList = Class.extend({
   },
 
   fixTagNum:function(tag_, num_){
+    var _this = this;
     var _tags = this._infoContentNano.children('.il__a');
     for (var i = 0; i < _tags.length; i++) {
       if($(_tags[i]).children('.il__title')[0].textContent === tag_){
@@ -202,11 +209,18 @@ var InfoList = Class.extend({
           'text': _num
         });
         $(_tags[i]).append(_numText);
+        for (var i = 0; i < _this._info.length; i++) {
+          if(_this._info[i][0] == tag_){
+            _this._info[i][1] = _num;
+          }
+        };
         return _num;
       }
     };
     if(num_>0){
-      this.addTag(tag_,num_);
+      _this.addTag(tag_,num_);
+      _this._info.push([tag_,num_]);
+      return num_;
     }
     return -1;
   },
@@ -218,7 +232,7 @@ var InfoList = Class.extend({
     if(this._info.length > 0){
       for(var key = 0; key < this._info.length; key ++){
         _tagTextList.push(this._info[key][0]);
-        if (_selectedTags && _selectedTags.indexOf(this._info[key]) > -1) {
+        if (_selectedTags && _selectedTags.indexOf(this._info[key][0]) > -1) {
           this.addTag(this._info[key][0],this._info[key][1],true);
         }else{
           this.addTag(this._info[key][0],this._info[key][1]);
