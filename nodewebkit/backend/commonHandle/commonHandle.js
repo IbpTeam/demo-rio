@@ -225,27 +225,27 @@ function extraInfo(item, category) {
  *
  **/
 
-function exportData(sEdition, sDes){
-  if(typeof sDes != 'string' || typeof sEdition !='string'){
+function exportData(sEdition, sDes) {
+  if (typeof sDes != 'string' || typeof sEdition != 'string') {
     throw new Error("INPUT Error");
   }
-  var sDes = path.join(sDes,  sEdition);
+  var sDes = path.join(sDes, sEdition);
   var sSrc = config.BASEPATH;
-  var tarFile = sDes+".tar.gz";
+  var tarFile = sDes + ".tar.gz";
   // var Copy = function(){
   //   return iteratorTest(sSrc, sDes,  filesMaker);
   // }
-  var Copy = function(){
-    return promised.copy(sSrc,sDes);
+  var Copy = function() {
+    return promised.copy(sSrc, sDes);
   }
-  var Pack = function(){
-    return folderPackage(sDes, sDes+".tar.gz");
+  var Pack = function() {
+    return folderPackage(sDes, sDes + ".tar.gz");
   }
   var perpare = promised.remove(tarFile)
-     .then(function(){
-        return promised.ensure_dir(sDes);
-     });
-  return perpare  .then(Copy)  .then(Pack);
+    .then(function() {
+      return promised.ensure_dir(sDes);
+    });
+  return perpare.then(Copy).then(Pack);
 }
 exports.exportData = exportData;
 
@@ -259,7 +259,7 @@ exports.exportData = exportData;
  * @param1: sDes
  *    string, Destination Path of exports
  *
-  * @param2: sDes
+ * @param2: sDes
  *    string, Destination Path of exports
  *
  * @return Promise
@@ -267,13 +267,13 @@ exports.exportData = exportData;
  *    otherwise, return reject with Error object 
  *
  **/
-function folderPackage(sSrc, tarFilePath){
-  var fstreamReader =  Q.nbind(fstream.Reader);
-    return fstreamReader({
-    path: sSrc,
-     type: 'Directory'
+function folderPackage(sSrc, tarFilePath) {
+  var fstreamReader = Q.nbind(fstream.Reader);
+  return fstreamReader({
+      path: sSrc,
+      type: 'Directory'
     }) /* Read the source directory */
-    .then (tar.Pack())  Convert the directory to a .tar file 
+    .then(tar.Pack()) Convert the directory to a.tar file
     .then(zlib.Gzip()) /* Compress the .tar file */
     .then(fstream.Writer({
       path: sDes
@@ -286,7 +286,7 @@ function folderPackage(sSrc, tarFilePath){
  *    To import MetaData to Target DataBase from Source DataBase
  *       @At first, extract Data
  *       @Secondly, merge user Data
-  *       @Thirdly, merge user Data
+ *       @Thirdly, merge user Data
  *
  * @param1: sSrc
  *    string, backup DataBase
@@ -299,41 +299,43 @@ function folderPackage(sSrc, tarFilePath){
  *    otherwise, return reject with Error object 
  *
  **/
-function importData(sSrc){
-  if(sSrc === null || typeof sSrc != 'string'){
+function importData(sSrc) {
+  if (sSrc === null || typeof sSrc != 'string') {
     sSrc = config.BACKUPFOLDERPATH;
   }
-  var sEdition ="a";
-  var sDes = path.join(config.BACKUPFOLDERPATH,"extract");
-  var sEditionPath  = path.join(sDes,sEdition);
-  var sBackupConfig = path.join(sEditionPath,"config");
-  var sMataDataSrc=path.join(sBackupConfig,"custard_rdf");
+  var sEdition = "a";
+  var sDes = path.join(config.BACKUPFOLDERPATH, "extract");
+  var sEditionPath = path.join(sDes, sEdition);
+  var sBackupConfig = path.join(sEditionPath, "config");
+  var sMataDataSrc = path.join(sBackupConfig, "custard_rdf");
   var p = Q();
-  var folderExtractorPromised=Q.denodeify(folderExtractor);
-  var Perpare = function(){
+  var folderExtractorPromised = Q.denodeify(folderExtractor);
+  var Perpare = function() {
     return promised.ensure_dir(sDes)
-    .then(function(){
-      return promised.emptyDir(sDes);
-    })
+      .then(function() {
+        return promised.emptyDir(sDes);
+      })
   }
-  var Extract = function(){
+  var Extract = function() {
     return folderExtractorPromised(sSrc, sDes);
   }
-  var MergeData = function (){
+  var MergeData = function() {
     return mergeUserData(sEditionPath, config.BASEPATH)
-    .then(function(){
-      return mergeTypeData(sEditionPath, config.BASEPATH)
-    })
+      .then(function() {
+        return mergeTypeData(sEditionPath, config.BASEPATH)
+      })
   }
-  var DataBase = function(){
+  var DataBase = function() {
     return importMetaData(sMataDataSrc, config.LEVELDBPATH);
   }
   return p
-     .then(Perpare)
-     .then(Extract)
-     .then(MergeData)
-      .then(DataBase)
-    .fail(function(err){ new Error("CommonHandle:importData");});
+    .then(Perpare)
+    .then(Extract)
+    .then(MergeData)
+    .then(DataBase)
+    .fail(function(err) {
+      new Error("CommonHandle:importData");
+    });
 }
 exports.importData = importData;
 
@@ -354,10 +356,12 @@ exports.importData = importData;
  *    otherwise, return reject with Error object 
  *
  **/
-function folderExtractor(sSrc, sDes){
+function folderExtractor(sSrc, sDes) {
   fs.createReadStream(sSrc)
     .pipe(zlib.Gunzip()) /* Compress the .tar file */
-    .pipe(tar.Extract({path: sDes })) /* Convert the directory to a .tar file */
+    .pipe(tar.Extract({
+      path: sDes
+    })) /* Convert the directory to a .tar file */
     .pipe(fstream.Writer({
       path: sDes
     })); /* Give the output file name */
@@ -373,7 +377,7 @@ function folderExtractor(sSrc, sDes){
  * @param1: sSrc
  *    String,  SourceFolder Path
  *
-  * @param2: sDes
+ * @param2: sDes
  *    String, Destionation Path
  *
  * @return Promise
@@ -381,17 +385,19 @@ function folderExtractor(sSrc, sDes){
  *    otherwise, return reject with Error object 
  *
  **/
-var importDataBase = function(sourceDB, targetDB){
+var importDataBase = function(sourceDB, targetDB) {
   var _query = [{
     subject: sourceDB.v('subject'),
     predicate: sourceDB.v('predicate'),
     object: sourceDB.v('object')
   }];
   return rdfHandle.dbSearch(sourceDB, _query)
-    .then(function(triples){
+    .then(function(triples) {
       console.log(triples);
       return rdfHandle.dbPut(targetDB, triples);
-    },function(err){ throw new Error("[CommonHandle]fimportDataBase:Error");});
+    }, function(err) {
+      throw new Error("[CommonHandle]fimportDataBase:Error");
+    });
 };
 
 
@@ -408,11 +414,13 @@ var importDataBase = function(sourceDB, targetDB){
  *    otherwise, return reject with Error object 
  *
  **/
-function importMetaData(sPath){
+function importMetaData(sPath) {
   var targetDB = rdfHandle.dbOpen();
   var sourceDB = rdfHandle.backupDBOpen(sPath);
   return importDataBase(sourceDB, targetDB)
-          .fail(function(err){ new Error("CommonHandle:importMetaData");});
+    .fail(function(err) {
+      new Error("CommonHandle:importMetaData");
+    });
 }
 
 
@@ -424,7 +432,7 @@ function importMetaData(sPath){
  * @param1: sSrc
  *    String,  SourceFolder Path
  *
-  * @param2: sDes
+ * @param2: sDes
  *    String, Destionation Path
  *
  * @return Promise
@@ -432,7 +440,7 @@ function importMetaData(sPath){
  *    otherwise, return reject with Error object 
  *
  **/
-function mergeTypeData(sSrc, sDes){
+function mergeTypeData(sSrc, sDes) {
   var sSubFolder = path.join("config", "custard_type");
   return mergeData(sSubFolder, sSrc, sDes);
 }
@@ -445,7 +453,7 @@ function mergeTypeData(sSrc, sDes){
  * @param1: sSrc
  *    String,  SourceFolder Path
  *
-  * @param2: sDes
+ * @param2: sDes
  *    String, Destionation Path
  *
  * @return Promise
@@ -453,7 +461,7 @@ function mergeTypeData(sSrc, sDes){
  *    otherwise, return reject with Error object 
  *
  **/
-function mergeUserData(sSrc, sDes){
+function mergeUserData(sSrc, sDes) {
   var sSubFolder = "resource";
   return mergeData(sSubFolder, sSrc, sDes);
 }
@@ -466,10 +474,10 @@ function mergeUserData(sSrc, sDes){
  * @param1: sSubFolder
  *    String,   folder to merge
  *
-  * @param2: sSrc
+ * @param2: sSrc
  *    String,  SourceFolder Path
  *
-  * @param3: sDes
+ * @param3: sDes
  *    String, Destionation Path
  *
  * @return Promise
@@ -477,7 +485,7 @@ function mergeUserData(sSrc, sDes){
  *    otherwise, return reject with Error object 
  *
  **/
-function mergeData(sSubFolder, sSrc, sDes){
+function mergeData(sSubFolder, sSrc, sDes) {
   sSrc = path.join(sSrc, sSubFolder);
   sDes = path.join(sDes, sSubFolder);
   return folderIterCopyThroughPath(sSrc, sDes, 0, filesHandle);
@@ -492,13 +500,13 @@ function mergeData(sSubFolder, sSrc, sDes){
  * @param1: sDes
  *    string, Destination Path of exports
  *
-  * @param2: sDes
+ * @param2: sDes
  *    string, Destination Path of exports
  *
-  * @param3: floor
+ * @param3: floor
  *    string, Destination Path of exports
  *
-  * @param4: handleFile
+ * @param4: handleFile
  *    function, Destination Path of exports
  *
  * @return Promise
@@ -510,43 +518,41 @@ function folderIterCopyThroughPath(src, des, floor, handleFile) {
   handleFile(src, des, floor);
   floor++;
   return promised.readdir(src)
-  .then(function(files){
-    files.forEach(function(item) {
-      var tmpSrc = src + '/' + item;
-      var tmpDes = des + '/' + item;
-       promised.stat(tmpSrc)
-        .then(function(stats){
-          if (stats.isDirectory()) {
-             return folderIterCopyThroughPath(tmpSrc, tmpDes, floor, handleFile);
-          } else {
-            return handleFile(tmpSrc, tmpDes, floor);
-          }
-        });
+    .then(function(files) {
+      files.forEach(function(item) {
+        var tmpSrc = src + '/' + item;
+        var tmpDes = des + '/' + item;
+        promised.stat(tmpSrc)
+          .then(function(stats) {
+            if (stats.isDirectory()) {
+              return folderIterCopyThroughPath(tmpSrc, tmpDes, floor, handleFile);
+            } else {
+              return handleFile(tmpSrc, tmpDes, floor);
+            }
+          });
+      });
     });
-  });
 }
 
 function filesHandle(src, des, floor) {
   var deferred = Q.defer();
   return promised.stat(src)
-  .then(function(stats){
-    if (stats.isDirectory()) {
-      if (!fs.existsSync(des)) {
-        return promised.mkdir(des);
-      }
-      else{
-        deferred.resolves;
-        return deferred.promise;
-      }
-    } else {
+    .then(function(stats) {
+      if (stats.isDirectory()) {
+        if (!fs.existsSync(des)) {
+          return promised.mkdir(des);
+        } else {
+          deferred.resolves;
+          return deferred.promise;
+        }
+      } else {
         return promised.copy(src, des);
-    }
-  })
-  .fail(function(err){ throw new Error(err);});
+      }
+    })
+    .fail(function(err) {
+      throw new Error(err);
+    });
 }
-
-
-
 
 
 
@@ -707,10 +713,10 @@ exports.getRecentAccessData = function(category, num) {
     items = items.sort(function(a, b) {
       var _a = new Date(a.lastAccessTime);
       var _b = new Date(b.lastAccessTime);
-      var res =  _b.getTime() - _a.getTime();
+      var res = _b.getTime() - _a.getTime();
       return res;
     });
-    var _result = (items.length > num) ? items.slice(0, num ) : items;
+    var _result = (items.length > num) ? items.slice(0, num) : items;
     return _result;
   }
   return rdfHandle.dbSearch(_db, _query)
@@ -848,7 +854,6 @@ exports.openData = function(uri) {
  *
  **/
 function renameDataByUri(sUri, sNewName) {
-
   var reName = function(Item) {
     if (Item === null) {
       throw new Error("Items do not exists!");
@@ -872,7 +877,6 @@ function renameDataByUri(sUri, sNewName) {
       _oldpath: filepath
     };
   }
-
   var _options = {
     _type: "base",
     _property: "URI",
@@ -963,5 +967,5 @@ function getTriples(options) {
 
 exports.getTmpPath = function(getTmpPathCb) {
   getTmpPath(config.TMPPATH);
-  
+
 }
