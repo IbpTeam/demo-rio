@@ -227,17 +227,17 @@ function extraInfo(item, category) {
 
 function exportData(sEdition, sDes) {
   if (typeof sDes != 'string' || typeof sEdition != 'string') {
-    throw new Error("INPUT Error");
+    sDes = config.BACKUPEDITIONPATH;
   }
   var sEditionPath = path.join(sDes, sEdition);
   var sSrc = config.BASEPATH;
   var tarFile = sEditionPath + ".tar.gz";
   var p = Q();
   var Copy = function() {
-    return promised.copy(sSrc, sEditionPath);
+    // return promised.copy(sSrc, sEditionPath);
+    return copyFolder(sSrc, sEditionPath, 0, filesHandle);
   };
   var Pack = function() {
-
     var tarFile = sEditionPath + ".tar.gz";
     return packer(sEditionPath, tarFile);
   };
@@ -245,10 +245,14 @@ function exportData(sEdition, sDes) {
     .then(function() {
       return promised.ensure_dir(sEditionPath);
     });
+  // var removeFolder = function(path){
+  //   return promised.remove(path);
+  // }
   return p
     .then(perpare)
     .then(Copy)
     .then(Pack);
+    // .then(removeFolder(sEditionPath));
 }
 exports.exportData = exportData;
 
@@ -319,7 +323,7 @@ function importData(sEdition, sSrc) {
   if (sSrc === null || typeof sSrc != 'string') {
     sSrc = config.BACKUPFOLDERPATH;
   }
-  var tarFile =  path.join(sSrc, sEdition)+".tar.gz";
+  var tarFile = path.join(sSrc, sEdition) + ".tar.gz";
   var sDes = path.join(config.BACKUPFOLDERPATH, "extract");
   var sEditionPath = path.join(sDes, sEdition);
   var sBackupConfig = path.join(sEditionPath, "config");
@@ -541,20 +545,38 @@ function mergeData(sSubFolder, sSrc, sDes) {
  *    otherwise, return reject with Error object 
  *
  **/
-function folderIterCopyThroughPath(src, des, floor, handleFile) {
+ function copyFolder(src, des, floor, handleFile) {
+  var deferred = Q.defer();
+
+  var onError = function (err) {
+    deferred.reject(new Error(err));
+  }
+
+  var onEnd = function () {
+    deferred.resolve("copyFolder!");
+  }
+
+  folderIteratorFunc(src, des, floor, handleFile)
+   .then(onEnd)
+   .fail(onError);
+  return deferred.promised;
+}
+
+function folderIteratorFunc(src, des, floor, handleFile) {
   handleFile(src, des, floor);
   floor++;
+  var deferred = Q.defer();
   return promised.readdir(src)
     .then(function(files) {
       files.forEach(function(item) {
-        var tmpSrc = src + '/' + item;
-        var tmpDes = des + '/' + item;
+        var tmpSrc = src + "/" + item;
+        var tmpDes =  des + "/" + item;
         promised.stat(tmpSrc)
           .then(function(stats) {
             if (stats.isDirectory()) {
-              return folderIterCopyThroughPath(tmpSrc, tmpDes, floor, handleFile);
+              folderIteratorFunc(tmpSrc, tmpDes, floor, handleFile);
             } else {
-              return handleFile(tmpSrc, tmpDes, floor);
+              handleFile(tmpSrc, tmpDes, floor).done();
             }
           });
       });
@@ -562,18 +584,13 @@ function folderIterCopyThroughPath(src, des, floor, handleFile) {
 }
 
 function filesHandle(src, des, floor) {
-  var deferred = Q.defer();
-  return promised.stat(src)
+  // var deferred = Q.defer();
+    promised.stat(src)
     .then(function(stats) {
       if (stats.isDirectory()) {
-        if (!fs.existsSync(des)) {
-          return promised.mkdir(des);
-        } else {
-          deferred.resolves;
-          return deferred.promise;
-        }
+         promised.ensure_dir(des).done();
       } else {
-        return promised.copy(src, des);
+         promised.copy(src, des).done();
       }
     })
     .fail(function(err) {
