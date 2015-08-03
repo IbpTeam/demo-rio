@@ -524,7 +524,8 @@ function exportData(exportDataCb, sEdition, sPath){
     })
     .fail(function(err) {
       exportDataCb(err);
-    });
+    })
+    .done();
 }
 exports.exportData = exportData;
 
@@ -536,7 +537,8 @@ function importData(importDataCb, sEdition, sPath){
     })
     .fail(function(err) {
       importDataCb(err);
-    });
+    })
+    .done();;
 }
 exports.importData = importData;
 

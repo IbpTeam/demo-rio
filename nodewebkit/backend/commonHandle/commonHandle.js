@@ -234,31 +234,35 @@ function exportData(sEdition, sDes) {
   var tarFile = sEditionPath + ".tar.gz";
   var p = Q();
   var Copy = function() {
-    var token = "config/custard_rdf";
+    var token = path.join("config", "custard_rdf");
     var MergeSrc = path.join(sSrc, token);
     var MergeDes = path.join(sDes, token);
-    return promised.copy(sSrc, sEditionPath)
-    .then(function(){
-      return mergeUserData(MergeSrc, MergeDes);
-    })
-    ;
-    // return copyFolder(sSrc, sEditionPath, 0, filesHandle);
+    // return promised.copy(sSrc, sEditionPath)
+    // .then(function(){
+    //   return folderIterCopyThroughPath(MergeSrc, MergeDes,0, filesHandle);
+    // })
+    // ;
+    return folderIterCopyThroughPath(sSrc, sEditionPath, 0, filesHandle);
   };
   var Pack = function() {
     var tarFile = sEditionPath + ".tar.gz";
     return packer(sEditionPath, tarFile);
   };
-  var perpare = promised.remove(tarFile)
-    .then(function() {
-      return promised.ensure_dir(sEditionPath);
-    });
-  // var removeFolder = function(path){
-  //   return promised.remove(path);
-  // }
+  // var perpare =  promised.remove(tarFile)
+  //   .then(function() {
+  //     return promised.ensure_dir(sEditionPath);
+  //   });
+
+  // var perpare = function(){
+  //   return promised.remove(tarFile)
+  //   .then(function() {
+  //     return promised.ensure_dir(sEditionPath);
+  //   });
+  // };
   return p
     // .then(perpare)
-    .then(Copy)
-    .then(Pack);
+    .then(Copy);
+    // .then(Pack);
     // .then(removeFolder(sEditionPath));
 }
 exports.exportData = exportData;
@@ -569,53 +573,28 @@ function mergeData(sSubFolder, sSrc, sDes) {
   return deferred.promised;
 }
 
-var filesMaker = function(item) {
-  var tmpSrc = src + "/" + item;
-  var tmpDes = des + "/" + item;
-  promised.stat(tmpSrc)
-    .then(function(stats) {
-      if (stats.isDirectory()) {
-        return folderIteratorFunc(tmpSrc, tmpDes, floor, handleFile);
-      } else {
-        return handleFile(tmpSrc, tmpDes, floor).done();
-      }
-    });
-};
 
-// function folderIteratorFunc(src, des, floor, handleFile) {
-//   handleFile(src, des, floor);
-//   floor++;
-//   var deferred = Q.defer();
-//   return promised.readdir(src)
-//     .then(function(files) {
-//       Q.all(files).then(filesMaker);
-//     });
-// }
-
-function folderIteratorFunc(src, des, floor, handleFile) {
+function folderIterCopyThroughPath(src, des, floor, handleFile) {
   handleFile(src, des, floor);
   floor++;
-  var deferred = Q.defer();
   return promised.readdir(src)
     .then(function(files) {
-      files.foreach(function(item) {
-          var tmpSrc = src + "/" + item;
-          var tmpDes = des + "/" + item;
-          promised.stat(tmpSrc)
-            .then(function(stats) {
-              if (stats.isDirectory()) {
-                return folderIteratorFunc(tmpSrc, tmpDes, floor, handleFile);
-              } else {
-                return handleFile(tmpSrc, tmpDes, floor).done();
-              }
-            });
-        });
+      files.forEach(function(item) {
+        var tmpSrc = src + '/' + item;
+        var tmpDes = des + '/' + item;
+        promised.stat(tmpSrc)
+          .then(function(stats) {
+            if (stats.isDirectory()) {
+              return folderIterCopyThroughPath(tmpSrc, tmpDes, floor, handleFile);
+            } else {
+              return handleFile(tmpSrc, tmpDes, floor);
+            }
+          });
+      });
     });
 }
 
-
 function filesHandle(src, des, floor) {
-  // var deferred = Q.defer();
     return promised.stat(src)
     .then(function(stats) {
       if (stats.isDirectory()) {
