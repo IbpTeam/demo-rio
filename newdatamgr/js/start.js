@@ -132,7 +132,7 @@ var main = function(params_){
           try{
             _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
             var _dataMgrIfm = _window._windowContent[0];
-            _dataMgrIfm.src = _dataMgrIfm.src.substr(0,hrefLocal.indexOf("html") + 4)
+            _dataMgrIfm.src = _dataMgrIfm.src.substr(0,_dataMgrIfm.src.indexOf("main") + 4)
                 + "?id=" + WDC.AppID
                 + "&{category:'"+ infoList.getCategoryName(infoList._index) + "'}";
           } catch(e){
@@ -150,7 +150,7 @@ var main = function(params_){
         data.getTmpPath(function(err, res) {
           res = res + '/';
           console.log("res=" + res);
-          clipboard.getFile(res, function(session, filePath) {
+          clipboard.getFile(function(err, sessionId, filePath) {
             var winW = 450,
                 winH = 150,
                 tipWin = Window.create('fileTrans', '粘贴文件', {
@@ -163,43 +163,55 @@ var main = function(params_){
                   top: ($(window).height() - winH) / 2
                 });
             tipWin.show();
-            if(session.err) {
-              var err;
-              if(typeof session.err === 'string') {
-                err = session.err;
-              } else if(typeof session.err === 'object') {
-                err = session.err.code + ', ' + session.err.path;
+            if(err) {
+              if(typeof err === 'object') {
+                err = err.code + ', ' + err.path;
               }
               return tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
             }
-            var id = session.id,
-                progBar = Gauge.create({
-                  width: winW - 20,
-                  height: 30,
-                  name: 'fileTransProg',
-                  limit: true,
-                  gradient: true,
-                  scale: 10,
-                  colors: ['#00ff00', '#0000ff'],
-                  values: [0, 100],
-                  noscale: true
-                });
+            var progBar = Gauge.create({
+              width: winW - 20,
+              height: 30,
+              name: 'fileTransProg',
+              limit: true,
+              gradient: true,
+              scale: 10,
+              colors: ['#00ff00', '#0000ff'],
+              values: [0, 100],
+              noscale: true
+            });
             tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>文件传输：<span id="progInfo"></span></p></div>'
                 + '<div id="progBar" style="width: 100%; padding: 10px"></div>');
             progBar.add($('#progBar'));
             var $progInfo = $('#progInfo');
-            session.session.on('progress#' + id, function(percentage, msg) {
-              $progInfo.html(percentage + '%');
-              progBar.modify($('#fileTransProg')[0], {values: [parseInt(percentage), 100]});
-            }).on('error#' + id, function(err) {
-              $progInfo.html('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
-            }).on('end#' + id, function(err) {
-              if(err) return console.log(err);
-              $progInfo.html('完成！正在导入数据管理器，请稍后...');
-              // console.log(filePath);
-              onPasted(filePath);
-            });
-          });
+            var addr = '';
+            var ws = '';
+            if(location.protocol != 'file:') {
+              ws = parent._global.get('ws');
+            }
+            try{
+              clipboard.monitorDataTransfer(function(err, percentage, msg){
+                clipboard.dataTransProgress(function(err, percentage, msg){
+                  if(err){
+                    return tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
+                  }
+                  else{
+                    if(percentage === 100 && msg ==='finished'){
+                       $progInfo.html('完成！正在导入数据管理器，请稍后...');
+                       onPasted(filePath);
+                    }
+                    else{
+                      $progInfo.html(percentage + '%');
+                      progBar.modify($('#fileTransProg')[0], {values: [parseInt(percentage), 100]});
+                    }
+                  }
+                }, err, percentage, msg, ws);
+              }, sessionId);
+            }
+            catch(e) {
+              console.log(e);
+            }
+          }, res);
         });
       } else if(ev.keyCode == vKey && ctrlDown == false) {
         console.log("@@@@@@@@@" + ev.keyCode + "@@@@@@@@@@@@");
