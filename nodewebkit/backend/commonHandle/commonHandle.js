@@ -233,37 +233,35 @@ function exportData(sEdition, sDes) {
   var sSrc = config.BASEPATH;
   var tarFile = sEditionPath + ".tar.gz";
   var p = Q();
+  var token = path.join("config", "custard_rdf");
+  var MergeSrc = path.join(sSrc, token);
+  var MergeDes = path.join(sEditionPath, token);
   var Copy = function() {
-    var token = path.join("config", "custard_rdf");
-    var MergeSrc = path.join(sSrc, token);
-    var MergeDes = path.join(sDes, token);
     // return promised.copy(sSrc, sEditionPath)
     // .then(function(){
     //   return folderIterCopyThroughPath(MergeSrc, MergeDes,0, filesHandle);
     // })
     // ;
-    return folderIterCopyThroughPath(sSrc, sEditionPath, 0, filesHandle);
+    fs_extra.copySync(sSrc, sEditionPath);
+
+    // return folderIterCopyThroughPath(sSrc, sEditionPath, 0, filesHandle);
   };
   var Pack = function() {
     var tarFile = sEditionPath + ".tar.gz";
     return packer(sEditionPath, tarFile);
   };
-  // var perpare =  promised.remove(tarFile)
-  //   .then(function() {
-  //     return promised.ensure_dir(sEditionPath);
-  //   });
 
-  // var perpare = function(){
-  //   return promised.remove(tarFile)
-  //   .then(function() {
-  //     return promised.ensure_dir(sEditionPath);
-  //   });
-  // };
+  var perpare = function() {
+    return promised.remove(tarFile)
+      .then(function() {
+        return promised.ensure_dir(sEditionPath);
+      });
+  };
   return p
-    // .then(perpare)
-    .then(Copy);
-    // .then(Pack);
-    // .then(removeFolder(sEditionPath));
+    .then(perpare)
+    .then(Copy)
+    .then(Pack);
+  // .then(removeFolder(sEditionPath));
 }
 exports.exportData = exportData;
 
@@ -334,44 +332,33 @@ function importData(sEdition, sSrc) {
   if (sSrc === null || typeof sSrc != 'string') {
     sSrc = config.BACKUPFOLDERPATH;
   }
-  var tarFile = path.join(sSrc, sEdition) + ".tar.gz";
-  var sDes = path.join(config.BACKUPFOLDERPATH, "extract");
+  var tarFilePath = path.join(sSrc, sEdition);
+  tarFilePath += ".tar.gz";
+  var sDes = config.BACKUPEXTRACTPATH;
   var sEditionPath = path.join(sDes, sEdition);
-  var sBackupConfig = path.join(sEditionPath, "config");
-  var sMataDataSrc = path.join(sBackupConfig, "custard_rdf");
+  var metaDataToken = path.join("config", "custard_rdf");
+  var sMataDataSrc = path.join(sEditionPath, metaDataToken);
   var p = Q();
   var Perpare = function() {
-    return promised.ensure_dir(sDes)
+    return promised.ensure_dir(sEditionPath)
       .then(function() {
-        return promised.emptyDir(sDes);
-      })
+        promised.emptyDir(sEditionPath).done;
+      });
   };
-  var Extract = function() {
-    return extracter(tarFile, sDes);
-  };
-  var MergeData = function() {
-    return mergeUserData(sEditionPath, config.BASEPATH)
-      .then(function() {
-        return mergeTypeData(sEditionPath, config.BASEPATH)
-      })
-  };
-  var DataBase = function() {
-    return importMetaData(sMataDataSrc, config.LEVELDBPATH);
-  };
+  var extractorPromsed = Q.denodeify(extractor);
   return p
-    .then(Perpare)
-    .then(Extract)
-    .then(MergeData)
-    .then(DataBase)
-    .fail(function(err) {
-      new Error("CommonHandle:importData");
-    });
+    // .then(Perpare)
+    .then(extractorPromsed(tarFilePath, sDes))
+    .then(mergeUserData(sEditionPath, config.BASEPATH))
+    .then(mergeTypeData(sEditionPath, config.BASEPATH))
+    .then(importMetaData(sMataDataSrc, config.LEVELDBPATH));
+
 }
 exports.importData = importData;
 
 /** 
- * @Method: extractor
- *    To extractor ".tar.gz" file  to Target Folder   
+ * @Method: extracter
+ *    To extract ".tar.gz" file  to Target Folder   
  *       @At first,extract into Memory
  *       @Secondly, write things into Desination
  *
@@ -386,27 +373,28 @@ exports.importData = importData;
  *    otherwise, return reject with Error object 
  *
  **/
-function extracter(tarFile, sDes) {
-  var deferred = Q.defer();
+function extractor(tarFile, sDes,cb) {
+  //var deferred = Q.defer();
 
   function onError(err) {
-    deferred.reject(new Error(err));
+    return cb(err);
+    // return deferred.reject(new Error(err));
   }
 
   function onEnd() {
-    deferred.resolve("Pack!");
+    return cb();
+    // return deferred.resolve("Pack!");
   }
-  fs.createReadStream(tarFile)
-    .pipe(zlib.Gunzip()) /* Compress the .tar file */
-    .pipe(tar.Extract({
-      path: sDes
-    })) /* Convert the directory to a .tar file */
-    .pipe(fstream.Writer({
-      path: sDes
-    }))
-    .on('error', onError)
+  var extractor = tar.Extract(sDes)
+    .on('err', onError)
     .on('end', onEnd);
-  return deferred.promised;
+
+  fs.createReadStream(tarFile)
+    .on('err', onError)
+    .pipe(zlib.Gunzip()) /* Compress the .tar file */
+    .pipe(extractor);
+
+  // return deferred.promised;
 }
 
 
@@ -461,7 +449,7 @@ function importMetaData(sPath) {
   var sourceDB = rdfHandle.backupDBOpen(sPath);
   return importDataBase(sourceDB, targetDB)
     .fail(function(err) {
-      new Error("CommonHandle:importMetaData");
+      throw new Error("CommonHandle:importMetaData");
     });
 }
 
@@ -484,7 +472,9 @@ function importMetaData(sPath) {
  **/
 function mergeTypeData(sSrc, sDes) {
   var sSubFolder = path.join("config", "custard_type");
-  return mergeData(sSubFolder, sSrc, sDes);
+  var sSrc = path.join(sSrc, sSubFolder);
+  var sDes = path.join(sDes, sSubFolder);
+  return copyFolder(sSrc, sDes);
 }
 
 /** 
@@ -505,110 +495,60 @@ function mergeTypeData(sSrc, sDes) {
  **/
 function mergeUserData(sSrc, sDes) {
   var sSubFolder = "resource";
-  return mergeData(sSubFolder, sSrc, sDes);
+  var sSrc = path.join(sSrc, sSubFolder);
+  var sDes = path.join(sDes, sSubFolder);
+  return copyFolder(sSrc, sDes);
 }
 
-/** 
- * @Method: mergeData
- *    To merge data, to sSubFolder
- *       @linkto : mergeTypeData, mergeUserData
- *
- * @param1: sSubFolder
- *    String,   folder to merge
- *
- * @param2: sSrc
- *    String,  SourceFolder Path
- *
- * @param3: sDes
- *    String, Destionation Path
- *
- * @return Promise
- *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
- *
- **/
-function mergeData(sSubFolder, sSrc, sDes) {
-  sSrc = path.join(sSrc, sSubFolder);
-  sDes = path.join(sDes, sSubFolder);
-  return folderIterCopyThroughPath(sSrc, sDes, 0, filesHandle);
-}
 
 /** 
- * @Method: folderIterCopyThroughPath
+ * @Method: copyFolder
  *    To  copy all the thing in one folder Iteratively, through its path
  *       @At first, 
  *       @Secondly, conpress all the things in tar package with zlib algorithm
  *
- * @param1: sDes
- *    string, Destination Path of exports
+ * @param1: sSrc
+ *    string, Source Folder Path 
  *
  * @param2: sDes
  *    string, Destination Path of exports
  *
- * @param3: floor
- *    string, Destination Path of exports
- *
- * @param4: handleFile
- *    function, Destination Path of exports
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
  *    otherwise, return reject with Error object 
  *
  **/
- function copyFolder(src, des, floor, handleFile) {
+
+function copyFolder(sSrc, sDes) {
   var deferred = Q.defer();
 
-  var onError = function (err) {
-    deferred.reject(new Error(err));
-  }
-
-  var onEnd = function () {
-    deferred.resolve("copyFolder!");
-  }
-
-  folderIteratorFunc(src, des, floor, handleFile)
-   .on('end',onEnd)
-   .on('err',onError);
-  return deferred.promised;
-}
-
-
-function folderIterCopyThroughPath(src, des, floor, handleFile) {
-  handleFile(src, des, floor);
-  floor++;
-  return promised.readdir(src)
-    .then(function(files) {
-      files.forEach(function(item) {
-        var tmpSrc = src + '/' + item;
-        var tmpDes = des + '/' + item;
-        promised.stat(tmpSrc)
-          .then(function(stats) {
-            if (stats.isDirectory()) {
-              return folderIterCopyThroughPath(tmpSrc, tmpDes, floor, handleFile);
-            } else {
-              return handleFile(tmpSrc, tmpDes, floor);
-            }
-          });
-      });
-    });
-}
-
-function filesHandle(src, des, floor) {
-    return promised.stat(src)
+  return promised.lstat(sSrc)
     .then(function(stats) {
+      var dir = null;
       if (stats.isDirectory()) {
-         promised.ensure_dir(des).done();
+        var parts = sDes.split(path.sep);
+        parts.pop();
+        dir = parts.join(path.sep);
       } else {
-         promised.copy(src, des).done();
+        dir = path.dirname(sDes);
       }
+
+      return promised.exists(dir)
+        .then(function(dirExists) {
+          if (dirExists) {
+            promised.copy(sSrc, sDes);
+          } else {
+            promised.mkdirs(dir)
+              .then(promised.copy(sSrc, sDes));
+          }
+        })
     })
     .fail(function(err) {
       throw new Error(err);
     });
+
 }
-
-
 
 /** 
  * @Method: getItemByProperty

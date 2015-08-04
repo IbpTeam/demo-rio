@@ -58,7 +58,7 @@
     WDC.requireAPI(['data'], function(data){
         var exportPath = "/home/xwh/.custardBac/edition";
         console.log("      exportPath:" + exportPath);
-        var edition = "aaaa";
+        var edition = "save";
         data.exportData(exportDataCb, edition, exportPath);
     });
   }
@@ -74,7 +74,7 @@
   function test_importData(importDataCb){
     WDC.requireAPI(['data'], function(data){
         var importPath = "/home/xwh/.custardBac/edition";
-        var edition = "aaaa";
+        var edition = "save";
         data.importData(importDataCb, edition, importPath);
     });
   }
