@@ -342,6 +342,7 @@ function setTagByUri(tags, uri) {
 }
 exports.setTagByUri = setTagByUri;
 
+
 function setTagByProperty(tags, option) {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -388,6 +389,23 @@ function setTagByProperty(tags, option) {
     });
 }
 exports.setTagByProperty = setTagByProperty;
+
+
+function addPreTag(tag, category) {
+  var _db = rdfHandle.dbOpen();
+  var _tag_url = 'http://example.org/tags#' + tag;
+  var triples_ = [{
+    subject: _tag_url,
+    predicate: DEFINED_VOC.rdf._type,
+    object: DEFINED_PROP["base"]["tags"]
+  }, {
+    subject: _tag_url,
+    predicate: DEFINED_VOC.rdf._domain,
+    object: DEFINED_TYPE[category]
+  }];
+  return rdfHandle.dbPut(_db, triples_);
+}
+exports.addPreTag = addPreTag;
 
 
 /**

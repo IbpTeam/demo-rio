@@ -1572,3 +1572,17 @@ function getTmpPath(getTmpPathCb) {
     }
 }
 exports.getTmpPath = getTmpPath;
+
+
+function addPreTag(addPreTagCb, tag, category) {
+  console.log("Request handler 'addPreTag' was called.");
+  tagsHandle.addPreTag(tag, category)
+    .then(function() {
+      addPreTagCb();
+    })
+    .fail(function(err) {
+      addPreTagCb(err);
+    })
+    .done();
+}
+exports.addPreTag = addPreTag;

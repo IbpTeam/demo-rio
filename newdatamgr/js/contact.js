@@ -479,15 +479,17 @@ var Contact = Class.extend({
           if(!contact._tagView.addTag(_tag)){
             return 0;
           }
-          contact._contacts[contact._selectId]['tags'].push(_tag);
-          infoList.fixTagNum(_tag,1);
-          var _tagedFile = [contact._contacts[contact._selectId]['URI']];
-          if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
-            infoList._info['tagFiles'][_tag].push(_tagedFile);
-          } else {
-            infoList._info['tagFiles'][_tag] = [_tagedFile];
-            infoList._info['tags'].push(_tag);
+          if(contact._contacts[contact._selectId]['tags'] == ""){
+            contact._contacts[contact._selectId]['tags'] = [];
           }
+          contact._contacts[contact._selectId]['tags'].push(_tag);
+          var num_ = infoList.fixTagNum(_tag,1);
+          // if(infoList._info['tagFiles'].hasOwnProperty(_tag)){
+          //   infoList._info['tagFiles'][_tag].push(_tagedFile);
+          // } else {
+          //   infoList._info['tagFiles'][_tag] = [_tagedFile];
+          //   infoList._info['tags'].push([_tag,1]);
+          // }
         };
       },[_tag],contact._tagView._uri);
     }else if(_uri && _category === 'picture'){
