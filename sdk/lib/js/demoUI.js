@@ -1,5 +1,6 @@
 /*! ui-lib - v0.0.1 - 2015-01-07
 * Copyright (c) 2015 */
+/*
 function Class() {}
 
 //Use extend to realize inhrietion
@@ -57,6 +58,7 @@ Class.extend = function extend(props) {
 
   return SubClass;
 }
+*/
 jQuery.autocomplete = function(input, options) {
   // Create a link to self
   var me = this;
