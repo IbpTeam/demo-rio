@@ -101,10 +101,12 @@ exports.dbOpen = dbOpen;
  **/
 function backupDBOpen(bakcupDBPATH){
   var _backDB;
-  if(typeof bakcupDBPATH != 'string' || bakcupDBPATH === null)
+  if(typeof bakcupDBPATH != 'string' || bakcupDBPATH === null){
     _backDB = levelgraph(config.BACKUPDBPATH);
-  else
+  }
+  else{
     _backDB = levelgraph(bakcupDBPATH);
+  }
   return _backDB;
 }
 exports.backupDBOpen = backupDBOpen;
