@@ -346,9 +346,7 @@ function importData(sEdition, sSrc) {
   var MataDataImprove = function() {
     var metaDataToken = path.join("config", "custard_rdf");
     var sMetaDataSrc = path.join(sEditionPath, metaDataToken);
-    var sourceDB = rdfHandle.backupDBOpen(sMetaDataSrc);
-    var targetDB = rdfHandle.dbOpen();
-    return importDataBase(sourceDB, targetDB);
+    return importMetaData(sMetaDataSrc);
   }
 
   return extractorPromised(tarFilePath, sDes)
