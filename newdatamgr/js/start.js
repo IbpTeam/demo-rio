@@ -187,7 +187,7 @@ var main = function(params_){
             var addr = '';
             var ws = '';
             if(location.protocol != 'file:') {
-              ws = parent._global.get('ws');
+              ws = WDC.ws;
             }
             try{
               clipboard.monitorDataTransfer(function(err, percentage, msg){
