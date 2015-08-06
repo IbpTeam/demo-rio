@@ -343,12 +343,6 @@ function importDataFolder(sEdition, sSrc) {
   tarFilePath += ".tar.gz";
   var sDes = config.BACKUPEXTRACTPATH;
   var sEditionPath = path.join(sDes, sEdition);
-  // var Perpare = function() {
-  //   return promised.ensure_dir(sEditionPath)
-  //     .then(function() {
-  //       return promised.emptyDir(sEditionPath);
-  //     });
-  // };
   var extractorPromised = Q.denodeify(extractor);
 
   var MataDataImprove = function() {
