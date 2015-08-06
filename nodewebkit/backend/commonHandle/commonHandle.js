@@ -224,8 +224,15 @@ function extraInfo(item, category) {
  *    otherwise, return reject with Error object 
  *
  **/
-
-function exportData(sEdition, sDes) {
+ function exportData(){
+   var myDate = new Date();
+    // var sEdition = "backup"+"_"+myDate.getSeconds()+"_"+myDate.getHours()+"_"+myDate.getDate() +"_"+myDate.getMonth() +"_" myDate.getYear();
+    var sEdition = "backup_rio";
+    var sDes = config.BACKUPEDITIONPATH;
+    return exportDataFolder(sEdition, sDes);
+ }
+exports.exportData = exportData;
+function exportDataFolder(sEdition, sDes) {
   if (typeof sDes != 'string' || typeof sEdition != 'string') {
     sDes = config.BACKUPEDITIONPATH;
   }
@@ -237,15 +244,8 @@ function exportData(sEdition, sDes) {
   var MergeSrc = path.join(sSrc, token);
   var MergeDes = path.join(sEditionPath, token);
   var Copy = function() {
-    // return promised.copy(sSrc, sEditionPath)
-    // .then(function(){
-    //   return folderIterCopyThroughPath(MergeSrc, MergeDes,0, filesHandle);
-    // })
-    // ;
     fs_extra.copySync(sSrc, sEditionPath);
-
-    // return folderIterCopyThroughPath(sSrc, sEditionPath, 0, filesHandle);
-  };
+};
   var Pack = function() {
     var tarFile = sEditionPath + ".tar.gz";
     return packer(sEditionPath, tarFile);
@@ -261,9 +261,8 @@ function exportData(sEdition, sDes) {
     .then(perpare)
     .then(Copy)
     .then(Pack);
-  // .then(removeFolder(sEditionPath));
 }
-exports.exportData = exportData;
+
 
 
 /** 
@@ -327,7 +326,16 @@ function packer(sSrc, tarFilePath, cb) {
  *    otherwise, return reject with Error object 
  *
  **/
-function importData(sEdition, sSrc) {
+ function importData(sTarFilePath){
+    var sSrc = (path.dirname(sTarFilePath)).toString();
+    var sBase = (path.basename(sTarFilePath)).toString();
+    var sEdition = sBase.split('.')[0];
+    // console.log(sSrc);
+    // console.log(sEdition);
+    return importDataFolder(sEdition, sSrc);
+ }
+ exports.importData = importData;
+function importDataFolder(sEdition, sSrc) {
   if (sSrc === null || typeof sSrc != 'string') {
     sSrc = config.BACKUPFOLDERPATH;
   }
@@ -335,12 +343,12 @@ function importData(sEdition, sSrc) {
   tarFilePath += ".tar.gz";
   var sDes = config.BACKUPEXTRACTPATH;
   var sEditionPath = path.join(sDes, sEdition);
-  var Perpare = function() {
-    return promised.ensure_dir(sEditionPath)
-      .then(function() {
-        return promised.emptyDir(sEditionPath);
-      });
-  };
+  // var Perpare = function() {
+  //   return promised.ensure_dir(sEditionPath)
+  //     .then(function() {
+  //       return promised.emptyDir(sEditionPath);
+  //     });
+  // };
   var extractorPromised = Q.denodeify(extractor);
 
   var MataDataImprove = function() {
@@ -356,9 +364,12 @@ function importData(sEdition, sSrc) {
     .then(function() {
       return mergeTypeData(sEditionPath, config.BASEPATH);
     })
-    .then(MataDataImprove);
+    .then(MataDataImprove)
+    .fail(function(err){
+      throw new Error(err);
+    });
 }
-exports.importData = importData;
+
 
 
 /** 

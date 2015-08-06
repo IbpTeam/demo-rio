@@ -56,10 +56,7 @@
   }
   function test_exportData(exportDataCb){
     WDC.requireAPI(['data'], function(data){
-        var exportPath = "/home/xwh/.custardBac/edition";
-        console.log("      exportPath:" + exportPath);
-        var edition = "save";
-        data.exportData(exportDataCb, edition, exportPath);
+        data.exportData(exportDataCb);
     });
   }
 
@@ -73,9 +70,8 @@
   }
   function test_importData(importDataCb){
     WDC.requireAPI(['data'], function(data){
-        var importPath = "/home/xwh/.custardBac/edition";
-        var edition = "save";
-        data.importData(importDataCb, edition, importPath);
+        var sTarFilePath = "/home/xwh/.custardBac/edition/backup_rio.tar.gz";
+        data.importData(importDataCb, sTarFilePath);
     });
   }
 

@@ -516,9 +516,9 @@ function pasteFile(pasteFileCb, filename, category) {
 exports.pasteFile = pasteFile;
 
 
-function exportData(exportDataCb, sEdition, sPath){
+function exportData(exportDataCb){
    console.log("Request handler 'exportData' was called.");
-   commonHandle.exportData(sEdition, sPath)
+   commonHandle.exportData()
    .then(function() {
       exportDataCb();
     })
@@ -529,9 +529,9 @@ function exportData(exportDataCb, sEdition, sPath){
 }
 exports.exportData = exportData;
 
-function importData(importDataCb, sEdition, sPath){
+function importData(importDataCb, sTarFilePath){
    console.log("Request handler 'importData' was called.");
-   commonHandle.importData(sEdition, sPath)
+   commonHandle.importData(sTarFilePath)
     .then(function() {
       importDataCb();
     })
