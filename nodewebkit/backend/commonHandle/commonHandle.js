@@ -248,6 +248,7 @@ function exportDataFolder(sEdition, sDes) {
 };
   var Pack = function() {
     var tarFile = sEditionPath + ".tar.gz";
+    packerPromised = Q.denodeify(packer);
     return packer(sEditionPath, tarFile);
   };
 
@@ -330,8 +331,6 @@ function packer(sSrc, tarFilePath, cb) {
     var sSrc = (path.dirname(sTarFilePath)).toString();
     var sBase = (path.basename(sTarFilePath)).toString();
     var sEdition = sBase.split('.')[0];
-    // console.log(sSrc);
-    // console.log(sEdition);
     return importDataFolder(sEdition, sSrc);
  }
  exports.importData = importData;
