@@ -251,7 +251,7 @@ function exportDataFolder(sEdition, sDes) {
   var Pack = function() {
     var tarFile = sEditionPath + ".tar.gz";
     packerPromised = Q.denodeify(packer);
-    return packer(sEditionPath, tarFile);
+    return packerPromised(sEditionPath, tarFile);
   };
 
   var perpare = function() {
@@ -291,15 +291,12 @@ function packer(sSrc, tarFilePath, cb) {
     return cb(err);
   }
 
-  function onEnd() {
+  function finished() {
     return cb();
   }
   var writer = fs.createWriteStream(tarFilePath)
-    .on('data', function() {
-      console.log("data")
-    })
     .on('error', onError)
-    .on('end', onEnd);
+    .on('finish', finished);
 
   fstream.Reader({
       path: sSrc,
