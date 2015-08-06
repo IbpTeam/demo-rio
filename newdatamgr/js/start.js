@@ -198,29 +198,38 @@ var main = function(params_) {
             var ws = '';
             if (location.protocol != 'file:') {
               ws = WDC.ws;
-
             }
-            try {
-              clipboard.monitorDataTransfer(function(err, percentage, msg) {
-                clipboard.dataTransProgress(function(err, percentage, msg) {
-                  if (err) {
-                    return tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
-                  } else {
-                    if (percentage === 100 && msg === 'finished') {
-                      $progInfo.html('完成！正在导入数据管理器，请稍后...');
-                      onPasted(filePath);
-                    } else {
-                      $progInfo.html(percentage + '%');
-                      progBar.modify($('#fileTransProg')[0], {
-                        values: [parseInt(percentage), 100]
-                      });
-                    }
-                  }
-                }, err, percentage, msg, ws);
-              }, sessionId);
-            } catch (e) {
-              console.log(e);
-            }
+            clipboard.hasFinishDataTransfer(function(hasFinished) {
+              if (hasFinished === true) {
+                $progInfo.html('完成！正在导入数据管理器，请稍后...');
+                progBar.modify($('#fileTransProg')[0], {
+                  values: [100, 100]
+                });
+                onPasted(filePath);
+              } else {
+                try {
+                  clipboard.monitorDataTransfer(function(err, percentage, msg) {
+                    clipboard.dataTransProgress(function(err, percentage, msg) {
+                      if (err) {
+                        return tipWin.append('<div style="padding-left: 10px; padding-right: 10px"><p>错误: ' + err + '</p></div>');
+                      } else {
+                        if (percentage === 100 && msg === 'finished') {
+                          $progInfo.html('完成！正在导入数据管理器，请稍后...');
+                          onPasted(filePath);
+                        } else {
+                          $progInfo.html(percentage + '%');
+                          progBar.modify($('#fileTransProg')[0], {
+                            values: [parseInt(percentage), 100]
+                          });
+                        }
+                      }
+                    }, err, percentage, msg, ws);
+                  }, sessionId);
+                } catch (e) {
+                  console.log("Error occured when monitering data transfer: ", e);
+                }
+              }
+            }, sessionId);
           }, res);
         });
       } else if (ev.keyCode == vKey && ctrlDown == false) {
