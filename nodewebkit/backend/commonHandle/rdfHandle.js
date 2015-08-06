@@ -21,6 +21,7 @@ var Q = require('q');
 //const
 var __db = levelgraph(config.LEVELDBPATH);
 var TYPEFILEDIR = config.TYPEFILEDIR;
+var TYPECONFPATH = config.TYPECONFPATH;
 var DEFINED_VOC = {
   rdf: {
     _type: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
@@ -33,7 +34,7 @@ var DEFINED_VOC = {
     _category: "http://example.org/category#",
     _property: "http://example.org/property/" // _property + "categoryname" + "#" +"propertyname"
   }
-}
+};
 var DEFINED_PROP = getAllProperty();
 var DEFINED_TYPE = getDefinedTypeInfo();
 
@@ -85,6 +86,32 @@ function dbOpen() {
 exports.dbOpen = dbOpen;
 
 
+/** 
+ * @Method: backupDBOpen
+ *    To open backup database from its path
+ *
+ * @param: Options
+ *    String, backup DataBase Path;
+ *    Without this param, the system will using its default path to open
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function backupDBOpen(bakcupDBPATH){
+  var _backDB;
+  if(typeof bakcupDBPATH != 'string' || bakcupDBPATH === null){
+    _backDB = levelgraph(config.BACKUPDBPATH);
+  }
+  else{
+    _backDB = levelgraph(bakcupDBPATH);
+  }
+  return _backDB;
+}
+exports.backupDBOpen = backupDBOpen;
+
+
 /**
  * @method dbClose
  *   close the levegraph database
@@ -95,8 +122,9 @@ exports.dbOpen = dbOpen;
  *      otherwise, return reject with Error object
  */
 function dbClose(db) {
-  var deferred = Q.defer;
-  return Q.fcall(function() {});
+  var deferred = Q.defer();
+  deferred.resolve();
+  return deferred.promise;
 }
 exports.dbClose = dbClose;
 
@@ -440,7 +468,7 @@ exports.defTripleGenerator = defTripleGenerator;
  */
 function getDefinedTypeInfo() {
   try {
-    var _result = {}
+    var _result = {};
     var _type_list = fs.readdirSync(TYPEFILEDIR);
     for (var i = 0, l = _type_list.length; i < l; i++) {
       var _type_name = pathModule.basename(_type_list[i], ".type");

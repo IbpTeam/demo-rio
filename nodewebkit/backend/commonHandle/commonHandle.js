@@ -18,6 +18,9 @@ var tagsHandle = require("./tagsHandle");
 var rdfHandle = require("./rdfHandle");
 var typeHandle = require("./typeHandle");
 var promised = require('./promisedFunc');
+var fstream = require('fstream');
+var tar = require('tar');
+var zlib = require('zlib');
 var Q = require('q');
 
 //let Q trace long stack
@@ -208,6 +211,355 @@ function extraInfo(item, category) {
 
 
 /** 
+ * @Method: exportData
+ *    To exprots MetaData to Target DataBase from Users DataBase
+ *       @At first, copy all files from Source DataBase, include database and files
+ *       @Secondly, conpress all the things in tar package with zlib algorithm
+ *
+ * @param1: sDes
+ *    string, Destination Path of exports
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+ function exportData(){
+   var myDate = new Date();
+    // var sEdition = "backup"+"_"+myDate.getSeconds()+"_"+myDate.getHours()+"_"+myDate.getDate() +"_"+myDate.getMonth() +"_" myDate.getYear();
+    var sEdition = "backup_rio";
+    var sDes = config.BACKUPEDITIONPATH;
+    return exportDataFolder(sEdition, sDes);
+ }
+exports.exportData = exportData;
+function exportDataFolder(sEdition, sDes) {
+  if (typeof sDes != 'string' || typeof sEdition != 'string') {
+    sDes = config.BACKUPEDITIONPATH;
+  }
+  var sEditionPath = path.join(sDes, sEdition);
+  var sSrc = config.BASEPATH;
+  var tarFile = sEditionPath + ".tar.gz";
+  var p = Q();
+  var token = path.join("config", "custard_rdf");
+  var MergeSrc = path.join(sSrc, token);
+  var MergeDes = path.join(sEditionPath, token);
+  var Copy = function() {
+    fs_extra.copySync(sSrc, sEditionPath);
+};
+  var Pack = function() {
+    var tarFile = sEditionPath + ".tar.gz";
+    return packer(sEditionPath, tarFile);
+  };
+
+  var perpare = function() {
+    return promised.remove(tarFile)
+      .then(function() {
+        return promised.ensure_dir(sEditionPath);
+      });
+  };
+  return p
+    .then(perpare)
+    .then(Copy)
+    .then(Pack);
+}
+
+
+
+/** 
+ * @Method: packer
+ *    To compress all the thing in one folders
+ *       @At first, 
+ *       @Secondly, conpress all the things in tar package with zlib algorithm
+ *
+ * @param1: sDes
+ *    string, Destination Path of exports
+ *
+ * @param2: sDes
+ *    string, Destination Path of exports
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function packer(sSrc, tarFilePath, cb) {
+
+  function onError(err) {
+    return cb(err);
+  }
+
+  function onEnd() {
+    return cb();
+  }
+  var writer = fstream.Writer({
+      path: tarFilePath
+    })
+  .on('error', onError)
+  .on('end', onEnd);
+  fstream.Reader({
+      path: sSrc,
+      type: 'Directory'
+    }) /* Read the source directory */
+    .pipe(tar.Pack({
+      noProprietary: true
+    })) //Convert the directory to a.tar file
+    .pipe(zlib.Gzip()) /* Compress the .tar file */
+    .pipe(writer);
+}
+
+
+/** 
+ * @Method: importData
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @At first, extract Data
+ *       @Secondly, merge user Data
+ *       @Thirdly, merge user Data
+ *
+ * @param1: sSrc
+ *    string, backup DataBase
+ *
+ * @param2: 
+ *    database, user's DataBase
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+ function importData(sTarFilePath){
+    var sSrc = (path.dirname(sTarFilePath)).toString();
+    var sBase = (path.basename(sTarFilePath)).toString();
+    var sEdition = sBase.split('.')[0];
+    // console.log(sSrc);
+    // console.log(sEdition);
+    return importDataFolder(sEdition, sSrc);
+ }
+ exports.importData = importData;
+function importDataFolder(sEdition, sSrc) {
+  if (sSrc === null || typeof sSrc != 'string') {
+    sSrc = config.BACKUPFOLDERPATH;
+  }
+  var tarFilePath = path.join(sSrc, sEdition);
+  tarFilePath += ".tar.gz";
+  var sDes = config.BACKUPEXTRACTPATH;
+  var sEditionPath = path.join(sDes, sEdition);
+  // var Perpare = function() {
+  //   return promised.ensure_dir(sEditionPath)
+  //     .then(function() {
+  //       return promised.emptyDir(sEditionPath);
+  //     });
+  // };
+  var extractorPromised = Q.denodeify(extractor);
+
+  var MataDataImprove = function() {
+    var metaDataToken = path.join("config", "custard_rdf");
+    var sMetaDataSrc = path.join(sEditionPath, metaDataToken);
+    return importMetaData(sMetaDataSrc);
+  }
+
+  return extractorPromised(tarFilePath, sDes)
+    .then(function() {
+      return mergeUserData(sEditionPath, config.BASEPATH);
+    })
+    .then(function() {
+      return mergeTypeData(sEditionPath, config.BASEPATH);
+    })
+    .then(MataDataImprove)
+    .fail(function(err){
+      throw new Error(err);
+    });
+}
+
+
+
+/** 
+ * @Method: extracter
+ *    To extract ".tar.gz" file  to Target Folder   
+ *       @At first,extract into Memory
+ *       @Secondly, write things into Desination
+ *
+ * @param1: tarFile
+ *    String, the path of tar.gz file
+ *
+ * @param2: 
+ *    String, the destination of extract files
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function extractor(tarFile, sDes, cb) {
+
+  function onError(err) {
+    return cb(err);
+  }
+
+  function onEnd() {
+    return cb();
+  }
+  var extr = tar.Extract(sDes)
+    .on('err', onError)
+    .on('end', onEnd);
+
+  fs.createReadStream(tarFile)
+    .pipe(zlib.Gunzip()) /* Compress the .tar file */
+    .on('err', onError)
+    .pipe(extr);
+
+}
+
+
+/** 
+ * @Method: importDataBase
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @At first, search all tripples from Source DataBase
+ *       @Secondly, put tripples into Target DataBase
+ *
+ * @param1: sSrc
+ *    String,  SourceFolder Path
+ *
+ * @param2: sDes
+ *    String, Destionation Path
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+var importDataBase = function(sourceDB, targetDB) {
+  var _query = [{
+    subject: sourceDB.v('subject'),
+    predicate: sourceDB.v('predicate'),
+    object: sourceDB.v('object')
+  }];
+  return rdfHandle.dbSearch(sourceDB, _query)
+    .then(function(triples) {
+      console.log(triples);
+      return rdfHandle.dbPut(targetDB, triples);
+    }, function(err) {
+      throw new Error("[CommonHandle]fimportDataBase:Error");
+    });
+};
+
+
+/** 
+ * @Method: importMetaData
+ *    To import MetaData to Target DataBase from Source DataBase
+ *       @linkto : importDataBase
+ *
+ * @param1: 
+ *    String, backup DataBase Path
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function importMetaData(sPath) {
+  var targetDB = rdfHandle.dbOpen();
+  var sourceDB = rdfHandle.backupDBOpen(sPath);
+  return importDataBase(sourceDB, targetDB);
+}
+
+
+/** 
+ * @Method: mergeTypeData
+ *    To merge Type data, in ../config/cunstard_type folder
+ *       @linkto : mergeData
+ *
+ * @param1: sSrc
+ *    String,  SourceFolder Path
+ *
+ * @param2: sDes
+ *    String, Destionation Path
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function mergeTypeData(sSrc, sDes) {
+  var sSubFolder = path.join("config", "custard_type");
+  var sSrc = path.join(sSrc, sSubFolder);
+  var sDes = path.join(sDes, sSubFolder);
+  return promised.copy(sSrc, sDes);
+}
+
+/** 
+ * @Method: mergeUserData
+ *    To merge Type data, in ../resource folder(ADD but DELETE)
+ *       @linkto : mergeData
+ *
+ * @param1: sSrc
+ *    String,  SourceFolder Path
+ *
+ * @param2: sDes
+ *    String, Destionation Path
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+function mergeUserData(sSrc, sDes) {
+  var sSubFolder = "resource";
+  var sSrc = path.join(sSrc, sSubFolder);
+  var sDes = path.join(sDes, sSubFolder);
+  return promised.copy(sSrc, sDes);
+}
+
+
+/** 
+ * @Method: copyFolder
+ *    To  copy all the thing in one folder Iteratively, through its path
+ *       @At first, 
+ *       @Secondly, conpress all the things in tar package with zlib algorithm
+ *
+ * @param1: sSrc
+ *    string, Source Folder Path 
+ *
+ * @param2: sDes
+ *    string, Destination Path of exports
+ *
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+
+function copyFolder(sSrc, sDes) {
+  var deferred = Q.defer();
+
+  return Q.allSettled(promised.lstat(sSrc))
+    .then(function(stats) {
+      var dir = null;
+      if (stats.isDirectory()) {
+        var parts = sDes.split(path.sep);
+        parts.pop();
+        dir = parts.join(path.sep);
+      } else {
+        dir = path.dirname(sDes);
+      }
+
+      return Q.allSettled(promised.exists(dir))
+        .then(function(dirExists) {
+          if (dirExists) {
+            promised.copy(sSrc, sDes);
+          } else {
+            promised.mkdirs(dir)
+              .then(promised.copy(sSrc, sDes));
+          }
+        })
+    })
+    .fail(function(err) {
+      throw new Error(err);
+    });
+
+}
+
+/** 
  * @Method: getItemByProperty
  *    To get an Item by property.
  *       @At first, make query from any property
@@ -364,10 +716,10 @@ exports.getRecentAccessData = function(category, num) {
     items = items.sort(function(a, b) {
       var _a = new Date(a.lastAccessTime);
       var _b = new Date(b.lastAccessTime);
-      var res =  _b.getTime() - _a.getTime();
+      var res = _b.getTime() - _a.getTime();
       return res;
     });
-    var _result = (items.length > num) ? items.slice(0, num ) : items;
+    var _result = (items.length > num) ? items.slice(0, num) : items;
     return _result;
   }
   return rdfHandle.dbSearch(_db, _query)
@@ -505,7 +857,6 @@ exports.openData = function(uri) {
  *
  **/
 function renameDataByUri(sUri, sNewName) {
-
   var reName = function(Item) {
     if (Item === null) {
       throw new Error("Items do not exists!");
@@ -529,7 +880,6 @@ function renameDataByUri(sUri, sNewName) {
       _oldpath: filepath
     };
   }
-
   var _options = {
     _type: "base",
     _property: "URI",
@@ -620,5 +970,5 @@ function getTriples(options) {
 
 exports.getTmpPath = function(getTmpPathCb) {
   getTmpPath(config.TMPPATH);
-  
+
 }

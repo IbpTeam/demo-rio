@@ -170,6 +170,7 @@ exports.loadContacts = loadContacts;
 function getAllCate(getAllCateCb) {
   console.log("Request handler 'getAllCate' was called.");
   commonHandle.getAllCate(getAllCateCb)
+
 }
 exports.getAllCate = getAllCate;
 
@@ -513,6 +514,34 @@ function pasteFile(pasteFileCb, filename, category) {
   });
 }
 exports.pasteFile = pasteFile;
+
+
+function exportData(exportDataCb){
+   console.log("Request handler 'exportData' was called.");
+   commonHandle.exportData()
+   .then(function() {
+      exportDataCb();
+    })
+    .fail(function(err) {
+      exportDataCb(err);
+    })
+    .done();
+}
+exports.exportData = exportData;
+
+function importData(importDataCb, sTarFilePath){
+   console.log("Request handler 'importData' was called.");
+   commonHandle.importData(sTarFilePath)
+    .then(function() {
+      importDataCb();
+    })
+    .fail(function(err) {
+      importDataCb(err);
+    })
+    .done();
+}
+exports.importData = importData;
+
 
 //API createFile:新建一个文档
 //参数：新建文档的类型，以及新建文档的路径
