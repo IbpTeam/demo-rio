@@ -224,14 +224,16 @@ function extraInfo(item, category) {
  *    otherwise, return reject with Error object 
  *
  **/
- function exportData(){
-   var myDate = new Date();
-    // var sEdition = "backup"+"_"+myDate.getSeconds()+"_"+myDate.getHours()+"_"+myDate.getDate() +"_"+myDate.getMonth() +"_" myDate.getYear();
-    var sEdition = "backup_rio";
-    var sDes = config.BACKUPEDITIONPATH;
-    return exportDataFolder(sEdition, sDes);
- }
+function exportData() {
+  var myDate = new Date();
+  // var sEdition = "backup"+"_"+myDate.getSeconds()+"_"+myDate.getHours()+"_"+myDate.getDate() +"_"+myDate.getMonth() +"_" myDate.getYear();
+  var sEdition = "backup_rio";
+  var sDes = config.BACKUPEDITIONPATH;
+  return exportDataFolder(sEdition, sDes);
+}
 exports.exportData = exportData;
+
+
 function exportDataFolder(sEdition, sDes) {
   if (typeof sDes != 'string' || typeof sEdition != 'string') {
     sDes = config.BACKUPEDITIONPATH;
@@ -244,8 +246,8 @@ function exportDataFolder(sEdition, sDes) {
   var MergeSrc = path.join(sSrc, token);
   var MergeDes = path.join(sEditionPath, token);
   var Copy = function() {
-    fs_extra.copySync(sSrc, sEditionPath);
-};
+    return promised.copy(sSrc, sEditionPath);
+  };
   var Pack = function() {
     var tarFile = sEditionPath + ".tar.gz";
     packerPromised = Q.denodeify(packer);
@@ -292,11 +294,13 @@ function packer(sSrc, tarFilePath, cb) {
   function onEnd() {
     return cb();
   }
-  var writer = fstream.Writer({
-      path: tarFilePath
+  var writer = fs.createWriteStream(tarFilePath)
+    .on('data', function() {
+      console.log("data")
     })
-  .on('error', onError)
-  .on('end', onEnd);
+    .on('error', onError)
+    .on('end', onEnd);
+
   fstream.Reader({
       path: sSrc,
       type: 'Directory'
@@ -327,13 +331,14 @@ function packer(sSrc, tarFilePath, cb) {
  *    otherwise, return reject with Error object 
  *
  **/
- function importData(sTarFilePath){
-    var sSrc = (path.dirname(sTarFilePath)).toString();
-    var sBase = (path.basename(sTarFilePath)).toString();
-    var sEdition = sBase.split('.')[0];
-    return importDataFolder(sEdition, sSrc);
- }
- exports.importData = importData;
+function importData(sTarFilePath) {
+  var sSrc = (path.dirname(sTarFilePath)).toString();
+  var sBase = (path.basename(sTarFilePath)).toString();
+  var sEdition = sBase.split('.')[0];
+  return importDataFolder(sEdition, sSrc);
+}
+exports.importData = importData;
+
 function importDataFolder(sEdition, sSrc) {
   if (sSrc === null || typeof sSrc != 'string') {
     sSrc = config.BACKUPFOLDERPATH;
@@ -358,7 +363,7 @@ function importDataFolder(sEdition, sSrc) {
       return mergeTypeData(sEditionPath, config.BASEPATH);
     })
     .then(MataDataImprove)
-    .fail(function(err){
+    .fail(function(err) {
       throw new Error(err);
     });
 }
