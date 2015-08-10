@@ -64,24 +64,37 @@ function loadFile(loadFileCb, sFilePath) {
                 loadFileCb(err);
               })
           } else {
-            var date = new Date();
-            var year = date.getFullYear();
-            var month = date.getMonth();
-            var day = date.getDay();
-            var hour = date.getHours();
-            var minite = date.getMinutes();
-            var second = date.getSeconds();
-            var formatedDate = '_' + year + '-' + month + '-' + day + '-' + hour + ':' + minite + ':' + second;
-            var dstFilePath = sFilePath.substring(0, sFilePath.lastIndexOf('/')) + '/' + filename + formatedDate + '.' + postfix;
-            return promised.copy(sFilePath, dstFilePath)
-              .then(function() {
-                return commonHandle.createData([dstFilePath])
-                  .then(function() {
-                    loadFileCb();
-                  })
-                  .fail(function(err) {
-                    loadFileCb(err);
-                  })
+            commonHandle.getItemByProperty(optionPostfix)
+              .then(function(items) {
+                if (items.length === 0) {
+                  return commonHandle.createData([sFilePath])
+                    .then(function() {
+                      loadFileCb();
+                    })
+                    .fail(function(err) {
+                      loadFileCb(err);
+                    })
+                } else {
+                  var date = new Date();
+                  var year = date.getFullYear();
+                  var month = date.getMonth();
+                  var day = date.getDay();
+                  var hour = date.getHours();
+                  var minite = date.getMinutes();
+                  var second = date.getSeconds();
+                  var formatedDate = '_' + year + '-' + month + '-' + day + '-' + hour + ':' + minite + ':' + second;
+                  var dstFilePath = sFilePath.substring(0, sFilePath.lastIndexOf('/')) + '/' + filename + formatedDate + '.' + postfix;
+                  return promised.copy(sFilePath, dstFilePath)
+                    .then(function() {
+                      return commonHandle.createData([dstFilePath])
+                        .then(function() {
+                          loadFileCb();
+                        })
+                        .fail(function(err) {
+                          loadFileCb(err);
+                        })
+                    })
+                }
               })
           }
         })
