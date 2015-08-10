@@ -68,19 +68,21 @@ var UsrInfoView = Class.extend({
       'class': 'usrInfo-ul',
       'text': 'Others: ' + _tmpOthers
     });
-    var _toggleTrigglerButton = $('<span>', {
+    var _toggleTrigglerButton = $('<button>', {
       'id': 'toggleTrigglerButton',
-      'text': 'Package'
+      'text': 'Back \n Up'
     });
     _toggleTrigglerButton.on('click',function() {
-      if($('buttonOne').text === "Data"){
-        doucument.getElementById('buttonOne').innerText = "Import";
-        doucument.getElementById('buttonTwo').innerText = "Export";
-        doucument.getElementById('uploadName').innerText = "Confirm";
+      if( document.getElementById('buttonOne').innerText === "Contacts"){
+        document.getElementById('toggleTrigglerButton').innerText = "Input";
+        document.getElementById('buttonOne').innerText = "Import";
+        document.getElementById('buttonTwo').innerText = "Export";
+        document.getElementById('uploadName').innerText = "Confirm";
       }else{
-        doucument.getElementById('buttonOne').innerText = "Contacts";
-        doucument.getElementById('buttonTwo').innerText = "Data";
-        doucument.getElementById('uploadName').innerText = "Import";
+        document.getElementById('toggleTrigglerButton').innerText = "Back \n Up";
+        document.getElementById('buttonOne').innerText = "Contacts";
+        document.getElementById('buttonTwo').innerText = "Data";
+        document.getElementById('uploadName').innerText = "Import";
       }
 
     });
@@ -185,23 +187,23 @@ var UsrInfoView = Class.extend({
         document.body.style.cursor = "wait";
         var resourcePath = this.value;
         if ($('#contactCheckBox')[0].checked) {
-          if (doucument.getElementById('buttonOne').innerText === 'Contacts') {
+          if (document.getElementById('buttonOne').innerText === 'Contacts') {
             DataAPI.loadContacts(function(err, result) {
               document.body.style.cursor = "default";
               _modalBoxObj.forbidClose(false);
               _this._isLoadedResources = true;
             }, resourcePath);
-          } else if (doucument.getElementById('buttonOne').innerText=== 'Import') {
+          } else if (document.getElementById('buttonOne').innerText=== 'Import') {
             DataAPI.importData(function (err, result) {
               document.body.style.cursor = "default";
               _modalBoxObj.forbidClose(false);
               _this._isLoadedResources = true;
-            }, "~/.custardBac")
+            }, resourcePath)
           } else {
           //ToDo-err handle
         }
       } else if ($('#dataCheckBox')[0].checked) {
-        if (doucument.getElementById('buttonTwo').innerText === 'Data') {
+        if (document.getElementById('buttonTwo').innerText === 'Data') {
           DataAPI.loadResources(function(err, result) {
             if (err) {
               throw err;
@@ -210,7 +212,7 @@ var UsrInfoView = Class.extend({
             _modalBoxObj.forbidClose(false);
             _this._isLoadedResources = true;
           }, resourcePath);
-        } else if (doucument.getElementById('buttonTwo').innerText === 'Export') {
+        } else if (document.getElementById('buttonTwo').innerText === 'Export') {
           DataAPI.exportData(function(err, result) {
               if (err) {
                 throw err;
@@ -218,7 +220,7 @@ var UsrInfoView = Class.extend({
               document.body.style.cursor = "default";
               _modalBoxObj.forbidClose(false);
               _this._isLoadedResources = true;
-            }, "~/.custardBac");
+            }, resourcePath);
 
         } else {
           //ToDo-err handle
