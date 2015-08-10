@@ -58,7 +58,7 @@ function loadFile(loadFileCb, sFilePath) {
           if (items.length === 0) {
             return commonHandle.createData([sFilePath])
               .then(function() {
-                loadFileCb();
+                loadFileCb(null);
               })
               .fail(function(err) {
                 loadFileCb(err);
@@ -69,7 +69,7 @@ function loadFile(loadFileCb, sFilePath) {
                 if (items.length === 0) {
                   return commonHandle.createData([sFilePath])
                     .then(function() {
-                      loadFileCb();
+                      loadFileCb(null);
                     })
                     .fail(function(err) {
                       loadFileCb(err);
@@ -82,13 +82,13 @@ function loadFile(loadFileCb, sFilePath) {
                   var hour = date.getHours();
                   var minite = date.getMinutes();
                   var second = date.getSeconds();
-                  var formatedDate = '_' + year + '-' + month + '-' + day + '-' + hour + ':' + minite + ':' + second;
+                  var formatedDate = '_' + year + '_' + month + '_' + day + '_' + hour + '_' + minite + '_' + second;
                   var dstFilePath = sFilePath.substring(0, sFilePath.lastIndexOf('/')) + '/' + filename + formatedDate + '.' + postfix;
                   return promised.copy(sFilePath, dstFilePath)
                     .then(function() {
                       return commonHandle.createData([dstFilePath])
                         .then(function() {
-                          loadFileCb();
+                          loadFileCb(null, dstFilePath);
                         })
                         .fail(function(err) {
                           loadFileCb(err);

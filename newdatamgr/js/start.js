@@ -133,8 +133,22 @@ var main = function(params_) {
     var ctrlKey = 17,
       vKey = 86;
     var onPasted = function(filePath) {
-      data.loadFile(function(err) {
-        console.log("load file " + filePath + " : " + err);
+      data.loadFile(function(err, realFilePath) {
+        if(err){
+          console.log("Error: ", err);
+        }
+        data.deleteTmpFile(function(err){
+          if(err){
+            console.log("Fail to delete : ", filePath);
+          }
+        }, filePath);
+        if(realFilePath){
+          data.deleteTmpFile(function(err){
+            if(err){
+              console.log("Fail to delete : ", realFilePath);
+            }
+          } ,realFilePath);
+        }
         var _window = undefined;
         if (window == top) {
           var hrefLocal = window.location.href;
