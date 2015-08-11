@@ -516,9 +516,9 @@ function pasteFile(pasteFileCb, filename, category) {
 exports.pasteFile = pasteFile;
 
 
-function exportData(exportDataCb){
+function exportData(exportDataCb, sExportPath){
    console.log("Request handler 'exportData' was called.");
-   commonHandle.exportData()
+   commonHandle.exportData(sExportPath)
    .then(function() {
       exportDataCb();
     })
