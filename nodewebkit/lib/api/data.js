@@ -101,7 +101,7 @@ function loadResources(loadResourcesCb, path) {
             walk(path + '/' + item);
           }
         }
-      } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.' && sPos != 'csv' && sPos != 'CSV') {
+      } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.' ) {
 
         //push it into _file_list_mix 
         _file_list_mix.push(path + '/' + item);

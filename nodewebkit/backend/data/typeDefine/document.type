@@ -4,6 +4,8 @@
   },
   "postfix": {
     "none": "document",
+    "csv": "document",
+    "CSV": "document",
     "ppt": "document",
     "PPT": "document",
     "pptx": "document",

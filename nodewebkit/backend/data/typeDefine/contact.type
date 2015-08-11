@@ -8,8 +8,5 @@
     "age": "http://example.org/property/contact#age",
     "photoPath": "http://example.org/property/contact#photoPath"
   },
-  "postfix": {
-    "csv": "contact",
-    "CSV": "contact"
-  }
+  "postfix": {}
 }
