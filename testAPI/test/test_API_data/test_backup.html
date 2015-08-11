@@ -56,7 +56,8 @@
   }
   function test_exportData(exportDataCb){
     WDC.requireAPI(['data'], function(data){
-        data.exportData(exportDataCb);
+       var exportPath = "/home/xwh/backup/111";
+        data.exportData(exportDataCb, exportPath);
     });
   }
 

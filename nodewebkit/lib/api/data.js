@@ -563,11 +563,10 @@ function pasteFile(pasteFileCb, filename, category) {
 }
 exports.pasteFile = pasteFile;
 
-
-function exportData(exportDataCb) {
-  console.log("Request handler 'exportData' was called.");
-  commonHandle.exportData()
-    .then(function() {
+function exportData(exportDataCb, sExportPath){
+   console.log("Request handler 'exportData' was called.");
+   commonHandle.exportData(sExportPath)
+   .then(function() {
       exportDataCb();
     })
     .fail(function(err) {
