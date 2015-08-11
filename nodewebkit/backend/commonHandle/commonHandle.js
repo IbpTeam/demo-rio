@@ -271,8 +271,6 @@ function exportDataFolder(sEdition, sDes) {
 }
 
 
-sfsdf ljksd;lkf lskd;fsdfsadfa
-
 /** 
  * @Method: packer
  *    To compress all the thing in one folders
