@@ -224,11 +224,11 @@ function extraInfo(item, category) {
  *    otherwise, return reject with Error object 
  *
  **/
-function exportData() {
+function exportData(sDes) {
   var myDate = new Date();
-  // var sEdition = "backup"+"_"+myDate.getSeconds()+"_"+myDate.getHours()+"_"+myDate.getDate() +"_"+myDate.getMonth() +"_" myDate.getYear();
-  var sEdition = "backup_rio";
-  var sDes = config.BACKUPEDITIONPATH;
+  var myDate = new Date();
+  var time = myDate.getYear()+"-" + myDate.getMonth()+"-" + myDate.getDate()+"-" +myDate.getDate()+"-"  +myDate.getHours()+":" + +myDate.getSeconds();
+  var sEdition = "backup_rio"+ "_"+time;
   return exportDataFolder(sEdition, sDes);
 }
 exports.exportData = exportData;
@@ -260,13 +260,18 @@ function exportDataFolder(sEdition, sDes) {
         return promised.ensure_dir(sEditionPath);
       });
   };
+  var removeFolder = function(){
+    return promised.remove(sEditionPath);
+  }
   return p
     .then(perpare)
     .then(Copy)
-    .then(Pack);
+    .then(Pack)
+    .then(removeFolder);
 }
 
 
+sfsdf ljksd;lkf lskd;fsdfsadfa
 
 /** 
  * @Method: packer

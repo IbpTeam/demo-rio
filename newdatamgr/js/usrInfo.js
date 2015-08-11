@@ -35,8 +35,8 @@ var UsrInfoView = Class.extend({
     var _usrInfoShow = $('<div>', {
       'id': 'usrInfoShow'
     });
-    var _toggleTrigglerShow = $('<div>', {
-      'id': 'toggleTrigglerShow'
+    var _toggleTrigglerDiv = $('<div>', {
+      'id': 'toggleTrigglerDiv'
     });
     var _usrPhotoDiv = $('<div>', {
       'id': 'usrPhotoDiv'
@@ -68,36 +68,42 @@ var UsrInfoView = Class.extend({
       'class': 'usrInfo-ul',
       'text': 'Others: ' + _tmpOthers
     });
-    var _toggleTrigglerButton = $('<button>', {
-      'id': 'toggleTrigglerButton',
+    var _backupButton = $('<button>', {
+      'id': 'backupButton',
       'text': 'Back \n Up'
     });
-    _toggleTrigglerButton.on('click',function() {
-      if( document.getElementById('buttonOne').innerText === "Contacts"){
-        document.getElementById('toggleTrigglerButton').innerText = "Input";
-        document.getElementById('buttonOne').innerText = "Import";
-        document.getElementById('buttonTwo').innerText = "Export";
-        document.getElementById('uploadName').innerText = "Confirm";
-      }else{
-        document.getElementById('toggleTrigglerButton').innerText = "Back \n Up";
-        document.getElementById('buttonOne').innerText = "Contacts";
-        document.getElementById('buttonTwo').innerText = "Data";
-        document.getElementById('uploadName').innerText = "Import";
-      }
-
+    var _buttonDiv = $('<div>', {
+      'id': 'buttonDiv',
+    });
+    var _inputButton = $('<button>', {
+      'id': 'inputButton',
+      'text': 'Input'
+    });
+    _backupButton.on('click',function() {
+      document.getElementById('buttonOne').innerText = "Import";
+      document.getElementById('buttonTwo').innerText = "Export";
+      document.getElementById('uploadName').innerText = "Confirm";
+    });
+    _inputButton.on('click', function() {
+      document.getElementById('buttonOne').innerText = "Contacts";
+      document.getElementById('buttonTwo').innerText = "Data";
+      document.getElementById('uploadName').innerText = "Import";
     });
     _usrInfoUl.append(_usrName);
     _usrInfoUl.append(_usrIp);
     _usrInfoUl.append(_usrDevices);
     _usrInfoUl.append(_usrOthers);
+    _buttonDiv.append(_inputButton);
+    _buttonDiv.append(_backupButton);
     _usrInfoShow.append(_usrInfoUl);
     _usrPhotoDiv.append(_headPhotoImg);
     _usrHeadShow.append(_usrPhotoDiv);
     _usrHeadShow.append(_usrEditDiv);
-    _toggleTrigglerShow.append(_toggleTrigglerButton);
+    _usrHeadShow.append(_buttonDiv);
+    _usrInfoUl.append();
     this._usrInfoDiv.append(_usrHeadShow);
     this._usrInfoDiv.append(_usrInfoShow);
-    this._usrInfoDiv.append(_toggleTrigglerShow);
+    this._usrInfoDiv.append(_toggleTrigglerDiv);
 
   },
   setUsrExtra: function(extraAction_) {
