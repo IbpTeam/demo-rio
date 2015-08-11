@@ -48,11 +48,6 @@ function loadFile(loadFileCb, sFilePath) {
         '__property': 'filename',
         '_value': filename
       };
-      var optionPostfix = {
-        '_type': 'base',
-        '__property': 'postfix',
-        '_value': postfix
-      };
       commonHandle.getItemByProperty(optionFilename)
         .then(function(items) {
           if (items.length === 0) {
@@ -64,38 +59,41 @@ function loadFile(loadFileCb, sFilePath) {
                 loadFileCb(err);
               })
           } else {
-            commonHandle.getItemByProperty(optionPostfix)
-              .then(function(items) {
-                if (items.length === 0) {
-                  return commonHandle.createData([sFilePath])
+            var isExist = false;
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].postfix === postfix) {
+                isExist = true;
+              }
+            }
+            if (isExist === false) {
+              return commonHandle.createData([sFilePath])
+                .then(function() {
+                  loadFileCb(null);
+                })
+                .fail(function(err) {
+                  loadFileCb(err);
+                })
+            } else {
+              var date = new Date();
+              var year = date.getFullYear();
+              var month = date.getMonth();
+              var day = date.getDay();
+              var hour = date.getHours();
+              var minite = date.getMinutes();
+              var second = date.getSeconds();
+              var formatedDate = '_' + year + '_' + month + '_' + day + '_' + hour + '_' + minite + '_' + second;
+              var dstFilePath = sFilePath.substring(0, sFilePath.lastIndexOf('/')) + '/' + filename + formatedDate + '.' + postfix;
+              return promised.copy(sFilePath, dstFilePath)
+                .then(function() {
+                  return commonHandle.createData([dstFilePath])
                     .then(function() {
-                      loadFileCb(null);
+                      loadFileCb(null, dstFilePath);
                     })
                     .fail(function(err) {
                       loadFileCb(err);
                     })
-                } else {
-                  var date = new Date();
-                  var year = date.getFullYear();
-                  var month = date.getMonth();
-                  var day = date.getDay();
-                  var hour = date.getHours();
-                  var minite = date.getMinutes();
-                  var second = date.getSeconds();
-                  var formatedDate = '_' + year + '_' + month + '_' + day + '_' + hour + '_' + minite + '_' + second;
-                  var dstFilePath = sFilePath.substring(0, sFilePath.lastIndexOf('/')) + '/' + filename + formatedDate + '.' + postfix;
-                  return promised.copy(sFilePath, dstFilePath)
-                    .then(function() {
-                      return commonHandle.createData([dstFilePath])
-                        .then(function() {
-                          loadFileCb(null, dstFilePath);
-                        })
-                        .fail(function(err) {
-                          loadFileCb(err);
-                        })
-                    })
-                }
-              })
+                })
+            }
           }
         })
     })
