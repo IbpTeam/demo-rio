@@ -78,8 +78,10 @@ function dataStore(items, extraCallback) {
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
-          _file_info.push(result[i]);
-          _file_path.push(result[i].path);
+          if (result[i]) {
+            _file_info.push(result[i]);
+            _file_path.push(result[i].path);
+          }
         }
         return writeTriples(_file_info)
           .then(function() {
@@ -133,19 +135,13 @@ exports.writeTriples = writeTriples;
 
 
 function Q_copy(filePath, newPath) {
-  var deferred = Q.defer();
-  fs_extra.copy(filePath, newPath, function(err) {
-    //drop into reject only when error is not "ENOENT"
-    if (err && err[0].code !== "ENOENT") {
-      deferred.reject(new Error(err));
-    } else if (err && err[0].code === "ENOENT") {
-      //when file exists, consider it should be resolved  
-      deferred.resolve("ENOENT");
-    } else {
-      deferred.resolve();
-    }
-  });
-  return deferred.promise;
+  return promised.open(newPath, 'r')
+    .then(function(fd_) {
+      fs.closeSync(fd_);
+      return "ENOENT";
+    }, function(err) {
+      return promised.copy(filePath, newPath);
+    });
 }
 
 

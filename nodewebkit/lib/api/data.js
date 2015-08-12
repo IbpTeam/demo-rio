@@ -133,6 +133,8 @@ function loadResources(loadResourcesCb, path) {
   function walk(path) {
     var dirList = fs.readdirSync(path);
     dirList.forEach(function(item) {
+      var sPosIndex = (item).lastIndexOf(".");
+      var sPos = item.slice(sPosIndex + 1, item.length);
       if (fs.lstatSync(path + '/' + item).isSymbolicLink()) {
         console.log('SymbolicLink: ' + path + '/' + item);
       } else if (fs.statSync(path + '/' + item).isDirectory()) {
@@ -147,9 +149,8 @@ function loadResources(loadResourcesCb, path) {
             walk(path + '/' + item);
           }
         }
-      } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.') {
-        var sPosIndex = (item).lastIndexOf(".");
-        var sPos = item.slice(sPosIndex + 1, item.length);
+      } else if (fs.statSync(path + '/' + item).isFile() && item[0] != '.' ) {
+
         //push it into _file_list_mix 
         _file_list_mix.push(path + '/' + item);
       } else {
