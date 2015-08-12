@@ -12,12 +12,13 @@ var config = require('systemconfig');
 var cp = require('child_process');
 var path = require('path');
 var Q = require('q');
+var promised = require("../../backend/commonHandle/promisedFunc")
 
-function getLocalData(getLocalDataCb){
-  var localJson={};
-  localJson['account']=config.ACCOUNT;
-  localJson['UID']=config.uniqueID;
-  localJson['IP']=config.SERVERIP;
+function getLocalData(getLocalDataCb) {
+  var localJson = {};
+  localJson['account'] = config.ACCOUNT;
+  localJson['UID'] = config.uniqueID;
+  localJson['IP'] = config.SERVERIP;
   getLocalDataCb(localJson);
 }
 exports.getLocalData = getLocalData;
@@ -39,16 +40,63 @@ exports.getLocalData = getLocalData;
 function loadFile(loadFileCb, sFilePath) {
   console.log("Request handler 'loadFile' was called.");
   typeHandle.initTypeDef()
-  .then(function(){
-    return commonHandle.createData([sFilePath])
     .then(function() {
-      loadFileCb();
+      var filename = utils.getFileNameByPathShort(sFilePath);
+      var postfix = utils.getPostfixByPathShort(sFilePath);
+      var optionFilename = {
+        '_type': 'base',
+        '__property': 'filename',
+        '_value': filename
+      };
+      commonHandle.getItemByProperty(optionFilename)
+        .then(function(items) {
+          if (items.length === 0) {
+            return commonHandle.createData([sFilePath])
+              .then(function() {
+                loadFileCb(null);
+              })
+              .fail(function(err) {
+                loadFileCb(err);
+              })
+          } else {
+            var isExist = false;
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].postfix === postfix) {
+                isExist = true;
+              }
+            }
+            if (isExist === false) {
+              return commonHandle.createData([sFilePath])
+                .then(function() {
+                  loadFileCb(null);
+                })
+                .fail(function(err) {
+                  loadFileCb(err);
+                })
+            } else {
+              var date = new Date();
+              var year = date.getFullYear();
+              var month = date.getMonth();
+              var day = date.getDay();
+              var hour = date.getHours();
+              var minite = date.getMinutes();
+              var second = date.getSeconds();
+              var formatedDate = '_' + year + '_' + month + '_' + day + '_' + hour + '_' + minite + '_' + second;
+              var dstFilePath = sFilePath.substring(0, sFilePath.lastIndexOf('/')) + '/' + filename + formatedDate + '.' + postfix;
+              return promised.copy(sFilePath, dstFilePath)
+                .then(function() {
+                  return commonHandle.createData([dstFilePath])
+                    .then(function() {
+                      loadFileCb(null, dstFilePath);
+                    })
+                    .fail(function(err) {
+                      loadFileCb(err);
+                    })
+                })
+            }
+          }
+        })
     })
-    .fail(function(err) {
-      loadFileCb(err);
-    })
-  })
-
 }
 exports.loadFile = loadFile;
 
@@ -62,7 +110,7 @@ exports.loadFile = loadFile;
  *      string, specific err info
  *   @result
  *      array，object array, include file info of name exist file.
- *  
+ *
  *   example:
  *   [{
  *     "origin_path": "/home/xiquan/WORK_DIRECTORY/resources/pictures/city1.jpg",
@@ -73,7 +121,7 @@ exports.loadFile = loadFile;
  *     "old_name": "city3.jpg",
  *     "re_name": "duplicate_at_2014年12月17日_下午1:30:40_duplicate_at_2014年12月17日_下午1:30:40_city3.jpg"
  *   }]
- *  
+ *
  * @param2 path
  *   string，要加载资源的路径
  */
@@ -331,7 +379,7 @@ exports.getDataByPath = getDataByPath;
  *
  *    example:
  *    var options = {
- *                              _type: "base",  
+ *                              _type: "base",
  *                              _property: "URI",
  *                              _value: "ajsdawjdjiajwdj"
  *                              }
@@ -515,7 +563,6 @@ function pasteFile(pasteFileCb, filename, category) {
 }
 exports.pasteFile = pasteFile;
 
-
 function exportData(exportDataCb, sExportPath){
    console.log("Request handler 'exportData' was called.");
    commonHandle.exportData(sExportPath)
@@ -529,9 +576,9 @@ function exportData(exportDataCb, sExportPath){
 }
 exports.exportData = exportData;
 
-function importData(importDataCb, sTarFilePath){
-   console.log("Request handler 'importData' was called.");
-   commonHandle.importData(sTarFilePath)
+function importData(importDataCb, sTarFilePath) {
+  console.log("Request handler 'importData' was called.");
+  commonHandle.importData(sTarFilePath)
     .then(function() {
       importDataCb();
     })
@@ -668,25 +715,25 @@ function getTagsByUris(getTagsByUrisCb, oUris) {
   console.log("Request handler 'getTagsByUris' was called.");
   Q.all(oUris.map(tagsHandle.getTagsByUri))
     .then(function(result_) {
-      var _tags =[];
+      var _tags = [];
       for (var i = 0, l = result_.length; i < l; i++) {
         for (var j = 0, m = result_[i].length; j < m; j++) {
-          var isInTags=false;
-          for (var k= 0, n = _tags.length; k < n; k++) {
-            if(result_[i][j][0] == _tags[k][0]){
-              isInTags=true;
+          var isInTags = false;
+          for (var k = 0, n = _tags.length; k < n; k++) {
+            if (result_[i][j][0] == _tags[k][0]) {
+              isInTags = true;
               break;
             }
           }
-          if(isInTags==false){
+          if (isInTags == false) {
             _tags.push(result_[i][j]);
           }
         }
       }
       for (var i = 0, l = _tags.length; i < l; i++) {
-        
-        if(_tags[i][1]>oUris.length){
-          _tags[i][1]=oUris.length;
+
+        if (_tags[i][1] > oUris.length) {
+          _tags[i][1] = oUris.length;
         }
       }
       getTagsByUrisCb(null, _tags);
@@ -939,10 +986,10 @@ exports.readDesktopConfig = readDesktopConfig;
 function writeDesktopConfig(writeDesktopConfigCb, sFileName, oContent) {
   console.log("Request handler 'writeDesktopConfig' was called.");
   desktopConf.writeDesktopConfig(sFileName, oContent)
-    .then(function(){
+    .then(function() {
       writeDesktopConfigCb();
     })
-    .fail(function(err){
+    .fail(function(err) {
       writeDesktopConfigCb(err);
     })
 }
@@ -1405,10 +1452,10 @@ exports.getIconPath = getIconPath;
 function setRelativeTagByPath(setRelativeTagByPathCb, sFilePath, sTags) {
   console.log("Request handler 'setRelativeTagByPath' was called.");
   tagsHandle.setRelativeTagByPath(sFilePath, sTags)
-    .then(function(result){
+    .then(function(result) {
       setRelativeTagByPathCb(null, result);
     })
-    .fail(function(err){
+    .fail(function(err) {
       setRelativeTagByPathCb(err);
     });
 }
@@ -1458,7 +1505,7 @@ exports.deviceInfo = deviceInfo;
  *
  *    @param2: result,
  *        string, data is returned in binary encoded with base64. You could acc-
- *                ess the picture like: 
+ *                ess the picture like:
  *                var img = document.getElementById("test_img");
  *                img.src = 'data:image/jpeg;base64,' + result;
  *
@@ -1490,7 +1537,7 @@ exports.getMusicPicData = getMusicPicData;
  *
  *    @param2: result,
  *        string, data is returned in binary encoded with base64. You could acc-
- *                ess the picture like: 
+ *                ess the picture like:
  *                var img = document.getElementById("test_img");
  *                img.src = 'data:image/jpeg;base64,' + result;
  *
@@ -1593,12 +1640,11 @@ exports.test_desktop = test_desktop;
  **/
 function getTmpPath(getTmpPathCb) {
   console.log("Request handler 'getTmpPath' was called.");
-  if(config.TMPPATH!=null){
-      getTmpPathCb(null,config.TMPPATH);
-    }
-    else{
-      getTmpPathCb(new Error("TMPPATH empty"),null);
-    }
+  if (config.TMPPATH != null) {
+    getTmpPathCb(null, config.TMPPATH);
+  } else {
+    getTmpPathCb(new Error("TMPPATH empty"), null);
+  }
 }
 exports.getTmpPath = getTmpPath;
 
