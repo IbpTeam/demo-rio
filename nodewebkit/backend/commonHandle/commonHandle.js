@@ -85,7 +85,7 @@ function dataStore(items, extraCallback) {
         }
         return writeTriples(_file_info)
           .then(function() {
-            return _file_path;
+            return _file_info;
           })
       });
   }
