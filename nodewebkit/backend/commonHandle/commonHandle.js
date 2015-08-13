@@ -74,18 +74,18 @@ function dataStore(items, extraCallback) {
     })
   } else {
     var _file_info = [];
-    var _file_path = [];
+    var _file_pathURI = [];
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
           if (result[i]) {
             _file_info.push(result[i]);
-            _file_path.push(result[i].path);
+            _file_pathURI.push({'path':result[i].base.path,'URI':result[i].base.URI});
           }
         }
         return writeTriples(_file_info)
           .then(function() {
-            return _file_info;
+            return _file_pathURI;
           })
       });
   }
