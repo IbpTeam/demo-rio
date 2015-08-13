@@ -308,7 +308,14 @@ function packer(sSrc, tarFilePath, cb) {
     .pipe(writer);
 }
 
-
+function clearAllDataCb(){
+  var removeFolder =[]
+  return Q.all(removeFolder.map(promised.remove))
+  .then(function(){
+    return rdfHandle.dbClear();
+  });
+}
+export.clearAllDataCb = clearAllDataCb;
 /** 
  * @Method: importData
  *    To import MetaData to Target DataBase from Source DataBase
@@ -350,7 +357,9 @@ function importDataFolder(sEdition, sSrc) {
     var sMetaDataSrc = path.join(sEditionPath, metaDataToken);
     return importMetaData(sMetaDataSrc);
   }
-
+  var removeExtactFolder = function(){
+    return promised.remove(sEditionPath);
+  }
   return extractorPromised(tarFilePath, sDes)
     .then(function() {
       return mergeUserData(sEditionPath, config.BASEPATH);
@@ -359,6 +368,7 @@ function importDataFolder(sEdition, sSrc) {
       return mergeTypeData(sEditionPath, config.BASEPATH);
     })
     .then(MataDataImprove)
+    .then(removeExtactFolder)
     .fail(function(err) {
       throw new Error(err);
     });

@@ -577,6 +577,20 @@ function exportData(exportDataCb, sExportPath){
 }
 exports.exportData = exportData;
 
+
+function clearAllData(clearAllDataCb){
+  console.log("Request handler 'clearData' was called.");
+  commonHandle.clearAllData()
+    .then(function() {
+      clearAllDataCb();
+    })
+    .fail(function(err) {
+      clearAllDataCb(err);
+    })
+    .done();
+}
+export.clearAllData = clearAllData;
+
 function importData(importDataCb, sTarFilePath) {
   console.log("Request handler 'importData' was called.");
   commonHandle.importData(sTarFilePath)
