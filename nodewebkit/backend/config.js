@@ -36,6 +36,9 @@ exports.DATABASEPATH = DATABASEPATH;
 var DOWNLOADPATH = path.join(BASEPATH, '.download');
 exports.DOWNLOADPATH = DOWNLOADPATH;
 
+var BASICTYPE = ["chat", "contacts", "desktop", "device", "document", "music", "other", "picture", "video"];
+exports.BASICTYPE = BASICTYPE;
+
 var UNIQUEID_JS = "uniqueID.js";
 exports.UNIQUEID_JS = UNIQUEID_JS;
 

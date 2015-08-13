@@ -307,13 +307,60 @@ function packer(sSrc, tarFilePath, cb) {
     .pipe(zlib.Gzip()) /* Compress the .tar file */
     .pipe(writer);
 }
-
+/** 
+ * @Method: clearAllDataCb
+ *    To clear all Data without stop service
+ *       @At first,remove data in each folder of Resources. 
+ *       @Secondly,clear the RDF info in LevelGraph
+ *       @Thirdly, clear usr define UserType
+ *
+ * @param1: sSrc
+ *    string, backup DataBase
+ *
+ * @param2: 
+ *    database, user's DataBase
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
 function clearAllDataCb(){
-  var removeFolder =[]
+  var removeFolder =["music", "document", "video", "picture", "desktop", "other"];
+  for(var i = 0; i < removeFolder; i++){
+    removeFolder[i] = path.join(config.RESOURCEPATH, removeFolder[i]);
+    removeFolder[i] = path.join(removeFolder[i], "data");
+  }
+  var clearDB = function(){
+    var _query = [{
+      subject: sourceDB.v('subject'),
+      predicate: sourceDB.v('predicate'),
+      object: sourceDB.v('object')
+    }];
+    var _db = rdfHandle.dbOpen();
+    return rdfHandle.search(_query)
+        .then(function(_triples){
+          return dbDelete(_db, _triples);
+        });
+  }
+  var clearUserType = function(){
+    var deferred = Q.defer();
+    var typeFolder = config.DATAJSDIR;
+    return promised.lstat(typeFolder)
+    .then(function(files){
+      files.foreach(f){
+        if(!f.isDirectory()){
+         return promised.remove(f);
+        }
+        else{
+          return defer.resolve();
+        }
+      }
+    })
+  }
   return Q.all(removeFolder.map(promised.remove))
-  .then(function(){
-    return rdfHandle.dbClear();
-  });
+  .then(clearDB)
+  .then(clearUserType);
 }
 export.clearAllDataCb = clearAllDataCb;
 /** 
