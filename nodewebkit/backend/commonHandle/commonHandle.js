@@ -80,7 +80,7 @@ function dataStore(items, extraCallback) {
         for (var i = 0, l = result.length; i < l; i++) {
           if (result[i]) {
             _file_info.push(result[i]);
-            _file_pathURI.push({'path':result[i].base.path,'URI':result[i].base.URI});
+            _file_pathURI.push({'path':items[i],'URI':result[i].base.URI});
           }
         }
         return writeTriples(_file_info)
