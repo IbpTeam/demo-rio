@@ -8,6 +8,9 @@ var DEFINED_PROP = rdfHandle.DEFINED_PROP;
 var DEFINED_TYPE = rdfHandle.DEFINED_TYPE;
 var DEFINED_VOC = rdfHandle.DEFINED_VOC;
 var Q = require('q');
+var USERCONFIGPATH = config.USERCONFIGPATH,
+  uniqueID = require(USERCONFIGPATH + '/uniqueID.js'),
+  LOCALACCOUNT = uniqueID.Account;
 
 
 /**
@@ -18,7 +21,7 @@ var Q = require('q');
  * @param path
  *   string, the target path of data
  * @return Stack
- *   represent every tag of a file 
+ *   represent every tag of a file
  *
  */
 function getTagsByPath(path) {
@@ -31,6 +34,30 @@ function getTagsByPath(path) {
 }
 exports.getTagsByPath = getTagsByPath;
 
+/**
+ * @method generateTags
+ *   generate tags:
+ *     for now, generate date, filename and username
+ *     we will add more meaningful tags in the future.
+ *   return an array of tags
+ *
+ * @param path
+ *   string, the target path of data
+ * @return Stack
+ *   represent every tag of a file
+ *
+ */
+function generateTags(path) {
+  var oTags = [];
+  var filename = utils.getFileNameByPathShort(path);
+  oTags.push(filename);
+  var date = (new Date()).toDateString();
+  oTags.push(date);
+  var username = LOCALACCOUNT;
+  oTags.push(username);
+  return oTags;
+}
+exports.generateTags = generateTags;
 
 /**
  * @method getAllTagsByCategory
@@ -41,7 +68,7 @@ exports.getTagsByPath = getTagsByPath;
  *
  * @return Promise
  *    event state，which resolves with an array of Tag Name if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  *    all result in array
  *     example:
@@ -110,7 +137,7 @@ function getAllTagsByCategory(category) {
     .then(function(result) {
       return Q.all(result.map(getTagFileNumber));
     })
-    .then(function(result){
+    .then(function(result) {
       return result;
     })
 }
@@ -126,9 +153,9 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  *
  * @param2 sUri
  *    string, uri
-* @return Promise
+ * @return Promise
  *    event state，which resolves with an array of Tags' Name if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  */
 function getTagsByUri(uri) {
@@ -141,58 +168,59 @@ function getTagsByUri(uri) {
     subject: _db.v('subject'),
     predicate: DEFINED_PROP["base"]["tags"],
     object: _db.v('tag')
-  },
-  {
+  }, {
     subject: _db.v('subject'),
     predicate: DEFINED_PROP["base"]["category"],
     object: _db.v('category')
   }];
 
 
-  var tagMaker = function(result){
+  var tagMaker = function(result) {
     var _tags = [];
     for (var i = 0, l = result.length; i < l; i++) {
-      _tags.push([utils.getTitle(result[i].tag),utils.getTitle(result[i].category)]);
+      _tags.push([utils.getTitle(result[i].tag), utils.getTitle(result[i].category)]);
     }
     return _tags;
-  } 
+  }
 
   function getTagFileNumber(tag) {
-      var _db = rdfHandle.dbOpen();
-      var _query = [{
-        subject: _db.v('subject'),
-        predicate: DEFINED_PROP["base"]["category"],
-        object: tag[1]
-      }, {
-        subject: _db.v('subject'),
-        predicate: DEFINED_PROP["base"]["tags"],
-        object: 'http://example.org/tags#' + tag[0]
-      }, {
-        subject: _db.v('subject'),
-        predicate: DEFINED_PROP["base"]["URI"],
-        object: _db.v('file')
-      }];
-      return rdfHandle.dbSearch(_db, _query)
+    var _db = rdfHandle.dbOpen();
+    var _query = [{
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["category"],
+      object: tag[1]
+    }, {
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + tag[0]
+    }, {
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["URI"],
+      object: _db.v('file')
+    }];
+    return rdfHandle.dbSearch(_db, _query)
       .then(function(uri_list_) {
         return [tag, uri_list_.length]
       });
   }
 
   return rdfHandle
-  .dbSearch(_db, _query)
-  .fail(function(err){throw new Error(err);})
-  .then(tagMaker)
-  .then(function(result) {
+    .dbSearch(_db, _query)
+    .fail(function(err) {
+      throw new Error(err);
+    })
+    .then(tagMaker)
+    .then(function(result) {
       return Q.all(result.map(getTagFileNumber));
-   })
-   .then(function(_result){
-     var _tags=[];
-     for (var i = 0, l = _result.length; i < l; i++) {
-      _tags.push( [ utils.getTitle(_result[i][0][0]) , _result[i][1]  ]  );
-    }
-     return _tags;
-  });
-  
+    })
+    .then(function(_result) {
+      var _tags = [];
+      for (var i = 0, l = _result.length; i < l; i++) {
+        _tags.push([utils.getTitle(_result[i][0][0]), _result[i][1]]);
+      }
+      return _tags;
+    });
+
 }
 exports.getTagsByUri = getTagsByUri;
 
@@ -204,9 +232,9 @@ exports.getTagsByUri = getTagsByUri;
  * @param1 oTags
  *    array, an array of tags
  *
- * @return Promise 
+ * @return Promise
  *    event state，which resolves with an array of choosen files if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  *
  */
@@ -227,14 +255,14 @@ function getFilesByTags(oTags) {
     predicate: _db.v('predicate'),
     object: _db.v('object')
   })
-  
-  var resultMaker = function(result){
-      var _result = [];
-      for (var file in result) {
-        _result.push(result[file]);
-      }
-      return _result;
+
+  var resultMaker = function(result) {
+    var _result = [];
+    for (var file in result) {
+      _result.push(result[file]);
     }
+    return _result;
+  }
   return rdfHandle.dbSearch(_db, _query)
     .then(rdfHandle.decodeTripeles)
     .then(resultMaker);
@@ -264,14 +292,14 @@ function getFilesByTagsInCategory(category, oTags) {
     object: _db.v('object')
   });
 
-  var resultMaker = function(result){
+  var resultMaker = function(result) {
     var _result = [];
     for (var file in result) {
       _result.push(result[file]);
     }
     return _result;
   };
-  return rdfHandle.dbSearch(_db, _query) 
+  return rdfHandle.dbSearch(_db, _query)
     .then(rdfHandle.decodeTripeles)
     .then(resultMaker);
 
@@ -291,7 +319,7 @@ exports.getFilesByTagsInCategory = getFilesByTagsInCategory;
  *    string, a specific uri
  * @return Promise
  *    event state，which represents onFulfilled state with no value  if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  *
  */
@@ -306,8 +334,8 @@ function setTagByUri(tags, uri) {
     predicate: DEFINED_PROP["base"]["category"],
     object: _db.v('category'),
   }];
-  var queryTripleMaker = function(result){
-    if(result == ""){
+  var queryTripleMaker = function(result) {
+    if (result == "") {
       throw Error("NOT FOUND IN DATABASE!");
     }
     var _subject = result[0].subject;
@@ -333,10 +361,10 @@ function setTagByUri(tags, uri) {
     }
     return _query_add;
   }
-  
+
   return rdfHandle.dbSearch(_db, _query)
-  .then(queryTripleMaker)
-  .then(function(result){
+    .then(queryTripleMaker)
+    .then(function(result) {
       return rdfHandle.dbPut(_db, result);
     });
 }
@@ -354,8 +382,8 @@ function setTagByProperty(tags, option) {
     predicate: DEFINED_PROP["base"]["category"],
     object: _db.v('category'),
   }];
-  var queryTripleMaker = function(result){
-    if(result == ""){
+  var queryTripleMaker = function(result) {
+    if (result == "") {
       throw Error("NOT FOUND IN DATABASE!");
     }
     var _subject = result[0].subject;
@@ -381,10 +409,10 @@ function setTagByProperty(tags, option) {
     }
     return _query_add;
   }
-  
+
   return rdfHandle.dbSearch(_db, _query)
-  .then(queryTripleMaker)
-  .then(function(result){
+    .then(queryTripleMaker)
+    .then(function(result) {
       return rdfHandle.dbPut(_db, result);
     });
 }
@@ -431,8 +459,8 @@ function rmTagsByUri(tag, uri) {
     object: uri
   }];
 
-  var queryTripleMaker = function(result){
-    if(result == ""){
+  var queryTripleMaker = function(result) {
+    if (result == "") {
       throw Error("NOT FOUND IN DATABASE!");
     }
     var _subject = result[0].subject;
@@ -443,10 +471,10 @@ function rmTagsByUri(tag, uri) {
     }]
     return _query_delete;
   }
-  
+
   return rdfHandle.dbSearch(_db, _query)
-  .then(queryTripleMaker)
-  .then(function(result){
+    .then(queryTripleMaker)
+    .then(function(result) {
       rdfHandle.dbDelete(_db, result)
     });
 }
@@ -476,7 +504,7 @@ function rmTagAll(tag, category) {
     predicate: _db.v('predicate'),
     object: _object
   }];
-  var tagTriMaker = function(result){
+  var tagTriMaker = function(result) {
     for (var i = 0, l = result.length; i < l; i++) {
       result[i].object = _object;
     }
@@ -491,10 +519,10 @@ function rmTagAll(tag, category) {
   }
 
   return rdfHandle.dbSearch(_db, _query)
-  .then(tagTriMaker)
-  .then(function(result){
-    rdfHandle.dbDelete(_db, result);
-  });
+    .then(tagTriMaker)
+    .then(function(result) {
+      rdfHandle.dbDelete(_db, result);
+    });
 }
 exports.rmTagAll = rmTagAll;
 
@@ -524,15 +552,15 @@ function setRelativeTagByPath(sFilePath, sTags) {
   }
   return commonHandle.getItemByProperty(_option)
     .then(function(info_) {
-        var _uri = info_[0].URI;
-        if (_uri === null || _uri === undefined) {
-          throw new Error("NOT FOUND IN DATABASE...");
-        }
-        var _tags = info_[0].tags;
-        var _old_tag = null;
-        for (var i = 0; i < _tags.length; i++) {
-          if (reg_desktop.test(_tags[i])) {
-            _old_tag = _tags[i];
+      var _uri = info_[0].URI;
+      if (_uri === null || _uri === undefined) {
+        throw new Error("NOT FOUND IN DATABASE...");
+      }
+      var _tags = info_[0].tags;
+      var _old_tag = null;
+      for (var i = 0; i < _tags.length; i++) {
+        if (reg_desktop.test(_tags[i])) {
+          _old_tag = _tags[i];
         }
       }
       return rmTagsByUri(_old_tag, _uri)

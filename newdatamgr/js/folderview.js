@@ -1035,7 +1035,9 @@ var ShowFiles = Class.extend({
             max: 3
           });
           _tagView.setParent(Container, file['URI']);
-          _tagView.addTags(file['tags']);
+          if(file.hasOwnProperty('tags')){
+            _tagView.addTags(file['tags']);
+          }
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1071,7 +1073,9 @@ var ShowFiles = Class.extend({
             max: 3
           });
           _tagView.setParent(Container, file['URI']);
-          _tagView.addTags(file['tags']);
+          if(file.hasOwnProperty('tags')){
+            _tagView.addTags(file['tags']);
+          }
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1098,7 +1102,9 @@ var ShowFiles = Class.extend({
             max: 0
           });
           _tagView.setParent(Container, file['URI']);
-          _tagView.addTags(file['tags']);
+          if(file.hasOwnProperty('tags')){
+            _tagView.addTags(file['tags']);
+          }
           _tagView.bindDrop(Container[0]);
           _globalSelf.bindDrag(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
@@ -1139,7 +1145,9 @@ var ShowFiles = Class.extend({
             max: 3
           });
           _tagView.setParent(tagHolder, file['URI']);
-          _tagView.addTags(file['tags']);
+          if(file.hasOwnProperty('tags')){
+            _tagView.addTags(file['tags']);
+          }
           _tagView.bindDrop(tagHolder[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
@@ -1167,7 +1175,9 @@ var ShowFiles = Class.extend({
             max: 0
           });
           _tagView.setParent(Container, file['URI']);
-          _tagView.addTags(file['tags']);
+          if(file.hasOwnProperty('tags')){
+            _tagView.addTags(file['tags']);
+          }
           _tagView.bindDrop(Container[0]);
           _globalSelf.attachDataMenu(Container[0].id);
           break;
