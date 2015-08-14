@@ -142,7 +142,7 @@ var main = function(params_) {
             console.log("Fail to delete : ", filePath);
           }
         }, filePath);
-        if(realFilePath){
+        if(realFilePath && typeof(realFilePath) === 'string'){
           data.deleteTmpFile(function(err){
             if(err){
               console.log("Fail to delete : ", realFilePath);
