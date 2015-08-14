@@ -222,7 +222,7 @@ function extraInfo(item, category) {
  **/
 function exportData(sDes) {
   var myDate = new Date();
-  var time = myDate.getFullYear() + "-" + (myDate.getMonth()+1) +  "-" + myDate.getDate() + "-" + myDate.getHours() + ":" + +myDate.getSeconds();
+  var time = myDate.getFullYear() + "-" + (myDate.getMonth()+1) +  "-" + myDate.getDate() + "-" + myDate.getHours() + ":" +myDate.getMinutes() + ":" +myDate.getSeconds();
   var sEdition = "backup_rio" + "_" + time;
   return exportDataFolder(sEdition, sDes);
 }
