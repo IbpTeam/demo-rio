@@ -157,7 +157,6 @@ function baseInfo(itemPath) {
       _postfix = _postfix.substr(1);
     }
     var _tags = [];
-
     return tagsHandle.getTagsByPath(itemPath)
       .then(function(_tags_1) {
         _tags_0 = tagsHandle.generateTags(itemPath);
@@ -189,9 +188,6 @@ function baseInfo(itemPath) {
               })
           })
       })
-
-
-
   }
   return Q_fsStat(itemPath).then(Q_uriMaker);
 }
@@ -231,7 +227,7 @@ function extraInfo(item, category) {
  **/
 function exportData(sDes) {
   var myDate = new Date();
-  var time = myDate.getFullYear() + "-" + (myDate.getMonth()+1) +  "-" + myDate.getDate() + "-" + myDate.getHours() + ":" +myDate.getMinutes() + ":" +myDate.getSeconds();
+  var time = myDate.getFullYear() + "-" + (myDate.getMonth() + 1) + "-" + myDate.getDate() + "-" + myDate.getHours() + ":" + myDate.getMinutes() + ":" + myDate.getSeconds();
   var sEdition = "backup_rio" + "_" + time;
   return exportDataFolder(sEdition, sDes);
 }
