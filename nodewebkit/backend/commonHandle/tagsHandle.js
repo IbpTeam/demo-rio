@@ -30,15 +30,10 @@ function getTagsByPath(path) {
   var tmpTags = path.replace(reg, '');
   tmpTags = tmpTags.split('/');
   tmpTags.pop();
-
-
   return tagsFilter(tmpTags);
-
-
 }
 exports.getTagsByPath = getTagsByPath;
 
-//Updated upstream
 /**
  * @method generateTags
  *   generate tags:
@@ -67,38 +62,37 @@ function generateTags(path) {
 }
 exports.generateTags = generateTags;
 
+
+/**
+ * @method tagsFilter
+ * @param tags
+ *   array, tags to be filtered
+ * @return tags
+ *   array, filtered tags
+ *
+ */
 function tagsFilter(tags) {
   var yuzhi = 0.7;
-
   return getAllTags().then(function(rdftags) {
-    console.log("数据库中的标签:" + rdftags);
-    //var rdftags=["hello_world-hi","HELLO-WORLD","nihao","recommendation system"];
     var rdftags_len = rdftags.length;
-    console.log("清理前的标签:" + tags);
     tags = tags.concat(rdftags);
-
     for (var i = 0; i < tags.length - rdftags_len; i++) {
       if (tags[i].length == 0) {
-        console.log("删除空字符'" + tags[i] + "'"); //空字符
         tags.splice(i, 1);
         i--;
-      } else if (tags[i].toLowerCase() == "tmp" || tags[i].toLowerCase() == "temp") {
-        console.log("删除tmp/temp'" + tags[i] + "'"); //tmp/temp字符
+      } else if (tags[i].toLowerCase() == "tmp" || tags[i].toLowerCase() == "temp" || tags[i].toLowerCase() == "workspace") {
         tags.splice(i, 1);
         i--;
       } else if (tags[i].charAt(0) == ".") {
-        console.log("删除以.开头的标签'" + tags[i] + "'"); //以.开头的标签
         tags.splice(i, 1);
         i--;
       } else if (tags[i].length == 1) {
-        console.log("删除单个字符'" + tags[i] + "'"); //单个字符
         tags.splice(i, 1);
         i--;
       } else if (i < tags.length - 1) {
         var old_i = i;
         for (var j = i + 1; j < tags.length; j++) { //大小写不同的同义词
           if (tags[i].toUpperCase() == tags[j].toUpperCase()) {
-            console.log("删除大小写不同/相同的同义词'" + tags[i] + "',与'" + tags[j] + "'冲突");
             tags.splice(i, 1);
             i--;
             break;
@@ -106,17 +100,14 @@ function tagsFilter(tags) {
         }
         if (i != old_i)
           continue;
-
         if (tags[i].indexOf(" ") > 0 || tags[i].indexOf("_") > 0 || tags[i].indexOf("-") > 0 || tags[i].indexOf(".") > 0) { //分隔符不同的同义词
           var ar1 = tags[i].split(/ |_|-|[.]/);
           for (var l = 0; l < ar1.length; l++) {
             if (ar1[l].length == 0) {
-
               ar1.splice(l, 1);
               l--;
             }
           }
-
           for (var j = i + 1; j < tags.length; j++) {
             if (tags[j].indexOf(" ") > 0 || tags[j].indexOf("_") > 0 || tags[j].indexOf("-") > 0 || tags[j].indexOf(".") > 0) {
               var ar2 = tags[j].split(/ |_|-|[.]/);
@@ -127,10 +118,7 @@ function tagsFilter(tags) {
                   k--;
                 }
               }
-
-
               if (ar1.sort().toString().toUpperCase() == ar2.sort().toString().toUpperCase()) {
-                console.log("删除分隔符不同的同义词'" + tags[i] + "',与'" + tags[j] + "'冲突");
                 tags.splice(i, 1);
                 i--;
                 break;
@@ -147,7 +135,6 @@ function tagsFilter(tags) {
           var n = s.length; // length of s
           var m = t.length; // length of t         
           if (m == 0) {
-            console.log("'" + tags[tmp] + "'为空字符串,删除");
             tags.splice(tmp, 1);
             tmp--;
             continue;
@@ -177,7 +164,6 @@ function tagsFilter(tags) {
           var d = d[n][m];
           var simlar = (1 - d / l).toFixed(2);
           if (simlar >= yuzhi) {
-            console.log("删除似度达到阈值" + yuzhi + "的词'" + tags[i] + "',与'" + tags[tmp] + "'冲突");
             tags.splice(i, 1);
             i--;
             break;
@@ -187,17 +173,18 @@ function tagsFilter(tags) {
       }
     }
     tags.splice(tags.length - rdftags.length, rdftags.length);
-    console.log("清理后的标签:" + tags);
     return tags;
   })
-
-
 }
 exports.tagsFilter = tagsFilter;
 
 
-// Stashed changes
-
+/**
+ * @method getAllTags
+ * @return tags
+ *   array, all tags from rdf
+ *
+ */
 function getAllTags() {
   var _db = rdfHandle.dbOpen();
   var _query = [{
@@ -205,13 +192,11 @@ function getAllTags() {
     predicate: DEFINED_VOC.rdf._type,
     object: DEFINED_PROP["base"]["tags"]
   }]
-
   var tagMaker = function(results) {
     var _tags = [];
     for (var i = 0, l = results.length; i < l; i++) {
       _tags.push(utils.getTitle(results[i].tag));
     }
-
     return _tags;
   };
   return rdfHandle.dbSearch(_db, _query)
@@ -220,9 +205,10 @@ function getAllTags() {
 
       return result;
     })
-
 }
 exports.getAllTags = getAllTags;
+
+
 /**
  * @method getAllTagsByCategory
  *   get all tags of specific category
