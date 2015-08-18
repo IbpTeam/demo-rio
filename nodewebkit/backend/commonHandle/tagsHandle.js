@@ -293,6 +293,163 @@ function getAllTagsByCategory(category) {
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
+/**
+ * @method getDataIntersectionOfTwoTags
+ *   get intersection datas of two tags
+ *
+ * @param tag1 and tag2
+ *    string, the two tag name
+ *
+ * @return Promise
+ *    event state，which resolves with an array of File Name if sucess;
+ *    otherwise, return reject with Error object
+ */
+function getDataIntersectionOfTwoTags(tag1, tag2){
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + tag1
+    }, {
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["tags"],
+      object: 'http://example.org/tags#' + tag2
+    }, {
+      subject: _db.v('subject'),
+      predicate: DEFINED_PROP["base"]["URI"],
+      object: _db.v('file')
+    }];
+    return rdfHandle.dbSearch(_db, _query)
+      .then(function(uri_list_) {
+        return uri_list_.length;
+      });
+}
+
+/**
+ * @method getDataUnionOfTwoTags
+ *   get union datas of two tags
+ *
+ * @param tag1 and tag2
+ *    string, the two tag name
+ *
+ * @return Promise
+ *    event state，which resolves with an array of Files if sucess;
+ *    otherwise, return reject with Error object
+ */
+function getDataUnionOfTwoTags(tag1, tag2){
+  var oUnionedFiles = new Array();
+  return this.getFilesByTags([tag1])
+    .then(function(tag1_files){
+      oUnionedFiles = tag1_files;
+      return [tag2];
+    })
+    .then(this.getFilesByTags)
+    .then(function(tag2_files){
+      var isExist = false;
+      var cmpLength = oUnionedFiles.length;
+      for(var i=0; i<tag2_files.length; i++){
+        for(var j=0; j<cmpLength; j++){
+          if(oUnionedFiles[j].URI === tag2_files[i].URI){
+            isExist = true;
+            break;
+          }
+        }
+        if(isExist === false){
+          oUnionedFiles.push(tag2_files[i]);
+        }
+      }
+      console.log("getFilesByTags(oUnionedFiles)====================", oUnionedFiles);
+      return oUnionedFiles.length;
+    })
+}
+
+/**
+ * @method generateRandom
+ *   generate k non-repeated random number
+ *
+ * @param1 k
+ *    the count of random number
+ *
+ * @param2&param3 min&max
+ *    the ceiling and the floor of the numbers
+ *
+ * @return an array of k random numbers
+ *
+ */
+function generateRandom(k, min, max){
+    var retArray = new Array();
+    var originalArray = new Array();
+    var count = 3000;
+    for(var i=0; i<count; i++){
+      originalArray[i] = i;
+    }
+    originalArray.sort(function(){
+      return 0.5 - Math.random();
+    });
+    for(var i=0; i<k; i++){
+      retArray[i] = parseInt(originalArray[i]/3000*(max-min) + min);
+    }
+    return retArray;
+  }
+
+/**
+ * @method tagsCluster
+ *   classify tags using kmeans algorithm
+ *
+ * @param1 oTags
+ *    an array of tags
+ *
+ * @param2 k
+ *    an parameter for kmeans algorithm
+ *
+ * @return Promise
+ *    event state，which resolves with an Json format of classified result;
+ *    eg: 
+ *    [
+ *       ['a', 'b', 'c'],
+ *       ['d', 'e', 'f']
+ *    ]
+ *    otherwise, return reject with Error object
+ *
+ */
+function tagsCluster(oTags, k){
+  var kSeeds = generateRandom(k, 0, oTags.length - 1);
+  var kSeedsTags = new Array();
+  var kClusters = new Array()[k];
+  for(var i=0; i<k; i++){
+    oTags[kSeeds[i]] = null;
+    kSeedsTags.push(oTags[kSeeds[i]]);
+    kClusters[i].push(oTags[kSeeds[i]]);
+  }
+  for(var i=0; i<oTags.length; i++){
+    if(oTags[i] === null){
+      continue;
+    }
+    var maxSimilar = 0;
+    var clusterIndex = 0;
+    for(var j=0; j<k; j++){
+      var interNum = getDataIntersectionOfTwoTags(kSeedsTags[j][0], oTags[i][0]);
+      var unionNum = getDataUnionOfTwoTags(kSeedsTags[j][0], oTags[i][0]);
+      var similar = interNum/unionNum;
+      if(similar > maxSimilar){
+        maxSimilar = similar;
+        clusterIndex = j;
+      }
+    }
+    kClusters[clusterIndex].push(oTags[i]);
+  }
+  return kClusters;
+}
+exports.tagsCluster = tagsCluster;
+
+function getAllTagsByCategoryClustering(category, k){
+  return getAllTagsByCategory(category)
+    .then(function(oTags){
+      return tagsCluster(oTags, k);
+    });
+}
+exports.getAllTagsByCategoryClustering = getAllTagsByCategoryClustering;
+
 
 /**
  * @method getTagsByUri

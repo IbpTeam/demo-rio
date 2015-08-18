@@ -664,7 +664,7 @@ exports.getResourceDataDir = getResourceDataDir;
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
-  tagsHandle.getAllTagsByCategory(category)
+  tagsHandle.getAllTagsByCategoryClustering(category, 10)
     .then(function(results) {
       console.log(results);
       getAllTagsByCategoryCb(null, results);
