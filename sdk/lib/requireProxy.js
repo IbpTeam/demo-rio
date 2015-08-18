@@ -94,7 +94,7 @@ exports.requireProxy = function() {
 exports.requireProxySync = function(proxy, addr) {
   if(typeof proxy === 'undefined') throw 'Not enough parameter';
   if(debug) {
-    var userPath = path.resolve(__dirname, '../../../../service/' + proxy + '/interface/' + proxy),
+    var userPath = path.resolve(__dirname, '../../../../service/' + proxy + '/interface/'),
         proxyIns = null;
   } else {
     var userPath = USERPATH + '/' + proxy + '/' + proxy,
@@ -102,11 +102,11 @@ exports.requireProxySync = function(proxy, addr) {
         proxyIns = null;
   }
   if(typeof addr === 'undefined') {
-    userPath += 'Proxy.js';
-    localPath += 'Proxy.js';
+    userPath += '/proxy.js';
+    localPath += '/proxy.js';
   } else {
-    userPath += 'ProxyRemote.js';
-    localPath += 'ProxyRemote.js';
+    userPath += '/proxyremote.js';
+    localPath += '/proxyremote.js';
   }
   console.log(userPath);
   if(fs.existsSync(userPath)) {
