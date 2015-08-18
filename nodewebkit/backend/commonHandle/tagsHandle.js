@@ -30,7 +30,7 @@ function getTagsByPath(path) {
   var tmpTags = path.replace(reg, '');
   tmpTags = tmpTags.split('/');
   tmpTags.pop();
-  return tmpTags;
+  return tagsFilter(tmpTags);
 }
 exports.getTagsByPath = getTagsByPath;
 
@@ -48,6 +48,7 @@ exports.getTagsByPath = getTagsByPath;
  *
  */
 function generateTags(path) {
+  console.log("come into generateTags");
   var oTags = [];
   var filename = utils.getFileNameByPathShort(path);
   oTags.push(filename);
@@ -55,9 +56,158 @@ function generateTags(path) {
   oTags.push(date);
   var username = LOCALACCOUNT;
   oTags.push(username);
+  console.log("here is generateTags():" + oTags);
   return oTags;
+
 }
 exports.generateTags = generateTags;
+
+
+/**
+ * @method tagsFilter
+ * @param tags
+ *   array, tags to be filtered
+ * @return tags
+ *   array, filtered tags
+ *
+ */
+function tagsFilter(tags) {
+  var yuzhi = 0.7;
+  return getAllTags().then(function(rdftags) {
+    var rdftags_len = rdftags.length;
+    tags = tags.concat(rdftags);
+    for (var i = 0; i < tags.length - rdftags_len; i++) {
+      if (tags[i].length == 0) {
+        tags.splice(i, 1);
+        i--;
+      } else if (tags[i].toLowerCase() == "tmp" || tags[i].toLowerCase() == "temp" || tags[i].toLowerCase() == "workspace") {
+        tags.splice(i, 1);
+        i--;
+      } else if (tags[i].charAt(0) == ".") {
+        tags.splice(i, 1);
+        i--;
+      } else if (tags[i].length == 1) {
+        tags.splice(i, 1);
+        i--;
+      } else if (i < tags.length - 1) {
+        var old_i = i;
+        for (var j = i + 1; j < tags.length; j++) { //大小写不同的同义词
+          if (tags[i].toUpperCase() == tags[j].toUpperCase()) {
+            tags.splice(i, 1);
+            i--;
+            break;
+          }
+        }
+        if (i != old_i)
+          continue;
+        if (tags[i].indexOf(" ") > 0 || tags[i].indexOf("_") > 0 || tags[i].indexOf("-") > 0 || tags[i].indexOf(".") > 0) { //分隔符不同的同义词
+          var ar1 = tags[i].split(/ |_|-|[.]/);
+          for (var l = 0; l < ar1.length; l++) {
+            if (ar1[l].length == 0) {
+              ar1.splice(l, 1);
+              l--;
+            }
+          }
+          for (var j = i + 1; j < tags.length; j++) {
+            if (tags[j].indexOf(" ") > 0 || tags[j].indexOf("_") > 0 || tags[j].indexOf("-") > 0 || tags[j].indexOf(".") > 0) {
+              var ar2 = tags[j].split(/ |_|-|[.]/);
+              for (var k = 0; k < ar2.length; k++) {
+                if (ar2[k].length == 0) {
+
+                  ar2.splice(k, 1);
+                  k--;
+                }
+              }
+              if (ar1.sort().toString().toUpperCase() == ar2.sort().toString().toUpperCase()) {
+                tags.splice(i, 1);
+                i--;
+                break;
+              }
+            }
+          }
+        }
+        if (i != old_i)
+          continue;
+        var s = tags[i]; //相似度达到一定阈值的词
+        for (var tmp = i + 1; tmp < tags.length; tmp++) {
+          var t = tags[tmp];
+          var l = s.length > t.length ? s.length : t.length;
+          var n = s.length; // length of s
+          var m = t.length; // length of t         
+          if (m == 0) {
+            tags.splice(tmp, 1);
+            tmp--;
+            continue;
+          }
+          var d = []; // matrix     
+          var s_k; // kth character of s
+          var t_j; // jth character of t
+          var cost; // cost
+          for (var k = 0; k <= n; k++) {
+            d[k] = [];
+            d[k][0] = k;
+          }
+          for (var j = 0; j <= m; j++) {
+            d[0][j] = j;
+          }
+          for (var k = 1; k <= n; k++) {
+            s_k = s.charAt(k - 1);
+            for (var j = 1; j <= m; j++) {
+              t_j = t.charAt(j - 1);
+              if (s_k == t_j)
+                cost = 0;
+              else
+                cost = 1;
+              d[k][j] = d[k - 1][j] + 1 < d[k][j - 1] + 1 ? (d[k - 1][j] + 1 < d[k - 1][j - 1] + cost ? d[k - 1][j] + 1 : d[k - 1][j - 1] + cost) : (d[k][j - 1] + 1 < d[k - 1][j - 1] + cost ? d[k][j - 1] + 1 : d[k - 1][j - 1] + cost);
+            }
+          }
+          var d = d[n][m];
+          var simlar = (1 - d / l).toFixed(2);
+          if (simlar >= yuzhi) {
+            tags.splice(i, 1);
+            i--;
+            break;
+          }
+        }
+
+      }
+    }
+    tags.splice(tags.length - rdftags.length, rdftags.length);
+    return tags;
+  })
+}
+exports.tagsFilter = tagsFilter;
+
+
+/**
+ * @method getAllTags
+ * @return tags
+ *   array, all tags from rdf
+ *
+ */
+function getAllTags() {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('tag'),
+    predicate: DEFINED_VOC.rdf._type,
+    object: DEFINED_PROP["base"]["tags"]
+  }]
+  var tagMaker = function(results) {
+    var _tags = [];
+    for (var i = 0, l = results.length; i < l; i++) {
+      _tags.push(utils.getTitle(results[i].tag));
+    }
+    return _tags;
+  };
+  return rdfHandle.dbSearch(_db, _query)
+    .then(tagMaker)
+    .then(function(result) {
+
+      return result;
+    })
+}
+exports.getAllTags = getAllTags;
+
 
 /**
  * @method getAllTagsByCategory
