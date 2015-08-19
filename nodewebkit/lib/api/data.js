@@ -666,7 +666,7 @@ function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
   tagsHandle.getAllTagsByCategoryClustering(category, 10)
     .then(function(results) {
-      console.log(results);
+   //   console.log(results);
       getAllTagsByCategoryCb(null, results);
     })
     .fail(function(err) {

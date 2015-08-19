@@ -8,6 +8,7 @@ var DEFINED_PROP = rdfHandle.DEFINED_PROP;
 var DEFINED_TYPE = rdfHandle.DEFINED_TYPE;
 var DEFINED_VOC = rdfHandle.DEFINED_VOC;
 var Q = require('q');
+var flowctl = require('../../../../../framework/utils/lib/flowctl');
 var USERCONFIGPATH = config.USERCONFIGPATH,
   uniqueID = require(USERCONFIGPATH + '/uniqueID.js'),
   LOCALACCOUNT = uniqueID.Account;
@@ -297,23 +298,23 @@ exports.getAllTagsByCategory = getAllTagsByCategory;
  * @method getDataIntersectionOfTwoTags
  *   get intersection datas of two tags
  *
- * @param tag1 and tag2
- *    string, the two tag name
+ * @param oTwoTags
+ *    an array contains two tags
  *
  * @return Promise
  *    event state，which resolves with an array of File Name if sucess;
  *    otherwise, return reject with Error object
  */
-function getDataIntersectionOfTwoTags(tag1, tag2){
+function getDataIntersectionOfTwoTags(oTwoTags){
   var _db = rdfHandle.dbOpen();
   var _query = [{
       subject: _db.v('subject'),
       predicate: DEFINED_PROP["base"]["tags"],
-      object: 'http://example.org/tags#' + tag1
+      object: 'http://example.org/tags#' + oTwoTags[0][0]
     }, {
       subject: _db.v('subject'),
       predicate: DEFINED_PROP["base"]["tags"],
-      object: 'http://example.org/tags#' + tag2
+      object: 'http://example.org/tags#' + oTwoTags[1][0]
     }, {
       subject: _db.v('subject'),
       predicate: DEFINED_PROP["base"]["URI"],
@@ -336,14 +337,14 @@ function getDataIntersectionOfTwoTags(tag1, tag2){
  *    event state，which resolves with an array of Files if sucess;
  *    otherwise, return reject with Error object
  */
-function getDataUnionOfTwoTags(tag1, tag2){
+function getDataIntersectionAndUnionOfTwoTags(tag1, tag2){
   var oUnionedFiles = new Array();
-  return this.getFilesByTags([tag1])
+  return getFilesByTags([tag1[0]])
     .then(function(tag1_files){
       oUnionedFiles = tag1_files;
-      return [tag2];
+      return [tag2[0]];
     })
-    .then(this.getFilesByTags)
+    .then(getFilesByTags)
     .then(function(tag2_files){
       var isExist = false;
       var cmpLength = oUnionedFiles.length;
@@ -358,9 +359,12 @@ function getDataUnionOfTwoTags(tag1, tag2){
           oUnionedFiles.push(tag2_files[i]);
         }
       }
-      console.log("getFilesByTags(oUnionedFiles)====================", oUnionedFiles);
-      return oUnionedFiles.length;
+      return [tag1, tag2];
     })
+    .then(getDataIntersectionOfTwoTags)
+    .then(function(interNum){
+      return [tag1, tag2, interNum, oUnionedFiles.length];
+    });
 }
 
 /**
@@ -379,15 +383,28 @@ function getDataUnionOfTwoTags(tag1, tag2){
 function generateRandom(k, min, max){
     var retArray = new Array();
     var originalArray = new Array();
-    var count = 3000;
+    var count = 30000;
     for(var i=0; i<count; i++){
       originalArray[i] = i;
     }
     originalArray.sort(function(){
       return 0.5 - Math.random();
     });
+    function contains(array, element){
+      var i = array.length;
+      while(i--){
+        if(array[i] === element){
+          return true;
+        }
+      }
+      return false;
+    }
     for(var i=0; i<k; i++){
-      retArray[i] = parseInt(originalArray[i]/3000*(max-min) + min);
+      var randomNum = parseInt(originalArray[i] / count * (max-min) + min);
+      while(contains(retArray, randomNum)){
+        randomNum += 1;
+      }
+      retArray[i] = randomNum;
     }
     return retArray;
   }
@@ -413,35 +430,61 @@ function generateRandom(k, min, max){
  *
  */
 function tagsCluster(oTags, k){
-  var kSeeds = generateRandom(k, 0, oTags.length - 1);
-  var kSeedsTags = new Array();
-  var kClusters = new Array()[k];
-  for(var i=0; i<k; i++){
-    oTags[kSeeds[i]] = null;
-    kSeedsTags.push(oTags[kSeeds[i]]);
-    kClusters[i].push(oTags[kSeeds[i]]);
+  if(oTags.length < k){
+    k = oTags.length;
   }
+  var kSeeds = generateRandom(k, 0, oTags.length - 1);
+  var kSeedsTags = [];
+  kClusters = {};
+  for(var i=0; i<k; i++){
+    kSeedsTags.push(oTags[kSeeds[i]]);
+    kClusters[oTags[kSeeds[i]][0]] = new Array();
+    kClusters[oTags[kSeeds[i]][0]].push(oTags[kSeeds[i]]);
+    oTags[kSeeds[i]] = null;
+  }
+  var indexTagPairs = [];
   for(var i=0; i<oTags.length; i++){
     if(oTags[i] === null){
       continue;
     }
-    var maxSimilar = 0;
-    var clusterIndex = 0;
-    for(var j=0; j<k; j++){
-      var interNum = getDataIntersectionOfTwoTags(kSeedsTags[j][0], oTags[i][0]);
-      var unionNum = getDataUnionOfTwoTags(kSeedsTags[j][0], oTags[i][0]);
-      var similar = interNum/unionNum;
-      if(similar > maxSimilar){
-        maxSimilar = similar;
-        clusterIndex = j;
-      }
-    }
-    kClusters[clusterIndex].push(oTags[i]);
+    computeClusterForATag(oTags[i], k, kSeedsTags)
+      .then();
   }
-  return kClusters;
+  /*return Q.all(indexTagPairs)
+    .then(function(indexTagPair){
+      console.log("indexTagPair======================", indexTagPair);
+      for(var i=0; i<indexTagPair.length; i++){
+        kClusters[indexTagPair[i][0]].push(indexTagPair[i][1]);
+      }
+      console.log("kClusters======================", kClusters);
+    });*/
 }
 exports.tagsCluster = tagsCluster;
 
+function computeClusterForATag(tag, k, kSeedsTags) {
+  var resultSet = [];
+  for (var j = 0; j < k; j++) {
+    resultSet.push(getDataIntersectionAndUnionOfTwoTags(kSeedsTags[j], tag));
+  }
+  return Q.all(resultSet)
+    .then(function(result) { //[clusterIndexTag, tag, intersectionNumber, unionNumber]
+      //console.log("result=======================", result);
+      var maxSimilar = 0;
+      var clusterIndex = result[0][0][0];
+      var tag = result[0][1];
+      //console.log("results=================", result);
+      for (var i = 0; i < result.length; i++) {
+        var similar = result[i][2] / result[i][3];
+        //console.log("similar====================", similar);
+        if (similar > maxSimilar) {
+          maxSimilar = similar;
+          clusterIndex = result[i][0][0];
+        }
+      }
+      //console.log("clusterIndex, tag=======================", clusterIndex, tag);
+      return [clusterIndex, tag];
+    });
+}
 function getAllTagsByCategoryClustering(category, k){
   return getAllTagsByCategory(category)
     .then(function(oTags){
