@@ -429,7 +429,10 @@ function generateRandom(k, min, max){
  *    otherwise, return reject with Error object
  *
  */
-function tagsCluster(oTags, k){
+function tagsClusterKmeans(oTags, k){
+  if(!oTags || oTags.length < 1 || k<1){
+    throw "Parameter error for tagsClusterKmeans";
+  }
   if(oTags.length < k){
     k = oTags.length;
   }
@@ -447,52 +450,116 @@ function tagsCluster(oTags, k){
     if(oTags[i] === null){
       continue;
     }
-    computeClusterForATag(oTags[i], k, kSeedsTags)
-      .then();
+    indexTagPairs.push(computeClusterForATagKmeans(oTags[i], k, kSeedsTags));
   }
-  /*return Q.all(indexTagPairs)
+  return Q.all(indexTagPairs)
     .then(function(indexTagPair){
-      console.log("indexTagPair======================", indexTagPair);
       for(var i=0; i<indexTagPair.length; i++){
         kClusters[indexTagPair[i][0]].push(indexTagPair[i][1]);
       }
-      console.log("kClusters======================", kClusters);
-    });*/
+      return kClusters;
+    });
 }
-exports.tagsCluster = tagsCluster;
+exports.tagsClusterKmeans = tagsClusterKmeans;
 
-function computeClusterForATag(tag, k, kSeedsTags) {
+function computeClusterForATagKmeans(tag, k, kSeedsTags) {
   var resultSet = [];
   for (var j = 0; j < k; j++) {
     resultSet.push(getDataIntersectionAndUnionOfTwoTags(kSeedsTags[j], tag));
   }
   return Q.all(resultSet)
     .then(function(result) { //[clusterIndexTag, tag, intersectionNumber, unionNumber]
-      //console.log("result=======================", result);
       var maxSimilar = 0;
       var clusterIndex = result[0][0][0];
       var tag = result[0][1];
-      //console.log("results=================", result);
       for (var i = 0; i < result.length; i++) {
         var similar = result[i][2] / result[i][3];
-        //console.log("similar====================", similar);
         if (similar > maxSimilar) {
           maxSimilar = similar;
           clusterIndex = result[i][0][0];
         }
+        if(maxSimilar === 0){
+          var tmpIndex = generateRandom(1, 0, k-1);
+          clusterIndex = kSeedsTags[tmpIndex[0]][0];
+        }
       }
-      //console.log("clusterIndex, tag=======================", clusterIndex, tag);
       return [clusterIndex, tag];
     });
 }
-function getAllTagsByCategoryClustering(category, k){
+function getAllTagsByCategoryClusteringKmeans(category, k){
   return getAllTagsByCategory(category)
     .then(function(oTags){
-      return tagsCluster(oTags, k);
+      return tagsClusterKmeans(oTags, k);
     });
 }
-exports.getAllTagsByCategoryClustering = getAllTagsByCategoryClustering;
+exports.getAllTagsByCategoryClusteringKmeans = getAllTagsByCategoryClusteringKmeans;
 
+function tagsClusterIterate(oTags, iter){
+  var tagIndexPairs = {}; //{[tag, count]: clusterIndex}
+  for(var i=0; i<oTags.length; i++){
+    tagIndexPairs[oTags[i]] = i; //i----[0, n)
+  }
+  //console.log("tagIndexPairs===================", tagIndexPairs);
+  var pairTagInterNum = {}; //{[tag1, tag2]: interNum}
+  var combination = [];
+  for(var i=0; i<oTags.length; i++){
+    combination.push(computeInterForATagIterate(oTags, oTags[i], pairTagInterNum, tagIndexPairs));
+  }
+  return Q.all(combination)
+    .then(function(tagIndexTriple){ //[tag, maxTag, clusterIndex]
+      console.log("results======================", tagIndexTriple);
+      // for(var k=0; k<iter; k++){
+      //   for(var i=0; i<tagIndexTriple.length; i++){
+      //     if(tagIndexTriple[i][2] !== )
+      //   }
+      // }
+    });
+}
+exports.tagsClusterIterate = tagsClusterIterate;
+
+function computeInterForATagIterate(oTags, tag, pairTagInterNum, tagIndexPairs){
+   var combination = [];
+   for(var i=0; i<oTags.length; i++){
+     if( pairTagInterNum.hasOwnProperty([tag, oTags[i]]) ){
+       combination.push(pairTagInterNum[tag, oTags[i]]);
+     }
+     else{
+       combination.push(getDataIntersectionOfTwoTags([tag, oTags[i]]));
+    }
+   }
+  return Q.all(combination)
+    .then(function(interArray){
+      for(var i=0; i<interArray.length; i++){
+        var index = [tag, oTags[i]];
+        pairTagInterNum[index] = interArray[i];
+        index = [oTags[i], tag];
+        pairTagInterNum[index] = interArray[i];
+      }
+      var maxInter = 0;
+      var clusterIndex = 0;
+      var maxTag = null;
+      for(var i=0; i<interArray.length; i++){
+        if(tag === oTags[i]){
+          continue;
+        }
+        if(interArray[i] > maxInter){
+          maxInter = interArray[i];
+          maxTag = oTags[i];
+          clusterIndex = tagIndexPairs[maxTag];
+        }
+      }
+      //console.log("[tag, maxTag, clusterIndex]===========================", [tag, maxTag, clusterIndex]);
+      return [tag, maxTag, clusterIndex];
+    });
+}
+
+function getAllTagsByCategoryClusteringIter(category, iter){
+  return getAllTagsByCategory(category)
+    .then(function(oTags){
+      return tagsClusterIterate(oTags, iter);
+    });
+}
+exports.getAllTagsByCategoryClusteringIter = getAllTagsByCategoryClusteringIter;
 
 /**
  * @method getTagsByUri
