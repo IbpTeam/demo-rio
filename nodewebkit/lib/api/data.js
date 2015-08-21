@@ -664,15 +664,15 @@ exports.getResourceDataDir = getResourceDataDir;
  */
 function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   console.log("Request handler 'getAllTagsByCategory' was called.");
-  // tagsHandle.getAllTagsByCategory(category)
-  //   .then(function(results) {
-  //     console.log(results);
-  //     getAllTagsByCategoryCb(null, results);
-  //   })
-  //   .fail(function(err) {
-  //     getAllTagsByCategoryCb(err);
-  //   })
-  //   .done();
+  tagsHandle.getAllTagsByCategory(category)
+    .then(function(results) {
+      console.log(results);
+      getAllTagsByCategoryCb(null, results);
+    })
+    .fail(function(err) {
+      getAllTagsByCategoryCb(err);
+    })
+    .done();
   ////////////////////////////////////////////////////////////////////////////
   //Start: test for kmeans cluster algorithm
   ////////////////////////////////////////////////////////////////////////////
@@ -692,15 +692,15 @@ function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   ////////////////////////////////////////////////////////////////////////////
   //Start: test for iterate cluster algorithm
   ////////////////////////////////////////////////////////////////////////////
-  tagsHandle.getAllTagsByCategoryClusteringIter(category, 10)
-    .then(function(results) {
-      console.log("iterate results: ", results);
-      getAllTagsByCategoryCb(null, results);
-    })
-    .fail(function(err) {
-      getAllTagsByCategoryCb(err);
-    })
-    .done();
+  // tagsHandle.getAllTagsByCategoryClusteringIter(category, 10)
+  //   .then(function(results) {
+  //     console.log("iterate results: ", results);
+  //     getAllTagsByCategoryCb(null, results);
+  //   })
+  //   .fail(function(err) {
+  //     getAllTagsByCategoryCb(err);
+  //   })
+  //   .done();
   ////////////////////////////////////////////////////////////////////////////
   //End: test for iterate cluster algorithm
   ////////////////////////////////////////////////////////////////////////////
