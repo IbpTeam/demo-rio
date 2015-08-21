@@ -293,6 +293,338 @@ function getAllTagsByCategory(category) {
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 
+/**
+ * @method getDataIntersectionOfTwoTags
+ *   get intersection datas of two tags
+ *
+ * @param oTwoTags
+ *    an array contains two tags
+ *
+ * @return Promise
+ *    event state，which resolves with an array of File Name if sucess;
+ *    otherwise, return reject with Error object
+ */
+function getDataIntersectionOfTwoTags(oTwoTags) {
+  var _db = rdfHandle.dbOpen();
+  var _query = [{
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["tags"],
+    object: 'http://example.org/tags#' + oTwoTags[0][0]
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["tags"],
+    object: 'http://example.org/tags#' + oTwoTags[1][0]
+  }, {
+    subject: _db.v('subject'),
+    predicate: DEFINED_PROP["base"]["URI"],
+    object: _db.v('file')
+  }];
+  return rdfHandle.dbSearch(_db, _query)
+    .then(function(uri_list_) {
+      return uri_list_.length;
+    });
+}
+
+/**
+ * @method getDataIntersectionAndUnionOfTwoTags
+ *   get intersection and union datas of two tags
+ *
+ * @param tag1 and tag2
+ *    string, the two tag name
+ *
+ * @return Promise
+ *    event state，which resolves with the number of Files if sucess;
+ *    otherwise, return reject with Error object
+ */
+function getDataIntersectionAndUnionOfTwoTags(tag1, tag2) {
+  var oUnionedFiles = new Array();
+  return getFilesByTags([tag1[0]])
+    .then(function(tag1_files) {
+      oUnionedFiles = tag1_files;
+      return [tag2[0]];
+    })
+    .then(getFilesByTags)
+    .then(function(tag2_files) {
+      var isExist = false;
+      var cmpLength = oUnionedFiles.length;
+      for (var i = 0; i < tag2_files.length; i++) {
+        for (var j = 0; j < cmpLength; j++) {
+          if (oUnionedFiles[j].URI === tag2_files[i].URI) {
+            isExist = true;
+            break;
+          }
+        }
+        if (isExist === false) {
+          oUnionedFiles.push(tag2_files[i]);
+        }
+      }
+      return [tag1, tag2];
+    })
+    .then(getDataIntersectionOfTwoTags)
+    .then(function(interNum) {
+      return [tag1, tag2, interNum, oUnionedFiles.length];
+    });
+}
+
+/**
+ * @method generateRandom
+ *   generate k non-repeated random number
+ *
+ * @param1 k
+ *    the count of random number
+ *
+ * @param2&param3 min&max
+ *    the ceiling and the floor of the numbers
+ *
+ * @return an array of k random numbers
+ *
+ */
+function generateRandom(k, min, max) {
+  var retArray = new Array();
+  var originalArray = new Array();
+  var count = 30000;
+  for (var i = 0; i < count; i++) {
+    originalArray[i] = i;
+  }
+  originalArray.sort(function() {
+    return 0.5 - Math.random();
+  });
+
+  function contains(array, element) {
+    var i = array.length;
+    while (i--) {
+      if (array[i] === element) {
+        return true;
+      }
+    }
+    return false;
+  }
+  for (var i = 0; i < k; i++) {
+    var randomNum = parseInt(originalArray[i] / count * (max - min) + min);
+    while (contains(retArray, randomNum)) {
+      randomNum += 1;
+    }
+    retArray[i] = randomNum;
+  }
+  return retArray;
+}
+
+/**
+ * @method tagsClusterKmeans
+ *   classify tags using kmeans algorithm
+ *
+ * @param1 oTags
+ *    an array of tags
+ *
+ * @param2 k
+ *    an parameter for kmeans algorithm
+ *
+ * @return Promise
+ *    event state，which resolves with an Json format of classified result;
+ *    eg:
+ *    [
+ *       index1: ['a', 'b', 'c'],
+ *       index2: ['d', 'e', 'f']
+ *    ]
+ *    otherwise, return reject with Error object
+ *
+ */
+function tagsClusterKmeans(oTags, k) {
+  if (!oTags || oTags.length < 1 || k < 1) {
+    throw "Parameter error for tagsClusterKmeans";
+  }
+  if (oTags.length < k) {
+    k = oTags.length;
+  }
+  var kSeeds = generateRandom(k, 0, oTags.length - 1);
+  var kSeedsTags = [];
+  kClusters = {};
+  for (var i = 0; i < k; i++) {
+    kSeedsTags.push(oTags[kSeeds[i]]);
+    kClusters[oTags[kSeeds[i]][0]] = new Array();
+    kClusters[oTags[kSeeds[i]][0]].push(oTags[kSeeds[i]]);
+    oTags[kSeeds[i]] = null;
+  }
+  var indexTagPairs = [];
+  for (var i = 0; i < oTags.length; i++) {
+    if (oTags[i] === null) {
+      continue;
+    }
+    indexTagPairs.push(computeClusterForATagKmeans(oTags[i], k, kSeedsTags));
+  }
+  return Q.all(indexTagPairs)
+    .then(function(indexTagPair) {
+      for (var i = 0; i < indexTagPair.length; i++) {
+        kClusters[indexTagPair[i][0]].push(indexTagPair[i][1]);
+      }
+      return kClusters;
+    });
+}
+exports.tagsClusterKmeans = tagsClusterKmeans;
+
+/**
+ * @method computeClusterForATagKmeans
+ *   compute a tag's cluster index using kmeans
+ *
+ * @param
+ *    tag: string, the tag we want to compute its cluster index
+ *    k: the parameter of kmeans algorithm
+ *    kSeedsTags: array, the seeds tag array for kmeans algorithm
+ *
+ * @return Promise
+ *    cluster result: [clusterIndex, tag]
+ *    otherwise, return reject with Error object
+ */
+function computeClusterForATagKmeans(tag, k, kSeedsTags) {
+  var resultSet = [];
+  for (var j = 0; j < k; j++) {
+    resultSet.push(getDataIntersectionAndUnionOfTwoTags(kSeedsTags[j], tag));
+  }
+  return Q.all(resultSet)
+    .then(function(result) { //[clusterIndexTag, tag, intersectionNumber, unionNumber]
+      var maxSimilar = 0;
+      var clusterIndex = result[0][0][0];
+      var tag = result[0][1];
+      for (var i = 0; i < result.length; i++) {
+        var similar = result[i][2] / result[i][3];
+        if (similar > maxSimilar) {
+          maxSimilar = similar;
+          clusterIndex = result[i][0][0];
+        }
+        if (maxSimilar === 0) {
+          var tmpIndex = generateRandom(1, 0, k - 1);
+          clusterIndex = kSeedsTags[tmpIndex[0]][0];
+        }
+      }
+      return [clusterIndex, tag];
+    });
+}
+
+/**
+ * @method getAllTagsByCategoryClusteringKmeans
+ *   get cluster result for all tags using kmeans algorithm
+ */
+function getAllTagsByCategoryClusteringKmeans(category, k) {
+  return getAllTagsByCategory(category)
+    .then(function(oTags) {
+      return tagsClusterKmeans(oTags, k);
+    });
+}
+exports.getAllTagsByCategoryClusteringKmeans = getAllTagsByCategoryClusteringKmeans;
+
+/**
+ * @method tagsClusterIterate
+ *   classify tags using fast interate algorithm
+ *
+ * @param1 oTags
+ *    an array of tags
+ *
+ * @param2 iter
+ *    an parameter for interate algorithm
+ *
+ * @return Promise
+ *    event state，which resolves with an Json format of classified result;
+ *    eg:
+ *    [
+ *       index1: ['a', 'b', 'c'],
+ *       index2: ['d', 'e', 'f']
+ *    ]
+ *    otherwise, return reject with Error object
+ *
+ */
+function tagsClusterIterate(oTags, iter) {
+  var tagIndexPairs = {}; //{[tag, count]: clusterIndex}
+  for (var i = 0; i < oTags.length; i++) {
+    tagIndexPairs[oTags[i]] = i; //i----[0, n)
+  }
+  var pairTagInterNum = {}; //{[tag1, tag2]: interNum}
+  var combination = [];
+  for (var i = 0; i < oTags.length; i++) {
+    combination.push(computeInterForATagIterate(oTags, oTags[i], pairTagInterNum, tagIndexPairs));
+  }
+  return Q.all(combination)
+    .then(function(tagIndexTriple) { //[tag, maxTag, clusterIndex]
+      for (var k = 0; k < iter; k++) {
+        for (var i = 0; i < tagIndexTriple.length; i++) {
+          if (tagIndexTriple[i][2] !== tagIndexPairs[tagIndexTriple[i][1]]) {
+            tagIndexTriple[i][2] = tagIndexPairs[tagIndexTriple[i][1]];
+            tagIndexPairs[tagIndexTriple[i][0]] = tagIndexPairs[tagIndexTriple[i][1]];
+          }
+        }
+      }
+      var kClusters = {};
+      for (var i = 0; i < tagIndexTriple.length; i++) {
+        if (kClusters.hasOwnProperty(tagIndexTriple[i][2])) {
+          kClusters[tagIndexTriple[i][2]].push(tagIndexTriple[i][0]);
+        } else {
+          kClusters[tagIndexTriple[i][2]] = [tagIndexTriple[i][0]];
+        }
+      }
+      return kClusters;
+    });
+}
+exports.tagsClusterIterate = tagsClusterIterate;
+
+/**
+ * @method computeInterForATagIterate
+ *   compute a tag's cluster index using fast interate algorithm
+ *
+ * @param
+ *    oTags: array tags, the iterate tag array we want to compute
+ *    tag: string, the tag we want to compute its cluster index
+ *    k: the parameter of kmeans algorithm
+ *    pairTagInterNum: we want to save the computed result, for not do many extra db search
+ *    tagIndexPairs: array, [[tag, count], clusterIndex]
+ *
+ * @return Promise
+ *    cluster result: [tag, maxTag, clusterIndex], maxTag is the tag who has most common data with tag
+ *    otherwise, return reject with Error object
+ */
+function computeInterForATagIterate(oTags, tag, pairTagInterNum, tagIndexPairs) {
+  var combination = [];
+  for (var i = 0; i < oTags.length; i++) {
+    if (pairTagInterNum.hasOwnProperty([tag, oTags[i]])) {
+      combination.push(pairTagInterNum[tag, oTags[i]]);
+    } else {
+      combination.push(getDataIntersectionOfTwoTags([tag, oTags[i]]));
+    }
+  }
+  return Q.all(combination)
+    .then(function(interArray) {
+      for (var i = 0; i < interArray.length; i++) {
+        var index = [tag, oTags[i]];
+        pairTagInterNum[index] = interArray[i];
+        index = [oTags[i], tag];
+        pairTagInterNum[index] = interArray[i];
+      }
+      var maxInter = 0;
+      var clusterIndex = 0;
+      var maxTag = null;
+      for (var i = 0; i < interArray.length; i++) {
+        if (tag === oTags[i]) {
+          continue;
+        }
+        if (interArray[i] > maxInter) {
+          maxInter = interArray[i];
+          maxTag = oTags[i];
+          clusterIndex = tagIndexPairs[maxTag];
+        }
+      }
+      return [tag, maxTag, clusterIndex];
+    });
+}
+
+/**
+ * @method getAllTagsByCategoryClusteringIter
+ *   get cluster result for all tags using fast interate algorithm
+ */
+function getAllTagsByCategoryClusteringIter(category, iter) {
+  return getAllTagsByCategory(category)
+    .then(function(oTags) {
+      return tagsClusterIterate(oTags, iter);
+    });
+}
+exports.getAllTagsByCategoryClusteringIter = getAllTagsByCategoryClusteringIter;
 
 /**
  * @method getTagsByUri
