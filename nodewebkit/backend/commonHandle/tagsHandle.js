@@ -8,7 +8,6 @@ var DEFINED_PROP = rdfHandle.DEFINED_PROP;
 var DEFINED_TYPE = rdfHandle.DEFINED_TYPE;
 var DEFINED_VOC = rdfHandle.DEFINED_VOC;
 var Q = require('q');
-var flowctl = require('../../../../../framework/utils/lib/flowctl');
 var USERCONFIGPATH = config.USERCONFIGPATH,
   uniqueID = require(USERCONFIGPATH + '/uniqueID.js'),
   LOCALACCOUNT = uniqueID.Account;
