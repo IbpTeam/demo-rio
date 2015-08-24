@@ -312,7 +312,7 @@ function packer(sSrc, tarFilePath, cb) {
     .pipe(writer);
 }
 /** 
- * @Method: clearAllDataCb
+ * @Method: clearAllData
  *    To clear all Data without stop service
  *       @At first,remove data in each folder of Resources. 
  *       @Secondly,clear the RDF info in LevelGraph
@@ -329,18 +329,19 @@ function packer(sSrc, tarFilePath, cb) {
  *    otherwise, return reject with Error object 
  *
  **/
-function clearAllDataCb(){
-  var removeFolder =["music", "document", "video", "picture", "desktop", "other"];
-  for(var i = 0; i < removeFolder; i++){
-    removeFolder[i] = path.join(config.RESOURCEPATH, removeFolder[i]);
-    removeFolder[i] = path.join(removeFolder[i], "data");
+function clearAllData(){
+  var emptyFolderPath =["document", "music", "video", "picture", "desktop", "other"];
+  for(var i = 0; i < emptyFolderPath; i++){
+    emptyFolderPath[i] = path.join(config.RESOURCEPATH, emptyFolderPath[i]);
+    emptyFolderPath[i] = path.join(emptyFolderPath[i], "data");
   }
-  var clearDB = function(){
-    var _query = [{
-      subject: sourceDB.v('subject'),
-      predicate: sourceDB.v('predicate'),
-      object: sourceDB.v('object')
-    }];
+  var sourceDB = rdfHandle.dbOpen();
+  var _query = [{
+  subject: sourceDB.v('subject'),
+  predicate: sourceDB.v('predicate'),
+  object: sourceDB.v('object')
+  }];
+  var clearDB = function(_query){
     var _db = rdfHandle.dbOpen();
     return rdfHandle.search(_query)
         .then(function(_triples){
@@ -349,24 +350,36 @@ function clearAllDataCb(){
   }
   var clearUserType = function(){
     var deferred = Q.defer();
-    var typeFolder = config.DATAJSDIR;
-    return promised.lstat(typeFolder)
-    .then(function(files){
-      files.foreach(f){
-        if(!f.isDirectory()){
-         return promised.remove(f);
-        }
-        else{
-          return defer.resolve();
+    var desTypeFolder = config.DATAJSDIR;
+    return promised.emptyDir(typeFolder)
+    .then(function(){
+      var srcTypeFolder = "../data";
+      var srcTypeDefine = path.join(srcTypeFolder, "typeDefine");
+      return promised.copy(srcTypeDefine, desTypeFolder)
+      .then(promised.readdir(srcTypeFolder))
+      .then(function(files){
+        return Q.allSettled(files.forEach(function(file){
+            var filePath = path.join(srcTypeDefine, file);
+            return promised.stat(filePath)
+              .then(function(stat){
+                if(!stat.isDirectory()){
+                  return promised.copy(filePath, desTypeFolder);
+                }
+              });
+        }));
+      });
+    });
+  }
+  var emptyFolder = function(){
+        for(var i = 0; i < emptyFolderPath; i++){
+          return promised.emptyDir(emptyFolderPath[i]);
         }
       }
-    })
-  }
-  return Q.all(removeFolder.map(promised.remove))
-  .then(clearDB)
-  .then(clearUserType);
+  return emptyFolder
+    // .then(clearDB(_query))
+    // .then(clearUserType);
 }
-export.clearAllDataCb = clearAllDataCb;
+exports.clearAllData = clearAllData;
 /** 
  * @Method: importData
  *    To import MetaData to Target DataBase from Source DataBase
@@ -493,7 +506,7 @@ var importDataBase = function(sourceDB, targetDB) {
       console.log(triples);
       return rdfHandle.dbPut(targetDB, triples);
     }, function(err) {
-      throw new Error("[CommonHandle]fimportDataBase:Error");
+      throw new Error("[CommonHandle]importDataBase:Error");
     });
 };
 

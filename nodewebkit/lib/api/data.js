@@ -589,7 +589,7 @@ function clearAllData(clearAllDataCb){
     })
     .done();
 }
-export.clearAllData = clearAllData;
+exports.clearAllData = clearAllData;
 
 function importData(importDataCb, sTarFilePath) {
   console.log("Request handler 'importData' was called.");
