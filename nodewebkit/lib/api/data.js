@@ -890,7 +890,7 @@ exports.rmTagAll = rmTagAll;
 
 /**
  * @method rmTagsByUri
- *   remove a tag from some files with specific uri
+ *   remove tags from a file with specific uri
  *
  * @param1 callback
  *    @result
@@ -902,17 +902,21 @@ exports.rmTagAll = rmTagAll;
  *    oTags example:
  *    var oTags = ['documents','music','picture']
  *
+ * @param3 uri
+ *    uri
  */
-function rmTagsByUri(rmTagsByUriCb, sTag, oUri) {
+function rmTagsByUri(rmTagsByUriCb, oTags, sUri) {
   console.log("Request handler 'rmTagsByUri' was called.");
-  tagsHandle.rmTagsByUri(sTag, oUri)
-    .then(function(results) {
-      rmTagsByUriCb(null, results);
-    })
-    .fail(function(err) {
-      rmTagsByUriCb(err);
-    })
-    .done();
+  for (var i = 0; i < oTags.length; i++) {
+    tagsHandle.rmTagsByUri(oTags[i], sUri)
+      .then(function(results){
+        rmTagsByUriCb(null, results);
+      })
+      .fail(function(err) {
+        rmTagsByUriCb(err);
+      })
+      .done();
+  }
 }
 exports.rmTagsByUri = rmTagsByUri;
 
