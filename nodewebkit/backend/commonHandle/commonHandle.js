@@ -156,31 +156,36 @@ function baseInfo(itemPath) {
     if (_postfix[0] === ".") {
       _postfix = _postfix.substr(1);
     }
-    var _tags = tagsHandle.generateTags(itemPath);
-    var _base = {
-      URI: null,
-      filename: _filename,
-      postfix: _postfix,
-      category: null,
-      size: _size,
-      path: itemPath,
-      tags: _tags,
-      createTime: _ctime,
-      lastModifyTime: _mtime,
-      lastAccessTime: _ctime,
-      createDev: config.uniqueID,
-      lastModifyDev: config.uniqueID,
-      lastAccessDev: config.uniqueID
-    }
-    return uniqueID.Q_getFileUid()
-      .then(function(_uri) {
-        _base.URI = _uri
-      })
-      .then(function() {
-        return typeHandle.getTypeNameByPostfix(_postfix)
-          .then(function(category_) {
-            _base.category = category_;
-            return _base;
+    var _tags = [];
+    return tagsHandle.getTagsByPath(itemPath)
+      .then(function(_tags_1) {
+        _tags_0 = tagsHandle.generateTags(itemPath);
+        _tags_0 = _tags_0.concat(_tags_1);
+        var _base = {
+          URI: null,
+          filename: _filename,
+          postfix: _postfix,
+          category: null,
+          size: _size,
+          path: itemPath,
+          tags: _tags_0,
+          createTime: _ctime,
+          lastModifyTime: _mtime,
+          lastAccessTime: _ctime,
+          createDev: config.uniqueID,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID
+        }
+        return uniqueID.Q_getFileUid()
+          .then(function(_uri) {
+            _base.URI = _uri
+          })
+          .then(function() {
+            return typeHandle.getTypeNameByPostfix(_postfix)
+              .then(function(category_) {
+                _base.category = category_;
+                return _base;
+              })
           })
       })
   }
@@ -222,7 +227,7 @@ function extraInfo(item, category) {
  **/
 function exportData(sDes) {
   var myDate = new Date();
-  var time = myDate.getFullYear() + "-" + (myDate.getMonth()+1) +  "-" + myDate.getDate() + "-" + myDate.getHours() + ":" +myDate.getMinutes() + ":" +myDate.getSeconds();
+  var time = myDate.getFullYear() + "-" + (myDate.getMonth() + 1) + "-" + myDate.getDate() + "-" + myDate.getHours() + ":" + myDate.getMinutes() + ":" + myDate.getSeconds();
   var sEdition = "backup_rio" + "_" + time;
   return exportDataFolder(sEdition, sDes);
 }
