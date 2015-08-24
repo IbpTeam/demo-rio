@@ -52,8 +52,8 @@ function loadFile(loadFileCb, sFilePath) {
         .then(function(items) {
           if (items.length === 0) {
             return commonHandle.createData([sFilePath])
-              .then(function() {
-                loadFileCb(null);
+              .then(function(rst) {
+                loadFileCb(null,rst);
               })
               .fail(function(err) {
                 loadFileCb(err);
@@ -67,8 +67,8 @@ function loadFile(loadFileCb, sFilePath) {
             }
             if (isExist === false) {
               return commonHandle.createData([sFilePath])
-                .then(function() {
-                  loadFileCb(null);
+                .then(function(rst) {
+                  loadFileCb(null,rst);
                 })
                 .fail(function(err) {
                   loadFileCb(err);
@@ -86,8 +86,8 @@ function loadFile(loadFileCb, sFilePath) {
               return promised.copy(sFilePath, dstFilePath)
                 .then(function() {
                   return commonHandle.createData([dstFilePath])
-                    .then(function() {
-                      loadFileCb(null, dstFilePath);
+                    .then(function(rst) {
+                      loadFileCb(null, rst);
                     })
                     .fail(function(err) {
                       loadFileCb(err);
@@ -687,6 +687,37 @@ function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
       getAllTagsByCategoryCb(err);
     })
     .done();
+  ////////////////////////////////////////////////////////////////////////////
+  //Start: test for kmeans cluster algorithm
+  ////////////////////////////////////////////////////////////////////////////
+  // tagsHandle.getAllTagsByCategoryClusteringKmeans(category, 10)
+  //   .then(function(results) {
+  //     console.log("kmeans results: ", results);
+  //     getAllTagsByCategoryCb(null, results);
+  //   })
+  //   .fail(function(err) {
+  //     getAllTagsByCategoryCb(err);
+  //   })
+  //   .done();
+  ////////////////////////////////////////////////////////////////////////////
+  //End: test for kmeans cluster algorithm
+  ////////////////////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////////
+  //Start: test for iterate cluster algorithm
+  ////////////////////////////////////////////////////////////////////////////
+  // tagsHandle.getAllTagsByCategoryClusteringIter(category, 10)
+  //   .then(function(results) {
+  //     console.log("iterate results: ", results);
+  //     getAllTagsByCategoryCb(null, results);
+  //   })
+  //   .fail(function(err) {
+  //     getAllTagsByCategoryCb(err);
+  //   })
+  //   .done();
+  ////////////////////////////////////////////////////////////////////////////
+  //End: test for iterate cluster algorithm
+  ////////////////////////////////////////////////////////////////////////////
 }
 exports.getAllTagsByCategory = getAllTagsByCategory;
 

@@ -64,7 +64,7 @@ exports.createData = createData;
  *
  * @return Promise
  *    event state，which resolves with no values if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  */
 function dataStore(items, extraCallback) {
@@ -74,18 +74,18 @@ function dataStore(items, extraCallback) {
     })
   } else {
     var _file_info = [];
-    var _file_path = [];
+    var _file_pathURI = [];
     return Q.all(items.map(doCreate))
       .then(function(result) {
         for (var i = 0, l = result.length; i < l; i++) {
           if (result[i]) {
             _file_info.push(result[i]);
-            _file_path.push(result[i].path);
+            _file_pathURI.push({'path':items[i],'URI':result[i].base.URI});
           }
         }
         return writeTriples(_file_info)
           .then(function() {
-            return _file_path;
+            return _file_pathURI;
           })
       });
   }
@@ -156,31 +156,36 @@ function baseInfo(itemPath) {
     if (_postfix[0] === ".") {
       _postfix = _postfix.substr(1);
     }
-    var _tags = tagsHandle.getTagsByPath(itemPath);
-    var _base = {
-      URI: null,
-      filename: _filename,
-      postfix: _postfix,
-      category: null,
-      size: _size,
-      path: itemPath,
-      tags: _tags,
-      createTime: _ctime,
-      lastModifyTime: _mtime,
-      lastAccessTime: _ctime,
-      createDev: config.uniqueID,
-      lastModifyDev: config.uniqueID,
-      lastAccessDev: config.uniqueID
-    }
-    return uniqueID.Q_getFileUid()
-      .then(function(_uri) {
-        _base.URI = _uri
-      })
-      .then(function() {
-        return typeHandle.getTypeNameByPostfix(_postfix)
-          .then(function(category_) {
-            _base.category = category_;
-            return _base;
+    var _tags = [];
+    return tagsHandle.getTagsByPath(itemPath)
+      .then(function(_tags_1) {
+        _tags_0 = tagsHandle.generateTags(itemPath);
+        _tags_0 = _tags_0.concat(_tags_1);
+        var _base = {
+          URI: null,
+          filename: _filename,
+          postfix: _postfix,
+          category: null,
+          size: _size,
+          path: itemPath,
+          tags: _tags_0,
+          createTime: _ctime,
+          lastModifyTime: _mtime,
+          lastAccessTime: _ctime,
+          createDev: config.uniqueID,
+          lastModifyDev: config.uniqueID,
+          lastAccessDev: config.uniqueID
+        }
+        return uniqueID.Q_getFileUid()
+          .then(function(_uri) {
+            _base.URI = _uri
+          })
+          .then(function() {
+            return typeHandle.getTypeNameByPostfix(_postfix)
+              .then(function(category_) {
+                _base.category = category_;
+                return _base;
+              })
           })
       })
   }
@@ -217,14 +222,13 @@ function extraInfo(item, category) {
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function exportData(sDes) {
   var myDate = new Date();
-  var myDate = new Date();
-  var time = myDate.getYear()+"-" + myDate.getMonth()+"-" + myDate.getDate()+"-" +myDate.getDate()+"-"  +myDate.getHours()+":" + +myDate.getSeconds();
-  var sEdition = "backup_rio"+ "_"+time;
+  var time = myDate.getFullYear() + "-" + (myDate.getMonth() + 1) + "-" + myDate.getDate() + "-" + myDate.getHours() + ":" + myDate.getMinutes() + ":" + myDate.getSeconds();
+  var sEdition = "backup_rio" + "_" + time;
   return exportDataFolder(sEdition, sDes);
 }
 exports.exportData = exportData;
@@ -256,7 +260,7 @@ function exportDataFolder(sEdition, sDes) {
         return promised.ensure_dir(sEditionPath);
       });
   };
-  var removeFolder = function(){
+  var removeFolder = function() {
     return promised.remove(sEditionPath);
   }
   return p
@@ -270,7 +274,7 @@ function exportDataFolder(sEdition, sDes) {
 /** 
  * @Method: packer
  *    To compress all the thing in one folders
- *       @At first, 
+ *       @At first,
  *       @Secondly, conpress all the things in tar package with zlib algorithm
  *
  * @param1: sDes
@@ -281,7 +285,7 @@ function exportDataFolder(sEdition, sDes) {
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function packer(sSrc, tarFilePath, cb) {
@@ -298,13 +302,13 @@ function packer(sSrc, tarFilePath, cb) {
     .on('finish', finished);
 
   fstream.Reader({
-      path: sSrc,
-      type: 'Directory'
-    }) /* Read the source directory */
+    path: sSrc,
+    type: 'Directory'
+  }) /* Read the source directory */
     .pipe(tar.Pack({
       noProprietary: true
     })) //Convert the directory to a.tar file
-    .pipe(zlib.Gzip()) /* Compress the .tar file */
+  .pipe(zlib.Gzip()) /* Compress the .tar file */
     .pipe(writer);
 }
 /** 
@@ -373,12 +377,12 @@ export.clearAllDataCb = clearAllDataCb;
  * @param1: sSrc
  *    string, backup DataBase
  *
- * @param2: 
+ * @param2:
  *    database, user's DataBase
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function importData(sTarFilePath) {
@@ -425,19 +429,19 @@ function importDataFolder(sEdition, sSrc) {
 
 /** 
  * @Method: extracter
- *    To extract ".tar.gz" file  to Target Folder   
+ *    To extract ".tar.gz" file  to Target Folder
  *       @At first,extract into Memory
  *       @Secondly, write things into Desination
  *
  * @param1: tarFile
  *    String, the path of tar.gz file
  *
- * @param2: 
+ * @param2:
  *    String, the destination of extract files
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function extractor(tarFile, sDes, cb) {
@@ -475,7 +479,7 @@ function extractor(tarFile, sDes, cb) {
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 var importDataBase = function(sourceDB, targetDB) {
@@ -499,12 +503,12 @@ var importDataBase = function(sourceDB, targetDB) {
  *    To import MetaData to Target DataBase from Source DataBase
  *       @linkto : importDataBase
  *
- * @param1: 
+ * @param1:
  *    String, backup DataBase Path
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function importMetaData(sPath) {
@@ -527,7 +531,7 @@ function importMetaData(sPath) {
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function mergeTypeData(sSrc, sDes) {
@@ -550,7 +554,7 @@ function mergeTypeData(sSrc, sDes) {
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function mergeUserData(sSrc, sDes) {
@@ -564,11 +568,11 @@ function mergeUserData(sSrc, sDes) {
 /** 
  * @Method: copyFolder
  *    To  copy all the thing in one folder Iteratively, through its path
- *       @At first, 
+ *       @At first,
  *       @Secondly, conpress all the things in tar package with zlib algorithm
  *
  * @param1: sSrc
- *    string, Source Folder Path 
+ *    string, Source Folder Path
  *
  * @param2: sDes
  *    string, Destination Path of exports
@@ -576,7 +580,7 @@ function mergeUserData(sSrc, sDes) {
  *
  * @return Promise
  *    event state，which no returns with reslove state if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 
@@ -621,7 +625,7 @@ function copyFolder(sSrc, sDes) {
  *
  * @return Promise
  *    event state，which resolves with an array of sorted file infomation if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function getItemByProperty(options) {
@@ -691,7 +695,7 @@ exports.getAllCate = function(getAllCateCb) {
  *
  * @return Promise
  *    event state，which resolves with a stack of data infomation if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 function getAllDataByCate(cate) {
@@ -743,7 +747,7 @@ exports.getAllDataByCate = getAllDataByCate;
  *    integer, number of file you want to get
  * @return Promise
  *    event state，which resolves with an array of sorted file infomation if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 exports.getRecentAccessData = function(category, num) {
@@ -868,7 +872,7 @@ function updateTriples(_db, originTriples, newTriples) {
  *
  * @return
  *    Promise, event state，which resolves with an array of sorted file infomation if sucess;
- *             otherwise, return reject with Error object 
+ *             otherwise, return reject with Error object
  *
  *
  **/
@@ -903,7 +907,7 @@ exports.openData = function(uri) {
  *
  * @return Promise
  *    event state，which resolves with an array of sorted file infomation if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  *
  **/
@@ -972,7 +976,7 @@ exports.renameDataByUri = renameDataByUri;
  *    integer, number of file you want to get
  * @return Promise
  *    event state，which resolves with an array of sorted file infomation if sucess;
- *    otherwise, return reject with Error object 
+ *    otherwise, return reject with Error object
  *
  **/
 exports.removeItemByProperty = function(options) {
