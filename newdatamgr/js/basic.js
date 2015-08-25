@@ -280,7 +280,7 @@ var Basic = Class.extend({
   },
 
   //显示添加标签界面
-  addTagView:function(this_,uri_,category_){
+  addTagView:function(addTagViewCb, this_,uri_,category_){
     var _this = this;
     var _addTagForm = $('<form>', {
       'id': 'add-tag-form'
@@ -318,6 +318,7 @@ var Basic = Class.extend({
           }
           $('#popupDialog').remove();
         }
+        addTagViewCb();
       }, [_newTag], uri_);
     });
   },

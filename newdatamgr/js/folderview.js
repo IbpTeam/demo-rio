@@ -28,7 +28,7 @@ var ShowFiles = Class.extend({
     $("#contentDiv").append(this._showContent);
     this.setChoice();
     this.setDataContextMenu();
-    _globalSelf = this
+    _globalSelf = this;
   },
 
   setDocumentContextMenu: function(id_) {

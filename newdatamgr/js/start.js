@@ -129,11 +129,70 @@ var main = function(params_) {
       usrInfo.showUsrInfo();
     });
 
+    var refreshWindow = function(uri) {
+      var _window = undefined;
+      if (window == top) {
+        var hrefLocal = window.location.href;
+        hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
+        if(uri === null){
+          hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+        }
+        else{
+          hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}&{uri:" + uri + "}";
+        }
+        location.replace(hrefLocal);
+      } else {
+        try {
+          _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+          var _dataMgrIfm = _window._windowContent[0];
+          if(uri === null){
+            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+          }
+          else{
+            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}&{uri:" + uri + "}";
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      return;
+    }
+
+    $(document).ready(function() {
+      var uri = null;
+      if (window === top) {
+        var hrefLocal = window.location.href;
+        if (hrefLocal.indexOf("uri:") !== -1) {
+          uri = hrefLocal.substr(hrefLocal.indexOf("uri:") + 4, 31);
+        }
+      } else {
+        var _window = undefined;
+        try {
+          _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+          var _dataMgrIfm = _window._windowContent[0];
+          if (_dataMgrIfm.src.indexOf("uri:") !== -1) {
+            uri = _dataMgrIfm.src.substr(_dataMgrIfm.src.indexOf("uri:") + 4, 31);
+          }
+        }
+        catch(e){
+          console.log(e);
+        }
+      }
+      if (uri !== null) {
+        basic.addTagView(function() {
+          refreshWindow(null);
+        }, null, uri, 'no-contact');
+      }
+    });
     var ctrlDown = false;
     var ctrlKey = 17,
       vKey = 86;
     var onPasted = function(filePath) {
-      data.loadFile(function(err, realFilePath) {
+      data.loadFile(function(err, result) {
+        var uri;
+        if(result && result[0]['URI']){
+          uri = result[0]['URI'];
+        }
         if(err){
           console.log("Error: ", err);
         }
@@ -142,28 +201,14 @@ var main = function(params_) {
             console.log("Fail to delete : ", filePath);
           }
         }, filePath);
-        if(realFilePath && typeof(realFilePath) === 'string'){
+        if(result && result[0]['path'] != null && typeof(result[0]['path']) === 'string'){
           data.deleteTmpFile(function(err){
             if(err){
-              console.log("Fail to delete : ", realFilePath);
+              console.log("Fail to delete : ", result[0]['path']);
             }
-          } ,realFilePath);
+          } ,result[0]['path']);
         }
-        var _window = undefined;
-        if (window == top) {
-          var hrefLocal = window.location.href;
-          hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
-          hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
-          location.replace(hrefLocal);
-        } else {
-          try {
-            _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
-            var _dataMgrIfm = _window._windowContent[0];
-            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
-          } catch (e) {
-            console.log(e);
-          }
-        }
+        refreshWindow(uri);
       }, filePath);
     };
 
@@ -222,6 +267,9 @@ var main = function(params_) {
                   } else {
                     if (percentage === 100 && msg === 'finished') {
                       $progInfo.html('完成！正在导入数据管理器，请稍后...');
+                      progBar.modify($('#fileTransProg')[0], {
+                        values: [parseInt(percentage), 100]
+                      });
                       onPasted(filePath);
                     } else {
                       $progInfo.html(percentage + '%');
