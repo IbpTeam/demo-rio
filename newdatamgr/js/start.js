@@ -134,10 +134,9 @@ var main = function(params_) {
       if (window == top) {
         var hrefLocal = window.location.href;
         hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
-        if(uri === null){
+        if (uri === null) {
           hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
-        }
-        else{
+        } else {
           hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}&{uri:" + uri + "}";
         }
         location.replace(hrefLocal);
@@ -145,10 +144,9 @@ var main = function(params_) {
         try {
           _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
           var _dataMgrIfm = _window._windowContent[0];
-          if(uri === null){
+          if (uri === null) {
             _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
-          }
-          else{
+          } else {
             _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}&{uri:" + uri + "}";
           }
         } catch (e) {
@@ -173,8 +171,7 @@ var main = function(params_) {
           if (_dataMgrIfm.src.indexOf("uri:") !== -1) {
             uri = _dataMgrIfm.src.substr(_dataMgrIfm.src.indexOf("uri:") + 4, 31);
           }
-        }
-        catch(e){
+        } catch (e) {
           console.log(e);
         }
       }
@@ -190,23 +187,23 @@ var main = function(params_) {
     var onPasted = function(filePath) {
       data.loadFile(function(err, result) {
         var uri;
-        if(result && result[0]['URI']){
+        if (result && result[0]['URI']) {
           uri = result[0]['URI'];
         }
-        if(err){
+        if (err) {
           console.log("Error: ", err);
         }
-        data.deleteTmpFile(function(err){
-          if(err){
+        data.deleteTmpFile(function(err) {
+          if (err) {
             console.log("Fail to delete : ", filePath);
           }
         }, filePath);
-        if(result && result[0]['path'] !== null && result[0]['path'] !==filePath){
-          data.deleteTmpFile(function(err){
-            if(err){
+        if (result && result[0]['path'] !== null && result[0]['path'] !== filePath) {
+          data.deleteTmpFile(function(err) {
+            if (err) {
               console.log("Fail to delete : ", result[0]['path']);
             }
-          } ,result[0]['path']);
+          }, result[0]['path']);
         }
         refreshWindow(uri);
       }, filePath);
