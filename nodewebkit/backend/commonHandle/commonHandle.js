@@ -329,57 +329,74 @@ function packer(sSrc, tarFilePath, cb) {
  *    otherwise, return reject with Error object 
  *
  **/
-function clearAllData(){
-  var emptyFolderPath =["document", "music", "video", "picture", "desktop", "other"];
-  for(var i = 0; i < emptyFolderPath; i++){
+
+function clearAllData() {
+  var emptyFolderPath = ["document", "music", "video", "picture", "desktop", "other"];
+  for (var i = 0; i < emptyFolderPath.length; i++) {
     emptyFolderPath[i] = path.join(config.RESOURCEPATH, emptyFolderPath[i]);
     emptyFolderPath[i] = path.join(emptyFolderPath[i], "data");
   }
   var sourceDB = rdfHandle.dbOpen();
   var _query = [{
-  subject: sourceDB.v('subject'),
-  predicate: sourceDB.v('predicate'),
-  object: sourceDB.v('object')
+    subject: sourceDB.v('subject'),
+    predicate: sourceDB.v('predicate'),
+    object: sourceDB.v('object')
   }];
-  var clearDB = function(_query){
-    var _db = rdfHandle.dbOpen();
-    return rdfHandle.search(_query)
-        .then(function(_triples){
-          return dbDelete(_db, _triples);
-        });
-  }
-  var clearUserType = function(){
-    var deferred = Q.defer();
-    var desTypeFolder = config.DATAJSDIR;
-    return promised.emptyDir(typeFolder)
-    .then(function(){
-      var srcTypeFolder = "../data";
-      var srcTypeDefine = path.join(srcTypeFolder, "typeDefine");
-      return promised.copy(srcTypeDefine, desTypeFolder)
-      .then(promised.readdir(srcTypeFolder))
-      .then(function(files){
-        return Q.allSettled(files.forEach(function(file){
-            var filePath = path.join(srcTypeDefine, file);
-            return promised.stat(filePath)
-              .then(function(stat){
-                if(!stat.isDirectory()){
-                  return promised.copy(filePath, desTypeFolder);
-                }
-              });
-        }));
-      });
-    });
-  }
-  var emptyFolder = function(){
-        for(var i = 0; i < emptyFolderPath; i++){
-          return promised.emptyDir(emptyFolderPath[i]);
-        }
-      }
-  return emptyFolder
-    // .then(clearDB(_query))
+  var p = Q();
+  return p
+    .then(emptyFolder(emptyFolderPath))
+    .then(eraseQuery(_query))
     // .then(clearUserType);
 }
 exports.clearAllData = clearAllData;
+
+
+function eraseQuery(query){
+  var deferred = Q.defer();
+  if(query === []){
+    deferred.resolve();
+    return deferred.promise;
+  }
+  var _db = rdfHandle.dbOpen();
+  return rdfHandle.dbSearch(_db, query)
+    .then(function(_triples){
+      return rdfHandle.dbDelete(_db, _triples);
+    });
+}
+
+
+function emptyFolder(emptyFolderPath) {
+  var _combination = [];
+  for (var i = 0; i < emptyFolderPath.length; i++) {
+    _combination.push(promised.emptyDir(emptyFolderPath[i]));
+  }
+  return Q.all(_combination);
+}
+
+
+function clearUserType() {
+  var deferred = Q.defer();
+  var desTypeFolder = config.DATAJSDIR;
+  return promised.emptyDir(desTypeFolder)
+    .then(function() {
+      var backendPath = path.join(config.APPBASEPATH, "demo-rio/nodewebkit/backend");
+      var srcTypeFolder = path.join(backendPath, "data");
+      var srcTypeDefine = path.join(srcTypeFolder, "typeDefine");
+      return promised.copy(srcTypeDefine, desTypeFolder)
+        .then(promised.readdir(srcTypeFolder))
+        .then(function(files) {
+          return Q.allSettled(files.forEach(function(file) {
+            var filePath = path.join(srcTypeDefine, file);
+            return promised.stat(filePath)
+              .then(function(stat) {
+                if (!stat.isDirectory()) {
+                  return promised.copy(filePath, desTypeFolder);
+                }
+              });
+          }));
+        });
+    });
+}
 /** 
  * @Method: importData
  *    To import MetaData to Target DataBase from Source DataBase
@@ -503,7 +520,6 @@ var importDataBase = function(sourceDB, targetDB) {
   }];
   return rdfHandle.dbSearch(sourceDB, _query)
     .then(function(triples) {
-      console.log(triples);
       return rdfHandle.dbPut(targetDB, triples);
     }, function(err) {
       throw new Error("[CommonHandle]importDataBase:Error");

@@ -579,7 +579,7 @@ exports.exportData = exportData;
 
 
 function clearAllData(clearAllDataCb){
-  console.log("Request handler 'clearData' was called.");
+  console.log("Request handler 'clearAllData' was called.");
   commonHandle.clearAllData()
     .then(function() {
       clearAllDataCb();
