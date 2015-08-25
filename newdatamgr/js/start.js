@@ -161,7 +161,7 @@ var main = function(params_) {
       if (window === top) {
         var hrefLocal = window.location.href;
         if (hrefLocal.indexOf("uri:") !== -1) {
-          uri = hrefLocal.substr(hrefLocal.indexOf("uri:") + 4, 31);
+          uri = hrefLocal.substr(hrefLocal.indexOf("uri:") + 4, (hrefLocal.lastIndexOf("}") - hrefLocal.indexOf("uri:") - 4));
         }
       } else {
         var _window = undefined;
@@ -169,7 +169,7 @@ var main = function(params_) {
           _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
           var _dataMgrIfm = _window._windowContent[0];
           if (_dataMgrIfm.src.indexOf("uri:") !== -1) {
-            uri = _dataMgrIfm.src.substr(_dataMgrIfm.src.indexOf("uri:") + 4, 31);
+            uri = _dataMgrIfm.src.substr(_dataMgrIfm.src.indexOf("uri:") + 4, (_dataMgrIfm.src.lastIndexOf("}") - _dataMgrIfm.src.indexOf("uri:") - 4));
           }
         } catch (e) {
           console.log(e);
