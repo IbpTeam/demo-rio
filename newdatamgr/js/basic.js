@@ -272,7 +272,7 @@ var Basic = Class.extend({
   },
 
   //显示添加标签界面
-  addTagView: function(addTagViewCb, this_, uri_, category_) {
+  addTagView: function(this_, uri_, category_, addTagViewCb) {
     var _this = this;
     var _addTagForm = $('<form>', {
       'id': 'add-tag-form'

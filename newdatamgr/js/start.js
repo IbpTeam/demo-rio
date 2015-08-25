@@ -176,9 +176,9 @@ var main = function(params_) {
         }
       }
       if (uri !== null) {
-        basic.addTagView(function() {
+        basic.addTagView(null, uri, 'no-contact', function(){
           refreshWindow(null);
-        }, null, uri, 'no-contact');
+        });
       }
     });
     var ctrlDown = false;
