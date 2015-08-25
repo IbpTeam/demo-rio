@@ -201,7 +201,7 @@ var main = function(params_) {
             console.log("Fail to delete : ", filePath);
           }
         }, filePath);
-        if(result && result[0]['path'] != null && typeof(result[0]['path']) === 'string'){
+        if(result && result[0]['path'] !== null && result[0]['path'] !==filePath){
           data.deleteTmpFile(function(err){
             if(err){
               console.log("Fail to delete : ", result[0]['path']);
