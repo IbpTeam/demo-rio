@@ -345,8 +345,8 @@ function clearAllData() {
   var p = Q();
   return p
     .then(emptyFolder(emptyFolderPath))
-    .then(eraseQuery(_query))
-    // .then(clearUserType);
+    .then(function(){ return eraseQuery(_query);} )
+    .then(clearUserType);
 }
 exports.clearAllData = clearAllData;
 
@@ -375,25 +375,24 @@ function emptyFolder(emptyFolderPath) {
 
 
 function clearUserType() {
-  var deferred = Q.defer();
   var desTypeFolder = config.DATAJSDIR;
   return promised.emptyDir(desTypeFolder)
     .then(function() {
       var backendPath = path.join(config.APPBASEPATH, "demo-rio/nodewebkit/backend");
       var srcTypeFolder = path.join(backendPath, "data");
       var srcTypeDefine = path.join(srcTypeFolder, "typeDefine");
-      return promised.copy(srcTypeDefine, desTypeFolder)
-        .then(promised.readdir(srcTypeFolder))
-        .then(function(files) {
-          return Q.allSettled(files.forEach(function(file) {
-            var filePath = path.join(srcTypeDefine, file);
-            return promised.stat(filePath)
-              .then(function(stat) {
-                if (!stat.isDirectory()) {
-                  return promised.copy(filePath, desTypeFolder);
-                }
-              });
-          }));
+      var desTypeDefine = path.join(desTypeFolder, "typeDefine");
+      return promised.ensure_dir(desTypeDefine)
+      .then(promised.copy(srcTypeDefine, desTypeDefine))
+        .then(function(){
+            var copyFiles = config.BASICTYPE;
+            var _combination = [];
+            for(var i = 0; i < copyFiles.length; i++){
+                copyFiles[i] += ".js"; 
+                copyFiles[i] = path.join(srcTypeFolder, copyFiles[i]);
+                _combination.push(promised.copy(copyFiles[i], srcTypeFolder));
+             }
+             return Q.allSettled(_combination); 
         });
     });
 }
