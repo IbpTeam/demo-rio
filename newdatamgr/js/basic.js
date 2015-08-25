@@ -310,7 +310,9 @@ var Basic = Class.extend({
           }
           $('#popupDialog').remove();
         }
-        addTagViewCb();
+        if(typeof(addTagViewCb) === 'function'){
+          addTagViewCb();
+        }
       }, [_newTag], uri_);
     });
   },
