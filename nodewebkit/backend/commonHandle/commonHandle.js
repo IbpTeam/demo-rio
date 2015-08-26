@@ -346,7 +346,7 @@ function clearAllData() {
   return p
     .then(emptyFolder(emptyFolderPath))
     .then(function(){ return eraseQuery(_query);} )
-    .then(clearUserType);
+    .then(function(){return clearUserType;});
 }
 exports.clearAllData = clearAllData;
 
@@ -383,14 +383,17 @@ function clearUserType() {
       var srcTypeDefine = path.join(srcTypeFolder, "typeDefine");
       var desTypeDefine = path.join(desTypeFolder, "typeDefine");
       return promised.ensure_dir(desTypeDefine)
-      .then(promised.copy(srcTypeDefine, desTypeDefine))
+      .then(function(){
+        return promised.copy(srcTypeDefine, desTypeDefine);
+      })
         .then(function(){
             var copyFiles = config.BASICTYPE;
             var _combination = [];
             for(var i = 0; i < copyFiles.length; i++){
-                copyFiles[i] += ".js"; 
-                copyFiles[i] = path.join(srcTypeFolder, copyFiles[i]);
-                _combination.push(promised.copy(copyFiles[i], srcTypeFolder));
+                var tmp =copyFiles[i];
+                tmp += ".js"; 
+                copyFiles[i] = path.join(srcTypeFolder, tmp);
+                _combination.push(promised.copy(tmp, srcTypeFolder));
              }
              return Q.allSettled(_combination); 
         });
