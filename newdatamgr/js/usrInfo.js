@@ -87,31 +87,15 @@ var UsrInfoView = Class.extend({
       'text': 'Erase'
       // 'color' : #FF0000
     });
-    var refreshWindow = function() {
-      var _window = undefined;
-      if (window == top) {
-        var hrefLocal = window.location.href;
-        hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
-        hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
-        location.replace(hrefLocal);
-      } else {
-        try {
-          _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
-          var _dataMgrIfm = _window._windowContent[0];
-          _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      return;
-    }
-    _eraseButton.on('click',function(){
-      DataAPI.clearAllData(function (err, result) {
-        if (err) {
-          throw err;
-        }
-        refreshWindow();
-      });
+    _eraseButton.on('click', function() {
+      if (confirm("Do you really want to Erase entire Data?[Tips: Back Up First!]")) {
+        DataAPI.clearAllData(function(err, result) {
+          if (err) {
+            throw err;
+          }
+          refreshWindow(null);
+        });
+      } else {}
     });
     _backupButton.on('click',function() {
       document.getElementById('buttonOne').innerText = "Import";

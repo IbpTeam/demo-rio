@@ -129,15 +129,20 @@ var main = function(params_) {
       usrInfo.showUsrInfo();
     });
 
-    var refreshWindow = function(uri) {
+    refreshWindow = function(uri) {
       var _window = undefined;
+      var categoryStr  = "";
+      var category = infoList.getCategoryName((infoList._index));
+      if(category != null){
+        categoryStr = "&{category:'" + infoList.getCategoryName(infoList._index);
+      }
       if (window == top) {
         var hrefLocal = window.location.href;
         hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
         if (uri === null) {
-          hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+          hrefLocal = hrefLocal + "?id=" + WDC.AppID + category + "'}";
         } else {
-          hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}&{uri:" + uri + "}";
+          hrefLocal = hrefLocal + "?id=" + WDC.AppID + categoryStr + "'}&{uri:" + uri + "}";
         }
         location.replace(hrefLocal);
       } else {
@@ -145,9 +150,9 @@ var main = function(params_) {
           _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
           var _dataMgrIfm = _window._windowContent[0];
           if (uri === null) {
-            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID +categoryStr + "'}";
           } else {
-            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}&{uri:" + uri + "}";
+            _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + categoryStr+ "'}&{uri:" + uri + "}";
           }
         } catch (e) {
           console.log(e);
