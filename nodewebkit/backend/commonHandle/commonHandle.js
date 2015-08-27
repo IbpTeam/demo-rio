@@ -311,8 +311,94 @@ function packer(sSrc, tarFilePath, cb) {
   .pipe(zlib.Gzip()) /* Compress the .tar file */
     .pipe(writer);
 }
+/** 
+ * @Method: clearAllData
+ *    To clear all Data without stop service
+ *       @At first,remove data in each folder of Resources. 
+ *       @Secondly,clear the RDF info in LevelGraph
+ *       @Thirdly, clear usr define UserType
+ *
+ * @param1: sSrc
+ *    string, backup DataBase
+ *
+ * @param2: 
+ *    database, user's DataBase
+ *
+ * @return Promise
+ *    event state，which no returns with reslove state if sucess;
+ *    otherwise, return reject with Error object 
+ *
+ **/
+
+function clearAllData() {
+  var emptyFolderPath = ["document", "music", "video", "picture", "desktop", "other"];
+  for (var i = 0; i < emptyFolderPath.length; i++) {
+    emptyFolderPath[i] = path.join(config.RESOURCEPATH, emptyFolderPath[i]);
+    emptyFolderPath[i] = path.join(emptyFolderPath[i], "data");
+  }
+  var sourceDB = rdfHandle.dbOpen();
+  var _query = [{
+    subject: sourceDB.v('subject'),
+    predicate: sourceDB.v('predicate'),
+    object: sourceDB.v('object')
+  }];
+  var p = Q();
+  return p
+    .then(emptyFolder(emptyFolderPath))
+    .then(function(){ return eraseQuery(_query);} )
+    .then(function(){return clearUserType;});
+}
+exports.clearAllData = clearAllData;
 
 
+function eraseQuery(query){
+  var deferred = Q.defer();
+  if(query === []){
+    deferred.resolve();
+    return deferred.promise;
+  }
+  var _db = rdfHandle.dbOpen();
+  return rdfHandle.dbSearch(_db, query)
+    .then(function(_triples){
+      return rdfHandle.dbDelete(_db, _triples);
+    });
+}
+
+
+function emptyFolder(emptyFolderPath) {
+  var _combination = [];
+  for (var i = 0; i < emptyFolderPath.length; i++) {
+    _combination.push(promised.emptyDir(emptyFolderPath[i]));
+  }
+  return Q.all(_combination);
+}
+
+
+function clearUserType() {
+  var desTypeFolder = config.DATAJSDIR;
+  return promised.emptyDir(desTypeFolder)
+    .then(function() {
+      var backendPath = path.join(config.APPBASEPATH, "demo-rio/nodewebkit/backend");
+      var srcTypeFolder = path.join(backendPath, "data");
+      var srcTypeDefine = path.join(srcTypeFolder, "typeDefine");
+      var desTypeDefine = path.join(desTypeFolder, "typeDefine");
+      return promised.ensure_dir(desTypeDefine)
+      .then(function(){
+        return promised.copy(srcTypeDefine, desTypeDefine);
+      })
+        .then(function(){
+            var copyFiles = config.BASICTYPE;
+            var _combination = [];
+            for(var i = 0; i < copyFiles.length; i++){
+                var tmp =copyFiles[i];
+                tmp += ".js"; 
+                copyFiles[i] = path.join(srcTypeFolder, tmp);
+                _combination.push(promised.copy(tmp, srcTypeFolder));
+             }
+             return Q.allSettled(_combination); 
+        });
+    });
+}
 /** 
  * @Method: importData
  *    To import MetaData to Target DataBase from Source DataBase
@@ -354,7 +440,9 @@ function importDataFolder(sEdition, sSrc) {
     var sMetaDataSrc = path.join(sEditionPath, metaDataToken);
     return importMetaData(sMetaDataSrc);
   }
-
+  var removeExtactFolder = function(){
+    return promised.remove(sEditionPath);
+  }
   return extractorPromised(tarFilePath, sDes)
     .then(function() {
       return mergeUserData(sEditionPath, config.BASEPATH);
@@ -363,6 +451,7 @@ function importDataFolder(sEdition, sSrc) {
       return mergeTypeData(sEditionPath, config.BASEPATH);
     })
     .then(MataDataImprove)
+    .then(removeExtactFolder)
     .fail(function(err) {
       throw new Error(err);
     });
@@ -433,10 +522,9 @@ var importDataBase = function(sourceDB, targetDB) {
   }];
   return rdfHandle.dbSearch(sourceDB, _query)
     .then(function(triples) {
-      console.log(triples);
       return rdfHandle.dbPut(targetDB, triples);
     }, function(err) {
-      throw new Error("[CommonHandle]fimportDataBase:Error");
+      throw new Error("[CommonHandle]importDataBase:Error");
     });
 };
 

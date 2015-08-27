@@ -79,6 +79,24 @@ var UsrInfoView = Class.extend({
       'id': 'inputButton',
       'text': 'Input'
     });
+    var _eraseButtonDiv = $('<div>', {
+      'id': 'eraseButtonDiv',
+    });
+    var _eraseButton = $('<button>', {
+      'id': 'eraseButton',
+      'text': 'Erase'
+      // 'color' : #FF0000
+    });
+    _eraseButton.on('click',function(){
+      DataAPI.clearAllData(function (err, result) {
+        if (err) {
+          throw err;
+        }
+        // document.body.style.cursor = "default";
+        // _modalBoxObj.forbidClose(false);
+        // _this._isLoadedResources = true;
+      });
+    });
     _backupButton.on('click',function() {
       document.getElementById('buttonOne').innerText = "Import";
       document.getElementById('buttonTwo').innerText = "Export";
@@ -95,12 +113,13 @@ var UsrInfoView = Class.extend({
     _usrInfoUl.append(_usrOthers);
     _buttonDiv.append(_inputButton);
     _buttonDiv.append(_backupButton);
+    _eraseButtonDiv.append(_eraseButton);
     _usrInfoShow.append(_usrInfoUl);
     _usrPhotoDiv.append(_headPhotoImg);
     _usrHeadShow.append(_usrPhotoDiv);
     _usrHeadShow.append(_usrEditDiv);
     _usrHeadShow.append(_buttonDiv);
-    _usrInfoUl.append();
+    _usrInfoUl.append(_eraseButtonDiv);
     this._usrInfoDiv.append(_usrHeadShow);
     this._usrInfoDiv.append(_usrInfoShow);
     this._usrInfoDiv.append(_toggleTrigglerDiv);

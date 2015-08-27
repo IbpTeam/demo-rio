@@ -45,10 +45,23 @@
     }
   }
 
+  function clearAllDataCb(result){
+    var win = window.open('');
+    win.document.write("test API clearAllData()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_clearAllData(clearAllDataCb){
+    WDC.requireAPI(['data'], function(data){
+        data.clearAllData(clearAllDataCb);
+    });
+  }
 
   function exportDataCb(result){
     var win = window.open('');
-    win.document.write("test API importMetaDataCb()");
+    win.document.write("test API importMetaData()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
@@ -63,7 +76,7 @@
 
   function importDataCb(result){
     var win = window.open('');
-    win.document.write("test API importMetaDataCb()");
+    win.document.write("test API importMetaData()");
     win.document.write("<br/>");
     win.document.write("callback result: ");
     win.document.write("<br/>");
@@ -77,6 +90,36 @@
   }
 
   </script>
+<h2 onclick="show('clearAllData')" >clearAllData(clearAllDataCb)<span><a class="mark" href="#test_clearAllData" id="test_clearAllData" onclick="test_clearAllData(clearAllDataCb)">test</a></span></h2>
+<div id="clearAllData" style="display:none;">
+<div style="color:#930000">
+  <pre>
+    @method : clearAllData 读取某个contact文件夹到数据库
+      @param1 : clearAllDataCb 回调函数
+        @result : string，success代表成功，其他代表失败原因
+      @param2 path : string，要加载资源的路径
+  </pre>
+</div>
+<div style="color:#004B97">
+  <pre>
+    具体实现：<br>
+  function clearAllDataCb(result){
+    var win = window.open('');
+    win.document.write("test API importMetaDataCb()");
+    win.document.write("<br/>");
+    win.document.write("callback result: ");
+    win.document.write("<br/>");
+    print(win,result);
+  }
+  function test_clearAllData(clearAllDataCb){
+    WDC.requireAPI(['data'], function(data){
+        data.clearAllData(clearAllDataCb);
+    });
+  }
+</pre>
+</div>
+</div>
+
 
 <h2 onclick="show('exportData')" >exportData(exportDataCb)<span><a class="mark" href="#test_exportData" id="test_exportData" onclick="test_exportData(exportDataCb)">test</a></span></h2>
 <div id="exportData" style="display:none;">
@@ -101,8 +144,8 @@
   }
   function test_exportData(exportDataCb){
     WDC.requireAPI(['data'], function(data){
-      var exportPath = "/home/xwh/.custardBac";
-      data.exportData(exportPath);
+       var exportPath = "/home/xwh/backup/111";
+        data.exportData(exportDataCb, exportPath);
     });
   }
 </pre>
@@ -132,8 +175,8 @@
   }
   function test_importData(importDataCb){
     WDC.requireAPI(['data'], function(data){
-        var importPath = "/home/xwh/.custardBac/1";
-        data.importData(importDataCb, importPath);
+        var sTarFilePath = "/home/xwh/.custardBac/edition/backup_rio.tar.gz";
+        data.importData(importDataCb, sTarFilePath);
     });
   }
 </pre>
