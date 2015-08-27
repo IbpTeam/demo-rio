@@ -87,14 +87,30 @@ var UsrInfoView = Class.extend({
       'text': 'Erase'
       // 'color' : #FF0000
     });
+    var refreshWindow = function() {
+      var _window = undefined;
+      if (window == top) {
+        var hrefLocal = window.location.href;
+        hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
+        hrefLocal = hrefLocal + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+        location.replace(hrefLocal);
+      } else {
+        try {
+          _window = parent._global._openingWindows.getCOMById('datamgr-app-window');
+          var _dataMgrIfm = _window._windowContent[0];
+          _dataMgrIfm.src = _dataMgrIfm.src.substr(0, _dataMgrIfm.src.indexOf("main") + 4) + "?id=" + WDC.AppID + "&{category:'" + infoList.getCategoryName(infoList._index) + "'}";
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      return;
+    }
     _eraseButton.on('click',function(){
       DataAPI.clearAllData(function (err, result) {
         if (err) {
           throw err;
         }
-        // document.body.style.cursor = "default";
-        // _modalBoxObj.forbidClose(false);
-        // _this._isLoadedResources = true;
+        refreshWindow();
       });
     });
     _backupButton.on('click',function() {
