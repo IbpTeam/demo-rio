@@ -163,6 +163,8 @@ var InfoList = Class.extend({
         return 'music';
       case 5:
         return 'other';
+      default:
+        return null;
     }
   },
 

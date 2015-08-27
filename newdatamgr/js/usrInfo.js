@@ -87,15 +87,15 @@ var UsrInfoView = Class.extend({
       'text': 'Erase'
       // 'color' : #FF0000
     });
-    _eraseButton.on('click',function(){
-      DataAPI.clearAllData(function (err, result) {
-        if (err) {
-          throw err;
-        }
-        // document.body.style.cursor = "default";
-        // _modalBoxObj.forbidClose(false);
-        // _this._isLoadedResources = true;
-      });
+    _eraseButton.on('click', function() {
+      if (confirm("Do you really want to Erase entire Data?[Tips: Back Up First!]")) {
+        DataAPI.clearAllData(function(err, result) {
+          if (err) {
+            throw err;
+          }
+          refreshWindow(null);
+        });
+      } else {}
     });
     _backupButton.on('click',function() {
       document.getElementById('buttonOne').innerText = "Import";
