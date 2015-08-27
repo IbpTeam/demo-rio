@@ -140,7 +140,7 @@ var main = function(params_) {
         var hrefLocal = window.location.href;
         hrefLocal = hrefLocal.substr(0, hrefLocal.indexOf("html") + 4);
         if (uri === null) {
-          hrefLocal = hrefLocal + "?id=" + WDC.AppID + category + "'}";
+          hrefLocal = hrefLocal + "?id=" + WDC.AppID + categoryStr + "'}";
         } else {
           hrefLocal = hrefLocal + "?id=" + WDC.AppID + categoryStr + "'}&{uri:" + uri + "}";
         }
