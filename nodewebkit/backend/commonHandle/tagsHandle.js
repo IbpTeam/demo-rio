@@ -505,9 +505,77 @@ function computeClusterForATagKmeans(tag, k, kSeedsTags) {
  *   get cluster result for all tags using kmeans algorithm
  */
 function getAllTagsByCategoryClusteringKmeans(category, k) {
-  return getAllTagsByCategory(category)
-    .then(function(oTags) {
-      return tagsClusterKmeans(oTags, k);
+  //***Keep Follow Code***//
+  // return getAllTagsByCategory(category)
+  //   .then(function(oTags) {
+  //     return tagsClusterKmeans(oTags, k);
+  //   });
+  //***Keep Above Code***//
+  return createTagsDataInMemory(category)
+    .then(function(tagData) {
+      var length = 0;
+      var oTags = [];
+      var tagCount = {};
+      for (var tag in tagData) {
+        length++;
+        oTags.push(tag);
+        tagCount[tag] = tagData[tag].length;
+      }
+      if (length < k) {
+        k = length;
+      }
+      var kSeeds = generateRandom(k, 0, length - 1);
+      var kSeedsTags = [];
+      kClusters = {};
+      for (var i = 0; i < k; i++) {
+        kSeedsTags.push(oTags[kSeeds[i]]);
+        kClusters[ oTags[kSeeds[i]] ]= new Array();
+        kClusters[ oTags[kSeeds[i]] ].push([ oTags[kSeeds[i]], tagCount[ oTags[kSeeds[i] ] ] ] );
+        oTags[kSeeds[i]] = null;
+      }
+      var indexTagPairs = [];
+      var similarTagforSeeds = {}; // {tag: dis1, dis2,..., disk}
+      for (var i = 0; i < oTags.length; i++) {
+        if (oTags[i] === null) {
+          continue;
+        }
+        var maxSimilar = 0;
+        var clusterIndex = kSeedsTags[0];
+        for(var j=0; j<k; j++){
+          var interNum = 0;
+          var unionNum = 0;
+          var tag = oTags[i];
+          var seedTag = kSeedsTags[j];
+          for(var m=0; m<tagData[tag].length; m++){
+            for(var n=0; n<tagData[seedTag].length; n++){
+              if(tagData[tag][m] === tagData[seedTag][n]){
+                interNum ++;
+                unionNum ++;
+              }
+              else{
+                unionNum += 2;
+              }
+            }
+          }
+          var similar = interNum/unionNum;
+          if(similarTagforSeeds.hasOwnProperty(tag)){
+            similarTagforSeeds[tag].push(similar);
+          }
+          else{
+            similarTagforSeeds[tag] = [similar];
+          }
+          if(similar > maxSimilar){
+            maxSimilar = similar;
+            clusterIndex = kSeedsTags[j];
+          }
+        }
+        if(maxSimilar < 0.01){
+          var tmpIndex = generateRandom(1, 0, k - 1);
+          clusterIndex = kSeedsTags[tmpIndex];
+        }
+        kClusters[clusterIndex].push([tag, tagCount[tag] ]);
+      }
+      return kClusters;
     });
 }
 exports.getAllTagsByCategoryClusteringKmeans = getAllTagsByCategoryClusteringKmeans;
@@ -615,13 +683,100 @@ function computeInterForATagIterate(oTags, tag, pairTagInterNum, tagIndexPairs) 
 }
 
 /**
+ * @method createTagsDataInMemory
+ *   create tag indexed data json
+ *
+ * @param category
+ *    string, category name
+ *
+ * @return tag data json
+ *    {
+ *       tag1: [uri1, uri2, ...],
+ *       tag2: [uri1, uri3, ...],
+ *       ... ...
+ *     }
+ */
+function createTagsDataInMemory(category){
+  return commonHandle.getAllDataByCate(category)
+    .then(function(results){
+      var tagData = {};
+      for(var i=0; i<results.length; i++){
+        var tags = results[i]['tags'];
+        for(var j=0; j<tags.length; j++){
+          if(tagData.hasOwnProperty(tags[j])){
+            tagData[tags[j]].push(results[i]['URI']);
+          }
+          else{
+            tagData[tags[j]] = [results[i]['URI']];
+          }
+        }
+      }
+      return tagData;
+    });
+}
+
+/**
  * @method getAllTagsByCategoryClusteringIter
  *   get cluster result for all tags using fast interate algorithm
  */
 function getAllTagsByCategoryClusteringIter(category, iter) {
-  return getAllTagsByCategory(category)
-    .then(function(oTags) {
-      return tagsClusterIterate(oTags, iter);
+  //***Keep Following Code***//
+  // return getAllTagsByCategory(category)
+  //   .then(function(oTags) {
+  //     return tagsClusterIterate(oTags, iter);
+  //   });
+  //***Keep Above Code****//
+  return createTagsDataInMemory(category)
+    .then(function(tagData) {
+      var tagIndex = {};//{tag: clusterIndex}
+      var tagMaxtag = {}; //{tag1: tag who has the max common data number with tag1}
+      var tagCount = {};
+      var i = 0;
+      for(var tag in tagData){
+        tagIndex[tag] = i;
+        i ++;
+        tagCount[tag] = tagData[tag].length;
+      }
+      for (var tag1 in tagData) {
+        var maxTag = null;
+        var maxNum = 0;
+        for(var tag2 in tagData){
+          if(tag2 === tag1 || tagData[tag1].length/tagData[tag2].length > 8 || tagData[tag2].length/tagData[tag1].length > 8){
+            continue;
+          }
+          var interNum = 0;
+          for(var i=0; i<tagData[tag1].length; i++){
+            for(var j=0; j<tagData[tag2].length; j++){
+              if(tagData[tag1][i] === tagData[tag2][j]){
+                interNum ++;
+              }
+            }
+            if(interNum > maxNum){
+              maxTag = tag2;
+              maxNum = interNum;
+            }
+          }
+        }
+        tagMaxtag[tag1] = maxTag;
+      }
+      for(var i=0; i<iter; i++){
+        for(var tag in tagData){
+          if(tagMaxtag[tag] !== null){
+            tagIndex[tag] = tagIndex[tagMaxtag[tag]];
+          }
+        }
+      }
+      var kClusters = {};
+      for(var tag in tagIndex){
+        var superTag = [tag, tagCount[tag]];
+        if(kClusters.hasOwnProperty(tagIndex[tag])){
+          kClusters[tagIndex[tag]].push(superTag);
+        }
+        else{
+          kClusters[tagIndex[tag]] = [superTag];
+        }
+      }
+      return kClusters;
     });
 }
 exports.getAllTagsByCategoryClusteringIter = getAllTagsByCategoryClusteringIter;
