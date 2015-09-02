@@ -279,7 +279,8 @@ var Basic = Class.extend({
     });
     var _addTagInput = $('<input>', {
       'id': 'new-tag',
-      'type': 'text'
+      'type': 'text',
+      'placeholder': "Separated by ',' "
     });
     _addTagForm.append(_addTagInput);
     var _addTagButton = $('<input>', {
@@ -290,20 +291,28 @@ var Basic = Class.extend({
     _addTagForm.append(_addTagButton);
     _this.genPopupDialog('Add Tag', _addTagForm);
     $('#add-tag-button').on('click', function() {
-      var _newTag = document.getElementById('new-tag').value;
+      var _tagsStr = document.getElementById('new-tag').value;
+      var _newTags = _tagsStr.split(',');
+      if(!_newTags || _newTags.length < 1){
+        window.alert("Add tags failed!");
+      }
       DataAPI.setTagByUri(function(err) {
         if (err) {
           window.alert("Add tags failed!");
         } else {
           if (category_ === 'contact') {
-            this_._tagView.addTag(_newTag);
+            for(var i=0; i<_newTags.length; i++){
+              this_._tagView.addTag(_newTags[i]);
+            }
             infoList.setContent();
           } else {
             try {
               basic._uri = uri_;
-              basic._tag = _newTag;
-              infoList.fixTagNum(_newTag, 1);
-              _this._tagDragged.addPreTag(_newTag);
+              for(var i=0; i<_newTags.length; i++){
+                 basic._tag = _newTags[_newTags[i]];
+                infoList.fixTagNum(_newTags[i], 1);
+                _this._tagDragged.addPreTag(_newTags[i]);
+              }
             } catch (e) {
               console.log(e);
             }
@@ -313,7 +322,7 @@ var Basic = Class.extend({
         if(typeof(addTagViewCb) === 'function'){
           addTagViewCb();
         }
-      }, [_newTag], uri_);
+      }, _newTags, uri_);
     });
   },
   //显示删除标签界面
