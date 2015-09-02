@@ -706,7 +706,7 @@ function getAllTagsByCategory(getAllTagsByCategoryCb, category) {
   ////////////////////////////////////////////////////////////////////////////
   //Start: test for iterate cluster algorithm
   ////////////////////////////////////////////////////////////////////////////
-  // tagsHandle.getAllTagsByCategoryClusteringIter(category, 10)
+  // tagsHandle.getAllTagsByCategoryClusteringIter(category, 5)
   //   .then(function(results) {
   //     console.log("iterate results: ", results);
   //     getAllTagsByCategoryCb(null, results);
