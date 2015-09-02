@@ -296,6 +296,9 @@ var Basic = Class.extend({
       if(!_newTags || _newTags.length < 1){
         window.alert("Add tags failed!");
       }
+      for(var i=0; i<_newTags.length; i++){
+        _newTags[i] = _newTags[i].replace(/(^\s*)|(\s*$)/g, ""); 
+      }
       DataAPI.setTagByUri(function(err) {
         if (err) {
           window.alert("Add tags failed!");
@@ -307,8 +310,8 @@ var Basic = Class.extend({
             infoList.setContent();
           } else {
             try {
-              basic._uri = uri_;
               for(var i=0; i<_newTags.length; i++){
+                basic._uri = uri_;
                  basic._tag = _newTags[_newTags[i]];
                 infoList.fixTagNum(_newTags[i], 1);
                 _this._tagDragged.addPreTag(_newTags[i]);
